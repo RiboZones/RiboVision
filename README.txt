@@ -4,4 +4,4 @@ to avoid corrupting the repository.
 
 Visit http://subversion.tigris.org/ for more information.
 
-APROVE
+APROVE and CHANGE
