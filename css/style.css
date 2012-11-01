@@ -1,0 +1,314 @@
+#RLogo{
+	height:100%;
+}
+
+#NLogo{
+	height:100%;
+
+}
+#tabs{
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+}
+
+#topMenu{
+	position:absolute;
+	top:0%;
+	left:16%;
+	height:12%;
+	width:84%;
+	overflow:auto;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+}
+
+#currentDiv{
+	width:auto;
+}
+
+#selectDiv{
+	width:auto;
+}
+
+#menu{
+	width: inherit;
+	position:absolute;
+	top:0px;
+	left:0px;
+	height:86%;	
+	min-width: inherit;
+	overflow: hidden;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+}
+
+#LogoDiv{
+	position : absolute;
+	left : 0px;
+	width : 16%;
+	height : 14%;
+	bottom : 0px;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+}
+
+#L1{
+	position:absolute;
+	width:62%;
+	height:100%;
+}
+
+#L2{
+	position:absolute;
+	width:37%;
+	height:100%;
+	left: 63%;
+}
+
+#SiteInfo{
+	position:absolute;
+	height: 15%;
+	top:0px;
+	left:0px;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+	overflow: hidden;
+}
+
+#NavDiv{
+	position:absolute;
+	height: 10%;
+	width: 100%;
+	top:10%;
+	left:0px;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+	overflow: hidden;
+}
+
+	
+#buttonmode{
+	padding-left: 1em;
+}
+
+#MainMenu{
+	position:absolute;
+	left:-2px;
+	height:75%;	
+	width: 100%;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+}
+
+#SideBarAccordian{
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+}
+
+#SpeciesDiv{
+}
+
+#SelectionDiv{
+}
+
+#ColorDiv{
+}
+
+#StructDataDiv{
+} 
+
+#ProtDiv{
+} 
+
+#AlnDiv{
+}
+
+#InteractDataDiv{
+}
+
+#FileDiv{
+}
+
+#saveDiv{
+}
+
+#infoP{
+	font-size: .9em;
+	margin: 0px;
+	padding: 0.2em;
+	padding-left: 1em;
+	font-family: Lucida Grande, Lucida Sans, Arial, sans-serif;
+}
+
+#canvasDiv{
+	position:absolute;
+	top:12%;
+	left:16%;
+	height:88%;
+	width:42%;
+	background:#FFFFFF;
+	border-style:solid;
+	border-width:1px;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+}
+
+#navigator{
+	position:absolute;
+	top:8%;
+	left:16%;
+	height:auto;
+	width:65px;
+}
+
+canvas{
+	position:absolute;
+	top:0px;
+	left:0px;
+	background:transparent;
+}
+
+#jmolApplet0{
+	position:absolute;
+}
+
+#jmolDiv{
+	position:absolute;
+	top:12%;
+	left:58%;
+	width:42%;
+	height:88%;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+	border-style:solid;
+	border-width:1px;
+	background:transparent;
+}
+
+#sideBar {
+	height: 100%;
+	width: 15%;
+	min-width: 140px;
+}
+
+.ui-textfield {
+    font: inherit;
+    color: inherit;
+    text-align: inherit;
+    outline: none;
+}
+
+html{
+	overflow: hidden;
+	width: 100%;
+	height: 100%;
+	margin: 0px; 
+	padding: 0px;
+}
+
+body{
+	font-family:Arial, Helvetica, sans-serif;
+	width: 100%;
+	height: 100%;
+	margin: 0px; 
+	padding: 0px;
+}
+
+#slider {
+	height: 200px;
+	width: 12px;
+	margin-left: 23px;
+	margin-top: 14px;
+	float:left;
+}
+
+#SecretDiv {
+	width:auto;
+}
+
+.compass {
+	margin: 0px; 	
+	float: left;
+	width: 20px;
+	height: auto;
+}
+
+#compassImgs {
+	width: 60px;
+	height: auto;
+}
+
+/* IE has layout issues when sorting (see #5413) */
+.group { 
+	zoom: 1;
+	margin-bottom:6px;	
+}
+
+#LayerDialog {
+	padding: 0.5em 0.5em;
+	box-sizing:border-box;
+}
+
+#ColorDialog {
+	padding: 0.5em 0.5em;
+	box-sizing:border-box;
+}
+
+#LayerPanel {
+	margin-bottom: 6px;
+}
+
+.layerName {
+	height:1.5em;
+	line-height: 1.2em;
+	font-size: 1.2em;
+}
+
+.layerVisiblity {
+	left:3px;
+}
+.layerContent {
+	padding:0em 0.8em;
+}
+
+#toolBar {
+	position:absolute;
+	left:98%;	
+	top:12%;
+	width:2%;
+	height:88%;
+	padding-top:4px;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+	border-style:solid;
+	border-color:#DDDDDD;
+	border-width:1px;
+}
+
+.toolBarBtn{
+	position:absolute;
+	margin-right:10%;
+	margin-left:8%;
+	width:82%;
+	height:4%;
+	margin-bottom:4px;
+}
+
+.toolBarBtn2{
+	position:absolute;
+	padding: 0em;
+	margin: 0em;
+	width:82%;
+	height:50%;
+}

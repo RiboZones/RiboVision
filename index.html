@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">                                                                 
+<head>
+<title>RiboVision: a RiboZone product. Brought to you by RiboEvo @ Georgia Institute of Technology.</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script type="text/javascript">
+	if(typeof jQuery === 'undefined') {
+		document.write(unescape('%3Cscript type="text/javascript" src="js/jquery-1.8.2.min.js" %3E%3C/script%3E'));
+		document.write(unescape('%3Cscript type="text/javascript" src="js/jquery-ui-1.9.0.custom.min.js" %3E%3C/script%3E'));
+	}
+</script>
+<script type="text/javascript" src="//code.jquery.com/ui/1.9.0/jquery-ui.min.js"></script>
+<script type="text/javascript" src="js/jquery.multiselect.min.js"></script>
+<script type="text/javascript" src="js/jquery.multiselect.filter.js"></script>
+<script type="text/javascript" src="js/jquery.mousewheel.min.js"></script>
+<script type="text/javascript" src="js/jquery.csv-0.65pre.js"></script>
+<script type="text/javascript" src="js/farbtastic/farbtastic.js"></script>
+<script type="text/javascript" src="jmol/Jmol.js"></script> 
+<script type="text/javascript" src="js/Ribovision.js"></script>
+<script type="text/javascript" src="js/iosmenu.js"></script>
+
+<!--<script src="//cdnjs.cloudflare.com/ajax/libs/ocanvas/2.2.1/ocanvas.min.js"></script>//-->
+
+
+<link rel="stylesheet" type="text/css" href="css/style.css"/>
+<link rel="stylesheet" type="text/css" href="css/jquery-ui-1.9.0.custom.css"/>
+<link rel="stylesheet" type="text/css" href="css/jquery.multiselect.css"/>
+<link rel="stylesheet" type="text/css" href="css/jquery.multiselect.filter.css"/>
+<link rel="stylesheet" type="text/css" href="css/farbtastic.css"/>
+<link rel="stylesheet" type="text/css" href="css/iosmenu.css"/>
+
+
+</head>                                                                 
+<body>   
+	<div id="menu" class="ui-widget-content">
+		
+		<div id="SiteInfo" class="ui-widget-content">
+			<h3 class="ui-widget-header" style="padding:3px; padding-left:10px; background-image:url(images/ui-bg_glass_50_3baae3_1x400.png); font-size:16px;"><a href="./ChangeLog.txt" target="_blank" style="color:#FFF">RiboVision: Version 0.44</a> </h3>	
+				<p id="infoP" >RiboVision is in the RiboZone family of products, brought to you by RiboEvo at Georgia Tech.</p>
+		</div>
+		
+		<div id="NavDiv" class="ui-widget-content">
+			<h3 class="ui-widget-header" style="padding:3px; padding-left:10px; background-image:url(images/ui-bg_glass_50_3baae3_1x400.png); font-size:16px; color:#FFF">Control (temp)</h3>
+			<!--
+			<span id="NavToolbar" class="ui-widget-header ui-corner-all">
+				<button id="goleft" onclick="JavaScript:pan(-20,0)"> Left </button>
+				<button id="goright" onclick="JavaScript:pan(20,0)"> Right </button>
+				<button id="goup" onclick="JavaScript:pan(0,-20)"> Up </button>
+				<button id="godown" onclick="JavaScript:pan(0,20)"> Down </button>
+				<button id="goin" onclick="JavaScript:zoom(residueLayer.width/2,residueLayer.height/2,1.1)"> In </button>
+				<button id="goout" onclick="JavaScript:zoom(residueLayer.width/2,residueLayer.height/2,0.9)"> Out </button>
+				<button id="goreset" onclick="JavaScript:resetView()"> Reset </button>
+			</span>
+			//-->
+			<div id="buttonmode">
+				One Button Mode: <br>
+					<input id="moveMode"  type="radio" name="mode" value="move" onclick="modeSelect('move')" > <label for="moveMode">Move</label>
+					<input id="selectMode" type="radio" name="mode" value="select" onclick="modeSelect('select')" > <label for="selectMode">Select</label>
+					<input id="colorMode" type="radio" name="mode" value="color" onclick="modeSelect('color')"> <label for="colorMode">Color</label>
+			</div>
+		</div>	
+		
+		<div id="MainMenu" class="ui-widget-content">
+
+			<div id="SideBarAccordian">
+				<h3><a href="#">Molecule Selection</a></h3>
+					<div id="SpeciesDiv">
+						Species & Subunit Selection:<br>
+						
+						<ul id="speciesList">
+							<li class="ui-menu-item ios-menu-back-link" role="presentation">
+								<a href="#None" class="ui-corner-role" tabindex="-1" role="menuitem" aria-haspopup="true" >No Molecule</a>
+							</li>
+						</ul>
+						<!--
+						<br>
+						<select  id="speciesList" multiple="multiple" onchange="JavaScript:loadSpecies();">
+							<option value="None">None</option>
+						</select>
+						
+						<br><br>
+						<input id="oCanvasDemo" name="oCanvasDemo" type="button" onclick="Javascript:oCanvasDemo()" value="oCanvasDemo" />
+						//-->
+									
+
+						
+					</div>
+					
+				<h3><a href="#">Residue Selection</a></h3>
+					<div id ="SelectionDiv">
+						Selection Options:<br>
+						<input id="commandline" type="text"  onkeydown="if (event.keyCode == 13) document.getElementById('commandSelect').click();"/><br>
+						<input id="commandSelect" name="selebutton" type="button" onclick="JavaScript:commandSelect();" value="Apply Selection 2D"/>
+						<input id="select3d" name="selebutton" type="button" onclick="JavaScript:commandSelect();updateModel();" value="Apply Selection 3D"/>
+						<input id="saveSelection" name="saveSelection" type="button" value="Save Selection"/>
+						<input id="clearselection" name="selebutton" type="button" onclick="JavaScript:clearSelection();" value="Clear Selection"/>
+						<br><br>
+						Select Residues by Domain and/or Helix:<br>
+						<select id="selectByDomainHelix" name="SelectByDomainHelix" multiple="multiple"></select>
+						<br>
+						Saved Selections:<br>
+						<select id="savedSelections" name="savedSelections" multiple="multiple"></select>
+						
+					</div>
+					
+                <!--
+				<h3><a href="#">Residue Coloring</a></h3>
+					<div id="ColorDiv">
+						Color Options: <br>			
+						<input id="color" type="text" name="color" value="#940B06" /> <br>
+						 <div id="colorpicker"></div>
+						<input id="clearColor" type="button" name="clearColor" onclick="Javascript:clearColor(true)" value="Clear Color" />
+						<input id="colorSelection" type="button" onclick="Javascript:colorSelection()" value="Color Selection" />
+					</div>			
+				-->
+                	
+				<h3><a href="#">Structure Data</a></h3>
+					<div id="StructDataDiv">
+						Structure Data: <br>
+						<select id="StructDataList" multiple="multiple" onchange="JavaScript:updateStructData(value);">
+							<option value="clear_data" >None</option>
+						</select>		
+					</div>
+				
+				<h3><a href="#">Alignment Data</a></h3>
+					<div id="AlnDiv">
+						Alignment Data: <br>     
+						<select id="alnList" multiple="multiple" onchange="JavaScript:colorMapping(id);">
+							<option value="clear_data" >None</option>
+						</select>
+					</div>
+				<h3><a href="#">Protein Data</a></h3>
+					<div id="ProtDiv">
+						Protein Data:  <br>
+						<select id="ProtList" multiple="multiple" >
+						</select>
+					</div>
+				<h3><a href="#">Interaction Data</a></h3>
+					<div id="InteractDataDiv">
+						Interaction Data: <br>
+						<select id="BasePairList" multiple="multiple" onchange="JavaScript:refreshBasePairs(value);">
+							<option value="clear_lines" >None</option>
+						</select>	
+						
+						<!--
+						<div id="colorLinesMode">
+						Color Lines: <br>
+							<input id="Gray"  type="radio" name="color_lines" value="Gray" checked="checked"> <label for="Gray">Gray</label>
+							<input id="Linked" type="radio" name="color_lines" value="Linked" > <label for="Linked">Linked</label>
+							<input id="Unlinked1" type="radio" name="color_lines" value="Unlinked1" > <label for="Unlinked1">Unlinked1</label>
+						</div>
+						<br>
+						
+						<div id="colorLinesGradientMode">
+						Color Lines Gradient: <br>
+							<input id="Matched" type="radio" name="color_lines_gradient" value="Matched" checked="checked"> <label for="Matched">Matched</label>
+							<input id="Opposite" type="radio" name="color_lines_gradient" value="Opposite" > <label for="Opposite">Opposite</label>
+						</div>
+						<br>
+						//-->
+					</div>	
+				
+				<h3><a href="#">Custom Data</a></h3>
+					<div id="FileDiv">
+						<a id="TemplateLink" href="#" target="_blank">Download Data Template</a> <br>
+						Load Data Template:
+						<input type="file" id="files" name="files[]" accept="text/csv"/>
+						<output id="list"></output>
+					</div>
+					
+					<h3><a href="#">Export Data</a></h3>
+						<div id="saveDiv">
+							Save As:<br>
+								<input name="saveas" type="button" onclick="JavaScript:savePDF();" value="PDF"/>
+								<input name="saveas" type="button" onclick="JavaScript:saveSVG();" value="SVG"/>
+								<input name="saveas" type="button" onclick="JavaScript:savePML();" value="PML"/>
+						</div>
+					
+			</div>
+		</div>	
+	</div>
+	
+	<div id ="LogoDiv" class="ui-widget-content">
+			<div id="L1">
+				<img src="images/RiboEvoLogoSmallTrans.png" id="RLogo" title="The answer is 42." alt="RiboEvo Logo" onmouseout="JavaScript:secretBox('riboevo',clickedNASA);" />	
+			</div>
+			<div id="L2">
+				<img src="images/NASALogoTrans.png" id="NLogo" title="Rockets?? We don't need no stinkin' rockets." alt="NASA Logo" onclick="JavaScript:secretBox('nasa');" />
+			</div>
+	</div>	
+	
+	<div id="navigator" style="z-index:8; width:65px">	
+		<div id="compassImgs">
+			<img class="compass" src="images/compass/navigator1_01.png" onclick="JavaScript:resetView()"/>
+			<img title="Pan up" class="compass" src="images/compass/navigator1_02.png" onclick="JavaScript:pan(0,-20)"/>
+			<img class="compass" src="images/compass/navigator1_03.png" onclick="JavaScript:resetView()"/>
+			<img title="Pan left" class="compass" src="images/compass/navigator1_04.png" onclick="JavaScript:pan(-20,0)"/>
+			<img title="Return to center" class="compass" src="images/compass/navigator1_05.png" onclick="JavaScript:resetView()"/>
+			<img title="Pan right" class="compass" src="images/compass/navigator1_06.png" onclick="JavaScript:pan(20,0)"/>
+			<img class="compass" src="images/compass/navigator1_07.png" onclick="JavaScript:resetView()"/>
+			<img title="Pan down" class="compass" src="images/compass/navigator1_08.png" onclick="JavaScript:pan(0,20)"/>
+			<img class="compass" src="images/compass/navigator1_09.png" onclick="JavaScript:resetView()"/>	
+		</div>
+		<div id="slider"></div>	
+	</div>
+	
+	<div id="canvasDiv" oncontextmenu="return false" class="ui-widget-content">
+		<canvas id="LabelLayer" style="z-index:2;">Get a Better Browser Dummy!</canvas>
+		<canvas id="highlightLayer" style="z-index:7;"></canvas>
+		<canvas id="SelectedLayer" style="z-index:6;"></canvas>
+		<canvas id="MainLineLayer" style="z-index:1;"></canvas>
+		<canvas id="LinkedCircleLayer" style="z-index:4;"></canvas>
+		<canvas id="ResidueLayer" style="z-index:3;"></canvas>
+		<canvas id="DataLayer1" style="z-index:5;"></canvas>
+		<canvas id="ContourLayer" style="z-index:0;"></canvas>
+		<!--<canvas id="oCanvas2" width="800" height="600" style="z-index:8;"></canvas>//-->
+	</div>
+	
+	<div id="topMenu" class="ui-widget-content">
+		<div id="tabs">
+			<ul>
+				<li><a href="#currentDiv">Live Info</a></li>
+				<li><a href="#selectDiv">Current Selection</a></li>
+				<li><a href="#SecretDiv">The Secret</a></li>
+			</ul>
+			<div id="currentDiv">
+			</div>
+			<div id="selectDiv">
+			</div>
+			<div id="SecretDiv">
+				42
+			</div>
+		</div>
+	</div>
+	
+	<div id="Privacy-confirm" title="Privacy Policy">
+		<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Replace Me Text.</p>
+	</div>
+	
+	<div id="User-Name-Request" title="Please Enter a Name">
+		<p><span class="ui-icon ui-icon-help" style="float:left; margin:0 7px 20px 0;"></span>Please type a name for the variable you are saving.</p>
+		<input id="UserNameField" name="UserNameField" type="text"/>
+
+	</div>
+		
+	<div id="jmolDiv" class="ui-widget-content">
+		<script type='text/javascript'>jmolApplet([100,100], "script states/blank_state.spt");</script>
+	</div>	
+	
+	<div id="toolBar">
+		<button id="openLayerBtn" class="toolBarBtn" title="Open Layer Manager"></button><br/>        
+        <button id="openColorBtn" class="toolBarBtn" title="Open Color Picker"></button><br/>
+    	<button id="open3rdBtn" class="toolBarBtn" title="Activate Enhanced Selection Mode"></button><br/>        
+        <button id="open4thBtn" class="toolBarBtn" title="4th Btn: no function assigned yet"></button><br/>    
+    </div>
+    
+	<!--
+		<iframe id="#ExtraIframe" src="Extra.html" frameborder="0" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; z-index: 99"></iframe>
+
+		<iframe id="MenuIframe" src="Extra.html" style="position:absolute;top:200px;left:400px;height:700px;width:500px;z-index:99"></iframe>
+
+	<div id="LayerDialog" title="Layer / Selection Panel">
+
+	</div>//-->
+	
+    <!--Layer Control Dialog Box-->
+	<div id="LayerDialog" title="Layer / Selection Panel">
+		<div id="PanelTabs">
+			<ul>
+				<li><a href="#LayerPanel">Layers</a></li>
+				<li><a href="#SelectionsPanel">Selections</a></li>
+			</ul>
+			
+			<div id="LayerPanel">
+				<!--
+				<div class="group">
+					<h3 class="layerName">Layer 1</h3>
+					<div class="layerContent">               
+						<input type="checkbox" checked="true" style="margin-right:0.6em">visible</input>
+					</div>
+				</div>
+				//-->
+			</div>
+			
+			<div id="SelectionsPanel">
+			42
+			</div>
+		</div>
+	</div>
+    
+    <!--Layer Control Dialog Box-->
+	<div id="ColorDialog" title="Residue Coloring">    	
+		<div id="ColorDiv">
+			Color Options: <br>			
+			<input id="color" type="text" name="color" value="#940B06" /> <br>
+			 <div id="colorpicker"></div>
+			<input id="clearColor" type="button" name="clearColor" onclick="Javascript:clearColor(true)" value="Clear Color" />
+			<input id="colorSelection" type="button" onclick="Javascript:colorSelection()" value="Color Selection" />
+		</div>	
+    </div>
+	
+	<div id="dialog-confirm-delete" title="Delete the currently selected layer?">
+		<p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>Replace Me Text.</p>
+	</div>
+	<div id="dialog-selection-warning" title="No layers are currently selected!">
+		<p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>Replace Me Text.</p>
+	</div>
+ </body>                                                         
+ </html>
