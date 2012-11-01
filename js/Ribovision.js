@@ -64,6 +64,41 @@ var oCanvas1, oCanvas2, Lines;
 
 
 /////////////////////////// Classes ///////////////////////////////////////////
+function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type) {
+	//Properties
+	this.LayerName = LayerName;
+	this.CanvasName = CanvasName;
+	this.Canvas = document.getElementById(CanvasName);
+	this.CanvasContext = this.Canvas.getContext("2d");
+	this.Data = Data;
+	this.dataLayerColors = [];
+	this.Filled = Filled;
+	this.ScaleFactor = ScaleFactor;
+	this.LinearGradients = [];
+	this.Type = Type;
+	this.zIndex = this.Canvas.style.zIndex;
+	this.Visible = true;
+	this.Selected = false;
+	this.ColorLayer = [];
+	this.ColorGradientMode = [];
+	if (this.Type === "lines") {
+		this.ColorLayer = "gray_lines";
+		this.ColorGradientMode = "Matched";
+	}
+	//Methods
+	this.clearCanvas = function () {
+		this.CanvasContext.setTransform(1, 0, 0, 1, 0, 0);
+		this.CanvasContext.clearRect(0, 0, ResidueLayer.width, ResidueLayer.height);
+		this.CanvasContext.setTransform(rvViews[0].scale, 0, 0, rvViews[0].scale, rvViews[0].x, rvViews[0].y);
+	};
+	this.addLinearGradient = function (LinearGradient) {
+		this.LinearGradients.push(LinearGradient);
+	};
+	this.deleteLayer = function () {
+		$(this.Canvas).remove();
+	};
+}
+
 function rvDataSet(DataSetName) {
 	//Properties
 	this.Name = DataSetName;
@@ -85,7 +120,7 @@ function rvDataSet(DataSetName) {
 		this.LastLayer = this.Layers.length - 1;
 	};
 	this.addLayer = function (LayerName, CanvasName, Data, Filled, ScaleFactor, Type) {
-		var b = new rvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type);
+		var b = new RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type);
 		this.Layers[b.zIndex] = b;
 		this.LastLayer = this.Layers.length - 1;
 	};
@@ -310,14 +345,14 @@ function rvDataSet(DataSetName) {
 	};
 	// Private functions, kinda
 	function makeResidueList(rvResidues) {
-		var ResidueListLocal = [];
-		for (var j = 0; j < rvResidues.length; j++) {
+		var ResidueListLocal = [], j;
+		for (j = 0; j < rvResidues.length; j++) {
 			ResidueListLocal[j] = rvResidues[j].ChainID + "_" + rvResidues[j].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
 		}
 		return ResidueListLocal;
-	};
+	}
 	function refreshLayer(targetLayer) {
-		if (rvDataSets[0].Residues != undefined) {
+		if (rvDataSets[0].Residues !== undefined) {
 			for (var i = rvDataSets[0].Residues.length - 1; i >= 0; i--) {
 				if (targetLayer.dataLayerColors[i] != '#000000' && targetLayer.dataLayerColors[i] != undefined && targetLayer.dataLayerColors[i] != '#858585') {
 					targetLayer.CanvasContext.beginPath();
@@ -332,13 +367,13 @@ function rvDataSet(DataSetName) {
 				}
 			}
 		}
-	};
+	}
 	function clearData(targetLayer) {
 		targetLayer.dataLayerColors = new Array;
 		for (var jj = 0; jj < rvDataSets[0].Residues.length; jj++) {
 			targetLayer.dataLayerColors[jj] = undefined;
 		}
-	};
+	}
 	function drawLabels(targetLayer) {
 		targetLayer.CanvasContext.textAlign = 'left';
 		
@@ -361,75 +396,26 @@ function rvDataSet(DataSetName) {
 				targetLayer.CanvasContext.stroke();
 			}
 		}
-	};
+	}
 	function drawResidues(targetLayer) {
-		//rvDataSets[0].clearCanvas("residues");
-		//rvDataSets[0].clearCanvas("selected");
-		//rvDataSets[0].clearCanvas("circles");
 		targetLayer.clearCanvas();
-		
 		if (rvDataSets[0].Residues.length > 0) {
-			
 			targetLayer.CanvasContext.strokeStyle = "#000000";
 			targetLayer.CanvasContext.font = "3pt Arial";
 			targetLayer.CanvasContext.textBaseline = "middle";
 			targetLayer.CanvasContext.textAlign = "center";
-			
 			for (var i = rvDataSets[0].Residues.length - 1; i >= 0; i--) {
 				targetLayer.CanvasContext.fillStyle = (rvDataSets[0].Residues[i].color || "#000000");
 				targetLayer.CanvasContext.fillText(rvDataSets[0].Residues[i].resName, rvDataSets[0].Residues[i].X, rvDataSets[0].Residues[i].Y);
-				/*
-				if (rvDataSets[0].Residues[i].color != '#000000' && rvDataSets[0].Residues[i].color!=undefined && rvDataSets[0].Residues[i].color != '#858585'){
-				rvDataSets[0].Layers["LinkedCircleLayer"].CanvasContext.beginPath();
-				rvDataSets[0].Layers["LinkedCircleLayer"].CanvasContext.arc(rvDataSets[0].Residues[i].X, rvDataSets[0].Residues[i].Y, (rvDataSets[0].Layers["LinkedCircleLayer"].ScaleFactor * 1.7), 0, 2*Math.PI, false);
-				rvDataSets[0].Layers["LinkedCircleLayer"].CanvasContext.closePath();
-				rvDataSets[0].Layers["LinkedCircleLayer"].CanvasContext.strokeStyle = rvDataSets[0].Residues[i].color;
-				rvDataSets[0].Layers["LinkedCircleLayer"].CanvasContext.stroke();
-				if (rvDataSets[0].Layers["LinkedCircleLayer"].Filled){
-				rvDataSets[0].Layers["LinkedCircleLayer"].CanvasContext.fillStyle = rvDataSets[0].Residues[i].color;
-				rvDataSets[0].Layers["LinkedCircleLayer"].CanvasContext.fill();
-				}
-				}
-				
-				if(rvDataSets[0].Residues[i].selected){
-				rvDataSets[0].Layers["SelectedLayer"].CanvasContext.beginPath();
-				rvDataSets[0].Layers["SelectedLayer"].CanvasContext.arc(rvDataSets[0].Residues[i].X, rvDataSets[0].Residues[i].Y, (rvDataSets[0].Layers["SelectedLayer"].ScaleFactor * 1.7), 0, 2*Math.PI, false);
-				rvDataSets[0].Layers["SelectedLayer"].CanvasContext.closePath();
-				rvDataSets[0].Layers["SelectedLayer"].CanvasContext.strokeStyle = "#940B06";
-				rvDataSets[0].Layers["SelectedLayer"].CanvasContext.lineWidth=0.5;
-				rvDataSets[0].Layers["SelectedLayer"].CanvasContext.stroke();
-				}*/
 			}
-			/*
-			var interactionchoice = $('#BasePairList').val();
-			var p=interactionchoice[0].indexOf("_NPN");
-			if (p > 0){
-			drawBasePairs();
-			} else {
-			drawBasePairs();
-			}*/
-			
 		} else {
 			welcomeScreen();
 		}
-	};
+	}
 	function drawSelection(targetLayer) {
 		targetLayer.clearCanvas();
 		if (rvDataSets[0].Residues.length > 0) {
 			for (var i = rvDataSets[0].Residues.length - 1; i >= 0; i--) {
-				/*
-				if (rvDataSets[0].Residues[i].color != '#000000' && rvDataSets[0].Residues[i].color!=undefined && rvDataSets[0].Residues[i].color != '#858585'){
-				rvDataSets[0].Layers["LinkedCircleLayer"].CanvasContext.beginPath();
-				rvDataSets[0].Layers["LinkedCircleLayer"].CanvasContext.arc(rvDataSets[0].Residues[i].X, rvDataSets[0].Residues[i].Y, (rvDataSets[0].Layers["LinkedCircleLayer"].ScaleFactor * 1.7), 0, 2*Math.PI, false);
-				rvDataSets[0].Layers["LinkedCircleLayer"].CanvasContext.closePath();
-				rvDataSets[0].Layers["LinkedCircleLayer"].CanvasContext.strokeStyle = rvDataSets[0].Residues[i].color;
-				rvDataSets[0].Layers["LinkedCircleLayer"].CanvasContext.stroke();
-				if (rvDataSets[0].Layers["LinkedCircleLayer"].Filled){
-				rvDataSets[0].Layers["LinkedCircleLayer"].CanvasContext.fillStyle = rvDataSets[0].Residues[i].color;
-				rvDataSets[0].Layers["LinkedCircleLayer"].CanvasContext.fill();
-				}
-				}
-				 */
 				if (rvDataSets[0].Residues[i].selected) {
 					targetLayer.CanvasContext.beginPath();
 					targetLayer.CanvasContext.arc(rvDataSets[0].Residues[i].X, rvDataSets[0].Residues[i].Y, (targetLayer.ScaleFactor * 1.7), 0, 2 * Math.PI, false);
@@ -439,17 +425,8 @@ function rvDataSet(DataSetName) {
 					targetLayer.CanvasContext.stroke();
 				}
 			}
-			/*
-			var interactionchoice = $('#BasePairList').val();
-			var p=interactionchoice[0].indexOf("_NPN");
-			if (p > 0){
-			drawBasePairs();
-			} else {
-			drawBasePairs();
-			}*/
-			
 		}
-	};
+	}
 	function drawDataCircles(targetLayer, dataIndices, ColorArray, noClear) {
 		if (!noClear) {
 			targetLayer.clearCanvas();
@@ -481,8 +458,6 @@ function rvDataSet(DataSetName) {
 			targetLayer.ColorLayer = colorLayer;
 		}
 		if (rvDataSets[0].BasePairs != undefined || rvDataSets[0].BasePairs == []) {
-			//var ColorMode = $('input[name=color_lines]:checked').val();'input[name="color_lines_gradient' + index + '"]'
-			//var ColorGradientMode = $('input[name="color_lines_gradient' + index + '"]' + ':checked').val();
 			if (targetLayer.ColorGradientMode == "Matched") {
 				var grd_order = [0, 1];
 			} else if (targetLayer.ColorGradientMode == "Opposite") {
@@ -523,47 +498,8 @@ function rvDataSet(DataSetName) {
 				targetLayer.CanvasContext.closePath();
 				targetLayer.CanvasContext.stroke();
 			}
-			//oCanvas.redraw();
 		}
-		
 	}
-	
-};
-function rvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type) {
-	//Properties
-	this.LayerName = LayerName;
-	this.CanvasName = CanvasName;
-	this.Canvas = document.getElementById(CanvasName);
-	this.CanvasContext = this.Canvas.getContext("2d");
-	this.Data = Data;
-	this.dataLayerColors = new Array();
-	this.Filled = Filled;
-	this.ScaleFactor = ScaleFactor;
-	this.LinearGradients = [];
-	this.Type = Type;
-	this.zIndex = this.Canvas.style.zIndex;
-	this.Visible = true;
-	this.Selected = false;
-	this.ColorLayer = [];
-	this.ColorGradientMode = [];
-	
-	if (this.Type == "lines") {
-		this.ColorLayer = "gray_lines";
-		this.ColorGradientMode = "Matched";
-	}
-	
-	//Methods
-	this.clearCanvas = function () {
-		this.CanvasContext.setTransform(1, 0, 0, 1, 0, 0);
-		this.CanvasContext.clearRect(0, 0, ResidueLayer.width, ResidueLayer.height);
-		this.CanvasContext.setTransform(rvViews[0].scale, 0, 0, rvViews[0].scale, rvViews[0].x, rvViews[0].y);
-	};
-	this.addLinearGradient = function (LinearGradient) {
-		this.LinearGradients.push(LinearGradient);
-	};
-	this.deleteLayer = function () {
-		$(this.Canvas).remove();
-	};
 };
 
 function rvView(x, y, scale) {
