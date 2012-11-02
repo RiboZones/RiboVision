@@ -940,12 +940,13 @@ $(document).ready(function () {
 		}
 	});
 	
-	$("#open4thBtn").button({
+	$("#openManualBtn").button({
 		text : false,
 		icons : {
-			primary : "ui-icon-flag"
+			primary : "ui-icon-help"
 		}
 	});
+
 	/*
 	$( "#goup" ).button({
 	text: false,
@@ -2495,7 +2496,7 @@ function mouseEventFunction(event) {
 
 
 // Misc Functions
-//function secretBox(event) {
+/*function secretBox(event) {
 	if (event == "nasa") {
 		alert("Hey, don't click me there!");
 		clickedNASA = clickedNASA + 1;
@@ -2507,7 +2508,7 @@ function mouseEventFunction(event) {
 		}
 	}
 	
-}
+}*/
 
 function modeSelect(mode) {
 	onebuttonmode = mode;
