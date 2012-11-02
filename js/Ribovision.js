@@ -2495,7 +2495,7 @@ function mouseEventFunction(event) {
 
 
 // Misc Functions
-function secretBox(event) {
+//function secretBox(event) {
 	if (event == "nasa") {
 		alert("Hey, don't click me there!");
 		clickedNASA = clickedNASA + 1;
