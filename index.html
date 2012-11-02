@@ -47,7 +47,7 @@
     <div id="SiteInfo" class="ui-widget-content">
       <h3 class="ui-widget-header" style=
       "padding:3px; padding-left:10px; background-image:url(images/ui-bg_glass_50_3baae3_1x400.png); font-size:16px;"><a href=
-      "./ChangeLog.txt" target="_blank" style="color:#FFF">RiboVision: Version 0.44</a></h3>
+      "./ChangeLog.txt" target="_blank" style="color:#FFF">RiboVision: Version 0.49</a></h3>
 
       <p id="infoP">RiboVision is in the RiboZone family of products, brought to you by RiboEvo at Georgia Tech.</p>
     </div>
@@ -183,10 +183,10 @@
   </div>
 
   <div id="canvasDiv" oncontextmenu="return false" class="ui-widget-content">
-    <canvas id="LabelLayer" style="z-index:2;">Get a Better Browser Dummy!</canvas> <canvas id="highlightLayer" style=
-    "z-index:7;"></canvas> <canvas id="SelectedLayer" style="z-index:6;"></canvas> <canvas id="MainLineLayer" style=
-    "z-index:1;"></canvas> <canvas id="LinkedCircleLayer" style="z-index:4;"></canvas> <canvas id="ResidueLayer" style=
-    "z-index:3;"></canvas> <canvas id="DataLayer1" style="z-index:5;"></canvas> <canvas id="ContourLayer" style=
+    <canvas id="LabelLayer" style="z-index:2;">Get a Better Browser Dummy!</canvas> <canvas id="HighlightLayer" style=
+    "z-index:999;"></canvas> <canvas id="SelectedLayer" style="z-index:6;"></canvas> <canvas id="MainLineLayer" style=
+    "z-index:1;"></canvas> <canvas id="CircleLayer1" style="z-index:4;"></canvas> <canvas id="ResidueLayer" style=
+    "z-index:3;"></canvas> <canvas id="CircleLayer2" style="z-index:5;"></canvas> <canvas id="ContourLayer" style=
     "z-index:0;"></canvas>
   </div>
 
@@ -217,13 +217,15 @@
   </div>
 
   <div id="Privacy-confirm" title="Privacy Policy">
-    <p>Replace Me Text.</p>
+    <p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span></p>
   </div>
 
   <div id="User-Name-Request" title="Please Enter a Name">
-    <p>Please type a name for the variable you are saving.</p><input id="UserNameField" name="UserNameField" type="text" />
+    <p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>Please type a name for the variable you are saving.</p><input id="UserNameField" name="UserNameField" type="text" />
   </div>
-
+  <div id="dialog-addLayer" title="Create a New Layer">
+	<p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span></p><input id="newLayerName" name="newLayerName" type="text" />
+  </div>
   <div id="jmolDiv" class="ui-widget-content">
     <script type='text/javascript'>
 //<![CDATA[
@@ -235,8 +237,8 @@
   <div id="toolBar">
     <button id="openLayerBtn" class="toolBarBtn" title="Open Layer Manager"></button><br />
     <button id="openColorBtn" class="toolBarBtn" title="Open Color Picker"></button><br />
-    <button id="open3rdBtn" class="toolBarBtn" title="Activate Enhanced Selection Mode"></button><br />
-    <button id="open4thBtn" class="toolBarBtn" title="4th Btn: no function assigned yet"></button><br />
+    <button id="open3rdBtn" class="toolBarBtn" title="This button is reserved for future use"></button><br />
+    <button id="open4thBtn" class="toolBarBtn" title="This button is reserved for future use"></button><br />
   </div><!--Layer Control Dialog Box-->
 
   <div id="LayerDialog" title="Layer / Selection Panel">
@@ -271,11 +273,17 @@
   </div>
 
   <div id="dialog-confirm-delete" title="Delete the currently selected layer?">
-    <p>Replace Me Text.</p>
+    <p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>Replace Me Text.</p>
   </div>
 
   <div id="dialog-selection-warning" title="No layers are currently selected!">
-    <p>Replace Me Text.</p>
+    <p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>Replace Me Text.</p>
+  </div>
+   <div id="dialog-unique-layer-error" title="This name is taken. Try again.">
+    <p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>Sorry, all layer names must be unique. The name you entered already exists. Please try again.</p>
+  </div>
+  <div id="dialog-layer-type-error" title="Layer type mismatch">
+    <p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>You attempted to put circle data into an incompatible layer. Please select a circle or residue layer. You may create a new circle layer if you like. </p>
   </div>
 </body>
 </html>

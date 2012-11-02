@@ -103,6 +103,7 @@ function rvDataSet(DataSetName) {
 	//Properties
 	this.Name = DataSetName;
 	this.Layers = [];
+	this.HighlightLayer = [];
 	this.Residues = [];
 	this.ResidueList = [];
 	this.rvTextLabels = [];
@@ -123,6 +124,10 @@ function rvDataSet(DataSetName) {
 		var b = new RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type);
 		this.Layers[b.zIndex] = b;
 		this.LastLayer = this.Layers.length - 1;
+	};
+	this.addHighlightLayer = function (LayerName, CanvasName, Data, Filled, ScaleFactor, Type) {
+		var b = new RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type);
+		this.HighlightLayer = b;
 	};
 	this.addResidues = function (rvResidues) {
 		this.Residues = rvResidues;
@@ -329,6 +334,16 @@ function rvDataSet(DataSetName) {
 			}
 		});
 	};
+	this. isUnique = function (layer){
+		var ret = true;
+		$.each(this.Layers, function (key, value) {
+			if (value.LayerName === layer) {
+				ret = false;
+				return false;
+			}
+		});
+		return ret;
+	}
 	this.deleteLayer = function (layer) {
 		$.each(this.Layers, function (key, value) {
 			if (value.LayerName === layer) {
@@ -520,8 +535,8 @@ function rvView(x, y, scale) {
 		}
 	}
 	this.drag = function (event) {
-		rvDataSets[0].Layers[rvDataSets[0].LastLayer].CanvasContext.strokeStyle = "#ff0000";
-		rvDataSets[0].Layers[rvDataSets[0].LastLayer].CanvasContext.strokeRect(this.startX, this.startY, (event.clientX - $("#menu").outerWidth() - this.x) / this.scale - this.startX, (event.clientY - $("#topMenu").outerHeight() - this.y) / this.scale - this.startY);
+		rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#ff0000";
+		rvDataSets[0].HighlightLayer.CanvasContext.strokeRect(this.startX, this.startY, (event.clientX - $("#menu").outerWidth() - this.x) / this.scale - this.startX, (event.clientY - $("#topMenu").outerHeight() - this.y) / this.scale - this.startY);
 	}
 	
 };
@@ -607,13 +622,14 @@ $(document).ready(function () {
 	$("#openLayerBtn").click(function () {
 		$("#LayerDialog").dialog("open");
 		return false;
-		
 	});
 	
 	$("#openColorBtn").click(function () {
 		$("#ColorDialog").dialog("open");
 		return false;
 	});
+	
+	
 	//////////////////////////////////////////////////
 	
 	///////////////////////////////////////////////////
@@ -624,7 +640,7 @@ $(document).ready(function () {
 		value : 20,
 		orientation : "vertical",
 		slide : function (event, ui) {
-			zoom(highlightLayer.width / 2, highlightLayer.height / 2, Math.pow(1.1, (ui.value - $(this).slider("value"))));
+			zoom(HighlightLayer.width / 2, HighlightLayer.height / 2, Math.pow(1.1, (ui.value - $(this).slider("value"))));
 		}
 	});
 	
@@ -635,6 +651,12 @@ $(document).ready(function () {
 			$("#User-Name-Request").dialog("option", "buttons")['Ok'].apply($("#User-Name-Request"));
 		}
 	});
+	$("#newLayerName").button().addClass('ui-textfield').keydown(function (event) {
+		if (event.keyCode == 13) {
+			$("#dialog-addLayer").dialog("option", "buttons")['Create New Layer'].apply($("#dialog-addLayer"));
+		}
+	});
+		
 	$("#saveSelection").button().click(function () {
 		$("#User-Name-Request").dialog('open');
 	})
@@ -663,6 +685,75 @@ $(document).ready(function () {
 		}
 	});
 	$("#savedSelections").multiselect().multiselectfilter();
+	$("#dialog-addLayer").dialog({
+		resizable : false,
+		autoOpen : false,
+		height : "auto",
+		width : 400,
+		modal : true,
+		buttons : {
+			"Create New Layer" : function () {
+				if (rvDataSets[0].isUnique($("#newLayerName").val())){
+					$("#canvasDiv").append($('<canvas id="' + $("#newLayerName").val() + '" style="z-index:' + ( rvDataSets[0].LastLayer + 1 ) + ';"></canvas>')); 
+					resizeElements();
+					rvDataSets[0].addLayer($("#newLayerName").val(), $("#newLayerName").val(), [], true, 1.0, 'circles');
+					LayerMenu(rvDataSets[0].getLayer($("#newLayerName").val()),(1000 + ( rvDataSets[0].LastLayer + 1 ) ));
+					RefreshLayerMenu();
+					$(this).dialog("close");
+				} else {
+					$( "#dialog-unique-layer-error" ).dialog("open");
+				}
+			},
+			Cancel: function (){
+				$(this).dialog("close");
+			}
+		},
+		open : function () {
+			$("#jmolApplet0").css("visibility", "hidden");
+		},
+		close : function () { 
+			$("#jmolApplet0").css("visibility", "visible");
+		}
+	});
+	$("#dialog-addLayer p").append("We currently are only supporting the addition of new circle type layers." + 
+		" Future updates will let you add additional layers of any type." + 
+		"<br><br>Please enter a name for the new layer.");
+	$( "#dialog-unique-layer-error" ).dialog({
+		resizable : false,
+		autoOpen : false,
+		height : "auto",
+		width : 400,
+		modal : true,
+		buttons: {
+			Ok: function() {
+				$( this ).dialog( "close" );
+			}
+		},
+		open : function () {
+			$("#jmolApplet0").css("visibility", "hidden");
+		},
+		close : function () { 
+			$("#jmolApplet0").css("visibility", "visible");
+		}
+	});
+	$( "#dialog-layer-type-error" ).dialog({
+		resizable : false,
+		autoOpen : false,
+		height : "auto",
+		width : 400,
+		modal : true,
+		buttons: {
+			Ok: function() {
+				$( this ).dialog( "close" );
+			}
+		},
+		open : function () {
+			$("#jmolApplet0").css("visibility", "hidden");
+		},
+		close : function () { 
+			$("#jmolApplet0").css("visibility", "visible");
+		}
+	});
 	$("#User-Name-Request").dialog({
 		resizable : false,
 		autoOpen : false,
@@ -671,14 +762,16 @@ $(document).ready(function () {
 		modal : true,
 		buttons : {
 			"Ok" : function () {
-				//set_cookie(CurrPrivacyCookie, "Agreed", 42 ); //default cookie age will be 42 days.
-				//AgreeFunction();
-				//alert($("#UserNameField").val());
-				$("#savedSelections").append(new Option($("#UserNameField").val(), $("#commandline").val()));
+				$("#savedSelections").append(new Option($("#UserNameField").val(), $("#selectDiv").text().replace(/\s/g, "").replace(/\([^\)]*\)/g,"")));
 				$("#savedSelections").multiselect("refresh");
-				
 				$(this).dialog("close");
 			}
+		},
+		open : function () {
+			$("#jmolApplet0").css("visibility", "hidden");
+		},
+		close : function () { 
+			$("#jmolApplet0").css("visibility", "visible");
 		}
 	});
 	$("#Privacy-confirm").dialog({
@@ -691,16 +784,17 @@ $(document).ready(function () {
 			"I agree." : function () {
 				set_cookie(CurrPrivacyCookie, "Agreed", 42); //default cookie age will be 42 days.
 				AgreeFunction();
-				$("#jmolApplet0").css("visibility", "visible");
 				$(this).dialog("close");
 			},
 			Cancel : function () {
-				$("#jmolApplet0").css("visibility", "visible");
 				$(this).dialog("close");
 			}
 		},
 		open : function (event) {
 			$("#jmolApplet0").css("visibility", "hidden");
+		},
+		close : function () { 
+			$("#jmolApplet0").css("visibility", "visible");
 		}
 	});
 	$("#dialog-confirm-delete").dialog({
@@ -713,16 +807,17 @@ $(document).ready(function () {
 			"Delete the Layer" : function (event) {
 				$("[name=" + rvDataSets[0].getSelectedLayer().LayerName + "]").remove();
 				rvDataSets[0].deleteLayer(rvDataSets[0].getSelectedLayer().LayerName);
-				$("#jmolApplet0").css("visibility", "visible");
 				$(this).dialog("close");
 			},
 			Cancel : function () {
-				$("#jmolApplet0").css("visibility", "visible");
 				$(this).dialog("close");
 			}
 		},
 		open : function (event) {
 			$("#jmolApplet0").css("visibility", "hidden");
+		},
+		close : function () { 
+			$("#jmolApplet0").css("visibility", "visible");
 		}
 	});
 	
@@ -734,12 +829,14 @@ $(document).ready(function () {
 		modal : true,
 		buttons : {
 			"OK" : function (event) {
-				$("#jmolApplet0").css("visibility", "visible");
 				$(this).dialog("close");
 			}
 		},
 		open : function (event) {
 			$("#jmolApplet0").css("visibility", "hidden");
+		},
+		close : function () { 
+			$("#jmolApplet0").css("visibility", "visible");
 		}
 	});
 	
@@ -917,97 +1014,75 @@ $(document).ready(function () {
 	InitRibovision();
 });
 
-function InitRibovision() {
-	set_cookie("MeaningOfLife", "42", 42);
-	rvDataSets[0] = new rvDataSet("EmptyDataSet");
-	rvViews[0] = new rvView(20, 20, 1.2);
+function LayerMenu(Layer, key) {
+	//console.log($count);
+	$currentLayerName = Layer.LayerName;
+	//console.log($currentLayerName);
+	$('[name=TopLayerBar]').after(($("<div>").addClass("oneLayerGroup").attr({
+			'name' : $currentLayerName
+		})));
+	//console.log("id:" + $('.oneLayerGroup').attr("name"));
+	//$('.oneLayerGroup').append(("<div>").addClass("visibilityCheckbox"));
+	//$('.visibilityCheckbox').append($("<input />").attr({type:'checkbox'}).addClass("layerVisiblity"))
 	
-	// Create rvLayers
-	rvDataSets[0].addLayer("LinkedCircleLayer", "LinkedCircleLayer", [], true, 1.0, 'circles');
-	rvDataSets[0].addLayer("DataLayer1", "DataLayer1", [], true, 1.0, 'circles');
-	rvDataSets[0].addLayer("SelectedLayer", "SelectedLayer", [], false, 1.176, 'selected');
-	rvDataSets[0].addLayer("highlightLayer", "highlightLayer", [], false, 1.176, 'highlight');
-	rvDataSets[0].addLayer("ResidueLayer", "ResidueLayer", [], true, 1.0, 'residues');
-	rvDataSets[0].addLayer("LabelLayer", "LabelLayer", [], true, 1.0, 'labels');
-	rvDataSets[0].addLayer("MainLineLayer", "MainLineLayer", [], true, 1.0, 'lines');
-	rvDataSets[0].addLayer("ContourLayer", "ContourLayer", [], true, 1.0, 'contour');
-	// Make DataLayer 1 selceted. Later, the UI code will handle this.
-	rvDataSets[0].Layers[5].Selected = true;
+	//This is necessary because if just use $('.oneLayerGroup'), then duplicated layers will be added to different groups
+	$currentGroup = document.getElementsByName($currentLayerName);
+	//console.log($currentGroup);
+	$($currentGroup)
+	.append($("<div>").addClass("checkBoxDIV").css({
+			'float' : 'left',
+			'padding-top' : 5,
+			'width' : 20
+		}).append($("<input />").attr({
+				type : 'checkbox'
+			}).addClass("visibilityCheckBox")));
 	
-	// Sort rvLayers by zIndex for convience
-	rvDataSets[0].sort();
-	// Build Layer Menu
+	$($currentGroup)
+	.append($("<div>").addClass("radioDIV").css({
+			'float' : 'left',
+			'padding-top' : 5,
+			'padding-left' : 5,
+			'width' : 20
+		}).append($("<input />").attr({
+				type : 'radio',
+				name : 'selectedRadio'
+			}).addClass("selectLayerCheckBox")));
+	/*
+	$selectBox = document.getElementsByClassName("checkBoxDIV");
+	console.log("DivDialog' width: " + $("#LayerDialog").width());
+	console.log("panelTabs' width: " + $("#PanelTabs").width());
+	console.log("CBDiv width: " + $('.checkBoxDIV').width());
+	console.log("checkbox width: " + $('.visibilityCheckBox').width());
+	$accordionWidth = $("#PanelTabs").width() - $('.visibilityCheckBox').width();
+	console.log("accordion width: " + $accordionWidth); //why 0??!!!
+	 */
 	
-	$count = 0;
-	$.each(rvDataSets[0].Layers, function (key, value) {
-		console.log($count);
-		$currentLayerName = value.LayerName;
-		//console.log($currentLayerName);
-		$("#LayerPanel").prepend($("<div>").addClass("oneLayerGroup").attr({
-				'name' : $currentLayerName
-			}));
-		console.log("id:" + $('.oneLayerGroup').attr("name"));
-		//$('.oneLayerGroup').append(("<div>").addClass("visibilityCheckbox"));
-		//$('.visibilityCheckbox').append($("<input />").attr({type:'checkbox'}).addClass("layerVisiblity"))
-		
-		//This is necessary because if just use $('.oneLayerGroup'), then duplicated layers will be added to different groups
-		$currentGroup = document.getElementsByName($currentLayerName);
-		console.log($currentGroup);
-		$($currentGroup)
-		.append($("<div>").addClass("checkBoxDIV").css({
-				'float' : 'left',
-				'padding-top' : 5,
-				'width' : 20
-			}).append($("<input />").attr({
-					type : 'checkbox'
-				}).addClass("visibilityCheckBox")));
-		
-		$($currentGroup)
-		.append($("<div>").addClass("radioDIV").css({
-				'float' : 'left',
-				'padding-top' : 5,
-				'padding-left' : 5,
-				'width' : 20
-			}).append($("<input />").attr({
-					type : 'radio',
-					name : 'selectedRadio'
-				}).addClass("selectLayerCheckBox")));
-		/*
-		$selectBox = document.getElementsByClassName("checkBoxDIV");
-		console.log("DivDialog' width: " + $("#LayerDialog").width());
-		console.log("panelTabs' width: " + $("#PanelTabs").width());
-		console.log("CBDiv width: " + $('.checkBoxDIV').width());
-		console.log("checkbox width: " + $('.visibilityCheckBox').width());
-		$accordionWidth = $("#PanelTabs").width() - $('.visibilityCheckBox').width();
-		console.log("accordion width: " + $accordionWidth); //why 0??!!!
-		 */
-		
-		$($currentGroup)
-		.append($("<h3>").addClass("layerName").css({
-				'margin-left' : 55
-			}).append($currentLayerName))
-		.append($("<div>").addClass("layerContent").css({
-				'margin-left' : 55
-			}));
-		
-		$count++;
-		
-		switch (value.Type) {
+	$($currentGroup)
+	.append($("<h3>").addClass("layerName").css({
+			'margin-left' : 55
+		}).append($currentLayerName))
+	.append($("<div>").addClass("layerContent").css({
+			'margin-left' : 55
+		}));
+	
+	//$count++;
+	
+	switch (Layer.Type) {
 		case "circles":
-			$("#LayerPanel div").first().find(".layerContent").append($('<div id="' + 'pr-' + key + '">').text("Draw Circles as:").append($("<br>")));
-			$("#LayerPanel div").first().find(".layerContent").first().find("div").last().append($('<input type="radio" name="filled' + key + '" id="' + 'pr-' + key + '-1' + '" value="filled" checked="checked"> <label for="' + 'pr-' + key + '-1' + ' ">filled</label>'));
-			$("#LayerPanel div").first().find(".layerContent").first().find("div").last().append($('<input type="radio" name="filled' + key + '" id="' + 'pr-' + key + '-2' + '" value="unfilled"> <label for="' + 'pr-' + key + '-2' + '">unfilled</label>'));
+			$("#LayerPanel div").first().next().find(".layerContent").append($('<div id="' + 'pr-' + key + '">').text("Draw Circles as:").append($("<br>")));
+			$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="filled' + key + '" id="' + 'pr-' + key + '-1' + '" value="filled" checked="checked"> <label for="' + 'pr-' + key + '-1' + ' ">filled</label>'));
+			$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="filled' + key + '" id="' + 'pr-' + key + '-2' + '" value="unfilled"> <label for="' + 'pr-' + key + '-2' + '">unfilled</label>'));
 			//$('#' + 'pr-' + key).buttonset();
-			if (value.Filled) {
+			if (Layer.Filled) {
 				$('input[name="filled' + key + '"][value=filled]').attr("checked", true);
 			} else {
 				$('input[name="filled' + key + '"][value=unfilled]').attr("checked", true);
 			}
 			$('input[name="filled' + key + '"]').change(function (event) {
 				if ($('input[name="filled' + key + '"][value=filled]').attr("checked")) {
-					value.Filled = true;
+					Layer.Filled = true;
 				} else {
-					value.Filled = false;
+					Layer.Filled = false;
 				}
 				var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
 						return this.value;
@@ -1015,20 +1090,20 @@ function InitRibovision() {
 				colorMappingLoop(array_of_checked_values);
 			});
 			
-			$("#LayerPanel div").first().find(".layerContent").first().append($('<div id="' + 'prs-' + key + '">').text("Circle Size:").append($("<br>")));
-			$("#LayerPanel div").first().find(".layerContent").first().find("div").last().append($('<input type="radio" name="size' + key + '" id="' + 'prs-' + key + '-1' + '" value="regular" checked="checked"> <label for="' + 'prs-' + key + '-1' + ' ">regular</label>'));
-			$("#LayerPanel div").first().find(".layerContent").first().find("div").last().append($('<input type="radio" name="size' + key + '" id="' + 'prs-' + key + '-2' + '" value="large"> <label for="' + 'prs-' + key + '-2' + '">large</label>'));
+			$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="' + 'prs-' + key + '">').text("Circle Size:").append($("<br>")));
+			$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="size' + key + '" id="' + 'prs-' + key + '-1' + '" value="regular" checked="checked"> <label for="' + 'prs-' + key + '-1' + ' ">regular</label>'));
+			$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="size' + key + '" id="' + 'prs-' + key + '-2' + '" value="large"> <label for="' + 'prs-' + key + '-2' + '">large</label>'));
 			//$('#' + 'pr-' + key).buttonset();
-			if (value.ScaleFactor <= 1.0) {
+			if (Layer.ScaleFactor <= 1.0) {
 				$('input[name="size' + key + '"][value=regular]').attr("checked", true);
 			} else {
 				$('input[name="size' + key + '"][value=large]').attr("checked", true);
 			}
 			$('input[name="size' + key + '"]').change(function (event) {
 				if ($('input[name="size' + key + '"][value=regular]').attr("checked")) {
-					value.ScaleFactor = 1.0;
+					Layer.ScaleFactor = 1.0;
 				} else {
-					value.ScaleFactor = 1.2;
+					Layer.ScaleFactor = 1.2;
 				}
 				var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
 						return this.value;
@@ -1037,8 +1112,8 @@ function InitRibovision() {
 			});
 			break;
 		case "lines":
-			$("#LayerPanel div").first().find(".layerContent").append($('<div id="' + 'llm-' + key + '">').text("Color lines like:").append($("<br>")));
-			$("#LayerPanel div").first().find(".layerContent").first().find("div").last().append($('<select id="' + 'llm-' + key + 'lineselect' + '" name="' + 'llm-' + key + 'lineselect' + '" multiple="multiple"></select>'));
+			$("#LayerPanel div").first().next().find(".layerContent").append($('<div id="' + 'llm-' + key + '">').text("Color lines like:").append($("<br>")));
+			$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<select id="' + 'llm-' + key + 'lineselect' + '" name="' + 'llm-' + key + 'lineselect' + '" multiple="multiple"></select>'));
 			$('#' + 'llm-' + key + 'lineselect').multiselect({
 				multiple : false,
 				header : "Select a layer",
@@ -1073,9 +1148,9 @@ function InitRibovision() {
 				}
 			});
 			
-			$("#LayerPanel div").first().find(".layerContent").first().append($('<div id="' + 'llmg-' + key + '">').text("Line Gradient Direction:").append($("<br>")));
-			$("#LayerPanel div").first().find(".layerContent").first().find("div").last().append($('<input type="radio" name="color_lines_gradient' + key + '" id="' + 'llmg-' + key + '-1' + '" value="Matched" checked="checked"> <label for="' + 'llmg-' + key + '-1' + ' ">Matched</label>'));
-			$("#LayerPanel div").first().find(".layerContent").first().find("div").last().append($('<input type="radio" name="color_lines_gradient' + key + '" id="' + 'llmg-' + key + '-2' + '" value="Opposite"> <label for="' + 'llmg-' + key + '-2' + '">Opposite</label>'));
+			$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="' + 'llmg-' + key + '">').text("Line Gradient Direction:").append($("<br>")));
+			$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="color_lines_gradient' + key + '" id="' + 'llmg-' + key + '-1' + '" value="Matched" checked="checked"> <label for="' + 'llmg-' + key + '-1' + ' ">Matched</label>'));
+			$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="color_lines_gradient' + key + '" id="' + 'llmg-' + key + '-2' + '" value="Opposite"> <label for="' + 'llmg-' + key + '-2' + '">Opposite</label>'));
 			$('input[name="color_lines_gradient' + key + '"]').change(function (event) {
 				targetLayer = rvDataSets[0].getLayer($('input[name="color_lines_gradient' + key + '"]' + ':checked').parent().parent().parent().find('h3').text());
 				targetLayer.ColorGradientMode = $('input[name="color_lines_gradient' + index + '"]' + ':checked').val();
@@ -1084,44 +1159,16 @@ function InitRibovision() {
 			
 			break;
 		case "residues":
-			$("#LayerPanel div").first().find(".selectLayerCheckBox").attr("checked", "checked");
-			rvDataSets[0].selectLayer($("#LayerPanel div").first().attr("name"));
+			$("#LayerPanel div").first().next().find(".selectLayerCheckBox").attr("checked", "checked");
+			rvDataSets[0].selectLayer($("#LayerPanel div").first().next().attr("name"));
 			break;
 		default:
 			break;
-		}
-		
-	});
-	// Put in Top Labels and ToolBar
-	$("#LayerPanel").prepend($("<div>").attr({
-			'name' : 'TopLayerBar'
-		}).html("&nbspV&nbsp&nbsp&nbspS&nbsp&nbsp&nbsp&nbsp&nbsp&nbspLayerName&nbsp&nbsp&nbsp"));
-	$('[name=TopLayerBar]').append($('<button id="newLayer" class="toolBarBtn2" title="Create a new layer"></button>'));
-	$('[name=TopLayerBar]').append($('<button id="deleteLayer" class="toolBarBtn2" title="Delete the selected layer"></button>'));
-	$("#newLayer").button({
-		text : false,
-		icons : {
-			primary : "ui-icon-document"
-		}
-	});
-	$("#newLayer").css('height', $("#openLayerBtn").css('height'));
-	$("#newLayer").css('width', $("#openLayerBtn").css('width'));
-	
-	$("#deleteLayer").button({
-		text : false,
-		icons : {
-			primary : "ui-icon-trash"
-		}
-	});
-	$("#deleteLayer").css('height', $("#openLayerBtn").css('height'));
-	$("#deleteLayer").css('width', $("#openLayerBtn").css('width'));
-	$("#deleteLayer").click(function (event) {
-		$("#dialog-confirm-delete p").text("The " + rvDataSets[0].getSelectedLayer().LayerName + " layer will be permanently deleted and cannot be recovered.");
-		$("#dialog-confirm-delete").dialog('open');
-	});
-	//Check all boxes by default
-	$(".visibilityCheckBox").attr("checked", "checked");
-	
+	}
+	$("#LayerPanel div").first().next().find(".visibilityCheckBox").attr("checked", "checked");
+}
+// Refresh Menu
+function RefreshLayerMenu(){
 	//Assign function to check boxes
 	$(".visibilityCheckBox").change(function (event) {
 		$(event.srcElement).parent().parent().attr("name")
@@ -1135,10 +1182,6 @@ function InitRibovision() {
 	$(".selectLayerCheckBox").change(function (event) {
 		rvDataSets[0].selectLayer($(event.srcElement).parent().parent().attr("name"));
 	});
-	/*
-	
-	 */
-	
 	//Accordion that support multiple sections open
 	$("#LayerPanel").multiAccordion();
 	$("#LayerPanel").sortable({
@@ -1153,29 +1196,69 @@ function InitRibovision() {
 		items : ".oneLayerGroup"
 		
 	});
-	$("#LayerPanel").disableSelection();
+	$("#LayerPanel").disableSelection();		
+}
+
+function InitRibovision() {
+	set_cookie("MeaningOfLife", "42", 42);
+	rvDataSets[0] = new rvDataSet("EmptyDataSet");
+	rvViews[0] = new rvView(20, 20, 1.2);
 	
-	/*
-	// Interaction change function
-	$("input[name='color_lines']").change(function(event) {
-	rvDataSets[0].drawBasePairs("lines");
+	// Create rvLayers
+	rvDataSets[0].addLayer("CircleLayer1", "CircleLayer1", [], true, 1.0, 'circles');
+	rvDataSets[0].addLayer("CircleLayer2", "CircleLayer2", [], true, 1.0, 'circles');
+	rvDataSets[0].addLayer("SelectedLayer", "SelectedLayer", [], false, 1.176, 'selected');
+	rvDataSets[0].addLayer("ResidueLayer", "ResidueLayer", [], true, 1.0, 'residues');
+	rvDataSets[0].addLayer("LabelLayer", "LabelLayer", [], true, 1.0, 'labels');
+	rvDataSets[0].addLayer("MainLineLayer", "MainLineLayer", [], true, 1.0, 'lines');
+	rvDataSets[0].addLayer("ContourLayer", "ContourLayer", [], true, 1.0, 'contour');
+	rvDataSets[0].addHighlightLayer("HighlightLayer", "HighlightLayer", [], false, 1.176, 'highlight');
+
+	// Sort rvLayers by zIndex for convience
+	rvDataSets[0].sort();
+	
+	// Build Layer Menu
+	
+	// Put in Top Labels and ToolBar
+	$("#LayerPanel").prepend($("<div>").attr({
+			'name' : 'TopLayerBar'
+		}).html("&nbspV&nbsp&nbsp&nbspS&nbsp&nbsp&nbsp&nbsp&nbsp&nbspLayerName&nbsp&nbsp&nbsp"));
+	$('[name=TopLayerBar]').append($('<button id="newLayer" class="toolBarBtn2" title="Create a new layer"></button>'));
+	$('[name=TopLayerBar]').append($('<button id="deleteLayer" class="toolBarBtn2" title="Delete the selected layer"></button>'));
+	$("#newLayer").button({
+		text : false,
+		icons : {
+			primary : "ui-icon-document"
+		}
 	});
-	$("input[name='color_lines_gradient']").change(function(event) {
-	if ($('input[name=color_lines]:checked').val() != "Gray"){
-	rvDataSets[0].drawBasePairs("lines");
-	}
-	});*/
+	$("#newLayer").css('height', $("#openLayerBtn").css('height'));
+	$("#newLayer").css('width', $("#openLayerBtn").css('width'));
+	$("#newLayer").click(function () {
+		$("#dialog-addLayer").dialog("open");
+	});
+	$("#deleteLayer").button({
+		text : false,
+		icons : {
+			primary : "ui-icon-trash"
+		}
+	});
+	$("#deleteLayer").css('height', $("#openLayerBtn").css('height'));
+	$("#deleteLayer").css('width', $("#openLayerBtn").css('width'));
+	$("#deleteLayer").click(function (event) {
+		$("#dialog-confirm-delete p").append("The " + rvDataSets[0].getSelectedLayer().LayerName + " layer will be permanently deleted and cannot be recovered.");
+		$("#dialog-confirm-delete").dialog('open');
+	});
 	
-	// Selection Function
+	// Put in Layers
+	$.each(rvDataSets[0].Layers, function (key, value){
+		LayerMenu(value, key);
+	});
 	
-	// Protein Functions
-	/*
-	$("input[name='filled']").change(function(event) {
-	var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function(){
-	return this.value;
-	}).get();
-	colorMappingLoop(array_of_checked_values);
-	});*/
+	//Check all boxes by default
+	//$(".visibilityCheckBox").attr("checked", "checked");
+	
+	RefreshLayerMenu();
+		
 	
 	$("#ProtList").bind("multiselectclick", function (event, ui) {
 		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
@@ -1199,16 +1282,10 @@ function InitRibovision() {
 		if ($("input[name=filled][value=filled]").attr("checked")) {
 			resetColorState();
 		} else {
-			//var jscript = "frame " + (SubunitNames.indexOf(rvDataSets[0].SpeciesEntry.Subunit) + 1 ) + ".1" ;
 			jmolScript(jscript);
 			commandSelect();
 			updateModel();
 		}
-		/*
-		rvDataSets[0].Layers["DataLayer1"].dataLayerColors=[];
-		rvDataSets[0].Layers["DataLayer1"].clearCanvas();
-		rvDataSets[0].Layers["MainLineLayer"].clearCanvas();
-		 */
 		rvDataSets[0].clearCanvas("circles");
 		rvDataSets[0].clearCanvas("lines");
 		
@@ -1347,18 +1424,18 @@ function InitRibovision() {
 		rvViews[0].zoom(event, delta);
 		
 		var sel = getSelected(event);
-		rvDataSets[0].Layers[rvDataSets[0].LastLayer].clearCanvas();
+		rvDataSets[0].HighlightLayer.clearCanvas();
 		
 		if (sel == -1) {
 			document.getElementById("currentDiv").innerHTML = "<br/>";
 		} else {
 			document.getElementById("currentDiv").innerHTML = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[sel].ChainID)] + ":" + rvDataSets[0].Residues[sel].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
 			
-			rvDataSets[0].Layers[rvDataSets[0].LastLayer].CanvasContext.beginPath();
-			rvDataSets[0].Layers[rvDataSets[0].LastLayer].CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, 2, 0, 2 * Math.PI, false);
-			rvDataSets[0].Layers[rvDataSets[0].LastLayer].CanvasContext.closePath();
-			rvDataSets[0].Layers[rvDataSets[0].LastLayer].CanvasContext.strokeStyle = "#6666ff";
-			rvDataSets[0].Layers[rvDataSets[0].LastLayer].CanvasContext.stroke();
+			rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
+			rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, 2, 0, 2 * Math.PI, false);
+			rvDataSets[0].HighlightLayer.CanvasContext.closePath();
+			rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
+			rvDataSets[0].HighlightLayer.CanvasContext.stroke();
 		}
 		if (drag) {
 			rvViews[0].drag(event);
@@ -1368,7 +1445,7 @@ function InitRibovision() {
 	});
 	$("#canvasDiv").bind("mousemove", function (event) {
 		var sel = getSelected(event);
-		rvDataSets[0].Layers[rvDataSets[0].LastLayer].clearCanvas();
+		rvDataSets[0].HighlightLayer.clearCanvas();
 		
 		if (sel == -1) {
 			document.getElementById("currentDiv").innerHTML = "<br/>";
@@ -1378,11 +1455,11 @@ function InitRibovision() {
 				document.getElementById("currentDiv").innerHTML = document.getElementById("currentDiv").innerHTML + ". You found the secret base! ";
 			}
 			
-			rvDataSets[0].Layers[rvDataSets[0].LastLayer].CanvasContext.beginPath();
-			rvDataSets[0].Layers[rvDataSets[0].LastLayer].CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, 2, 0, 2 * Math.PI, false);
-			rvDataSets[0].Layers[rvDataSets[0].LastLayer].CanvasContext.closePath();
-			rvDataSets[0].Layers[rvDataSets[0].LastLayer].CanvasContext.strokeStyle = "#6666ff";
-			rvDataSets[0].Layers[rvDataSets[0].LastLayer].CanvasContext.stroke();
+			rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
+			rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, 2, 0, 2 * Math.PI, false);
+			rvDataSets[0].HighlightLayer.CanvasContext.closePath();
+			rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
+			rvDataSets[0].HighlightLayer.CanvasContext.stroke();
 		}
 		if (drag) {
 			rvViews[0].drag(event);
@@ -1397,7 +1474,7 @@ function InitRibovision() {
 			clientX : event.clientX,
 			clientY : event.clientY
 		});
-		rvDataSets[0].Layers[rvDataSets[0].LastLayer].clearCanvas();
+		rvDataSets[0].HighlightLayer.clearCanvas();
 		
 	});
 	
@@ -2002,7 +2079,7 @@ function colorProcess(data, indexMode, ChoiceList, colName) {
 		
 		break;
 	default:
-		alert("this shouldn't be happening yet either.");
+		$( "#dialog-layer-type-error" ).dialog("open")
 	}
 	/*
 	
@@ -2163,7 +2240,7 @@ function colorMapping(ChoiceList, ManualCol, OverRideColors, indexMode, rePlaceD
 			}
 			break;
 		default:
-			alert("this shouldn't be happening yet either.");
+			$( "#dialog-layer-type-error" ).dialog("open")
 		}
 		
 }
@@ -2456,6 +2533,11 @@ function handleFileSelect(event) {
 		 + " because one isn't needed. We can not see these data you are about to graph. Click \"I agree\" to acknowledge acceptance of our policy.";
 	var NewData;
 	var command;
+	var ColorList=[];
+	var ColorListU;
+	var DataList=[];
+	var DataListU;
+	var ColorGrad=[];
 	
 	FileReaderFile = event.target.files; // FileList object
 	
@@ -2520,11 +2602,30 @@ function handleFileSelect(event) {
 							rvDataSets[0].Residues[k].color = rvDataSets[0].CustomData[ii]["ColorCol"];
 						}
 					}
+					
+					ColorList[ii]=rvDataSets[0].CustomData[ii]["ColorCol"];
+					DataList[ii]=rvDataSets[0].CustomData[ii]["DataCol"];
+
 				}
 				
 				if ($.inArray("ColorCol", customkeys) >= 0) {
 					rvDataSets[0].drawResidues("residues");
 					update3Dcolors();
+		
+					ColorListU = $.grep(ColorList, function (v, k) {
+						return $.inArray(v, ColorList) === k;
+					});
+					
+					DataListU = $.grep(DataList, function (v, k) {
+						return $.inArray(v, DataList) === k;
+					});
+					// Hack. Assume positive consecutive integers for now. 
+					var a = Math.min.apply(Math, DataListU);
+					$.each(DataListU, function (key, value){
+						ColorGrad[value - a] = ColorListU[key];
+					});
+					colors = ColorGrad;
+					colorProcess(NewData);
 				} else if ($.inArray("DataCol", customkeys) >= 0) {
 					colors = RainBowColors;
 					colorProcess(NewData);
@@ -2748,8 +2849,8 @@ function savePML() {
 		form.appendChild(hiddenField);
 		
 		PDB_filesU = $.grep(PDB_files, function (v, k) {
-				return $.inArray(v, PDB_files) === k;
-			});
+			return $.inArray(v, PDB_files) === k;
+		});
 		var hiddenField2 = document.createElement("input");
 		hiddenField2.setAttribute("type", "hidden");
 		hiddenField2.setAttribute("name", "pdbfiles");
@@ -2936,8 +3037,8 @@ function populateDomainHelixMenu() {
 	}
 	
 	DomainList_ANU = $.grep(DomainList_AN, function (v, k) {
-			return $.inArray(v, DomainList_AN) === k;
-		});
+		return $.inArray(v, DomainList_AN) === k;
+	});
 	DomainList_RNU = $.grep(DomainList_RN, function (v, k) {
 			return $.inArray(v, DomainList_RN) === k;
 		});
@@ -3178,12 +3279,12 @@ function welcomeScreen() {
 	rvDataSets[0].Layers[0].CanvasContext.textBaseline = "middle";
 	rvDataSets[0].Layers[0].CanvasContext.textAlign = "center";
 	rvDataSets[0].Layers[0].CanvasContext.fillStyle = "OrangeRed";
-	rvDataSets[0].Layers[0].CanvasContext.fillText('Hello, Astrobiologist!', highlightLayer.width / 2 / rvViews[0].scale - rvViews[0].x, highlightLayer.height / 2 / rvViews[0].scale - rvViews[0].y - (3 * scale_factor * line_unit));
-	rvDataSets[0].Layers[0].CanvasContext.fillText('Welcome to Ribovision.', highlightLayer.width / 2 / rvViews[0].scale - rvViews[0].x, highlightLayer.height / 2 / rvViews[0].scale - rvViews[0].y - (1 * scale_factor * line_unit));
-	rvDataSets[0].Layers[0].CanvasContext.fillText('Please select a molecule', highlightLayer.width / 2 / rvViews[0].scale - rvViews[0].x, highlightLayer.height / 2 / rvViews[0].scale - rvViews[0].y + (3 * scale_factor * line_unit));
-	rvDataSets[0].Layers[0].CanvasContext.fillText('to get started.', highlightLayer.width / 2 / rvViews[0].scale - rvViews[0].x, highlightLayer.height / 2 / rvViews[0].scale - rvViews[0].y + (5 * scale_factor * line_unit));
+	rvDataSets[0].Layers[0].CanvasContext.fillText('Hello, Astrobiologist!', HighlightLayer.width / 2 / rvViews[0].scale - rvViews[0].x, HighlightLayer.height / 2 / rvViews[0].scale - rvViews[0].y - (3 * scale_factor * line_unit));
+	rvDataSets[0].Layers[0].CanvasContext.fillText('Welcome to Ribovision.', HighlightLayer.width / 2 / rvViews[0].scale - rvViews[0].x, HighlightLayer.height / 2 / rvViews[0].scale - rvViews[0].y - (1 * scale_factor * line_unit));
+	rvDataSets[0].Layers[0].CanvasContext.fillText('Please select a molecule', HighlightLayer.width / 2 / rvViews[0].scale - rvViews[0].x, HighlightLayer.height / 2 / rvViews[0].scale - rvViews[0].y + (3 * scale_factor * line_unit));
+	rvDataSets[0].Layers[0].CanvasContext.fillText('to get started.', HighlightLayer.width / 2 / rvViews[0].scale - rvViews[0].x, HighlightLayer.height / 2 / rvViews[0].scale - rvViews[0].y + (5 * scale_factor * line_unit));
 	
-	canvas_arrow(highlightLayer.width / 2 / rvViews[0].scale - rvViews[0].x, highlightLayer.height / 2 / rvViews[0].scale - rvViews[0].y - 25, 50, 50);
+	canvas_arrow(HighlightLayer.width / 2 / rvViews[0].scale - rvViews[0].x, HighlightLayer.height / 2 / rvViews[0].scale - rvViews[0].y - 25, 50, 50);
 	
 }
 ///////////////////////////////////////////////////////////////////////////////
