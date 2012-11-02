@@ -592,8 +592,8 @@ $(document).ready(function () {
 		height : 700,
 		position : {
 			my : "right top",
-			at : "right center",
-			of : $("#tabs")
+			at : "right top",
+			of : $("#canvasDiv")
 		}
 	});
 	$("#ColorDialog").dialog({
