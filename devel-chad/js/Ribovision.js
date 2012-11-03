@@ -1682,13 +1682,12 @@ function resizeElements() {
 	$("#jmolApplet0").css('left', 0);
 	
 	// Layer Panel
-	//$( "#LayerDialog" ).css('height',1.2*s);
-	/*
-	$( "#LayerDialog" ).position({
-	my: "right top",
-	at: "right top",
-	of: $( "#jmolDiv" )
-	});*/
+	$( "#LayerDialog" ).dialog( "option", "height", s - 2 * MajorBorderSize );	
+	$( "#LayerDialog" ).dialog("widget").position({
+		my: "right top",
+		at: "right top",
+		of: $( "#canvasDiv" )
+	});
 	
 	//LogoDiv
 	$("#LogoDiv").css('width', xcorr);
