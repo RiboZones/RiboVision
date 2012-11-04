@@ -609,8 +609,8 @@ $(document).ready(function () {
 		height : 500,
 		position : {
 			my : "right top",
-			at : "right center",
-			of : $("#tabs")
+			at : "right top",
+			of : $("#canvasDiv")
 		}
 	});
 	
@@ -1684,6 +1684,13 @@ function resizeElements() {
 	// Layer Panel
 	$( "#LayerDialog" ).dialog( "option", "height", s - 2 * MajorBorderSize );	
 	$( "#LayerDialog" ).dialog("widget").position({
+		my: "right top",
+		at: "right top",
+		of: $( "#canvasDiv" )
+	});
+	// Color Panel
+	$( "#ColorDialog" ).dialog( "option", "height", 0.75 * s - 2 * MajorBorderSize );	
+	$( "#ColorDialog" ).dialog("widget").position({
 		my: "right top",
 		at: "right top",
 		of: $( "#canvasDiv" )
@@ -3284,7 +3291,7 @@ function welcomeScreen() {
 	rvDataSets[0].Layers[0].CanvasContext.fillText('Please select a molecule', HighlightLayer.width / 2 / rvViews[0].scale - rvViews[0].x, HighlightLayer.height / 2 / rvViews[0].scale - rvViews[0].y + (3 * scale_factor * line_unit));
 	rvDataSets[0].Layers[0].CanvasContext.fillText('to get started.', HighlightLayer.width / 2 / rvViews[0].scale - rvViews[0].x, HighlightLayer.height / 2 / rvViews[0].scale - rvViews[0].y + (5 * scale_factor * line_unit));
 	
-	canvas_arrow(HighlightLayer.width / 2 / rvViews[0].scale - rvViews[0].x, HighlightLayer.height / 2 / rvViews[0].scale - rvViews[0].y - 25, 50, 50);
+	//canvas_arrow(HighlightLayer.width / 2 / rvViews[0].scale - rvViews[0].x, HighlightLayer.height / 2 / rvViews[0].scale - rvViews[0].y - 25, 50, 50);
 	
 }
 ///////////////////////////////////////////////////////////////////////////////
