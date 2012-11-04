@@ -1172,16 +1172,16 @@ function LayerMenu(Layer, key) {
 function RefreshLayerMenu(){
 	//Assign function to check boxes
 	$(".visibilityCheckBox").change(function (event) {
-		$(event.srcElement).parent().parent().attr("name")
-		if ($(event.srcElement).attr("checked")) {
-			$(rvDataSets[0].getLayer($(event.srcElement).parent().parent().attr("name")).Canvas).css("visibility", "visible")
+		$(event.currentTarget).parent().parent().attr("name")
+		if ($(event.currentTarget).attr("checked")) {
+			$(rvDataSets[0].getLayer($(event.currentTarget).parent().parent().attr("name")).Canvas).css("visibility", "visible")
 		} else {
-			$(rvDataSets[0].getLayer($(event.srcElement).parent().parent().attr("name")).Canvas).css("visibility", "hidden")
+			$(rvDataSets[0].getLayer($(event.currentTarget).parent().parent().attr("name")).Canvas).css("visibility", "hidden")
 		}
 	});
 	
 	$(".selectLayerCheckBox").change(function (event) {
-		rvDataSets[0].selectLayer($(event.srcElement).parent().parent().attr("name"));
+		rvDataSets[0].selectLayer($(event.currentTarget).parent().parent().attr("name"));
 	});
 	//Accordion that support multiple sections open
 	$("#LayerPanel").multiAccordion();
@@ -2710,6 +2710,22 @@ function checkSavePrivacyStatus() {
 
 
 //////////////////////////////// Save Functions ///////////////////////////////
+function savePNG() {
+	AgreeFunction = function () {
+		var form = document.createElement("form");
+		form.setAttribute("method", "post");
+		form.setAttribute("action", "savePNG.php");
+		var hiddenField = document.createElement("input");
+		hiddenField.setAttribute("type", "hidden");
+		hiddenField.setAttribute("name", "content");
+		hiddenField.setAttribute("value", canvasToSVG());
+		form.appendChild(hiddenField);
+		document.body.appendChild(form);
+		form.submit();
+	}
+	checkSavePrivacyStatus();
+}
+
 function saveSVG() {
 	AgreeFunction = function () {
 		var form = document.createElement("form");

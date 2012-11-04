@@ -609,8 +609,8 @@ $(document).ready(function () {
 		height : 500,
 		position : {
 			my : "right top",
-			at : "right center",
-			of : $("#tabs")
+			at : "right top",
+			of : $("#canvasDiv")
 		}
 	});
 	
@@ -1172,16 +1172,16 @@ function LayerMenu(Layer, key) {
 function RefreshLayerMenu(){
 	//Assign function to check boxes
 	$(".visibilityCheckBox").change(function (event) {
-		$(event.srcElement).parent().parent().attr("name")
-		if ($(event.srcElement).attr("checked")) {
-			$(rvDataSets[0].getLayer($(event.srcElement).parent().parent().attr("name")).Canvas).css("visibility", "visible")
+		$(event.currentTarget).parent().parent().attr("name")
+		if ($(event.currentTarget).attr("checked")) {
+			$(rvDataSets[0].getLayer($(event.currentTarget).parent().parent().attr("name")).Canvas).css("visibility", "visible")
 		} else {
-			$(rvDataSets[0].getLayer($(event.srcElement).parent().parent().attr("name")).Canvas).css("visibility", "hidden")
+			$(rvDataSets[0].getLayer($(event.currentTarget).parent().parent().attr("name")).Canvas).css("visibility", "hidden")
 		}
 	});
 	
 	$(".selectLayerCheckBox").change(function (event) {
-		rvDataSets[0].selectLayer($(event.srcElement).parent().parent().attr("name"));
+		rvDataSets[0].selectLayer($(event.currentTarget).parent().parent().attr("name"));
 	});
 	//Accordion that support multiple sections open
 	$("#LayerPanel").multiAccordion();
@@ -1682,13 +1682,19 @@ function resizeElements() {
 	$("#jmolApplet0").css('left', 0);
 	
 	// Layer Panel
-	//$( "#LayerDialog" ).css('height',1.2*s);
-	/*
-	$( "#LayerDialog" ).position({
-	my: "right top",
-	at: "right top",
-	of: $( "#jmolDiv" )
-	});*/
+	$( "#LayerDialog" ).dialog( "option", "height", s - 2 * MajorBorderSize );	
+	$( "#LayerDialog" ).dialog("widget").position({
+		my: "right top",
+		at: "right top",
+		of: $( "#canvasDiv" )
+	});
+	// Color Panel
+	$( "#ColorDialog" ).dialog( "option", "height", 0.75 * s - 2 * MajorBorderSize );	
+	$( "#ColorDialog" ).dialog("widget").position({
+		my: "right top",
+		at: "right top",
+		of: $( "#canvasDiv" )
+	});
 	
 	//LogoDiv
 	$("#LogoDiv").css('width', xcorr);
@@ -2050,7 +2056,7 @@ function colorProcess(data, indexMode, ChoiceList, colName) {
 	switch (targetLayer.Type) {
 	case "circles":
 		if (indexMode == "1") {
-			data.splice(0, 1);
+			//data.splice(0, 1);
 			var dataIndices = data;
 		} else {
 			var dataIndices = new Array;
@@ -2066,7 +2072,11 @@ function colorProcess(data, indexMode, ChoiceList, colName) {
 			residue.CurrentData = data[i + 1];
 			var val = Math.round((residue.CurrentData - min) / range * (colors.length - 1));
 			if (indexMode == "1") {
-				residue.color = colors[residue.CurrentData];
+				if (colors[residue.CurrentData]){
+					residue.color = colors[residue.CurrentData];
+				} else {
+					residue.color = "#000000";
+				}
 			} else {
 				if (residue.CurrentData > 0) {
 					residue.color = (val < 0 || val >= colors.length) ? "#000000" : colors[val];
@@ -2552,11 +2562,12 @@ function handleFileSelect(event) {
 				//console.log(reader.result);
 				rvDataSets[0].addCustomData($.csv.toObjects(reader.result));
 				
-				NewData = new Object;
-				
+				//NewData = new Object;
+				NewData = [];
+				/*
 				for (j = 0; j < rvDataSets[0].Residues.length; j++) {
 					NewData[rvDataSets[0].Residues[j].CurrentData] = 0;
-				}
+				}*/
 				
 				var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
 				for (var ii = 0; ii < rvDataSets[0].CustomData.length; ii++) {
@@ -2576,8 +2587,8 @@ function handleFileSelect(event) {
 							}
 							var k = rvDataSets[0].ResidueList.indexOf(ResName);
 							if ($.inArray("DataCol", customkeys) >= 0) {
-								NewData[k + 1] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
-								rvDataSets[0].Residues[k].CurrentData = NewData[k + 1];
+								NewData[k] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
+								rvDataSets[0].Residues[k].CurrentData = NewData[k];
 							}
 							if ($.inArray("ColorCol", customkeys) >= 0) {
 								rvDataSets[0].Residues[k].color = rvDataSets[0].CustomData[ii]["ColorCol"];
@@ -2596,8 +2607,8 @@ function handleFileSelect(event) {
 						
 						var k = rvDataSets[0].ResidueList.indexOf(ResName);
 						if ($.inArray("DataCol", customkeys) >= 0) {
-							NewData[k + 1] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
-							rvDataSets[0].Residues[k].CurrentData = NewData[k + 1];
+							NewData[k] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
+							rvDataSets[0].Residues[k].CurrentData = NewData[k];
 						}
 						if ($.inArray("ColorCol", customkeys) >= 0) {
 							rvDataSets[0].Residues[k].color = rvDataSets[0].CustomData[ii]["ColorCol"];
@@ -2699,6 +2710,22 @@ function checkSavePrivacyStatus() {
 
 
 //////////////////////////////// Save Functions ///////////////////////////////
+function savePNG() {
+	AgreeFunction = function () {
+		var form = document.createElement("form");
+		form.setAttribute("method", "post");
+		form.setAttribute("action", "savePNG.php");
+		var hiddenField = document.createElement("input");
+		hiddenField.setAttribute("type", "hidden");
+		hiddenField.setAttribute("name", "content");
+		hiddenField.setAttribute("value", canvasToSVG());
+		form.appendChild(hiddenField);
+		document.body.appendChild(form);
+		form.submit();
+	}
+	checkSavePrivacyStatus();
+}
+
 function saveSVG() {
 	AgreeFunction = function () {
 		var form = document.createElement("form");
@@ -3285,7 +3312,7 @@ function welcomeScreen() {
 	rvDataSets[0].Layers[0].CanvasContext.fillText('Please select a molecule', HighlightLayer.width / 2 / rvViews[0].scale - rvViews[0].x, HighlightLayer.height / 2 / rvViews[0].scale - rvViews[0].y + (3 * scale_factor * line_unit));
 	rvDataSets[0].Layers[0].CanvasContext.fillText('to get started.', HighlightLayer.width / 2 / rvViews[0].scale - rvViews[0].x, HighlightLayer.height / 2 / rvViews[0].scale - rvViews[0].y + (5 * scale_factor * line_unit));
 	
-	canvas_arrow(HighlightLayer.width / 2 / rvViews[0].scale - rvViews[0].x, HighlightLayer.height / 2 / rvViews[0].scale - rvViews[0].y - 25, 50, 50);
+	//canvas_arrow(HighlightLayer.width / 2 / rvViews[0].scale - rvViews[0].x, HighlightLayer.height / 2 / rvViews[0].scale - rvViews[0].y - 25, 50, 50);
 	
 }
 ///////////////////////////////////////////////////////////////////////////////
