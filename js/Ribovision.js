@@ -2626,7 +2626,7 @@ function handleFileSelect(event) {
 						ColorGrad[value - a] = ColorListU[key];
 					});
 					colors = ColorGrad;
-					colorProcess(NewData);
+					colorProcess(NewData,true);
 				} else if ($.inArray("DataCol", customkeys) >= 0) {
 					colors = RainBowColors;
 					colorProcess(NewData);
