@@ -2056,7 +2056,7 @@ function colorProcess(data, indexMode, ChoiceList, colName) {
 	switch (targetLayer.Type) {
 	case "circles":
 		if (indexMode == "1") {
-			data.splice(0, 1);
+			//data.splice(0, 1);
 			var dataIndices = data;
 		} else {
 			var dataIndices = new Array;
@@ -2072,7 +2072,11 @@ function colorProcess(data, indexMode, ChoiceList, colName) {
 			residue.CurrentData = data[i + 1];
 			var val = Math.round((residue.CurrentData - min) / range * (colors.length - 1));
 			if (indexMode == "1") {
-				residue.color = colors[residue.CurrentData];
+				if (colors[residue.CurrentData]){
+					residue.color = colors[residue.CurrentData];
+				} else {
+					residue.color = "#000000";
+				}
 			} else {
 				if (residue.CurrentData > 0) {
 					residue.color = (val < 0 || val >= colors.length) ? "#000000" : colors[val];
@@ -2558,11 +2562,12 @@ function handleFileSelect(event) {
 				//console.log(reader.result);
 				rvDataSets[0].addCustomData($.csv.toObjects(reader.result));
 				
-				NewData = new Object;
-				
+				//NewData = new Object;
+				NewData = [];
+				/*
 				for (j = 0; j < rvDataSets[0].Residues.length; j++) {
 					NewData[rvDataSets[0].Residues[j].CurrentData] = 0;
-				}
+				}*/
 				
 				var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
 				for (var ii = 0; ii < rvDataSets[0].CustomData.length; ii++) {
@@ -2582,8 +2587,8 @@ function handleFileSelect(event) {
 							}
 							var k = rvDataSets[0].ResidueList.indexOf(ResName);
 							if ($.inArray("DataCol", customkeys) >= 0) {
-								NewData[k + 1] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
-								rvDataSets[0].Residues[k].CurrentData = NewData[k + 1];
+								NewData[k] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
+								rvDataSets[0].Residues[k].CurrentData = NewData[k];
 							}
 							if ($.inArray("ColorCol", customkeys) >= 0) {
 								rvDataSets[0].Residues[k].color = rvDataSets[0].CustomData[ii]["ColorCol"];
@@ -2602,8 +2607,8 @@ function handleFileSelect(event) {
 						
 						var k = rvDataSets[0].ResidueList.indexOf(ResName);
 						if ($.inArray("DataCol", customkeys) >= 0) {
-							NewData[k + 1] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
-							rvDataSets[0].Residues[k].CurrentData = NewData[k + 1];
+							NewData[k] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
+							rvDataSets[0].Residues[k].CurrentData = NewData[k];
 						}
 						if ($.inArray("ColorCol", customkeys) >= 0) {
 							rvDataSets[0].Residues[k].color = rvDataSets[0].CustomData[ii]["ColorCol"];
@@ -2632,7 +2637,7 @@ function handleFileSelect(event) {
 						ColorGrad[value - a] = ColorListU[key];
 					});
 					colors = ColorGrad;
-					colorProcess(NewData);
+					colorProcess(NewData,true);
 				} else if ($.inArray("DataCol", customkeys) >= 0) {
 					colors = RainBowColors;
 					colorProcess(NewData);
