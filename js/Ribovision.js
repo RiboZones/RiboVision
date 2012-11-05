@@ -1446,6 +1446,7 @@ function InitRibovision() {
 	});
 	$("#canvasDiv").bind("mousemove", function (event) {
 		var sel = getSelected(event);
+		var selLine = getSelectedLine(event);
 		rvDataSets[0].HighlightLayer.clearCanvas();
 		
 		if (sel == -1) {
@@ -1464,6 +1465,18 @@ function InitRibovision() {
 		}
 		if (drag) {
 			rvViews[0].drag(event);
+		}
+		
+		if(selLine != -1){
+			var j = rvDataSets[0].BasePairs[selLine].resIndex1;
+			var k = rvDataSets[0].BasePairs[selLine].resIndex2;
+				rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
+				rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
+				rvDataSets[0].HighlightLayer.CanvasContext.moveTo(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y);
+				rvDataSets[0].HighlightLayer.CanvasContext.lineTo(rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
+				rvDataSets[0].HighlightLayer.CanvasContext.closePath();
+				rvDataSets[0].HighlightLayer.CanvasContext.stroke();
+			
 		}
 		
 	});
@@ -1729,6 +1742,26 @@ function dragHandle(event) {
 	pan(event.clientX - rvViews[0].lastX, event.clientY - rvViews[0].lastY);
 	rvViews[0].lastX = event.clientX;
 	rvViews[0].lastY = event.clientY;
+}
+
+function getSelectedLine(event){
+	var nx = (event.clientX - rvViews[0].x - $("#menu").width()) / rvViews[0].scale; //subtract 250 for the menu width
+	var ny = (event.clientY - rvViews[0].y - $("#topMenu").height()) / rvViews[0].scale; //subtract 80 for the info height
+	if(rvDataSets[0].BasePairs != undefined){
+		for (var i = 0; i < rvDataSets[0].BasePairs.length; i++) {
+			var j = rvDataSets[0].BasePairs[i].resIndex1;
+			var k = rvDataSets[0].BasePairs[i].resIndex2;
+			var jdist = Math.sqrt(((nx - rvDataSets[0].Residues[j].X)*(nx - rvDataSets[0].Residues[j].X) + (ny - rvDataSets[0].Residues[j].Y)*(ny - rvDataSets[0].Residues[j].Y)));
+			var kdist = Math.sqrt(((nx - rvDataSets[0].Residues[k].X)*(nx - rvDataSets[0].Residues[k].X) + (ny - rvDataSets[0].Residues[k].Y)*(ny - rvDataSets[0].Residues[k].Y)));
+			var jkdist = Math.sqrt(((rvDataSets[0].Residues[j].X - rvDataSets[0].Residues[k].X)*(rvDataSets[0].Residues[j].X - rvDataSets[0].Residues[k].X) + (rvDataSets[0].Residues[j].Y - rvDataSets[0].Residues[k].Y)*(rvDataSets[0].Residues[j].Y - rvDataSets[0].Residues[k].Y)));
+			if( (jdist+kdist - jkdist) < .25){
+					return i;
+				}
+			
+			}
+	
+	}
+	return -1;
 }
 
 function getSelected(event) {
