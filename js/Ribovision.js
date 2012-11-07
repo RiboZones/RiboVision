@@ -60,6 +60,8 @@ var RainBowColors = ["#00008f", "#00009f", "#0000af", "#0000bf", "#0000cf", "#00
 	"#af0000", "#9f0000", "#8f0000", "#800000"];
 
 var oCanvas1, oCanvas2, Lines;
+
+var HighlightLayer;
 ///////////////////////////////////////////////////////////////////////////////
 
 
@@ -88,7 +90,7 @@ function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type) {
 	//Methods
 	this.clearCanvas = function () {
 		this.CanvasContext.setTransform(1, 0, 0, 1, 0, 0);
-		this.CanvasContext.clearRect(0, 0, ResidueLayer.width, ResidueLayer.height);
+		this.CanvasContext.clearRect(0, 0, HighlightLayer.width, HighlightLayer.height);
 		this.CanvasContext.setTransform(rvViews[0].scale, 0, 0, rvViews[0].scale, rvViews[0].x, rvViews[0].y);
 	};
 	this.addLinearGradient = function (LinearGradient) {
@@ -1214,7 +1216,9 @@ function InitRibovision() {
 	rvDataSets[0].addLayer("MainLineLayer", "MainLineLayer", [], true, 1.0, 'lines');
 	rvDataSets[0].addLayer("ContourLayer", "ContourLayer", [], true, 1.0, 'contour');
 	rvDataSets[0].addHighlightLayer("HighlightLayer", "HighlightLayer", [], false, 1.176, 'highlight');
-
+	
+	HighlightLayer = rvDataSets[0].HighlightLayer.Canvas;
+	
 	// Sort rvLayers by zIndex for convience
 	rvDataSets[0].sort();
 	
@@ -1280,16 +1284,15 @@ function InitRibovision() {
 		colorMappingLoop(array_of_checked_values);
 	});
 	$("#ProtList").bind("multiselectuncheckall", function (event, ui) {
-		if ($("input[name=filled][value=filled]").attr("checked")) {
-			resetColorState();
-		} else {
-			jmolScript(jscript);
-			commandSelect();
-			updateModel();
+		resetColorState();
+		rvDataSets[0].clearData(rvDataSets[0].getSelectedLayer().LayerName);
+		rvDataSets[0].clearCanvas(rvDataSets[0].getSelectedLayer().LayerName);
+		var interactionchoice = $('#BasePairList').val();
+		var p = interactionchoice[0].indexOf("_NPN");
+		if (p>=0){
+			rvDataSets[0].BasePairs = [];
+			rvDataSets[0].clearCanvas("lines");
 		}
-		rvDataSets[0].clearCanvas("circles");
-		rvDataSets[0].clearCanvas("lines");
-		
 	});
 	
 	$.getJSON('getData.php', {
