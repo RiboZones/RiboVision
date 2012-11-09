@@ -99,6 +99,12 @@ function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type) {
 	this.deleteLayer = function () {
 		$(this.Canvas).remove();
 	};
+	this.clearData = function () {
+		this.dataLayerColors = new Array;
+		for (var jj = 0; jj < rvDataSets[0].Residues.length; jj++) {
+			this.dataLayerColors[jj] = undefined;
+		}
+	}
 }
 
 function rvDataSet(DataSetName) {
@@ -219,30 +225,30 @@ function rvDataSet(DataSetName) {
 		if (ind >= 0) {
 			$.each(this.Layers, function (key, value) {
 				if (value.Type === layer) {
-					clearData(value);
+					value.clearData();
 				}
 			});
 		} else {
 			$.each(this.Layers, function (key, value) {
 				if (value.LayerName === layer) {
-					clearData(value);
+					value.clearData();
 				}
 			});
 		}
 	};
-	this.drawResidues = function (layer) {
-		this.clearCanvas(layer);
+	this.drawResidues = function (layer, dataIndices, ColorArray, noClear) {
+		//this.clearCanvas(layer);
 		var ind = $.inArray(layer, this.LayerTypes);
 		if (ind >= 0) {
 			$.each(this.Layers, function (key, value) {
 				if (value.Type === layer) {
-					drawResidues(value);
+					drawResidues(value, dataIndices, ColorArray, noClear);
 				}
 			});
 		} else {
 			$.each(this.Layers, function (key, value) {
 				if (value.LayerName === layer) {
-					drawResidues(value);
+					drawResidues(value, dataIndices, ColorArray, noClear);
 				}
 			});
 		}
@@ -385,12 +391,6 @@ function rvDataSet(DataSetName) {
 			}
 		}
 	}
-	function clearData(targetLayer) {
-		targetLayer.dataLayerColors = new Array;
-		for (var jj = 0; jj < rvDataSets[0].Residues.length; jj++) {
-			targetLayer.dataLayerColors[jj] = undefined;
-		}
-	}
 	function drawLabels(targetLayer) {
 		targetLayer.CanvasContext.textAlign = 'left';
 		
@@ -414,19 +414,32 @@ function rvDataSet(DataSetName) {
 			}
 		}
 	}
-	function drawResidues(targetLayer) {
-		targetLayer.clearCanvas();
-		if (rvDataSets[0].Residues.length > 0) {
-			targetLayer.CanvasContext.strokeStyle = "#000000";
-			targetLayer.CanvasContext.font = "3pt Arial";
-			targetLayer.CanvasContext.textBaseline = "middle";
-			targetLayer.CanvasContext.textAlign = "center";
-			for (var i = rvDataSets[0].Residues.length - 1; i >= 0; i--) {
-				targetLayer.CanvasContext.fillStyle = (rvDataSets[0].Residues[i].color || "#000000");
-				targetLayer.CanvasContext.fillText(rvDataSets[0].Residues[i].resName, rvDataSets[0].Residues[i].X, rvDataSets[0].Residues[i].Y);
+	function drawResidues(targetLayer, dataIndices, ColorArray, noClear) {
+		if (targetLayer.Type === "residues"){
+			if (!noClear) {
+				targetLayer.clearCanvas();
+				targetLayer.dataLayerColors = [];
 			}
-		} else {
-			welcomeScreen();
+			if (rvDataSets[0].Residues && rvDataSets[0].Residues.length > 0) {
+				if (dataIndices && ColorArray){
+					for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
+						if (ColorArray[dataIndices[i]]) {
+							rvDataSets[0].Residues[i].color = ColorArray[dataIndices[i]];
+							targetLayer.dataLayerColors[i] = ColorArray[dataIndices[i]];
+						}
+					}		
+				}
+				targetLayer.CanvasContext.strokeStyle = "#000000";
+				targetLayer.CanvasContext.font = "3pt Arial";
+				targetLayer.CanvasContext.textBaseline = "middle";
+				targetLayer.CanvasContext.textAlign = "center";
+				for (var i = rvDataSets[0].Residues.length - 1; i >= 0; i--) {
+					targetLayer.CanvasContext.fillStyle = (rvDataSets[0].Residues[i].color || "#000000");
+					targetLayer.CanvasContext.fillText(rvDataSets[0].Residues[i].resName, rvDataSets[0].Residues[i].X, rvDataSets[0].Residues[i].Y);
+				}
+			} else {
+				welcomeScreen();
+			}
 		}
 	}
 	function drawSelection(targetLayer) {
@@ -445,29 +458,34 @@ function rvDataSet(DataSetName) {
 		}
 	}
 	function drawDataCircles(targetLayer, dataIndices, ColorArray, noClear) {
-		if (!noClear) {
-			targetLayer.clearCanvas();
-			targetLayer.dataLayerColors = [];
-		}
-		
-		if (rvDataSets[0].Residues != undefined) {
-			for (var i = rvDataSets[0].Residues.length - 1; i >= 0; i--) {
-				if (ColorArray[dataIndices[i]] != '#000000' && ColorArray[dataIndices[i]] != undefined && ColorArray[dataIndices[i]] != '#858585') {
-					targetLayer.CanvasContext.beginPath();
-					targetLayer.CanvasContext.arc(rvDataSets[0].Residues[i].X, rvDataSets[0].Residues[i].Y, (targetLayer.ScaleFactor * 1.7), 0, 2 * Math.PI, false);
-					targetLayer.CanvasContext.closePath();
-					targetLayer.CanvasContext.strokeStyle = ColorArray[dataIndices[i]];
-					targetLayer.CanvasContext.stroke();
-					if (targetLayer.Filled) {
-						targetLayer.CanvasContext.fillStyle = ColorArray[dataIndices[i]];
-						targetLayer.CanvasContext.fill();
+		if (targetLayer.Type === "circles"){
+			if (!noClear) {
+				targetLayer.clearCanvas();
+				targetLayer.dataLayerColors = [];
+			}
+			
+			if (rvDataSets[0].Residues != undefined) {
+				for (var i = rvDataSets[0].Residues.length - 1; i >= 0; i--) {
+					if (ColorArray[dataIndices[i]] != '#000000' && ColorArray[dataIndices[i]] != undefined && ColorArray[dataIndices[i]] != '#858585') {
+						targetLayer.CanvasContext.beginPath();
+						targetLayer.CanvasContext.arc(rvDataSets[0].Residues[i].X, rvDataSets[0].Residues[i].Y, (targetLayer.ScaleFactor * 1.7), 0, 2 * Math.PI, false);
+						targetLayer.CanvasContext.closePath();
+						targetLayer.CanvasContext.strokeStyle = ColorArray[dataIndices[i]];
+						targetLayer.CanvasContext.stroke();
+						if (targetLayer.Filled) {
+							targetLayer.CanvasContext.fillStyle = ColorArray[dataIndices[i]];
+							targetLayer.CanvasContext.fill();
+						}
+						targetLayer.dataLayerColors[i] = ColorArray[dataIndices[i]];
 					}
-					targetLayer.dataLayerColors[i] = ColorArray[dataIndices[i]];
 				}
 			}
+		} else {
+			return false;
 		}
 	};
 	function drawBasePairs(targetLayer, colorLayer) {
+		var color1,color2;
 		targetLayer.clearCanvas();
 		if (!colorLayer) {
 			colorLayer = targetLayer.ColorLayer;
@@ -485,35 +503,47 @@ function rvDataSet(DataSetName) {
 			for (var i = 0; i < rvDataSets[0].BasePairs.length; i++) {
 				var j = rvDataSets[0].BasePairs[i].resIndex1;
 				var k = rvDataSets[0].BasePairs[i].resIndex2;
-				switch (colorLayer.Type) {
-				case undefined:
-					rvDataSets[0].BasePairs[i]["color"] = "rgba(35,31,32,.5)";
-					break;
-				case "residues":
-					var grd = colorLayer.CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
-					grd.addColorStop(grd_order[0], "rgba(" + h2d(rvDataSets[0].Residues[j].color.slice(1, 3)) + "," + h2d(rvDataSets[0].Residues[j].color.slice(3, 5)) + "," + h2d(rvDataSets[0].Residues[j].color.slice(5)) + ",.5)");
-					grd.addColorStop(grd_order[1], "rgba(" + h2d(rvDataSets[0].Residues[k].color.slice(1, 3)) + "," + h2d(rvDataSets[0].Residues[k].color.slice(3, 5)) + "," + h2d(rvDataSets[0].Residues[k].color.slice(5)) + ",.5)");
-					colorLayer.addLinearGradient(grd);
-					rvDataSets[0].BasePairs[i]["color"] = grd;
-					break;
-				case "circles":
-					var grd = colorLayer.CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
-					grd.addColorStop(grd_order[0], "rgba(" + h2d(colorLayer.dataLayerColors[j].slice(1, 3)) + "," + h2d(colorLayer.dataLayerColors[j].slice(3, 5)) + "," + h2d(colorLayer.dataLayerColors[j].slice(5)) + ",.5)");
-					grd.addColorStop(grd_order[1], "rgba(" + h2d(colorLayer.dataLayerColors[k].slice(1, 3)) + "," + h2d(colorLayer.dataLayerColors[k].slice(3, 5)) + "," + h2d(colorLayer.dataLayerColors[k].slice(5)) + ",.5)");
-					colorLayer.addLinearGradient(grd);
-					rvDataSets[0].BasePairs[i]["color"] = grd;
-					break;
-				default:
-					alert("this shouldn't be happening right now.");
+				if (j >=0 && k >=0){
+					switch (colorLayer.Type) {
+						case undefined:
+							rvDataSets[0].BasePairs[i]["color"] = "rgba(35,31,32,.5)";
+							break;
+						case "residues":
+							var grd = colorLayer.CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
+							if (rvDataSets[0].Residues[j].color && rvDataSets[0].Residues[k].color){
+								color1 = colourNameToHex(rvDataSets[0].Residues[j].color);
+								color2 = colourNameToHex(rvDataSets[0].Residues[k].color);
+								
+								grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + ",.5)");
+								grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + ",.5)");
+							}
+							colorLayer.addLinearGradient(grd);
+							rvDataSets[0].BasePairs[i]["color"] = grd;
+							break;
+						case "circles":
+							var grd = colorLayer.CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
+							if (colorLayer.dataLayerColors[j] && colorLayer.dataLayerColors[k]){
+								color1 = colourNameToHex(colorLayer.dataLayerColors[j]);
+								color2 = colourNameToHex(colorLayer.dataLayerColors[k]);
+								
+								grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + ",.5)");
+								grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + ",.5)");
+							}
+							colorLayer.addLinearGradient(grd);
+							rvDataSets[0].BasePairs[i]["color"] = grd;
+							break;
+						default:
+							alert("this shouldn't be happening right now.");
+					}
+					//Regular Mode
+					
+					targetLayer.CanvasContext.strokeStyle = rvDataSets[0].BasePairs[i]["color"];
+					targetLayer.CanvasContext.beginPath();
+					targetLayer.CanvasContext.moveTo(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y);
+					targetLayer.CanvasContext.lineTo(rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
+					targetLayer.CanvasContext.closePath();
+					targetLayer.CanvasContext.stroke();
 				}
-				//Regular Mode
-				
-				targetLayer.CanvasContext.strokeStyle = rvDataSets[0].BasePairs[i]["color"];
-				targetLayer.CanvasContext.beginPath();
-				targetLayer.CanvasContext.moveTo(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y);
-				targetLayer.CanvasContext.lineTo(rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
-				targetLayer.CanvasContext.closePath();
-				targetLayer.CanvasContext.stroke();
 			}
 		}
 	}
@@ -664,6 +694,7 @@ $(document).ready(function () {
 	})
 	
 	$("#savedSelections").multiselect({
+		minWidth : 160,
 		click : function (event, ui) {
 			var array_of_checked_values = $("#savedSelections").multiselect("getChecked").map(function () {
 					return this.value;
@@ -721,6 +752,24 @@ $(document).ready(function () {
 		" Future updates will let you add additional layers of any type." + 
 		"<br><br>Please enter a name for the new layer.");
 	$( "#dialog-unique-layer-error" ).dialog({
+		resizable : false,
+		autoOpen : false,
+		height : "auto",
+		width : 400,
+		modal : true,
+		buttons: {
+			Ok: function() {
+				$( this ).dialog( "close" );
+			}
+		},
+		open : function () {
+			$("#jmolApplet0").css("visibility", "hidden");
+		},
+		close : function () { 
+			$("#jmolApplet0").css("visibility", "visible");
+		}
+	});
+	$( "#dialog-generic-notice" ).dialog({
 		resizable : false,
 		autoOpen : false,
 		height : "auto",
@@ -856,11 +905,13 @@ $(document).ready(function () {
 	
 	$("#tabs").tabs();
 	$("#ProtList").multiselect({
+		minWidth : 160,
 		selectedText : "# of # proteins selected",
 		noneSelectedText : 'Select proteins',
 		selectedList : 9,
 	});
 	$("#StructDataList").multiselect({
+		minWidth : 160,
 		multiple : false,
 		header : "Select a Data Set",
 		noneSelectedText : "Select an Option",
@@ -875,6 +926,7 @@ $(document).ready(function () {
 	});*/
 	$("#speciesList").menu({});
 	$("#selectByDomainHelix").multiselect({
+		minWidth : 160,
 		click : function (event, ui) {
 			var array_of_checked_values = $("#selectByDomainHelix").multiselect("getChecked").map(function () {
 					return this.value;
@@ -898,8 +950,8 @@ $(document).ready(function () {
 		},
 		checkAll : function (event, ui) {
 			var array_of_checked_values = $("#selectByDomainHelix").multiselect("getChecked").map(function () {
-					return this.value;
-				});
+				return this.value;
+			});
 			clearSelection();
 			$.each(array_of_checked_values, function (i, val) {
 				commandSelect(val.replace(/\,/g, ";"))
@@ -909,16 +961,35 @@ $(document).ready(function () {
 	$("#selectByDomainHelix").multiselect().multiselectfilter();
 	
 	$("#alnList").multiselect({
+		minWidth : 160,
 		multiple : false,
 		header : "Select a Data Set",
 		noneSelectedText : "Select an Option",
 		selectedList : 1
 	});
 	$("#BasePairList").multiselect({
+		minWidth : 160,
 		multiple : false,
 		header : "Select a Data Set",
 		noneSelectedText : "Select an Option",
-		selectedList : 1
+		selectedList : 1,
+		click : function (event){
+			var array_of_checked_values = $("#BasePairList").multiselect("getChecked").map(function(){
+			   return this.value;	
+			}).get();
+			var interactionchoice = array_of_checked_values[0];
+			var p = interactionchoice.indexOf("_NPN");
+			if (p>=0){
+				var array_of_checked_values2 = $("#ProtList").multiselect("getChecked").map(function(){
+				   return this.value;	
+				}).get();
+				if (array_of_checked_values2.length < 1){
+					$("#dialog-generic-notice [name=replace]").text("You have selected Protein Interactions but the protein list is empty. Please select one or more proteins.");
+					$("#dialog-generic-notice").dialog("open");
+				}
+			}
+			refreshBasePairs(interactionchoice);
+		}
 	});
 	
 	$("#openLayerBtn").button({
@@ -949,71 +1020,13 @@ $(document).ready(function () {
 		}
 	});
 
-	/*
-	$( "#goup" ).button({
-	text: false,
-	icons: {
-	primary: "ui-icon-triangle-1-n"
-	}
-	});
-	$( "#godown" ).button({
-	text: false,
-	icons: {
-	primary: "ui-icon-triangle-1-s"
-	}
-	});
-	$( "#goleft" ).button({
-	text: false,
-	icons: {
-	primary: "ui-icon-triangle-1-w"
-	}
-	});
-	$( "#goright" ).button({
-	text: false,
-	icons: {
-	primary: "ui-icon-triangle-1-e"
-	}
-	});
-	$( "#goin" ).button({
-	text: false,
-	icons: {
-	primary: "ui-icon-zoomin"
-	}
-	});
-	$( "#goout" ).button({
-	text: false,
-	icons: {
-	primary: "ui-icon-zoomout"
-	}
-	});
-	$( "#goreset" ).button({
-	text: false,
-	icons: {
-	primary: "ui-icon-refresh"
-	}
-	});
-	 */
 	$("#buttonmode").buttonset();
-	//$( "#proteinCircleMode" ).buttonset();
 	$("#colorLinesMode").buttonset();
 	$("#colorLinesGradientMode").buttonset();
 	$("[name=clearColor]").button();
 	$("[name=selebutton]").button();
 	$("[name=saveas]").button();
 	$("#colorSelection").button();
-	//$( "#oCanvasDemo").button();
-	
-	//oCanvas
-	/*oCanvas1 = oCanvas.create({
-	canvas: "#dataLinesLayer",
-	background: "transparent"
-	});
-	
-	oCanvas2 = oCanvas.create({
-	canvas: "#oCanvas2",
-	background: "transparent"
-	});
-	 */
 	InitRibovision();
 });
 
@@ -1118,6 +1131,7 @@ function LayerMenu(Layer, key) {
 			$("#LayerPanel div").first().next().find(".layerContent").append($('<div id="' + 'llm-' + key + '">').text("Color lines like:").append($("<br>")));
 			$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<select id="' + 'llm-' + key + 'lineselect' + '" name="' + 'llm-' + key + 'lineselect' + '" multiple="multiple"></select>'));
 			$('#' + 'llm-' + key + 'lineselect').multiselect({
+				minWidth : 160,
 				multiple : false,
 				header : "Select a layer",
 				noneSelectedText : "Select an Option",
@@ -1129,7 +1143,8 @@ function LayerMenu(Layer, key) {
 			//var SDList=rvDataSets[0].SpeciesEntry.StructDataMenu.split(";");
 			//llm.options.length = 0;
 			llm.options[0] = new Option("All Gray", "gray_lines");
-			
+			llm.options[0].setAttribute("selected", "selected");
+
 			var rLayers = rvDataSets[0].getLayerByType("residues");
 			var cLayers = rvDataSets[0].getLayerByType("circles");
 			$.each(rLayers, function (key, value) {
@@ -1146,17 +1161,21 @@ function LayerMenu(Layer, key) {
 					});
 				if (array_of_checked_values[0] === "gray_lines") {
 					rvDataSets[0].drawBasePairs("lines", "gray_lines");
+					$(event.currentTarget).parent().parent().find(':radio').attr('disabled','disabled');
 				} else {
 					rvDataSets[0].drawBasePairs("lines", rvDataSets[0].getLayer(array_of_checked_values[0]));
+					$(event.currentTarget).parent().parent().find(':radio').removeAttr('disabled');
 				}
 			});
 			
+			$("#LayerPanel div").first().next().find(".layerContent").first().append($('<br>'));
 			$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="' + 'llmg-' + key + '">').text("Line Gradient Direction:").append($("<br>")));
 			$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="color_lines_gradient' + key + '" id="' + 'llmg-' + key + '-1' + '" value="Matched" checked="checked"> <label for="' + 'llmg-' + key + '-1' + ' ">Matched</label>'));
 			$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="color_lines_gradient' + key + '" id="' + 'llmg-' + key + '-2' + '" value="Opposite"> <label for="' + 'llmg-' + key + '-2' + '">Opposite</label>'));
+			$('[name="color_lines_gradient' + key + '"]').attr('disabled', 'disabled');
 			$('input[name="color_lines_gradient' + key + '"]').change(function (event) {
 				targetLayer = rvDataSets[0].getLayer($('input[name="color_lines_gradient' + key + '"]' + ':checked').parent().parent().parent().find('h3').text());
-				targetLayer.ColorGradientMode = $('input[name="color_lines_gradient' + index + '"]' + ':checked').val();
+				targetLayer.ColorGradientMode =  $(event.currentTarget).parent().parent().find('input:checked').val();
 				rvDataSets[0].drawBasePairs("lines");
 			});
 			
@@ -1285,10 +1304,17 @@ function InitRibovision() {
 	});
 	$("#ProtList").bind("multiselectuncheckall", function (event, ui) {
 		resetColorState();
-		rvDataSets[0].clearData(rvDataSets[0].getSelectedLayer().LayerName);
-		rvDataSets[0].clearCanvas(rvDataSets[0].getSelectedLayer().LayerName);
-		var interactionchoice = $('#BasePairList').val();
-		var p = interactionchoice[0].indexOf("_NPN");
+		targetLayer=rvDataSets[0].getSelectedLayer();
+		targetLayer.clearData();
+		if ( targetLayer.Type == "circles"){
+			rvDataSets[0].clearCanvas(rvDataSets[0].getSelectedLayer().LayerName);
+		}
+		var array_of_checked_values = $("#BasePairList").multiselect("getChecked").map(function(){
+		   return this.value;	
+		}).get();
+		var interactionchoice = array_of_checked_values[0];
+		//var interactionchoice = $('#BasePairList').val();
+		var p = interactionchoice.indexOf("_NPN");
 		if (p>=0){
 			rvDataSets[0].BasePairs = [];
 			rvDataSets[0].clearCanvas("lines");
@@ -2072,8 +2098,8 @@ function colorProcess(data, indexMode, ChoiceList, colName) {
 		
 		//var residue2 = rvDataSets[0].Residues[ii];
 		
-		if (data[ii + 1] != undefined && data[ii + 1] > 0) {
-			color_data[DataPoints] = data[ii + 1];
+		if (data[ii] != undefined && data[ii] > 0) {
+			color_data[DataPoints] = data[ii];
 			DataPoints++;
 		}
 		
@@ -2097,7 +2123,7 @@ function colorProcess(data, indexMode, ChoiceList, colName) {
 		} else {
 			var dataIndices = new Array;
 			for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
-				dataIndices[i] = Math.round((data[i + 1] - min) / range * (colors.length - 1));
+				dataIndices[i] = Math.round((data[i] - min) / range * (colors.length - 1));
 			}
 		}
 		rvDataSets[0].drawDataCircles(targetLayer.LayerName, dataIndices, colors);
@@ -2105,7 +2131,7 @@ function colorProcess(data, indexMode, ChoiceList, colName) {
 	case "residues":
 		for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
 			var residue = rvDataSets[0].Residues[i];
-			residue.CurrentData = data[i + 1];
+			residue.CurrentData = data[i];
 			var val = Math.round((residue.CurrentData - min) / range * (colors.length - 1));
 			if (indexMode == "1") {
 				if (colors[residue.CurrentData]){
@@ -2134,30 +2160,33 @@ function colorProcess(data, indexMode, ChoiceList, colName) {
 }
 
 function colorMappingLoop(seleProt, OverRideColors) {
-	//var seleProt = $("#" + ChoiceList).val();
-	//console.log(seleProt);
 	if (arguments.length >= 2) {
 		var colors2 = OverRideColors;
 	} else {
 		var colors2 = RainBowColors;
 	}
 	
-	var targetLayer = rvDataSets[0].getSelectedLayer().LayerName;
-	
-	/*
-	if ($("input[name=filled][value=filled]").attr("checked")){
-	for(var j = 0; j < rvDataSets[0].Residues.length; j++){
-	rvDataSets[0].Residues[j].color = '#000000' ;
+	var targetLayer = rvDataSets[0].getSelectedLayer();
+	if (targetLayer.Type === "circles"){
+		targetLayer.clearCanvas();
+		targetLayer.clearData();
 	}
-	var targetLayer="LinkedCircleLayer";
-	} else {
-	}*/
+	if (targetLayer.Type === "residues"){
+		//targetLayer.clearCanvas();
+		clearColor(false);
+		targetLayer.clearData();
+	}
+	var array_of_checked_values = $("#BasePairList").multiselect("getChecked").map(function(){
+	   return this.value;	
+	}).get();
+	var interactionchoice = array_of_checked_values[0];
+	//var interactionchoice = $('#BasePairList').val();
+	var p = interactionchoice.indexOf("_NPN");
+	if ( p >=0 ){
+		rvDataSets[0].BasePairs = [];
+		rvDataSets[0].clearCanvas("lines");
+	}
 	
-	rvDataSets[0].BasePairs = [];
-	rvDataSets[0].clearCanvas("lines");
-	
-	var interactionchoice = $('#BasePairList').val();
-	var p = interactionchoice[0].indexOf("_NPN");
 	var Jscript = "display (selected), (" + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and (";
 	var JscriptP = "set hideNotSelected false;";
 	
@@ -2168,23 +2197,17 @@ function colorMappingLoop(seleProt, OverRideColors) {
 			var val = 0;
 		}
 		var newcolor = (val < 0 || val >= colors2.length) ? "#000000" : colors2[val];
-		//colorMapping(ChoiceList,seleProt[i],['#000000',newcolor],1);
-		/*
-		if ($("input[name=filled][value=filled]").attr("checked")){
-		for(var j = 0; j < rvDataSets[0].Residues.length; j++){
-		if (rvDataSets[0].Residues[j][seleProt[i]] > 0){
-		rvDataSets[0].Residues[j].color = newcolor;
-		}
-		}
-		}*/
 		var dataIndices = new Array;
 		for (var jj = 0; jj < rvDataSets[0].Residues.length; jj++) {
-			dataIndices[jj] = rvDataSets[0].Residues[jj][seleProt[i]];
+			if (rvDataSets[0].Residues[jj][seleProt[i]] && rvDataSets[0].Residues[jj][seleProt[i]] >0){
+				dataIndices[jj] = rvDataSets[0].Residues[jj][seleProt[i]];
+			} else {
+				//dataIndices[jj] = undefined;
+			}
 		}
-		rvDataSets[0].drawDataCircles(targetLayer, dataIndices, ["#000000", newcolor], true);
-		
-		//var h = new Array;
-		//var h[i]=rvDataSets[0].SpeciesEntry.SubunitProtChains[0].indexOf(seleProt[i]);
+		rvDataSets[0].drawDataCircles(targetLayer.LayerName, dataIndices, ["#000000", newcolor], true);
+		rvDataSets[0].drawResidues(targetLayer.LayerName, dataIndices, ["#000000", newcolor], true);
+
 		if (i === 0) {
 			Jscript += ":" + rvDataSets[0].SpeciesEntry.SubunitProtChains[1][rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(seleProt[i])];
 		} else {
@@ -2192,11 +2215,9 @@ function colorMappingLoop(seleProt, OverRideColors) {
 		}
 		JscriptP += "select (" + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + rvDataSets[0].SpeciesEntry.SubunitProtChains[1][rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(seleProt[i])] + "); color Cartoon opaque [" + newcolor.replace("#", "x") + "];";
 		if (p > 0) {
-			appendBasePairs(interactionchoice[0], seleProt[i]);
+			appendBasePairs(interactionchoice, seleProt[i]);
 		}
 	}
-	rvDataSets[0].drawResidues("residues");
-	rvDataSets[0].refreshResiduesExpanded("circles");
 	
 	Jscript += "));";
 	//JscriptP+="display " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA ) + ".1, " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein ) + ".1;" ;
@@ -2255,7 +2276,7 @@ function colorMapping(ChoiceList, ManualCol, OverRideColors, indexMode, rePlaceD
 			if (colName != "clear_data") {
 				var data = new Array;
 				for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
-					data[j + 1] = rvDataSets[0].Residues[j][colName];
+					data[j] = rvDataSets[0].Residues[j][colName];
 				}
 				colorProcess(data, indexMode, ChoiceList, colName);
 			} else {
@@ -2273,7 +2294,7 @@ function colorMapping(ChoiceList, ManualCol, OverRideColors, indexMode, rePlaceD
 			if (colName != "clear_data") {
 				var data = new Array;
 				for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
-					data[j + 1] = rvDataSets[0].Residues[j][colName];
+					data[j] = rvDataSets[0].Residues[j][colName];
 				}
 				colorProcess(data, indexMode, ChoiceList, colName);
 			} else {
@@ -2480,9 +2501,7 @@ function appendBasePairs(BasePairTable, colName) {
 	}
 }
 
-function refreshBasePairs(BasePairTable, ColorMode) {
-	//var dd = document.getElementById("speciesList");
-	//var species = dd.options[dd.selectedIndex].value;
+function refreshBasePairs(BasePairTable) {
 	
 	if (BasePairTable != "clear_lines") {
 		var p = BasePairTable.indexOf("_NPN");
@@ -2494,14 +2513,6 @@ function refreshBasePairs(BasePairTable, ColorMode) {
 				rvDataSets[0].drawBasePairs("lines");
 			});
 		} else {
-			/*
-			var dd = document.getElementById("ProtList");
-			var colName = dd.options[dd.selectedIndex].value;
-			$.getJSON('getData.php', {ProtBasePairs:BasePairTable,ProtChain:colName}, function(basePairs2) {
-			basePairs = basePairs2;
-			drawBasePairs();
-			});
-			 */
 			var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
 					return this.value;
 				}).get();
@@ -3202,6 +3213,7 @@ function loadSpecies(species) {
 				var AlnList = rvDataSets[0].SpeciesEntry.AlnMenu.split(";");
 				al.options.length = 0;
 				al.options[0] = new Option("None", "clear_data");
+				al.options[0].setAttribute("selected", "selected");
 				if (AlnList[0] != "") {
 					for (var ii = 0; ii < AlnList.length; ii++) {
 						var NewAlnPair = AlnList[ii].split(":");
@@ -3215,7 +3227,8 @@ function loadSpecies(species) {
 				var sl = document.getElementById("StructDataList");
 				var SDList = rvDataSets[0].SpeciesEntry.StructDataMenu.split(";");
 				sl.options.length = 0;
-				sl.options[0] = new Option("None", "'clear_data'");
+				sl.options[0] = new Option("None", "'clear_data'");				
+				sl.options[0].setAttribute("selected", "selected");
 				if (SDList[0] != "") {
 					for (var ii = 0; ii < SDList.length; ii++) {
 						var NewSDPair = SDList[ii].split(":");
@@ -3229,7 +3242,8 @@ function loadSpecies(species) {
 				var il = document.getElementById("BasePairList");
 				var BPList = rvDataSets[0].SpeciesEntry.InterActionMenu.split(";");
 				il.options.length = 0;
-				il.options[0] = new Option("None", "clear_lines", true, true);
+				il.options[0] = new Option("None", "clear_lines", true, true);				
+				il.options[0].setAttribute("selected", "selected");
 				if (BPList[0] != "") {
 					for (var iii = 0; iii < BPList.length; iii++) {
 						var NewBPair = BPList[iii].split(":");

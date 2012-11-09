@@ -47,7 +47,7 @@
     <div id="SiteInfo" class="ui-widget-content">
       <h3 class="ui-widget-header" style=
       "padding:3px; padding-left:10px; background-image:url(images/ui-bg_glass_50_3baae3_1x400.png); font-size:16px;"><a href=
-      "./ChangeLog.txt" target="_blank" style="color:#FFF">RiboVision: Version 0.501</a></h3>
+      "./ChangeLog.txt" target="_blank" style="color:#FFF">RiboVision: Version 0.503</a></h3>
 
       <p id="infoP">RiboVision is in the RiboZone family of products, brought to you by RiboEvo at Georgia Tech.</p>
 	  <a href="/Documentation/MainHelp.html" target="_blank" >Ribovision Manual</a>
@@ -106,9 +106,6 @@
         <div id="StructDataDiv">
           Structure Data:<br />
           <select id="StructDataList" multiple="multiple" onchange="JavaScript:updateStructData(value);">
-            <option value="clear_data">
-              None
-            </option>
           </select>
         </div>
 
@@ -117,9 +114,6 @@
         <div id="AlnDiv">
           Alignment Data:<br />
           <select id="alnList" multiple="multiple" onchange="JavaScript:colorMapping(id);">
-            <option value="clear_data">
-              None
-            </option>
           </select>
         </div>
 
@@ -135,10 +129,7 @@
 
         <div id="InteractDataDiv">
           Interaction Data:<br />
-          <select id="BasePairList" multiple="multiple" onchange="JavaScript:refreshBasePairs(value);">
-            <option value="clear_lines">
-              None
-            </option>
+          <select id="BasePairList" multiple="multiple">
           </select>
         </div>
 
@@ -285,6 +276,9 @@
   </div>
   <div id="dialog-layer-type-error" title="Layer type mismatch">
     <p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>You attempted to put circle data into an incompatible layer. Please select a circle or residue layer. You may create a new circle layer if you like. </p>
+  </div>
+  <div id="dialog-generic-notice" title="Notice to User">
+    <p><span class="ui-icon ui-icon-notice" style="float: left; margin: 0 7px 20px 0;"></span><span name="replace"></span></p>
   </div>
 </body>
 </html>
