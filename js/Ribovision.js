@@ -82,7 +82,7 @@ function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type) {
 	this.Visible = true;
 	this.Selected = false;
 	this.ColorLayer = [];
-	this.ColorGradientMode = [];
+	this.ColorGradientMode = "Matched";
 	if (this.Type === "lines") {
 		this.ColorLayer = "gray_lines";
 		this.ColorGradientMode = "Matched";
@@ -2940,6 +2940,7 @@ function savePML() {
 
 function canvasToSVG() {
 	var SupportesLayerTypes = ["lines", "labels", "residues", "circles", "selected"];
+	var ChosenSide;
 	
 	if (rvDataSets[0].SpeciesEntry.MapType.indexOf("Structural") >= 0) {
 		var mapsize = "612 792";
@@ -2954,69 +2955,108 @@ function canvasToSVG() {
 	
 	$.each(rvDataSets[0].Layers, function (index, value) {
 		switch (value.Type) {
-		case "lines":
-			output = output + '<g id="' + value.LayerName + '">\n';
-			for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
-				var BasePair = rvDataSets[0].BasePairs[j];
-				//var patt1 = /[0-9]+/g;
-				//var c=BasePair.color.match(patt1); rvDataSets[0].Residues[j].color
-				output = output + '<line fill="none" stroke="' + rvDataSets[0].Residues[BasePair.resIndex1].color + '" stroke-opacity="' + 0.5 + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
-			}
-			output = output + '</g>\n';
-			break;
-		case "labels":
-			output = output + '<g id="' + value.LayerName + '_Lines">\n';
-			for (var iii = 0; iii < rvDataSets[0].rvLineLabels.length; iii++) {
-				var LabelLine = rvDataSets[0].rvLineLabels[iii];
-				output = output + '<line fill="none" stroke="#211E1F" stroke-width="0.25" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(LabelLine.X1).toFixed(3) + '" y1="' + parseFloat(LabelLine.Y1).toFixed(3) + '" x2="' + parseFloat(LabelLine.X2).toFixed(3) + '" y2="' + parseFloat(LabelLine.Y2).toFixed(3) + '"/>\n';
-			}
-			output = output + '</g>\n';
-			
-			output = output + '<g id="' + value.LayerName + '_Text">\n';
-			for (var ii = 0; ii < rvDataSets[0].rvTextLabels.length; ii++) {
-				var LabelData = rvDataSets[0].rvTextLabels[ii];
-				output = output + '<text transform="matrix(1 0 0 1 ' + parseFloat(LabelData.X).toFixed(3) + ' ' + parseFloat(LabelData.Y).toFixed(3) + ')" fill="' + LabelData.Fill + '" font-family="Myriad Pro" font-size="' + LabelData.FontSize + '">' + LabelData.LabelText + '</text>\n';
-			}
-			output = output + '</g>\n';
-			break;
-		case "residues":
-			output = output + '<g id="' + value.LayerName + '">\n';
-			for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
-				var residue = rvDataSets[0].Residues[i];
-				output = output + '<text id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" transform="matrix(1 0 0 1 ' + (parseFloat(residue.X) - 1.262).toFixed(3) + ' ' + (parseFloat(residue.Y) + 1.145).toFixed(3) + ')" fill="' + residue.color + '" font-family="Myriad Pro" font-size="3.9">' + residue.resName + '</text>\n';
-			}
-			output = output + '</g>\n';
-			break;
-		case "circles":
-			output = output + '<g id="' + value.LayerName + '">\n';
-			var radius = 1.7 * value.ScaleFactor;
-			for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
-				var residue = rvDataSets[0].Residues[i];
-				if (residue && value.dataLayerColors[i]) {
-					if (value.Filled) {
-						output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + value.dataLayerColors[i] + '" stroke="' + value.dataLayerColors[i] + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(residue.X).toFixed(3) + '" cy="' + parseFloat(residue.Y).toFixed(3) + '" r="' + radius + '"/>\n';
+			case "lines":
+				output = output + '<g id="' + value.LayerName + '">\n';
+				if (value.ColorLayer === "gray_lines"){
+					for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
+						var BasePair = rvDataSets[0].BasePairs[j];
+						output = output + '<line fill="none" stroke="' + '#231F20' + '" stroke-opacity="' + 0.5 + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
+					}
+				} else {
+					if (value.ColorLayer.ColorGradientMode == "Matched") {
+						//var grd_order = [0, 1];
+						ChosenSide="resIndex1";
+					} else if (value.ColorLayer.ColorGradientMode == "Opposite") {
+						//var grd_order = [1, 0];
+						ChosenSide="resIndex2";
 					} else {
-						output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + 'none' + '" stroke="' + value.dataLayerColors[i] + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(residue.X).toFixed(3) + '" cy="' + parseFloat(residue.Y).toFixed(3) + '" r="' + radius + '"/>\n';
+						alert("how did we get here? 34");
+					}
+					switch  (value.ColorLayer.Type){
+						case "residues" : 
+							//var grd = value.ColorLayer.CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
+							/*
+							if (rvDataSets[0].Residues[j].color && rvDataSets[0].Residues[k].color){
+								color1 = colourNameToHex(rvDataSets[0].Residues[j].color);
+								color2 = colourNameToHex(rvDataSets[0].Residues[k].color);
+								
+								grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + ",.5)");
+								grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + ",.5)");
+							}
+							value.ColorLayer.addLinearGradient(grd);
+							rvDataSets[0].BasePairs[i]["color"] = grd;
+							*/
+							for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
+								var BasePair = rvDataSets[0].BasePairs[j];
+								output = output + '<line fill="none" stroke="' + rvDataSets[0].Residues[BasePair[ChosenSide]].color + '" stroke-opacity="' + 0.5 + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
+							}
+							break;
+						case "circles" : 
+							for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
+								var BasePair = rvDataSets[0].BasePairs[j];
+								output = output + '<line fill="none" stroke="' + value.ColorLayer.dataLayerColors[BasePair[ChosenSide]] + '" stroke-opacity="' + 0.5 + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
+							}
+							break;
+						default :
+							alert("this shouldn't be happening right now 54.");
+						
 					}
 				}
-			}
-			output = output + '</g>\n';
-			break;
-		case "selected":
-			output = output + '<g id="' + value.LayerName + '">\n';
-			var radius = 1.7 * value.ScaleFactor;
-			for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
-				var residue = rvDataSets[0].Residues[i];
-				if (residue && residue.selected) {
-					output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + 'none' + '" stroke="' + '#940B06' + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(residue.X).toFixed(3) + '" cy="' + parseFloat(residue.Y).toFixed(3) + '" r="' + radius + '"/>\n';
+				output = output + '</g>\n';
+				break;
+			case "labels":
+				output = output + '<g id="' + value.LayerName + '_Lines">\n';
+				for (var iii = 0; iii < rvDataSets[0].rvLineLabels.length; iii++) {
+					var LabelLine = rvDataSets[0].rvLineLabels[iii];
+					output = output + '<line fill="none" stroke="#211E1F" stroke-width="0.25" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(LabelLine.X1).toFixed(3) + '" y1="' + parseFloat(LabelLine.Y1).toFixed(3) + '" x2="' + parseFloat(LabelLine.X2).toFixed(3) + '" y2="' + parseFloat(LabelLine.Y2).toFixed(3) + '"/>\n';
 				}
+				output = output + '</g>\n';
+				
+				output = output + '<g id="' + value.LayerName + '_Text">\n';
+				for (var ii = 0; ii < rvDataSets[0].rvTextLabels.length; ii++) {
+					var LabelData = rvDataSets[0].rvTextLabels[ii];
+					output = output + '<text transform="matrix(1 0 0 1 ' + parseFloat(LabelData.X).toFixed(3) + ' ' + parseFloat(LabelData.Y).toFixed(3) + ')" fill="' + LabelData.Fill + '" font-family="Myriad Pro" font-size="' + LabelData.FontSize + '">' + LabelData.LabelText + '</text>\n';
+				}
+				output = output + '</g>\n';
+				break;
+			case "residues":
+				output = output + '<g id="' + value.LayerName + '">\n';
+				for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
+					var residue = rvDataSets[0].Residues[i];
+					output = output + '<text id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" transform="matrix(1 0 0 1 ' + (parseFloat(residue.X) - 1.262).toFixed(3) + ' ' + (parseFloat(residue.Y) + 1.145).toFixed(3) + ')" fill="' + residue.color + '" font-family="Myriad Pro" font-size="3.9">' + residue.resName + '</text>\n';
+				}
+				output = output + '</g>\n';
+				break;
+			case "circles":
+				output = output + '<g id="' + value.LayerName + '">\n';
+				var radius = 1.7 * value.ScaleFactor;
+				for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
+					var residue = rvDataSets[0].Residues[i];
+					if (residue && value.dataLayerColors[i]) {
+						if (value.Filled) {
+							output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + value.dataLayerColors[i] + '" stroke="' + value.dataLayerColors[i] + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(residue.X).toFixed(3) + '" cy="' + parseFloat(residue.Y).toFixed(3) + '" r="' + radius + '"/>\n';
+						} else {
+							output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + 'none' + '" stroke="' + value.dataLayerColors[i] + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(residue.X).toFixed(3) + '" cy="' + parseFloat(residue.Y).toFixed(3) + '" r="' + radius + '"/>\n';
+						}
+					}
+				}
+				output = output + '</g>\n';
+				break;
+			case "selected":
+				output = output + '<g id="' + value.LayerName + '">\n';
+				var radius = 1.7 * value.ScaleFactor;
+				for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
+					var residue = rvDataSets[0].Residues[i];
+					if (residue && residue.selected) {
+						output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + 'none' + '" stroke="' + '#940B06' + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(residue.X).toFixed(3) + '" cy="' + parseFloat(residue.Y).toFixed(3) + '" r="' + radius + '"/>\n';
+					}
+				}
+				output = output + '</g>\n';
+				break;
+				
+			default:
+				break;
 			}
-			output = output + '</g>\n';
-			break;
-			
-		default:
-			break;
-		}
 	});
 	
 	/*
