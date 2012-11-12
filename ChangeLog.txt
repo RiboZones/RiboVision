@@ -1,3 +1,5 @@
 Ribovision Change Log File
 
+0.503 Fixed
+
 0.5. First alpha release.
