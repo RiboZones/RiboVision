@@ -1100,10 +1100,7 @@ function LayerMenu(Layer, key) {
 				} else {
 					Layer.Filled = false;
 				}
-				var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
-						return this.value;
-					}).get();
-				colorMappingLoop(array_of_checked_values);
+				rvDataSets[0].refreshResiduesExpanded($(event.currentTarget).parent().parent().parent().attr("name"));
 			});
 			
 			$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="' + 'prs-' + key + '">').text("Circle Size:").append($("<br>")));
@@ -1121,10 +1118,7 @@ function LayerMenu(Layer, key) {
 				} else {
 					Layer.ScaleFactor = 1.2;
 				}
-				var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
-						return this.value;
-					}).get();
-				colorMappingLoop(array_of_checked_values);
+				rvDataSets[0].refreshResiduesExpanded($(event.currentTarget).parent().parent().parent().attr("name"));
 			});
 			break;
 		case "lines":
