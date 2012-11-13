@@ -1062,7 +1062,7 @@ function LayerMenu(Layer, key) {
 			'float' : 'left',
 			'padding-top' : 5,
 			'width' : 20
-		}).append($("<img class='visibilityCheckImg' value='visible' title='visibility' src='http://apollo.chemistry.gatech.edu/Ribovision/sandbox3/sandbox2/images/visible.png'/>").css({
+		}).append($("<img class='visibilityCheckImg' value='visible' title='visibility' src='./images/visible.png'/>").css({
 			'width' : '24px', 
 			'height': 'auto',
 			'margin-top': 3
