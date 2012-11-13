@@ -596,7 +596,10 @@ jmolInitialize("./jmol");
 			.find("> .ui-icon").toggleClass("ui-icon-triangle-1-e ui-icon-triangle-1-s").end()
 			.next().toggleClass("ui-accordion-content-active").slideToggle('fast'); //animation speed:fast
 			return false;
-		})
+		})	
+		.dblclick(function(){
+			alert("double clicked!");	
+		})	
 		.next()
 		.addClass("ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom")
 		.css("display", "block")
@@ -621,7 +624,7 @@ $(document).ready(function () {
 			effect : "blind",
 			duration : 500
 		},
-		height : 700,
+		height : 600,
 		position : {
 			my : "right top",
 			at : "right top",
@@ -910,6 +913,7 @@ $(document).ready(function () {
 		noneSelectedText : 'Select proteins',
 		selectedList : 9,
 	});
+	
 	$("#StructDataList").multiselect({
 		minWidth : 160,
 		multiple : false,
@@ -991,6 +995,11 @@ $(document).ready(function () {
 			refreshBasePairs(interactionchoice);
 		}
 	});
+	$("#secondaryList").multiselect({
+		//selectedText : "# of # 2nd interaction selected",
+		noneSelectedText : 'Select secondary interaction',
+		selectedList : 9,
+	});
 	
 	$("#openLayerBtn").button({
 		text : false,
@@ -1044,25 +1053,71 @@ function LayerMenu(Layer, key) {
 	//This is necessary because if just use $('.oneLayerGroup'), then duplicated layers will be added to different groups
 	$currentGroup = document.getElementsByName($currentLayerName);
 	//console.log($currentGroup);
+	
+	//hide and show icon: eye 
+	$visibleImgPath = "images/visible.png";
+	$invisibleImgPath = "images/invisible.png";
 	$($currentGroup)
 	.append($("<div>").addClass("checkBoxDIV").css({
 			'float' : 'left',
 			'padding-top' : 5,
 			'width' : 20
-		}).append($("<input />").attr({
-				type : 'checkbox'
-			}).addClass("visibilityCheckBox")));
-	
+		}).append($("<img class='visibilityCheckImg' value='visible' title='visibility' src='http://apollo.chemistry.gatech.edu/Ribovision/sandbox3/sandbox2/images/visible.png'/>").css({
+			'width' : '24px', 
+			'height': 'auto',
+			'margin-top': 3
+		}).click( function() {
+			//console.log("before: ", this);
+			$type = this.getAttribute('value');
+			//console.log($type);
+			if($type == 'visible'){
+				console.log("click an eye!!!");
+				//this.src = $invisibleImgPath;
+				this.setAttribute('value','invisible'); 
+				this.setAttribute('src', $invisibleImgPath);
+				console.log(this.parentNode.parentNode.getAttribute("name"));
+				$(rvDataSets[0].getLayer(this.parentNode.parentNode.getAttribute("name")).Canvas).css("visibility", "hidden");
+				//console.log(this.parent().parent().attr("name"));
+			}
+			else if($type == 'invisible'){
+				console.log("click a rect");
+				//this.src = $visibleImgPath;
+				this.setAttribute('value','visible');
+				this.setAttribute('src', $visibleImgPath);
+				console.log(this);
+				$(rvDataSets[0].getLayer(this.parentNode.parentNode.getAttribute("name")).Canvas).css("visibility", "visible");
+				//$(rvDataSets[0].getLayer(this.parent().parent().attr("name")).Canvas).css("visibility", "hidden");
+				//console.log(this.parent().parent().attr("name"));
+			}
+			//console.log("after: ", this);	
+		}))		
+	);
+				
+	//adding raido button for selection		
 	$($currentGroup)
 	.append($("<div>").addClass("radioDIV").css({
-			'float' : 'left',
-			'padding-top' : 5,
-			'padding-left' : 5,
-			'width' : 20
-		}).append($("<input />").attr({
-				type : 'radio',
-				name : 'selectedRadio'
-			}).addClass("selectLayerCheckBox")));
+		'float' : 'left',
+		'padding-top' : 5,
+		'padding-left' : 5,
+		'width' : 20
+	}).append($("<input />").attr({
+			type : 'radio',
+			name : 'selectedRadio',
+			title : 'select layer' 
+		}).addClass("selectLayerRadioBtn")));
+	
+	//raido button for telling 2D-3D mapping 
+	$($currentGroup)
+	.append($("<div>").addClass("radioDIV2").css({
+		'float' : 'left',
+		'padding-top' : 5,
+		'padding-left' : 5,
+		'width' : 20
+	}).append($("<input />").attr({
+			type : 'radio',
+			name : 'mappingRadio',
+			title : 'select which layer to map into 3D' 
+		}).addClass("mappingRadioBtn")));
 	/*
 	$selectBox = document.getElementsByClassName("checkBoxDIV");
 	console.log("DivDialog' width: " + $("#LayerDialog").width());
@@ -1073,13 +1128,22 @@ function LayerMenu(Layer, key) {
 	console.log("accordion width: " + $accordionWidth); //why 0??!!!
 	 */
 	
+	//adding accordion
 	$($currentGroup)
 	.append($("<h3>").addClass("layerName").css({
-			'margin-left' : 55
+			'margin-left' : 78
 		}).append($currentLayerName))
 	.append($("<div>").addClass("layerContent").css({
-			'margin-left' : 55
-		}));
+			'margin-left' : 78
+		}));	
+	/*
+	.dblclick( function (){
+			//alert("double clicked " + this.parentNode.getAttribute('name'));
+			//console.log(this);	
+			$(this).readOnly = false;		
+			//$(this).html('');
+		})
+		*/
 	
 	//$count++;
 	
@@ -1175,27 +1239,29 @@ function LayerMenu(Layer, key) {
 			
 			break;
 		case "residues":
-			$("#LayerPanel div").first().next().find(".selectLayerCheckBox").attr("checked", "checked");
+			$("#LayerPanel div").first().next().find(".selectLayerRadioBtn").attr("checked", "checked");
 			rvDataSets[0].selectLayer($("#LayerPanel div").first().next().attr("name"));
 			break;
 		default:
 			break;
 	}
-	$("#LayerPanel div").first().next().find(".visibilityCheckBox").attr("checked", "checked");
+	$("#LayerPanel div").first().next().find(".visibilityCheckImg").attr("value", "visible");
 }
 // Refresh Menu
 function RefreshLayerMenu(){
 	//Assign function to check boxes
-	$(".visibilityCheckBox").change(function (event) {
+	/*
+	$(".visibilityCheckImg").change(function (event) {
+		console.log("visibilityCheckImg changed!");
 		$(event.currentTarget).parent().parent().attr("name")
-		if ($(event.currentTarget).attr("checked")) {
+		if ($(event.currentTarget).attr("value") == "visible") {
 			$(rvDataSets[0].getLayer($(event.currentTarget).parent().parent().attr("name")).Canvas).css("visibility", "visible")
 		} else {
 			$(rvDataSets[0].getLayer($(event.currentTarget).parent().parent().attr("name")).Canvas).css("visibility", "hidden")
 		}
-	});
+	});*/
 	
-	$(".selectLayerCheckBox").change(function (event) {
+	$(".selectLayerRadioBtn").change(function (event) {
 		rvDataSets[0].selectLayer($(event.currentTarget).parent().parent().attr("name"));
 	});
 	//Accordion that support multiple sections open
@@ -1238,9 +1304,9 @@ function InitRibovision() {
 	// Build Layer Menu
 	
 	// Put in Top Labels and ToolBar
-	$("#LayerPanel").prepend($("<div>").attr({
+	$("#LayerPanel").prepend($("<div id='tipBar'>").attr({
 			'name' : 'TopLayerBar'
-		}).html("&nbspV&nbsp&nbsp&nbspS&nbsp&nbsp&nbsp&nbsp&nbsp&nbspLayerName&nbsp&nbsp&nbsp"));
+		}).html("&nbspV&nbsp&nbsp&nbspS&nbsp&nbsp&nbspM&nbsp&nbsp&nbsp&nbsp&nbsp&nbspLayerName&nbsp&nbsp&nbsp"));
 	$('[name=TopLayerBar]').append($('<button id="newLayer" class="toolBarBtn2" title="Create a new layer"></button>'));
 	$('[name=TopLayerBar]').append($('<button id="deleteLayer" class="toolBarBtn2" title="Delete the selected layer"></button>'));
 	$("#newLayer").button({

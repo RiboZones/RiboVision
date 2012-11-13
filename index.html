@@ -9,12 +9,19 @@
   <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js">
 </script>
   <script type="text/javascript">
-//<![CDATA[
+
+  //<![CDATA[
+
         if(typeof jQuery === 'undefined') {
+
                 document.write(unescape('%3Cscript type="text/javascript" src="js/jquery-1.8.2.min.js" %3E%3C/script%3E'));
+
                 document.write(unescape('%3Cscript type="text/javascript" src="js/jquery-ui-1.9.0.custom.min.js" %3E%3C/script%3E'));
+
         }
+
   //]]>
+
   </script>
   <script type="text/javascript" src="//code.jquery.com/ui/1.9.0/jquery-ui.min.js">
 </script>
@@ -47,10 +54,10 @@
     <div id="SiteInfo" class="ui-widget-content">
       <h3 class="ui-widget-header" style=
       "padding:3px; padding-left:10px; background-image:url(images/ui-bg_glass_50_3baae3_1x400.png); font-size:16px;"><a href=
-      "./ChangeLog.txt" target="_blank" style="color:#FFF">RiboVision: Version 0.503</a></h3>
+      "./ChangeLog.txt" target="_blank" style="color:#FFF">RiboVision: Version 0.504</a></h3>
 
-      <p id="infoP">RiboVision is in the RiboZone family of products, brought to you by RiboEvo at Georgia Tech.</p>
-	  <a href="/Documentation/MainHelp.html" target="_blank" >Ribovision Manual</a>
+      <p id="infoP">RiboVision is in the RiboZone family of products, brought to you by RiboEvo at Georgia Tech.</p><a href=
+      "/Documentation/MainHelp.html" target="_blank">Ribovision Manual</a>
     </div>
 
     <div id="NavDiv" class="ui-widget-content">
@@ -106,7 +113,7 @@
         <div id="StructDataDiv">
           Structure Data:<br />
           <select id="StructDataList" multiple="multiple" onchange="JavaScript:updateStructData(value);">
-          </select>
+            </select>
         </div>
 
         <h3><a href="#">Alignment Data</a></h3>
@@ -114,7 +121,7 @@
         <div id="AlnDiv">
           Alignment Data:<br />
           <select id="alnList" multiple="multiple" onchange="JavaScript:colorMapping(id);">
-          </select>
+            </select>
         </div>
 
         <h3><a href="#">Protein Data</a></h3>
@@ -128,9 +135,17 @@
         <h3><a href="#">Interaction Data</a></h3>
 
         <div id="InteractDataDiv">
-          Interaction Data:<br />
-          <select id="BasePairList" multiple="multiple">
-          </select>
+          <div id="primaryInteractData">
+            Interaction Data:<br />
+            <select id="BasePairList" multiple="multiple" onchange="JavaScript:refreshBasePairs(value);">
+              </select>
+          </div>
+
+          <div id="secondaryInteractData" style="margin-top:10px">
+            Secondary List:<br />
+            <select id="secondaryList" multiple="multiple">
+              </select>
+          </div>
         </div>
 
         <h3><a href="#">Custom Data</a></h3>
@@ -144,10 +159,9 @@
 
         <div id="saveDiv">
           Save As:<br />
-          <input name="saveas" type="button" onclick="JavaScript:savePDF();" value="PDF" />
-		  <input name="saveas" type="button" onclick="JavaScript:saveSVG();" value="SVG" /> 
-		  <input name="saveas" type="button" onclick="JavaScript:savePNG();" value="PNG" />
-		  <input name="saveas" type="button" onclick="JavaScript:savePML();" value="PML" />
+          <input name="saveas" type="button" onclick="JavaScript:savePDF();" value="PDF" /> <input name="saveas" type="button"
+          onclick="JavaScript:saveSVG();" value="SVG" /> <input name="saveas" type="button" onclick="JavaScript:savePNG();" value=
+          "PNG" /> <input name="saveas" type="button" onclick="JavaScript:savePML();" value="PML" />
         </div>
       </div>
     </div>
@@ -208,21 +222,25 @@
     </div>
   </div>
 
-  <div id="Privacy-confirm" title="Privacy Policy">
-    <p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span></p>
-  </div>
+  <div id="Privacy-confirm" title="Privacy Policy"></div>
 
   <div id="User-Name-Request" title="Please Enter a Name">
-    <p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>Please type a name for the variable you are saving.</p><input id="UserNameField" name="UserNameField" type="text" />
+    <p>Please type a name for the variable you are saving.</p><input id="UserNameField" name="UserNameField" type="text" />
   </div>
+
   <div id="dialog-addLayer" title="Create a New Layer">
-	<p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span></p><input id="newLayerName" name="newLayerName" type="text" />
+    <input id="newLayerName" name="newLayerName" type="text" />
   </div>
+
   <div id="jmolDiv" class="ui-widget-content">
     <script type='text/javascript'>
-//<![CDATA[
+
+    //<![CDATA[
+
     jmolApplet([100,100], "script states/blank_state.spt");
+
     //]]>
+
     </script>
   </div>
 
@@ -230,7 +248,8 @@
     <button id="openLayerBtn" class="toolBarBtn" title="Open Layer Manager"></button><br />
     <button id="openColorBtn" class="toolBarBtn" title="Open Color Picker"></button><br />
     <button id="open3rdBtn" class="toolBarBtn" title="This button is reserved for future use"></button><br />
-	<a id="openManualBtn" class="toolBarBtn" title="Ribovision Manual" href="/Documentation/MainHelp.html" target="_blank" >Ribovision Manual</a>
+    <button id="openManualBtn" class="toolBarBtn" title="Ribovision Manual" onclick=
+    "window.open(&#39;/Documentation/MainHelp.html&#39;)">Ribovision Manual</button>
   </div><!--Layer Control Dialog Box-->
 
   <div id="LayerDialog" title="Layer / Selection Panel">
@@ -265,20 +284,24 @@
   </div>
 
   <div id="dialog-confirm-delete" title="Delete the currently selected layer?">
-    <p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>Replace Me Text.</p>
+    <p>Replace Me Text.</p>
   </div>
 
   <div id="dialog-selection-warning" title="No layers are currently selected!">
-    <p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>Replace Me Text.</p>
+    <p>Replace Me Text.</p>
   </div>
-   <div id="dialog-unique-layer-error" title="This name is taken. Try again.">
-    <p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>Sorry, all layer names must be unique. The name you entered already exists. Please try again.</p>
+
+  <div id="dialog-unique-layer-error" title="This name is taken. Try again.">
+    <p>Sorry, all layer names must be unique. The name you entered already exists. Please try again.</p>
   </div>
+
   <div id="dialog-layer-type-error" title="Layer type mismatch">
-    <p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>You attempted to put circle data into an incompatible layer. Please select a circle or residue layer. You may create a new circle layer if you like. </p>
+    <p>You attempted to put circle data into an incompatible layer. Please select a circle or residue layer. You may create a new
+    circle layer if you like.</p>
   </div>
+
   <div id="dialog-generic-notice" title="Notice to User">
-    <p><span class="ui-icon ui-icon-notice" style="float: left; margin: 0 7px 20px 0;"></span><span name="replace"></span></p>
+    <p><span name="replace"></span></p>
   </div>
 </body>
 </html>
