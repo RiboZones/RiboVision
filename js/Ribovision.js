@@ -1294,7 +1294,7 @@ function InitRibovision() {
 	// Put in Top Labels and ToolBar
 	$("#LayerPanel").prepend($("<div id='tipBar'>").attr({
 			'name' : 'TopLayerBar'
-		}).html("&nbspV&nbsp&nbsp&nbsp&nbspS&nbsp&nbsp&nbsp&nbspL&nbsp&nbsp&nbsp&nbsp&nbsp&nbspLayerName&nbsp&nbsp&nbsp"));
+		}).html("&nbspV&nbsp&nbsp&nbsp&nbspS&nbsp&nbsp&nbsp&nbspL&nbsp&nbsp&nbsp&nbspLayerName&nbsp&nbsp"));
 	$('[name=TopLayerBar]').append($('<button id="newLayer" class="toolBarBtn2" title="Create a new layer"></button>'));
 	$('[name=TopLayerBar]').append($('<button id="deleteLayer" class="toolBarBtn2" title="Delete the selected layer"></button>'));
 	$("#newLayer").button({
@@ -1328,7 +1328,18 @@ function InitRibovision() {
 	
 	//Accordion that support multiple sections open
 	$("#LayerPanel").multiAccordion();
-	$("#LayerPanel").sortable();
+	$("#LayerPanel").sortable({
+		update : function (event, ui) {
+			$("#LayerPanel .layerContent").each(function (e, f) {
+				//$(this).find('p').text(rvDataSets[0].LastLayer - e - 1);
+				$("#" + $(this).parent().find('h3').text()).css('zIndex', rvDataSets[0].LastLayer - e - 1)
+				
+			});
+			rvDataSets[0].sort();
+		},
+		items : ".oneLayerGroup"
+		
+	});
 	$("#LayerPanel").disableSelection();
 	
 	//RefreshLayerMenu();
