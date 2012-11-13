@@ -579,34 +579,7 @@ function rvView(x, y, scale) {
 // Initialize Jmol
 jmolInitialize("./jmol");
 
-//Multi Accordian
-(function ($) {
-	$.fn.multiAccordion = function () {
-		$(this).addClass("ui-accordion ui-accordion-icons ui-widget ui-helper-reset")
-		.find("h3")
-		.addClass("ui-accordion-header ui-helper-reset ui-state-default ui-corner-all ui-accordion-icons")
-		
-		.hover(function () {
-			$(this).toggleClass("ui-state-hover");
-		})
-		.prepend('<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-e"></span>')
-		.click(function () {
-			$(this)
-			.toggleClass("ui-accordion-header-active ui-state-active ui-state-default ui-corner-bottom")
-			.find("> .ui-icon").toggleClass("ui-icon-triangle-1-e ui-icon-triangle-1-s").end()
-			.next().toggleClass("ui-accordion-content-active").slideToggle('fast'); //animation speed:fast
-			return false;
-		})	
-		.dblclick(function(){
-			alert("double clicked!");	
-		})	
-		.next()
-		.addClass("ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom")
-		.css("display", "block")
-		.hide()
-		//.end().trigger("click");
-	};
-})(jQuery);
+
 
 // Ready Function
 $(document).ready(function () {
@@ -649,10 +622,7 @@ $(document).ready(function () {
 		}
 	});
 	
-	//Accordion that support multiple sections open
-	$("#LayerPanel").multiAccordion();
-	$("#LayerPanel").sortable();
-	$("#LayerPanel").disableSelection();
+	
 	
 	$("#openLayerBtn").click(function () {
 		$("#LayerDialog").dialog("open");
@@ -1104,7 +1074,9 @@ function LayerMenu(Layer, key) {
 			type : 'radio',
 			name : 'selectedRadio',
 			title : 'select layer' 
-		}).addClass("selectLayerRadioBtn")));
+		}).addClass("selectLayerRadioBtn").change ( function (event) {
+			rvDataSets[0].selectLayer($(event.currentTarget).parent().parent().attr("name"));
+			})));
 	
 	//raido button for telling 2D-3D mapping 
 	$($currentGroup)
@@ -1116,8 +1088,11 @@ function LayerMenu(Layer, key) {
 	}).append($("<input />").attr({
 			type : 'radio',
 			name : 'mappingRadio',
-			title : 'select which layer to map into 3D' 
-		}).addClass("mappingRadioBtn")));
+			title : 'select which layer to map into 3D',
+			disabled : 'disabled'
+		}).addClass("mappingRadioBtn").change (function (event) {
+			alert($(event.currentTarget).parent().parent().attr("name"));
+			})));
 	/*
 	$selectBox = document.getElementsByClassName("checkBoxDIV");
 	console.log("DivDialog' width: " + $("#LayerDialog").width());
@@ -1176,6 +1151,9 @@ function LayerMenu(Layer, key) {
 			} else {
 				$('input[name="size' + key + '"][value=large]').attr("checked", true);
 			}
+			
+			$("#LayerPanel div").first().next().find(".radioDIV2").find('input').removeAttr("disabled");
+		
 			$('input[name="size' + key + '"]').change(function (event) {
 				if ($('input[name="size' + key + '"][value=regular]').attr("checked")) {
 					Layer.ScaleFactor = 1.0;
@@ -1184,6 +1162,7 @@ function LayerMenu(Layer, key) {
 				}
 				rvDataSets[0].refreshResiduesExpanded($(event.currentTarget).parent().parent().parent().attr("name"));
 			});
+			$(this);
 			break;
 		case "lines":
 			$("#LayerPanel div").first().next().find(".layerContent").append($('<div id="' + 'llm-' + key + '">').text("Color lines like:").append($("<br>")));
@@ -1241,6 +1220,9 @@ function LayerMenu(Layer, key) {
 		case "residues":
 			$("#LayerPanel div").first().next().find(".selectLayerRadioBtn").attr("checked", "checked");
 			rvDataSets[0].selectLayer($("#LayerPanel div").first().next().attr("name"));
+			$("#LayerPanel div").first().next().find(".radioDIV2").find('input').removeAttr("disabled");
+			$("#LayerPanel div").first().next().find(".radioDIV2").find('input').attr("checked","checked");
+		
 			break;
 		default:
 			break;
@@ -1260,12 +1242,17 @@ function RefreshLayerMenu(){
 			$(rvDataSets[0].getLayer($(event.currentTarget).parent().parent().attr("name")).Canvas).css("visibility", "hidden")
 		}
 	});*/
-	
+	/*
 	$(".selectLayerRadioBtn").change(function (event) {
 		rvDataSets[0].selectLayer($(event.currentTarget).parent().parent().attr("name"));
 	});
+	$(".mappingRadioBtn").change(function (event) {
+		alert($(event.currentTarget).parent().parent().attr("name"));
+	});
+	*/
 	//Accordion that support multiple sections open
 	$("#LayerPanel").multiAccordion();
+	/*
 	$("#LayerPanel").sortable({
 		update : function (event, ui) {
 			$("#LayerPanel .layerContent").each(function (e, f) {
@@ -1278,7 +1265,8 @@ function RefreshLayerMenu(){
 		items : ".oneLayerGroup"
 		
 	});
-	$("#LayerPanel").disableSelection();		
+	$("#LayerPanel").disableSelection();	
+*/	
 }
 
 function InitRibovision() {
@@ -1306,7 +1294,7 @@ function InitRibovision() {
 	// Put in Top Labels and ToolBar
 	$("#LayerPanel").prepend($("<div id='tipBar'>").attr({
 			'name' : 'TopLayerBar'
-		}).html("&nbspV&nbsp&nbsp&nbspS&nbsp&nbsp&nbspM&nbsp&nbsp&nbsp&nbsp&nbsp&nbspLayerName&nbsp&nbsp&nbsp"));
+		}).html("&nbspV&nbsp&nbsp&nbsp&nbspS&nbsp&nbsp&nbsp&nbspL&nbsp&nbsp&nbsp&nbsp&nbsp&nbspLayerName&nbsp&nbsp&nbsp"));
 	$('[name=TopLayerBar]').append($('<button id="newLayer" class="toolBarBtn2" title="Create a new layer"></button>'));
 	$('[name=TopLayerBar]').append($('<button id="deleteLayer" class="toolBarBtn2" title="Delete the selected layer"></button>'));
 	$("#newLayer").button({
@@ -1338,10 +1326,12 @@ function InitRibovision() {
 		LayerMenu(value, key);
 	});
 	
-	//Check all boxes by default
-	//$(".visibilityCheckBox").attr("checked", "checked");
+	//Accordion that support multiple sections open
+	$("#LayerPanel").multiAccordion();
+	$("#LayerPanel").sortable();
+	$("#LayerPanel").disableSelection();
 	
-	RefreshLayerMenu();
+	//RefreshLayerMenu();
 		
 	
 	$("#ProtList").bind("multiselectclick", function (event, ui) {
