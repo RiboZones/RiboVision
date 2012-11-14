@@ -81,6 +81,7 @@ function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type) {
 	this.zIndex = this.Canvas.style.zIndex;
 	this.Visible = true;
 	this.Selected = false;
+	this.Linked = false;
 	this.ColorLayer = [];
 	this.ColorGradientMode = "Matched";
 	if (this.Type === "lines") {
@@ -332,6 +333,25 @@ function rvDataSet(DataSetName) {
 			}
 		});
 		return ret;
+	};
+	this.getLinkedLayer = function () {
+		var ret = false;
+		$.each(this.Layers, function (key, value) {
+			if (value.Linked) {
+				ret = value;
+				return false;
+			}
+		});
+		return ret;
+	};
+	this.linkLayer = function (layer) {
+		$.each(this.Layers, function (key, value) {
+			if (value.LayerName === layer) {
+				value.Linked = true;
+			} else {
+				value.Linked = false;
+			}
+		});
 	};
 	this.selectLayer = function (layer) {
 		$.each(this.Layers, function (key, value) {
@@ -1041,20 +1061,20 @@ function LayerMenu(Layer, key) {
 			$type = this.getAttribute('value');
 			//console.log($type);
 			if($type == 'visible'){
-				console.log("click an eye!!!");
+				//console.log("click an eye!!!");
 				//this.src = $invisibleImgPath;
 				this.setAttribute('value','invisible'); 
 				this.setAttribute('src', $invisibleImgPath);
-				console.log(this.parentNode.parentNode.getAttribute("name"));
+				//console.log(this.parentNode.parentNode.getAttribute("name"));
 				$(rvDataSets[0].getLayer(this.parentNode.parentNode.getAttribute("name")).Canvas).css("visibility", "hidden");
 				//console.log(this.parent().parent().attr("name"));
 			}
 			else if($type == 'invisible'){
-				console.log("click a rect");
+				//console.log("click a rect");
 				//this.src = $visibleImgPath;
 				this.setAttribute('value','visible');
 				this.setAttribute('src', $visibleImgPath);
-				console.log(this);
+				//console.log(this);
 				$(rvDataSets[0].getLayer(this.parentNode.parentNode.getAttribute("name")).Canvas).css("visibility", "visible");
 				//$(rvDataSets[0].getLayer(this.parent().parent().attr("name")).Canvas).css("visibility", "hidden");
 				//console.log(this.parent().parent().attr("name"));
@@ -1091,7 +1111,8 @@ function LayerMenu(Layer, key) {
 			title : 'select which layer to map into 3D',
 			disabled : 'disabled'
 		}).addClass("mappingRadioBtn").change (function (event) {
-			alert($(event.currentTarget).parent().parent().attr("name"));
+			rvDataSets[0].linkLayer($(event.currentTarget).parent().parent().attr("name"));
+			update3Dcolors();
 			})));
 	/*
 	$selectBox = document.getElementsByClassName("checkBoxDIV");
@@ -1220,6 +1241,7 @@ function LayerMenu(Layer, key) {
 		case "residues":
 			$("#LayerPanel div").first().next().find(".selectLayerRadioBtn").attr("checked", "checked");
 			rvDataSets[0].selectLayer($("#LayerPanel div").first().next().attr("name"));
+			rvDataSets[0].linkLayer($("#LayerPanel div").first().next().attr("name"));
 			$("#LayerPanel div").first().next().find(".radioDIV2").find('input').removeAttr("disabled");
 			$("#LayerPanel div").first().next().find(".radioDIV2").find('input').attr("checked","checked");
 		
@@ -2046,6 +2068,8 @@ function colorResidue(event) {
 		var res = rvDataSets[0].Residues[sel];
 		var color = $("#color").val();
 		res.color = color;
+		targetLayer=rvDataSets[0].getLayerByType("residues");
+		targetLayer.dataCirclesColor[sel]=color;
 		rvDataSets[0].drawResidues("residues");
 		//drawLabels();
 		update3Dcolors(); ;
@@ -2053,12 +2077,13 @@ function colorResidue(event) {
 }
 
 function clearColor(update3D) {
-	
+	targetLayer=rvDataSets[0].getLayerByType("residues");
 	if (arguments.length < 1) {
 		var update3D = true;
 	}
 	for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
 		rvDataSets[0].Residues[i].color = "#000000";
+		targetLayer[0].dataLayerColors[i]= "#000000";
 	}
 	rvDataSets[0].drawResidues("residues");
 	//drawLabels();
@@ -2071,9 +2096,11 @@ function clearColor(update3D) {
 }
 
 function colorSelection() {
+	//targetLayer=rvDataSets[0].getLayerByType("residues");
 	var color = $("#color").val();
 	for (var i = 0; i < rvDataSets[0].Selected.length; i++) {
-		rvDataSets[0].Selected[i].color = color;
+		rvDataSets[0].Selected[i].color = color;		
+		//targetLayer.dataCirclesColor[i]= "#000000";
 	}
 	rvDataSets[0].drawResidues("residues");
 	//drawLabels();
@@ -2090,40 +2117,48 @@ function update3Dcolors() {
 	m;
 	//r0=rvDataSets[0].Residues[0].resNum.replace(/[^:]*:/g,"");
 	r0 = rvDataSets[0].Residues[0].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-	
 	curr_chain = rvDataSets[0].Residues[0].ChainID;
-	curr_color = colourNameToHex(rvDataSets[0].Residues[0].color);
-	if (curr_color === '#000000') {
+	targetLayer=rvDataSets[0].getLinkedLayer();
+	rvDataSets[0].Residues[0].CurrentData=targetLayer.Data[0];
+
+	curr_color = colourNameToHex(targetLayer.dataLayerColors[0]);
+	
+	if (!curr_color || curr_color === '#000000') {
 		curr_color = '#858585';
 	}
 	for (var i = 1; i < rvDataSets[0].Residues.length; i++) {
 		var residue = rvDataSets[0].Residues[i];
 		var residueLast = rvDataSets[0].Residues[i - 1];
+		var residueLastColor = targetLayer.dataLayerColors[i - 1];
+		rvDataSets[0].Residues[i].CurrentData=targetLayer.Data[i];
 		
+		if (!residueLastColor){
+			residueLastColor = '#858585';
+		}
 		if (residue.ChainID != "") {
 			if (curr_chain == "") {
 				curr_chain = residue.ChainID;
-				curr_color = colourNameToHex(residue.color);
-				if (curr_color === '#000000') {
+				curr_color = colourNameToHex(targetLayer.dataLayerColors[i]);
+				if (!curr_color || curr_color === '#000000') {
 					curr_color = '#858585';
 				}
 				r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""); ;
 			} else if (residue.ChainID == null) {
 				curr_chain = residue.ChainID;
-				curr_color = colourNameToHex(residue.color);
-				if (curr_color === '#000000') {
+				curr_color = colourNameToHex(targetLayer.dataLayerColors[i]);
+				if (!curr_color || curr_color === '#000000') {
 					curr_color = '#858585';
 				}
 				r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""); ;
 			} else {
 				
-				if (((colourNameToHex(residue.color) != colourNameToHex(residueLast.color)) || (curr_chain != residue.ChainID)) || (i == (rvDataSets[0].Residues.length - 1))) {
+				if (((colourNameToHex(targetLayer.dataLayerColors[i]) != colourNameToHex(residueLastColor)) || (curr_chain != residue.ChainID)) || (i == (rvDataSets[0].Residues.length - 1))) {
 					r1 = residueLast.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""); ;
 					n = r1.match(/[A-z]/g);
 					if (n != undefined) {
 						r1 = r1.replace(n, "^" + n);
 					}
-					if (colourNameToHex(residueLast.color).indexOf("#") == -1) {
+					if (colourNameToHex(residueLastColor).indexOf("#") == -1) {
 						script += "select " + (SubunitNames.indexOf(rvDataSets[0].SpeciesEntry.Subunit) + 1) + ".1 and :" + curr_chain + " and (" + r0 + " - " + r1 + "); color Cartoon opaque [x" + curr_color + "]; ";
 					} else {
 						script += "select " + (SubunitNames.indexOf(rvDataSets[0].SpeciesEntry.Subunit) + 1) + ".1 and :" + curr_chain + " and (" + r0 + " - " + r1 + "); color Cartoon opaque [" + curr_color.replace("#", "x") + "]; ";
@@ -2136,19 +2171,20 @@ function update3Dcolors() {
 					if (residue.ChainID != "") {
 						curr_chain = residue.ChainID;
 					}
-					curr_color = colourNameToHex(residue.color);
-					if (curr_color === '#000000') {
+					curr_color = colourNameToHex(targetLayer.dataLayerColors[i]);
+					if (!curr_color || curr_color === '#000000') {
 						curr_color = '#858585';
 					}
 				}
 			}
 		}
 	}
-	if (colourNameToHex(residueLast.color).indexOf("#") == -1) {
+	if (colourNameToHex(residueLastColor).indexOf("#") == -1) {
 		script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and :" + curr_chain + " and (" + r0 + " - " + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "); color Cartoon opaque [x" + curr_color + "]; ";
 	} else {
 		script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and :" + curr_chain + " and (" + r0 + " - " + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "); color Cartoon opaque [" + curr_color.replace("#", "x") + "]; ";
 	}
+	updateSelectionDiv();
 	jmolScript(script);
 }
 
@@ -2178,6 +2214,8 @@ function colorProcess(data, indexMode, ChoiceList, colName) {
 	}
 	switch (targetLayer.Type) {
 	case "circles":
+		targetLayer.Data = data;
+
 		if (indexMode == "1") {
 			//data.splice(0, 1);
 			var dataIndices = data;
@@ -2190,34 +2228,38 @@ function colorProcess(data, indexMode, ChoiceList, colName) {
 		rvDataSets[0].drawDataCircles(targetLayer.LayerName, dataIndices, colors);
 		break;
 	case "residues":
+		var dataIndices = new Array;
+		targetLayer.Data = data;
 		for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
 			var residue = rvDataSets[0].Residues[i];
-			residue.CurrentData = data[i];
-			var val = Math.round((residue.CurrentData - min) / range * (colors.length - 1));
+			//targetLayer.Data[i] = data[i];
+			//var val = Math.round((residue.CurrentData - min) / range * (colors.length - 1));
 			if (indexMode == "1") {
+				dataIndices = data;
+				/*
 				if (colors[residue.CurrentData]){
 					residue.color = colors[residue.CurrentData];
 				} else {
 					residue.color = "#000000";
-				}
+				}*/
 			} else {
+				dataIndices[i] = Math.round((data[i] - min) / range * (colors.length - 1));
+				/*
 				if (residue.CurrentData > 0) {
 					residue.color = (val < 0 || val >= colors.length) ? "#000000" : colors[val];
 				} else {
 					residue.color = "#000000";
-				}
+				}*/
 			}
 		}
+		//rvDataSets[0].drawResidues(targetLayer.LayerName);
+		rvDataSets[0].drawResidues(targetLayer.LayerName, dataIndices, colors);
 		update3Dcolors();
-		rvDataSets[0].drawResidues(targetLayer.LayerName);
-		
 		break;
 	default:
 		$( "#dialog-layer-type-error" ).dialog("open")
 	}
-	/*
-	
-	 */
+
 }
 
 function colorMappingLoop(seleProt, OverRideColors) {
@@ -2259,11 +2301,13 @@ function colorMappingLoop(seleProt, OverRideColors) {
 		}
 		var newcolor = (val < 0 || val >= colors2.length) ? "#000000" : colors2[val];
 		var dataIndices = new Array;
+		targetLayer.Data = new Array;
 		for (var jj = 0; jj < rvDataSets[0].Residues.length; jj++) {
 			if (rvDataSets[0].Residues[jj][seleProt[i]] && rvDataSets[0].Residues[jj][seleProt[i]] >0){
 				dataIndices[jj] = rvDataSets[0].Residues[jj][seleProt[i]];
+				targetLayer.Data[jj] = rvDataSets[0].Residues[jj][seleProt[i]];
 			} else {
-				//dataIndices[jj] = undefined;
+				//targetLayer.Data[jj] = 0;
 			}
 		}
 		rvDataSets[0].drawDataCircles(targetLayer.LayerName, dataIndices, ["#000000", newcolor], true);
@@ -2517,9 +2561,9 @@ function colourNameToHex(colour) {
 		"yellow" : "#ffff00",
 		"yellowgreen" : "#9acd32"
 	};
-	if (colour.indexOf("#") >= 0) {
+	if (colour && colour.indexOf("#") >= 0) {
 		return colour;
-	} else if (typeof colours[colour.toLowerCase()] != 'undefined') {
+	} else if (colour && typeof colours[colour.toLowerCase()] != 'undefined') {
 		return colours[colour.toLowerCase()];
 	} else {
 		return false;
@@ -2696,7 +2740,7 @@ function handleFileSelect(event) {
 							var k = rvDataSets[0].ResidueList.indexOf(ResName);
 							if ($.inArray("DataCol", customkeys) >= 0) {
 								NewData[k] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
-								rvDataSets[0].Residues[k].CurrentData = NewData[k];
+								//rvDataSets[0].Residues[k].CurrentData = NewData[k];
 							}
 							if ($.inArray("ColorCol", customkeys) >= 0) {
 								rvDataSets[0].Residues[k].color = rvDataSets[0].CustomData[ii]["ColorCol"];
@@ -2716,7 +2760,7 @@ function handleFileSelect(event) {
 						var k = rvDataSets[0].ResidueList.indexOf(ResName);
 						if ($.inArray("DataCol", customkeys) >= 0) {
 							NewData[k] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
-							rvDataSets[0].Residues[k].CurrentData = NewData[k];
+							//rvDataSets[0].Residues[k].CurrentData = NewData[k];
 						}
 						if ($.inArray("ColorCol", customkeys) >= 0) {
 							rvDataSets[0].Residues[k].color = rvDataSets[0].CustomData[ii]["ColorCol"];
