@@ -188,7 +188,7 @@ function rvDataSet(DataSetName) {
 		}
 	};
 	this.refreshResiduesExpanded = function (layer) {
-		this.clearCanvas(layer);
+		//this.clearCanvas(layer);
 		var ind = $.inArray(layer, this.LayerTypes);
 		if (ind >= 0) {
 			$.each(this.Layers, function (key, value) {
@@ -395,7 +395,8 @@ function rvDataSet(DataSetName) {
 		return ResidueListLocal;
 	}
 	function refreshLayer(targetLayer) {
-		if (rvDataSets[0].Residues !== undefined) {
+		if (rvDataSets[0].Residues !== undefined && targetLayer.Type === "circles") {
+			targetLayer.clearCanvas();
 			for (var i = rvDataSets[0].Residues.length - 1; i >= 0; i--) {
 				if (targetLayer.dataLayerColors[i] != '#000000' && targetLayer.dataLayerColors[i] != undefined && targetLayer.dataLayerColors[i] != '#858585') {
 					targetLayer.CanvasContext.beginPath();
@@ -438,7 +439,7 @@ function rvDataSet(DataSetName) {
 		if (targetLayer.Type === "residues"){
 			if (!noClear) {
 				targetLayer.clearCanvas();
-				targetLayer.dataLayerColors = [];
+				//targetLayer.dataLayerColors = [];
 			}
 			if (rvDataSets[0].Residues && rvDataSets[0].Residues.length > 0) {
 				if (dataIndices && ColorArray){
@@ -448,13 +449,17 @@ function rvDataSet(DataSetName) {
 							targetLayer.dataLayerColors[i] = ColorArray[dataIndices[i]];
 						}
 					}		
+				} else {
+					for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
+						rvDataSets[0].Residues[i].color = targetLayer.dataLayerColors[i];
+					}		
 				}
 				targetLayer.CanvasContext.strokeStyle = "#000000";
 				targetLayer.CanvasContext.font = "3pt Arial";
 				targetLayer.CanvasContext.textBaseline = "middle";
 				targetLayer.CanvasContext.textAlign = "center";
 				for (var i = rvDataSets[0].Residues.length - 1; i >= 0; i--) {
-					targetLayer.CanvasContext.fillStyle = (rvDataSets[0].Residues[i].color || "#000000");
+					targetLayer.CanvasContext.fillStyle = (targetLayer.dataLayerColors[i] || "#000000");
 					targetLayer.CanvasContext.fillText(rvDataSets[0].Residues[i].resName, rvDataSets[0].Residues[i].X, rvDataSets[0].Residues[i].Y);
 				}
 			} else {
@@ -2084,6 +2089,8 @@ function clearColor(update3D) {
 	for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
 		rvDataSets[0].Residues[i].color = "#000000";
 		targetLayer[0].dataLayerColors[i]= "#000000";
+		targetLayer[0].Data[i] = rvDataSets[0].Residues[i].map_Index;
+		
 	}
 	rvDataSets[0].drawResidues("residues");
 	//drawLabels();
@@ -2292,7 +2299,10 @@ function colorMappingLoop(seleProt, OverRideColors) {
 	
 	var Jscript = "display (selected), (" + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and (";
 	var JscriptP = "set hideNotSelected false;";
-	
+	targetLayer.Data = new Array;
+	for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
+		targetLayer.Data[j] = "";
+	}
 	for (var i = 0; i < seleProt.length; i++) {
 		if (seleProt.length > 1) {
 			var val = Math.round((i / (seleProt.length - 1)) * (colors2.length - 1));
@@ -2301,13 +2311,10 @@ function colorMappingLoop(seleProt, OverRideColors) {
 		}
 		var newcolor = (val < 0 || val >= colors2.length) ? "#000000" : colors2[val];
 		var dataIndices = new Array;
-		targetLayer.Data = new Array;
 		for (var jj = 0; jj < rvDataSets[0].Residues.length; jj++) {
 			if (rvDataSets[0].Residues[jj][seleProt[i]] && rvDataSets[0].Residues[jj][seleProt[i]] >0){
 				dataIndices[jj] = rvDataSets[0].Residues[jj][seleProt[i]];
-				targetLayer.Data[jj] = rvDataSets[0].Residues[jj][seleProt[i]];
-			} else {
-				//targetLayer.Data[jj] = 0;
+				targetLayer.Data[jj] = targetLayer.Data[jj] + seleProt[i] + " ";
 			}
 		}
 		rvDataSets[0].drawDataCircles(targetLayer.LayerName, dataIndices, ["#000000", newcolor], true);
@@ -2407,7 +2414,7 @@ function colorMapping(ChoiceList, ManualCol, OverRideColors, indexMode, rePlaceD
 				//targetLayer.clearCanvas();
 				
 				for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
-					rvDataSets[0].Residues[j]["CurrentData"] = rvDataSets[0].Residues[j]["map_Index"];
+					targetLayer.Data[j] = rvDataSets[0].Residues[j]["map_Index"];
 				}
 				resetColorState();
 			}
@@ -2705,32 +2712,23 @@ function handleFileSelect(event) {
 	FileReaderFile = event.target.files; // FileList object
 	
 	AgreeFunction = function (event) {
-		clearColor(true);
+		//clearColor(true);
 		
 		for (var i = 0; i < FileReaderFile.length; i++) {
 			reader = new FileReader();
 			reader.readAsText(FileReaderFile[i]);
 			reader.onload = function () {
-				//console.log(reader.result);
 				rvDataSets[0].addCustomData($.csv.toObjects(reader.result));
-				
-				//NewData = new Object;
 				NewData = [];
-				/*
-				for (j = 0; j < rvDataSets[0].Residues.length; j++) {
-					NewData[rvDataSets[0].Residues[j].CurrentData] = 0;
-				}*/
-				
+				var targetLayer = rvDataSets[0].getSelectedLayer();
+				targetLayer.clearData();
 				var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
 				for (var ii = 0; ii < rvDataSets[0].CustomData.length; ii++) {
 					if (rvDataSets[0].CustomData[ii][customkeys[0]].indexOf("(") > 0) {
-						//alert("Huh");
 						rvDataSets[0].Selections["temp"] = [];
 						command = rvDataSets[0].CustomData[ii][customkeys[0]].split(";");
 						expandSelection(command, "temp");
-						//console.log(rvDataSets[0].Selections["temp"]);
 						for (var iii = 0; iii < rvDataSets[0].Selections["temp"].length; iii++) {
-							//console.log(rvDataSets[0].Selections["temp"][iii].resNum);
 							if (rvDataSets[0].Selections["temp"][iii].resNum.indexOf(":") >= 0) {
 								alert("didn't do this yet");
 							} else {
@@ -2738,12 +2736,13 @@ function handleFileSelect(event) {
 								var ResName = chainID + "_" + rvDataSets[0].Selections["temp"][iii].resNum;
 							}
 							var k = rvDataSets[0].ResidueList.indexOf(ResName);
+							
 							if ($.inArray("DataCol", customkeys) >= 0) {
+								//rvDataSets[0].Residues[k]["CustomData1"] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
 								NewData[k] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
-								//rvDataSets[0].Residues[k].CurrentData = NewData[k];
 							}
 							if ($.inArray("ColorCol", customkeys) >= 0) {
-								rvDataSets[0].Residues[k].color = rvDataSets[0].CustomData[ii]["ColorCol"];
+								targetLayer.dataLayerColors[k] = rvDataSets[0].CustomData[ii]["ColorCol"];
 							}
 							
 						}
@@ -2759,23 +2758,26 @@ function handleFileSelect(event) {
 						
 						var k = rvDataSets[0].ResidueList.indexOf(ResName);
 						if ($.inArray("DataCol", customkeys) >= 0) {
+							//rvDataSets[0].Residues[k]["CustomData1"] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
 							NewData[k] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
 							//rvDataSets[0].Residues[k].CurrentData = NewData[k];
 						}
 						if ($.inArray("ColorCol", customkeys) >= 0) {
-							rvDataSets[0].Residues[k].color = rvDataSets[0].CustomData[ii]["ColorCol"];
+							targetLayer.dataLayerColors[k] = rvDataSets[0].CustomData[ii]["ColorCol"];
 						}
 					}
 					
-					ColorList[ii]=rvDataSets[0].CustomData[ii]["ColorCol"];
-					DataList[ii]=rvDataSets[0].CustomData[ii]["DataCol"];
+					//ColorList[ii]=rvDataSets[0].CustomData[ii]["ColorCol"];
+					//DataList[ii]=rvDataSets[0].CustomData[ii]["DataCol"];
 
 				}
-				
+				targetLayer.Data = NewData;
+
 				if ($.inArray("ColorCol", customkeys) >= 0) {
 					rvDataSets[0].drawResidues("residues");
+					rvDataSets[0].refreshResiduesExpanded(targetLayer.LayerName);
 					update3Dcolors();
-		
+					/*
 					ColorListU = $.grep(ColorList, function (v, k) {
 						return $.inArray(v, ColorList) === k;
 					});
@@ -2790,6 +2792,7 @@ function handleFileSelect(event) {
 					});
 					colors = ColorGrad;
 					colorProcess(NewData,true);
+					*/
 				} else if ($.inArray("DataCol", customkeys) >= 0) {
 					colors = RainBowColors;
 					colorProcess(NewData);
@@ -3321,6 +3324,7 @@ function loadSpecies(species) {
 			});
 			rvDataSets[0].addResidues(data);
 			rvDataSets[0].clearData("circles");
+			clearColor(false);
 			
 			$.getJSON('getData.php', {
 				SpeciesTable : species
