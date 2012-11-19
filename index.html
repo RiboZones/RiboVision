@@ -139,13 +139,13 @@
         <div id="InteractDataDiv">
           <div id="primaryInteractData">
             Interaction Data:<br />
-            <select id="BasePairList" multiple="multiple" onchange="JavaScript:refreshBasePairs(value);">
+            <select id="PrimaryInteractionList" multiple="multiple" onchange="JavaScript:refreshBasePairs(value);">
               </select>
           </div>
 
           <div id="secondaryInteractData" style="margin-top:10px">
             Secondary List:<br />
-            <select id="secondaryList" multiple="multiple">
+            <select id="SecondaryInteractionList" multiple="multiple">
               </select>
           </div>
         </div>
@@ -164,6 +164,10 @@
           <input name="saveas" type="button" onclick="JavaScript:savePDF();" value="PDF" /> <input name="saveas" type="button"
           onclick="JavaScript:saveSVG();" value="SVG" /> <input name="saveas" type="button" onclick="JavaScript:savePNG();" value=
           "PNG" /> <input name="saveas" type="button" onclick="JavaScript:savePML();" value="PML" />
+		  </br>
+		  Save Layers: </br>
+			<input id="visibleLayers" type="radio" name="savelayers" value="visible" checked="checked" /><label for="visibleLayers">Only Visible Layers</label>
+			<input id="allLayers" type="radio" name="savelayers" value="all" /><label for="allLayers">All Layers</label> 
         </div>
       </div>
     </div>

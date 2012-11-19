@@ -33,6 +33,8 @@ var SubunitNames = ['LSU', 'SSU'];
 var rvViews = [];
 var FileReaderFile;
 
+var FullBasePairSet;
+
 // Website Settings
 var onebuttonmode;
 var clickedNASA = 0;
@@ -104,6 +106,20 @@ function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type) {
 		this.dataLayerColors = new Array;
 		for (var jj = 0; jj < rvDataSets[0].Residues.length; jj++) {
 			this.dataLayerColors[jj] = undefined;
+		}
+	}
+	this.setVisibility = function (visibility_prop){
+		switch (visibility_prop) {
+			case "hidden" : 
+				$(this.Canvas).css("visibility", "hidden");
+				this.Visible = false;
+				break;
+			case "visible" : 
+				$(this.Canvas).css("visibility", "visible");
+				this.Visible = true;
+				break;
+			default : 
+				alert("this shouldn't happen");
 		}
 	}
 }
@@ -966,14 +982,15 @@ $(document).ready(function () {
 		noneSelectedText : "Select an Option",
 		selectedList : 1
 	});
-	$("#BasePairList").multiselect({
+	$("#PrimaryInteractionList").multiselect({
 		minWidth : 160,
 		multiple : false,
 		header : "Select a Data Set",
 		noneSelectedText : "Select an Option",
 		selectedList : 1,
 		click : function (event){
-			var array_of_checked_values = $("#BasePairList").multiselect("getChecked").map(function(){
+			// For now, go ahead and fetch and draw the whole list, since default will be all on anyways
+			var array_of_checked_values = $("#PrimaryInteractionList").multiselect("getChecked").map(function(){
 			   return this.value;	
 			}).get();
 			var interactionchoice = array_of_checked_values[0];
@@ -990,10 +1007,30 @@ $(document).ready(function () {
 			refreshBasePairs(interactionchoice);
 		}
 	});
-	$("#secondaryList").multiselect({
+	$("#SecondaryInteractionList").multiselect({
+		minWidth : 160,
+		multiple : true,
 		//selectedText : "# of # 2nd interaction selected",
-		noneSelectedText : 'Select secondary interaction',
+		noneSelectedText : 'Select interaction types',
 		selectedList : 9,
+		click : function (event){
+			var array_of_checked_values = $("#SecondaryInteractionList").multiselect("getChecked").map(function(){
+			   return this.value;	
+			}).get();
+			filterBasePairs(FullBasePairSet,array_of_checked_values);
+		},
+		uncheckAll : function () {
+			var array_of_checked_values = $("#SecondaryInteractionList").multiselect("getChecked").map(function(){
+			   return this.value;	
+			}).get();
+			filterBasePairs(FullBasePairSet,array_of_checked_values);
+		},
+		checkAll : function (event, ui) {
+			var array_of_checked_values = $("#SecondaryInteractionList").multiselect("getChecked").map(function(){
+			   return this.value;	
+			}).get();
+			filterBasePairs(FullBasePairSet,array_of_checked_values);
+		},
 	});
 	
 	$("#openLayerBtn").button({
@@ -1029,7 +1066,8 @@ $(document).ready(function () {
 	$("#colorLinesGradientMode").buttonset();
 	$("[name=clearColor]").button();
 	$("[name=selebutton]").button();
-	$("[name=saveas]").button();
+	$("[name=saveas]").button();	
+	$("[name=savelayers]").button();
 	$("#colorSelection").button();
 	InitRibovision();
 });
@@ -1062,29 +1100,19 @@ function LayerMenu(Layer, key) {
 			'height': 'auto',
 			'margin-top': 3
 		}).click( function() {
-			//console.log("before: ", this);
 			$type = this.getAttribute('value');
-			//console.log($type);
 			if($type == 'visible'){
-				//console.log("click an eye!!!");
-				//this.src = $invisibleImgPath;
 				this.setAttribute('value','invisible'); 
 				this.setAttribute('src', $invisibleImgPath);
-				//console.log(this.parentNode.parentNode.getAttribute("name"));
-				$(rvDataSets[0].getLayer(this.parentNode.parentNode.getAttribute("name")).Canvas).css("visibility", "hidden");
-				//console.log(this.parent().parent().attr("name"));
+				targetLayer=rvDataSets[0].getLayer(this.parentNode.parentNode.getAttribute("name"));
+				targetLayer.setVisibility("hidden");
 			}
 			else if($type == 'invisible'){
-				//console.log("click a rect");
-				//this.src = $visibleImgPath;
 				this.setAttribute('value','visible');
 				this.setAttribute('src', $visibleImgPath);
-				//console.log(this);
-				$(rvDataSets[0].getLayer(this.parentNode.parentNode.getAttribute("name")).Canvas).css("visibility", "visible");
-				//$(rvDataSets[0].getLayer(this.parent().parent().attr("name")).Canvas).css("visibility", "hidden");
-				//console.log(this.parent().parent().attr("name"));
+				targetLayer=rvDataSets[0].getLayer(this.parentNode.parentNode.getAttribute("name"));
+				targetLayer.setVisibility("visible");
 			}
-			//console.log("after: ", this);	
 		}))		
 	);
 				
@@ -1397,11 +1425,11 @@ function InitRibovision() {
 		if ( targetLayer.Type == "circles"){
 			rvDataSets[0].clearCanvas(rvDataSets[0].getSelectedLayer().LayerName);
 		}
-		var array_of_checked_values = $("#BasePairList").multiselect("getChecked").map(function(){
+		var array_of_checked_values = $("#PrimaryInteractionList").multiselect("getChecked").map(function(){
 		   return this.value;	
 		}).get();
 		var interactionchoice = array_of_checked_values[0];
-		//var interactionchoice = $('#BasePairList').val();
+		//var interactionchoice = $('#PrimaryInteractionList').val();
 		var p = interactionchoice.indexOf("_NPN");
 		if (p>=0){
 			rvDataSets[0].BasePairs = [];
@@ -1593,7 +1621,8 @@ function InitRibovision() {
 				rvDataSets[0].HighlightLayer.CanvasContext.lineTo(rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
 				rvDataSets[0].HighlightLayer.CanvasContext.closePath();
 				rvDataSets[0].HighlightLayer.CanvasContext.stroke();
-			
+			$("#currentDiv").html(rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[j].ChainID)] + ":" + rvDataSets[0].Residues[j].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + " - " + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[k].ChainID)] + ":" + rvDataSets[0].Residues[k].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + " (" + rvDataSets[0].BasePairs[selLine].bp_type + ")");
+
 		}
 		
 	});
@@ -1612,7 +1641,7 @@ function InitRibovision() {
 	document.getElementById("moveMode").checked = true;
 	document.getElementById("ProtList").selectedIndex = 0;
 	document.getElementById("alnList").selectedIndex = 0;
-	document.getElementById("BasePairList").selectedIndex = 0;
+	document.getElementById("PrimaryInteractionList").selectedIndex = 0;
 	document.getElementById("speciesList").selectedIndex = 0;
 	document.getElementById('commandline').value = "";
 	resizeElements();
@@ -2040,7 +2069,7 @@ function updateSelectionDiv() {
 	var text = "";
 	for (var i = 0; i < rvDataSets[0].Selected.length; i++) {
 		res = rvDataSets[0].Selected[i];
-		text = text + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(res.ChainID)] + ":" + res.resNum.replace(/[^:]*:/g, "") + "(" + res.CurrentData + "); ";
+		text = text + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(res.ChainID)] + ":" + res.resNum.replace(/[^:]*:/g, "") + "( " + res.CurrentData + " ); ";
 	}
 	$("#selectDiv").html(text)
 }
@@ -2286,11 +2315,11 @@ function colorMappingLoop(seleProt, OverRideColors) {
 		clearColor(false);
 		targetLayer.clearData();
 	}
-	var array_of_checked_values = $("#BasePairList").multiselect("getChecked").map(function(){
+	var array_of_checked_values = $("#PrimaryInteractionList").multiselect("getChecked").map(function(){
 	   return this.value;	
 	}).get();
 	var interactionchoice = array_of_checked_values[0];
-	//var interactionchoice = $('#BasePairList').val();
+	//var interactionchoice = $('#PrimaryInteractionList').val();
 	var p = interactionchoice.indexOf("_NPN");
 	if ( p >=0 ){
 		rvDataSets[0].BasePairs = [];
@@ -2301,7 +2330,7 @@ function colorMappingLoop(seleProt, OverRideColors) {
 	var JscriptP = "set hideNotSelected false;";
 	targetLayer.Data = new Array;
 	for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
-		targetLayer.Data[j] = "";
+		targetLayer.Data[j] = " ";
 	}
 	for (var i = 0; i < seleProt.length; i++) {
 		if (seleProt.length > 1) {
@@ -2623,6 +2652,26 @@ function refreshBasePairs(BasePairTable) {
 			}, function (basePairs2) {
 				rvDataSets[0].BasePairs = basePairs2;
 				rvDataSets[0].drawBasePairs("lines");
+				// Set interaction submenu to allow for subsets of these basepairs to be displayed. 
+				// For now, let's set a global variable to store the whole table, so that it doesn't have to be refetched everytime a subset is chosen. 
+				// This will get better when I revamp who BasePair interactions work
+	
+				FullBasePairSet = rvDataSets[0].BasePairs;
+				var BP_Type = [];	
+				$.each(rvDataSets[0].BasePairs, function (ind, item) {
+					BP_Type.push(item.bp_type);
+				});
+				BP_TypeU = $.grep(BP_Type, function (v, k) {
+					return $.inArray(v, BP_Type) === k;
+				});
+							
+				var ims = document.getElementById("SecondaryInteractionList");
+				ims.options.length = 0;
+				$.each(BP_TypeU, function (ind, item) {
+					ims.options[ind] = new Option(item, item);
+					ims.options[ind].setAttribute("selected", "selected");
+				});	
+				$("#SecondaryInteractionList").multiselect("refresh");
 			});
 		} else {
 			var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
@@ -2636,6 +2685,18 @@ function refreshBasePairs(BasePairTable) {
 		rvDataSets[0].BasePairs = [];
 		rvDataSets[0].clearCanvas("lines");
 	}
+	
+	
+}
+
+function filterBasePairs(FullBasePairSet,IncludeTypes){
+	rvDataSets[0].BasePairs=[];
+	$.each(FullBasePairSet, function (index, value){
+		if ($.inArray(value.bp_type,IncludeTypes) >= 0){
+			rvDataSets[0].BasePairs.push(value);
+		}
+	});
+	rvDataSets[0].drawBasePairs("lines");
 }
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -3050,6 +3111,9 @@ function canvasToSVG() {
 	var SupportesLayerTypes = ["lines", "labels", "residues", "circles", "selected"];
 	var ChosenSide;
 	
+	var AllMode = $('input[name="savelayers"][value=all]').attr("checked");
+	
+	
 	if (rvDataSets[0].SpeciesEntry.MapType.indexOf("Structural") >= 0) {
 		var mapsize = "612 792";
 		var mapsize2 = 'width="612px" height="792px" ';
@@ -3062,109 +3126,111 @@ function canvasToSVG() {
 		mapsize2 + 'viewBox="0 0 ' + mapsize + '" xml:space="preserve">\n';
 	
 	$.each(rvDataSets[0].Layers, function (index, value) {
-		switch (value.Type) {
-			case "lines":
-				output = output + '<g id="' + value.LayerName + '">\n';
-				if (value.ColorLayer === "gray_lines"){
-					for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
-						var BasePair = rvDataSets[0].BasePairs[j];
-						output = output + '<line fill="none" stroke="' + '#231F20' + '" stroke-opacity="' + 0.5 + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
-					}
-				} else {
-					if (value.ColorLayer.ColorGradientMode == "Matched") {
-						//var grd_order = [0, 1];
-						ChosenSide="resIndex1";
-					} else if (value.ColorLayer.ColorGradientMode == "Opposite") {
-						//var grd_order = [1, 0];
-						ChosenSide="resIndex2";
+		if (AllMode || value.Visible){
+			switch (value.Type) {
+				case "lines":
+					output = output + '<g id="' + value.LayerName + '">\n';
+					if (value.ColorLayer === "gray_lines"){
+						for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
+							var BasePair = rvDataSets[0].BasePairs[j];
+							output = output + '<line fill="none" stroke="' + '#231F20' + '" stroke-opacity="' + 0.5 + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
+						}
 					} else {
-						alert("how did we get here? 34");
-					}
-					switch  (value.ColorLayer.Type){
-						case "residues" : 
-							//var grd = value.ColorLayer.CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
-							/*
-							if (rvDataSets[0].Residues[j].color && rvDataSets[0].Residues[k].color){
-								color1 = colourNameToHex(rvDataSets[0].Residues[j].color);
-								color2 = colourNameToHex(rvDataSets[0].Residues[k].color);
-								
-								grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + ",.5)");
-								grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + ",.5)");
-							}
-							value.ColorLayer.addLinearGradient(grd);
-							rvDataSets[0].BasePairs[i]["color"] = grd;
-							*/
-							for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
-								var BasePair = rvDataSets[0].BasePairs[j];
-								output = output + '<line fill="none" stroke="' + rvDataSets[0].Residues[BasePair[ChosenSide]].color + '" stroke-opacity="' + 0.5 + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
-							}
-							break;
-						case "circles" : 
-							for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
-								var BasePair = rvDataSets[0].BasePairs[j];
-								output = output + '<line fill="none" stroke="' + value.ColorLayer.dataLayerColors[BasePair[ChosenSide]] + '" stroke-opacity="' + 0.5 + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
-							}
-							break;
-						default :
-							alert("this shouldn't be happening right now 54.");
-						
-					}
-				}
-				output = output + '</g>\n';
-				break;
-			case "labels":
-				output = output + '<g id="' + value.LayerName + '_Lines">\n';
-				for (var iii = 0; iii < rvDataSets[0].rvLineLabels.length; iii++) {
-					var LabelLine = rvDataSets[0].rvLineLabels[iii];
-					output = output + '<line fill="none" stroke="#211E1F" stroke-width="0.25" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(LabelLine.X1).toFixed(3) + '" y1="' + parseFloat(LabelLine.Y1).toFixed(3) + '" x2="' + parseFloat(LabelLine.X2).toFixed(3) + '" y2="' + parseFloat(LabelLine.Y2).toFixed(3) + '"/>\n';
-				}
-				output = output + '</g>\n';
-				
-				output = output + '<g id="' + value.LayerName + '_Text">\n';
-				for (var ii = 0; ii < rvDataSets[0].rvTextLabels.length; ii++) {
-					var LabelData = rvDataSets[0].rvTextLabels[ii];
-					output = output + '<text transform="matrix(1 0 0 1 ' + parseFloat(LabelData.X).toFixed(3) + ' ' + parseFloat(LabelData.Y).toFixed(3) + ')" fill="' + LabelData.Fill + '" font-family="Myriad Pro" font-size="' + LabelData.FontSize + '">' + LabelData.LabelText + '</text>\n';
-				}
-				output = output + '</g>\n';
-				break;
-			case "residues":
-				output = output + '<g id="' + value.LayerName + '">\n';
-				for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
-					var residue = rvDataSets[0].Residues[i];
-					output = output + '<text id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" transform="matrix(1 0 0 1 ' + (parseFloat(residue.X) - 1.262).toFixed(3) + ' ' + (parseFloat(residue.Y) + 1.145).toFixed(3) + ')" fill="' + residue.color + '" font-family="Myriad Pro" font-size="3.9">' + residue.resName + '</text>\n';
-				}
-				output = output + '</g>\n';
-				break;
-			case "circles":
-				output = output + '<g id="' + value.LayerName + '">\n';
-				var radius = 1.7 * value.ScaleFactor;
-				for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
-					var residue = rvDataSets[0].Residues[i];
-					if (residue && value.dataLayerColors[i]) {
-						if (value.Filled) {
-							output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + value.dataLayerColors[i] + '" stroke="' + value.dataLayerColors[i] + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(residue.X).toFixed(3) + '" cy="' + parseFloat(residue.Y).toFixed(3) + '" r="' + radius + '"/>\n';
+						if (value.ColorLayer.ColorGradientMode == "Matched") {
+							//var grd_order = [0, 1];
+							ChosenSide="resIndex1";
+						} else if (value.ColorLayer.ColorGradientMode == "Opposite") {
+							//var grd_order = [1, 0];
+							ChosenSide="resIndex2";
 						} else {
-							output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + 'none' + '" stroke="' + value.dataLayerColors[i] + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(residue.X).toFixed(3) + '" cy="' + parseFloat(residue.Y).toFixed(3) + '" r="' + radius + '"/>\n';
+							alert("how did we get here? 34");
+						}
+						switch  (value.ColorLayer.Type){
+							case "residues" : 
+								//var grd = value.ColorLayer.CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
+								/*
+								if (rvDataSets[0].Residues[j].color && rvDataSets[0].Residues[k].color){
+									color1 = colourNameToHex(rvDataSets[0].Residues[j].color);
+									color2 = colourNameToHex(rvDataSets[0].Residues[k].color);
+									
+									grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + ",.5)");
+									grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + ",.5)");
+								}
+								value.ColorLayer.addLinearGradient(grd);
+								rvDataSets[0].BasePairs[i]["color"] = grd;
+								*/
+								for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
+									var BasePair = rvDataSets[0].BasePairs[j];
+									output = output + '<line fill="none" stroke="' + rvDataSets[0].Residues[BasePair[ChosenSide]].color + '" stroke-opacity="' + 0.5 + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
+								}
+								break;
+							case "circles" : 
+								for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
+									var BasePair = rvDataSets[0].BasePairs[j];
+									output = output + '<line fill="none" stroke="' + value.ColorLayer.dataLayerColors[BasePair[ChosenSide]] + '" stroke-opacity="' + 0.5 + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
+								}
+								break;
+							default :
+								alert("this shouldn't be happening right now 54.");
+							
 						}
 					}
-				}
-				output = output + '</g>\n';
-				break;
-			case "selected":
-				output = output + '<g id="' + value.LayerName + '">\n';
-				var radius = 1.7 * value.ScaleFactor;
-				for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
-					var residue = rvDataSets[0].Residues[i];
-					if (residue && residue.selected) {
-						output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + 'none' + '" stroke="' + '#940B06' + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(residue.X).toFixed(3) + '" cy="' + parseFloat(residue.Y).toFixed(3) + '" r="' + radius + '"/>\n';
+					output = output + '</g>\n';
+					break;
+				case "labels":
+					output = output + '<g id="' + value.LayerName + '_Lines">\n';
+					for (var iii = 0; iii < rvDataSets[0].rvLineLabels.length; iii++) {
+						var LabelLine = rvDataSets[0].rvLineLabels[iii];
+						output = output + '<line fill="none" stroke="#211E1F" stroke-width="0.25" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(LabelLine.X1).toFixed(3) + '" y1="' + parseFloat(LabelLine.Y1).toFixed(3) + '" x2="' + parseFloat(LabelLine.X2).toFixed(3) + '" y2="' + parseFloat(LabelLine.Y2).toFixed(3) + '"/>\n';
 					}
-				}
-				output = output + '</g>\n';
-				break;
-				
-			default:
-				break;
+					output = output + '</g>\n';
+					
+					output = output + '<g id="' + value.LayerName + '_Text">\n';
+					for (var ii = 0; ii < rvDataSets[0].rvTextLabels.length; ii++) {
+						var LabelData = rvDataSets[0].rvTextLabels[ii];
+						output = output + '<text transform="matrix(1 0 0 1 ' + parseFloat(LabelData.X).toFixed(3) + ' ' + parseFloat(LabelData.Y).toFixed(3) + ')" fill="' + LabelData.Fill + '" font-family="Myriad Pro" font-size="' + LabelData.FontSize + '">' + LabelData.LabelText + '</text>\n';
+					}
+					output = output + '</g>\n';
+					break;
+				case "residues":
+					output = output + '<g id="' + value.LayerName + '">\n';
+					for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
+						var residue = rvDataSets[0].Residues[i];
+						output = output + '<text id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" transform="matrix(1 0 0 1 ' + (parseFloat(residue.X) - 1.262).toFixed(3) + ' ' + (parseFloat(residue.Y) + 1.145).toFixed(3) + ')" fill="' + residue.color + '" font-family="Myriad Pro" font-size="3.9">' + residue.resName + '</text>\n';
+					}
+					output = output + '</g>\n';
+					break;
+				case "circles":
+					output = output + '<g id="' + value.LayerName + '">\n';
+					var radius = 1.7 * value.ScaleFactor;
+					for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
+						var residue = rvDataSets[0].Residues[i];
+						if (residue && value.dataLayerColors[i]) {
+							if (value.Filled) {
+								output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + value.dataLayerColors[i] + '" stroke="' + value.dataLayerColors[i] + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(residue.X).toFixed(3) + '" cy="' + parseFloat(residue.Y).toFixed(3) + '" r="' + radius + '"/>\n';
+							} else {
+								output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + 'none' + '" stroke="' + value.dataLayerColors[i] + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(residue.X).toFixed(3) + '" cy="' + parseFloat(residue.Y).toFixed(3) + '" r="' + radius + '"/>\n';
+							}
+						}
+					}
+					output = output + '</g>\n';
+					break;
+				case "selected":
+					output = output + '<g id="' + value.LayerName + '">\n';
+					var radius = 1.7 * value.ScaleFactor;
+					for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
+						var residue = rvDataSets[0].Residues[i];
+						if (residue && residue.selected) {
+							output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + 'none' + '" stroke="' + '#940B06' + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(residue.X).toFixed(3) + '" cy="' + parseFloat(residue.Y).toFixed(3) + '" r="' + radius + '"/>\n';
+						}
+					}
+					output = output + '</g>\n';
+					break;
+					
+				default:
+					break;
 			}
+		}
 	});
 	
 	/*
@@ -3388,7 +3454,7 @@ function loadSpecies(species) {
 				$("#StructDataList").multiselect("refresh");
 				
 				//Set interaction Menu
-				var il = document.getElementById("BasePairList");
+				var il = document.getElementById("PrimaryInteractionList");
 				var BPList = rvDataSets[0].SpeciesEntry.InterActionMenu.split(";");
 				il.options.length = 0;
 				il.options[0] = new Option("None", "clear_lines", true, true);				
@@ -3399,7 +3465,8 @@ function loadSpecies(species) {
 						il.options[iii + 1] = new Option(NewBPair[0], NewBPair[1]);
 					}
 				}
-				$("#BasePairList").multiselect("refresh");
+				$("#PrimaryInteractionList").multiselect("refresh");
+				
 				
 				jmolScript("script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
 				//var jscript = "frame " + (SubunitNames.indexOf(rvDataSets[0].SpeciesEntry.Subunit) + 1 ) ;
@@ -3437,7 +3504,7 @@ function loadSpecies(species) {
 		var sl = document.getElementById("StructDataList");
 		sl.options.length = 0;
 		sl.options[0] = new Option("None", "clear_data");
-		var il = document.getElementById("BasePairList");
+		var il = document.getElementById("PrimaryInteractionList");
 		il.options.length = 0;
 		il.options[0] = new Option("None", "clear_lines");
 		
@@ -3449,7 +3516,7 @@ function loadSpecies(species) {
 	}
 	document.getElementById("ProtList").selectedIndex = 0;
 	document.getElementById("alnList").selectedIndex = 0;
-	document.getElementById("BasePairList").selectedIndex = 0;
+	document.getElementById("PrimaryInteractionList").selectedIndex = 0;
 	rvDataSets[0].BasePairs = [];
 }
 ///////////////////////////////////////////////////////////////////////////////
