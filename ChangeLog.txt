@@ -1,5 +1,7 @@
 Ribovision Change Log File
 
-0.503 Fixed
+0.51 Added Linked Layers. Added interaction type filters. Improved exporting. Fixed critical bugs. All around improvements. 
+
+0.503 Fixed critical bugs.
 
 0.5. First alpha release.

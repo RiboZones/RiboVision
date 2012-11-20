@@ -56,7 +56,7 @@
     <div id="SiteInfo" class="ui-widget-content">
       <h3 class="ui-widget-header" style=
       "padding:3px; padding-left:10px; background-image:url(images/ui-bg_glass_50_3baae3_1x400.png); font-size:16px;"><a href=
-      "./ChangeLog.txt" target="_blank" style="color:#FFF">RiboVision: Version 0.504</a></h3>
+      "./ChangeLog.txt" target="_blank" style="color:#FFF">RiboVision: Version 0.51</a></h3>
 
       <p id="infoP">RiboVision is in the RiboZone family of products, brought to you by RiboEvo at Georgia Tech.</p><a href=
       "/Documentation/MainHelp.html" target="_blank">Ribovision Manual</a>
@@ -160,14 +160,18 @@
         <h3><a href="#">Export Data</a></h3>
 
         <div id="saveDiv">
-          Save As:<br />
-          <input name="saveas" type="button" onclick="JavaScript:savePDF();" value="PDF" /> <input name="saveas" type="button"
-          onclick="JavaScript:saveSVG();" value="SVG" /> <input name="saveas" type="button" onclick="JavaScript:savePNG();" value=
-          "PNG" /> <input name="saveas" type="button" onclick="JavaScript:savePML();" value="PML" />
-		  </br>
-		  Save Layers: </br>
-			<input id="visibleLayers" type="radio" name="savelayers" value="visible" checked="checked" /><label for="visibleLayers">Only Visible Layers</label>
+          The default behavior is to export just the visible layers. 
+			</br></br>
+			<input id="visibleLayers" type="radio" name="savelayers" value="visible" checked="checked" /><label for="visibleLayers">Visible Layers</label>
 			<input id="allLayers" type="radio" name="savelayers" value="all" /><label for="allLayers">All Layers</label> 
+			<p>Choose which file type to export.</p>
+			<input name="saveas" type="button" onclick="JavaScript:savePDF();" value="PDF: Best for Printing" />
+			<input name="saveas" type="button" onclick="JavaScript:savePNG();" value="PNG: Best for Displaying" />
+			<input name="saveas" type="button" onclick="JavaScript:saveSVG();" value="SVG: Best for Editing" />
+			</br>
+			<p>Additionally, you may export a Pymol Script. </p>
+            <input name="saveas" type="button" onclick="JavaScript:savePML();" value="PyMOL Script" />
+		  
         </div>
       </div>
     </div>

@@ -2149,6 +2149,7 @@ function update3Dcolors() {
 	r1,
 	curr_chain,
 	curr_color,
+	compare_color,
 	n,
 	m;
 	//r0=rvDataSets[0].Residues[0].resNum.replace(/[^:]*:/g,"");
@@ -2187,8 +2188,12 @@ function update3Dcolors() {
 				}
 				r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""); ;
 			} else {
-				
-				if (((colourNameToHex(targetLayer.dataLayerColors[i]) != colourNameToHex(residueLastColor)) || (curr_chain != residue.ChainID)) || (i == (rvDataSets[0].Residues.length - 1))) {
+				if (!targetLayer.dataLayerColors[i]){
+					compare_color = '#858585';
+				} else {
+					compare_color = colourNameToHex(targetLayer.dataLayerColors[i]);
+				}
+				if (((compare_color != colourNameToHex(residueLastColor)) || (curr_chain != residue.ChainID)) || (i == (rvDataSets[0].Residues.length - 1))) {
 					r1 = residueLast.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""); ;
 					n = r1.match(/[A-z]/g);
 					if (n != undefined) {
