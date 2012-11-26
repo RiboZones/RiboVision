@@ -3,8 +3,6 @@ $dsn = "mysql:host=localhost;dbname=Ribosome_View1";
 $username = "website";
 $pdo = new PDO($dsn, $username);
 
-$dbh = new PDO($dsn, $username, $password, $options);
-
 $rows = array();
 if(isset($_GET['Residues'])) {
     $query = "SELECT * FROM " . $_GET['Residues'];
