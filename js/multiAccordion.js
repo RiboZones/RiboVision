@@ -17,9 +17,10 @@
 			.next().toggleClass("ui-accordion-content-active").slideToggle('fast'); //animation speed:fast
 			return false;
 		})	
+		/*
 		.dblclick(function(){
 			alert("double clicked!");	
-		})	
+		})	*/
 		.next()
 		.addClass("ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom")
 		.css("display", "block")

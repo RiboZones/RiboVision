@@ -645,6 +645,7 @@ $(document).ready(function () {
 			of : $("#canvasDiv")
 		}
 	});
+
 	$("#ColorDialog").dialog({
 		autoOpen : false,
 		show : {
@@ -663,7 +664,35 @@ $(document).ready(function () {
 		}
 	});
 	
-	
+	$("#LayerPreferenceDialog").dialog({
+		autoOpen : false,
+		show : {
+			effect : "blind",
+			duration : 300
+		},
+		height : 200,
+		width : 400,
+		position : {
+			my : "center",
+			at : "center",
+			of : $("#canvasDiv")
+		}
+	});
+
+	$("#ViewsResizeDialog").dialog({
+		autoOpen : false,
+		show : {
+			effect : "blind",
+			duration : 300
+		},
+		height : 300,
+		position : {
+			my : "right top",
+			at : "right top",
+			of : $("#canvasDiv")
+		}
+	});
+
 	
 	$("#openLayerBtn").click(function () {
 		$("#LayerDialog").dialog("open");
@@ -672,6 +701,11 @@ $(document).ready(function () {
 	
 	$("#openColorBtn").click(function () {
 		$("#ColorDialog").dialog("open");
+		return false;
+	});
+
+	$("#openViewResizeBtn").click(function () {
+		$("#ViewsResizeDialog").dialog("open");
 		return false;
 	});
 	
@@ -1047,7 +1081,7 @@ $(document).ready(function () {
 		}
 	});
 	
-	$("#open3rdBtn").button({
+	$("#openViewResizeBtn").button({
 		text : false,
 		icons : {
 			primary : "ui-icon-pin-w"
@@ -1071,6 +1105,16 @@ $(document).ready(function () {
 	$("#colorSelection").button();
 	InitRibovision();
 });
+
+//in "Layer Preferfence" 
+function changeCurrentLayerName() {
+	console.log("function changeCurrentLayerName is called!");
+	console.log("current layer name: " + $dblClickedLayerName);	
+	$dblClickedLayer.innerHTML = document.getElementById("layerNameInput").value;
+	//$newName = document.getElementById("layerNameInput").value;
+	//$currentLayerName = $newName;
+	//console.log("new layer name: " + $newName);	
+}
 
 function LayerMenu(Layer, key) {
 	//console.log($count);
@@ -1161,19 +1205,24 @@ function LayerMenu(Layer, key) {
 	$($currentGroup)
 	.append($("<h3>").addClass("layerName").css({
 			'margin-left' : 78
-		}).append($currentLayerName))
+		}).append($currentLayerName)
+	.dblclick(function() { //double click to open dialog to change layer name and set color
+		//watch out! $currentLayerName != the layer you are clicking right now!
+		//open a dialog window for changing layer names
+		$("#LayerPreferenceDialog").dialog("open");
+
+		//get the name of the layer that just got double clicked
+		$dblClickedLayerName = this.innerHTML.substring(this.innerHTML.lastIndexOf("</span>")+7);
+		$dblClickedLayer = this;
+		document.getElementById("layerNameInput").value = "";
+		document.getElementById("layerNameInput").placeholder = $dblClickedLayerName;			
+		
+		console.log(this.innerHTML);			
+	}))
 	.append($("<div>").addClass("layerContent").css({
 			'margin-left' : 78
 		}));	
-	/*
-	.dblclick( function (){
-			//alert("double clicked " + this.parentNode.getAttribute('name'));
-			//console.log(this);	
-			$(this).readOnly = false;		
-			//$(this).html('');
-		})
-		*/
-	
+		
 	//$count++;
 	
 	switch (Layer.Type) {
@@ -1850,6 +1899,13 @@ function resizeElements() {
 	// Color Panel
 	$( "#ColorDialog" ).dialog( "option", "height", 0.75 * s - 2 * MajorBorderSize );	
 	$( "#ColorDialog" ).dialog("widget").position({
+		my: "right top",
+		at: "right top",
+		of: $( "#canvasDiv" )
+	});
+	// Color Panel
+	$( "#ViewsResizeDialog" ).dialog( "option", "height", 0.75 * s - 2 * MajorBorderSize );	
+	$( "#ViewsResizeDialog" ).dialog("widget").position({
 		my: "right top",
 		at: "right top",
 		of: $( "#canvasDiv" )
@@ -3597,3 +3653,28 @@ function h2d(h) {
 	return parseInt(h, 16);
 };
 ///////////////////////////////////////////////////////////////////////////////
+
+//using slider to change views size
+$(function() {
+    $( "#canvasPorportionSlider" ).slider({
+    	min : 0,
+		max : 100,
+		value : 50,
+		orientation : "horizontal",
+		slide : function (event, ui) {
+			views_proportion_change($(this).slider("value"), 100-$(this).slider("value"));
+		}
+    });
+})
+
+function views_proportion_change(leftPercentage, rightPercentage){
+	console.log("event triggered! l: " + leftPercentage + " r: " + rightPercentage);	
+
+	$newLeftWidth = leftPercentage*0.82 + "%";
+	$newRightWidth = rightPercentage*0.82 + "%";
+	$borderPos = (100-rightPercentage*0.82-2) + "%";	
+	console.log("l: " + $newLeftWidth + " r: " + $newRightWidth + " border: " + $borderPos);
+	$("#canvasDiv").css({"width": $newLeftWidth});
+	$("#jmolDiv").css({"width": $newRightWidth, "left": $borderPos});
+	$("#jmolApplet0").css({"width": "100%"});
+}	

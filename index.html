@@ -11,28 +11,22 @@
   <script type="text/javascript">
 
   //<![CDATA[
-
         if(typeof jQuery === 'undefined') {
-
                 document.write(unescape('%3Cscript type="text/javascript" src="js/jquery-1.8.2.min.js" %3E%3C/script%3E'));
-
                 document.write(unescape('%3Cscript type="text/javascript" src="js/jquery-ui-1.9.0.custom.min.js" %3E%3C/script%3E'));
-
         }
-
   //]]>
 
   </script>
   <script type="text/javascript" src="//code.jquery.com/ui/1.9.0/jquery-ui.min.js">
+</script><!--Use D3 visualization library-->
+  <script type="text/javascript" src="js/d3.js">
 </script>
-<!--Use D3 visualization library--> 
-<script type="text/javascript" src="js/d3.js"></script> 
-<script type="text/javascript" src="js/d3.csv.js"></script> 
-<script type="text/javascript" src="js/d3.v3.js"></script> 
- 
-<!--Stylesheet for navLine--> 
-<link rel="stylesheet" type="text/css" href="css/navLine.css" /> 
-
+  <script type="text/javascript" src="js/d3.csv.js">
+</script>
+  <script type="text/javascript" src="js/d3.v3.js">
+</script><!--Stylesheet for navLine-->
+  <link rel="stylesheet" type="text/css" href="css/navLine.css" />
   <script type="text/javascript" src="js/jquery.multiselect.min.js">
 </script>
   <script type="text/javascript" src="js/jquery.multiselect.filter.js">
@@ -49,9 +43,8 @@
 </script>
   <script type="text/javascript" src="js/multiAccordion.js">
 </script>
-   <script type="text/javascript" src="js/Ribovision.js">
+  <script type="text/javascript" src="js/Ribovision.js">
 </script>
-
   <link rel="stylesheet" type="text/css" href="css/style.css" />
   <link rel="stylesheet" type="text/css" href="css/jquery-ui-1.9.0.custom.css" />
   <link rel="stylesheet" type="text/css" href="css/jquery.multiselect.css" />
@@ -169,18 +162,18 @@
         <h3><a href="#">Export Data</a></h3>
 
         <div id="saveDiv">
-          The default behavior is to export just the visible layers. 
-			</br></br>
-			<input id="visibleLayers" type="radio" name="savelayers" value="visible" checked="checked" /><label for="visibleLayers">Visible Layers</label>
-			<input id="allLayers" type="radio" name="savelayers" value="all" /><label for="allLayers">All Layers</label> 
-			<p>Choose which file type to export.</p>
-			<input name="saveas" type="button" onclick="JavaScript:savePDF();" value="PDF: Best for Printing" />
-			<input name="saveas" type="button" onclick="JavaScript:savePNG();" value="PNG: Best for Displaying" />
-			<input name="saveas" type="button" onclick="JavaScript:saveSVG();" value="SVG: Best for Editing" />
-			</br>
-			<p>Additionally, you may export a Pymol Script. </p>
-            <input name="saveas" type="button" onclick="JavaScript:savePML();" value="PyMOL Script" />
-		  
+          The default behavior is to export just the visible layers.<br />
+          <input id="visibleLayers" type="radio" name="savelayers" value="visible" checked="checked" /><label for=
+          "visibleLayers">Visible Layers</label> <input id="allLayers" type="radio" name="savelayers" value="all" /><label for=
+          "allLayers">All Layers</label>
+
+          <p>Choose which file type to export.</p><input name="saveas" type="button" onclick="JavaScript:savePDF();" value=
+          "PDF: Best for Printing" /> <input name="saveas" type="button" onclick="JavaScript:savePNG();" value=
+          "PNG: Best for Displaying" /> <input name="saveas" type="button" onclick="JavaScript:saveSVG();" value=
+          "SVG: Best for Editing" /><br />
+
+          <p>Additionally, you may export a Pymol Script.</p><input name="saveas" type="button" onclick="JavaScript:savePML();"
+          value="PyMOL Script" />
         </div>
       </div>
     </div>
@@ -209,10 +202,10 @@
 
   <div id="canvasDiv" oncontextmenu="return false" class="ui-widget-content">
     <canvas id="LabelLayer" style="z-index:2;">Get a Better Browser Dummy!</canvas> <canvas id="HighlightLayer" style=
-    "z-index:998;"></canvas> <canvas id="SelectedLayer" style="z-index:6;"></canvas> <canvas id="MainLineLayer" style=
-    "z-index:1;"></canvas> <canvas id="CircleLayer1" style="z-index:4;"></canvas> <canvas id="ResidueLayer" style=
-    "z-index:3;"></canvas> <canvas id="CircleLayer2" style="z-index:5;"></canvas> <canvas id="ContourLayer" style=
-    "z-index:0;"></canvas>
+    "z-index:998; width:100%"></canvas> <canvas id="SelectedLayer" style="z-index:6; width:100%"></canvas> <canvas id=
+    "MainLineLayer" style="z-index:1; width:100%"></canvas> <canvas id="CircleLayer1" style="z-index:4; width:100%"></canvas>
+    <canvas id="ResidueLayer" style="z-index:3; width:100%"></canvas> <canvas id="CircleLayer2" style=
+    "z-index:5; width:100%"></canvas> <canvas id="ContourLayer" style="z-index:0; width:100%"></canvas>
   </div>
 
   <div id="topMenu" class="ui-widget-content">
@@ -237,11 +230,9 @@
 
       <div id="SecretDiv">
         42
-      </div>
-	
-<!--<div id="NavLineDiv">
+      </div><!--<div id="NavLineDiv">
       <script type="text/javascript">
-	  var margin = {top: 20, right: 30, bottom: 30, left: 40},
+          var margin = {top: 20, right: 30, bottom: 30, left: 40},
     width = 1080 - margin.left - margin.right,
     height = 300 - margin.top - margin.bottom;
 
@@ -310,7 +301,6 @@ function interpolateSankey(points) {
 
       </script>
       </div> -->
-
     </div>
   </div>
 
@@ -326,20 +316,16 @@ function interpolateSankey(points) {
 
   <div id="jmolDiv" class="ui-widget-content">
     <script type='text/javascript'>
-
     //<![CDATA[
-
     jmolApplet([100,100], "script states/blank_state.spt");
-
     //]]>
-
     </script>
   </div>
 
   <div id="toolBar">
     <button id="openLayerBtn" class="toolBarBtn" title="Open Layer Manager"></button><br />
     <button id="openColorBtn" class="toolBarBtn" title="Open Color Picker"></button><br />
-    <button id="open3rdBtn" class="toolBarBtn" title="This button is reserved for future use"></button><br />
+    <button id="openViewResizeBtn" class="toolBarBtn" title="Resize 2D / 3D views"></button><br />
     <button id="openManualBtn" class="toolBarBtn" title="Ribovision Manual" onclick=
     "window.open(&#39;/Documentation/MainHelp.html&#39;)">Ribovision Manual</button>
   </div><!--Layer Control Dialog Box-->
@@ -364,6 +350,11 @@ function interpolateSankey(points) {
     </div>
   </div><!--Color Control Dialog Box-->
 
+  <div id="LayerPreferenceDialog" title="Layer Preferences">
+    <label for="inputLayerName">Layer Name:</label> <input id="layerNameInput" /> <input id="layerNameChangeBtn" type="button"
+    value="Change" onclick="Javascript:changeCurrentLayerName()" />
+  </div>
+
   <div id="ColorDialog" title="Residue Coloring">
     <div id="ColorDiv">
       Color Options:<br />
@@ -373,6 +364,12 @@ function interpolateSankey(points) {
       value="Clear Color" /> <input id="colorSelection" type="button" onclick="Javascript:colorSelection()" value=
       "Color Selection" />
     </div>
+  </div>
+
+  <div id="ViewsResizeDialog" title="Resize 2D &amp; 3D views">
+    <p>you got me!</p>
+
+    <div id="canvasPorportionSlider"></div>
   </div>
 
   <div id="dialog-confirm-delete" title="Delete the currently selected layer?">
