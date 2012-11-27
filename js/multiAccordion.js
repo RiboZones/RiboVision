@@ -29,6 +29,6 @@
 	};
 
 	$.fn.multiAccordionRefresh = function () {
-		alert("biggie smalles");
+		alert("biggie smalls");
 	};
 })(jQuery);

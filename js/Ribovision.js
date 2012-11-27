@@ -1108,12 +1108,17 @@ $(document).ready(function () {
 
 //in "Layer Preferfence" 
 function changeCurrentLayerName() {
-	console.log("function changeCurrentLayerName is called!");
-	console.log("current layer name: " + $dblClickedLayerName);	
-	$dblClickedLayer.innerHTML = document.getElementById("layerNameInput").value;
+	//console.log("function changeCurrentLayerName is called!");
+	//console.log("current layer name: " + $dblClickedLayerName);	
+	//$($dblClickedLayer).innerHTML = document.getElementById("layerNameInput").value;
 	//$newName = document.getElementById("layerNameInput").value;
 	//$currentLayerName = $newName;
 	//console.log("new layer name: " + $newName);	
+	$($dblClickedLayer).parent().attr("name",$("#layerNameInput").val());
+	$($dblClickedLayer).html($("#layerNameInput").val());
+	targetLayer = rvDataSets[0].getLayer($dblClickedLayerName);
+	targetLayer.LayerName = $("#layerNameInput").val();
+	RefreshLayerMenu();
 }
 
 function LayerMenu(Layer, key) {
