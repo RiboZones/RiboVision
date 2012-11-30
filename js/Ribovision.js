@@ -1044,7 +1044,7 @@ $(document).ready(function () {
 	$("#SecondaryInteractionList").multiselect({
 		minWidth : 160,
 		multiple : true,
-		//selectedText : "# of # 2nd interaction selected",
+		selectedText : "# of # types selected",
 		noneSelectedText : 'Select interaction types',
 		selectedList : 9,
 		click : function (event){
