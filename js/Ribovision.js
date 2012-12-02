@@ -3776,7 +3776,7 @@ function drawNavLine(selectedParam){
 			    .attr("height", h)
 
 			var g = vis.append("svg:g")
-			    .attr("transform", "translate(0, 160)");
+			    .attr("transform", "translate(0, 260)");
 			
 			var line = d3.svg.line()
 			    .x(function(d,i) { return x(i); })
@@ -3788,7 +3788,7 @@ function drawNavLine(selectedParam){
 					var newNumber = rvDataSets[0].Selected[i].mean_tempFactor;
 	        		selectedDataY = selectedDataY.concat(newNumber);
 				}
-				console.log(selectedDataY );
+				console.log("selectedDataY"+selectedDataY );
 				
 				for (var i =0; i<rvDataSets[0].Selected.length;i++){
 						var newNumber = rvDataSets[0].Selected[i].CurrentData-1;
