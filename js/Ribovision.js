@@ -2839,7 +2839,7 @@ function updateStructData(value) {
 			newargs[i] = newargs[i].slice(2, newargs[i].length - 2);
 		} else {
 			newargs[i] = window[newargs[i]];
-			console.log(newargs[1]);		
+			console.log(newargs);		
 		}
 	}
 	newargs.unshift('42');
