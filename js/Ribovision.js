@@ -3738,7 +3738,7 @@ function drawNavLine(){
 			    .attr("y2", -1 * y(d3.max(data)))
 			
 			g.selectAll(".xLabel")
-			    .data(x.ticks(5))
+			    .data(x.ticks(10))
 			    .enter().append("svg:text")
 			    .attr("class", "xLabel")
 			    .text(String)
@@ -3747,7 +3747,7 @@ function drawNavLine(){
 			    .attr("text-anchor", "middle")
 
 			g.selectAll(".yLabel")
-			    .data(y.ticks(4))
+			    .data(y.ticks(6))
 			    .enter().append("svg:text")
 			    .attr("class", "yLabel")
 			    .text(String)
@@ -3757,7 +3757,7 @@ function drawNavLine(){
 			    .attr("dy", 4)
 			
 			g.selectAll(".xTicks")
-			    .data(x.ticks(5))
+			    .data(x.ticks(10))
 			    .enter().append("svg:line")
 			    .attr("class", "xTicks")
 			    .attr("x1", function(d) { return x(d); })
@@ -3766,7 +3766,7 @@ function drawNavLine(){
 			    .attr("y2", -1 * y(-0.3))
 
 			g.selectAll(".yTicks")
-			    .data(y.ticks(4))
+			    .data(y.ticks(6))
 			    .enter().append("svg:line")
 			    .attr("class", "yTicks")
 			    .attr("y1", function(d) { return -1 * y(d); })
