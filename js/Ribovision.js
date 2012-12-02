@@ -1699,7 +1699,8 @@ function InitRibovision() {
 	document.getElementById("speciesList").selectedIndex = 0;
 	document.getElementById('commandline').value = "";
 	resizeElements();
-	
+	drawNavLine();
+		
 }
 ///////////////////////////////////////////////////////////////////////////////
 
