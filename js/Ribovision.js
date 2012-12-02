@@ -2840,14 +2840,14 @@ function updateStructData(value) {
 		} else {
 			newargs[i] = window[newargs[i]];
 			//console.log(newargs[0]);
-				if (newargs[0]=='Domains_Color')
-				{
-					drawNavLine(2); 
-				}
 		}
 	}
 	newargs.unshift('42');
-	console.log(newargs[0]);
+	console.log(newargs[1]);
+	if (newargs[1]=='Domains_Color')
+				{
+					drawNavLine(2); 
+				}
 	colorMapping.apply(this, newargs);
 	//eval("colorMapping('42'," + value + ")");
 }
