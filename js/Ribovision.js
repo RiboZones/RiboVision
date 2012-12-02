@@ -3902,7 +3902,8 @@ function drawSelectedResidueNavLine(){
 			    .attr("x1", x(-0.3))
 			    .attr("y2", function(d) { return -1 * y(d); })
 			    .attr("x2", x(0))
-		
+		cosole.log(x);
+		console.log(y);
 	
 }
 
