@@ -4,16 +4,19 @@
   font: 10px sans-serif;
 }
 
-path {
-    stroke: black;
-    stroke-width: 2;
-    fill: none;
+path{
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
 }
- 
+
+
 line {
-    stroke: steelblue;
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
 }
- 
+
 text {
     font-family: Arial;
     font-size: 9pt;

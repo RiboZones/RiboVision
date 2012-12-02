@@ -1830,7 +1830,7 @@ function resizeElements() {
 	var toolBarHeight = $("#toolBar").height();
 	//console.log(toolBarWidth/width + "; " + toolBarHeight/height);
 	var t = (width - xcorr - toolBarWidth) / 2;
-	var s = (height - ycorr);
+	var s = (height - ycorr-100);
 	
 	//Top Menu Section
 	$("#topMenu").css('width', width - xcorr);
@@ -3694,7 +3694,7 @@ function views_proportion_change(leftPercentage, rightPercentage){
  *  */
 
 function drawNavLine(){
-		$('#NavLineDiv').innerHTML=""; //clean div before draw new graph
+		$('#NavLineDiv').empty(); //clean div before draw new graph
 		
 		var data = [];
 		
