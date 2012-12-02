@@ -3776,7 +3776,7 @@ function drawNavLine(selectedParam){
 			    .attr("height", h)
 
 			var g = vis.append("svg:g")
-			    .attr("transform", "translate(0, 260)");
+			    .attr("transform", "translate(0, 160)");
 			
 			var line = d3.svg.line()
 			    .x(function(d,i) { return x(i); })
@@ -3794,7 +3794,7 @@ function drawNavLine(selectedParam){
 						var newNumber = rvDataSets[0].Selected[i].CurrentData-1;
 		        		selectedDataX = selectedDataX.concat(newNumber);
 				}
-				console.log(electedDataX);
+				console.log(selectedDataX);
 				
 			y = d3.scale.linear().domain([0, d3.max(selectedDataY)]).range([0 + margin, h - margin]),
 			x = d3.scale.linear().domain([0, d3.max(selectedDataX)]).range([0 + margin, w - margin])
