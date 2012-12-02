@@ -1861,7 +1861,7 @@ function resizeElements() {
 	$("#canvasDiv").css('height', s);
 	$("#canvasDiv").css('width', t);
 	$("#canvasDiv").css('left', xcorr - 1);
-	$("#canvasDiv").css('top', ycorr - 1);
+	$("#canvasDiv").css('top', ycorr - 100);
 	
 	$("canvas").attr({
 		width : t - 2 * MajorBorderSize,
@@ -1880,7 +1880,7 @@ function resizeElements() {
 	$("#jmolDiv").css('height', s);
 	$("#jmolDiv").css('width', t);
 	$("#jmolDiv").css('left', xcorr + parseFloat($("#canvasDiv").css('width')) - 1);
-	$("#jmolDiv").css('top', ycorr - 1);
+	$("#jmolDiv").css('top', ycorr - 100);
 	
 	/*
 	$("#JmolIframe").css('height',s);
