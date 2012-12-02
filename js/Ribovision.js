@@ -2147,7 +2147,7 @@ function selectResidue(event) {
 	}
 	$("#canvasDiv").unbind("mouseup", selectResidue);
 	console.log('selected Residue by mouse' );
-	drawSelectedResidueNavLine();
+	//drawSelectedResidueNavLine();
 }
 
 function updateSelectionDiv() {
@@ -3731,6 +3731,20 @@ function views_proportion_change(leftPercentage, rightPercentage){
 
 ////////////////Nav Line ///////
 
+/*
+ for (var i =0; i<rvDataSets[0].Selected.length;i++){
+				var newNumber = rvDataSets[0].Selected[i].mean_tempFactor;
+        		data = data.concat(newNumber);
+		}
+		console.log(data);
+		
+		for (var i =0; i<rvDataSets[0].Selected.length;i++){
+				var newNumber = rvDataSets[0].Selected[i].CurrentData-1;
+        		dataX = dataX.concat(newNumber);
+		}
+		console.log(dataX);
+ * */
+
 function drawNavLine(selectedParam){
 		$('#NavLineDiv').empty(); //clean div before draw new graph
 		
@@ -3818,7 +3832,7 @@ function drawNavLine(selectedParam){
 		
 }
 
-function drawSelectedResidueNavLine(){
+/*function drawSelectedResidueNavLine(){
 	var data = [];
 	var dataX=[];
 		
@@ -3905,6 +3919,6 @@ function drawSelectedResidueNavLine(){
 		cosole.log(x);
 		console.log(y);
 	
-}
+}*/
 
 //////////End of navline functions////
