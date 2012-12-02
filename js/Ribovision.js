@@ -1594,7 +1594,7 @@ function InitRibovision() {
 		.bind('menuselect', function (event, ui) {
 			var species = $(ui.item).find("a").attr('href');
 			loadSpecies(species.substr(1));
-			drawNavLine(); //load navLine 
+			drawNavLine(mean_tempFactor); //load navLine 
 		});
 		
 		/*
@@ -2839,7 +2839,8 @@ function updateStructData(value) {
 			newargs[i] = newargs[i].slice(2, newargs[i].length - 2);
 		} else {
 			newargs[i] = window[newargs[i]];
-			console.log(newargs[0]);		
+			console.log(newargs[0]);
+				if	
 		}
 	}
 	newargs.unshift('42');
@@ -3730,13 +3731,14 @@ function views_proportion_change(leftPercentage, rightPercentage){
 	console.log(navLineData);
  *  */
 
-function drawNavLine(){
+function drawNavLine(selectedParam){
 		$('#NavLineDiv').empty(); //clean div before draw new graph
 		
 		var data = [];
 		
 		for (var i =0; i<rvDataSets[0].Residues.length;i++){
-		var newNumber = rvDataSets[0].Residues[i].mean_tempFactor;
+		//var newNumber = rvDataSets[0].Residues[i].mean_tempFactor;
+		var newNumber = rvDataSets[0].Residues[i].selectedParam;
         data = data.concat(newNumber);
 		}
 		console.log(data);
