@@ -3750,6 +3750,9 @@ function drawNavLine(selectedParam){
 		
 		var data = [];
 		
+		var selectedDataX=[]
+		var selectedDataY=[]
+	
 		for (var i =0; i<rvDataSets[0].Residues.length;i++){
 			if (selectedParam ==1){
 				var newNumber = rvDataSets[0].Residues[i].mean_tempFactor;
@@ -3778,6 +3781,27 @@ function drawNavLine(selectedParam){
 			var line = d3.svg.line()
 			    .x(function(d,i) { return x(i); })
 			    .y(function(d) { return -1 * y(d); })
+			    
+			////////
+			if(rvDataSets[0].Selected.length>0){
+				for (var i =0; i<rvDataSets[0].Selected.length;i++){
+					var newNumber = rvDataSets[0].Selected[i].mean_tempFactor;
+	        		selectedDataY = selectedDataY.concat(newNumber);
+				}
+				console.log(dataY);
+				
+				for (var i =0; i<rvDataSets[0].Selected.length;i++){
+						var newNumber = rvDataSets[0].Selected[i].CurrentData-1;
+		        		selectedDataX = selectedDataX.concat(newNumber);
+				}
+				console.log(dataX);
+				
+			y = d3.scale.linear().domain([0, d3.max(selectedDataY)]).range([0 + margin, h - margin]),
+			x = d3.scale.linear().domain([0, d3.max(selectedDataX)]).range([0 + margin, w - margin])
+			}
+			
+			
+			////////
 			
 			g.append("svg:path").attr("d", line(data));
 			
