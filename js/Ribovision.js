@@ -1830,7 +1830,7 @@ function resizeElements() {
 	var toolBarHeight = $("#toolBar").height();
 	//console.log(toolBarWidth/width + "; " + toolBarHeight/height);
 	var t = (width - xcorr - toolBarWidth) / 2;
-	var s = (height - ycorr-100);
+	var s = (height - ycorr);
 	
 	//Top Menu Section
 	$("#topMenu").css('width', width - xcorr);
@@ -1861,7 +1861,7 @@ function resizeElements() {
 	$("#canvasDiv").css('height', s);
 	$("#canvasDiv").css('width', t);
 	$("#canvasDiv").css('left', xcorr - 1);
-	$("#canvasDiv").css('top', ycorr +100);
+	$("#canvasDiv").css('top', ycorr - 1);
 	
 	$("canvas").attr({
 		width : t - 2 * MajorBorderSize,
@@ -1880,7 +1880,7 @@ function resizeElements() {
 	$("#jmolDiv").css('height', s);
 	$("#jmolDiv").css('width', t);
 	$("#jmolDiv").css('left', xcorr + parseFloat($("#canvasDiv").css('width')) - 1);
-	$("#jmolDiv").css('top', ycorr +100);
+	$("#jmolDiv").css('top', ycorr - 1);
 	
 	/*
 	$("#JmolIframe").css('height',s);
@@ -3705,7 +3705,7 @@ function drawNavLine(){
 		console.log(data);
 		
 		var	w = $('#NavLineDiv').width();
-		var h = 200,
+		var h = 100,
 			margin = 20,
 			y = d3.scale.linear().domain([0, d3.max(data)]).range([0 + margin, h - margin]),
 			x = d3.scale.linear().domain([0, data.length]).range([0 + margin, w - margin])

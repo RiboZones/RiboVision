@@ -6,14 +6,14 @@
 
 path{
   fill: none;
-  stroke: #000;
+  stroke: #448ccb;
   shape-rendering: crispEdges;
 }
 
 
 line {
   fill: none;
-  stroke: steelblue;
+  stroke: #000;
   stroke-width: 1.5px;
 }
 
