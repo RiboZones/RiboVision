@@ -3683,3 +3683,20 @@ function views_proportion_change(leftPercentage, rightPercentage){
 	$("#jmolDiv").css({"width": $newRightWidth, "left": $borderPos});
 	$("#jmolApplet0").css({"width": "100%"});
 }	
+
+////////////////Nav Line ///////
+function drawNavLine(){
+	var navLineData = [],
+	navLineWidth = 400,
+	navLineHeight = 200,
+	margin = 20;
+	
+	var yPosition = d3.scale.linear().domain([0, d3.max(navLineData)]).range([0 + margin, navLineHeight - margin]);
+	var xPosition = d3.scale.linear().domain([0, navLineData.length]).range([0 + margin, navLineWidth - margin]);
+	
+	for (var i =0; i<rvDataSets[0].Residues.length;i++){
+		var newNumber = rvDataSets[0].Residues[i].mean_tempFactor;
+        navLineData = navLineData.concat(newNumber);
+	}
+	console.log(navLineData);
+}
