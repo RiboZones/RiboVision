@@ -2088,10 +2088,11 @@ function commandSelect(command) {
 	updateSelectionDiv();
 	rvDataSets[0].drawResidues("residues");
 	rvDataSets[0].drawSelection("selected");
-	
+	console.log('selected Residue by command input');
 }
 
 function selectResidue(event) {
+	
 	if (drag) {
 		var curX = (event.clientX - $("#menu").width() - rvViews[0].x) / rvViews[0].scale;
 		var curY = (event.clientY - $("#topMenu").height() - rvViews[0].y) / rvViews[0].scale;
@@ -2145,7 +2146,7 @@ function selectResidue(event) {
 		}
 	}
 	$("#canvasDiv").unbind("mouseup", selectResidue);
-	
+	console.log('selected Residue by mouse');
 }
 
 function updateSelectionDiv() {
@@ -2850,7 +2851,6 @@ function updateStructData(value) {
 	else if (newargs[1]=='mean_tempFactor'){
 		drawNavLine(1); 
 	}
-	
 	colorMapping.apply(this, newargs);
 	//eval("colorMapping('42'," + value + ")");
 }
