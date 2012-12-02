@@ -1860,7 +1860,7 @@ function resizeElements() {
 	$("#topMenu").css('top', 0);
 	
 	$("#tabs").css('width', $("#topMenu").css('width') - 10);
-	$("#tabs").css('height', $("#topMenu").css('height'));
+	//$("#tabs").css('height', $("#topMenu").css('height'));
 	$("#tabs").css('left', 0);
 	$("#tabs").css('top', 0);
 	
