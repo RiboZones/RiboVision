@@ -3705,8 +3705,8 @@ function drawNavLine(){
 		console.log(data);
 		
 		var	w = $('#NavLineDiv').width();
-		var h = 100,
-			margin = 20,
+		var h = 200,
+			margin = 10,
 			y = d3.scale.linear().domain([0, d3.max(data)]).range([0 + margin, h - margin]),
 			x = d3.scale.linear().domain([0, data.length]).range([0 + margin, w - margin])
 
