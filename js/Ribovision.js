@@ -1594,7 +1594,7 @@ function InitRibovision() {
 		.bind('menuselect', function (event, ui) {
 			var species = $(ui.item).find("a").attr('href');
 			loadSpecies(species.substr(1));
-			drawNavLine(mean_tempFactor); //load navLine 
+			drawNavLine(1); //load navLine 
 		});
 		
 		/*
@@ -2840,7 +2840,10 @@ function updateStructData(value) {
 		} else {
 			newargs[i] = window[newargs[i]];
 			console.log(newargs[0]);
-				//if	
+				if (newargs[0]=='Domains_Color')
+				{
+					drawNavLine(2); 
+				}
 		}
 	}
 	newargs.unshift('42');
@@ -3737,8 +3740,12 @@ function drawNavLine(selectedParam){
 		var data = [];
 		
 		for (var i =0; i<rvDataSets[0].Residues.length;i++){
-		//var newNumber = rvDataSets[0].Residues[i].mean_tempFactor;
-		var newNumber = rvDataSets[0].Residues[i].selectedParam;
+			if (selectedParam ==1){
+				var newNumber = rvDataSets[0].Residues[i].mean_tempFactor;
+				}
+			else if (selectedParam ==2){
+				var newNumber = rvDataSets[0].Residues[i].Domains_Color;
+			}		
         data = data.concat(newNumber);
 		}
 		console.log(data);
