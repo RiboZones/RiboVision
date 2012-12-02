@@ -1,13 +1,7 @@
-@charset "UTF-8";
-/* CSS Document */
-#NavLineDiv{
-  font: 10px sans-serif;
-}
 
 path{
   fill: none;
   stroke: #448ccb;
-  shape-rendering: crispEdges;
 }
 
 
