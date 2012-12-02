@@ -1580,6 +1580,7 @@ function InitRibovision() {
 		.bind('menuselect', function (event, ui) {
 			var species = $(ui.item).find("a").attr('href');
 			loadSpecies(species.substr(1));
+			drawNavLine(); //load navLine 
 		});
 		
 		/*
@@ -1699,7 +1700,6 @@ function InitRibovision() {
 	document.getElementById("speciesList").selectedIndex = 0;
 	document.getElementById('commandline').value = "";
 	resizeElements();
-	drawNavLine();
 		
 }
 ///////////////////////////////////////////////////////////////////////////////
