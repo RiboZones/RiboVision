@@ -2839,7 +2839,7 @@ function updateStructData(value) {
 			newargs[i] = newargs[i].slice(2, newargs[i].length - 2);
 		} else {
 			newargs[i] = window[newargs[i]];
-			console.log(newargs[0]);
+			//console.log(newargs[0]);
 				if (newargs[0]=='Domains_Color')
 				{
 					drawNavLine(2); 
@@ -2847,9 +2847,9 @@ function updateStructData(value) {
 		}
 	}
 	newargs.unshift('42');
+	console.log(newargs[0]);
 	colorMapping.apply(this, newargs);
 	//eval("colorMapping('42'," + value + ")");
-	//console.log(newargs[1]);
 }
 
 function handleFileSelect(event) {
