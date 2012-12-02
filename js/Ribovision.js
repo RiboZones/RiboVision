@@ -2839,6 +2839,7 @@ function updateStructData(value) {
 			newargs[i] = newargs[i].slice(2, newargs[i].length - 2);
 		} else {
 			newargs[i] = window[newargs[i]];
+			
 		}
 	}
 	newargs.unshift('42');
@@ -3746,7 +3747,7 @@ function drawNavLine(){
 			y = d3.scale.linear().domain([0, d3.max(data)]).range([0 + margin, h - margin]),
 			x = d3.scale.linear().domain([0, data.length]).range([0 + margin, w - margin])
 
-			var vis = d3.select("#NavLine_content")
+			var vis = d3.select("#NavLineDiv")
 			    .append("svg:svg")
 			    .attr("width", w)
 			    .attr("height", h)
