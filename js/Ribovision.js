@@ -2844,10 +2844,13 @@ function updateStructData(value) {
 	}
 	newargs.unshift('42');
 	console.log(newargs[1]);
-	if (newargs[1]=='Domains_Color')
-				{
-					drawNavLine(2); 
-				}
+	if (newargs[1]=='Domains_Color'){
+		drawNavLine(2); 
+	}
+	else if (newargs[1]=='mean_tempFactor'){
+		drawNavLine(1); 
+	}
+	
 	colorMapping.apply(this, newargs);
 	//eval("colorMapping('42'," + value + ")");
 }
