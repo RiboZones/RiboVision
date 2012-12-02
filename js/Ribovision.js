@@ -42,6 +42,8 @@ var clickedRiboEvo = 0;
 var CurrPrivacyCookie;
 var AgreeFunction = function () {};
 var drag;
+var PanelDivide = 0.5;
+var TopDivide = 0.12;
 
 // Color Palettes, need to be consolidated
 var OnionColors = ["#000000", "#ff0000", "#008000", "#0000ff", "#800080", "#ff8c00", "#ff8c00", "#ff8c00"];
@@ -679,7 +681,7 @@ $(document).ready(function () {
 		}
 	});
 
-	$("#ViewsResizeDialog").dialog({
+	$("#RiboVisionSettingsPanel").dialog({
 		autoOpen : false,
 		show : {
 			effect : "blind",
@@ -687,9 +689,9 @@ $(document).ready(function () {
 		},
 		height : 300,
 		position : {
-			my : "right top",
-			at : "right top",
-			of : $("#canvasDiv")
+			my : "left top",
+			at : "left top",
+			of : $("#SiteInfo")
 		}
 	});
 
@@ -704,8 +706,8 @@ $(document).ready(function () {
 		return false;
 	});
 
-	$("#openViewResizeBtn").click(function () {
-		$("#ViewsResizeDialog").dialog("open");
+	$("#RiboVisionSettings").click(function () {
+		$("#RiboVisionSettingsPanel").dialog("open");
 		return false;
 	});
 	
@@ -1081,10 +1083,17 @@ $(document).ready(function () {
 		}
 	});
 	
-	$("#openViewResizeBtn").button({
+	$("#SelectionMode").button({
 		text : false,
 		icons : {
 			primary : "ui-icon-pin-w"
+		}
+	});
+	
+	$("#RiboVisionSettings").button({
+		text : false,
+		icons : {
+			primary : "ui-icon-gear"
 		}
 	});
 	
@@ -1094,7 +1103,12 @@ $(document).ready(function () {
 			primary : "ui-icon-help"
 		}
 	});
-
+	
+	$("#layerNameInput").keydown(function (event) {
+		if (event.keyCode == 13) {
+			changeCurrentLayerName();
+		}
+	});
 	$("#buttonmode").buttonset();
 	$("#colorLinesMode").buttonset();
 	$("#colorLinesGradientMode").buttonset();
@@ -1115,7 +1129,7 @@ function changeCurrentLayerName() {
 	//$currentLayerName = $newName;
 	//console.log("new layer name: " + $newName);	
 	$($dblClickedLayer).parent().attr("name",$("#layerNameInput").val());
-	$($dblClickedLayer).html($("#layerNameInput").val());
+	$($dblClickedLayer).html($("#layerNameInput").val()).prepend('<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-e"></span>');
 	targetLayer = rvDataSets[0].getLayer($dblClickedLayerName);
 	targetLayer.LayerName = $("#layerNameInput").val();
 	RefreshLayerMenu();
@@ -1822,6 +1836,11 @@ function resizeElements() {
 	var width = $(window).width();
 	var height = $(window).height();
 	
+	//TopMenu
+	$("#topMenu").outerHeight(TopDivide * height);
+	//ToolBar
+	$("#toolBar").outerHeight((1-TopDivide) * height);
+	$("#toolBar").css('top',$("#topMenu").outerHeight())+1;
 	//Menu
 	$("#menu").css('height', 0.9 * height);
 	$("#menu").css('width', 0.16 * width);
@@ -1830,7 +1849,9 @@ function resizeElements() {
 	var toolBarWidth = $("#toolBar").width();
 	var toolBarHeight = $("#toolBar").height();
 	//console.log(toolBarWidth/width + "; " + toolBarHeight/height);
-	var t = (width - xcorr - toolBarWidth) / 2;
+	//var t = (width - xcorr - toolBarWidth) / 2;
+	var lp = (width - xcorr - toolBarWidth) * PanelDivide;
+	var rp = (width - xcorr - toolBarWidth) - lp;
 	var s = (height - ycorr);
 	
 	//Top Menu Section
@@ -1860,12 +1881,12 @@ function resizeElements() {
 	
 	//Canvas Section
 	$("#canvasDiv").css('height', s);
-	$("#canvasDiv").css('width', t);
+	$("#canvasDiv").css('width', lp);
 	$("#canvasDiv").css('left', xcorr - 1);
 	$("#canvasDiv").css('top', ycorr - 1);
 	
 	$("canvas").attr({
-		width : t - 2 * MajorBorderSize,
+		width : lp - 2 * MajorBorderSize,
 		height : s - 2 * MajorBorderSize
 	});
 	$("canvas").css('top', 0);
@@ -1879,7 +1900,7 @@ function resizeElements() {
 	
 	//Jmol Section
 	$("#jmolDiv").css('height', s);
-	$("#jmolDiv").css('width', t);
+	$("#jmolDiv").css('width', rp);
 	$("#jmolDiv").css('left', xcorr + parseFloat($("#canvasDiv").css('width')) - 1);
 	$("#jmolDiv").css('top', ycorr - 1);
 	
@@ -1891,7 +1912,7 @@ function resizeElements() {
 	 */
 	
 	$("#jmolApplet0").css('height', s - 2 * MajorBorderSize);
-	$("#jmolApplet0").css('width', t - 2 * MajorBorderSize);
+	$("#jmolApplet0").css('width', rp - 2 * MajorBorderSize);
 	$("#jmolApplet0").css('top', 0);
 	$("#jmolApplet0").css('left', 0);
 	
@@ -1909,13 +1930,13 @@ function resizeElements() {
 		at: "right top",
 		of: $( "#canvasDiv" )
 	});
-	// Color Panel
-	$( "#ViewsResizeDialog" ).dialog( "option", "height", 0.75 * s - 2 * MajorBorderSize );	
-	$( "#ViewsResizeDialog" ).dialog("widget").position({
+	// Settings Panel
+	//$( "#RiboVisionSettingsPanel" ).dialog( "option", "height", 0.75 * s - 2 * MajorBorderSize );	
+	/*$( "#RiboVisionSettingsPanel" ).dialog("widget").position({
 		my: "right top",
 		at: "right top",
 		of: $( "#canvasDiv" )
-	});
+	});*/
 	
 	//LogoDiv
 	$("#LogoDiv").css('width', xcorr);
@@ -3663,23 +3684,36 @@ function h2d(h) {
 //using slider to change views size
 $(function() {
     $( "#canvasPorportionSlider" ).slider({
-    	min : 0,
-		max : 100,
+    	min : 5,
+		max : 95,
 		value : 50,
 		orientation : "horizontal",
 		slide : function (event, ui) {
-			views_proportion_change($(this).slider("value"), 100-$(this).slider("value"));
+			PanelDivide = ui.value / 100;
+			resizeElements();
+			//views_proportion_change($(this).slider("value"), 100-$(this).slider("value"));
 		}
     });
+	$( "#topPorportionSlider" ).slider({
+		min : 50,
+		max : 90,
+		value : 88,
+		orientation : "vertical",
+		slide : function (event, ui) {
+			TopDivide = (100 - ui.value) / 100;
+			resizeElements();
+			//views_proportion_change($(this).slider("value"), 100-$(this).slider("value"));
+		}
+	});
 })
 
 function views_proportion_change(leftPercentage, rightPercentage){
-	console.log("event triggered! l: " + leftPercentage + " r: " + rightPercentage);	
+	//console.log("event triggered! l: " + leftPercentage + " r: " + rightPercentage);	
 
 	$newLeftWidth = leftPercentage*0.82 + "%";
 	$newRightWidth = rightPercentage*0.82 + "%";
 	$borderPos = (100-rightPercentage*0.82-2) + "%";	
-	console.log("l: " + $newLeftWidth + " r: " + $newRightWidth + " border: " + $borderPos);
+	//console.log("l: " + $newLeftWidth + " r: " + $newRightWidth + " border: " + $borderPos);
 	$("#canvasDiv").css({"width": $newLeftWidth});
 	$("#jmolDiv").css({"width": $newRightWidth, "left": $borderPos});
 	$("#jmolApplet0").css({"width": "100%"});

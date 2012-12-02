@@ -263,11 +263,12 @@
   <div id="toolBar">
     <button id="openLayerBtn" class="toolBarBtn" title="Open Layer Manager"></button><br />
     <button id="openColorBtn" class="toolBarBtn" title="Open Color Picker"></button><br />
-    <button id="openViewResizeBtn" class="toolBarBtn" title="Resize 2D / 3D views"></button><br />
-    <button id="openManualBtn" class="toolBarBtn" title="Ribovision Manual" onclick=
-    "window.open(&#39;/Documentation/MainHelp.html&#39;)">Ribovision Manual</button>
-  </div><!--Layer Control Dialog Box-->
-
+	<button id="SelectionMode" class="toolBarBtn" title="No function yet"></button><br />
+	<button id="RiboVisionSettings" class="toolBarBtn" title="RiboVision Settings"></button><br />
+    <button id="openManualBtn" class="toolBarBtn" title="Ribovision Manual" onclick="window.open(&#39;/Documentation/MainHelp.html&#39;)">Ribovision Manual</button>
+  </div>
+  
+  <!--Layer Control Dialog Box-->
   <div id="LayerDialog" title="Layer / Selection Panel">
     <div id="PanelTabs">
       <ul>
@@ -286,8 +287,9 @@
         42
       </div>
     </div>
-  </div><!--Color Control Dialog Box-->
-
+  </div>
+  
+  <!--Color Control Dialog Box-->
   <div id="LayerPreferenceDialog" title="Layer Preferences">
     <label for="inputLayerName">Layer Name:</label> <input id="layerNameInput" /> <input id="layerNameChangeBtn" type="button"
     value="Change" onclick="Javascript:changeCurrentLayerName()" />
@@ -304,10 +306,12 @@
     </div>
   </div>
 
-  <div id="ViewsResizeDialog" title="Resize 2D &amp; 3D views">
-    <p>you got me!</p>
-
-    <div id="canvasPorportionSlider"></div>
+  <div id="RiboVisionSettingsPanel" title="Settings Panel">
+    <p>Resize 2D &amp; 3D views</p>
+    <div id="canvasPorportionSlider" style="width:240px;"></div>
+	<p> Resize Top Panel</p>
+	<div id="topPorportionSlider" style="width:40px;"></div>
+	  
   </div>
 
   <div id="dialog-confirm-delete" title="Delete the currently selected layer?">
