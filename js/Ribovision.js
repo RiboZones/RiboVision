@@ -3766,7 +3766,7 @@ function drawNavLine(selectedParam){
 		
 		var	w = $('#NavLineDiv').width();
 		var h = 200,
-			margin = 20,
+			margin = 0,
 			y = d3.scale.linear().domain([0, d3.max(data)]).range([0 + margin, h - margin]),
 			x = d3.scale.linear().domain([0, data.length]).range([0 + margin, w - margin])
 
@@ -3776,7 +3776,7 @@ function drawNavLine(selectedParam){
 			    .attr("height", h)
 
 			var g = vis.append("svg:g")
-			    .attr("transform", "translate(0, 200)");
+			    .attr("transform", "translate(0, 500)");
 			
 			var line = d3.svg.line()
 			    .x(function(d,i) { return x(i); })
@@ -3788,13 +3788,13 @@ function drawNavLine(selectedParam){
 					var newNumber = rvDataSets[0].Selected[i].mean_tempFactor;
 	        		selectedDataY = selectedDataY.concat(newNumber);
 				}
-				console.log(dataY);
+				console.log(selectedDataY );
 				
 				for (var i =0; i<rvDataSets[0].Selected.length;i++){
 						var newNumber = rvDataSets[0].Selected[i].CurrentData-1;
 		        		selectedDataX = selectedDataX.concat(newNumber);
 				}
-				console.log(dataX);
+				console.log(electedDataX);
 				
 			y = d3.scale.linear().domain([0, d3.max(selectedDataY)]).range([0 + margin, h - margin]),
 			x = d3.scale.linear().domain([0, d3.max(selectedDataX)]).range([0 + margin, w - margin])
