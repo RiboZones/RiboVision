@@ -3694,7 +3694,7 @@ function views_proportion_change(leftPercentage, rightPercentage){
  *  */
 
 function drawNavLine(){
-	
+		$('#NavLineDiv').innerHTML=""; //clean div before draw new graph
 		
 		var data = [];
 		
@@ -3704,8 +3704,8 @@ function drawNavLine(){
 		}
 		console.log(data);
 		
-		var	w = 400,
-			h = 200,
+		var	w = $('#NavLineDiv').width();
+		var h = 200,
 			margin = 20,
 			y = d3.scale.linear().domain([0, d3.max(data)]).range([0 + margin, h - margin]),
 			x = d3.scale.linear().domain([0, data.length]).range([0 + margin, w - margin])
