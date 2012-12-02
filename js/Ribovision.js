@@ -2839,12 +2839,12 @@ function updateStructData(value) {
 			newargs[i] = newargs[i].slice(2, newargs[i].length - 2);
 		} else {
 			newargs[i] = window[newargs[i]];
-			console.log(newargs);
 		}
 	}
 	newargs.unshift('42');
 	colorMapping.apply(this, newargs);
 	//eval("colorMapping('42'," + value + ")");
+	console.log(newargs[1]);
 }
 
 function handleFileSelect(event) {
@@ -3746,7 +3746,7 @@ function drawNavLine(){
 			y = d3.scale.linear().domain([0, d3.max(data)]).range([0 + margin, h - margin]),
 			x = d3.scale.linear().domain([0, data.length]).range([0 + margin, w - margin])
 
-			var vis = d3.select("#NavLineDiv")
+			var vis = d3.select("#NavLine_content")
 			    .append("svg:svg")
 			    .attr("width", w)
 			    .attr("height", h)
