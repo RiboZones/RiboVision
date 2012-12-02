@@ -2840,7 +2840,7 @@ function updateStructData(value) {
 		} else {
 			newargs[i] = window[newargs[i]];
 			console.log(newargs[0]);
-				if	
+				//if	
 		}
 	}
 	newargs.unshift('42');
