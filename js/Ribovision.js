@@ -3876,15 +3876,15 @@ function drawNavLine(selectedParam, linename){
 				
 			//y = d3.scale.linear().domain([0, d3.max(selectedDataY)]).range([0 + margin, h - margin]),
 			//x = d3.scale.linear().domain([0, d3.max(selectedDataX)]).range([0 + margin, w - margin]);
-			console.log('x is: '+x);
-			console.log('x is: '+y);
 			
 			var selectedResidueLine = d3.svg.line()
 			    .x(function(d) {return x(selectedDataX);})
 			    .y(function(d) {return y(selectedDataY);});	
 			    
-			g.append("svg:path").attr("d", selectedResidueLine)
-								.style("stroke", '#e377c2');
+			    console.log(x(selectedDataX));
+			    
+			//g.append("svg:path").attr("d", selectedResidueLine)
+								//.style("stroke", '#e377c2');
 			}
 		
 			//////////////////////////////
@@ -3941,7 +3941,7 @@ function drawNavLine(selectedParam, linename){
 			//add legend to the navline
 			 g.append("text")
 		      .attr("x", w-50)
-		      .attr("y", ".35em")
+		      .attr("y", "-30")
 		      .text(linename);	
 }
 
