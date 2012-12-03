@@ -3893,7 +3893,7 @@ function drawNavLine(selectedParam){
 			    .attr("x1", x(0))
 			    .attr("y1", -1 * y(0))
 			    .attr("x2", x(0))
-			    .attr("y2", -1 * y(d3.max(data)))
+			    .attr("y2", -1 * y(d3.max(data)*1.2)) //to make the axis 1.2*longth
 			
 			g.selectAll(".xLabel")
 			    .data(x.ticks(10))
