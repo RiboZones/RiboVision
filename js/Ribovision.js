@@ -1688,7 +1688,6 @@ function InitRibovision() {
 			rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
 			rvDataSets[0].HighlightLayer.CanvasContext.stroke();
 			
-			createInfoWindow();
 		}
 		if (drag) {
 			rvViews[0].drag(event);
@@ -1703,6 +1702,11 @@ function InitRibovision() {
 		
 		if (sel == -1) {
 			document.getElementById("currentDiv").innerHTML = "<br/>";
+			// remove previous popup windonw if exists
+			var popup = document.getElementById("residuetip")
+		    if (popup) {
+		    	popup.parentNode.removeChild(popup);
+		    }
 		} else {
 			document.getElementById("currentDiv").innerHTML = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[sel].ChainID)] + ":" + rvDataSets[0].Residues[sel].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + "(" + rvDataSets[0].Residues[sel].CurrentData + ")";
 			if (rvDataSets[0].Residues[sel].resNum.replace(/[^:]*:/g, "") == 42) {
