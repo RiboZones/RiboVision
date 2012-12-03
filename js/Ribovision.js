@@ -2192,7 +2192,7 @@ function selectResidue(event) {
 	}
 	$("#canvasDiv").unbind("mouseup", selectResidue);
 	console.log('selected Residue by mouse' );
-	drawNavLine(1, B-Factor);
+	drawNavLine(1);
 }
 
 function updateSelectionDiv() {
@@ -2891,25 +2891,25 @@ function updateStructData(value) {
 	newargs.unshift('42');
 	console.log(newargs);
 	if (newargs[1]=='Domains_Color'){
-		drawNavLine(2, Domains); 
+		drawNavLine(2); 
 	}
 	else if (newargs[1]=='mean_tempFactor'){
-		drawNavLine(1, B-Factor); 
+		drawNavLine(1); 
 	}
 	else if (newargs[1]=='Onion'){
-		drawNavLine(3, 'Onion'); 
+		drawNavLine(3); 
 	}
 	else if (newargs[1]=='Helix_Color'){
-		drawNavLine(4, 'Helices'); 
+		drawNavLine(4); 
 	}
 	else if (newargs[1]=='Mg_ions_24'){
-		drawNavLine(5, 'Mg ions 2.4A'); 
+		drawNavLine(5); 
 	}
 	else if (newargs[1]=='Mg_ions_26'){
-		drawNavLine(6, 'Mg ions 2.6A'); 
+		drawNavLine(6); 
 	}
 	else if (newargs[1]=='Mg_ions_60'){
-		drawNavLine(7, 'Mg ions 6.0A'); 
+		drawNavLine(7); 
 	}
 		
 	colorMapping.apply(this, newargs);
@@ -3805,7 +3805,7 @@ function views_proportion_change(leftPercentage, rightPercentage){
 		console.log(dataX);
  * */
 
-function drawNavLine(selectedParam, linename){
+function drawNavLine(selectedParam){
 		$('#NavLineDiv').empty(); //clean div before draw new graph
 		
 		var linename = '';
@@ -3814,25 +3814,32 @@ function drawNavLine(selectedParam, linename){
 		for (var i =0; i<rvDataSets[0].Residues.length;i++){
 			if (selectedParam ==1){
 				var newNumber = rvDataSets[0].Residues[i].mean_tempFactor;
+				linename = 'B-Factors';
 				}
 			else if (selectedParam ==2){
 				var newNumber = rvDataSets[0].Residues[i].Domains_Color;
+				linename = 'Domains';
 			}		
 			
 			else if (selectedParam ==3){
 				var newNumber = rvDataSets[0].Residues[i].Onion;
+				linename = 'Onion';
 			}
 			else if (selectedParam ==4){
 				var newNumber = rvDataSets[0].Residues[i].Helix_Color;
+				linename = 'Helices';
 			}
 			else if (selectedParam ==5){
 				var newNumber = rvDataSets[0].Residues[i].Mg_ions_24; 
+				linename = 'Mg ions 2.4A';
 			}
 			else if (selectedParam ==6){
 				var newNumber = rvDataSets[0].Residues[i].Mg_ions_26;
+				linename = 'Mg ions 2.6A';
 			}
 			else if (selectedParam ==7){
 				var newNumber = rvDataSets[0].Residues[i].Mg_ions_60;
+				linename = 'Mg ions 6.0A';
 			}
         data = data.concat(newNumber);
 		}
@@ -3918,7 +3925,7 @@ function drawNavLine(selectedParam, linename){
 			 g.append("text")
 		      .attr("x", w-50)
 		      .attr("y", "-30")
-		      .text(String(linename));	
+		      .text(linename);	
 }
 
 function drawSelectedNavLine(){
