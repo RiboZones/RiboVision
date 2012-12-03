@@ -3810,7 +3810,7 @@ function drawNavLine(selectedParam){
 		
 		var linename = '';
 		var data = [];
-		var selectedData=[];
+		var selectedData=[[1,148],[70,138],[90,125],[130,122]];
 		var selectedDataX=[];
 		var selectedDataY=[];
 	
@@ -3883,10 +3883,10 @@ function drawNavLine(selectedParam){
 				}
 				console.log('selectedDataX'+selectedDataX);
 				
-				for (var k=0; k<selectedDataY.length; k++){
+				/*for (var k=0; k<selectedDataY.length; k++){
 					selectedData.push([selectedDataX[k],selectedDataY[k]]);				
 				}
-				console.log('selectedData'+selectedData);
+				console.log('selectedData'+selectedData);*/
 				
 			g.append("svg:path").attr("d", line(selectedData))
 								.style("stroke", '#e377c2');
