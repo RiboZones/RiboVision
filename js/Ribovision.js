@@ -3883,6 +3883,21 @@ function drawNavLine(selectedParam){
 				}
 				console.log('selectedDataX'+selectedDataX);
 				
+				for (var k=0; k<rvDataSets[0].Residues.length; k++){
+					for(i=0; i<selectedDataX .length; i++){
+						
+						if (k==selectedDataX[i]){
+							var newNumber = selectedDataY[i];
+						}
+						else{
+							var newNumber = 0;
+						}
+					}
+					
+					selectedData = selectedData.concat(newNumber);
+				}
+				console.log('selectedData: '+selectedData);
+				
 				
 				/*for (var i=0; i<rvDataSets[0].Residues.length;i++){
 				
