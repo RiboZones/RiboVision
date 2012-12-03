@@ -1719,7 +1719,7 @@ function InitRibovision() {
 			rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
 			rvDataSets[0].HighlightLayer.CanvasContext.stroke();
 			
-			createInfoWindow();
+			createInfoWindow(sel);
 		}
 		if (drag) {
 			rvViews[0].drag(event);
@@ -1744,11 +1744,12 @@ function InitRibovision() {
 	});
 	
 	///////For popup window////
-	function createInfoWindow(){
+	function createInfoWindow(resoduePar){
 		var popup = document.getElementById("residuetip");
+		var resoduePar;
 		if (popup == null) {
 			$('<div id="residuetip"> <h3 id="resName">Residule</h3> <div id="otherinfo"> <p id="Shannon" style="font-size:10px;">Shannon value here</p> <p id="Concensus" style="font-size:10px;">Concenses here</p><p id="Gaps" style="font-size:10px;">Gaps here</p><h3>Conservation Percentage</h3></div>').appendTo('#canvasDiv');	
-    	addPopUpWindow();
+    	addPopUpWindow(resoduePar);
     	}
 	}
 	
@@ -3968,17 +3969,19 @@ function drawNavLine(selectedParam){
 		      .text(linename);	
 }
 
-function addPopUpWindow(){
+function addPopUpWindow(resoduePar){
 	
 	//$('#residuetip').empty();
 	//Width and height
 			var w = 150;
 			var h = 100;
 			var barPadding = 5;
+			var resoduePar;
 		
 d3.csv("EC_LSU_Struct_ConservationTable.csv", function(csv) {
   //console.log(csv);
-  var i = 5;	// change the residule number here to view different graph
+  var i = resoduePar;	// change the residule number here to view different graph
+  console.log(resoduePar);
    			  
   var dobj= csv[i];
  
