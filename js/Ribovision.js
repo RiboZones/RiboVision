@@ -36,6 +36,7 @@ var FileReaderFile;
 var FullBasePairSet;
 
 // Website Settings
+var zoomEnabled = true;
 var onebuttonmode;
 var clickedNASA = 0;
 var clickedRiboEvo = 0;
@@ -546,6 +547,18 @@ function rvDataSet(DataSetName) {
 			for (var i = 0; i < rvDataSets[0].BasePairs.length; i++) {
 				var j = rvDataSets[0].BasePairs[i].resIndex1;
 				var k = rvDataSets[0].BasePairs[i].resIndex2;
+				if(zoomEnabled){
+					var jkdist = Math.sqrt(((rvDataSets[0].Residues[j].X - rvDataSets[0].Residues[k].X)*(rvDataSets[0].Residues[j].X - rvDataSets[0].Residues[k].X) + (rvDataSets[0].Residues[j].Y - rvDataSets[0].Residues[k].Y)*(rvDataSets[0].Residues[j].Y - rvDataSets[0].Residues[k].Y)));
+					
+					
+					if((150 - rvViews[0].scale*23) > jkdist){
+						continue;
+					}
+					if(( (rvDataSets[0].Residues[j].X*rvViews[0].scale+rvViews[0].x < 0) || (rvDataSets[0].Residues[j].X*rvViews[0].scale+rvViews[0].x > HighlightLayer.clientWidth) || (rvDataSets[0].Residues[j].Y*rvViews[0].scale+rvViews[0].y < 0) ||  (rvDataSets[0].Residues[j].Y*rvViews[0].scale+rvViews[0].y > HighlightLayer.clientHeight))
+					&& ( (rvDataSets[0].Residues[k].X*rvViews[0].scale+rvViews[0].x < 0) || (rvDataSets[0].Residues[k].X*rvViews[0].scale+rvViews[0].x > HighlightLayer.clientWidth) || (rvDataSets[0].Residues[k].Y*rvViews[0].scale+rvViews[0].y < 0) ||  (rvDataSets[0].Residues[k].Y*rvViews[0].scale+rvViews[0].y > HighlightLayer.clientHeight)) )  {
+					continue;
+						}
+						}
 				if (j >=0 && k >=0){
 					switch (colorLayer.Type) {
 						case undefined:
@@ -586,6 +599,25 @@ function rvDataSet(DataSetName) {
 					targetLayer.CanvasContext.lineTo(rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
 					targetLayer.CanvasContext.closePath();
 					targetLayer.CanvasContext.stroke();
+				if(zoomEnabled && (rvViews[0].scale> 10)){
+					//draw the interaction type labels here
+					var x1 = rvDataSets[0].Residues[j].X;
+					var x2 = rvDataSets[0].Residues[k].X;
+					var x12mid = x1 - ((x1-x2)/2); 
+					var xmid =rvDataSets[0].Residues[j].X - (rvDataSets[0].Residues[j].X - rvDataSets[0].Residues[k].X)/2 ;
+					var ymid =rvDataSets[0].Residues[j].Y - (rvDataSets[0].Residues[j].Y - rvDataSets[0].Residues[k].Y)/2;
+					targetLayer.CanvasContext.save();
+					targetLayer.CanvasContext.lineWidth = .2;
+					targetLayer.CanvasContext.fillStyle = "white";
+					targetLayer.CanvasContext.fillRect(xmid-2.4, ymid-.8, 4.7,1.7);
+					targetLayer.CanvasContext.strokeRect(xmid-2.3, ymid-.7, 4.5,1.5);
+					targetLayer.CanvasContext.restore();
+					targetLayer.CanvasContext.save();
+					targetLayer.CanvasContext.font = ".5px Arial";
+					targetLayer.CanvasContext.fillText(rvDataSets[0].BasePairs[i].bp_type, xmid-2, ymid+.5);
+					targetLayer.CanvasContext.restore();
+					
+				}
 				}
 			}
 		}
@@ -1983,7 +2015,19 @@ function getSelectedLine(event){
 			var jdist = Math.sqrt(((nx - rvDataSets[0].Residues[j].X)*(nx - rvDataSets[0].Residues[j].X) + (ny - rvDataSets[0].Residues[j].Y)*(ny - rvDataSets[0].Residues[j].Y)));
 			var kdist = Math.sqrt(((nx - rvDataSets[0].Residues[k].X)*(nx - rvDataSets[0].Residues[k].X) + (ny - rvDataSets[0].Residues[k].Y)*(ny - rvDataSets[0].Residues[k].Y)));
 			var jkdist = Math.sqrt(((rvDataSets[0].Residues[j].X - rvDataSets[0].Residues[k].X)*(rvDataSets[0].Residues[j].X - rvDataSets[0].Residues[k].X) + (rvDataSets[0].Residues[j].Y - rvDataSets[0].Residues[k].Y)*(rvDataSets[0].Residues[j].Y - rvDataSets[0].Residues[k].Y)));
-			if( (jdist+kdist - jkdist) < .25){
+						
+			
+			if(zoomEnabled){
+					var jkdist = Math.sqrt(((rvDataSets[0].Residues[j].X - rvDataSets[0].Residues[k].X)*(rvDataSets[0].Residues[j].X - rvDataSets[0].Residues[k].X) + (rvDataSets[0].Residues[j].Y - rvDataSets[0].Residues[k].Y)*(rvDataSets[0].Residues[j].Y - rvDataSets[0].Residues[k].Y)));
+					if((150 - rvViews[0].scale*23) > jkdist){
+						continue;
+					}
+					if(( (rvDataSets[0].Residues[j].X*rvViews[0].scale+rvViews[0].x < 0) || (rvDataSets[0].Residues[j].X*rvViews[0].scale+rvViews[0].x > HighlightLayer.clientWidth) || (rvDataSets[0].Residues[j].Y*rvViews[0].scale+rvViews[0].y < 0) ||  (rvDataSets[0].Residues[j].Y*rvViews[0].scale+rvViews[0].y > HighlightLayer.clientHeight))
+					&& ( (rvDataSets[0].Residues[k].X*rvViews[0].scale+rvViews[0].x < 0) || (rvDataSets[0].Residues[k].X*rvViews[0].scale+rvViews[0].x > HighlightLayer.clientWidth) || (rvDataSets[0].Residues[k].Y*rvViews[0].scale+rvViews[0].y < 0) ||  (rvDataSets[0].Residues[k].Y*rvViews[0].scale+rvViews[0].y > HighlightLayer.clientHeight)) )  {
+					continue;
+						}
+						}
+			if( (jdist+kdist - jkdist) < .03){
 					return i;
 				}
 			
