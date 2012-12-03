@@ -1440,6 +1440,9 @@ function InitRibovision() {
 	rvDataSets[0].addLayer("ContourLayer", "ContourLayer", [], true, 1.0, 'contour');
 	rvDataSets[0].addHighlightLayer("HighlightLayer", "HighlightLayer", [], false, 1.176, 'highlight');
 	
+	//creat popup window in canvas
+	rvDataSets[0].addHighlightLayer("ResidueInfoLayer", "ResidueInfoLayer", [], false, 1.176, 'residueInfo');
+	
 	HighlightLayer = rvDataSets[0].HighlightLayer.Canvas;
 	
 	// Sort rvLayers by zIndex for convience
@@ -1684,6 +1687,8 @@ function InitRibovision() {
 			rvDataSets[0].HighlightLayer.CanvasContext.closePath();
 			rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
 			rvDataSets[0].HighlightLayer.CanvasContext.stroke();
+			
+			createInfoWindow();
 		}
 		if (drag) {
 			rvViews[0].drag(event);
@@ -1709,6 +1714,8 @@ function InitRibovision() {
 			rvDataSets[0].HighlightLayer.CanvasContext.closePath();
 			rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
 			rvDataSets[0].HighlightLayer.CanvasContext.stroke();
+			
+			createInfoWindow();
 		}
 		if (drag) {
 			rvViews[0].drag(event);
@@ -1733,10 +1740,10 @@ function InitRibovision() {
 	});
 	
 	///////For popup window////
-	/*function createInfoWindow(event){
+	function createInfoWindow(){
 		$('<div id="residuetip">test</div>').appendTo('#canvasDiv');
     	//positionWindowtip(event); 
-	}*/
+	}
 	
   /////////////
 	
