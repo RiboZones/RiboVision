@@ -3811,8 +3811,8 @@ function drawNavLine(selectedParam){
 		var linename = '';
 		var data = [];
 		var selectedData=[];
-		var selectedDataX=[]
-		var selectedDataY=[]
+		var selectedDataX=[];
+		var selectedDataY=[];
 	
 		for (var i =0; i<rvDataSets[0].Residues.length;i++){
 			if (selectedParam ==1){
@@ -3883,8 +3883,12 @@ function drawNavLine(selectedParam){
 				}
 				console.log('selectedDataX'+selectedDataX);
 				
+				for (var k=0; k<selectedDataY.length; k++){
+					selectedData.push(selectedDataX[k],selectedDataY[K]);				
+				}
+				console.log('selectedData'+selectedData);
 				
-			g.append("svg:path").attr("d", line(selectedDataX,selectedDataY))
+			g.append("svg:path").attr("d", line(selectedData))
 								.style("stroke", '#e377c2');
 
 			}
