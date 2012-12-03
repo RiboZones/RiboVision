@@ -3817,7 +3817,7 @@ function drawNavLine(selectedParam){
 			if (selectedParam ==1){
 				var newNumber = rvDataSets[0].Residues[i].mean_tempFactor;
 				linename = 'B-Factors';
-				var newNumberX = rvDataSets[0].Residues[i].map_Index;
+				var newNumberX = rvDataSets[0].Residues[i].map_Index-1;
 				}
 			else if (selectedParam ==2){
 				var newNumber = rvDataSets[0].Residues[i].Domains_Color;
@@ -3867,7 +3867,7 @@ function drawNavLine(selectedParam){
 			    .x(function(d,i) { return x(i); })
 			    .y(function(d) { return -1 * y(d); });
 			
-			g.append("svg:path").attr("d", line(dataY));
+			g.append("svg:path").attr("d", line);
 			
 			////////draw selected residue on navlines/////
 			if(rvDataSets[0].Selected.length>0){
@@ -3913,7 +3913,7 @@ function drawNavLine(selectedParam){
 			    .attr("x1", x(0))
 			    .attr("y1", -1 * y(0))
 			    .attr("x2", x(0))
-			    .attr("y2", -1 * y(d3.max(data)*1.2)); //to make the axis 1.2*longth
+			    .attr("y2", -1 * y(d3.max(dataY)*1.2)); //to make the axis 1.2*longth
 			
 			g.selectAll(".xLabel")
 			    .data(x.ticks(10))
