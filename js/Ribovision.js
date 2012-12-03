@@ -3974,11 +3974,13 @@ function addPopUpWindow(){
 			var h = 200;
 			var barPadding = 15;
 		
-d3.csv("./EC_LSU_Struct_ConservationTable.csv", function(csv) {
+	d3.csv("./EC_LSU_Struct_ConservationTable.csv", function(csv) {
   
-  var i = 500;	// change the residule number here to view different graph
+  var i = 5;	// change the residule number here to view different graph
    			  
   var dobj= csv[i];
+  
+  console.log(csv);
  
   var dataset = [dobj.A*100,dobj.C*100,dobj.G*100,dobj.U*100];
   //var label= ["A", "C", "G", "U"];
