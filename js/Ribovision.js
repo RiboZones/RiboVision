@@ -1626,7 +1626,7 @@ function InitRibovision() {
 		.bind('menuselect', function (event, ui) {
 			var species = $(ui.item).find("a").attr('href');
 			loadSpecies(species.substr(1));
-			drawNavLine(1); //load navLine 
+			drawNavLine(1, 'B-Factor'); //load navLine 
 		});
 		
 		/*
@@ -2191,7 +2191,7 @@ function selectResidue(event) {
 	}
 	$("#canvasDiv").unbind("mouseup", selectResidue);
 	console.log('selected Residue by mouse' );
-	drawNavLine(1);
+	drawNavLine(1, 'B-Factor');
 }
 
 function updateSelectionDiv() {
@@ -2890,25 +2890,25 @@ function updateStructData(value) {
 	newargs.unshift('42');
 	console.log(newargs);
 	if (newargs[1]=='Domains_Color'){
-		drawNavLine(2); 
+		drawNavLine(2, 'Domains'); 
 	}
 	else if (newargs[1]=='mean_tempFactor'){
-		drawNavLine(1); 
+		drawNavLine(1, 'B-Factor'); 
 	}
 	else if (newargs[1]=='Onion'){
-		drawNavLine(3); 
+		drawNavLine(3, 'Onion'); 
 	}
 	else if (newargs[1]=='Helix_Color'){
-		drawNavLine(4); 
+		drawNavLine(4, 'Helices'); 
 	}
 	else if (newargs[1]=='Mg_ions_24'){
-		drawNavLine(5); 
+		drawNavLine(5, 'Mg ions 2.4A'); 
 	}
 	else if (newargs[1]=='Mg_ions_26'){
-		drawNavLine(6); 
+		drawNavLine(6, 'Mg ions 2.6A'); 
 	}
 	else if (newargs[1]=='Mg_ions_60'){
-		drawNavLine(7); 
+		drawNavLine(7, 'Mg ions 6.0A'); 
 	}
 		
 	colorMapping.apply(this, newargs);
@@ -3806,8 +3806,8 @@ function views_proportion_change(leftPercentage, rightPercentage){
 
 function drawNavLine(selectedParam, linename){
 		$('#NavLineDiv').empty(); //clean div before draw new graph
-		var linename = 'B-facter';
 		
+		var linename = '';
 		var data = [];
 		
 		var selectedDataX=[]
@@ -3862,29 +3862,7 @@ function drawNavLine(selectedParam, linename){
 			
 			////////draw selected residue on navlines/////
 			if(rvDataSets[0].Selected.length>0){
-				for (var i =0; i<rvDataSets[0].Selected.length;i++){
-					var newNumber = rvDataSets[0].Selected[i].mean_tempFactor;
-	        		selectedDataY = selectedDataY.concat(newNumber);
-				}
-				console.log("selectedDataY"+selectedDataY );
-				
-				for (var i =0; i<rvDataSets[0].Selected.length;i++){
-						var newNumber = rvDataSets[0].Selected[i].map_Index;
-		        		selectedDataX = selectedDataX.concat(newNumber);
-				}
-				console.log('selectedDataX'+selectedDataX);
-				
-			//y = d3.scale.linear().domain([0, d3.max(selectedDataY)]).range([0 + margin, h - margin]),
-			//x = d3.scale.linear().domain([0, d3.max(selectedDataX)]).range([0 + margin, w - margin]);
-			
-			var selectedResidueLine = d3.svg.line()
-			    .x(function(d) {return x(selectedDataX);})
-			    .y(function(d) {return y(selectedDataY);});	
-			    
-			    console.log(x(selectedDataX));
-			    
-			//g.append("svg:path").attr("d", selectedResidueLine)
-								//.style("stroke", '#e377c2');
+				drawSelectedNavLine();
 			}
 		
 			//////////////////////////////
@@ -3945,5 +3923,30 @@ function drawNavLine(selectedParam, linename){
 		      .text(linename);	
 }
 
+function drawSelectedNavLine(){
+	for (var i =0; i<rvDataSets[0].Selected.length;i++){
+					var newNumber = rvDataSets[0].Selected[i].mean_tempFactor;
+	        		selectedDataY = selectedDataY.concat(newNumber);
+				}
+				console.log("selectedDataY"+selectedDataY );
+				
+				for (var i =0; i<rvDataSets[0].Selected.length;i++){
+						var newNumber = rvDataSets[0].Selected[i].map_Index;
+		        		selectedDataX = selectedDataX.concat(newNumber);
+				}
+				console.log('selectedDataX'+selectedDataX);
+				
+			//y = d3.scale.linear().domain([0, d3.max(selectedDataY)]).range([0 + margin, h - margin]),
+			//x = d3.scale.linear().domain([0, d3.max(selectedDataX)]).range([0 + margin, w - margin]);
+			
+			var selectedResidueLine = d3.svg.line()
+			    .x(function(d) {return x(selectedDataX);})
+			    .y(function(d) {return y(selectedDataY);});	
+			    
+			    console.log(x(selectedDataX));
+			    
+			//g.append("svg:path").attr("d", selectedResidueLine)
+								//.style("stroke", '#e377c2');
+}
 
 //////////End of navline functions////
