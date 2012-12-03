@@ -4030,7 +4030,7 @@ d3.csv("EC_LSU_Struct_ConservationTable.csv", function(csv) {
 			   		return h - (d * 4)-4 ;
 			   })
 			   .attr("font-family", "sans-serif")
-			   .attr("font-size", "8px")
+			   .attr("font-size", "9px")
 			   .attr("fill", "black")
 			   .attr('class','number')
 			   .text(String);
