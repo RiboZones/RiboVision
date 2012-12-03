@@ -1735,14 +1735,9 @@ function InitRibovision() {
 	///////For popup window////
 	function createInfoWindow(event){
 		$('<div id="residuetip">test</div>').appendTo('#currentDiv');
-    	positionWindowtip(event); 
+    	//positionWindowtip(event); 
 	}
 	
-	function positionWindowtip(event){
-    var tPosX = event.pageX - 10;
-    var tPosY = event.pageY - 100;
-    $('div#residuetip').css({'position': 'absolute', 'top': tPosY, 'left': tPosX});
-};
 
   /////////////
 	
