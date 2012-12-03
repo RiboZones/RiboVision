@@ -3871,7 +3871,7 @@ function drawNavLine(selectedParam){
 			////////draw selected residue on navlines/////
 			if(rvDataSets[0].Selected.length>0){
 				
-				/*for (var i =0; i<rvDataSets[0].Selected.length;i++){
+				for (var i =0; i<rvDataSets[0].Selected.length;i++){
 					var newNumber = rvDataSets[0].Selected[i].mean_tempFactor;
 	        		selectedDataY = selectedDataY.concat(newNumber);
 				}
@@ -3882,20 +3882,20 @@ function drawNavLine(selectedParam){
 		        		selectedDataX = selectedDataX.concat(newNumber);
 				}
 				console.log('selectedDataX'+selectedDataX);
-				*/
 				
-				for (var i=0; i<rvDataSets[0].Residues.length;i++){
+				
+				/*for (var i=0; i<rvDataSets[0].Residues.length;i++){
 				
 					for(j=0; j<rvDataSets[0].Selected.length;j++){
 						if(i==rvDataSets[0].Selected[j].map_Index){
-							var newNumber = rvDataSets[0].Selected[i].mean_tempFactor;
+							var newNumber = rvDataSets[0].Selected[j].mean_tempFactor;
 						}
 						else
 							newNumber = 0;
 					}
 					selectedData = selectedDataY.concat(newNumber);
 				}
-				console.log(selectedData);
+				console.log(selectedData);*/
 				
 			//y = d3.scale.linear().domain([0, d3.max(selectedDataY)]).range([0 + margin, h - margin]),
 			//x = d3.scale.linear().domain([0, d3.max(selectedDataX)]).range([0 + margin, w - margin]);
