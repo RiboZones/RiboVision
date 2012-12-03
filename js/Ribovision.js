@@ -3879,10 +3879,14 @@ function drawNavLine(selectedParam, linename){
 			console.log('x is: '+x);
 			console.log('x is: '+y);
 			
-			}
-			
-			g.append("svg:path").attr("d", line(selectedDataY))
+			var selectedResidueLine = d3.svg.line()
+			    .x(function(d) {return x(selectedDataX);})
+			    .y(function(d) {return y(selectedDataY);});	
+			    
+			g.append("svg:path").attr("d", selectedResidueLine)
 								.style("stroke", '#e377c2');
+			}
+		
 			//////////////////////////////
 			
 			g.append("svg:line")
@@ -3936,8 +3940,8 @@ function drawNavLine(selectedParam, linename){
 			    
 			//add legend to the navline
 			 g.append("text")
-		      .attr("x", 3)
-		      .attr("dy", ".35em")
+		      .attr("x", w-50)
+		      .attr("y", ".35em")
 		      .text(linename);	
 }
 
