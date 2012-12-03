@@ -3869,7 +3869,6 @@ function drawNavLine(selectedParam){
 			
 			////////draw selected residue on navlines/////
 			if(rvDataSets[0].Selected.length>0){
-				//drawSelectedNavLine();
 				var selectedDataX=[]
 				var selectedDataY=[]
 				
@@ -3908,8 +3907,8 @@ function drawNavLine(selectedParam){
 			    .x(function(d) {return x(selectedDataX);})
 			    .y(function(d) {return -1*y(selectedDataY);});	*/
 			    
-			g.append("svg:path").attr("d", line(selectedData))
-								.style("stroke", '#e377c2');
+			/*g.append("svg:path").attr("d", line(selectedData))
+								.style("stroke", '#e377c2');*/
 
 			}
 		
