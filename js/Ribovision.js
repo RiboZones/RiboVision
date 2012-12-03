@@ -2885,17 +2885,32 @@ function updateStructData(value) {
 			newargs[i] = newargs[i].slice(2, newargs[i].length - 2);
 		} else {
 			newargs[i] = window[newargs[i]];
-			//console.log(newargs[0]);
 		}
 	}
 	newargs.unshift('42');
-	console.log(newargs[1]);
+	console.log(newargs);
 	if (newargs[1]=='Domains_Color'){
 		drawNavLine(2); 
 	}
 	else if (newargs[1]=='mean_tempFactor'){
 		drawNavLine(1); 
 	}
+	else if (newargs[1]=='Onion'){
+		drawNavLine(3); 
+	}
+	else if (newargs[1]=='Helix_Color'){
+		drawNavLine(4); 
+	}
+	else if (newargs[1]=='Mg_ions_24'){
+		drawNavLine(5); 
+	}
+	else if (newargs[1]=='Mg_ions_26'){
+		drawNavLine(6); 
+	}
+	else if (newargs[1]=='Mg_ions_60'){
+		drawNavLine(7); 
+	}
+		
 	colorMapping.apply(this, newargs);
 	//eval("colorMapping('42'," + value + ")");
 }
@@ -3804,12 +3819,28 @@ function drawNavLine(selectedParam){
 			else if (selectedParam ==2){
 				var newNumber = rvDataSets[0].Residues[i].Domains_Color;
 			}		
+			
+			else if (selectedParam ==3){
+				var newNumber = rvDataSets[0].Residues[i].Onion;
+			}
+			else if (selectedParam ==4){
+				var newNumber = rvDataSets[0].Residues[i].Helix_Color;
+			}
+			else if (selectedParam ==5){
+				var newNumber = rvDataSets[0].Residues[i].Mg_ions_24; 
+			}
+			else if (selectedParam ==6){
+				var newNumber = rvDataSets[0].Residues[i].Mg_ions_26;
+			}
+			else if (selectedParam ==7){
+				var newNumber = rvDataSets[0].Residues[i].Mg_ions_60;
+			}
         data = data.concat(newNumber);
 		}
 		console.log(data);
 		
 		var	w = $('#NavLineDiv').width();
-		var h = 200,
+		var h = 300,
 			margin = 20,
 			y = d3.scale.linear().domain([0, d3.max(data)]).range([0 + margin, h - margin]),
 			x = d3.scale.linear().domain([0, data.length]).range([0 + margin, w - margin])
@@ -3820,13 +3851,13 @@ function drawNavLine(selectedParam){
 			    .attr("height", h)
 
 			var g = vis.append("svg:g")
-			    .attr("transform", "translate(0, 160)");
+			    .attr("transform", "translate(0, 290)");
 			
 			var line = d3.svg.line()
 			    .x(function(d,i) { return x(i); })
 			    .y(function(d) { return -1 * y(d); })
 			    
-			////////
+			////////draw selected residue on navlines/////
 			if(rvDataSets[0].Selected.length>0){
 				for (var i =0; i<rvDataSets[0].Selected.length;i++){
 					var newNumber = rvDataSets[0].Selected[i].mean_tempFactor;
@@ -3838,14 +3869,14 @@ function drawNavLine(selectedParam){
 						var newNumber = rvDataSets[0].Selected[i].CurrentData-1;
 		        		selectedDataX = selectedDataX.concat(newNumber);
 				}
-				console.log(selectedDataX);
+				console.log('selectedDataX'+selectedDataX);
 				
 			y = d3.scale.linear().domain([0, d3.max(selectedDataY)]).range([0 + margin, h - margin]),
 			x = d3.scale.linear().domain([0, d3.max(selectedDataX)]).range([0 + margin, w - margin])
 			}
 			
 			
-			////////
+			//////////////////////////////
 			
 			g.append("svg:path").attr("d", line(data));
 			
