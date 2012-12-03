@@ -3856,7 +3856,9 @@ function drawNavLine(selectedParam){
 			var line = d3.svg.line()
 			    .x(function(d,i) { return x(i); })
 			    .y(function(d) { return -1 * y(d); })
-			    
+			
+			g.append("svg:path").attr("d", line(data));
+			
 			////////draw selected residue on navlines/////
 			if(rvDataSets[0].Selected.length>0){
 				for (var i =0; i<rvDataSets[0].Selected.length;i++){
@@ -3871,21 +3873,20 @@ function drawNavLine(selectedParam){
 				}
 				console.log('selectedDataX'+selectedDataX);
 				
-			y = d3.scale.linear().domain([0, d3.max(selectedDataY)]).range([0 + margin, h - margin]),
-			x = d3.scale.linear().domain([0, d3.max(selectedDataX)]).range([0 + margin, w - margin]);
+			//y = d3.scale.linear().domain([0, d3.max(selectedDataY)]).range([0 + margin, h - margin]),
+			//x = d3.scale.linear().domain([0, d3.max(selectedDataX)]).range([0 + margin, w - margin]);
 			console.log('x is: '+x);
 			console.log('x is: '+y);
+			
 			}
 			
 			
 			//////////////////////////////
 			
-			g.append("svg:path").attr("d", line(data));
-			
 			g.append("svg:line")
 			    .attr("x1", x(0))
 			    .attr("y1", -1 * y(0))
-			    .attr("x2", x(w))
+			    .attr("x2", x(w)*2)
 			    .attr("y2", -1 * y(0))
 
 			g.append("svg:line")
