@@ -23,9 +23,6 @@ font-size: 11pt;
 font-weight:600;
 }
 
-#residueInfo{
-height: 60px;
-width:60px;
-border:solid 2px;
-	
+#residuetip{
+	z-index: 100;
 }
