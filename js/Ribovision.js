@@ -3866,7 +3866,7 @@ function drawNavLine(selectedParam){
 			g.append("svg:path").attr("d", line(data));
 			
 			////////draw selected residue on navlines/////
-			if(rvDataSets[0].Selected.length>0){
+			/*if(rvDataSets[0].Selected.length>0){
 				
 				for (var i =0; i<rvDataSets[0].Selected.length;i++){
 					var newNumber = rvDataSets[0].Selected[i].mean_tempFactor;
@@ -3885,16 +3885,16 @@ function drawNavLine(selectedParam){
 				}
 				console.log('selectedData'+selectedData);
 			
-			/*y1 = d3.scale.linear().domain([0, d3.max(selectedDataY)]),
-			x1 = d3.scale.linear().domain([0, d3.max(selectedDataX)]);
+			//y1 = d3.scale.linear().domain([0, d3.max(selectedDataY)]),
+			//x1 = d3.scale.linear().domain([0, d3.max(selectedDataX)]);
 			
 			var line = d3.svg.line() //call the create line function
 			.x(function(d){ return d.x1;}) //map x to 'd' attribute element zero
-			.y(function(d){ return d.y1;}) //map y to 'd' attribute element one	*/
+			.y(function(d){ return d.y1;}) //map y to 'd' attribute element one	
 			
-			/*g.append("svg:path").attr("d", line(selectedDataY))
-								.style("stroke", '#e377c2'); */
-			}
+			g.append("svg:path").attr("d", line(selectedDataY))
+								.style("stroke", '#e377c2'); 
+			}*/
 		
 			//////////////////////////////
 			
