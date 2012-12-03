@@ -3804,8 +3804,9 @@ function views_proportion_change(leftPercentage, rightPercentage){
 		console.log(dataX);
  * */
 
-function drawNavLine(selectedParam){
+function drawNavLine(selectedParam, linename){
 		$('#NavLineDiv').empty(); //clean div before draw new graph
+		var linename = 'B-facter';
 		
 		var data = [];
 		
@@ -3880,20 +3881,21 @@ function drawNavLine(selectedParam){
 			
 			}
 			
-			
+			g.append("svg:path").attr("d", line(selectedDataY))
+								.style("stroke", color('#FF7F0E'));
 			//////////////////////////////
 			
 			g.append("svg:line")
 			    .attr("x1", x(0))
 			    .attr("y1", -1 * y(0))
 			    .attr("x2", $('#NavLineDiv').width())
-			    .attr("y2", -1 * y(0))
+			    .attr("y2", -1 * y(0));
 
 			g.append("svg:line")
 			    .attr("x1", x(0))
 			    .attr("y1", -1 * y(0))
 			    .attr("x2", x(0))
-			    .attr("y2", -1 * y(d3.max(data)*1.2)) //to make the axis 1.2*longth
+			    .attr("y2", -1 * y(d3.max(data)*1.2)); //to make the axis 1.2*longth
 			
 			g.selectAll(".xLabel")
 			    .data(x.ticks(10))
@@ -3902,7 +3904,7 @@ function drawNavLine(selectedParam){
 			    .text(String)
 			    .attr("x", function(d) { return x(d) })
 			    .attr("y", 0)
-			    .attr("text-anchor", "middle")
+			    .attr("text-anchor", "middle");
 
 			g.selectAll(".yLabel")
 			    .data(y.ticks(6))
@@ -3912,7 +3914,7 @@ function drawNavLine(selectedParam){
 			    .attr("x", 0)
 			    .attr("y", function(d) { return -1 * y(d) })
 			    .attr("text-anchor", "right")
-			    .attr("dy", 4)
+			    .attr("dy", 4);
 			
 			g.selectAll(".xTicks")
 			    .data(x.ticks(10))
@@ -3921,7 +3923,7 @@ function drawNavLine(selectedParam){
 			    .attr("x1", function(d) { return x(d); })
 			    .attr("y1", -1 * y(0))
 			    .attr("x2", function(d) { return x(d); })
-			    .attr("y2", -1 * y(-0.3))
+			    .attr("y2", -1 * y(-0.3));
 
 			g.selectAll(".yTicks")
 			    .data(y.ticks(6))
@@ -3930,97 +3932,14 @@ function drawNavLine(selectedParam){
 			    .attr("y1", function(d) { return -1 * y(d); })
 			    .attr("x1", x(-0.3))
 			    .attr("y2", function(d) { return -1 * y(d); })
-			    .attr("x2", x(0))
-		
+			    .attr("x2", x(0));
+			    
+			//add legend to the navline
+			 g.append("text")
+		      .attr("x", 3)
+		      .attr("dy", ".35em")
+		      .text(linename);	
 }
 
-/*function drawSelectedResidueNavLine(){
-	var data = [];
-	var dataX=[];
-		
-		for (var i =0; i<rvDataSets[0].Selected.length;i++){
-				var newNumber = rvDataSets[0].Selected[i].mean_tempFactor;
-        		data = data.concat(newNumber);
-		}
-		console.log(data);
-		
-		for (var i =0; i<rvDataSets[0].Selected.length;i++){
-				var newNumber = rvDataSets[0].Selected[i].CurrentData-1;
-        		dataX = dataX.concat(newNumber);
-		}
-		console.log(dataX);
-		
-		var	w = $('#NavLineDiv').width();
-		var h = 200,
-			margin = 20,
-			y = d3.scale.linear().domain([0, d3.max(data)]).range([0 + margin, h - margin]),
-			x = d3.scale.linear().domain([0,  d3.max(dataX)]).range([0 + margin, w - margin])
-
-			var vis = d3.select("#NavLineDiv")
-			    .append("svg:svg")
-			    .attr("width", w)
-			    .attr("height", h)
-
-			var g = vis.append("svg:g")
-			    .attr("transform", "translate(0, 200)");
-			
-			var line = d3.svg.line()
-			    .x(function(d) { return x(d); })
-			    .y(function(d) { return -1 * y(d); })
-			
-			g.append("svg:path").attr("d", line(data));
-			
-			g.append("svg:line")
-			    .attr("x1", x(0))
-			    .attr("y1", -1 * y(0))
-			    .attr("x2", x(w))
-			    .attr("y2", -1 * y(0))
-
-			g.append("svg:line")
-			    .attr("x1", x(0))
-			    .attr("y1", -1 * y(0))
-			    .attr("x2", x(d3.max(dataX)))
-			    .attr("y2", -1 * y(d3.max(data)))
-			
-			g.selectAll(".xLabel")
-			    .data(x.ticks(10))
-			    .enter().append("svg:text")
-			    .attr("class", "xLabel")
-			    .text(String)
-			    .attr("x", function(d) { return x(d) })
-			    .attr("y", 0)
-			    .attr("text-anchor", "middle")
-
-			g.selectAll(".yLabel")
-			    .data(y.ticks(6))
-			    .enter().append("svg:text")
-			    .attr("class", "yLabel")
-			    .text(String)
-			    .attr("x", 0)
-			    .attr("y", function(d) { return -1 * y(d) })
-			    .attr("text-anchor", "right")
-			    .attr("dy", 4)
-			
-			g.selectAll(".xTicks")
-			    .data(x.ticks(10))
-			    .enter().append("svg:line")
-			    .attr("class", "xTicks")
-			    .attr("x1", function(d) { return x(d); })
-			    .attr("y1", -1 * y(0))
-			    .attr("x2", function(d) { return x(d); })
-			    .attr("y2", -1 * y(-0.3))
-
-			g.selectAll(".yTicks")
-			    .data(y.ticks(6))
-			    .enter().append("svg:line")
-			    .attr("class", "yTicks")
-			    .attr("y1", function(d) { return -1 * y(d); })
-			    .attr("x1", x(-0.3))
-			    .attr("y2", function(d) { return -1 * y(d); })
-			    .attr("x2", x(0))
-		cosole.log(x);
-		console.log(y);
-	
-}*/
 
 //////////End of navline functions////
