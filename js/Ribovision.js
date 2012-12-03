@@ -3885,6 +3885,8 @@ function drawNavLine(selectedParam){
 				
 			//y = d3.scale.linear().domain([0, d3.max(selectedDataY)]).range([0 + margin, h - margin]),
 			//x = d3.scale.linear().domain([0, d3.max(selectedDataX)]).range([0 + margin, w - margin]);
+			var x = d3.scale.linear().range([0 + margin, w - margin]),
+    		y = d3.scale.linear().range([0 + margin, h - margin]);
 			
 			var selectedResidueLine = d3.svg.line()
 			    .x(function(d) {return x(selectedDataX);})
