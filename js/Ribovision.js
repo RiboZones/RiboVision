@@ -3892,9 +3892,10 @@ function drawNavLine(selectedParam){
 						else{
 							var newNumber = 0;
 						}
+						
+						selectedData = selectedData.concat(newNumber);
 					}
 					
-					selectedData = selectedData.concat(newNumber);
 				}
 				console.log('selectedData: '+selectedData);
 				
