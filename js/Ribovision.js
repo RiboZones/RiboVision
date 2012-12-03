@@ -4013,7 +4013,7 @@ d3.csv("EC_LSU_Struct_ConservationTable.csv", function(csv) {
 			   .attr("height", function(d) {
 			   		return d * 4;
 			   })
-			   .attr("fill","orange");
+			   .attr("fill","#f26522");
  
 			svg.selectAll("text.number")
 			   .data(dataset)		 
@@ -4030,7 +4030,7 @@ d3.csv("EC_LSU_Struct_ConservationTable.csv", function(csv) {
 			   		return h - (d * 4)-4 ;
 			   })
 			   .attr("font-family", "sans-serif")
-			   .attr("font-size", "1.2em")
+			   .attr("font-size", "9px")
 			   .attr("fill", "black")
 			   .attr('class','number')
 			   .text(String);
