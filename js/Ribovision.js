@@ -229,6 +229,7 @@ function rvDataSet(DataSetName) {
 		if (ind >= 0) {
 			$.each(this.Layers, function (key, value) {
 				if (value.Type === layer) {
+					
 					drawLabels(value);
 				}
 			});
@@ -1626,7 +1627,7 @@ function InitRibovision() {
 		.bind('menuselect', function (event, ui) {
 			var species = $(ui.item).find("a").attr('href');
 			loadSpecies(species.substr(1));
-			drawNavLine(1, 'B-Factor'); //load navLine 
+			drawNavLine(1, B-Factor); //load navLine 
 		});
 		
 		/*
@@ -2191,7 +2192,7 @@ function selectResidue(event) {
 	}
 	$("#canvasDiv").unbind("mouseup", selectResidue);
 	console.log('selected Residue by mouse' );
-	drawNavLine(1, 'B-Factor');
+	drawNavLine(1, B-Factor);
 }
 
 function updateSelectionDiv() {
@@ -2890,10 +2891,10 @@ function updateStructData(value) {
 	newargs.unshift('42');
 	console.log(newargs);
 	if (newargs[1]=='Domains_Color'){
-		drawNavLine(2, 'Domains'); 
+		drawNavLine(2, Domains); 
 	}
 	else if (newargs[1]=='mean_tempFactor'){
-		drawNavLine(1, 'B-Factor'); 
+		drawNavLine(1, B-Factor); 
 	}
 	else if (newargs[1]=='Onion'){
 		drawNavLine(3, 'Onion'); 
@@ -3809,9 +3810,6 @@ function drawNavLine(selectedParam, linename){
 		
 		var linename = '';
 		var data = [];
-		
-		var selectedDataX=[]
-		var selectedDataY=[]
 	
 		for (var i =0; i<rvDataSets[0].Residues.length;i++){
 			if (selectedParam ==1){
@@ -3920,10 +3918,13 @@ function drawNavLine(selectedParam, linename){
 			 g.append("text")
 		      .attr("x", w-50)
 		      .attr("y", "-30")
-		      .text(linename);	
+		      .text(String(linename));	
 }
 
 function drawSelectedNavLine(){
+	var selectedDataX=[]
+	var selectedDataY=[]
+	
 	for (var i =0; i<rvDataSets[0].Selected.length;i++){
 					var newNumber = rvDataSets[0].Selected[i].mean_tempFactor;
 	        		selectedDataY = selectedDataY.concat(newNumber);
