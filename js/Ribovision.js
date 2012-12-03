@@ -3884,7 +3884,7 @@ function drawNavLine(selectedParam){
 				console.log('selectedDataX'+selectedDataX);
 				
 				for (var k=0; k<selectedDataY.length; k++){
-					selectedData.push(selectedDataX[k],selectedDataY[K]);				
+					selectedData.push([selectedDataX[k],selectedDataY[k]]);				
 				}
 				console.log('selectedData'+selectedData);
 				
