@@ -3974,7 +3974,7 @@ function addPopUpWindow(){
 			var h = 200;
 			var barPadding = 15;
 		
-d3.csv("../EC_LSU_Struct_ConservationTable.csv", function(csv) {
+d3.csv("./EC_LSU_Struct_ConservationTable.csv", function(csv) {
   
   var i = 500;	// change the residule number here to view different graph
    			  
