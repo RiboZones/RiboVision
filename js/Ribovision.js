@@ -3865,6 +3865,7 @@ function drawNavLine(selectedParam){
 			var line = d3.svg.line()
 			    .x(function(d,i) { return x(i); })
 			    .y(function(d) { return -1 * y(d); })
+			    .interpolate("linear");
 			
 			g.append("svg:path").attr("d", line(data));
 			
