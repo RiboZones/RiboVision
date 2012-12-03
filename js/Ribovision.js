@@ -3866,7 +3866,7 @@ function drawNavLine(selectedParam){
 				console.log("selectedDataY"+selectedDataY );
 				
 				for (var i =0; i<rvDataSets[0].Selected.length;i++){
-						var newNumber = rvDataSets[0].Selected[i].CurrentData-1;
+						var newNumber = rvDataSets[0].Selected[i].map_Index;
 		        		selectedDataX = selectedDataX.concat(newNumber);
 				}
 				console.log('selectedDataX'+selectedDataX);
