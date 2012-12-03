@@ -3899,14 +3899,14 @@ function drawNavLine(selectedParam){
 				}
 				console.log('selectedData'+selectedData);
 			
-			y1 = d3.scale.linear().domain([0, d3.max(selectedDataY)]),
+			/*y1 = d3.scale.linear().domain([0, d3.max(selectedDataY)]),
 			x1 = d3.scale.linear().domain([0, d3.max(selectedDataX)]);
 			
 			var line = d3.svg.line() //call the create line function
 			.x(function(d){ return d.x1;}) //map x to 'd' attribute element zero
-			.y(function(d){ return d.y1;}) //map y to 'd' attribute element one	
+			.y(function(d){ return d.y1;}) //map y to 'd' attribute element one	*/
 			
-			g.append("svg:path").attr("d", line)
+			g.append("svg:path").attr("d", line(selectedDataY))
 								.style("stroke-width",5) //beginning line size
 								.style("stroke", '#e377c2');
 
