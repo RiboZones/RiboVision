@@ -3802,25 +3802,13 @@ function views_proportion_change(leftPercentage, rightPercentage){
 
 ////////////////Nav Line ///////
 
-/*
- for (var i =0; i<rvDataSets[0].Selected.length;i++){
-				var newNumber = rvDataSets[0].Selected[i].mean_tempFactor;
-        		data = data.concat(newNumber);
-		}
-		console.log(data);
-		
-		for (var i =0; i<rvDataSets[0].Selected.length;i++){
-				var newNumber = rvDataSets[0].Selected[i].CurrentData-1;
-        		dataX = dataX.concat(newNumber);
-		}
-		console.log(dataX);
- * */
 
 function drawNavLine(selectedParam){
 		$('#NavLineDiv').empty(); //clean div before draw new graph
 		
 		var linename = '';
-		var data = [];
+		var dataY = [];
+		var dataX=[];
 		var selectedData=[];
 		var selectedDataX=[];
 		var selectedDataY=[];
@@ -3829,6 +3817,7 @@ function drawNavLine(selectedParam){
 			if (selectedParam ==1){
 				var newNumber = rvDataSets[0].Residues[i].mean_tempFactor;
 				linename = 'B-Factors';
+				var newNumberX = rvDataSets[0].Residues[i].map_Index;
 				}
 			else if (selectedParam ==2){
 				var newNumber = rvDataSets[0].Residues[i].Domains_Color;
@@ -3855,15 +3844,16 @@ function drawNavLine(selectedParam){
 				var newNumber = rvDataSets[0].Residues[i].Mg_ions_60;
 				linename = 'Mg ions 6.0A';
 			}
-        data = data.concat(newNumber);
+        dataY = dataY.concat(newNumber);
+         dataX = dataX.concat(newNumberX);
 		}
 		//console.log(data);
 		
 		var	w = $('#NavLineDiv').width();
 		var h = 300,
 			margin = 20,
-			y = d3.scale.linear().domain([0, d3.max(data)]).range([0 + margin, h - margin]),
-			x = d3.scale.linear().domain([0, data.length]).range([0 + margin, w - margin])
+			y = d3.scale.linear().domain([0, d3.max(dataY)]).range([0 + margin, h - margin]),
+			x = d3.scale.linear().domain([0, d3.max(dataX)]).range([0 + margin, w - margin])
 
 			var vis = d3.select("#NavLineDiv")
 			    .append("svg:svg")
@@ -3877,7 +3867,7 @@ function drawNavLine(selectedParam){
 			    .x(function(d,i) { return x(i); })
 			    .y(function(d) { return -1 * y(d); });
 			
-			g.append("svg:path").attr("d", line(data));
+			g.append("svg:path").attr("d", line(dataY));
 			
 			////////draw selected residue on navlines/////
 			if(rvDataSets[0].Selected.length>0){
@@ -3907,7 +3897,6 @@ function drawNavLine(selectedParam){
 			.y(function(d){ return d.y1;}) //map y to 'd' attribute element one	*/
 			
 			g.append("svg:path").attr("d", line(selectedDataY))
-								.style("stroke-width",5) //beginning line size
 								.style("stroke", '#e377c2');
 
 			}
