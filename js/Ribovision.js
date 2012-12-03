@@ -3890,7 +3890,7 @@ function drawNavLine(selectedParam){
 			    .x(function(d) {return x(selectedDataX);})
 			    .y(function(d) {return -1*y(selectedDataY);});	
 			    
-			g.append("svg:path").attr("d", function(d) {return selectedResidueLine(d); })
+			g.append("svg:path").attr("d", selectedResidueLine)
 								.style("stroke", '#e377c2');
 								
 								
