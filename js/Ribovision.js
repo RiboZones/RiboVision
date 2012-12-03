@@ -3969,8 +3969,8 @@ function drawNavLine(selectedParam){
 }
 
 function addPopUpWindow(){
-	$('#residuetip').empty();
 	
+	$('#residuetip').empty();
 	//Width and height
 			var w = 150;
 			var h = 100;
