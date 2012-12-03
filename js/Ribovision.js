@@ -2191,7 +2191,7 @@ function selectResidue(event) {
 	}
 	$("#canvasDiv").unbind("mouseup", selectResidue);
 	console.log('selected Residue by mouse' );
-	//drawSelectedResidueNavLine();
+	drawNavLine(1);
 }
 
 function updateSelectionDiv() {
@@ -3810,7 +3810,7 @@ function drawNavLine(selectedParam){
 		
 		var	w = $('#NavLineDiv').width();
 		var h = 200,
-			margin = 15,
+			margin = 20,
 			y = d3.scale.linear().domain([0, d3.max(data)]).range([0 + margin, h - margin]),
 			x = d3.scale.linear().domain([0, data.length]).range([0 + margin, w - margin])
 
@@ -3820,7 +3820,7 @@ function drawNavLine(selectedParam){
 			    .attr("height", h)
 
 			var g = vis.append("svg:g")
-			    .attr("transform", "translate(0, 260)");
+			    .attr("transform", "translate(0, 160)");
 			
 			var line = d3.svg.line()
 			    .x(function(d,i) { return x(i); })
