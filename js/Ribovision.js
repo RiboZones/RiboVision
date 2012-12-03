@@ -3887,7 +3887,7 @@ function drawNavLine(selectedParam){
 			    .attr("x1", x(0))
 			    .attr("y1", -1 * y(0))
 			    .attr("x2", $('#NavLineDiv').width())
-			    .attr("y2", -1 * y(0))
+			    .attr("y2", -1 * h)
 
 			g.append("svg:line")
 			    .attr("x1", x(0))
