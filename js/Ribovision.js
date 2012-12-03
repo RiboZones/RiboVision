@@ -3985,8 +3985,19 @@ d3.csv("EC_LSU_Struct_ConservationTable.csv", function(csv) {
    			  
   var dobj= csv[i];
  
-  var dataset = [dobj.A*100,dobj.C*100,dobj.G*100,dobj.U*100];
-  //var label= ["A", "C", "G", "U"];
+  //var dataset = [dobj.A*100,dobj.C*100,dobj.G*100,dobj.U*100];
+
+  //round the number to two decimal
+ var Anum= dobj.A*100;
+ var An= Anum.toFixed(2);
+ var Cnum= dobj.C*100;
+ var Cn= Cnum.toFixed(2);
+ var Gnum= dobj.G*100;
+ var Gn= Gnum.toFixed(2);
+ var Unum= dobj.U*100;
+ var Un= Unum.toFixed(2);
+ 
+ var dataset = [An,Cn,Gn,Un];
   
 	document.getElementById('resName').innerHTML="Residule "+dobj.resNum;
 	document.getElementById('Shannon').innerHTML="Shannon Value = "+dobj.Shannon;
