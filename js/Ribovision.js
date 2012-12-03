@@ -1627,7 +1627,7 @@ function InitRibovision() {
 		.bind('menuselect', function (event, ui) {
 			var species = $(ui.item).find("a").attr('href');
 			loadSpecies(species.substr(1));
-			drawNavLine(1, B-Factor); //load navLine 
+			drawNavLine(1); //load navLine 
 		});
 		
 		/*
