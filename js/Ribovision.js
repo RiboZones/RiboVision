@@ -3969,17 +3969,18 @@ function drawNavLine(selectedParam){
 }
 
 function addPopUpWindow(){
+	$('#residuetip').empty();
+	
 	//Width and height
-			var w = 300;
-			var h = 200;
-			var barPadding = 15;
+			var w = 150;
+			var h = 100;
+			var barPadding = 5;
 		
-	d3.csv("EC_LSU_Struct_ConservationTable.csv", function(csv) {
+d3.csv("EC_LSU_Struct_ConservationTable.csv", function(csv) {
   console.log(csv);
   var i = 5;	// change the residule number here to view different graph
    			  
   var dobj= csv[i];
-  
  
   var dataset = [dobj.A*100,dobj.C*100,dobj.G*100,dobj.U*100];
   //var label= ["A", "C", "G", "U"];
@@ -3990,7 +3991,7 @@ function addPopUpWindow(){
 	document.getElementById('Gaps').innerHTML="Gaps = "+dobj.Gaps;
  
 				//Create SVG element
-			var svg = d3.select("body")
+			var svg = d3.select("#residuetip")
 						.append("svg")
 						.attr("width", w)
 						.attr("height", h);
