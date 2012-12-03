@@ -1441,7 +1441,7 @@ function InitRibovision() {
 	rvDataSets[0].addHighlightLayer("HighlightLayer", "HighlightLayer", [], false, 1.176, 'highlight');
 	
 	//creat popup window in canvas
-	rvDataSets[0].addHighlightLayer("ResidueInfoLayer", "ResidueInfoLayer", [], false, 1.176, 'residueInfo');
+	//rvDataSets[0].addHighlightLayer("ResidueInfoLayer", "ResidueInfoLayer", [], false, 1.176, 'residueInfo');
 	
 	HighlightLayer = rvDataSets[0].HighlightLayer.Canvas;
 	
