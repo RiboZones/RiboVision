@@ -3837,7 +3837,7 @@ function drawNavLine(selectedParam){
 			}
         data = data.concat(newNumber);
 		}
-		console.log(data);
+		//console.log(data);
 		
 		var	w = $('#NavLineDiv').width();
 		var h = 300,
@@ -3872,7 +3872,9 @@ function drawNavLine(selectedParam){
 				console.log('selectedDataX'+selectedDataX);
 				
 			y = d3.scale.linear().domain([0, d3.max(selectedDataY)]).range([0 + margin, h - margin]),
-			x = d3.scale.linear().domain([0, d3.max(selectedDataX)]).range([0 + margin, w - margin])
+			x = d3.scale.linear().domain([0, d3.max(selectedDataX)]).range([0 + margin, w - margin]);
+			console.log('x is: '+x);
+			console.log('x is: '+y);
 			}
 			
 			
