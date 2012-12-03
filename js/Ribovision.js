@@ -3899,31 +3899,8 @@ function drawNavLine(selectedParam){
 				}
 				console.log('selectedData: '+selectedData);
 				
-				
-				/*for (var i=0; i<rvDataSets[0].Residues.length;i++){
-				
-					for(j=0; j<rvDataSets[0].Selected.length;j++){
-						if(i==rvDataSets[0].Selected[j].map_Index){
-							var newNumber = rvDataSets[0].Selected[j].mean_tempFactor;
-						}
-						else
-							newNumber = 0;
-					}
-					selectedData = selectedDataY.concat(newNumber);
-				}
-				console.log(selectedData);*/
-				
-			//y = d3.scale.linear().domain([0, d3.max(selectedDataY)]).range([0 + margin, h - margin]),
-			//x = d3.scale.linear().domain([0, d3.max(selectedDataX)]).range([0 + margin, w - margin]);
-			//var x = d3.scale.linear().range([0 + margin, w - margin]),
-    		//y = d3.scale.linear().range([0 + margin, h - margin]);
-			
-			/*var selectedResidueLine = d3.svg.line()
-			    .x(function(d) {return x(selectedDataX);})
-			    .y(function(d) {return -1*y(selectedDataY);});	*/
-			    
-			/*g.append("svg:path").attr("d", line(selectedData))
-								.style("stroke", '#e377c2');*/
+			g.append("svg:path").attr("d", line(selectedData))
+								.style("stroke", '#e377c2');
 
 			}
 		
