@@ -1728,17 +1728,16 @@ function InitRibovision() {
 		}
 		
 		////add popup window
-		createInfoWindow(event); 
+		//createInfoWindow(event); 
 		
 	});
 	
 	///////For popup window////
-	function createInfoWindow(event){
-		$('<div id="residuetip">test</div>').appendTo('#currentDiv');
+	/*function createInfoWindow(event){
+		$('<div id="residuetip">test</div>').appendTo('#canvasDiv');
     	//positionWindowtip(event); 
-	}
+	}*/
 	
-
   /////////////
 	
 	$("#canvasDiv").bind("mouseout", function (event) {
