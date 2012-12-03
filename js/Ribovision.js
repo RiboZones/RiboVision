@@ -3802,13 +3802,11 @@ function views_proportion_change(leftPercentage, rightPercentage){
 
 ////////////////Nav Line ///////
 
-
 function drawNavLine(selectedParam){
 		$('#NavLineDiv').empty(); //clean div before draw new graph
 		
 		var linename = '';
-		var dataY = [];
-		var dataX=[];
+		var data = [];
 		var selectedData=[];
 		var selectedDataX=[];
 		var selectedDataY=[];
@@ -3817,7 +3815,6 @@ function drawNavLine(selectedParam){
 			if (selectedParam ==1){
 				var newNumber = rvDataSets[0].Residues[i].mean_tempFactor;
 				linename = 'B-Factors';
-				var newNumberX = rvDataSets[0].Residues[i].map_Index-1;
 				}
 			else if (selectedParam ==2){
 				var newNumber = rvDataSets[0].Residues[i].Domains_Color;
@@ -3844,16 +3841,15 @@ function drawNavLine(selectedParam){
 				var newNumber = rvDataSets[0].Residues[i].Mg_ions_60;
 				linename = 'Mg ions 6.0A';
 			}
-        dataY = dataY.concat(newNumber);
-         dataX = dataX.concat(newNumberX);
+        data = data.concat(newNumber);
 		}
 		//console.log(data);
 		
 		var	w = $('#NavLineDiv').width();
 		var h = 300,
 			margin = 20,
-			y = d3.scale.linear().domain([0, d3.max(dataY)]).range([0 + margin, h - margin]),
-			x = d3.scale.linear().domain([0, d3.max(dataX)]).range([0 + margin, w - margin])
+			y = d3.scale.linear().domain([0, d3.max(data)]).range([0 + margin, h - margin]),
+			x = d3.scale.linear().domain([0, data.length]).range([0 + margin, w - margin])
 
 			var vis = d3.select("#NavLineDiv")
 			    .append("svg:svg")
@@ -3867,7 +3863,7 @@ function drawNavLine(selectedParam){
 			    .x(function(d,i) { return x(i); })
 			    .y(function(d) { return -1 * y(d); });
 			
-			g.append("svg:path").attr("d", line);
+			g.append("svg:path").attr("d", line(data));
 			
 			////////draw selected residue on navlines/////
 			if(rvDataSets[0].Selected.length>0){
@@ -3913,7 +3909,7 @@ function drawNavLine(selectedParam){
 			    .attr("x1", x(0))
 			    .attr("y1", -1 * y(0))
 			    .attr("x2", x(0))
-			    .attr("y2", -1 * y(d3.max(dataY)*1.2)); //to make the axis 1.2*longth
+			    .attr("y2", -1 * y(d3.max(data)*1.2)); //to make the axis 1.2*longth
 			
 			g.selectAll(".xLabel")
 			    .data(x.ticks(10))
