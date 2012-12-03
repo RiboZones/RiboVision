@@ -1748,7 +1748,7 @@ function InitRibovision() {
 		var popup = document.getElementById("residuetip");
 		var resoduePar;
 		if (popup == null) {
-			$('<div id="residuetip"> <h3 id="resName">Residule</h3> <div id="otherinfo"> <p id="Shannon" style="font-size:10px;">Shannon value here</p> <p id="Concensus" style="font-size:10px;">Concenses here</p><p id="Gaps" style="font-size:10px;">Gaps here</p><h3>Conservation Percentage</h3></div>').appendTo('#canvasDiv');	
+			$('<div id="residuetip"> <h3 id="resName">Residule</h3> <div id="otherinfo"><p id="Shannon" style="font-size:10px;">Shannon value here</p> <p id="Concensus" style="font-size:10px;">Concenses here</p><p id="Gaps" style="font-size:10px;">Gaps here</p></div><h3>Conservation Percentage</h3></div>').appendTo('#canvasDiv');	
     	addPopUpWindow(resoduePar);
     	}
 	}

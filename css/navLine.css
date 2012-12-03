@@ -30,13 +30,23 @@ font-weight:600;
 	position: absolute;
 	left: 70px;
 	top: 20px;
-	background: #01070c;
-	opacity:0.5;
-	color:#dcdbdb;
-	border: 3px solid #BFC0C1;
+	background: #ebebeb;
+	opacity:0.7;
+	color:#042445;
+	border: 3px solid #b2b2b3;
 	border-radius: 10px;
 	font-family: Arial;
 	-webkit-box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.4);
 	-moz-box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.4);
 	box-shadow: 1px px 5px 0px rgba(0, 0, 0, 0.4);
 }
+
+#resName{
+	margin-left:5px;
+}
+
+#otherinfo{
+	margin-left:5px;
+}
+
+
