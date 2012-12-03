@@ -3892,9 +3892,8 @@ function drawNavLine(selectedParam){
 			.x(function(d){ return d.x1;}) //map x to 'd' attribute element zero
 			.y(function(d){ return d.y1;}) //map y to 'd' attribute element one	*/
 			
-			g.append("svg:path").attr("d", line(selectedDataY))
-								.style("stroke", '#e377c2');
-
+			/*g.append("svg:path").attr("d", line(selectedDataY))
+								.style("stroke", '#e377c2'); */
 			}
 		
 			//////////////////////////////
