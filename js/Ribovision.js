@@ -3884,7 +3884,7 @@ function drawNavLine(selectedParam){
 				console.log('selectedDataX'+selectedDataX);
 				*/
 				
-				/*for (var i=0; i<rvDataSets[0].Residues.length;i++){
+				for (var i=0; i<rvDataSets[0].Residues.length;i++){
 				
 					for(j=0; j<rvDataSets[0].Selected.length;j++){
 						if(i==rvDataSets[0].Selected[j].map_Index){
