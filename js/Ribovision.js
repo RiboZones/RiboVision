@@ -1747,8 +1747,8 @@ function InitRibovision() {
 	function createInfoWindow(){
 		var popup = document.getElementById("residuetip");
 		if (popup == null) {
-			$('<div id="residuetip">test</div>').appendTo('#canvasDiv');
-    		//positionWindowtip(event); 
+			$('<div id="residuetip"> <h3 id="resName">Residule</h3> <div id="otherinfo"> <p id="Shannon" style="font-size:10px;">Shannon value here</p> <p id="Concensus" style="font-size:10px;">Concenses here</p><p id="Gaps" style="font-size:10px;">Gaps here</p><h3>Conservation Percentage</h3></div>').appendTo('#canvasDiv');	
+    	addPopUpWindow();
     	}
 	}
 	
@@ -3968,8 +3968,69 @@ function drawNavLine(selectedParam){
 		      .text(linename);	
 }
 
-function drawSelectedNavLine(){
-	
+function addPopUpWindow(){
+	//Width and height
+			var w = 300;
+			var h = 200;
+			var barPadding = 15;
+		
+d3.csv("../EC_LSU_Struct_ConservationTable.csv", function(csv) {
+  
+  var i = 500;	// change the residule number here to view different graph
+   			  
+  var dobj= csv[i];
+ 
+  var dataset = [dobj.A*100,dobj.C*100,dobj.G*100,dobj.U*100];
+  //var label= ["A", "C", "G", "U"];
+  
+	document.getElementById('resName').innerHTML="Residule "+dobj.resNum;
+	document.getElementById('Shannon').innerHTML="Shannon Value = "+dobj.Shannon;
+	document.getElementById('Concensus').innerHTML="Consensus = "+dobj.Consensus;
+	document.getElementById('Gaps').innerHTML="Gaps = "+dobj.Gaps;
+ 
+				//Create SVG element
+			var svg = d3.select("body")
+						.append("svg")
+						.attr("width", w)
+						.attr("height", h);
+
+			svg.selectAll("rect")
+			   .data(dataset)
+			   .enter()
+			   .append("rect")
+			   .attr("x", function(d, i) {
+			  		return i * (w / dataset.length);
+			  })
+			   .attr("y", function(d) {
+			   		return h - (d * 4);
+			   })
+			   .attr("width", w / dataset.length - barPadding)
+			   .attr("height", function(d) {
+			   		return d * 4;
+			   })
+			   .attr("fill","orange");
+ 
+			svg.selectAll("text.number")
+			   .data(dataset)		 
+			   .enter()
+			   .append("text")
+			   .text(function(d) {
+			   		return d;
+			   })
+			   .attr("text-anchor", "middle")
+			   .attr("x", function(d, i) {
+			   		return i * (w / dataset.length) + (w / dataset.length - barPadding) / 2;
+			   })
+			   .attr("y", function(d) {
+			   		return h - (d * 4)-4 ;
+			   })
+			   .attr("font-family", "sans-serif")
+			   .attr("font-size", "1.2em")
+			   .attr("fill", "black")
+			   .attr('class','number')
+			   .text(String);
+			     });
+			
 }
 
 //////////End of navline functions////
