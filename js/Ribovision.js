@@ -3977,7 +3977,7 @@ function addPopUpWindow(){
 			var barPadding = 5;
 		
 d3.csv("EC_LSU_Struct_ConservationTable.csv", function(csv) {
-  console.log(csv);
+  //console.log(csv);
   var i = 5;	// change the residule number here to view different graph
    			  
   var dobj= csv[i];
