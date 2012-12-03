@@ -3975,7 +3975,7 @@ function addPopUpWindow(resoduePar){
 	//Width and height
 			var w = 150;
 			var h = 100;
-			var barPadding = 5;
+			var barPadding = 10;
 			var resoduePar;
 		
 d3.csv("EC_LSU_Struct_ConservationTable.csv", function(csv) {
