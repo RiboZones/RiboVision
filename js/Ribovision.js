@@ -3811,7 +3811,8 @@ function drawNavLine(selectedParam){
 		var linename = '';
 		var data = [];
 		var selectedData=[];
-		var selectedDataY=[], selectedDataX=[];
+		var selectedDataX=[]
+		var selectedDataY=[]
 	
 		for (var i =0; i<rvDataSets[0].Residues.length;i++){
 			if (selectedParam ==1){
@@ -3869,8 +3870,6 @@ function drawNavLine(selectedParam){
 			
 			////////draw selected residue on navlines/////
 			if(rvDataSets[0].Selected.length>0){
-				var selectedDataX=[]
-				var selectedDataY=[]
 				
 				/*for (var i =0; i<rvDataSets[0].Selected.length;i++){
 					var newNumber = rvDataSets[0].Selected[i].mean_tempFactor;
@@ -3896,7 +3895,7 @@ function drawNavLine(selectedParam){
 					}
 					selectedData = selectedDataY.concat(newNumber);
 				}
-				console.log(selectedData)
+				console.log(selectedData);
 				
 			//y = d3.scale.linear().domain([0, d3.max(selectedDataY)]).range([0 + margin, h - margin]),
 			//x = d3.scale.linear().domain([0, d3.max(selectedDataX)]).range([0 + margin, w - margin]);
