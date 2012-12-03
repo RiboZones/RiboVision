@@ -1727,6 +1727,9 @@ function InitRibovision() {
 
 		}
 		
+		////add popup window
+		$('#canvasDiv').append('<div id="residueInfo"> </div>');
+		
 	});
 	
 	$("#canvasDiv").bind("mouseout", function (event) {
@@ -3888,13 +3891,13 @@ function drawNavLine(selectedParam){
 				}
 				console.log('selectedData'+selectedData);
 			
-			var line = d3.svg.line() //call the create line function
+			/*var line = d3.svg.line() //call the create line function
 			.x(function(d){ return x(selectedDataX);}) //map x to 'd' attribute element zero
 			.y(function(d){ return y(selectedDataY);}) //map y to 'd' attribute element one	
 			
 			g.append("svg:path").attr("d", line)
 								.style("stroke-width",5) //beginning line size
-								.style("stroke", '#e377c2');
+								.style("stroke", '#e377c2');*/
 
 			}
 		
