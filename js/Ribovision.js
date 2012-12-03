@@ -3810,7 +3810,7 @@ function drawNavLine(selectedParam){
 		
 		var linename = '';
 		var data = [];
-		var selectedData=[[1,148],[70,138],[90,125],[130,122]];
+		var selectedData=[];
 		var selectedDataX=[];
 		var selectedDataY=[];
 	
@@ -3864,8 +3864,7 @@ function drawNavLine(selectedParam){
 			
 			var line = d3.svg.line()
 			    .x(function(d,i) { return x(i); })
-			    .y(function(d) { return -1 * y(d); })
-			    .interpolate("linear");
+			    .y(function(d) { return -1 * y(d); });
 			
 			g.append("svg:path").attr("d", line(data));
 			
@@ -3884,12 +3883,18 @@ function drawNavLine(selectedParam){
 				}
 				console.log('selectedDataX'+selectedDataX);
 				
-				/*for (var k=0; k<selectedDataY.length; k++){
+				for (var k=0; k<selectedDataY.length; k++){
 					selectedData.push([selectedDataX[k],selectedDataY[k]]);				
 				}
-				console.log('selectedData'+selectedData);*/
-				
+				console.log('selectedData'+selectedData);
+			
+			var line = d3.svg.line() //call the create line function
+			.x(function(d){ return xScale(d[0]);}) //map x to 'd' attribute element zero
+			.y(function(d){ return yScale(d[1]);}) //map y to 'd' attribute element one
+			.interpolate("linear"); //interpolate intermediate values linearly (other options exist)		
+			
 			g.append("svg:path").attr("d", line(selectedData))
+								.style("stroke-width",5) //beginning line size
 								.style("stroke", '#e377c2');
 
 			}
