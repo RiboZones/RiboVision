@@ -3882,7 +3882,7 @@ function drawNavLine(selectedParam, linename){
 			}
 			
 			g.append("svg:path").attr("d", line(selectedDataY))
-								.style("stroke", color('#FF7F0E'));
+								.style("stroke", '#e377c2');
 			//////////////////////////////
 			
 			g.append("svg:line")
