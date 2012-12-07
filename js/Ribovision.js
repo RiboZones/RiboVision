@@ -3665,6 +3665,12 @@ function loadSpecies(species) {
 				$("#TemplateLink").attr("href", "./Templates/" + species + "_UserDataTemplate.csv")
 				
 			});
+			
+			$.getJSON('getData.php', {
+				FullTable : rvDataSets[0].SpeciesEntry.ConservationTable
+				}, function (ConservationTable) {
+					alert(ConservationTable);
+			});
 		});
 	} else {
 		rvDataSets[0].addResidues([]);
@@ -3969,83 +3975,86 @@ function drawNavLine(selectedParam){
 		      .text(linename);	
 }
 
-function addPopUpWindow(resoduePar){
-	
-	//$('#residuetip').empty();
+function addPopUpWindow(ResIndex){
 	//Width and height
-			var w = 150;
-			var h = 100;
-			var barPadding = 15;
-			var resoduePar;
+	var w = 150;
+	var h = 100;
+	var barPadding = 15;
+		/*
+	$.getJSON('getData.php', {
+		FullTable : rvDataSets[0].SpeciesEntry.ConservationTable
+		}, function (basePairs2) {
+			alert(42);
+	});*/
 		
-d3.csv("EC_LSU_Struct_ConservationTable.csv", function(csv) {
-  //console.log(csv);
-  var i = resoduePar;	// change the residule number here to view different graph
-  console.log(resoduePar);
-   			  
-  var dobj= csv[i];
- 
-  //var dataset = [dobj.A*100,dobj.C*100,dobj.G*100,dobj.U*100];
+	d3.csv("EC_LSU_Struct_ConservationTable.csv", function(csv) {
+	  //console.log(csv);
+	  var i = resoduePar;	// change the residule number here to view different graph
+	  console.log(resoduePar);
+				  
+	  var dobj= csv[i];
+	 
+	  //var dataset = [dobj.A*100,dobj.C*100,dobj.G*100,dobj.U*100];
 
-  //round the number to two decimal
- var Anum= dobj.A*100;
- var An= Anum.toFixed(2);
- var Cnum= dobj.C*100;
- var Cn= Cnum.toFixed(2);
- var Gnum= dobj.G*100;
- var Gn= Gnum.toFixed(2);
- var Unum= dobj.U*100;
- var Un= Unum.toFixed(2);
- 
- var dataset = [An,Cn,Gn,Un];
-  
-	document.getElementById('resName').innerHTML="Residule "+dobj.resNum;
-	document.getElementById('Shannon').innerHTML="Shannon Value = "+dobj.Shannon;
-	document.getElementById('Concensus').innerHTML="Consensus = "+dobj.Consensus;
-	document.getElementById('Gaps').innerHTML="Gaps = "+dobj.Gaps;
- 
-				//Create SVG element
-			var svg = d3.select("#residuetip")
-						.append("svg")
-						.attr("width", w)
-						.attr("height", h);
+	  //round the number to two decimal
+	 var Anum= dobj.A*100;
+	 var An= Anum.toFixed(2);
+	 var Cnum= dobj.C*100;
+	 var Cn= Cnum.toFixed(2);
+	 var Gnum= dobj.G*100;
+	 var Gn= Gnum.toFixed(2);
+	 var Unum= dobj.U*100;
+	 var Un= Unum.toFixed(2);
+	 
+	 var dataset = [An,Cn,Gn,Un];
+	  
+		document.getElementById('resName').innerHTML="Residule "+dobj.resNum;
+		document.getElementById('Shannon').innerHTML="Shannon Value = "+dobj.Shannon;
+		document.getElementById('Concensus').innerHTML="Consensus = "+dobj.Consensus;
+		document.getElementById('Gaps').innerHTML="Gaps = "+dobj.Gaps;
+	 
+					//Create SVG element
+				var svg = d3.select("#residuetip")
+							.append("svg")
+							.attr("width", w)
+							.attr("height", h);
 
-			svg.selectAll("rect")
-			   .data(dataset)
-			   .enter()
-			   .append("rect")
-			   .attr("x", function(d, i) {
-			  		return i * (w / dataset.length);
-			  })
-			   .attr("y", function(d) {
-			   		return h - (d * 4);
-			   })
-			   .attr("width", w / dataset.length - barPadding)
-			   .attr("height", function(d) {
-			   		return d * 4;
-			   })
-			   .attr("fill","#f26522");
- 
-			svg.selectAll("text.number")
-			   .data(dataset)		 
-			   .enter()
-			   .append("text")
-			   .text(function(d) {
-			   		return d;
-			   })
-			   .attr("text-anchor", "middle")
-			   .attr("x", function(d, i) {
-			   		return i * (w / dataset.length) + (w / dataset.length - barPadding) / 2;
-			   })
-			   .attr("y", function(d) {
-			   		return h - (d * 4)-4 ;
-			   })
-			   .attr("font-family", "sans-serif")
-			   .attr("font-size", "10px")
-			   .attr("fill", "black")
-			   .attr('class','number')
-			   .text(String);
-			     });
+				svg.selectAll("rect")
+				   .data(dataset)
+				   .enter()
+				   .append("rect")
+				   .attr("x", function(d, i) {
+						return i * (w / dataset.length);
+				  })
+				   .attr("y", function(d) {
+						return h - (d * 4);
+				   })
+				   .attr("width", w / dataset.length - barPadding)
+				   .attr("height", function(d) {
+						return d * 4;
+				   })
+				   .attr("fill","#f26522");
+	 
+				svg.selectAll("text.number")
+				   .data(dataset)		 
+				   .enter()
+				   .append("text")
+				   .text(function(d) {
+						return d;
+				   })
+				   .attr("text-anchor", "middle")
+				   .attr("x", function(d, i) {
+						return i * (w / dataset.length) + (w / dataset.length - barPadding) / 2;
+				   })
+				   .attr("y", function(d) {
+						return h - (d * 4)-4 ;
+				   })
+				   .attr("font-family", "sans-serif")
+				   .attr("font-size", "10px")
+				   .attr("fill", "black")
+				   .attr('class','number')
+				   .text(String);
+					 });
 			
 }
 

@@ -28,6 +28,10 @@ if(isset($_GET['Residues'])) {
     $query = "SELECT * FROM " . $_GET['BasePairs'];
 	$stmt = $pdo->query($query);
 	$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} else if(isset($_GET['FullTable'])) {
+    $query = "SELECT * FROM " . $_GET['FullTable'];
+	$stmt = $pdo->query($query);
+	$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } else if(isset($_GET['ProtBasePairs'])) {
     $query = "SELECT * FROM " . $_GET['ProtBasePairs'];
 	$stmt = $pdo->prepare($query . " WHERE ProteinName = ?");
