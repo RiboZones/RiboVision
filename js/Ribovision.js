@@ -44,7 +44,7 @@ var CurrPrivacyCookie;
 var AgreeFunction = function () {};
 var drag;
 var PanelDivide = 0.5;
-var TopDivide = 0.12;
+var TopDivide = 0.28;
 
 // Color Palettes, need to be consolidated
 var OnionColors = ["#000000", "#ff0000", "#008000", "#0000ff", "#800080", "#ff8c00", "#ff8c00", "#ff8c00"];
@@ -660,6 +660,12 @@ jmolInitialize("./jmol");
 
 // Ready Function
 $(document).ready(function () {
+	$("#ResidueTip").tooltip({
+			show: false,
+			hide: false,
+			track: true
+	});
+	
 	// New Stuff Section, Layers, Selections Panels
 	$.fx.speeds._default = 1000;
 	$("#PanelTabs").tabs();
@@ -987,7 +993,7 @@ $(document).ready(function () {
 		}
 	});
 	
-	$("#tabs").tabs();
+	//$("#tabs").tabs();
 	$("#ProtList").multiselect({
 		minWidth : 160,
 		selectedText : "# of # proteins selected",
@@ -1381,6 +1387,11 @@ function LayerMenu(Layer, key) {
 			$("#LayerPanel div").first().next().find(".radioDIV2").find('input').attr("checked","checked");
 		
 			break;
+		case "selected":
+			$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="selectDiv">'))
+			//$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="' + 'sele-' + key + '">'))
+			//$("#selectDiv").html(text)
+			break;
 		default:
 			break;
 	}
@@ -1679,9 +1690,9 @@ function InitRibovision() {
 		rvDataSets[0].HighlightLayer.clearCanvas();
 		
 		if (sel == -1) {
-			document.getElementById("currentDiv").innerHTML = "<br/>";
+			//document.getElementById("currentDiv").innerHTML = "<br/>";
 		} else {
-			document.getElementById("currentDiv").innerHTML = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[sel].ChainID)] + ":" + rvDataSets[0].Residues[sel].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+			//document.getElementById("currentDiv").innerHTML = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[sel].ChainID)] + ":" + rvDataSets[0].Residues[sel].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
 			
 			rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
 			rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, 2, 0, 2 * Math.PI, false);
@@ -1702,17 +1713,21 @@ function InitRibovision() {
 		rvDataSets[0].HighlightLayer.clearCanvas();
 		
 		if (sel == -1) {
-			document.getElementById("currentDiv").innerHTML = "<br/>";
+			//document.getElementById("currentDiv").innerHTML = "<br/>";
 			// remove previous popup windonw if exists
+			/*
 			var popup = document.getElementById("residuetip")
 		    if (popup) {
 		    	popup.parentNode.removeChild(popup);
-		    }
+		    }*/
+			$("#ResidueTip").tooltip("close");
 		} else {
+			$("#ResidueTip").tooltip("close");
+			/*
 			document.getElementById("currentDiv").innerHTML = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[sel].ChainID)] + ":" + rvDataSets[0].Residues[sel].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + "(" + rvDataSets[0].Residues[sel].CurrentData + ")";
 			if (rvDataSets[0].Residues[sel].resNum.replace(/[^:]*:/g, "") == 42) {
 				document.getElementById("currentDiv").innerHTML = document.getElementById("currentDiv").innerHTML + ". You found the secret base! ";
-			}
+			}*/
 			
 			rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
 			rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, 2, 0, 2 * Math.PI, false);
@@ -1721,6 +1736,9 @@ function InitRibovision() {
 			rvDataSets[0].HighlightLayer.CanvasContext.stroke();
 			
 			createInfoWindow(sel);
+			$("#ResidueTip").css("bottom",$(window).height() - event.clientY);
+			$("#ResidueTip").css("left",event.clientX);
+			$("#ResidueTip").tooltip("open");
 		}
 		if (drag) {
 			rvViews[0].drag(event);
@@ -1735,7 +1753,7 @@ function InitRibovision() {
 				rvDataSets[0].HighlightLayer.CanvasContext.lineTo(rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
 				rvDataSets[0].HighlightLayer.CanvasContext.closePath();
 				rvDataSets[0].HighlightLayer.CanvasContext.stroke();
-			$("#currentDiv").html(rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[j].ChainID)] + ":" + rvDataSets[0].Residues[j].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + " - " + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[k].ChainID)] + ":" + rvDataSets[0].Residues[k].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + " (" + rvDataSets[0].BasePairs[selLine].bp_type + ")");
+			//$("#currentDiv").html(rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[j].ChainID)] + ":" + rvDataSets[0].Residues[j].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + " - " + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[k].ChainID)] + ":" + rvDataSets[0].Residues[k].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + " (" + rvDataSets[0].BasePairs[selLine].bp_type + ")");
 
 		}
 		
@@ -1746,12 +1764,8 @@ function InitRibovision() {
 	
 	///////For popup window////
 	function createInfoWindow(ResIndex){
-		var popup = document.getElementById("residuetip");
-		//var resoduePar;
-		if (popup == null) {
-			$('<div id="residuetip"> <h3 id="resName">Residue</h3> <div id="otherinfo"></div><h3 id="conPercentage">Shannon Entropy </h3></div>').appendTo('#canvasDiv');	
     	addPopUpWindow(ResIndex);
-    	}
+		$("#ResidueTip").tooltip("option","content",$("#residuetip").html());
 	}
 	
   /////////////
@@ -1899,15 +1913,16 @@ function resizeElements() {
 	//TopMenu
 	$("#topMenu").outerHeight(TopDivide * height);
 	//ToolBar
-	$("#toolBar").outerHeight((1-TopDivide) * height);
-	$("#toolBar").css('top',$("#topMenu").outerHeight())+1;
+	//$("#toolBar").outerHeight((1-TopDivide) * height);
+	//$("#toolBar").css('top',$("#topMenu").outerHeight())+1;
+	//var tbw = $("#toolBar").outerWidth();
 	//Menu
 	$("#menu").css('height', 0.9 * height);
 	$("#menu").css('width', 0.16 * width);
 	var xcorr = $("#menu").outerWidth();
 	var ycorr = $("#topMenu").outerHeight();
-	var toolBarWidth = $("#toolBar").width();
-	var toolBarHeight = $("#toolBar").height();
+	var toolBarWidth = $("#toolBar").outerWidth();
+	//var toolBarHeight = $("#toolBar").height();
 	//console.log(toolBarWidth/width + "; " + toolBarHeight/height);
 	//var t = (width - xcorr - toolBarWidth) / 2;
 	var lp = (width - xcorr - toolBarWidth) * PanelDivide;
@@ -1915,14 +1930,14 @@ function resizeElements() {
 	var s = (height - ycorr);
 	
 	//Top Menu Section
-	$("#topMenu").css('width', width - xcorr);
-	$("#topMenu").css('left', xcorr - 1);
+	$("#topMenu").css('width', width - xcorr - toolBarWidth);
+	$("#topMenu").css('left', xcorr );
 	$("#topMenu").css('top', 0);
 	
-	$("#tabs").css('width', $("#topMenu").css('width') - 10);
+	//$("#tabs").css('width', $("#topMenu").css('width') - 10);
 	//$("#tabs").css('height', $("#topMenu").css('height'));
-	$("#tabs").css('left', 0);
-	$("#tabs").css('top', 0);
+	//$("#tabs").css('left', 0);
+	//$("#tabs").css('top', 0);
 	
 	//SiteInfo
 	$("#SiteInfo").css('width', xcorr);
@@ -3798,7 +3813,7 @@ $(function() {
 	$( "#topPorportionSlider" ).slider({
 		min : 50,
 		max : 90,
-		value : 88,
+		value : 72,
 		orientation : "vertical",
 		slide : function (event, ui) {
 			TopDivide = (100 - ui.value) / 100;
@@ -3807,7 +3822,7 @@ $(function() {
 		}
 	});
 })
-
+/*
 function views_proportion_change(leftPercentage, rightPercentage){
 	//console.log("event triggered! l: " + leftPercentage + " r: " + rightPercentage);	
 
@@ -3819,7 +3834,7 @@ function views_proportion_change(leftPercentage, rightPercentage){
 	$("#jmolDiv").css({"width": $newRightWidth, "left": $borderPos});
 	$("#jmolApplet0").css({"width": "100%"});
 }	
-
+*/
 ////////////////Nav Line ///////
 
 function drawNavLine(selectedParam){
@@ -3863,27 +3878,33 @@ function drawNavLine(selectedParam){
 			}
         data = data.concat(newNumber);
 		}
-		//console.log(data);
+		console.log(data);
+		console.log(d3.max(data));
 		
-		var	w = $('#NavLineDiv').width();
-		var h = 300,
-			margin = 20,
-			y = d3.scale.linear().domain([0, d3.max(data)]).range([0 + margin, h - margin]),
-			x = d3.scale.linear().domain([0, data.length]).range([0 + margin, w - margin])
+		var	w = 1.00 * $('#NavLineDiv').innerWidth();
+		var h = 0.95 * $('#NavLineDiv').innerHeight();
+		var	margin = 20;
+		
+		var	xScale = d3.scale.linear().domain([0, data.length]).range([0 + margin, w - margin]);
+		var	yScale = d3.scale.linear().domain([0, d3.max(data)]).range([h - margin,0 + margin ]);
 
-			var vis = d3.select("#NavLineDiv")
-			    .append("svg:svg")
-			    .attr("width", w)
-			    .attr("height", h)
+		var vis = d3.select("#NavLineDiv")
+			.append("svg:svg")
+			.attr("width", w)
+			.attr("height", h)
 
-			var g = vis.append("svg:g")
-			    .attr("transform", "translate(0, 290)");
+		var g = vis.append("svg:g")
+			.attr("width", w)
+			.attr("height", h)
+			//.attr("transform", "translate(0, " + 200+")");
+			
 			
 			var line = d3.svg.line()
-			    .x(function(d,i) { return x(i); })
-			    .y(function(d) { return -1 * y(d); });
+			    .x(function(d,i) { return xScale(i); })
+			    .y(function(d) { return yScale(d); });
 			
 			g.append("svg:path").attr("d", line(data));
+			
 			
 			////////draw selected residue on navlines/////
 			/*if(rvDataSets[0].Selected.length>0){
@@ -3919,59 +3940,61 @@ function drawNavLine(selectedParam){
 			//////////////////////////////
 			
 			g.append("svg:line")
-			    .attr("x1", x(0))
-			    .attr("y1", -1 * y(0))
-			    .attr("x2", $('#NavLineDiv').width())
-			    .attr("y2", -1 * y(0));
-
+			    .attr("x1", xScale(0))
+			    .attr("y1", yScale(0))
+			    .attr("x2", w - margin)
+			    .attr("y2", yScale(0));
+			
 			g.append("svg:line")
-			    .attr("x1", x(0))
-			    .attr("y1", -1 * y(0))
-			    .attr("x2", x(0))
-			    .attr("y2", -1 * y(d3.max(data)*1.2)); //to make the axis 1.2*longth
+			    .attr("x1", xScale(0))
+			    .attr("y1", yScale(0))
+			    .attr("x2", xScale(0))
+			    .attr("y2", yScale(d3.max(data)));
 			
 			g.selectAll(".xLabel")
-			    .data(x.ticks(10))
+			    .data(xScale.ticks(20))
 			    .enter().append("svg:text")
 			    .attr("class", "xLabel")
 			    .text(String)
-			    .attr("x", function(d) { return x(d) })
-			    .attr("y", 0)
-			    .attr("text-anchor", "middle");
+			    .attr("x", function(d) { return xScale(d) })
+			    .attr("y", h-4)
+			    .attr("text-anchor", "bottom");
 
 			g.selectAll(".yLabel")
-			    .data(y.ticks(6))
+			    .data(yScale.ticks(10))
 			    .enter().append("svg:text")
 			    .attr("class", "yLabel")
 			    .text(String)
 			    .attr("x", 0)
-			    .attr("y", function(d) { return -1 * y(d) })
+			    .attr("y", function(d) { return yScale(d) })
 			    .attr("text-anchor", "right")
 			    .attr("dy", 4);
 			
 			g.selectAll(".xTicks")
-			    .data(x.ticks(10))
+			    .data(xScale.ticks(20))
 			    .enter().append("svg:line")
 			    .attr("class", "xTicks")
-			    .attr("x1", function(d) { return x(d); })
-			    .attr("y1", -1 * y(0))
-			    .attr("x2", function(d) { return x(d); })
-			    .attr("y2", -1 * y(-0.2));
+			    .attr("x1", function(d) { return xScale(d); })
+			    .attr("y1", yScale(0))
+			    .attr("x2", function(d) { return xScale(d); })
+			    .attr("y2", yScale(-0.2));
 
 			g.selectAll(".yTicks")
-			    .data(y.ticks(6))
+			    .data(yScale.ticks(10))
 			    .enter().append("svg:line")
 			    .attr("class", "yTicks")
-			    .attr("y1", function(d) { return -1 * y(d); })
-			    .attr("x1", x(-0.3))
-			    .attr("y2", function(d) { return -1 * y(d); })
-			    .attr("x2", x(0));
-			    
+			    .attr("y1", function(d) { return yScale(d); })
+			    .attr("x1", xScale(-0.3))
+			    .attr("y2", function(d) { return yScale(d); })
+			    .attr("x2", xScale(0));
+			 
+			  
 			//add legend to the navline 
 			 g.append("text")
 		      .attr("x", w-90)
-		      .attr("y", "-30")
+		      .attr("y", "30")
 		      .text(linename);	
+			
 }
 
 function addPopUpWindow(ResIndex){
@@ -4016,11 +4039,15 @@ function addPopUpWindow(ResIndex){
 	$('#resName').html("Residue: " + rvDataSets[0].Residues[ResIndex].resName + "(" + dobj.Consensus  + ") " + 
 	rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[ResIndex].ChainID)] +
 	":" + rvDataSets[0].Residues[ResIndex].resNum);
+	$('#activeData').html("Active Data: " + rvDataSets[0].Residues[ResIndex].CurrentData);
+
 	$("#conPercentage").html("Shannon Entropy: " + Hn);
 	//document.getElementById('Shannon').innerHTML="Shannon Entropy = " + Hn;
 	//document.getElementById('Concensus').innerHTML="Consensus = " + dobj.Consensus;
 	//document.getElementById('Gaps').innerHTML="Gaps = " + Gpn;
 	
+	//Remove old SVG
+	d3.select("svg").remove();
 	//Create SVG element
 	var svg = d3.select("#residuetip")
 		.append("svg")

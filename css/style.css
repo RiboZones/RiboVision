@@ -1,27 +1,27 @@
-#RLogo{
-	height:100%;
-}
-
-#NLogo{
-	height:100%;
-
-}
-#tabs{
-	box-sizing:border-box;
-	-moz-box-sizing:border-box; /* Firefox */
-	-webkit-box-sizing:border-box; /* Safari */
-}
 
 #topMenu{
 	position:absolute;
 	top:0%;
 	left:16%;
-	height:12%;
-	width:84%;
+	height:28%;
+	width:82%;
 	overflow:auto;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
 	-webkit-box-sizing:border-box; /* Safari */
+}
+
+#NavLineDiv{
+	position:absolute;
+	top:0%;
+	left:0%;
+	height:100%;
+	width:100%;
+	overflow:auto;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+	
 }
 
 #currentDiv{
@@ -30,6 +30,8 @@
 
 #selectDiv{
 	width:auto;
+	height:300px;
+	overflow:auto;
 }
 
 #menu{
@@ -83,13 +85,13 @@
 #NavDiv{
 	position:absolute;
 	height: 10%;
-	width: 100%;
-	top:10%;
+	width: 82%;
+	top:0%;
 	left:0px;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
 	-webkit-box-sizing:border-box; /* Safari */
-	overflow: hidden;
+	overflow: auto;
 }
 
 	
@@ -117,6 +119,7 @@
 }
 
 #SelectionDiv{
+	
 }
 
 #ColorDiv{
@@ -150,9 +153,9 @@
 
 #canvasDiv{
 	position:absolute;
-	top:12%;
+	top:28%;
 	left:16%;
-	height:88%;
+	height:72%;
 	width:42%;
 	background:#FFFFFF;
 	border-style:solid;
@@ -183,10 +186,10 @@ canvas{
 
 #jmolDiv{
 	position:absolute;
-	top:12%;
+	top:28%;
 	left:58%;
 	width:42%;
-	height:88%;
+	height:72%;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
 	-webkit-box-sizing:border-box; /* Safari */
@@ -284,9 +287,9 @@ body{
 #toolBar {
 	position:absolute;
 	left:98%;	
-	top:12%;
+	top:0%;
 	width:2%;
-	height:88%;
+	height:100%;
 	padding-top:4px;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */

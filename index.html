@@ -94,6 +94,15 @@
               <a href="#None" class="ui-corner-role" tabindex="-1" role="menuitem" aria-haspopup="true">No Molecule</a>
             </li>
           </ul>
+		  <div id ="ResidueTip" title="Pizza Man" style="position:fixed;width:1px;height:1px;z-index:1000000">
+			<div id ="residuetip" style="visibility:hidden">
+				<h3 id="resName">Residue:</h3>
+				<h3 id="activeData">Active Data:</h3>
+				
+				<div id="otherinfo"></div>
+				<h3 id="conPercentage">Shannon Entropy </h3>
+			</div>
+		  </div>
         </div>
 
         <h3><a href="#">Residue Selection</a></h3>
@@ -213,36 +222,8 @@
   </div>
 
   <div id="topMenu" class="ui-widget-content">
-    <div id="tabs">
-      <ul>
-        <li>
-          <a href="#currentDiv">Live Info</a>
-        </li>
-
-        <li>
-          <a href="#selectDiv">Current Selection</a>
-        </li>
-
-        <li>
-          <a href="#SecretDiv">The Secret</a>
-        </li>
-        
-        <li>
-          <!--<a href="#NavLineDiv" onclick="drawNavLine();">Nav Line</a>-->
-          <a href="#NavLineDiv">Nav Line</a>
-        </li>
-      </ul>
-
-      <div id="currentDiv"></div>
-
-      <div id="selectDiv"></div>
-
-      <div id="SecretDiv">
-        42
-      </div>
-      <div id="NavLineDiv">
-      </div> 
-    </div>
+     <div id="NavLineDiv">
+     </div> 
   </div>
 
   <div id="Privacy-confirm" title="Privacy Policy"></div>
