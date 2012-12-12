@@ -655,29 +655,32 @@ function rvView(x, y, scale) {
 ////////////////////////// Initialize RiboVision //////////////////////////////
 // Initialize Jmol
 //jmolInitialize("./jmol");
- var Info = {
-  addSelectionOptions: false,
-  color: "#FFFFFF",
-  debug: false,
-  defaultModel: "",
-  height: 100,
-  isSigned: true,
-  jarFile: "JmolAppletSigned0.jar",
-  jarPath: "./jmol",
-  memoryLimit: 1024,
-  readyFunction: null,
-  script: null,
-  serverURL: "http://chemapps.stolaf.edu/jmol/jmolcd.php",
-  src: null,
-  use: "Java noWebGL noHTML5 noImage",
-  width: 100
-};	
- 
-var myJmol = Jmol.getApplet("myJmol", Info); 
 
 
 // Ready Function
 $(document).ready(function () {
+	var JmolInfo = {
+		addSelectionOptions: false,
+		color: "#FFFFFF",
+		debug: false,
+		defaultModel: "",
+		height: "100%",
+		isSigned: true,
+		jarFile: "JmolAppletSigned0.jar",
+		jarPath: "./jmol",
+		memoryLimit: 1024,
+		readyFunction: null,
+		script: null,
+		serverURL: "http://chemapps.stolaf.edu/jmol/jmolcd.php",
+		src: null,
+		use: "Java noWebGL noHTML5 noImage",
+		width: "100%"
+	};	
+	Jmol.setDocument(0);
+	Jmol.setAppletCss("jmolapplet", "style='left:40px'");
+	myJmol = Jmol.getApplet("myJmol", JmolInfo); 
+	$('#jmolDiv').html(Jmol.getAppletHtml(myJmol));
+	
 	$("#ResidueTip").tooltip({
 			show: false,
 			hide: false,
@@ -2007,10 +2010,11 @@ function resizeElements() {
 	$("#JmolIframe").css('top',ycorr - 1);
 	 */
 	
-	$("#jmolApplet0").css('height', s - 2 * MajorBorderSize);
-	$("#jmolApplet0").css('width', rp - 2 * MajorBorderSize);
-	$("#jmolApplet0").css('top', 0);
-	$("#jmolApplet0").css('left', 0);
+	//Jmol.resizeApplet(myJmol,[(rp - 2 * MajorBorderSize),(s - 2 * MajorBorderSize)]);
+	//$("#jmolApplet0").css('height', );
+	//$("#jmolApplet0").css('width', );
+	//$("#jmolApplet0").css('top', 0);
+	//$("#jmolApplet0").css('left', 0);
 	
 	// Layer Panel
 	$( "#LayerDialog" ).dialog( "option", "height", s - 2 * MajorBorderSize );	
@@ -2419,7 +2423,8 @@ function update3Dcolors() {
 		script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and :" + curr_chain + " and (" + r0 + " - " + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "); color Cartoon opaque [" + curr_color.replace("#", "x") + "]; ";
 	}
 	updateSelectionDiv();
-	jmolScript(script);
+	//jmolScript(script);
+	Jmol.script(myJmol, script);
 }
 
 function colorProcess(data, indexMode, ChoiceList, colName) {
@@ -2563,8 +2568,10 @@ function colorMappingLoop(seleProt, OverRideColors) {
 	
 	update3Dcolors();
 	updateModel();
-	jmolScript(Jscript);
-	jmolScript(JscriptP);
+	//jmolScript(Jscript);
+	//jmolScript(JscriptP);
+	Jmol.script(myJmol, Jscript);
+	Jmol.script(myJmol, JscriptP);
 }
 
 function update3DProteins(seleProt, OverRideColors) {
@@ -2587,7 +2594,8 @@ function update3DProteins(seleProt, OverRideColors) {
 		JscriptP += "select (" + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + rvDataSets[0].SpeciesEntry.SubunitProtChains[1][rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(seleProt[i])] + "); color Cartoon opaque [" + newcolor.replace("#", "x") + "];";
 	}
 	//JscriptP+="display " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA ) + ".1, " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein ) + ".1;";
-	jmolScript(JscriptP);
+	//jmolScript(JscriptP);
+	Jmol.script(myJmol, JscriptP);
 }
 
 function colorMapping(ChoiceList, ManualCol, OverRideColors, indexMode, rePlaceData) {
@@ -3506,7 +3514,8 @@ function updateModel() {
 	} else {
 		script += ")); center selected;";
 	}
-	jmolScript(script);
+	//jmolScript(script);
+	Jmol.script(myJmol, script);
 	/*
 	var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function(){
 	return this.value;
@@ -3516,11 +3525,13 @@ function updateModel() {
 
 function resetColorState() {
 	clearColor(false);
-	jmolScript("script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
+	//jmolScript("script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
+	Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
 	//var jscript = "frame " + (SubunitNames.indexOf(rvDataSets[0].SpeciesEntry.Subunit) + 1 ) + ".1" ;
 	var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
 	
-	jmolScript(jscript);
+	//jmolScript(jscript);
+	Jmol.script(myJmol, jscript);
 	commandSelect();
 	updateModel();
 }
@@ -3691,13 +3702,13 @@ function loadSpecies(species) {
 				}
 				$("#PrimaryInteractionList").multiselect("refresh");
 				
-				
-				jmolScript("script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
+				Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
+				//jmolScript("script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
 				//var jscript = "frame " + (SubunitNames.indexOf(rvDataSets[0].SpeciesEntry.Subunit) + 1 ) ;
 				var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
 				
-				jmolScript(jscript);
-				
+				//jmolScript(jscript);
+				Jmol.script(myJmol, jscript);
 				clearSelection();
 				rvDataSets[0].drawResidues("residues");
 				rvDataSets[0].drawLabels("labels");
@@ -3739,7 +3750,8 @@ function loadSpecies(species) {
 		il.options[0] = new Option("None", "clear_lines");
 		
 		rvDataSets[0].SpeciesEntry.Jmol_Script = "blank_state.spt";
-		jmolScript("script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
+		//jmolScript("script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
+		Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
 		clearSelection();
 		//console.log("Nothing to see here, move along now, and 42!");
 		welcomeScreen();
