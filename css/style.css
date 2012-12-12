@@ -58,22 +58,14 @@
 	-webkit-box-sizing:border-box; /* Safari */
 }
 
-#L1{
+#ComboLogo {
 	position:absolute;
-	width:62%;
 	height:100%;
-}
-
-#L2{
-	position:absolute;
-	width:37%;
-	height:100%;
-	left: 63%;
 }
 
 #SiteInfo{
 	position:absolute;
-	height: 15%;
+	height: 25%;
 	top:0px;
 	left:0px;
 	box-sizing:border-box;
@@ -82,19 +74,6 @@
 	overflow: hidden;
 }
 
-#NavDiv{
-	position:absolute;
-	height: 10%;
-	width: 82%;
-	top:0%;
-	left:0px;
-	box-sizing:border-box;
-	-moz-box-sizing:border-box; /* Firefox */
-	-webkit-box-sizing:border-box; /* Safari */
-	overflow: auto;
-}
-
-	
 #buttonmode{
 	padding-left: 1em;
 }
@@ -233,10 +212,6 @@ body{
 	margin-left: 23px;
 	margin-top: 14px;
 	float:left;
-}
-
-#SecretDiv {
-	width:auto;
 }
 
 .compass {

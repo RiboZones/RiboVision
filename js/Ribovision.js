@@ -1232,6 +1232,7 @@ function LayerMenu(Layer, key) {
 			title : 'select layer' 
 		}).addClass("selectLayerRadioBtn").change ( function (event) {
 			rvDataSets[0].selectLayer($(event.currentTarget).parent().parent().attr("name"));
+			drawNavLine();
 			})));
 	
 	//raido button for telling 2D-3D mapping 
@@ -1642,7 +1643,7 @@ function InitRibovision() {
 		.bind('menuselect', function (event, ui) {
 			var species = $(ui.item).find("a").attr('href');
 			loadSpecies(species.substr(1));
-			drawNavLine(1); //load navLine 
+			
 		});
 		
 		/*
@@ -1942,14 +1943,16 @@ function resizeElements() {
 	//SiteInfo
 	$("#SiteInfo").css('width', xcorr);
 	
+	/*
 	//NavDiv
 	$("#NavDiv").css('width', xcorr);
 	$("#NavDiv").css('top', parseFloat($("#SiteInfo").css('height')));
-	
+	*/
+
 	//MainMenu
 	$("#MainMenu").css('width', xcorr);
-	$("#MainMenu").css('height', (0.9 * height) - parseFloat($("#SiteInfo").css('height')) - parseFloat($("#NavDiv").css('height')));
-	$("#MainMenu").css('top', parseFloat($("#SiteInfo").css('height')) + parseFloat($("#NavDiv").css('height')));
+	$("#MainMenu").css('height', (0.9 * height) - parseFloat($("#SiteInfo").css('height')));
+	$("#MainMenu").css('top', parseFloat($("#SiteInfo").css('height')));
 	
 	//SideBarAccordian
 	$("#SideBarAccordian").accordion("resize");
@@ -2233,8 +2236,8 @@ function selectResidue(event) {
 		}
 	}
 	$("#canvasDiv").unbind("mouseup", selectResidue);
-	console.log('selected Residue by mouse' );
-	drawNavLine(1);
+	//console.log('selected Residue by mouse' );
+	//drawNavLine(1);
 }
 
 function updateSelectionDiv() {
@@ -2931,7 +2934,8 @@ function updateStructData(value) {
 		}
 	}
 	newargs.unshift('42');
-	console.log(newargs);
+	//console.log(newargs);
+	/*
 	if (newargs[1]=='Domains_Color'){
 		drawNavLine(2); 
 	}
@@ -2953,8 +2957,10 @@ function updateStructData(value) {
 	else if (newargs[1]=='Mg_ions_60'){
 		drawNavLine(7); 
 	}
-		
+	*/	
+
 	colorMapping.apply(this, newargs);
+	drawNavLine();
 	//eval("colorMapping('42'," + value + ")");
 }
 
@@ -3684,7 +3690,9 @@ function loadSpecies(species) {
 					}, function (ConservationTable) {
 						rvDataSets[0].ConservationTable=ConservationTable;
 				});
+				drawNavLine(); //load navLine 
 			});
+			
 		});
 	} else {
 		rvDataSets[0].addResidues([]);
@@ -3837,7 +3845,7 @@ function views_proportion_change(leftPercentage, rightPercentage){
 */
 ////////////////Nav Line ///////
 
-function drawNavLine(selectedParam){
+function drawNavLine(){
 		$('#NavLineDiv').empty(); //clean div before draw new graph
 		
 		var linename = '';
@@ -3846,6 +3854,9 @@ function drawNavLine(selectedParam){
 		var selectedDataX=[];
 		var selectedDataY=[];
 	
+		var targetLayer=rvDataSets[0].getSelectedLayer();
+	
+		/*
 		for (var i =0; i<rvDataSets[0].Residues.length;i++){
 			if (selectedParam ==1){
 				var newNumber = rvDataSets[0].Residues[i].mean_tempFactor;
@@ -3878,22 +3889,27 @@ function drawNavLine(selectedParam){
 			}
         data = data.concat(newNumber);
 		}
-		console.log(data);
-		console.log(d3.max(data));
-		
+		*/
+	
+		//console.log(data);
+		//console.log(d3.max(data));
+		var maxdata = d3.max($.map(targetLayer.Data, function(d) { return parseFloat(d); }));
 		var	w = 1.00 * $('#NavLineDiv').innerWidth();
 		var h = 0.95 * $('#NavLineDiv').innerHeight();
-		var	margin = 20;
+		var	MarginXL = 60;
+		var MarginXR = 120;
+		var MarginYT = 40;
+		var MarginYB = 40;
 		
-		var	xScale = d3.scale.linear().domain([0, data.length]).range([0 + margin, w - margin]);
-		var	yScale = d3.scale.linear().domain([0, d3.max(data)]).range([h - margin,0 + margin ]);
+		var	xScale = d3.scale.linear().domain([0, targetLayer.Data.length]).range([0 + MarginXL, w - MarginXR]);
+		var	yScale = d3.scale.linear().domain([0, maxdata]).range([h - MarginYB,0 + MarginYT ]);
 
-		var vis = d3.select("#NavLineDiv")
+		var NavLine = d3.select("#NavLineDiv")
 			.append("svg:svg")
 			.attr("width", w)
 			.attr("height", h)
 
-		var g = vis.append("svg:g")
+		var g = NavLine.append("svg:g")
 			.attr("width", w)
 			.attr("height", h)
 			//.attr("transform", "translate(0, " + 200+")");
@@ -3903,9 +3919,37 @@ function drawNavLine(selectedParam){
 			    .x(function(d,i) { return xScale(i); })
 			    .y(function(d) { return yScale(d); });
 			
-			g.append("svg:path").attr("d", line(data));
+			g.append("svg:path").attr("d", line(targetLayer.Data));
 			
+			//Axes
+			var xAxis = d3.svg.axis()
+                  .scale(xScale)
+                  .orient("bottom")
+				  .ticks(20);  //Set rough # of ticks
+				  
+			NavLine.append("g")
+				.attr("class", "axis")  //Assign "axis" class
+				.attr("transform", "translate(0," + (yScale(0)) + ")")
+				.call(xAxis);
+				
+			var yAxis = d3.svg.axis()
+                  .scale(yScale)
+                  .orient("left")
+                  .ticks(10);
 			
+			NavLine.append("g")
+				.attr("class", "axis")
+				.attr("transform", "translate(" + MarginXL + ",0)")
+				.call(yAxis);
+			
+			//XLabel			
+			g.append("text")
+		      .attr("x", (w - MarginXR-MarginXL)/2 + MarginXL)
+		      .attr("y", h-MarginYB/4)
+		      .attr("text-anchor", "middle")
+			  .text("Map Index");	
+			
+				
 			////////draw selected residue on navlines/////
 			/*if(rvDataSets[0].Selected.length>0){
 				
@@ -3939,6 +3983,7 @@ function drawNavLine(selectedParam){
 		
 			//////////////////////////////
 			
+			/*
 			g.append("svg:line")
 			    .attr("x1", xScale(0))
 			    .attr("y1", yScale(0))
@@ -3949,7 +3994,7 @@ function drawNavLine(selectedParam){
 			    .attr("x1", xScale(0))
 			    .attr("y1", yScale(0))
 			    .attr("x2", xScale(0))
-			    .attr("y2", yScale(d3.max(data)));
+			    .attr("y2", yScale(maxdata));
 			
 			g.selectAll(".xLabel")
 			    .data(xScale.ticks(20))
@@ -3987,7 +4032,7 @@ function drawNavLine(selectedParam){
 			    .attr("x1", xScale(-0.3))
 			    .attr("y2", function(d) { return yScale(d); })
 			    .attr("x2", xScale(0));
-			 
+			 */
 			  
 			//add legend to the navline 
 			 g.append("text")

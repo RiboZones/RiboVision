@@ -73,13 +73,7 @@
       "padding:3px; padding-left:10px; background-image:url(images/ui-bg_glass_50_3baae3_1x400.png); font-size:16px; color:#FFF">
       Control (temp)</h3>
 
-      <div id="buttonmode">
-        One Button Mode:<br />
-        <input id="moveMode" type="radio" name="mode" value="move" onclick="modeSelect(&#39;move&#39;)" /><label for=
-        "moveMode">Move</label> <input id="selectMode" type="radio" name="mode" value="select" onclick=
-        "modeSelect(&#39;select&#39;)" /><label for="selectMode">Select</label> <input id="colorMode" type="radio" name="mode"
-        value="color" onclick="modeSelect(&#39;color&#39;)" /><label for="colorMode">Color</label>
-      </div>
+      
     </div>
 
     <div id="MainMenu" class="ui-widget-content">
@@ -193,10 +187,11 @@
   </div>
 
   <div id="LogoDiv" class="ui-widget-content">
-    <div id="L1"><img src="images/RiboEvoLogoSmallTrans.png" id="RLogo" title="The answer is 42." alt="RiboEvo Logo" /></div>
-
+    <img src="images/RiboEvoNASAlogo.png" id="ComboLogo" title="RiboEvo and NASA Logos" alt="RiboEvo and NASA Logos"/>
+	<!--	
+	<div id="L1"><img src="images/RiboEvoLogoSmallTrans.png" id="RLogo" title="The answer is 42." alt="RiboEvo Logo" /></div>
     <div id="L2"><img src="images/NASALogoTrans.png" id="NLogo" title="Rockets?? We don&#39;t need no stinkin&#39; rockets." alt=
-    "NASA Logo" /></div>
+    "NASA Logo" /></div>//-->
   </div>
 
   <div id="navigator" style="z-index:999; width:65px">
@@ -291,7 +286,15 @@
   </div>
 
   <div id="RiboVisionSettingsPanel" title="Settings Panel">
-    <p>Resize 2D &amp; 3D views</p>
+    <div id="buttonmode">
+        One Button Mode:<br />
+        <input id="moveMode" type="radio" name="mode" value="move" onclick="modeSelect(&#39;move&#39;)" /><label for=
+        "moveMode">Move</label> <input id="selectMode" type="radio" name="mode" value="select" onclick=
+        "modeSelect(&#39;select&#39;)" /><label for="selectMode">Select</label> <input id="colorMode" type="radio" name="mode"
+        value="color" onclick="modeSelect(&#39;color&#39;)" /><label for="colorMode">Color</label>
+      </div>
+	  
+	<p>Resize 2D &amp; 3D views</p>
     <div id="canvasPorportionSlider" style="width:240px;"></div>
 	<p> Resize Top Panel</p>
 	<div id="topPorportionSlider" style="width:40px;"></div>
