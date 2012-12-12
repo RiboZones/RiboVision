@@ -654,8 +654,26 @@ function rvView(x, y, scale) {
 
 ////////////////////////// Initialize RiboVision //////////////////////////////
 // Initialize Jmol
-jmolInitialize("./jmol");
-
+//jmolInitialize("./jmol");
+ var Info = {
+  addSelectionOptions: false,
+  color: "#FFFFFF",
+  debug: false,
+  defaultModel: "",
+  height: 100,
+  isSigned: true,
+  jarFile: "JmolAppletSigned0.jar",
+  jarPath: "./jmol",
+  memoryLimit: 1024,
+  readyFunction: null,
+  script: null,
+  serverURL: "http://chemapps.stolaf.edu/jmol/jmolcd.php",
+  src: null,
+  use: "Java noWebGL noHTML5 noImage",
+  width: 100
+};	
+ 
+var myJmol = Jmol.getApplet("myJmol", Info); 
 
 
 // Ready Function
