@@ -673,7 +673,7 @@ $(document).ready(function () {
 		script: null,
 		serverURL: "./jsmol.php",
 		src: null,
-		use: "Java noWebGL noHTML5 noImage",
+		use: "Java HTML5",
 		width: "100%"
 	};	
 	Jmol.setDocument(0);
