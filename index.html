@@ -20,16 +20,15 @@
   </script>
   <script type="text/javascript" src="//code.jquery.com/ui/1.9.0/jquery-ui.min.js">
 </script><!--Use D3 visualization library-->
+
   <script type="text/javascript" src="js/d3.js">
 </script>
   <script type="text/javascript" src="js/d3.csv.js">
 </script>
   <script type="text/javascript" src="js/d3.v3.js">
 </script>
- <script type="text/javascript" src="js/d3.v2.js">
-</script>
-
-<!--Stylesheet for navLine-->
+  <script type="text/javascript" src="js/d3.v2.js">
+</script><!--Stylesheet for navLine-->
   <link rel="stylesheet" type="text/css" href="css/navLine.css" />
   <script type="text/javascript" src="js/jquery.multiselect.min.js">
 </script>
@@ -62,23 +61,15 @@
     <div id="SiteInfo" class="ui-widget-content">
       <h3 class="ui-widget-header" style=
       "padding:3px; padding-left:10px; background-image:url(images/ui-bg_glass_50_3baae3_1x400.png); font-size:16px;"><a href=
-      "./ChangeLog.txt" target="_blank" style="color:#FFF">RiboVision: Version 0.53</a></h3>
+      "./ChangeLog.txt" target="_blank" style="color:#FFF">RiboVision: Version 0.54</a></h3>
 
       <p id="infoP">RiboVision is in the RiboZone family of products, brought to you by RiboEvo at Georgia Tech.</p><a href=
       "/Documentation/MainHelp.html" target="_blank">Ribovision Manual</a>
     </div>
 
-    <div id="NavDiv" class="ui-widget-content">
-      <h3 class="ui-widget-header" style=
-      "padding:3px; padding-left:10px; background-image:url(images/ui-bg_glass_50_3baae3_1x400.png); font-size:16px; color:#FFF">
-      Control (temp)</h3>
-
-      
-    </div>
-
     <div id="MainMenu" class="ui-widget-content">
       <div id="SideBarAccordian">
-        <h3><a href="#">Molecule Selection</a></h3>
+        <h3><a href="#">Ribosome Selection</a></h3>
 
         <div id="SpeciesDiv">
           Species &amp; Subunit Selection:<br />
@@ -88,15 +79,18 @@
               <a href="#None" class="ui-corner-role" tabindex="-1" role="menuitem" aria-haspopup="true">No Molecule</a>
             </li>
           </ul>
-		  <div id ="ResidueTip" title="Pizza Man" style="position:fixed;width:1px;height:1px;z-index:1000000">
-			<div id ="residuetip" style="visibility:hidden">
-				<h3 id="resName">Residue:</h3>
-				<h3 id="activeData">Active Data:</h3>
-				
-				<div id="otherinfo"></div>
-				<h3 id="conPercentage">Shannon Entropy </h3>
-			</div>
-		  </div>
+
+          <div id="ResidueTip" title="Pizza Man" style="position:fixed;width:1px;height:1px;z-index:1000000">
+            <div id="residuetip" style="visibility:hidden">
+              <h3 id="resName">Residue:</h3>
+
+              <h3 id="activeData">Linked Data:</h3>
+
+              <div id="otherinfo"></div>
+
+              <h3 id="conPercentage">Shannon Entropy</h3>
+            </div>
+          </div>
         </div>
 
         <h3><a href="#">Residue Selection</a></h3>
@@ -186,13 +180,8 @@
     </div>
   </div>
 
-  <div id="LogoDiv" class="ui-widget-content">
-    <img src="images/RiboEvoNASAlogo.png" id="ComboLogo" title="RiboEvo and NASA Logos" alt="RiboEvo and NASA Logos"/>
-	<!--	
-	<div id="L1"><img src="images/RiboEvoLogoSmallTrans.png" id="RLogo" title="The answer is 42." alt="RiboEvo Logo" /></div>
-    <div id="L2"><img src="images/NASALogoTrans.png" id="NLogo" title="Rockets?? We don&#39;t need no stinkin&#39; rockets." alt=
-    "NASA Logo" /></div>//-->
-  </div>
+  <div id="LogoDiv" class="ui-widget-content"><img src="images/RiboEvoNASAlogo.png" id="ComboLogo" title="RiboEvo and NASA Logos"
+  alt="RiboEvo and NASA Logos" /></div>
 
   <div id="navigator" style="z-index:999; width:65px">
     <div id="compassImgs"><img class="compass" src="images/compass/navigator1_01.png" onclick="JavaScript:resetView()" />
@@ -217,8 +206,7 @@
   </div>
 
   <div id="topMenu" class="ui-widget-content">
-     <div id="NavLineDiv">
-     </div> 
+    <div id="NavLineDiv"></div>
   </div>
 
   <div id="Privacy-confirm" title="Privacy Policy"></div>
@@ -233,7 +221,7 @@
 
   <div id="jmolDiv" class="ui-widget-content">
     <script type='text/javascript'>
-    //<![CDATA[
+//<![CDATA[
     jmolApplet([100,100], "script states/blank_state.spt");
     //]]>
     </script>
@@ -242,12 +230,12 @@
   <div id="toolBar">
     <button id="openLayerBtn" class="toolBarBtn" title="Open Layer Manager"></button><br />
     <button id="openColorBtn" class="toolBarBtn" title="Open Color Picker"></button><br />
-	<button id="SelectionMode" class="toolBarBtn" title="No function yet"></button><br />
-	<button id="RiboVisionSettings" class="toolBarBtn" title="RiboVision Settings"></button><br />
-    <button id="openManualBtn" class="toolBarBtn" title="Ribovision Manual" onclick="window.open(&#39;/Documentation/MainHelp.html&#39;)">Ribovision Manual</button>
-  </div>
-  
-  <!--Layer Control Dialog Box-->
+    <button id="SelectionMode" class="toolBarBtn" title="No function yet"></button><br />
+    <button id="RiboVisionSettings" class="toolBarBtn" title="RiboVision Settings"></button><br />
+    <button id="openManualBtn" class="toolBarBtn" title="Ribovision Manual" onclick=
+    "window.open(&#39;/Documentation/MainHelp.html&#39;)">Ribovision Manual</button>
+  </div><!--Layer Control Dialog Box-->
+
   <div id="LayerDialog" title="Layer / Selection Panel">
     <div id="PanelTabs">
       <ul>
@@ -266,9 +254,8 @@
         42
       </div>
     </div>
-  </div>
-  
-  <!--Color Control Dialog Box-->
+  </div><!--Color Control Dialog Box-->
+
   <div id="LayerPreferenceDialog" title="Layer Preferences">
     <label for="inputLayerName">Layer Name:</label> <input id="layerNameInput" /> <input id="layerNameChangeBtn" type="button"
     value="Change" onclick="Javascript:changeCurrentLayerName()" />
@@ -287,18 +274,20 @@
 
   <div id="RiboVisionSettingsPanel" title="Settings Panel">
     <div id="buttonmode">
-        One Button Mode:<br />
-        <input id="moveMode" type="radio" name="mode" value="move" onclick="modeSelect(&#39;move&#39;)" /><label for=
-        "moveMode">Move</label> <input id="selectMode" type="radio" name="mode" value="select" onclick=
-        "modeSelect(&#39;select&#39;)" /><label for="selectMode">Select</label> <input id="colorMode" type="radio" name="mode"
-        value="color" onclick="modeSelect(&#39;color&#39;)" /><label for="colorMode">Color</label>
-      </div>
-	  
-	<p>Resize 2D &amp; 3D views</p>
+      One Button Mode:<br />
+      <input id="moveMode" type="radio" name="mode" value="move" onclick="modeSelect(&#39;move&#39;)" /><label for=
+      "moveMode">Move</label> <input id="selectMode" type="radio" name="mode" value="select" onclick=
+      "modeSelect(&#39;select&#39;)" /><label for="selectMode">Select</label> <input id="colorMode" type="radio" name="mode" value=
+      "color" onclick="modeSelect(&#39;color&#39;)" /><label for="colorMode">Color</label>
+    </div>
+
+    <p>Resize 2D &amp; 3D views</p>
+
     <div id="canvasPorportionSlider" style="width:240px;"></div>
-	<p> Resize Top Panel</p>
-	<div id="topPorportionSlider" style="width:40px;"></div>
-	  
+
+    <p>Resize Top Panel</p>
+
+    <div id="topPorportionSlider" style="width:40px;"></div>
   </div>
 
   <div id="dialog-confirm-delete" title="Delete the currently selected layer?">

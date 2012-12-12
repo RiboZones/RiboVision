@@ -19,47 +19,51 @@ List of files included:
 -------------------
 
 
-== Files with information ==
+1 == Files with information ==
 
-=== README.txt ===
+1.1 === README.txt ===
 This file.
 
-=== LEAME.txt ===
+1.2 === LEAME.txt ===
 The Spanish version of README.txt
 
-=== COPYRIGHT.txt ===
+1.3 === COPYRIGHT.txt ===
 The copyright explanations regarding Jmol and its 3rd-party components.
 
-=== LICENSE.txt ===
+1.4 === LICENSE.txt ===
 The GNU Lesser General Public License, under which Jmol is released.
 
-=== CHANGES.txt ===
+1.5 === CHANGES.txt ===
 A list with a history of the feature additions in each version of Jmol.
 
+1.6 === README-CHEMDOODLE.txt ===
+Instructions about using the ChemDoodle plug-in together with Jmol applets, 
+and about the license for ChemDoodle (which is different from the Jmol license).
 
-== Batch and shell files ==
+
+2 == Batch and shell files ==
 These can be used to start Jmol application from a command line and, 
 particularly, to impose a certain combination of parameters 
 (see http://wiki.jmol.org/index.php/Jmol_Application#Command_line_options).
 
-=== jmol ===
+2.1 === jmol ===
 ???? (Some kind of batch file)
 
-=== jmol.bat ===
+2.2 === jmol.bat ===
 A batch file to start Jmol application under Windows.
 
-=== jmol.mac ===
-??? (Some kind of batch file)
+2.3 === jmol.mac ===
+??? (Some kind of batch file, for the MacOS)
 
-=== jmol.sh ===
+2.4 === jmol.sh ===
 A shell script to start Jmol application under Unix-like systems, like Linux, 
 BSD, Solaris and Cygwin for Windows.
 
 
-== Files of Jmol application ==
+3 == Files of Jmol application ==
 This is used as a standalone program.
 
-=== Jmol.jar ===
+3.1 === Jmol.jar ===
 The application executable file (a program written in Java). This works as any 
 other program: opens in its own window, can be resized or minimized, admits 
 drag-and-drop of files over it, has a top menu bar, can open and save files, 
@@ -69,7 +73,7 @@ usually enough to double-click on the file
 (see http://wiki.jmol.org/index.php/Jmol_Application#Starting_Jmol_Application 
 for more details).
 
-=== JmolData.jar ===
+3.2 === JmolData.jar ===
 This is a slimmed down version of Jmol.jar that lacks all visualization 
 capabilities. So, it betrays the whole (classic) concept of what Jmol is, but 
 with JmolData and some clever scripting you can get just about any information 
@@ -81,20 +85,13 @@ visualization: there are bonds but no "sticks", atoms but no "dots", helices but
 no "cartoons".
 
 
-== Files of Jmol applet ==
-This is used inside web pages.
+4 == Files of Jmol applet ==
+These are used inside web pages, and include:
+  Applet files  |  Core Javascript libraries  |  Optional Javascript libraries
 
-=== Jmol.js ===
-The library, written in JavaScript language, that assists in the programming of 
-web pages that use Jmol applet, without the need to know and write detailed 
-JmolApplet code.
+4.1 === Applet files ===
 
-This library uses by default the split version of the applet (unsigned or 
-signed).
-
-Fully documented at http://jmol.org/jslibrary/
-
-=== JmolApplet0.jar, JmolApplet0(severalSuffixes).jar ===
+4.1.1 ==== JmolApplet0.jar, JmolApplet0(severalSuffixes).jar ====
 The applet, i.e. a version of the program that will only run when embedded in 
 a web page.
 
@@ -117,7 +114,7 @@ for example,
  jmolInitialize("../jmol") 
      (if jar files are in a parallel folder, named 'jmol')
 
-=== JmolAppletSigned0.jar, JmolAppletSigned0(severalSuffixes).jar ===
+4.1.2 ==== JmolAppletSigned0.jar, JmolAppletSigned0(severalSuffixes).jar ====
 An equivalent version of the applet, but this is a "signed" applet (a term in 
 Java security language). This means it must be authorized by the web 
 page visitor for it to run, but then it will have less security restrictions for
@@ -144,7 +141,7 @@ Notes:
 * The user may have the option to trust the applet permanently and so avoid 
   having to give permission every time (s)he visits a page that uses Jmol.
 
-=== JmolApplet.jar ===
+4.1.3 ==== JmolApplet.jar ====
 This is an all-in-one or monolithic file, kept mainly for compatibility with old
 pages that call it explicitly. 
 This single file is equivalent to the whole set of JmolApplet0*.jar files, 
@@ -156,7 +153,7 @@ by default.
 You may wish to use this if you want to keep your website simple or you just 
 want to upload a single jar file whenever new versions are released. 
 However, this will load Jmol slower than the split versions (described above), 
-as all the modules (adding up to 2 MB), needed or not, must get loaded onto a 
+as all the modules (adding up to 2.4 MB), needed or not, must get loaded onto a 
 user's machine before any structure is displayed.
 
 To invoke JmolApplet.jar from Jmol.js, either:
@@ -169,7 +166,7 @@ or
 b) identify it explicitly in jmolInitialize(), for example:
  jmolInitialize("directory-containing-jar-files", "JmolApplet.jar")
 
-=== JmolAppletSigned.jar ===
+4.1.4 ==== JmolAppletSigned.jar ====
 An equivalent version of the monolithic applet, but this is a "signed" applet 
 (a term in Java security language). This means it must be authorized by the web 
 page visitor for it to run, but then it will have less security restrictions for
@@ -186,7 +183,73 @@ are doing and have considered the security issues.
 To invoke JmolAppletSigned.jar from Jmol.js, use:
  jmolInitialize("directory-containing-jar-files", "JmolAppletSigned.jar")
 
-=== JmolSmilesApplet.jar ===
+4.1.5 ==== Notes ====
+# Given the descriptions, you will realize that the distribution package 
+  contains 4 full copies of the applet (signed or unsigned, split or not).
+
+  
+4.2 === Core Javascript libraries ===  
+
+4.2.1 ==== Jmol.js ====
+The classic library, written in JavaScript language, that assists in the 
+programming of web pages that use Jmol applet, without the need to know and 
+write detailed JmolApplet code.
+
+This library uses by default the split version of the applet (unsigned or 
+signed).
+
+Fully documented at http://jmol.org/jslibrary/
+
+Jmol.js is phased out in Jmol v13, in favour of the object-oriented method 
+and set of .js files (described next).
+
+4.2.2 ==== JmolApplet.js ====
+Creates the object for a Jmol applet.
+ 
+4.2.3 ==== JmolCore.js ====
+Contains functions that make the Jmol applets work but are not to be used by 
+the webpage author (private functions). 
+
+4.2.4 ==== JmolControls.js ====
+Support for user-interface controls like buttons, links, checkboxes, etc. 
+
+4.2.5 ==== JmolApi.js ====
+Contains the Application Programming Interface, that is, functions that may be 
+used by the webpage author to interface with the Jmol applets.
+
+
+4.3 === Optional Javascript libraries ===
+
+4.3.1 ==== JmolCD.js ====
+The ChemDoodle extension: provides the means for using ChemDoodle Web Components 
+(that uses JavaScript + HTML5 canvas or WebGL) instead of the
+Jmol applets, for systems where Java is not available.
+
+4.3.2 ==== JmolGLmol.js ====
+The GLmol extension: provides the means for using GLmol (that uses WebGL + 
+JavaScript) instead of the Jmol applets, for systems where Java is not available.
+
+4.3.3 ==== JmolJME.js ====
+Provides the means for adding a JME applet in the webpage (drawing of 2D chemical 
+formulas) and communicate with Jmol applets.
+
+4.3.4 ==== JmolJSV.js ====
+Provides the means for adding a JSpecView applet (viewer for spectral data) in 
+the webpage and communicate with Jmol applets.
+
+
+5 == Accessory apps and applets ==
+
+5.1 === ChimeToJmol.jar ===
+Undocumented and experimental.
+An application to convert Chime-using html pages into pages with JmolApplets. 
+
+5.2 === JSpecViewApplet, JSpecViewAppletSigned ===
+Unsigned and signed versions of the JSpecView applet, a viewer for spectral data 
+that may be intercommunicated with Jmol applets. 
+(See supporting .js file above) 
+
+5.3 === JmolSmilesApplet.jar ===
 This is currently not included in the distribution, but may be obtained from the
 development site.
 
@@ -195,9 +258,3 @@ SMILES strings. This is particularly useful for comparison of stereochemistry,
 for example from structures drawn using the JME applet.
 
 The same functionality is included in the regular JmolApplet.
-
-
-== Notes ==
-
-# Given the descriptions, you will realize that the distribution package 
-  contains 4 full copies of the applet (signed or unsigned, split or not).
