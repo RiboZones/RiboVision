@@ -671,13 +671,13 @@ $(document).ready(function () {
 		memoryLimit: 1024,
 		readyFunction: null,
 		script: null,
-		serverURL: "http://chemapps.stolaf.edu/jmol/jmolcd.php",
+		serverURL: "./jsmol.php",
 		src: null,
 		use: "Java noWebGL noHTML5 noImage",
 		width: "100%"
 	};	
 	Jmol.setDocument(0);
-	Jmol.setAppletCss("jmolapplet", "style='left:40px'");
+	//Jmol.setAppletCss("jmolapplet", "style='left:40px'");
 	myJmol = Jmol.getApplet("myJmol", JmolInfo); 
 	$('#jmolDiv').html(Jmol.getAppletHtml(myJmol));
 	
