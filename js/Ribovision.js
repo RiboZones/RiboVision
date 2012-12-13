@@ -655,7 +655,19 @@ function rvView(x, y, scale) {
 ////////////////////////// Initialize RiboVision //////////////////////////////
 // Initialize Jmol
 //jmolInitialize("./jmol");
+//Jmol.debugCode = true
 
+var myJmol1;
+var myInfo1 = {
+        height: '100%',
+        width: '100%',
+        jarFile: "JmolApplet.jar",
+        jarPath: '..',
+        j2sPath: "j2s",
+        use: 'HTML5',
+	console: "myJmol1_infodiv",
+        debug: false
+};
 
 // Ready Function
 $(document).ready(function () {

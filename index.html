@@ -41,12 +41,12 @@
 </script>
   <script type="text/javascript" src="js/farbtastic/farbtastic.js">
 </script>
-
+<!--
 <script type="text/javascript" src="jmol/JmolCore.js"></script>
 <script type="text/javascript" src="jmol/JmolApplet.js"></script>
 <script type="text/javascript" src="jmol/JmolControls.js"></script>
 <script type="text/javascript" src="jmol/JmolApi.js"></script>
-
+//-->
 <script type="text/javascript" src="jmol/jsmol/JSmolCore.js"></script>
 <script type="text/javascript" src="jmol/jsmol/JSmolApplet.js"></script>
 <script type="text/javascript" src="jmol/jsmol/JSmolApi.js"></script>
@@ -234,7 +234,11 @@
   </div>
 
   <div id="jmolDiv" class="ui-widget-content">
-    <!--
+   <script type="text/javascript">
+myJmol1 = Jmol.getApplet("myJmol1", myInfo1);
+Jmol.script(myJmol1, 'load "caffeine.mol";' );
+</script>
+	<!--
 		<script type='text/javascript'>
 //<![CDATA[
     jmolApplet([100,100], "script states/blank_state.spt");
