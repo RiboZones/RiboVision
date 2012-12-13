@@ -656,7 +656,7 @@ function rvView(x, y, scale) {
 // Initialize Jmol
 //jmolInitialize("./jmol");
 //Jmol.debugCode = true
-
+/*
 var myJmol1;
 var myInfo1 = {
         height: '100%',
@@ -667,34 +667,36 @@ var myInfo1 = {
         use: 'HTML5',
 	console: "myJmol1_infodiv",
         debug: false
-};
+};*/
 
+var JmolInfo = {
+	addSelectionOptions: false,
+	color: "#FFFFFF",
+	debug: false,
+	defaultModel: "",
+	height: "100%",
+	isSigned: true,
+	jarFile: "JmolAppletSigned0.jar",
+	jarPath: "./jmol",
+	j2sPath: "jmol/jsmol/j2s",
+	memoryLimit: 1024,
+	readyFunction: null,
+	script: null,
+	serverURL: "./jsmol.php",
+	src: null,
+	use: "HTML5",
+	width: "100%",
+	console: "myJmol_infodiv",
+	debug: false
+};	
+	
 // Ready Function
 $(document).ready(function () {
-	var JmolInfo = {
-		addSelectionOptions: false,
-		color: "#FFFFFF",
-		debug: false,
-		defaultModel: "",
-		height: "100%",
-		isSigned: true,
-		jarFile: "JmolAppletSigned0.jar",
-		jarPath: "./jmol",
-		j2sPath: "jmol/jsmol/j2s",
-		memoryLimit: 1024,
-		readyFunction: null,
-		script: null,
-		serverURL: "./jsmol.php",
-		src: null,
-		use: "HTML5",
-		width: "100%",
-		console: "myJmol_infodiv",
-        debug: false
-	};	
-	Jmol.setDocument(0);
+	
+	//Jmol.setDocument(0);
 	//Jmol.setAppletCss("jmolapplet", "style='left:40px'");
-	myJmol = Jmol.getApplet("myJmol", JmolInfo); 
-	$('#jmolDiv').html(Jmol.getAppletHtml(myJmol));
+	//myJmol = Jmol.getApplet("myJmol", JmolInfo); 
+	//$('#jmolDiv').html(Jmol.getAppletHtml(myJmol));
 	
 	$("#ResidueTip").tooltip({
 			show: false,
