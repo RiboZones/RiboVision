@@ -3633,7 +3633,7 @@ function loadSpecies(species) {
 	*/
 	$.each(rvDataSets[0].Layers, function (i, item){
 		item.clearCanvas();
-	}):
+	});
 	if (species != "None") {
 		$.getJSON('getData.php', {
 			Residues : species
