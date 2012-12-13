@@ -668,13 +668,16 @@ $(document).ready(function () {
 		isSigned: true,
 		jarFile: "JmolAppletSigned0.jar",
 		jarPath: "./jmol",
+		j2sPath: "jmol/jsmol/j2s",
 		memoryLimit: 1024,
 		readyFunction: null,
 		script: null,
 		serverURL: "./jsmol.php",
 		src: null,
-		use: "Java HTML5",
-		width: "100%"
+		use: "HTML5",
+		width: "100%",
+		console: "myJmol_infodiv",
+        debug: false
 	};	
 	Jmol.setDocument(0);
 	//Jmol.setAppletCss("jmolapplet", "style='left:40px'");
