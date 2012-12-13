@@ -3173,6 +3173,28 @@ function checkSavePrivacyStatus() {
 
 
 //////////////////////////////// Save Functions ///////////////////////////////
+function saveJPG() {
+	AgreeFunction = function () {
+		var CS = canvasToSVG();
+		var form = document.createElement("form");
+		form.setAttribute("method", "post");
+		form.setAttribute("action", "saveJPG.php");
+		var hiddenField = document.createElement("input");
+		hiddenField.setAttribute("type", "hidden");
+		hiddenField.setAttribute("name", "content");
+		hiddenField.setAttribute("value", CS.SVG);
+		var hiddenField2 = document.createElement("input");
+		hiddenField2.setAttribute("type", "hidden");
+		hiddenField2.setAttribute("name", "orientation");
+		hiddenField2.setAttribute("value", CS.Orientation);
+		form.appendChild(hiddenField);
+		form.appendChild(hiddenField2);
+		document.body.appendChild(form);
+		form.submit();
+	}
+	checkSavePrivacyStatus();
+}
+
 function savePNG() {
 	AgreeFunction = function () {
 		var CS = canvasToSVG();
