@@ -3,18 +3,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta name="generator" content="HTML Tidy for HTML5 (experimental) for Windows https://github.com/w3c/tidy-html5/tree/c63cc39" />
-
   <title>RiboVision: a RiboZone product. Brought to you by RiboEvo @ Georgia Institute of Technology.</title>
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-  <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js">
-</script>
-<!--<script type="text/javascript" src="jmol/jsmol/JSmoljQuery.js"></script>//-->
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
   <script type="text/javascript">
-
   //<![CDATA[
         if(typeof jQuery === 'undefined') {
-                //document.write(unescape('%3Cscript type="text/javascript" src="js/jquery-1.8.3.js" %3E%3C/script%3E'));
-                //document.write(unescape('%3Cscript type="text/javascript" src="js/jquery-ui-1.9.0.custom.min.js" %3E%3C/script%3E'));
+                document.write(unescape('%3Cscript type="text/javascript" src="js/jquery-1.8.3.js" %3E%3C/script%3E'));
+                document.write(unescape('%3Cscript type="text/javascript" src="js/jquery-ui-1.9.0.custom.min.js" %3E%3C/script%3E'));
         }
   //]]>
 
@@ -41,21 +37,21 @@
 </script>
   <script type="text/javascript" src="js/farbtastic/farbtastic.js">
 </script>
-<!--
+
 <script type="text/javascript" src="jmol/JmolCore.js"></script>
 <script type="text/javascript" src="jmol/JmolApplet.js"></script>
 <script type="text/javascript" src="jmol/JmolControls.js"></script>
 <script type="text/javascript" src="jmol/JmolApi.js"></script>
-//-->
+<!--
 <script type="text/javascript" src="jmol/jsmol/JSmolCore.js"></script>
 <script type="text/javascript" src="jmol/jsmol/JSmolApplet.js"></script>
 <script type="text/javascript" src="jmol/jsmol/JSmolApi.js"></script>
 <script type="text/javascript" src="jmol/jsmol/j2s/j2sjmol.js"></script>
 <script type="text/javascript" src="jmol/jsmol/JSmol.js"></script>
-<!-- // following two only necessary for WebGL version: -->
+// following two only necessary for WebGL version: 
 <script type="text/javascript" src="jmol/jsmol/JSmolThree.js"></script>
 <script type="text/javascript" src="jmol/jsmol/JSmolGLmol.js"></script>
-
+//-->
   <script type="text/javascript" src="js/iosmenu.js">
 </script>
   <script type="text/javascript" src="js/multiAccordion.js">
@@ -234,11 +230,11 @@
   </div>
 
   <div id="jmolDiv" class="ui-widget-content">
-   <script type="text/javascript">
+   	<!--<script type="text/javascript">
 	myJmol = Jmol.getApplet("myJmol", JmolInfo);
 	//Jmol.script(myJmol1, 'load "caffeine.mol";' );
 	</script>
-	<!--
+
 		<script type='text/javascript'>
 //<![CDATA[
     jmolApplet([100,100], "script states/blank_state.spt");

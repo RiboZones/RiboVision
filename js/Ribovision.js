@@ -678,25 +678,23 @@ var JmolInfo = {
 	isSigned: true,
 	jarFile: "JmolAppletSigned0.jar",
 	jarPath: "./jmol",
-	j2sPath: "jmol/jsmol/j2s",
+	//j2sPath: "jmol/jsmol/j2s",
 	memoryLimit: 1024,
 	readyFunction: null,
 	script: null,
-	serverURL: "./jsmol.php",
+	serverURL: "http://chemapps.stolaf.edu/jmol/jmolcd.php",
 	src: null,
-	use: "HTML5",
+	use: "Java WebGL HTML5",
 	width: "100%",
-	console: "myJmol_infodiv",
-	debug: false
 };	
 	
 // Ready Function
 $(document).ready(function () {
 	
-	//Jmol.setDocument(0);
-	//Jmol.setAppletCss("jmolapplet", "style='left:40px'");
-	//myJmol = Jmol.getApplet("myJmol", JmolInfo); 
-	//$('#jmolDiv').html(Jmol.getAppletHtml(myJmol));
+	Jmol.setDocument(0);
+	Jmol.setAppletCss("jmolapplet", "style='left:40px'");
+	myJmol = Jmol.getApplet("myJmol", JmolInfo); 
+	$('#jmolDiv').html(Jmol.getAppletHtml(myJmol));
 	
 	$("#ResidueTip").tooltip({
 			show: false,
@@ -3177,13 +3175,18 @@ function checkSavePrivacyStatus() {
 //////////////////////////////// Save Functions ///////////////////////////////
 function savePNG() {
 	AgreeFunction = function () {
+		var CS = canvasToSVG();
 		var form = document.createElement("form");
 		form.setAttribute("method", "post");
 		form.setAttribute("action", "savePNG.php");
 		var hiddenField = document.createElement("input");
 		hiddenField.setAttribute("type", "hidden");
 		hiddenField.setAttribute("name", "content");
-		hiddenField.setAttribute("value", canvasToSVG());
+		hiddenField.setAttribute("value", CS.SVG);
+		var hiddenField2 = document.createElement("input");
+		hiddenField2.setAttribute("type", "hidden");
+		hiddenField2.setAttribute("name", "Orientation");
+		hiddenField2.setAttribute("value", CS.Orientation);
 		form.appendChild(hiddenField);
 		document.body.appendChild(form);
 		form.submit();
@@ -3193,13 +3196,14 @@ function savePNG() {
 
 function saveSVG() {
 	AgreeFunction = function () {
+		var CS = canvasToSVG();
 		var form = document.createElement("form");
 		form.setAttribute("method", "post");
 		form.setAttribute("action", "saveSVG.php");
 		var hiddenField = document.createElement("input");
 		hiddenField.setAttribute("type", "hidden");
 		hiddenField.setAttribute("name", "content");
-		hiddenField.setAttribute("value", canvasToSVG());
+		hiddenField.setAttribute("value", CS.SVG);
 		form.appendChild(hiddenField);
 		document.body.appendChild(form);
 		form.submit();
@@ -3209,13 +3213,14 @@ function saveSVG() {
 
 function savePDF() {
 	AgreeFunction = function () {
+		var CS = canvasToSVG();
 		var form = document.createElement("form");
 		form.setAttribute("method", "post");
 		form.setAttribute("action", "savePDF.php");
 		var hiddenField = document.createElement("input");
 		hiddenField.setAttribute("type", "hidden");
 		hiddenField.setAttribute("name", "content");
-		hiddenField.setAttribute("value", canvasToSVG());
+		hiddenField.setAttribute("value", CS.SVG);
 		form.appendChild(hiddenField);
 		document.body.appendChild(form);
 		form.submit();
@@ -3359,6 +3364,7 @@ function savePML() {
 function canvasToSVG() {
 	var SupportesLayerTypes = ["lines", "labels", "residues", "circles", "selected"];
 	var ChosenSide;
+	var Orientation;
 	
 	var AllMode = $('input[name="savelayers"][value=all]').attr("checked");
 	
@@ -3366,9 +3372,11 @@ function canvasToSVG() {
 	if (rvDataSets[0].SpeciesEntry.MapType.indexOf("Structural") >= 0) {
 		var mapsize = "612 792";
 		var mapsize2 = 'width="612px" height="792px" ';
+		Orientation = "portrait";
 	} else {
 		var mapsize = "792 612";
 		var mapsize2 = 'width="792px" height="612px" ';
+		Orientation = "landscape";
 	}
 	output = "<?xml version='1.0' encoding='UTF-8'?>\n" +
 		'<svg version="1.1" baseProfile="basic" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" ' +
@@ -3496,7 +3504,7 @@ function canvasToSVG() {
 	 */
 	output = output + watermark(true);
 	output = output + '</svg>';
-	return output;
+	return { 'SVG': output, "Orientation" : Orientation };
 }
 ///////////////////////////////////////////////////////////////////////////////
 
