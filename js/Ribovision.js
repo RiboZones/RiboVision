@@ -3626,11 +3626,14 @@ function populateDomainHelixMenu() {
 }
 
 function loadSpecies(species) {
-	
+	/*
 	for (i in rvDataSets[0].Layers) {
 		rvDataSets[0].Layers[i].clearCanvas();
 	}
-	
+	*/
+	$.each(rvDataSets[0].Layers, function (i, item){
+		item.clearCanvas();
+	}):
 	if (species != "None") {
 		$.getJSON('getData.php', {
 			Residues : species
