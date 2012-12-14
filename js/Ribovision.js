@@ -490,7 +490,9 @@ function rvDataSet(DataSetName) {
 	}
 	function drawSelection(targetLayer) {
 		targetLayer.clearCanvas();
-		if (rvDataSets[0].Residues.length > 0) {
+		targetLayer.Data = [];
+		targetLayer.dataLayerColors = [];
+		if (rvDataSets[0].Residues && rvDataSets[0].Residues.length > 0) {
 			for (var i = rvDataSets[0].Residues.length - 1; i >= 0; i--) {
 				if (rvDataSets[0].Residues[i].selected) {
 					targetLayer.CanvasContext.beginPath();
@@ -499,8 +501,17 @@ function rvDataSet(DataSetName) {
 					targetLayer.CanvasContext.strokeStyle = "#940B06";
 					targetLayer.CanvasContext.lineWidth = 0.5;
 					targetLayer.CanvasContext.stroke();
+					targetLayer.Data[i]=true;
+					targetLayer.dataLayerColors[i]="#940B06";
+				} else {
+					targetLayer.Data[i]=false;
+					targetLayer.dataLayerColors[i]="#858585";
 				}
 			}
+		}
+		var linkedLayer=rvDataSets[0].getLinkedLayer();
+		if (linkedLayer.Type == "selected"){
+			update3Dcolors();
 		}
 	}
 	function drawDataCircles(targetLayer, dataIndices, ColorArray, noClear) {
@@ -1426,6 +1437,7 @@ function LayerMenu(Layer, key) {
 			break;
 		case "selected":
 			$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="selectDiv">'))
+			$("#LayerPanel div").first().next().find(".radioDIV2").find('input').removeAttr("disabled");
 			//$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="' + 'sele-' + key + '">'))
 			//$("#selectDiv").html(text)
 			break;
