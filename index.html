@@ -1,786 +1,352 @@
-<!DOCTYPE html>
-
-
-
-<html xmlns="http://www.w3.org/1999/xhtml">
-
-<head>
-
-  <meta name="generator" content="HTML Tidy for HTML5 (experimental) for Windows https://github.com/w3c/tidy-html5/tree/c63cc39" />
-
-
-  <title>RiboVision: a RiboZone product. Brought to you by RiboEvo @ Georgia Institute of Technology.</title>
-
-  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-<<<<<<< .mine
-
-  <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js">
-
-</script>
-=======
-<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
->>>>>>> .r195
-
-  <script type="text/javascript">
-
-
-  //<![CDATA[
-
-
-        if(typeof jQuery === 'undefined') {
-<<<<<<< .mine
-                document.write(unescape('%3Cscript type="text/javascript" src="js/jquery-1.8.2.min.js" %3E%3C/script%3E'));
-=======
-                document.write(unescape('%3Cscript type="text/javascript" src="js/jquery-1.8.3.js" %3E%3C/script%3E'));
->>>>>>> .r195
-                document.write(unescape('%3Cscript type="text/javascript" src="js/jquery-ui-1.9.0.custom.min.js" %3E%3C/script%3E'));
-        }
-
-  //]]>
-
-
-
-  </script>
-<<<<<<< .mine
-
-  <script type="text/javascript" src="//code.jquery.com/ui/1.9.0/jquery-ui.min.js">
-
-</script>
-=======
-  <script type="text/javascript" src="//code.jquery.com/ui/1.9.2/jquery-ui.min.js">
-</script><!--Use D3 visualization library-->
->>>>>>> .r195
-
-  <script type="text/javascript" src="js/d3.js">
-</script>
-  <script type="text/javascript" src="js/d3.csv.js">
-</script>
-  <script type="text/javascript" src="js/d3.v3.js">
-</script>
-  <script type="text/javascript" src="js/d3.v2.js">
-</script><!--Stylesheet for navLine-->
-  <link rel="stylesheet" type="text/css" href="css/navLine.css" />
-  <script type="text/javascript" src="js/jquery.multiselect.min.js">
-
-</script>
-
-  <script type="text/javascript" src="js/jquery.multiselect.filter.js">
-
-</script>
-
-  <script type="text/javascript" src="js/jquery.mousewheel.min.js">
-
-</script>
-
-  <script type="text/javascript" src="js/jquery.csv-0.65pre.js">
-
-</script>
-
-  <script type="text/javascript" src="js/farbtastic/farbtastic.js">
-
-</script>
-<<<<<<< .mine
-
-  <script type="text/javascript" src="jmol/Jmol.js">
-
-</script>
-=======
-
-<script type="text/javascript" src="jmol/JmolCore.js"></script>
-<script type="text/javascript" src="jmol/JmolApplet.js"></script>
-<script type="text/javascript" src="jmol/JmolControls.js"></script>
-<script type="text/javascript" src="jmol/JmolApi.js"></script>
-<!--
-<script type="text/javascript" src="jmol/jsmol/JSmolCore.js"></script>
-<script type="text/javascript" src="jmol/jsmol/JSmolApplet.js"></script>
-<script type="text/javascript" src="jmol/jsmol/JSmolApi.js"></script>
-<script type="text/javascript" src="jmol/jsmol/j2s/j2sjmol.js"></script>
-<script type="text/javascript" src="jmol/jsmol/JSmol.js"></script>
-// following two only necessary for WebGL version: 
-<script type="text/javascript" src="jmol/jsmol/JSmolThree.js"></script>
-<script type="text/javascript" src="jmol/jsmol/JSmolGLmol.js"></script>
-//-->
->>>>>>> .r195
-
-  <script type="text/javascript" src="js/iosmenu.js">
-
-</script>
-
-  <script type="text/javascript" src="js/multiAccordion.js">
-
-</script>
-<<<<<<< .mine
-
-   <script type="text/javascript" src="js/Ribovision.js">
-=======
-  <script type="text/javascript" src="js/Ribovision.js">
->>>>>>> .r195
-
-</script>
-  <link rel="stylesheet" type="text/css" href="css/style.css" />
-
-  <link rel="stylesheet" type="text/css" href="css/jquery-ui-1.9.0.custom.css" />
-
-  <link rel="stylesheet" type="text/css" href="css/jquery.multiselect.css" />
-
-  <link rel="stylesheet" type="text/css" href="css/jquery.multiselect.filter.css" />
-
-  <link rel="stylesheet" type="text/css" href="css/farbtastic.css" />
-
-  <link rel="stylesheet" type="text/css" href="css/iosmenu.css" />
-
-
-
-</head>
-
-
-
-<body>
-
-  <div id="menu" class="ui-widget-content">
-
-    <div id="SiteInfo" class="ui-widget-content">
-
-      <h3 class="ui-widget-header" style=
-
-      "padding:3px; padding-left:10px; background-image:url(images/ui-bg_glass_50_3baae3_1x400.png); font-size:16px;"><a href=
-<<<<<<< .mine
-
-      "./ChangeLog.txt" target="_blank" style="color:#FFF">RiboVision: Version 0.51</a></h3>
-=======
-      "./ChangeLog.txt" target="_blank" style="color:#FFF">RiboVision: Version 0.54</a></h3>
->>>>>>> .r195
-
-
-
-      <p id="infoP">RiboVision is in the RiboZone family of products, brought to you by RiboEvo at Georgia Tech.</p><a href=
-
-      "/Documentation/MainHelp.html" target="_blank">Ribovision Manual</a>
-
-    </div>
-
-<<<<<<< .mine
-
-
-    <div id="NavDiv" class="ui-widget-content">
-
-      <h3 class="ui-widget-header" style=
-
-      "padding:3px; padding-left:10px; background-image:url(images/ui-bg_glass_50_3baae3_1x400.png); font-size:16px; color:#FFF">
-
-      Control (temp)</h3>
-
-
-
-      <div id="buttonmode">
-
-        One Button Mode:<br />
-
-        <input id="moveMode" type="radio" name="mode" value="move" onclick="modeSelect(&#39;move&#39;)" /><label for=
-
-        "moveMode">Move</label> <input id="selectMode" type="radio" name="mode" value="select" onclick=
-
-        "modeSelect(&#39;select&#39;)" /><label for="selectMode">Select</label> <input id="colorMode" type="radio" name="mode"
-
-        value="color" onclick="modeSelect(&#39;color&#39;)" /><label for="colorMode">Color</label>
-
-      </div>
-
-    </div>
-
-=======
->>>>>>> .r195
-
-
-    <div id="MainMenu" class="ui-widget-content">
-
-      <div id="SideBarAccordian">
-<<<<<<< .mine
-
-        <h3><a href="#">Molecule Selection</a></h3>
-=======
-        <h3><a href="#">Ribosome Selection</a></h3>
->>>>>>> .r195
-
-
-
-        <div id="SpeciesDiv">
-
-          Species &amp; Subunit Selection:<br />
-
-
-
-          <ul id="speciesList">
-
-            <li class="ui-menu-item ios-menu-back-link" role="presentation">
-
-              <a href="#None" class="ui-corner-role" tabindex="-1" role="menuitem" aria-haspopup="true">No Molecule</a>
-
-            </li>
-
-          </ul>
-<<<<<<< .mine
-
-=======
-
-          <div id="ResidueTip" title="Pizza Man" style="position:fixed;width:1px;height:1px;z-index:1000000">
-            <div id="residuetip" style="visibility:hidden">
-              <h3 id="resName">Residue:</h3>
-
-              <h3 id="activeData">Linked Data:</h3>
-
-              <div id="otherinfo"></div>
-
-              <h3 id="conPercentage">Shannon Entropy</h3>
-            </div>
-          </div>
->>>>>>> .r195
-        </div>
-
-
-
-        <h3><a href="#">Residue Selection</a></h3>
-
-
-
-        <div id="SelectionDiv">
-
-          Selection Options:<br />
-
-          <input id="commandline" type="text" onkeydown=
-
-          "if (event.keyCode == 13) document.getElementById(&#39;commandSelect&#39;).click();" /><br />
-
-          <input id="commandSelect" name="selebutton" type="button" onclick="JavaScript:commandSelect();" value=
-
-          "Apply Selection 2D" /> <input id="select3d" name="selebutton" type="button" onclick=
-
-          "JavaScript:commandSelect();updateModel();" value="Apply Selection 3D" /> <input id="saveSelection" name="saveSelection"
-
-          type="button" value="Save Selection" /> <input id="clearselection" name="selebutton" type="button" onclick=
-
-          "JavaScript:clearSelection();" value="Clear Selection" /><br />
-
-          <br />
-
-          Select Residues by Domain and/or Helix:<br />
-
-          <select id="selectByDomainHelix" name="SelectByDomainHelix" multiple="multiple">
-
-            </select><br />
-
-          Saved Selections:<br />
-
-          <select id="savedSelections" name="savedSelections" multiple="multiple">
-
-            </select>
-
-        </div>
-
-
-
-        <h3><a href="#">Structure Data</a></h3>
-
-
-
-        <div id="StructDataDiv">
-
-          Structure Data:<br />
-
-          <select id="StructDataList" multiple="multiple" onchange="JavaScript:updateStructData(value);">
-
-            </select>
-
-        </div>
-
-
-
-        <h3><a href="#">Alignment Data</a></h3>
-
-
-
-        <div id="AlnDiv">
-
-          Alignment Data:<br />
-
-          <select id="alnList" multiple="multiple" onchange="JavaScript:colorMapping(id);">
-
-            </select>
-
-        </div>
-
-
-
-        <h3><a href="#">Protein Data</a></h3>
-
-
-
-        <div id="ProtDiv">
-
-          Protein Data:<br />
-
-          <select id="ProtList" multiple="multiple">
-
-            </select>
-
-        </div>
-
-
-
-        <h3><a href="#">Interaction Data</a></h3>
-
-
-
-        <div id="InteractDataDiv">
-
-          <div id="primaryInteractData">
-
-            Interaction Data:<br />
-
-            <select id="PrimaryInteractionList" multiple="multiple" onchange="JavaScript:refreshBasePairs(value);">
-
-              </select>
-
-          </div>
-
-
-
-          <div id="secondaryInteractData" style="margin-top:10px">
-
-            Secondary List:<br />
-
-            <select id="SecondaryInteractionList" multiple="multiple">
-
-              </select>
-
-          </div>
-
-        </div>
-
-
-
-        <h3><a href="#">Custom Data</a></h3>
-
-
-
-        <div id="FileDiv">
-
-          <a id="TemplateLink" href="#" target="_blank">Download Data Template</a><br />
-
-          Load Data Template: <input type="file" id="files" name="files[]" accept="text/csv" /> <output id="list"></output>
-
-        </div>
-
-
-
-        <h3><a href="#">Export Data</a></h3>
-
-
-
-        <div id="saveDiv">
-<<<<<<< .mine
-
-          The default behavior is to export just the visible layers. 
-
-			</br></br>
-
-			<input id="visibleLayers" type="radio" name="savelayers" value="visible" checked="checked" /><label for="visibleLayers">Visible Layers</label>
-
-			<input id="allLayers" type="radio" name="savelayers" value="all" /><label for="allLayers">All Layers</label> 
-
-			<p>Choose which file type to export.</p>
-
-			<input name="saveas" type="button" onclick="JavaScript:savePDF();" value="PDF: Best for Printing" />
-
-			<input name="saveas" type="button" onclick="JavaScript:savePNG();" value="PNG: Best for Displaying" />
-
-			<input name="saveas" type="button" onclick="JavaScript:saveSVG();" value="SVG: Best for Editing" />
-
-			</br>
-
-			<p>Additionally, you may export a Pymol Script. </p>
-
-            <input name="saveas" type="button" onclick="JavaScript:savePML();" value="PyMOL Script" />
-
-		  
-=======
-          The default behavior is to export just the visible layers.<br />
-          <input id="visibleLayers" type="radio" name="savelayers" value="visible" checked="checked" /><label for=
-          "visibleLayers">Visible Layers</label> <input id="allLayers" type="radio" name="savelayers" value="all" /><label for=
-          "allLayers">All Layers</label>
-
-          <p>Choose which file type to export.</p>
-		  <input name="saveas" type="button" onclick="JavaScript:savePDF();" value="PDF: Best for Printing" /> 
-		  <input name="saveas" type="button" onclick="JavaScript:savePNG();" value="PNG: Best for Displaying" /> 
-		  <input name="saveas" type="button" onclick="JavaScript:saveJPG();" value="JPG: Best Data Compression" /> 
-		  <input name="saveas" type="button" onclick="JavaScript:saveSVG();" value="SVG: Best for Editing" /><br />
-
-          <p>Additionally, you may export a Pymol Script.</p><input name="saveas" type="button" onclick="JavaScript:savePML();"
-          value="PyMOL Script" />
->>>>>>> .r195
-
-        </div>
-
-      </div>
-
-    </div>
-
-  </div>
-
-<<<<<<< .mine
-
-
-  <div id="LogoDiv" class="ui-widget-content">
-
-    <div id="L1"><img src="images/RiboEvoLogoSmallTrans.png" id="RLogo" title="The answer is 42." alt="RiboEvo Logo" /></div>
-=======
-  <div id="LogoDiv" class="ui-widget-content"><img src="images/RiboEvoNASAlogo.png" id="ComboLogo" title="RiboEvo and NASA Logos"
-  alt="RiboEvo and NASA Logos" /></div>
->>>>>>> .r195
-
-<<<<<<< .mine
-
-
-    <div id="L2"><img src="images/NASALogoTrans.png" id="NLogo" title="Rockets?? We don&#39;t need no stinkin&#39; rockets." alt=
-
-    "NASA Logo" /></div>
-
-  </div>
-
-=======
->>>>>>> .r195
-
-
-  <div id="navigator" style="z-index:999; width:65px">
-
-    <div id="compassImgs"><img class="compass" src="images/compass/navigator1_01.png" onclick="JavaScript:resetView()" />
-
-    <img title="Pan up" class="compass" src="images/compass/navigator1_02.png" onclick="JavaScript:pan(0,-20)" /> <img class=
-
-    "compass" src="images/compass/navigator1_03.png" onclick="JavaScript:resetView()" /> <img title="Pan left" class="compass" src=
-
-    "images/compass/navigator1_04.png" onclick="JavaScript:pan(-20,0)" /> <img title="Return to center" class="compass" src=
-
-    "images/compass/navigator1_05.png" onclick="JavaScript:resetView()" /> <img title="Pan right" class="compass" src=
-
-    "images/compass/navigator1_06.png" onclick="JavaScript:pan(20,0)" /> <img class="compass" src=
-
-    "images/compass/navigator1_07.png" onclick="JavaScript:resetView()" /> <img title="Pan down" class="compass" src=
-
-    "images/compass/navigator1_08.png" onclick="JavaScript:pan(0,20)" /> <img class="compass" src=
-
-    "images/compass/navigator1_09.png" onclick="JavaScript:resetView()" /></div>
-
-
-
-    <div id="slider"></div>
-
-  </div>
-
-
-
-  <div id="canvasDiv" oncontextmenu="return false" class="ui-widget-content">
-<<<<<<< .mine
-    <canvas id="LabelLayer" style="z-index:2;">Get a Better Browser Dummy!</canvas> 
-    <canvas id="HighlightLayer" style="z-index:998; width:100%"></canvas> 
-    <canvas id="SelectedLayer" style="z-index:6; width:100%"></canvas> 
-    <canvas id="MainLineLayer" style="z-index:1; width:100%"></canvas> 
-    <canvas id="CircleLayer1" style="z-index:4; width:100%"></canvas> 
-    <canvas id="ResidueLayer" style="z-index:3; width:100%"></canvas> 
-    <canvas id="CircleLayer2" style="z-index:5; width:100%"></canvas> 
-    <canvas id="ContourLayer" style="z-index:0; width:100%"></canvas>
-=======
-    <canvas id="LabelLayer" style="z-index:2;">Get a Better Browser Dummy!</canvas> <canvas id="HighlightLayer" style=
-    "z-index:998; width:100%"></canvas> <canvas id="SelectedLayer" style="z-index:6; width:100%"></canvas> <canvas id=
-    "MainLineLayer" style="z-index:1; width:100%"></canvas> <canvas id="CircleLayer1" style="z-index:4; width:100%"></canvas>
-    <canvas id="ResidueLayer" style="z-index:3; width:100%"></canvas> <canvas id="CircleLayer2" style=
-    "z-index:5; width:100%"></canvas> <canvas id="ContourLayer" style="z-index:0; width:100%"></canvas>
->>>>>>> .r195
-  </div>
-
-
-
-  <div id="topMenu" class="ui-widget-content">
-<<<<<<< .mine
-
-    <div id="tabs">
-
-      <ul>
-
-        <li>
-
-          <a href="#currentDiv">Live Info</a>
-
-        </li>
-
-
-
-        <li>
-
-          <a href="#selectDiv">Current Selection</a>
-
-        </li>
-
-
-
-        <li>
-
-          <a href="#SecretDiv">The Secret</a>
-
-        </li>
-
-      </ul>
-
-
-
-      <div id="currentDiv"></div>
-
-
-
-      <div id="selectDiv"></div>
-
-
-
-      <div id="SecretDiv">
-
-        42
-
-      </div>
-
-    </div>
-
-  </div>
-
-
-
-  <div id="Privacy-confirm" title="Privacy Policy"></div>
-
-=======
-    <div id="NavLineDiv"></div>
-  </div>
->>>>>>> .r195
-
-
-  <div id="User-Name-Request" title="Please Enter a Name">
-
-    <p>Please type a name for the variable you are saving.</p><input id="UserNameField" name="UserNameField" type="text" />
-
-  </div>
-
-
-
-  <div id="dialog-addLayer" title="Create a New Layer">
-
-    <input id="newLayerName" name="newLayerName" type="text" />
-
-  </div>
-
-
-
-  <div id="jmolDiv" class="ui-widget-content">
-<<<<<<< .mine
-
-    <script type='text/javascript'>
-=======
-   	<!--<script type="text/javascript">
-	myJmol = Jmol.getApplet("myJmol", JmolInfo);
-	//Jmol.script(myJmol1, 'load "caffeine.mol";' );
-	</script>
->>>>>>> .r195
-
-<<<<<<< .mine
-
-
-    //<![CDATA[
-
-=======
-		<script type='text/javascript'>
-//<![CDATA[
->>>>>>> .r195
-
-
-    jmolApplet([100,100], "script states/blank_state.spt");
-
-
-    //]]>
-<<<<<<< .mine
-
-
-
-    </script>
-=======
-    </script>//-->
->>>>>>> .r195
-
-  </div>
-
-
-
-  <div id="toolBar">
-
-    <button id="openLayerBtn" class="toolBarBtn" title="Open Layer Manager"></button><br />
-
-    <button id="openColorBtn" class="toolBarBtn" title="Open Color Picker"></button><br />
-<<<<<<< .mine
-
-    <button id="openViewResizeBtn" class="toolBarBtn" title="Resize 2D / 3D views"></button><br />
-
-    <button id="openInteractionSettingBtn" class="toolBarBtn" title="Interaction Setting"></button><br />
-
-=======
-    <button id="SelectionMode" class="toolBarBtn" title="No function yet"></button><br />
-    <button id="RiboVisionSettings" class="toolBarBtn" title="RiboVision Settings"></button><br />
->>>>>>> .r195
-    <button id="openManualBtn" class="toolBarBtn" title="Ribovision Manual" onclick=
-
-    "window.open(&#39;/Documentation/MainHelp.html&#39;)">Ribovision Manual</button>
-
-  </div><!--Layer Control Dialog Box-->
-
-
-
-  <div id="LayerDialog" title="Layer / Selection Panel">
-    <div class="dialogContentArea">
-      <div id="PanelTabs">
-
-        <ul>
-          <li>
-            <a href="#LayerPanel">Layers</a>
-          </li>
-
-          <li>
-            <a href="#SelectionsPanel">Selections</a>
-          </li>
-        </ul>
-
-        <div id="LayerPanel"></div>
-        <div id="SelectionsPanel">
-          42
-        </div>
-      </div><!--end panelTabs-->
-    </div>
-  </div><!--Color Control Dialog Box-->
-
-<<<<<<< .mine
-
-  <div id="LayerPreferenceDialog" title="Layer Preferences">
-    <label for="inputLayerName">Layer Name: </label>
-    <input id="layerNameInput"></input>
-    <input id="layerNameChangeBtn" type="button" value="Change" onclick="Javascript:changeCurrentLayerName()"></input>
-
-      <div id="LayerColorDiv">
-        Layer Color:
-        <input id="layerColor" type="text" name="color" value="#940B06" /><br />
-        <div id="layerColorPicker"></div>
-        <input id="layerClearColor" type="button" name="clearColor" onclick="Javascript:clearColor(true)" value="Clear Color" /> 
-        <input id="layerColorSelection" type="button" onclick="Javascript:colorSelection()" value="Color Selection" />
-      </div>
-
-  </div>
-
-=======
-  <div id="LayerPreferenceDialog" title="Layer Preferences">
-    <label for="inputLayerName">Layer Name:</label> <input id="layerNameInput" /> <input id="layerNameChangeBtn" type="button"
-    value="Change" onclick="Javascript:changeCurrentLayerName()" />
-  </div>
-
->>>>>>> .r195
-  <div id="ColorDialog" title="Residue Coloring">
-    <div class="dialogContentArea">
-      <div id="ColorDiv">
-        Color Options:<br />
-        <input id="color" type="text" name="color" value="#940B06" /><br />
-        <div id="colorpicker"></div>
-        <input id="clearColor" type="button" name="clearColor" onclick="Javascript:clearColor(true)" value="Clear Color" /> 
-        <input id="colorSelection" type="button" onclick="Javascript:colorSelection()" value="Color Selection" />
-      </div>
-    </div>
-  </div>
-
-
-  <div id="ViewsResizeDialog" title="Resize 2D & 3D views">
-    <div class="dialogContentArea">
-      <p id="sliderValue">Left: 50%    Right: 50%</p>
-      <div id="canvasPorportionSlider"></div>
-    </div>
-  </div>
-
-<<<<<<< .mine
-
-  <div id="InteractionSettingDialog" title="Interaction Setting">
-    <div class="dialogContentArea">
-      <label style="line-height:1.6em" for="singleMultiChoice">Choose single line or multiple ones:</label>
-      <div id="singleMultiChoice">
-          <input type="radio" id="radio1" name="radio" /><label for="radio1">Single</label>
-          <input type="radio" id="radio2" name="radio" checked="checked" /><label for="radio2">Multiple</label>
-      </div><br/>
-      <label id="lineOpacity" style="line-height:1.6em" for="lineOpacitySlider">Line Opacity: 100%</label>
-      <div id="lineOpacitySlider"></div>
-    </div>
-  </div>
-
-
-=======
-  <div id="RiboVisionSettingsPanel" title="Settings Panel">
-    <div id="buttonmode">
-      One Button Mode:<br />
-      <input id="moveMode" type="radio" name="mode" value="move" onclick="modeSelect(&#39;move&#39;)" /><label for=
-      "moveMode">Move</label> <input id="selectMode" type="radio" name="mode" value="select" onclick=
-      "modeSelect(&#39;select&#39;)" /><label for="selectMode">Select</label> <input id="colorMode" type="radio" name="mode" value=
-      "color" onclick="modeSelect(&#39;color&#39;)" /><label for="colorMode">Color</label>
-    </div>
-
-    <p>Resize 2D &amp; 3D views</p>
-
-    <div id="canvasPorportionSlider" style="width:240px;"></div>
-
-    <p>Resize Top Panel</p>
-
-    <div id="topPorportionSlider" style="width:40px;"></div>
-  </div>
-
->>>>>>> .r195
-  <div id="dialog-confirm-delete" title="Delete the currently selected layer?">
-
-    <p>Replace Me Text.</p>
-
-  </div>
-
-
-
-  <div id="dialog-selection-warning" title="No layers are currently selected!">
-
-    <p>Replace Me Text.</p>
-
-  </div>
-
-
-
-  <div id="dialog-unique-layer-error" title="This name is taken. Try again.">
-
-    <p>Sorry, all layer names must be unique. The name you entered already exists. Please try again.</p>
-
-  </div>
-
-
-
-  <div id="dialog-layer-type-error" title="Layer type mismatch">
-
-    <p>You attempted to put circle data into an incompatible layer. Please select a circle or residue layer. You may create a new
-
-    circle layer if you like.</p>
-
-  </div>
-
-
-
-  <div id="dialog-generic-notice" title="Notice to User">
-
-    <p><span name="replace"></span></p>
-
-  </div>
-
-</body>
-
-</html>
-
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta name="generator" content="HTML Tidy for HTML5 (experimental) for Windows https://github.com/w3c/tidy-html5/tree/c63cc39" />
+  <title>RiboVision: a RiboZone product. Brought to you by RiboEvo @ Georgia Institute of Technology.</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+  <script type="text/javascript">
+  //<![CDATA[
+        if(typeof jQuery === 'undefined') {
+                document.write(unescape('%3Cscript type="text/javascript" src="js/jquery-1.8.3.js" %3E%3C/script%3E'));
+                document.write(unescape('%3Cscript type="text/javascript" src="js/jquery-ui-1.9.0.custom.min.js" %3E%3C/script%3E'));
+        }
+  //]]>
+
+  </script>
+  <script type="text/javascript" src="//code.jquery.com/ui/1.9.2/jquery-ui.min.js">
+</script><!--Use D3 visualization library-->
+
+  <script type="text/javascript" src="js/d3.js">
+</script>
+  <script type="text/javascript" src="js/d3.csv.js">
+</script>
+  <script type="text/javascript" src="js/d3.v3.js">
+</script>
+  <script type="text/javascript" src="js/d3.v2.js">
+</script><!--Stylesheet for navLine-->
+  <link rel="stylesheet" type="text/css" href="css/navLine.css" />
+  <script type="text/javascript" src="js/jquery.multiselect.min.js">
+</script>
+  <script type="text/javascript" src="js/jquery.multiselect.filter.js">
+</script>
+  <script type="text/javascript" src="js/jquery.mousewheel.min.js">
+</script>
+  <script type="text/javascript" src="js/jquery.csv-0.65pre.js">
+</script>
+  <script type="text/javascript" src="js/farbtastic/farbtastic.js">
+</script>
+
+<script type="text/javascript" src="jmol/JmolCore.js"></script>
+<script type="text/javascript" src="jmol/JmolApplet.js"></script>
+<script type="text/javascript" src="jmol/JmolControls.js"></script>
+<script type="text/javascript" src="jmol/JmolApi.js"></script>
+<!--
+<script type="text/javascript" src="jmol/jsmol/JSmolCore.js"></script>
+<script type="text/javascript" src="jmol/jsmol/JSmolApplet.js"></script>
+<script type="text/javascript" src="jmol/jsmol/JSmolApi.js"></script>
+<script type="text/javascript" src="jmol/jsmol/j2s/j2sjmol.js"></script>
+<script type="text/javascript" src="jmol/jsmol/JSmol.js"></script>
+// following two only necessary for WebGL version: 
+<script type="text/javascript" src="jmol/jsmol/JSmolThree.js"></script>
+<script type="text/javascript" src="jmol/jsmol/JSmolGLmol.js"></script>
+//-->
+  <script type="text/javascript" src="js/iosmenu.js">
+</script>
+  <script type="text/javascript" src="js/multiAccordion.js">
+</script>
+  <script type="text/javascript" src="js/Ribovision.js">
+</script>
+  <link rel="stylesheet" type="text/css" href="css/style.css" />
+  <link rel="stylesheet" type="text/css" href="css/jquery-ui-1.9.0.custom.css" />
+  <link rel="stylesheet" type="text/css" href="css/jquery.multiselect.css" />
+  <link rel="stylesheet" type="text/css" href="css/jquery.multiselect.filter.css" />
+  <link rel="stylesheet" type="text/css" href="css/farbtastic.css" />
+  <link rel="stylesheet" type="text/css" href="css/iosmenu.css" />
+</head>
+
+<body>
+  <div id="menu" class="ui-widget-content">
+    <div id="SiteInfo" class="ui-widget-content">
+      <h3 class="ui-widget-header" style=
+      "padding:3px; padding-left:10px; background-image:url(images/ui-bg_glass_50_3baae3_1x400.png); font-size:16px;"><a href=
+      "./ChangeLog.txt" target="_blank" style="color:#FFF">RiboVision: Version 0.54</a></h3>
+
+      <p id="infoP">RiboVision is in the RiboZone family of products, brought to you by RiboEvo at Georgia Tech.</p><a href=
+      "/Documentation/MainHelp.html" target="_blank">Ribovision Manual</a>
+    </div>
+
+    <div id="MainMenu" class="ui-widget-content">
+      <div id="SideBarAccordian">
+        <h3><a href="#">Ribosome Selection</a></h3>
+
+        <div id="SpeciesDiv">
+          Species &amp; Subunit Selection:<br />
+
+          <ul id="speciesList">
+            <li class="ui-menu-item ios-menu-back-link" role="presentation">
+              <a href="#None" class="ui-corner-role" tabindex="-1" role="menuitem" aria-haspopup="true">No Molecule</a>
+            </li>
+          </ul>
+
+          <div id="ResidueTip" title="Pizza Man" style="position:fixed;width:1px;height:1px;z-index:1000000">
+            <div id="residuetip" style="visibility:hidden">
+              <h3 id="resName">Residue:</h3>
+
+              <h3 id="activeData">Linked Data:</h3>
+
+              <div id="otherinfo"></div>
+
+              <h3 id="conPercentage">Shannon Entropy</h3>
+            </div>
+          </div>
+        </div>
+
+        <h3><a href="#">Residue Selection</a></h3>
+
+        <div id="SelectionDiv">
+          Selection Options:<br />
+          <input id="commandline" type="text" onkeydown=
+          "if (event.keyCode == 13) document.getElementById(&#39;commandSelect&#39;).click();" /><br />
+          <input id="commandSelect" name="selebutton" type="button" onclick="JavaScript:commandSelect();" value=
+          "Apply Selection 2D" /> <input id="select3d" name="selebutton" type="button" onclick=
+          "JavaScript:commandSelect();updateModel();" value="Apply Selection 3D" /> <input id="saveSelection" name="saveSelection"
+          type="button" value="Save Selection" /> <input id="clearselection" name="selebutton" type="button" onclick=
+          "JavaScript:clearSelection();" value="Clear Selection" /><br />
+          <br />
+          Select Residues by Domain and/or Helix:<br />
+          <select id="selectByDomainHelix" name="SelectByDomainHelix" multiple="multiple">
+            </select><br />
+          Saved Selections:<br />
+          <select id="savedSelections" name="savedSelections" multiple="multiple">
+            </select>
+        </div>
+
+        <h3><a href="#">Structure Data</a></h3>
+
+        <div id="StructDataDiv">
+          Structure Data:<br />
+          <select id="StructDataList" multiple="multiple" onchange="JavaScript:updateStructData(value);">
+            </select>
+        </div>
+
+        <h3><a href="#">Alignment Data</a></h3>
+
+        <div id="AlnDiv">
+          Alignment Data:<br />
+          <select id="alnList" multiple="multiple" onchange="JavaScript:colorMapping(id);">
+            </select>
+        </div>
+
+        <h3><a href="#">Protein Data</a></h3>
+
+        <div id="ProtDiv">
+          Protein Data:<br />
+          <select id="ProtList" multiple="multiple">
+            </select>
+        </div>
+
+        <h3><a href="#">Interaction Data</a></h3>
+
+        <div id="InteractDataDiv">
+          <div id="primaryInteractData">
+            Interaction Data:<br />
+            <select id="PrimaryInteractionList" multiple="multiple" onchange="JavaScript:refreshBasePairs(value);">
+              </select>
+          </div>
+
+          <div id="secondaryInteractData" style="margin-top:10px">
+            Secondary List:<br />
+            <select id="SecondaryInteractionList" multiple="multiple">
+              </select>
+          </div>
+        </div>
+
+        <h3><a href="#">Custom Data</a></h3>
+
+        <div id="FileDiv">
+          <a id="TemplateLink" href="#" target="_blank">Download Data Template</a><br />
+          Load Data Template: <input type="file" id="files" name="files[]" accept="text/csv" /> <output id="list"></output>
+        </div>
+
+        <h3><a href="#">Export Data</a></h3>
+
+        <div id="saveDiv">
+          The default behavior is to export just the visible layers.<br />
+          <input id="visibleLayers" type="radio" name="savelayers" value="visible" checked="checked" /><label for=
+          "visibleLayers">Visible Layers</label> <input id="allLayers" type="radio" name="savelayers" value="all" /><label for=
+          "allLayers">All Layers</label>
+
+          <p>Choose which file type to export.</p>
+		  <input name="saveas" type="button" onclick="JavaScript:savePDF();" value="PDF: Best for Printing" /> 
+		  <input name="saveas" type="button" onclick="JavaScript:savePNG();" value="PNG: Best for Displaying" /> 
+		  <input name="saveas" type="button" onclick="JavaScript:saveJPG();" value="JPG: Best Data Compression" /> 
+		  <input name="saveas" type="button" onclick="JavaScript:saveSVG();" value="SVG: Best for Editing" /><br />
+
+          <p>Additionally, you may export a Pymol Script.</p><input name="saveas" type="button" onclick="JavaScript:savePML();"
+          value="PyMOL Script" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="LogoDiv" class="ui-widget-content"><img src="images/RiboEvoNASAlogo.png" id="ComboLogo" title="RiboEvo and NASA Logos"
+  alt="RiboEvo and NASA Logos" /></div>
+
+  <div id="navigator" style="z-index:999; width:65px">
+    <div id="compassImgs"><img class="compass" src="images/compass/navigator1_01.png" onclick="JavaScript:resetView()" />
+    <img title="Pan up" class="compass" src="images/compass/navigator1_02.png" onclick="JavaScript:pan(0,-20)" /> <img class=
+    "compass" src="images/compass/navigator1_03.png" onclick="JavaScript:resetView()" /> <img title="Pan left" class="compass" src=
+    "images/compass/navigator1_04.png" onclick="JavaScript:pan(-20,0)" /> <img title="Return to center" class="compass" src=
+    "images/compass/navigator1_05.png" onclick="JavaScript:resetView()" /> <img title="Pan right" class="compass" src=
+    "images/compass/navigator1_06.png" onclick="JavaScript:pan(20,0)" /> <img class="compass" src=
+    "images/compass/navigator1_07.png" onclick="JavaScript:resetView()" /> <img title="Pan down" class="compass" src=
+    "images/compass/navigator1_08.png" onclick="JavaScript:pan(0,20)" /> <img class="compass" src=
+    "images/compass/navigator1_09.png" onclick="JavaScript:resetView()" /></div>
+
+    <div id="slider"></div>
+  </div>
+
+  <div id="canvasDiv" oncontextmenu="return false" class="ui-widget-content">
+    <canvas id="LabelLayer" style="z-index:2;">Get a Better Browser Dummy!</canvas> <canvas id="HighlightLayer" style=
+    "z-index:998; width:100%"></canvas> <canvas id="SelectedLayer" style="z-index:6; width:100%"></canvas> <canvas id=
+    "MainLineLayer" style="z-index:1; width:100%"></canvas> <canvas id="CircleLayer1" style="z-index:4; width:100%"></canvas>
+    <canvas id="ResidueLayer" style="z-index:3; width:100%"></canvas> <canvas id="CircleLayer2" style=
+    "z-index:5; width:100%"></canvas> <canvas id="ContourLayer" style="z-index:0; width:100%"></canvas>
+  </div>
+
+  <div id="topMenu" class="ui-widget-content">
+    <div id="NavLineDiv"></div>
+  </div>
+
+  <div id="Privacy-confirm" title="Privacy Policy"></div>
+
+  <div id="User-Name-Request" title="Please Enter a Name">
+    <p>Please type a name for the variable you are saving.</p><input id="UserNameField" name="UserNameField" type="text" />
+  </div>
+
+  <div id="dialog-addLayer" title="Create a New Layer">
+    <input id="newLayerName" name="newLayerName" type="text" />
+  </div>
+
+  <div id="jmolDiv" class="ui-widget-content">
+   	<!--<script type="text/javascript">
+	myJmol = Jmol.getApplet("myJmol", JmolInfo);
+	//Jmol.script(myJmol1, 'load "caffeine.mol";' );
+	</script>
+
+		<script type='text/javascript'>
+//<![CDATA[
+    jmolApplet([100,100], "script states/blank_state.spt");
+    //]]>
+    </script>//-->
+  </div>
+
+  <div id="toolBar">
+    <button id="openLayerBtn" class="toolBarBtn" title="Open Layer Manager"></button><br />
+    <button id="openColorBtn" class="toolBarBtn" title="Open Color Picker"></button><br />
+    <button id="SelectionMode" class="toolBarBtn" title="No function yet"></button><br />
+    <button id="RiboVisionSettings" class="toolBarBtn" title="RiboVision Settings"></button><br />
+	<button id="openInteractionSettingBtn" class="toolBarBtn" title="Interaction Setting"></button><br />
+    <button id="openManualBtn" class="toolBarBtn" title="Ribovision Manual" onclick=
+    "window.open(&#39;/Documentation/MainHelp.html&#39;)">Ribovision Manual</button>
+  </div><!--Layer Control Dialog Box-->
+
+  <div id="LayerDialog" title="Layer / Selection Panel">
+    <div id="PanelTabs">
+      <ul>
+        <li>
+          <a href="#LayerPanel">Layers</a>
+        </li>
+
+        <li>
+          <a href="#SelectionsPanel">Selections</a>
+        </li>
+      </ul>
+
+      <div id="LayerPanel"></div>
+
+      <div id="SelectionsPanel">
+        42
+      </div>
+    </div>
+  </div><!--Color Control Dialog Box-->
+
+  <div id="LayerPreferenceDialog" title="Layer Preferences">
+    <label for="inputLayerName">Layer Name:</label> <input id="layerNameInput" /> <input id="layerNameChangeBtn" type="button"
+    value="Change" onclick="Javascript:changeCurrentLayerName()" />
+  
+  <div id="LayerColorDiv">
+        Layer Color:
+        <input id="layerColor" type="text" name="color" value="#940B06" /><br />
+        <div id="layerColorPicker"></div>
+        <input id="layerClearColor" type="button" name="clearColor" onclick="Javascript:clearColor(true)" value="Clear Color" /> 
+        <input id="layerColorSelection" type="button" onclick="Javascript:colorSelection()" value="Color Selection" />
+      </div>
+	  
+  </div>
+
+  <div id="ColorDialog" title="Residue Coloring">
+    <div id="ColorDiv">
+      Color Options:<br />
+      <input id="color" type="text" name="color" value="#940B06" /><br />
+
+      <div id="colorpicker"></div><input id="clearColor" type="button" name="clearColor" onclick="Javascript:clearColor(true)"
+      value="Clear Color" /> <input id="colorSelection" type="button" onclick="Javascript:colorSelection()" value=
+      "Color Selection" />
+    </div>
+  </div>
+  
+  <div id="InteractionSettingDialog" title="Interaction Setting">
+    <div class="dialogContentArea">
+      <label style="line-height:1.6em" for="singleMultiChoice">Choose single line or multiple ones:</label>
+      <div id="singleMultiChoice">
+          <input type="radio" id="radio1" name="radio" /><label for="radio1">Single</label>
+          <input type="radio" id="radio2" name="radio" checked="checked" /><label for="radio2">Multiple</label>
+      </div><br/>
+      <label id="lineOpacity" style="line-height:1.6em" for="lineOpacitySlider">Line Opacity: 100%</label>
+      <div id="lineOpacitySlider"></div>
+    </div>
+  </div>
+  
+  <div id="RiboVisionSettingsPanel" title="Settings Panel">
+    <div id="buttonmode">
+      One Button Mode:<br />
+      <input id="moveMode" type="radio" name="mode" value="move" onclick="modeSelect(&#39;move&#39;)" /><label for=
+      "moveMode">Move</label> <input id="selectMode" type="radio" name="mode" value="select" onclick=
+      "modeSelect(&#39;select&#39;)" /><label for="selectMode">Select</label> <input id="colorMode" type="radio" name="mode" value=
+      "color" onclick="modeSelect(&#39;color&#39;)" /><label for="colorMode">Color</label>
+    </div>
+
+    <p>Resize 2D &amp; 3D views</p>
+
+    <div id="canvasPorportionSlider" style="width:240px;"></div>
+
+    <p>Resize Top Panel</p>
+
+    <div id="topPorportionSlider" style="width:40px;"></div>
+  </div>
+
+  <div id="dialog-confirm-delete" title="Delete the currently selected layer?">
+    <p>Replace Me Text.</p>
+  </div>
+
+  <div id="dialog-selection-warning" title="No layers are currently selected!">
+    <p>Replace Me Text.</p>
+  </div>
+
+  <div id="dialog-unique-layer-error" title="This name is taken. Try again.">
+    <p>Sorry, all layer names must be unique. The name you entered already exists. Please try again.</p>
+  </div>
+
+  <div id="dialog-layer-type-error" title="Layer type mismatch">
+    <p>You attempted to put circle data into an incompatible layer. Please select a circle or residue layer. You may create a new
+    circle layer if you like.</p>
+  </div>
+
+  <div id="dialog-generic-notice" title="Notice to User">
+    <p><span name="replace"></span></p>
+  </div>
+</body>
+</html>
