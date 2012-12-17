@@ -752,6 +752,24 @@ $(document).ready(function () {
 			of : $("#canvasDiv")
 		}
 	});
+
+	$("#InteractionSettingDialog").dialog({
+		autoOpen : false,
+		show : {
+			effect : "blind",
+			duration : 500
+		}, //change blindin animation attributes
+		hide : {
+			effect : "blind",
+			duration : 500
+		},
+		height : 500,
+		position : {
+			my : "right top",
+			at : "right top",
+			of : $("#canvasDiv")
+		}
+	});
 	
 	$("#LayerPreferenceDialog").dialog({
 		autoOpen : false,
@@ -781,7 +799,6 @@ $(document).ready(function () {
 			of : $("#SiteInfo")
 		}
 	});
-
 	
 	$("#openLayerBtn").click(function () {
 		$("#LayerDialog").dialog("open");
@@ -800,6 +817,10 @@ $(document).ready(function () {
 	
 	
 	//////////////////////////////////////////////////
+	//radio buttons for line interaction
+	$(function() {
+        $( "#singleMultiChoice" ).buttonset();
+    });
 	
 	///////////////////////////////////////////////////
 	
@@ -1176,6 +1197,13 @@ $(document).ready(function () {
 			primary : "ui-icon-pin-w"
 		}
 	});
+
+	$("#openInteractionSettingBtn").button({
+		text : false,
+		icons : {
+			primary : "ui-icon-pin-w"
+		}
+	});	
 	
 	$("#RiboVisionSettings").button({
 		text : false,
@@ -1227,8 +1255,8 @@ function LayerMenu(Layer, key) {
 	$currentLayerName = Layer.LayerName;
 	//console.log($currentLayerName);
 	$('[name=TopLayerBar]').after(($("<div>").addClass("oneLayerGroup").attr({
-			'name' : $currentLayerName
-		})));
+		'name' : $currentLayerName
+	})));
 	//console.log("id:" + $('.oneLayerGroup').attr("name"));
 	//$('.oneLayerGroup').append(("<div>").addClass("visibilityCheckbox"));
 	//$('.visibilityCheckbox').append($("<input />").attr({type:'checkbox'}).addClass("layerVisiblity"))
@@ -1237,6 +1265,10 @@ function LayerMenu(Layer, key) {
 	$currentGroup = document.getElementsByName($currentLayerName);
 	//console.log($currentGroup);
 	
+	//adding color box
+	$($currentGroup)
+	.append($("<div>").addClass("colorBox"));
+	
 	//hide and show icon: eye 
 	$visibleImgPath = "images/visible.png";
 	$invisibleImgPath = "images/invisible.png";
@@ -1244,6 +1276,7 @@ function LayerMenu(Layer, key) {
 	.append($("<div>").addClass("checkBoxDIV").css({
 			'float' : 'left',
 			'padding-top' : 5,
+			'margin-left' : 5,
 			'width' : 20
 		}).append($("<img class='visibilityCheckImg' value='visible' title='visibility' src='./images/visible.png'/>").css({
 			'width' : '24px', 
@@ -1307,11 +1340,11 @@ function LayerMenu(Layer, key) {
 	$accordionWidth = $("#PanelTabs").width() - $('.visibilityCheckBox').width();
 	console.log("accordion width: " + $accordionWidth); //why 0??!!!
 	 */
-	
+
 	//adding accordion
 	$($currentGroup)
 	.append($("<h3>").addClass("layerName").css({
-			'margin-left' : 78
+			'margin-left' : 83
 		}).append($currentLayerName)
 	.dblclick(function() { //double click to open dialog to change layer name and set color
 		//watch out! $currentLayerName != the layer you are clicking right now!
@@ -1327,7 +1360,7 @@ function LayerMenu(Layer, key) {
 		console.log(this.innerHTML);			
 	}))
 	.append($("<div>").addClass("layerContent").css({
-			'margin-left' : 78
+			'margin-left' : 83
 		}));	
 		
 	//$count++;
@@ -1514,7 +1547,7 @@ function InitRibovision() {
 	// Put in Top Labels and ToolBar
 	$("#LayerPanel").prepend($("<div id='tipBar'>").attr({
 			'name' : 'TopLayerBar'
-		}).html("&nbspV&nbsp&nbsp&nbsp&nbspS&nbsp&nbsp&nbsp&nbspL&nbsp&nbsp&nbsp&nbspLayerName&nbsp&nbsp"));
+		}).html("C&nbspV&nbsp&nbsp&nbsp&nbspS&nbsp&nbsp&nbsp&nbspL&nbsp&nbsp&nbsp&nbspLayerName&nbsp&nbsp")); // where to add letters
 	$('[name=TopLayerBar]').append($('<button id="newLayer" class="toolBarBtn2" title="Create a new layer"></button>'));
 	$('[name=TopLayerBar]').append($('<button id="deleteLayer" class="toolBarBtn2" title="Delete the selected layer"></button>'));
 	$("#newLayer").button({
@@ -3911,6 +3944,12 @@ $(function() {
 			//views_proportion_change($(this).slider("value"), 100-$(this).slider("value"));
 		}
     });
+	$('.ui-slider-handle').height(21).width(21);  
+
+	//$("#canvasPorportionSlider").slider({ from: 0, to: 100, step: 1, round: 1, limits:false, dimension: '&nbsp;%', skin: "blue", scale: ['0%', '|', '20%', '|' , '40%', '|', '60%', '|', '80%', '|', '100%'] });
+
+    //var w = document.getElementById('canvasPorportionSlider').style.width;
+	
 	$( "#topPorportionSlider" ).slider({
 		min : 50,
 		max : 90,
@@ -3923,19 +3962,23 @@ $(function() {
 		}
 	});
 })
-/*
-function views_proportion_change(leftPercentage, rightPercentage){
-	//console.log("event triggered! l: " + leftPercentage + " r: " + rightPercentage);	
 
-	$newLeftWidth = leftPercentage*0.82 + "%";
-	$newRightWidth = rightPercentage*0.82 + "%";
-	$borderPos = (100-rightPercentage*0.82-2) + "%";	
-	//console.log("l: " + $newLeftWidth + " r: " + $newRightWidth + " border: " + $borderPos);
-	$("#canvasDiv").css({"width": $newLeftWidth});
-	$("#jmolDiv").css({"width": $newRightWidth, "left": $borderPos});
-	$("#jmolApplet0").css({"width": "100%"});
-}	
-*/
+//using slider to change opacity of lines
+$(function() {
+	$( "#lineOpacitySlider" ).slider({
+    	min : 0,
+		max : 100,
+		value : 100,
+		orientation : "horizontal",
+		slide : function (event, ui) {
+			//changeLineOpacity($(this).slider("value"));
+		}
+    });  
+	$('.ui-slider-handle').height(21).width(21);  
+})
+
+function changeLineOpacity(opacity){
+	document.getElementById('lineOpacity').innerHTML = "Line Opacity: " + opacity + "%";
 ////////////////Nav Line ///////
 
 function drawNavLine(){
@@ -4306,3 +4349,4 @@ function addPopUpWindow(ResIndex){
 }
 
 //////////End of navline functions////
+
