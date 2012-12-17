@@ -1309,10 +1309,14 @@ function LayerMenu(Layer, key, RVcolor) {
 	//adding color box
 	$($currentGroup)
 	.append($("<div>").addClass("colorBox"));
+	targetLayer = rvDataSets[0].getLayer($currentLayerName);
 	if (RVcolor){
 		$($currentGroup).find(".colorBox").css("background",RVcolor);
+		targetLayer.Color = RVcolor;
+	} else {
+		$($currentGroup).find(".colorBox").css("background",targetLayer.Color);
 	}
-	targetLayer = rvDataSets[0].getLayer($currentLayerName);
+	
 	targetLayer.Color = $($currentGroup).find(".colorBox").css("background");
 	
 	//hide and show icon: eye 
