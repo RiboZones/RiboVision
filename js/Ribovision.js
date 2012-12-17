@@ -154,8 +154,8 @@ function rvDataSet(DataSetName) {
 		this.Layers = rvLayers;
 		this.LastLayer = this.Layers.length - 1;
 	};
-	this.addLayer = function (LayerName, CanvasName, Data, Filled, ScaleFactor, Type) {
-		var b = new RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type);
+	this.addLayer = function (LayerName, CanvasName, Data, Filled, ScaleFactor, Type,Color) {
+		var b = new RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type,Color);
 		this.Layers[b.zIndex] = b;
 		this.LastLayer = this.Layers.length - 1;
 	};
@@ -909,8 +909,8 @@ $(document).ready(function () {
 				if (rvDataSets[0].isUnique($("#newLayerName").val())){
 					$("#canvasDiv").append($('<canvas id="' + $("#newLayerName").val() + '" style="z-index:' + ( rvDataSets[0].LastLayer + 1 ) + ';"></canvas>')); 
 					resizeElements();
-					rvDataSets[0].addLayer($("#newLayerName").val(), $("#newLayerName").val(), [], true, 1.0, 'circles');
-					LayerMenu(rvDataSets[0].getLayer($("#newLayerName").val()),(1000 + ( rvDataSets[0].LastLayer + 1 ) ),$("#layerColor2").val());
+					rvDataSets[0].addLayer($("#newLayerName").val(), $("#newLayerName").val(), [], true, 1.0, 'circles',$("#layerColor2").val());
+					LayerMenu(rvDataSets[0].getLayer($("#newLayerName").val()),(1000 + ( rvDataSets[0].LastLayer + 1 ) ));
 					RefreshLayerMenu();
 					$(this).dialog("close");
 				} else {
@@ -1317,7 +1317,7 @@ function LayerMenu(Layer, key, RVcolor) {
 		$($currentGroup).find(".colorBox").css("background",targetLayer.Color);
 	}
 	
-	targetLayer.Color = $($currentGroup).find(".colorBox").css("background");
+	//targetLayer.Color = $($currentGroup).find(".colorBox").css("background");
 	
 	//hide and show icon: eye 
 	$visibleImgPath = "images/visible.png";
