@@ -3979,7 +3979,8 @@ $(function() {
 
 function changeLineOpacity(opacity){
 	document.getElementById('lineOpacity').innerHTML = "Line Opacity: " + opacity + "%";
-////////////////Nav Line ///////
+}
+	////////////////Nav Line ///////
 
 function drawNavLine(){
 		$('#NavLineDiv').empty(); //clean div before draw new graph
