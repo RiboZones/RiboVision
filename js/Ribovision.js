@@ -71,7 +71,7 @@ var HighlightLayer;
 
 
 /////////////////////////// Classes ///////////////////////////////////////////
-function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type) {
+function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color) {
 	//Properties
 	this.LayerName = LayerName;
 	this.CanvasName = CanvasName;
@@ -89,6 +89,11 @@ function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type) {
 	this.Linked = false;
 	this.ColorLayer = [];
 	this.ColorGradientMode = "Matched";
+	if (Color){
+		this.Color = Color;
+	} else {
+		this.Color = "#0000FF";
+	}
 	if (this.Type === "lines") {
 		this.ColorLayer = "gray_lines";
 		this.ColorGradientMode = "Matched";
@@ -458,8 +463,10 @@ function rvDataSet(DataSetName) {
 	}
 	function drawResidues(targetLayer, dataIndices, ColorArray, noClear) {
 		if (targetLayer.Type === "residues"){
+			targetLayer.clearCanvas();
+			
 			if (!noClear) {
-				targetLayer.clearCanvas();
+				//targetLayer.clearCanvas();
 				//targetLayer.dataLayerColors = [];
 			}
 			if (rvDataSets[0].Residues && rvDataSets[0].Residues.length > 0) {
@@ -523,7 +530,7 @@ function rvDataSet(DataSetName) {
 			
 			if (rvDataSets[0].Residues != undefined) {
 				for (var i = rvDataSets[0].Residues.length - 1; i >= 0; i--) {
-					if (ColorArray[dataIndices[i]] != '#000000' && ColorArray[dataIndices[i]] != undefined && ColorArray[dataIndices[i]] != '#858585') {
+					if (dataIndices && ColorArray && ColorArray[dataIndices[i]] != '#000000' && ColorArray[dataIndices[i]] != undefined && ColorArray[dataIndices[i]] != '#858585') {
 						targetLayer.CanvasContext.beginPath();
 						targetLayer.CanvasContext.arc(rvDataSets[0].Residues[i].X, rvDataSets[0].Residues[i].Y, (targetLayer.ScaleFactor * 1.7), 0, 2 * Math.PI, false);
 						targetLayer.CanvasContext.closePath();
@@ -534,6 +541,16 @@ function rvDataSet(DataSetName) {
 							targetLayer.CanvasContext.fill();
 						}
 						targetLayer.dataLayerColors[i] = ColorArray[dataIndices[i]];
+					} else if (!dataIndices && !ColorArray && targetLayer.dataLayerColors[i] && targetLayer.dataLayerColors[i] != '#000000'  && targetLayer.dataLayerColors[i] != '#858585'){
+						targetLayer.CanvasContext.beginPath();
+						targetLayer.CanvasContext.arc(rvDataSets[0].Residues[i].X, rvDataSets[0].Residues[i].Y, (targetLayer.ScaleFactor * 1.7), 0, 2 * Math.PI, false);
+						targetLayer.CanvasContext.closePath();
+						targetLayer.CanvasContext.strokeStyle = targetLayer.dataLayerColors[i];
+						targetLayer.CanvasContext.stroke();
+						if (targetLayer.Filled) {
+							targetLayer.CanvasContext.fillStyle = targetLayer.dataLayerColors[i];
+							targetLayer.CanvasContext.fill();
+						}
 					}
 				}
 			}
@@ -777,7 +794,7 @@ $(document).ready(function () {
 			effect : "blind",
 			duration : 300
 		},
-		height : 200,
+		height : 600,
 		width : 400,
 		position : {
 			my : "center",
@@ -792,7 +809,7 @@ $(document).ready(function () {
 			effect : "blind",
 			duration : 300
 		},
-		height : 300,
+		height : 500,
 		position : {
 			my : "left top",
 			at : "left top",
@@ -810,6 +827,11 @@ $(document).ready(function () {
 		return false;
 	});
 
+	$("#openInteractionSettingBtn").click(function () {
+		$("#InteractionSettingDialog").dialog("open");
+		return false;
+	});
+	
 	$("#RiboVisionSettings").click(function () {
 		$("#RiboVisionSettingsPanel").dialog("open");
 		return false;
@@ -888,7 +910,7 @@ $(document).ready(function () {
 					$("#canvasDiv").append($('<canvas id="' + $("#newLayerName").val() + '" style="z-index:' + ( rvDataSets[0].LastLayer + 1 ) + ';"></canvas>')); 
 					resizeElements();
 					rvDataSets[0].addLayer($("#newLayerName").val(), $("#newLayerName").val(), [], true, 1.0, 'circles');
-					LayerMenu(rvDataSets[0].getLayer($("#newLayerName").val()),(1000 + ( rvDataSets[0].LastLayer + 1 ) ));
+					LayerMenu(rvDataSets[0].getLayer($("#newLayerName").val()),(1000 + ( rvDataSets[0].LastLayer + 1 ) ),$("#layerColor2").val());
 					RefreshLayerMenu();
 					$(this).dialog("close");
 				} else {
@@ -1050,6 +1072,12 @@ $(document).ready(function () {
 	});
 	
 	$("#colorpicker").farbtastic("#color");
+	
+	//$("#layerColor").change(changeLayerColor);
+	
+	$("#layerColorPicker").farbtastic("#layerColor");
+	$("#layerColorPicker2").farbtastic("#layerColor2");
+	
 	$("#SideBarAccordian").accordion({
 		fillSpace : true,
 		autoHeight : false,
@@ -1201,7 +1229,7 @@ $(document).ready(function () {
 	$("#openInteractionSettingBtn").button({
 		text : false,
 		icons : {
-			primary : "ui-icon-pin-w"
+			primary : "ui-icon-transfer-e-w"
 		}
 	});	
 	
@@ -1232,8 +1260,21 @@ $(document).ready(function () {
 	$("[name=saveas]").button();	
 	$("[name=savelayers]").button();
 	$("#colorSelection").button();
+	//$("#layerColorSelection").button();
 	InitRibovision();
 });
+
+function changeLayerColor(){
+	$($dblClickedLayer).parent().find(".colorBox").css("background",$("#layerColor").val());
+	targetLayer = rvDataSets[0].getLayer($dblClickedLayerName);
+	targetLayer.Color = $("#layerColor").val();
+	drawNavLine();
+	//console.log(42);
+	//$dblClickedLayerName = this.innerHTML.substring(this.innerHTML.lastIndexOf("</span>")+7);
+	//$dblClickedLayer = this;
+	//$($dblClickedLayer).parent().attr("name",$("#layerNameInput").val());
+	//console.log(color);
+}
 
 //in "Layer Preferfence" 
 function changeCurrentLayerName() {
@@ -1250,7 +1291,7 @@ function changeCurrentLayerName() {
 	RefreshLayerMenu();
 }
 
-function LayerMenu(Layer, key) {
+function LayerMenu(Layer, key, RVcolor) {
 	//console.log($count);
 	$currentLayerName = Layer.LayerName;
 	//console.log($currentLayerName);
@@ -1268,6 +1309,11 @@ function LayerMenu(Layer, key) {
 	//adding color box
 	$($currentGroup)
 	.append($("<div>").addClass("colorBox"));
+	if (RVcolor){
+		$($currentGroup).find(".colorBox").css("background",RVcolor);
+	}
+	targetLayer = rvDataSets[0].getLayer($currentLayerName);
+	targetLayer.Color = $($currentGroup).find(".colorBox").css("background");
 	
 	//hide and show icon: eye 
 	$visibleImgPath = "images/visible.png";
@@ -1356,8 +1402,9 @@ function LayerMenu(Layer, key) {
 		$dblClickedLayer = this;
 		document.getElementById("layerNameInput").value = "";
 		document.getElementById("layerNameInput").placeholder = $dblClickedLayerName;			
-		
-		console.log(this.innerHTML);			
+		var flc = $.farbtastic("#layerColor");
+		flc.setColor(rgb2hex($($dblClickedLayer).parent().find(".colorBox").css("background-color")));
+		//console.log(this.innerHTML);			
 	}))
 	.append($("<div>").addClass("layerContent").css({
 			'margin-left' : 83
@@ -1547,7 +1594,7 @@ function InitRibovision() {
 	// Put in Top Labels and ToolBar
 	$("#LayerPanel").prepend($("<div id='tipBar'>").attr({
 			'name' : 'TopLayerBar'
-		}).html("C&nbspV&nbsp&nbsp&nbsp&nbspS&nbsp&nbsp&nbsp&nbspL&nbsp&nbsp&nbsp&nbspLayerName&nbsp&nbsp")); // where to add letters
+		}).html("C&nbspV&nbsp&nbsp&nbspS&nbsp&nbsp&nbsp&nbspL&nbsp&nbsp&nbsp&nbspLayerName&nbsp&nbsp")); // where to add letters
 	$('[name=TopLayerBar]').append($('<button id="newLayer" class="toolBarBtn2" title="Create a new layer"></button>'));
 	$('[name=TopLayerBar]').append($('<button id="deleteLayer" class="toolBarBtn2" title="Delete the selected layer"></button>'));
 	$("#newLayer").button({
@@ -2389,13 +2436,14 @@ function clearColor(update3D) {
 }
 
 function colorSelection() {
-	//targetLayer=rvDataSets[0].getLayerByType("residues");
+	targetLayer=rvDataSets[0].getSelectedLayer();
 	var color = $("#color").val();
 	for (var i = 0; i < rvDataSets[0].Selected.length; i++) {
-		rvDataSets[0].Selected[i].color = color;		
-		//targetLayer.dataCirclesColor[i]= "#000000";
+		targetLayer.dataLayerColors[rvDataSets[0].Selected[i].map_Index - 1] = color;
 	}
-	rvDataSets[0].drawResidues("residues");
+	//rvDataSets[0].drawResidues("residues");
+	rvDataSets[0].drawDataCircles(targetLayer.LayerName,undefined,undefined,true);
+	rvDataSets[0].drawResidues(targetLayer.LayerName,undefined,undefined,true);
 	//drawLabels();
 	update3Dcolors();
 }
@@ -3929,6 +3977,13 @@ function d2h(d) {
 function h2d(h) {
 	return parseInt(h, 16);
 };
+function rgb2hex(rgb) {
+    rgb = rgb.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+))?\)$/);
+    function hex(x) {
+        return ("0" + parseInt(x).toString(16)).slice(-2);
+    }
+    return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+}
 ///////////////////////////////////////////////////////////////////////////////
 
 //using slider to change views size
@@ -3944,7 +3999,7 @@ $(function() {
 			//views_proportion_change($(this).slider("value"), 100-$(this).slider("value"));
 		}
     });
-	$('.ui-slider-handle').height(21).width(21);  
+	
 
 	//$("#canvasPorportionSlider").slider({ from: 0, to: 100, step: 1, round: 1, limits:false, dimension: '&nbsp;%', skin: "blue", scale: ['0%', '|', '20%', '|' , '40%', '|', '60%', '|', '80%', '|', '100%'] });
 
@@ -3961,6 +4016,7 @@ $(function() {
 			//views_proportion_change($(this).slider("value"), 100-$(this).slider("value"));
 		}
 	});
+	$('.ui-slider-handle').height(21).width(21);  
 })
 
 //using slider to change opacity of lines
@@ -4056,7 +4112,7 @@ function drawNavLine(){
 			    .x(function(d,i) { return xScale(i); })
 			    .y(function(d) { return yScale(d); });
 			
-			g.append("svg:path").attr("d", line(targetLayer.Data));
+			g.append("svg:path").attr("d", line(targetLayer.Data)).style("stroke", targetLayer.Color);
 			
 			//Axes
 			var xAxis = d3.svg.axis()
