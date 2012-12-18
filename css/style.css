@@ -46,7 +46,11 @@
 	-moz-box-sizing:border-box; /* Firefox */
 	-webkit-box-sizing:border-box; /* Safari */
 }
-
+/*
+#ManLink {
+	position : absolute;
+	bottom : 100%;
+}*/
 #LogoDiv{
 	position : absolute;
 	left : 0px;
@@ -58,11 +62,19 @@
 	-webkit-box-sizing:border-box; /* Safari */
 }
 
-#MainLogo {
+#MainLogoDiv {
 	position:absolute;
-	height:50%;
+	margin-left:auto;
+	margin-right:auto;
+	height:60%;
+	width : 100%;
 }
-
+#MainLogo {
+	display:block;
+	margin-left:auto;
+	margin-right:auto;
+	height:100%;
+}
 
 #ComboLogo {
 	position:absolute;
@@ -129,6 +141,8 @@
 }
 
 #infoP{
+	position:absolute;
+	top:60%;
 	font-size: .9em;
 	margin: 0px;
 	padding: 0.2em;
