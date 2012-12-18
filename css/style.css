@@ -58,6 +58,12 @@
 	-webkit-box-sizing:border-box; /* Safari */
 }
 
+#MainLogo {
+	position:absolute;
+	height:50%;
+}
+
+
 #ComboLogo {
 	position:absolute;
 	height:100%;
