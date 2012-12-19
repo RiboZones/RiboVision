@@ -1576,13 +1576,13 @@ function InitRibovision() {
 	rvViews[0] = new rvView(20, 20, 1.2);
 	
 	// Create rvLayers
-	rvDataSets[0].addLayer("CircleLayer1", "CircleLayer1", [], true, 1.0, 'circles');
-	rvDataSets[0].addLayer("CircleLayer2", "CircleLayer2", [], true, 1.0, 'circles');
-	rvDataSets[0].addLayer("SelectedLayer", "SelectedLayer", [], false, 1.176, 'selected');
-	rvDataSets[0].addLayer("ResidueLayer", "ResidueLayer", [], true, 1.0, 'residues');
-	rvDataSets[0].addLayer("LabelLayer", "LabelLayer", [], true, 1.0, 'labels');
-	rvDataSets[0].addLayer("MainLineLayer", "MainLineLayer", [], true, 1.0, 'lines');
-	rvDataSets[0].addLayer("ContourLayer", "ContourLayer", [], true, 1.0, 'contour');
+	rvDataSets[0].addLayer("Data2", "CircleLayer1", [], true, 1.0, 'circles');
+	rvDataSets[0].addLayer("Data1", "CircleLayer2", [], true, 1.0, 'circles');
+	rvDataSets[0].addLayer("Selection", "SelectedLayer", [], false, 1.176, 'selected');
+	rvDataSets[0].addLayer("Residues", "ResidueLayer", [], true, 1.0, 'residues');
+	rvDataSets[0].addLayer("Labels", "LabelLayer", [], true, 1.0, 'labels');
+	rvDataSets[0].addLayer("Interactions1", "MainLineLayer", [], true, 1.0, 'lines');
+	rvDataSets[0].addLayer("ContourLine", "ContourLayer", [], true, 1.0, 'contour');
 	rvDataSets[0].addHighlightLayer("HighlightLayer", "HighlightLayer", [], false, 1.176, 'highlight');
 	
 	//creat popup window in canvas
@@ -3270,6 +3270,25 @@ function checkSavePrivacyStatus() {
 
 
 //////////////////////////////// Save Functions ///////////////////////////////
+function saveJmolImg() {
+	AgreeFunction = function () {
+		var jmlImgB64 = Jmol.getPropertyAsString(myJmol,'image');
+		//alert(jmlImgB64);
+		//var CS = canvasToSVG();
+		var form = document.createElement("form");
+		form.setAttribute("method", "post");
+		form.setAttribute("action", "saveJmolImg.php");
+		var hiddenField = document.createElement("input");
+		hiddenField.setAttribute("type", "hidden");
+		hiddenField.setAttribute("name", "content");
+		hiddenField.setAttribute("value", jmlImgB64);
+		form.appendChild(hiddenField);
+		document.body.appendChild(form);
+		form.submit();
+	}
+	checkSavePrivacyStatus();
+}
+	
 function saveJPG() {
 	AgreeFunction = function () {
 		var CS = canvasToSVG();
