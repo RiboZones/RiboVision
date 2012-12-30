@@ -3975,6 +3975,9 @@ function canvas_arrow(fromx, fromy, tox, toy) {
 
 function welcomeScreen() {
 	var scale_factor = parseFloat($("#canvasDiv").css('width')) / 733;
+
+	//Old welcome screen
+	/*
 	var line_unit = 25;
 	rvDataSets[0].Layers[0].clearCanvas();
 	rvDataSets[0].Layers[0].CanvasContext.strokeStyle = "#000000";
@@ -3988,6 +3991,16 @@ function welcomeScreen() {
 	rvDataSets[0].Layers[0].CanvasContext.fillText('to get started.', HighlightLayer.width / 2 / rvViews[0].scale - rvViews[0].x, HighlightLayer.height / 2 / rvViews[0].scale - rvViews[0].y + (5 * scale_factor * line_unit));
 	
 	//canvas_arrow(HighlightLayer.width / 2 / rvViews[0].scale - rvViews[0].x, HighlightLayer.height / 2 / rvViews[0].scale - rvViews[0].y - 25, 50, 50);
+	*/
+
+	// New Welcome Screen
+	var img = new Image();
+	img.onload = function() {
+		rvDataSets[0].Layers[0].clearCanvas();
+		rvDataSets[0].Layers[0].CanvasContext.drawImage(img,  -1 * rvViews[0].x, -1 * rvViews[0].y,733 * scale_factor,692 * scale_factor);
+	}
+	img.src = "images/RiboVisionLogo.png"; //
+
 	
 }
 ///////////////////////////////////////////////////////////////////////////////
