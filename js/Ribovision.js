@@ -3508,7 +3508,7 @@ function canvasToSVG() {
 	var AllMode = $('input[name="savelayers"][value=all]').attr("checked");
 	
 	
-	if (rvDataSets[0].SpeciesEntry.MapType.indexOf("Structural") >= 0) {
+	if (rvDataSets[0].SpeciesEntry.Orientation.indexOf("portrait") >= 0) {
 		var mapsize = "612 792";
 		var mapsize2 = 'width="612px" height="792px" ';
 		Orientation = "portrait";
@@ -3934,7 +3934,7 @@ function loadSpecies(species) {
 ////////////////////////////////// Canvas Functions ///////////////////////////
 function watermark(usetime) {
 	if (rvDataSets[0].SpeciesEntry.MapType && rvDataSets[0].SpeciesEntry.MapType != "None") {
-		var h = (rvDataSets[0].SpeciesEntry.MapType == "Structural") ? 762 : 612;
+		var h = (rvDataSets[0].SpeciesEntry.Orientation == "portrait") ? 762 : 612;
 		var d = new Date();
 		var df;
 		
