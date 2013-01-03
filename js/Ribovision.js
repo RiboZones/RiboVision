@@ -3997,7 +3997,7 @@ function welcomeScreen() {
 	var img = new Image();
 	img.onload = function() {
 		rvDataSets[0].Layers[0].clearCanvas();
-		rvDataSets[0].Layers[0].CanvasContext.drawImage(img,  -1 * rvViews[0].x, -1 * rvViews[0].y,733 * scale_factor,692 * scale_factor);
+		rvDataSets[0].Layers[0].CanvasContext.drawImage(img,  -1 * rvViews[0].x, -1 * rvViews[0].y,733 * scale_factor,550 * scale_factor);
 	}
 	img.src = "images/RiboVisionLogo.png"; //
 
