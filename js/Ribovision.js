@@ -190,6 +190,13 @@ function rvDataSet(DataSetName) {
 		}
 		this.Selections[Name] = Selection;
 	};
+	this.changeSelection = function (SeleName){
+		if (this.Selections[SeleName]) {
+			alert("He does exist!");
+		} else {
+			alert("He doesn't exist.");
+		}
+	};
 	this.sort = function () {
 		this.Layers.sort(function (a, b) {
 			return (Number(a.Canvas.style.zIndex) - Number(b.Canvas.style.zIndex));
@@ -2577,6 +2584,7 @@ function colorProcess(data, indexMode, ChoiceList, colName) {
 			}
 		}
 		rvDataSets[0].drawDataCircles(targetLayer.LayerName, dataIndices, colors);
+		update3Dcolors();
 		break;
 	case "residues":
 		var dataIndices = new Array;
@@ -3177,7 +3185,11 @@ function handleFileSelect(event) {
 
 				}
 				targetLayer.Data = NewData;
-
+				
+				if (targetLayer.Type === "selected"){
+					rvDataSets[0].changeSelection("temp");
+				}
+				
 				if ($.inArray("ColorCol", customkeys) >= 0) {
 					rvDataSets[0].drawResidues("residues");
 					rvDataSets[0].refreshResiduesExpanded(targetLayer.LayerName);
