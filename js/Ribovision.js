@@ -192,9 +192,11 @@ function rvDataSet(DataSetName) {
 	};
 	this.changeSelection = function (SeleName){
 		if (this.Selections[SeleName]) {
-			alert("He does exist!");
-		} else {
-			alert("He doesn't exist.");
+			//alert("He does exist!");
+			rvDataSets[0].Selected = this.Selections[SeleName];
+			rvDataSets[0].drawSelection("selected");
+		//} else {
+			//alert("He doesn't exist.");
 		}
 	};
 	this.sort = function () {
@@ -508,19 +510,18 @@ function rvDataSet(DataSetName) {
 		targetLayer.dataLayerColors = [];
 		if (rvDataSets[0].Residues && rvDataSets[0].Residues.length > 0) {
 			for (var i = rvDataSets[0].Residues.length - 1; i >= 0; i--) {
-				if (rvDataSets[0].Residues[i].selected) {
-					targetLayer.CanvasContext.beginPath();
-					targetLayer.CanvasContext.arc(rvDataSets[0].Residues[i].X, rvDataSets[0].Residues[i].Y, (targetLayer.ScaleFactor * 1.7), 0, 2 * Math.PI, false);
-					targetLayer.CanvasContext.closePath();
-					targetLayer.CanvasContext.strokeStyle = "#940B06";
-					targetLayer.CanvasContext.lineWidth = 0.5;
-					targetLayer.CanvasContext.stroke();
-					targetLayer.Data[i]=true;
-					targetLayer.dataLayerColors[i]="#940B06";
-				} else {
-					targetLayer.Data[i]=false;
-					targetLayer.dataLayerColors[i]="#858585";
-				}
+				targetLayer.Data[i]=false;
+				targetLayer.dataLayerColors[i]="#858585";
+			}
+			for (var j = rvDataSets[0].Selected.length - 1; j >= 0; j--) {
+				targetLayer.CanvasContext.beginPath();
+				targetLayer.CanvasContext.arc(rvDataSets[0].Selected[j].X, rvDataSets[0].Selected[j].Y, (targetLayer.ScaleFactor * 1.7), 0, 2 * Math.PI, false);
+				targetLayer.CanvasContext.closePath();
+				targetLayer.CanvasContext.strokeStyle = "#940B06";
+				targetLayer.CanvasContext.lineWidth = 0.5;
+				targetLayer.CanvasContext.stroke();
+				targetLayer.Data[i]=true;
+				targetLayer.dataLayerColors[i]="#940B06";
 			}
 		}
 		var linkedLayer=rvDataSets[0].getLinkedLayer();
@@ -2258,7 +2259,7 @@ function expandSelection(command, SelectionName) {
 						if (SelectionName) {
 							rvDataSets[0].Selections[SelectionName].push(rvDataSets[0].Residues[j]);
 						} else {
-							rvDataSets[0].Residues[j].selected = true;
+							//rvDataSets[0].Residues[j].selected = true;
 							rvDataSets[0].Selected.push(rvDataSets[0].Residues[j]);
 						}
 					}
@@ -2271,7 +2272,7 @@ function expandSelection(command, SelectionName) {
 				if (SelectionName) {
 					rvDataSets[0].Selections[SelectionName].push(rvDataSets[0].Residues[alone_ind]);
 				} else {
-					rvDataSets[0].Residues[alone_ind].selected = true;
+					//rvDataSets[0].Residues[alone_ind].selected = true;
 					rvDataSets[0].Selected.push(rvDataSets[0].Residues[alone_ind]);
 				}
 			}
@@ -2289,7 +2290,7 @@ function expandSelection(command, SelectionName) {
 						if (SelectionName) {
 							rvDataSets[0].Selections[SelectionName].push(rvDataSets[0].Residues[j]);
 						} else {
-							rvDataSets[0].Residues[j].selected = true;
+							//rvDataSets[0].Residues[j].selected = true;
 							rvDataSets[0].Selected.push(rvDataSets[0].Residues[j]);
 						}
 					}
@@ -2301,7 +2302,7 @@ function expandSelection(command, SelectionName) {
 				if (SelectionName) {
 					rvDataSets[0].Selections[SelectionName].push(rvDataSets[0].Residues[alone_ind]);
 				} else {
-					rvDataSets[0].Residues[alone_ind].selected = true;
+					//rvDataSets[0].Residues[alone_ind].selected = true;
 					rvDataSets[0].Selected.push(rvDataSets[0].Residues[alone_ind]);
 				}
 			}
@@ -2329,38 +2330,44 @@ function selectResidue(event) {
 		if (rvDataSets[0].Residues != undefined) {
 			for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
 				if (rvViews[0].startX <= rvDataSets[0].Residues[i].X && rvDataSets[0].Residues[i].X <= curX && rvViews[0].startY <= rvDataSets[0].Residues[i].Y && rvDataSets[0].Residues[i].Y <= curY) {
-					if (!rvDataSets[0].Residues[i].selected)
-						rvDataSets[0].Residues[i].selected = true;
+					//if (!rvDataSets[0].Residues[i].selected)
+						//rvDataSets[0].Residues[i].selected = true;
 					rvDataSets[0].Selected.push(rvDataSets[0].Residues[i]);
 				}
 				if (rvViews[0].startX >= rvDataSets[0].Residues[i].X && rvDataSets[0].Residues[i].X >= curX && rvViews[0].startY <= rvDataSets[0].Residues[i].Y && rvDataSets[0].Residues[i].Y <= curY) {
-					if (!rvDataSets[0].Residues[i].selected)
-						rvDataSets[0].Residues[i].selected = true;
+					//if (!rvDataSets[0].Residues[i].selected)
+						//rvDataSets[0].Residues[i].selected = true;
 					rvDataSets[0].Selected.push(rvDataSets[0].Residues[i]);
 				}
 				if (rvViews[0].startX <= rvDataSets[0].Residues[i].X && rvDataSets[0].Residues[i].X <= curX && rvViews[0].startY >= rvDataSets[0].Residues[i].Y && rvDataSets[0].Residues[i].Y >= curY) {
-					if (!rvDataSets[0].Residues[i].selected)
-						rvDataSets[0].Residues[i].selected = true;
+					//if (!rvDataSets[0].Residues[i].selected)
+						//rvDataSets[0].Residues[i].selected = true;
 					rvDataSets[0].Selected.push(rvDataSets[0].Residues[i]);
 				}
 				if (rvViews[0].startX >= rvDataSets[0].Residues[i].X && rvDataSets[0].Residues[i].X >= curX && rvViews[0].startY >= rvDataSets[0].Residues[i].Y && rvDataSets[0].Residues[i].Y >= curY) {
-					if (!rvDataSets[0].Residues[i].selected)
-						rvDataSets[0].Residues[i].selected = true;
+					//if (!rvDataSets[0].Residues[i].selected)
+						//rvDataSets[0].Residues[i].selected = true;
 					rvDataSets[0].Selected.push(rvDataSets[0].Residues[i]);
 				}
 			}
 			var sel = getSelected(event);
+			//Unselect code
 			if (sel != -1) {
 				var res = rvDataSets[0].Residues[sel];
-				if (res.selected) {
-					res.selected = false;
+				var result = $.grep(rvDataSets[0].Selected, function(e){ return e.map_Index == res.map_Index; });
+				//alert(result[0].resNum);
+				
+				if (result[0]) {
+					//res.selected = false;
+					rvDataSets[0].Selected = $.grep(rvDataSets[0].Selected, function(e){ return e.map_Index !== result[0].map_Index; });
+					/*
 					for (var i = 0; i < rvDataSets[0].Selected.length; i++) {
 						if (rvDataSets[0].Selected.resNum.replace(/[^:]*:/g, "") == res.resNum.replace(/[^:]*:/g, "")) {
 							rvDataSets[0].Selected.splice(i, 1);
 						}
-					}
+					}*/
 				} else {
-					res.selected = true;
+					//res.selected = true;
 					rvDataSets[0].Selected.push(res);
 				}
 			}
@@ -2391,9 +2398,10 @@ function updateSelectionDiv() {
 
 function clearSelection() {
 	rvDataSets[0].Selected = []
+	/*
 	for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
 		rvDataSets[0].Residues[i].selected = false;
-	}
+	}*/
 	rvDataSets[0].drawResidues("residues");
 	rvDataSets[0].drawSelection("selected");
 	
@@ -3136,9 +3144,9 @@ function handleFileSelect(event) {
 				var targetLayer = rvDataSets[0].getSelectedLayer();
 				targetLayer.clearData();
 				var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
+				rvDataSets[0].Selections["temp"] = [];
 				for (var ii = 0; ii < rvDataSets[0].CustomData.length; ii++) {
 					if (rvDataSets[0].CustomData[ii][customkeys[0]].indexOf("(") > 0) {
-						rvDataSets[0].Selections["temp"] = [];
 						command = rvDataSets[0].CustomData[ii][customkeys[0]].split(";");
 						expandSelection(command, "temp");
 						for (var iii = 0; iii < rvDataSets[0].Selections["temp"].length; iii++) {
@@ -3170,6 +3178,7 @@ function handleFileSelect(event) {
 						}
 						
 						var k = rvDataSets[0].ResidueList.indexOf(ResName);
+						rvDataSets[0].Selections["temp"].push(rvDataSets[0].Residues[k]);
 						if ($.inArray("DataCol", customkeys) >= 0) {
 							//rvDataSets[0].Residues[k]["CustomData1"] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
 							NewData[k] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
@@ -3188,33 +3197,33 @@ function handleFileSelect(event) {
 				
 				if (targetLayer.Type === "selected"){
 					rvDataSets[0].changeSelection("temp");
-				}
-				
-				if ($.inArray("ColorCol", customkeys) >= 0) {
-					rvDataSets[0].drawResidues("residues");
-					rvDataSets[0].refreshResiduesExpanded(targetLayer.LayerName);
-					update3Dcolors();
-					/*
-					ColorListU = $.grep(ColorList, function (v, k) {
-						return $.inArray(v, ColorList) === k;
-					});
-					
-					DataListU = $.grep(DataList, function (v, k) {
-						return $.inArray(v, DataList) === k;
-					});
-					// Hack. Assume positive consecutive integers for now. 
-					var a = Math.min.apply(Math, DataListU);
-					$.each(DataListU, function (key, value){
-						ColorGrad[value - a] = ColorListU[key];
-					});
-					colors = ColorGrad;
-					colorProcess(NewData,true);
-					*/
-				} else if ($.inArray("DataCol", customkeys) >= 0) {
-					colors = RainBowColors;
-					colorProcess(NewData);
 				} else {
-					alert("No recognized colomns found. Please check input.");
+					if ($.inArray("ColorCol", customkeys) >= 0) {
+						rvDataSets[0].drawResidues("residues");
+						rvDataSets[0].refreshResiduesExpanded(targetLayer.LayerName);
+						update3Dcolors();
+						/*
+						ColorListU = $.grep(ColorList, function (v, k) {
+							return $.inArray(v, ColorList) === k;
+						});
+						
+						DataListU = $.grep(DataList, function (v, k) {
+							return $.inArray(v, DataList) === k;
+						});
+						// Hack. Assume positive consecutive integers for now. 
+						var a = Math.min.apply(Math, DataListU);
+						$.each(DataListU, function (key, value){
+							ColorGrad[value - a] = ColorListU[key];
+						});
+						colors = ColorGrad;
+						colorProcess(NewData,true);
+						*/
+					} else if ($.inArray("DataCol", customkeys) >= 0) {
+						colors = RainBowColors;
+						colorProcess(NewData);
+					} else {
+						alert("No recognized colomns found. Please check input.");
+					}
 				}
 				
 			};
@@ -3626,12 +3635,16 @@ function canvasToSVG() {
 				case "selected":
 					output = output + '<g id="' + value.LayerName + '">\n';
 					var radius = 1.7 * value.ScaleFactor;
+					$.each(rvDataSets[0].Selected, function (index,residue){
+						output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + 'none' + '" stroke="' + '#940B06' + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(residue.X).toFixed(3) + '" cy="' + parseFloat(residue.Y).toFixed(3) + '" r="' + radius + '"/>\n';
+					});
+					/*
 					for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
 						var residue = rvDataSets[0].Residues[i];
 						if (residue && residue.selected) {
 							output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + 'none' + '" stroke="' + '#940B06' + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(residue.X).toFixed(3) + '" cy="' + parseFloat(residue.Y).toFixed(3) + '" r="' + radius + '"/>\n';
 						}
-					}
+					}*/
 					output = output + '</g>\n';
 					break;
 					
