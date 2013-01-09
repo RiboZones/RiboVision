@@ -129,16 +129,18 @@
 
         <div id="StructDataDiv">
           Structure Data:<br />
-          <select id="StructDataList" multiple="multiple" onchange="JavaScript:updateStructData(value);">
+          <select id="StructDataList" multiple="multiple" >
             </select>
+			<p name="DataDescription"></p>
         </div>
 
         <h3><a href="#">Alignment Data</a></h3>
 
         <div id="AlnDiv">
           Alignment Data:<br />
-          <select id="alnList" multiple="multiple" onchange="JavaScript:colorMapping(id);">
+          <select id="alnList" multiple="multiple">
             </select>
+			<p name="DataDescription"></p>
         </div>
 
         <h3><a href="#">Protein Data</a></h3>
@@ -147,6 +149,7 @@
           Protein Data:<br />
           <select id="ProtList" multiple="multiple">
             </select>
+			<p name="DataDescription"></p>
         </div>
 
         <h3><a href="#">Interaction Data</a></h3>
@@ -163,6 +166,7 @@
             <select id="SecondaryInteractionList" multiple="multiple">
               </select>
           </div>
+		  <p name="DataDescription"></p>
         </div>
 
         <h3><a href="#">Custom Data</a></h3>
@@ -170,6 +174,7 @@
         <div id="FileDiv">
           <a id="TemplateLink" href="#" target="_blank">Download Data Template</a><br />
           Load Data Template: <input type="file" id="files" name="files[]" accept="text/csv" /> <output id="list"></output>
+		  <p name="DataDescription"></p>
         </div>
 
         <h3><a href="#">Export Data</a></h3>

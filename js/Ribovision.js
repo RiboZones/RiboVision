@@ -1,9 +1,9 @@
-/* Ribovision 0.5 script library Ribovision.js 2:03 PM 10/01/2012 Chad R. Bernier
+/* Ribovision 0.6 script library Ribovision.js 7:34 PM 01/07/2013 Chad R. Bernier
 
 
 based on:
  *
- * Copyright (C) 2012  RiboEvo, Georgia Institute of Technology, apollo.chemistry.gatech.edu
+ * Copyright (C) 2012,2013  RiboEvo, Georgia Institute of Technology, apollo.chemistry.gatech.edu
  *
  * Contact: Bernier.C.R@gatech.edu
  *
@@ -89,6 +89,7 @@ function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color) 
 	this.Linked = false;
 	this.ColorLayer = [];
 	this.ColorGradientMode = "Matched";
+	this.DataLabel = "empty data";
 	if (Color){
 		this.Color = Color;
 	} else {
@@ -98,6 +99,7 @@ function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color) 
 		this.ColorLayer = "gray_lines";
 		this.ColorGradientMode = "Matched";
 	}
+	
 	//Methods
 	this.clearCanvas = function () {
 		this.CanvasContext.setTransform(1, 0, 0, 1, 0, 0);
@@ -149,6 +151,7 @@ function rvDataSet(DataSetName) {
 	this.LastLayer = 0;
 	this.LayerTypes = ['circles', 'lines', 'labels', 'residues', 'contour', 'selected'];
 	this.ConservationTable = [];
+	this.DataDescriptions = [];
 	//Methods
 	this.addLayers = function (rvLayers) {
 		this.Layers = rvLayers;
@@ -1110,7 +1113,20 @@ $(document).ready(function () {
 		multiple : false,
 		header : "Select a Data Set",
 		noneSelectedText : "Select an Option",
-		selectedList : 1
+		selectedList : 1,
+		click: function(event,ui){
+			var targetLayer = rvDataSets[0].getSelectedLayer();
+			targetLayer.DataLabel = ui.text;
+			$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
+			var ColName = ui.value.match(/[^\'\\,]+/);
+			var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
+			if (result[0]){
+				$(this).parent().find("[name=DataDescription]").text(result[0].Description);
+			} else {
+				$(this).parent().find("[name=DataDescription]").text("Data Description is missing.");
+			}
+			updateStructData(ui);
+		}
 	});
 	/*
 	$( "#speciesList" ).multiselect({
@@ -1160,7 +1176,20 @@ $(document).ready(function () {
 		multiple : false,
 		header : "Select a Data Set",
 		noneSelectedText : "Select an Option",
-		selectedList : 1
+		selectedList : 1,
+		click: function(event,ui){
+			var targetLayer = rvDataSets[0].getSelectedLayer();
+			targetLayer.DataLabel = ui.text;
+			$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
+			var ColName = ui.value.match(/[^\'\\,]+/);
+			var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
+			if (result[0]){
+				$(this).parent().find("[name=DataDescription]").text(result[0].Description);
+			} else {
+				$(this).parent().find("[name=DataDescription]").text("Data Description is missing.");
+			}
+			colorMapping("42",ui.value);
+		}
 	});
 	$("#PrimaryInteractionList").multiselect({
 		minWidth : 160,
@@ -1168,7 +1197,7 @@ $(document).ready(function () {
 		header : "Select a Data Set",
 		noneSelectedText : "Select an Option",
 		selectedList : 1,
-		click : function (event){
+		click : function (event,ui){
 			// For now, go ahead and fetch and draw the whole list, since default will be all on anyways
 			var array_of_checked_values = $("#PrimaryInteractionList").multiselect("getChecked").map(function(){
 			   return this.value;	
@@ -1183,6 +1212,17 @@ $(document).ready(function () {
 					$("#dialog-generic-notice [name=replace]").text("You have selected Protein Interactions but the protein list is empty. Please select one or more proteins.");
 					$("#dialog-generic-notice").dialog("open");
 				}
+			}
+			//var targetLayer = rvDataSets[0].getSelectedLayer();
+			var targetLayer = rvDataSets[0].getLayerByType("lines");
+			targetLayer[0].DataLabel = ui.text;
+			$("[name=" + targetLayer[0].LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer[0].DataLabel).append($("<br>")).append($("<br>"));
+			var ColName = ui.value.replace(/[^_]+_[^_]+_/,"");
+			var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
+			if (result[0]){
+				$(this).parent().parent().find("[name=DataDescription]").text(result[0].Description);
+			} else {
+				$(this).parent().parent().find("[name=DataDescription]").text("Data Description is missing.");
 			}
 			refreshBasePairs(interactionchoice);
 		}
@@ -1426,6 +1466,10 @@ function LayerMenu(Layer, key, RVcolor) {
 	
 	switch (Layer.Type) {
 		case "circles":
+			//Data Label Section 
+			$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div name="' + 'datalabel' + '">').text(Layer.DataLabel).append($("<br>")).append($("<br>")));
+			
+			//Circle buttons
 			$("#LayerPanel div").first().next().find(".layerContent").append($('<div id="' + 'pr-' + key + '">').text("Draw Circles as:").append($("<br>")));
 			$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="filled' + key + '" id="' + 'pr-' + key + '-1' + '" value="filled" checked="checked"> <label for="' + 'pr-' + key + '-1' + ' ">filled</label>'));
 			$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="filled' + key + '" id="' + 'pr-' + key + '-2' + '" value="unfilled"> <label for="' + 'pr-' + key + '-2' + '">unfilled</label>'));
@@ -1443,6 +1487,7 @@ function LayerMenu(Layer, key, RVcolor) {
 				}
 				rvDataSets[0].refreshResiduesExpanded($(event.currentTarget).parent().parent().parent().attr("name"));
 			});
+			
 			
 			$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="' + 'prs-' + key + '">').text("Circle Size:").append($("<br>")));
 			$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="size' + key + '" id="' + 'prs-' + key + '-1' + '" value="regular" checked="checked"> <label for="' + 'prs-' + key + '-1' + ' ">regular</label>'));
@@ -1467,6 +1512,9 @@ function LayerMenu(Layer, key, RVcolor) {
 			$(this);
 			break;
 		case "lines":
+			//Data Label Section 
+			$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div name="' + 'datalabel' + '">').text(Layer.DataLabel).append($("<br>")).append($("<br>")));
+			
 			$("#LayerPanel div").first().next().find(".layerContent").append($('<div id="' + 'llm-' + key + '">').text("Color lines like:").append($("<br>")));
 			$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<select id="' + 'llm-' + key + 'lineselect' + '" name="' + 'llm-' + key + 'lineselect' + '" multiple="multiple"></select>'));
 			$('#' + 'llm-' + key + 'lineselect').multiselect({
@@ -1520,6 +1568,9 @@ function LayerMenu(Layer, key, RVcolor) {
 			
 			break;
 		case "residues":
+			//Data Label Section 
+			$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div name="' + 'datalabel' + '">').text(Layer.DataLabel).append($("<br>")).append($("<br>")));
+			
 			$("#LayerPanel div").first().next().find(".selectLayerRadioBtn").attr("checked", "checked");
 			rvDataSets[0].selectLayer($("#LayerPanel div").first().next().attr("name"));
 			rvDataSets[0].linkLayer($("#LayerPanel div").first().next().attr("name"));
@@ -1661,23 +1712,70 @@ function InitRibovision() {
 		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
 				return this.value;
 			}).get();
+		var targetLayer = rvDataSets[0].getSelectedLayer();
+		//targetLayer.DataLabel = ui.text;
+		targetLayer.DataLabel = "Protein Contacts";
+		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
+		//var ColName = ui.value.match(/[^\'\\,]+/);
+		var ColName = "All_Proteins";
+		var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
+		if (result[0]){
+			$(this).parent().find("[name=DataDescription]").text(result[0].Description);
+		} else {
+			$(this).parent().find("[name=DataDescription]").text("Data Description is missing.");
+		}	
 		colorMappingLoop(array_of_checked_values);
 	});
 	$("#ProtList").bind("multiselectopen", function (event, ui) {
 		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
 				return this.value;
 			}).get();
+		var targetLayer = rvDataSets[0].getSelectedLayer();
+		//targetLayer.DataLabel = ui.text;
+		targetLayer.DataLabel = "Protein Contacts";
+		//var ColName = ui.value.match(/[^\'\\,]+/);
+		var ColName = "All_Proteins";
+		var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
+		if (result[0]){
+			$(this).parent().find("[name=DataDescription]").text(result[0].Description);
+		} else {
+			$(this).parent().find("[name=DataDescription]").text("Data Description is missing.");
+		}
+		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
 		colorMappingLoop(array_of_checked_values);
 	});
 	$("#ProtList").bind("multiselectcheckall", function (event, ui) {
 		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
 				return this.value;
 			}).get();
+		var targetLayer = rvDataSets[0].getSelectedLayer();
+		//targetLayer.DataLabel = ui.text;
+		targetLayer.DataLabel = "Protein Contacts";
+		//var ColName = ui.value.match(/[^\'\\,]+/);
+		var ColName = "All_Proteins";
+		var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
+		if (result[0]){
+			$(this).parent().find("[name=DataDescription]").text(result[0].Description);
+		} else {
+			$(this).parent().find("[name=DataDescription]").text("Data Description is missing.");
+		}
+		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
 		colorMappingLoop(array_of_checked_values);
 	});
 	$("#ProtList").bind("multiselectuncheckall", function (event, ui) {
+			
 		resetColorState();
 		targetLayer=rvDataSets[0].getSelectedLayer();
+		targetLayer.DataLabel = "empty data";
+		//var ColName = ui.value.match(/[^\'\\,]+/);
+		//var ColName = "All_Proteins";
+		//var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
+		//if (result[0]){
+		//	$(this).parent().find("[name=DataDescription]").text(result[0].Description);
+		//} else {
+			$(this).parent().find("[name=DataDescription]").text("");
+		//}
+		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
 		targetLayer.clearData();
 		if ( targetLayer.Type == "circles"){
 			rvDataSets[0].clearCanvas(rvDataSets[0].getSelectedLayer().LayerName);
@@ -2554,7 +2652,7 @@ function update3Dcolors() {
 	Jmol.script(myJmol, script);
 }
 
-function colorProcess(data, indexMode, ChoiceList, colName) {
+function colorProcess(data, indexMode) {
 	var color_data = new Array();
 	var DataPoints = 0;
 	for (var ii = 0; ii < rvDataSets[0].Residues.length; ii++) {
@@ -2729,6 +2827,7 @@ function update3DProteins(seleProt, OverRideColors) {
 function colorMapping(ChoiceList, ManualCol, OverRideColors, indexMode, rePlaceData) {
 	if (arguments.length == 1 || ManualCol == "42") {
 		//var dd = document.getElementById(ChoiceList);
+		
 		var colName = $("#" + ChoiceList).val();
 	}
 	if (arguments.length >= 2 && ManualCol != "42") {
@@ -2753,7 +2852,7 @@ function colorMapping(ChoiceList, ManualCol, OverRideColors, indexMode, rePlaceD
 				for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
 					data[j] = rvDataSets[0].Residues[j][colName];
 				}
-				colorProcess(data, indexMode, ChoiceList, colName);
+				colorProcess(data, indexMode);
 			} else {
 				var data = new Array;
 				targetLayer.clearCanvas();
@@ -2771,7 +2870,7 @@ function colorMapping(ChoiceList, ManualCol, OverRideColors, indexMode, rePlaceD
 				for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
 					data[j] = rvDataSets[0].Residues[j][colName];
 				}
-				colorProcess(data, indexMode, ChoiceList, colName);
+				colorProcess(data, indexMode);
 			} else {
 				//var data = new Array;
 				//targetLayer.clearCanvas();
@@ -3078,8 +3177,8 @@ function modeSelect(mode) {
 	onebuttonmode = mode;
 }
 
-function updateStructData(value) {
-	var newargs = value.split(",");
+function updateStructData(ui) {
+	var newargs = ui.value.split(",");
 	for (var i = 0; i < newargs.length; i++) {
 		if (newargs[i].indexOf("\'") > -1) {
 			newargs[i] = newargs[i].slice(2, newargs[i].length - 2);
@@ -3142,6 +3241,8 @@ function handleFileSelect(event) {
 				rvDataSets[0].addCustomData($.csv.toObjects(reader.result));
 				NewData = [];
 				var targetLayer = rvDataSets[0].getSelectedLayer();
+				targetLayer.DataLabel = FileReaderFile[0].name;
+				$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("[name=datalabel]").text("User File:").append($("<br>")).append(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
 				targetLayer.clearData();
 				var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
 				rvDataSets[0].Selections["temp"] = [];
@@ -3226,6 +3327,11 @@ function handleFileSelect(event) {
 					}
 				}
 				
+				if ($.inArray("DataDescription", customkeys) >= 0) {
+					$("#FileDiv").find("[name=DataDescription]").text(rvDataSets[0].CustomData[0]["DataDescription"]);
+				} else {
+					$("#FileDiv").find("[name=DataDescription]").text("Data Description is missing.");
+				}
 			};
 		}
 	};
@@ -3906,11 +4012,19 @@ function loadSpecies(species) {
 				rvDataSets[0].drawLabels("labels");
 				
 				$("#TemplateLink").attr("href", "./Templates/" + species + "_UserDataTemplate.csv")
+				// Get conservation table
 				$.getJSON('getData.php', {
 					FullTable : rvDataSets[0].SpeciesEntry.ConservationTable
 					}, function (ConservationTable) {
 						rvDataSets[0].ConservationTable=ConservationTable;
 				});
+				// get data description table
+				$.getJSON('getData.php', {
+					FullTable : "DataDescriptions"
+					}, function (data) {
+					rvDataSets[0].DataDescriptions=data;
+				});
+				
 				drawNavLine(); //load navLine 
 			});
 			
