@@ -71,36 +71,67 @@ var HighlightLayer;
 
 ////////////////////////// RiboVision Object Definitions  /////////////////////
 $.holdReady(true);
-$.getScript("js/RiboVision/RiboVisionObjects.js", function(){
-  $.holdReady(false);
+$.ajax({
+	type: "GET",
+	crossDomain : true,
+	url: "js/RiboVision/RiboVisionObjects.js",
+	dataType: "script",
+	success: function(){
+		$.holdReady(false);},
+	error: function(){
+		alert("js load fail");}
 });
 ///////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////// Initialize RiboVision Jmol  ////////////////////////
 $.holdReady(true);
-$.getScript("js/RiboVision/RiboVisionJmol.js", function(){
-  $.holdReady(false);
+$.ajax({
+	type: "GET",
+	crossDomain : true,
+	url: "js/RiboVision/RiboVisionJmol.js",
+	dataType: "script",
+	success: function(){
+		$.holdReady(false);},
+	error: function(){
+		alert("js load fail");}
 });
 ///////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////// Initialize RiboVision Functions  ////////////////////////
 $.holdReady(true);
-$.getScript("js/RiboVision/RiboVisionLoadSpecies.js", function(){
-	$.holdReady(false);
+$.ajax({
+	type: "GET",
+	crossDomain : true,
+	url: "js/RiboVision/RiboVisionLoadSpecies.js",
+	dataType: "script",
+	success: function(){
+		$.holdReady(false);},
+	error: function(){
+		alert("js load fail");}
 });
-
 $.holdReady(true);
-$.getScript("js/RiboVision/RiboVisionFunctions.js", function(){
-	$.holdReady(false);
+$.ajax({
+	type: "GET",
+	crossDomain : true,
+	url: "js/RiboVision/RiboVisionFunctions.js",
+	dataType: "script",
+	success: function(){
+		$.holdReady(false);},
+	error: function(){
+		alert("js load fail");}
 });
 ///////////////////////////////////////////////////////////////////////////////
 
 $(document).ready(function () {
-	$.getScript("js/RiboVision/RiboVisionInitialization.js", function(){
-		//alert("Script loaded and executed.");
-		// here you can use anything you defined in the loaded script
-		RiboVisionReady();
+	$.ajax({
+		type: "GET",
+		crossDomain : true,
+		url: "js/RiboVision/RiboVisionInitialization.js",
+		dataType: "script",
+		success: function(){
+			RiboVisionReady();},
+		error: function(){
+			alert("js load fail");}
 	});
-	
 });
 
