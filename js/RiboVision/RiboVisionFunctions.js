@@ -1497,8 +1497,8 @@ function modeSelect(mode) {
 function updateStructData(ui) {
 	var newargs = ui.value.split(",");
 	for (var i = 0; i < newargs.length; i++) {
-		if (newargs[i].indexOf("\'") > -1) {
-			newargs[i] = newargs[i].slice(2, newargs[i].length - 2);
+		if (newargs[i].indexOf("'") > -1) {
+			newargs[i] = newargs[i].match(/[^\\']+/);
 		} else {
 			newargs[i] = window[newargs[i]];
 		}

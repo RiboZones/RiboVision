@@ -113,6 +113,17 @@ $.holdReady(true);
 $.ajax({
 	type: "GET",
 	crossDomain : true,
+	url: "js/RiboVision/RiboVisionSelections.js",
+	dataType: "script",
+	success: function(){
+		$.holdReady(false);},
+	error: function(){
+		alert("js load fail");}
+});
+$.holdReady(true);
+$.ajax({
+	type: "GET",
+	crossDomain : true,
 	url: "js/RiboVision/RiboVisionFunctions.js",
 	dataType: "script",
 	success: function(){

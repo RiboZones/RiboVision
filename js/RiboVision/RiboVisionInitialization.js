@@ -651,6 +651,10 @@ function InitRibovision() {
 	});
 	$("#newLayer").css('height', $("#openLayerBtn").css('height'));
 	$("#newLayer").css('width', $("#openLayerBtn").css('width'));
+	$("#newSelection").css('height', $("#openLayerBtn").css('height'));
+	$("#newSelection").css('width', $("#openLayerBtn").css('width'));
+	$("#deleteSelection").css('height', $("#openLayerBtn").css('height'));
+	$("#deleteSelection").css('width', $("#openLayerBtn").css('width'));
 	$("#newLayer").click(function () {
 		$("#dialog-addLayer").dialog("open");
 	});
@@ -678,8 +682,7 @@ function InitRibovision() {
 		update : function (event, ui) {
 			$("#LayerPanel .layerContent").each(function (e, f) {
 				//$(this).find('p').text(rvDataSets[0].LastLayer - e - 1);
-				$("#" + $(this).parent().find('h3').text()).css('zIndex', rvDataSets[0].LastLayer - e - 1)
-				
+				$("#" + rvDataSets[0].getLayer($(this).parent().attr("name")).CanvasName).css('zIndex', rvDataSets[0].LastLayer - e - 1)
 			});
 			rvDataSets[0].sort();
 		},
