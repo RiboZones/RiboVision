@@ -1171,8 +1171,10 @@ function colorMapping(ChoiceList, ManualCol, OverRideColors, indexMode, rePlaceD
 				}
 				colorProcess(data, indexMode);
 			} else {
-				var data = new Array;
+				targetLayer.Data = [];
+				targetLayer.dataLayerColors = [];
 				targetLayer.clearCanvas();
+				update3Dcolors();
 				/*
 				for(var j = 0; j < rvDataSets[0].Residues.length; j++){
 				rvDataSets[0].Residues[j]["CurrentData"] = rvDataSets[0].Residues[j]["map_Index"];
