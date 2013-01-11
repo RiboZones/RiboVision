@@ -123,7 +123,7 @@ function LayerMenu(Layer, key, RVcolor) {
 		'width' : 20
 	}).append($("<input />").attr({
 			type : 'radio',
-			name : 'selectedRadio',
+			name : 'selectedRadioL',
 			title : 'select layer' 
 		}).addClass("selectLayerRadioBtn").change ( function (event) {
 			rvDataSets[0].selectLayer($(event.currentTarget).parent().parent().attr("name"));
@@ -139,7 +139,7 @@ function LayerMenu(Layer, key, RVcolor) {
 		'width' : 20
 	}).append($("<input />").attr({
 			type : 'radio',
-			name : 'mappingRadio',
+			name : 'mappingRadioL',
 			title : 'select which layer to map into 3D',
 			disabled : 'disabled'
 		}).addClass("mappingRadioBtn").change (function (event) {
@@ -656,6 +656,9 @@ function getSelected(event) {
 }
 
 function expandSelection(command, SelectionName) {
+	if (!SelectionName){
+		SelectionName = "Main";
+	}
 	for (var i = 0; i < command.length; i++) {
 		var com = command[i];
 		var comsplit = com.split(":");
@@ -671,12 +674,8 @@ function expandSelection(command, SelectionName) {
 					var end_ind = rvDataSets[0].ResidueList.indexOf(end);
 					
 					for (var j = start_ind; j <= end_ind; j++) {
-						if (SelectionName) {
-							rvDataSets[0].Selections[SelectionName].push(rvDataSets[0].Residues[j]);
-						} else {
-							//rvDataSets[0].Residues[j].selected = true;
-							rvDataSets[0].Selected.push(rvDataSets[0].Residues[j]);
-						}
+						var targetSelection=rvDataSets[0].getSelection(SelectionName);
+						targetSelection.Residues.push(rvDataSets[0].Residues[j]);
 					}
 				}
 			} else {
@@ -684,12 +683,8 @@ function expandSelection(command, SelectionName) {
 				//var aloneRes = chainID + "_" + comsplit[1].substring(1,comsplit[1].length-1);
 				var aloneRes = chainID + "_" + comsplit[1];
 				var alone_ind = rvDataSets[0].ResidueList.indexOf(aloneRes);
-				if (SelectionName) {
-					rvDataSets[0].Selections[SelectionName].push(rvDataSets[0].Residues[alone_ind]);
-				} else {
-					//rvDataSets[0].Residues[alone_ind].selected = true;
-					rvDataSets[0].Selected.push(rvDataSets[0].Residues[alone_ind]);
-				}
+				var targetSelection=rvDataSets[0].getSelection(SelectionName);
+				targetSelection.Residues.push(rvDataSets[0].Residues[alone_ind]);
 			}
 		} else if (comsplit[0] != "") {
 			var index = comsplit[0].indexOf("-");
@@ -702,24 +697,16 @@ function expandSelection(command, SelectionName) {
 					var start_ind = rvDataSets[0].ResidueList.indexOf(start);
 					var end_ind = rvDataSets[0].ResidueList.indexOf(end);
 					for (var j = start_ind; j <= end_ind; j++) {
-						if (SelectionName) {
-							rvDataSets[0].Selections[SelectionName].push(rvDataSets[0].Residues[j]);
-						} else {
-							//rvDataSets[0].Residues[j].selected = true;
-							rvDataSets[0].Selected.push(rvDataSets[0].Residues[j]);
-						}
+						var targetSelection=rvDataSets[0].getSelection(SelectionName);
+						targetSelection.Residues.push(rvDataSets[0].Residues[j]);
 					}
 				}
 			} else {
 				var chainID = rvDataSets[0].SpeciesEntry.PDB_chains[0];
 				var aloneRes = chainID + "_" + comsplit[0];
 				var alone_ind = rvDataSets[0].ResidueList.indexOf(aloneRes);
-				if (SelectionName) {
-					rvDataSets[0].Selections[SelectionName].push(rvDataSets[0].Residues[alone_ind]);
-				} else {
-					//rvDataSets[0].Residues[alone_ind].selected = true;
-					rvDataSets[0].Selected.push(rvDataSets[0].Residues[alone_ind]);
-				}
+				var targetSelection=rvDataSets[0].getSelection(SelectionName);
+				targetSelection.Residues.push(rvDataSets[0].Residues[alone_ind]);
 			}
 		}
 	}
@@ -734,56 +721,40 @@ function commandSelect(command) {
 	updateSelectionDiv();
 	rvDataSets[0].drawResidues("residues");
 	rvDataSets[0].drawSelection("selected");
-	console.log('selected Residue by command input');
+	//console.log('selected Residue by command input');
 }
 
 function selectResidue(event) {
-	
+	var targetSelection = rvDataSets[0].getSelection("Main");
 	if (drag) {
 		var curX = (event.clientX - $("#menu").width() - rvViews[0].x) / rvViews[0].scale;
 		var curY = (event.clientY - $("#topMenu").height() - rvViews[0].y) / rvViews[0].scale;
 		if (rvDataSets[0].Residues != undefined) {
 			for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
 				if (rvViews[0].startX <= rvDataSets[0].Residues[i].X && rvDataSets[0].Residues[i].X <= curX && rvViews[0].startY <= rvDataSets[0].Residues[i].Y && rvDataSets[0].Residues[i].Y <= curY) {
-					//if (!rvDataSets[0].Residues[i].selected)
-						//rvDataSets[0].Residues[i].selected = true;
-					rvDataSets[0].Selected.push(rvDataSets[0].Residues[i]);
+					targetSelection.Residues.push(rvDataSets[0].Residues[i]);
 				}
 				if (rvViews[0].startX >= rvDataSets[0].Residues[i].X && rvDataSets[0].Residues[i].X >= curX && rvViews[0].startY <= rvDataSets[0].Residues[i].Y && rvDataSets[0].Residues[i].Y <= curY) {
-					//if (!rvDataSets[0].Residues[i].selected)
-						//rvDataSets[0].Residues[i].selected = true;
-					rvDataSets[0].Selected.push(rvDataSets[0].Residues[i]);
+					targetSelection.Residues.push(rvDataSets[0].Residues[i]);
 				}
 				if (rvViews[0].startX <= rvDataSets[0].Residues[i].X && rvDataSets[0].Residues[i].X <= curX && rvViews[0].startY >= rvDataSets[0].Residues[i].Y && rvDataSets[0].Residues[i].Y >= curY) {
-					//if (!rvDataSets[0].Residues[i].selected)
-						//rvDataSets[0].Residues[i].selected = true;
-					rvDataSets[0].Selected.push(rvDataSets[0].Residues[i]);
+					targetSelection.Residues.push(rvDataSets[0].Residues[i]);
 				}
 				if (rvViews[0].startX >= rvDataSets[0].Residues[i].X && rvDataSets[0].Residues[i].X >= curX && rvViews[0].startY >= rvDataSets[0].Residues[i].Y && rvDataSets[0].Residues[i].Y >= curY) {
-					//if (!rvDataSets[0].Residues[i].selected)
-						//rvDataSets[0].Residues[i].selected = true;
-					rvDataSets[0].Selected.push(rvDataSets[0].Residues[i]);
+					targetSelection.Residues.push(rvDataSets[0].Residues[i]);
 				}
 			}
 			var sel = getSelected(event);
 			//Unselect code
 			if (sel != -1) {
 				var res = rvDataSets[0].Residues[sel];
-				var result = $.grep(rvDataSets[0].Selected, function(e){ return e.map_Index == res.map_Index; });
+				var result = $.grep(targetSelection.Residues, function(e){ return e.map_Index == res.map_Index; });
 				//alert(result[0].resNum);
 				
 				if (result[0]) {
-					//res.selected = false;
-					rvDataSets[0].Selected = $.grep(rvDataSets[0].Selected, function(e){ return e.map_Index !== result[0].map_Index; });
-					/*
-					for (var i = 0; i < rvDataSets[0].Selected.length; i++) {
-						if (rvDataSets[0].Selected.resNum.replace(/[^:]*:/g, "") == res.resNum.replace(/[^:]*:/g, "")) {
-							rvDataSets[0].Selected.splice(i, 1);
-						}
-					}*/
+					targetSelection.Residues = $.grep(targetSelection.Residues, function(e){ return e.map_Index !== result[0].map_Index; });
 				} else {
-					//res.selected = true;
-					rvDataSets[0].Selected.push(res);
+					targetSelection.Residues.push(res);
 				}
 			}
 			rvDataSets[0].drawResidues("residues");
@@ -804,19 +775,17 @@ function selectResidue(event) {
 
 function updateSelectionDiv() {
 	var text = "";
-	for (var i = 0; i < rvDataSets[0].Selected.length; i++) {
-		res = rvDataSets[0].Selected[i];
+	var targetSelection = rvDataSets[0].getSelection("Main");
+	for (var i = 0; i < targetSelection.Residues.length; i++) {
+		res = targetSelection.Residues[i];
 		text = text + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(res.ChainID)] + ":" + res.resNum.replace(/[^:]*:/g, "") + "( " + res.CurrentData + " ); ";
 	}
 	$("#selectDiv").html(text)
 }
 
 function clearSelection() {
-	rvDataSets[0].Selected = []
-	/*
-	for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
-		rvDataSets[0].Residues[i].selected = false;
-	}*/
+	var targetSelection = rvDataSets[0].getSelection("Main");
+	targetSelection.Residues = []
 	rvDataSets[0].drawResidues("residues");
 	rvDataSets[0].drawSelection("selected");
 	
@@ -849,7 +818,7 @@ function colorResidue(event) {
 }
 
 function clearColor(update3D) {
-	targetLayer=rvDataSets[0].getLayerByType("residues");
+	var	targetLayer=rvDataSets[0].getLayerByType("residues");
 	if (arguments.length < 1) {
 		var update3D = true;
 	}
@@ -870,10 +839,11 @@ function clearColor(update3D) {
 }
 
 function colorSelection() {
-	targetLayer=rvDataSets[0].getSelectedLayer();
+	var targetLayer=rvDataSets[0].getSelectedLayer();
 	var color = $("#color").val();
-	for (var i = 0; i < rvDataSets[0].Selected.length; i++) {
-		targetLayer.dataLayerColors[rvDataSets[0].Selected[i].map_Index - 1] = color;
+	var targetSelection = rvDataSets[0].getSelection("Main");
+	for (var i = 0; i < targetSelection.Residues.length; i++) {
+		targetLayer.dataLayerColors[targetSelection.Residues[i].map_Index - 1] = color;
 	}
 	//rvDataSets[0].drawResidues("residues");
 	rvDataSets[0].drawDataCircles(targetLayer.LayerName,undefined,undefined,true);
@@ -1564,17 +1534,20 @@ function handleFileSelect(event) {
 				$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("[name=datalabel]").text("User File:").append($("<br>")).append(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
 				targetLayer.clearData();
 				var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
-				rvDataSets[0].Selections["temp"] = [];
+				//rvDataSets[0].Selections["temp"] = [];
+				rvDataSets[0].addSelection();
 				for (var ii = 0; ii < rvDataSets[0].CustomData.length; ii++) {
 					if (rvDataSets[0].CustomData[ii][customkeys[0]].indexOf("(") > 0) {
 						command = rvDataSets[0].CustomData[ii][customkeys[0]].split(";");
-						expandSelection(command, "temp");
-						for (var iii = 0; iii < rvDataSets[0].Selections["temp"].length; iii++) {
-							if (rvDataSets[0].Selections["temp"][iii].resNum.indexOf(":") >= 0) {
+						targetSelection = rvDataSets[0].Selections[0];
+						expandSelection(command, targetSelection.Name);
+						var l = targetSelection.Residues.length;
+						for (var iii = 0; iii < l; iii++) {
+							if (targetSelection.Residues[iii].resNum.indexOf(":") >= 0) {
 								alert("didn't do this yet");
 							} else {
 								var chainID = rvDataSets[0].SpeciesEntry.PDB_chains[0];
-								var ResName = chainID + "_" + rvDataSets[0].Selections["temp"][iii].resNum;
+								var ResName = chainID + "_" + targetSelection.Residues[iii].resNum;
 							}
 							var k = rvDataSets[0].ResidueList.indexOf(ResName);
 							
@@ -1598,7 +1571,8 @@ function handleFileSelect(event) {
 						}
 						
 						var k = rvDataSets[0].ResidueList.indexOf(ResName);
-						rvDataSets[0].Selections["temp"].push(rvDataSets[0].Residues[k]);
+						targetSelection = rvDataSets[0].Selections[0];
+						targetSelection.Residues.push(rvDataSets[0].Residues[k]);
 						if ($.inArray("DataCol", customkeys) >= 0) {
 							//rvDataSets[0].Residues[k]["CustomData1"] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
 							NewData[k] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
@@ -1614,9 +1588,11 @@ function handleFileSelect(event) {
 
 				}
 				targetLayer.Data = NewData;
+				SelectionMenu(targetSelection);
+				RefreshSelectionMenu();
 				
 				if (targetLayer.Type === "selected"){
-					rvDataSets[0].changeSelection("temp");
+					//rvDataSets[0].changeSelection("temp");
 				} else {
 					if ($.inArray("ColorCol", customkeys) >= 0) {
 						rvDataSets[0].drawResidues("residues");
@@ -1818,6 +1794,7 @@ function savePML() {
 		var script = "";
 		var PyMOL_obj = [];
 		var PDB_Obj_Names = [];
+		var targetSelection = rvDataSets[0].getSelection("Main");
 		
 		var PDB_files = [rvDataSets[0].SpeciesEntry.PDB_File_rRNA, rvDataSets[0].SpeciesEntry.PDB_File_rProtein];
 		
@@ -1907,13 +1884,13 @@ function savePML() {
 			}
 		}
 		script += "\nzoom all\n";
-		if (rvDataSets[0].Selected.length > 0) {
-			var SeleScript = "create RiboVisionSele," + rvDataSets[0].SpeciesEntry.Jmol_Script.substring(0, rvDataSets[0].SpeciesEntry.Jmol_Script.indexOf("_state")) + " and ((resi " + rvDataSets[0].Selected[0].resNum.replace(/[^:]*:/g, "") + " and chain " + rvDataSets[0].Selected[0].ChainID + ")";
+		if (targetSelection.Residues.length > 0) {
+			var SeleScript = "create RiboVisionSele," + rvDataSets[0].SpeciesEntry.Jmol_Script.substring(0, rvDataSets[0].SpeciesEntry.Jmol_Script.indexOf("_state")) + " and ((resi " + targetSelection.Residues[0].resNum.replace(/[^:]*:/g, "") + " and chain " + targetSelection.Residues[0].ChainID + ")";
 			// Selected Section
-			for (var ii = 1; ii < rvDataSets[0].Selected.length; ii++) {
-				if (rvDataSets[0].Selected[ii].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") != null) {
-					r1 = rvDataSets[0].Selected[ii].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-					SeleScript += " or (resi " + r1 + " and chain " + rvDataSets[0].Selected[ii].ChainID + ")";
+			for (var ii = 1; ii < targetSelection.Residues.length; ii++) {
+				if (targetSelection.Residues[ii].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") != null) {
+					r1 = targetSelection.Residues[ii].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+					SeleScript += " or (resi " + r1 + " and chain " + targetSelection.Residues[ii].ChainID + ")";
 				}
 			}
 			SeleScript += ")\n";
@@ -1950,6 +1927,7 @@ function canvasToSVG() {
 	var SupportesLayerTypes = ["lines", "labels", "residues", "circles", "selected"];
 	var ChosenSide;
 	var Orientation;
+	var targetSelection = rvDataSets[0].getSelection("Main");
 	
 	var AllMode = $('input[name="savelayers"][value=all]').attr("checked");
 	
@@ -2060,7 +2038,7 @@ function canvasToSVG() {
 				case "selected":
 					output = output + '<g id="' + value.LayerName + '">\n';
 					var radius = 1.7 * value.ScaleFactor;
-					$.each(rvDataSets[0].Selected, function (index,residue){
+					$.each(targetSelection.Residues, function (index,residue){
 						output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + 'none' + '" stroke="' + '#940B06' + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(residue.X).toFixed(3) + '" cy="' + parseFloat(residue.Y).toFixed(3) + '" r="' + radius + '"/>\n';
 					});
 					/*
@@ -2102,18 +2080,19 @@ function canvasToSVG() {
 function updateModel() {
 	var n;
 	var script = "set hideNotSelected true;select (" + (SubunitNames.indexOf(rvDataSets[0].SpeciesEntry.Subunit) + 1) + ".1 and (";
-	for (var i = 0; i < rvDataSets[0].Selected.length; i++) {
-		if (rvDataSets[0].Selected[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") != null) {
+	var targetSelection = rvDataSets[0].getSelection("Main");
+	for (var i = 0; i < targetSelection.Residues.length; i++) {
+		if (targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") != null) {
 			if (script != "set hideNotSelected true;select (" + (SubunitNames.indexOf(rvDataSets[0].SpeciesEntry.Subunit) + 1) + ".1 and (") {
 				script += " or ";
 			};
-			n = rvDataSets[0].Selected[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "").match(/[A-z]/g);
+			n = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "").match(/[A-z]/g);
 			if (n != null) {
-				r1 = rvDataSets[0].Selected[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "").replace(n, "^" + n);
+				r1 = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "").replace(n, "^" + n);
 			} else {
-				r1 = rvDataSets[0].Selected[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+				r1 = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
 			}
-			script += r1 + ":" + rvDataSets[0].Selected[i].ChainID;
+			script += r1 + ":" + targetSelection.Residues[i].ChainID;
 		}
 	}
 	if (script == "set hideNotSelected true;select (" + (SubunitNames.indexOf(rvDataSets[0].SpeciesEntry.Subunit) + 1) + ".1 and (") {

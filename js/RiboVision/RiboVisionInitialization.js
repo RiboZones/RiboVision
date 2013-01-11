@@ -217,15 +217,20 @@ function RiboVisionReady() {
 		modal : true,
 		buttons : {
 			"Create New Layer" : function () {
-				if (rvDataSets[0].isUnique($("#newLayerName").val())){
-					$("#canvasDiv").append($('<canvas id="' + $("#newLayerName").val() + '" style="z-index:' + ( rvDataSets[0].LastLayer + 1 ) + ';"></canvas>')); 
-					resizeElements();
-					rvDataSets[0].addLayer($("#newLayerName").val(), $("#newLayerName").val(), [], true, 1.0, 'circles',$("#layerColor2").val());
-					LayerMenu(rvDataSets[0].getLayer($("#newLayerName").val()),(1000 + ( rvDataSets[0].LastLayer + 1 ) ));
-					RefreshLayerMenu();
-					$(this).dialog("close");
+				var namecheck = $("#newLayerName").val().match(/[A-z][\w-_:\.]*/);
+				if (namecheck[0].length === $("#newLayerName").val().length && $("#newLayerName").val().length <= 16){
+					if (rvDataSets[0].isUniqueLayer($("#newLayerName").val())){
+						$("#canvasDiv").append($('<canvas id="' + $("#newLayerName").val() + '" style="z-index:' + ( rvDataSets[0].LastLayer + 1 ) + ';"></canvas>')); 
+						resizeElements();
+						rvDataSets[0].addLayer($("#newLayerName").val(), $("#newLayerName").val(), [], true, 1.0, 'circles',$("#layerColor2").val());
+						LayerMenu(rvDataSets[0].getLayer($("#newLayerName").val()),(1000 + ( rvDataSets[0].LastLayer + 1 ) ));
+						RefreshLayerMenu();
+						$(this).dialog("close");
+					} else {
+						$( "#dialog-unique-layer-error" ).dialog("open");
+					}
 				} else {
-					$( "#dialog-unique-layer-error" ).dialog("open");
+					$( "#dialog-name-error" ).dialog("open");
 				}
 			},
 			Cancel: function (){
@@ -233,6 +238,7 @@ function RiboVisionReady() {
 			}
 		},
 		open : function () {
+			$("#newLayerName").val("Layer_" + (rvDataSets[0].Layers.length + 1));
 			$("#jmolApplet0").css("visibility", "hidden");
 		},
 		close : function () { 
@@ -243,6 +249,24 @@ function RiboVisionReady() {
 		" Future updates will let you add additional layers of any type." + 
 		"<br><br>Please enter a name for the new layer.");
 	$( "#dialog-unique-layer-error" ).dialog({
+		resizable : false,
+		autoOpen : false,
+		height : "auto",
+		width : 400,
+		modal : true,
+		buttons: {
+			Ok: function() {
+				$( this ).dialog( "close" );
+			}
+		},
+		open : function () {
+			$("#jmolApplet0").css("visibility", "hidden");
+		},
+		close : function () { 
+			$("#jmolApplet0").css("visibility", "visible");
+		}
+	});
+	$( "#dialog-name-error" ).dialog({
 		resizable : false,
 		autoOpen : false,
 		height : "auto",
@@ -306,6 +330,8 @@ function RiboVisionReady() {
 			"Ok" : function () {
 				$("#savedSelections").append(new Option($("#UserNameField").val(), $("#selectDiv").text().replace(/\s/g, "").replace(/\([^\)]*\)/g,"")));
 				$("#savedSelections").multiselect("refresh");
+				SelectionMenu(rvDataSets[0].Selections[0]);
+				RefreshSelectionMenu();
 				$(this).dialog("close");
 			}
 		},
@@ -595,11 +621,12 @@ function RiboVisionReady() {
 		}
 	});
 	
-	$("#layerNameInput").keydown(function (event) {
+	$("#layerNameInput").button().addClass('ui-textfield').keydown(function (event) {
 		if (event.keyCode == 13) {
 			changeCurrentLayerName();
 		}
 	});
+	
 	$("#buttonmode").buttonset();
 	$("#colorLinesMode").buttonset();
 	$("#colorLinesGradientMode").buttonset();
@@ -626,7 +653,7 @@ function InitRibovision() {
 	rvDataSets[0].addLayer("Interactions1", "MainLineLayer", [], true, 1.0, 'lines');
 	rvDataSets[0].addLayer("ContourLine", "ContourLayer", [], true, 1.0, 'contour');
 	rvDataSets[0].addHighlightLayer("HighlightLayer", "HighlightLayer", [], false, 1.176, 'highlight');
-	
+	rvDataSets[0].addSelection("Main");
 	//creat popup window in canvas
 	//rvDataSets[0].addHighlightLayer("ResidueInfoLayer", "ResidueInfoLayer", [], false, 1.176, 'residueInfo');
 	
@@ -675,6 +702,14 @@ function InitRibovision() {
 	$.each(rvDataSets[0].Layers, function (key, value){
 		LayerMenu(value, key);
 	});
+	
+	// Put in Selections
+	//SelectionMenu(rvDataSets[0].Selections);
+	$.each(rvDataSets[0].Selections, function (key, value){
+		SelectionMenu(value, key);
+	});
+	$("#SelectionPanel div").first().next().find(".selectSelectionRadioBtn").attr("checked", "checked");
+	RefreshSelectionMenu();
 	
 	//Accordion that support multiple sections open
 	$("#LayerPanel").multiAccordion();

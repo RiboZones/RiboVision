@@ -282,15 +282,15 @@
                 </li>
 
                 <li>
-                    <a href="#SelectionsPanel">Selections</a>
+                    <a href="#SelectionPanel">Selections</a>
                 </li>
             </ul>
 
             <div id="LayerPanel"></div>
 
-            <div id="SelectionsPanel"></div>
+            <div id="SelectionPanel"></div>
         </div>
-    </div><!--Color Control Dialog Box-->
+    </div>
 
     <div id="LayerPreferenceDialog" title="Layer Preferences">
         <label for="layerNameInput">Layer Name:</label> <input type="text" id="layerNameInput" value="" name="layerNameInput" /> <input id="layerNameChangeBtn"
@@ -303,7 +303,20 @@
             <div id="layerColorPicker"></div>
         </div>
     </div>
+	
+	<div id="SelectionPreferenceDialog" title="Selection Preferences">
+        <label for="selectionNameInput">Selection Name:</label> <input type="text" id="selectionNameInput" value="" name="selectionNameInput" /> <input id="selectionNameChangeBtn"
+        type="button" value="Change" onclick="Javascript:changeCurrentSelectionName()" />
 
+        <div id="SelectionColorDiv">
+            Layer Color: <input id="selectionColor" type="text" name="color" value="#940B06" /> <input id="selectionColorChangeBtn" type="button" value="Change"
+            onclick="Javascript:changeSelectionColor()" />
+
+            <div id="selectionColorPicker"></div>
+        </div>
+    </div>
+	
+	<!--Color Control Dialog Box-->
     <div id="ColorDialog" title="Residue Coloring">
         <div id="ColorDiv">
             Color Options:<br />
@@ -362,12 +375,17 @@
     <div id="dialog-unique-layer-error" title="This name is taken. Try again.">
         <p>Sorry, all layer names must be unique. The name you entered already exists. Please try again.</p>
     </div>
-
+	<div id="dialog-unique-selection-error" title="This name is taken. Try again.">
+        <p>Sorry, all selection names must be unique. The name you entered already exists. Please try again.</p>
+    </div>
     <div id="dialog-layer-type-error" title="Layer type mismatch">
         <p>You attempted to put circle data into an incompatible layer. Please select a circle or residue layer. You may create a new circle layer if you
         like.</p>
     </div>
-
+	<div id="dialog-name-error" title="Name not allowed">
+        <p>This name is not allowed under the current naming rules. Names must begin with a letter and cannot exceed 16 characters.  Only letters, digits ([0-9]),
+		hyphens ("-"), underscores ("_"), colons (":"), and periods (".") are allowed.  </p>
+    </div>
     <div id="dialog-generic-notice" title="Notice to User"></div>
 </body>
 </html>
