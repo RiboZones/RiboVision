@@ -56,6 +56,7 @@ function RiboVisionReady() {
 			duration : 500
 		},
 		height : 600,
+		width : 315,
 		position : {
 			my : "right top",
 			at : "right top",
@@ -129,6 +130,7 @@ function RiboVisionReady() {
 	});
 	
 	$("#openLayerBtn").click(function () {
+		$("#PanelTabs").tabs( "option", "active", 0 );
 		$("#LayerDialog").dialog("open");
 		return false;
 	});

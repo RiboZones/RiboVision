@@ -296,7 +296,7 @@ function LayerMenu(Layer, key, RVcolor) {
 		
 			break;
 		case "selected":
-			$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="selectDiv">'))
+			//$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="selectDiv">'))
 			$("#LayerPanel div").first().next().find(".radioDIV2").find('input').removeAttr("disabled");
 			//$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="' + 'sele-' + key + '">'))
 			//$("#selectDiv").html(text)
@@ -712,20 +712,23 @@ function expandSelection(command, SelectionName) {
 	}
 }
 
-function commandSelect(command) {
+function commandSelect(command,SeleName) {
 	if (!command) {
 		var command = document.getElementById("commandline").value;
 	}
+	if (!SeleName) {
+		var SeleName = $('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name');
+	}
 	command = command.split(";");
-	expandSelection(command);
-	updateSelectionDiv();
+	expandSelection(command,SeleName);
+	updateSelectionDiv(SeleName);
 	rvDataSets[0].drawResidues("residues");
 	rvDataSets[0].drawSelection("selected");
 	//console.log('selected Residue by command input');
 }
 
 function selectResidue(event) {
-	var targetSelection = rvDataSets[0].getSelection("Main");
+	var targetSelection = rvDataSets[0].getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
 	if (drag) {
 		var curX = (event.clientX - $("#menu").width() - rvViews[0].x) / rvViews[0].scale;
 		var curY = (event.clientY - $("#topMenu").height() - rvViews[0].y) / rvViews[0].scale;
@@ -773,18 +776,22 @@ function selectResidue(event) {
 	//drawNavLine(1);
 }
 
-function updateSelectionDiv() {
+function updateSelectionDiv(SeleName) {
+	if (!SeleName){
+		SeleName = "Main";
+	}
 	var text = "";
-	var targetSelection = rvDataSets[0].getSelection("Main");
+	var targetSelection = rvDataSets[0].getSelection(SeleName);
 	for (var i = 0; i < targetSelection.Residues.length; i++) {
 		res = targetSelection.Residues[i];
 		text = text + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(res.ChainID)] + ":" + res.resNum.replace(/[^:]*:/g, "") + "( " + res.CurrentData + " ); ";
 	}
-	$("#selectDiv").html(text)
+	//$("#selectDiv").html(text)
+	$("[name=" + SeleName + "]").find(".selectionContent").find("[name=selectDiv]").text(text);
 }
 
 function clearSelection() {
-	var targetSelection = rvDataSets[0].getSelection("Main");
+	var targetSelection = rvDataSets[0].getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
 	targetSelection.Residues = []
 	rvDataSets[0].drawResidues("residues");
 	rvDataSets[0].drawSelection("selected");
@@ -841,7 +848,7 @@ function clearColor(update3D) {
 function colorSelection() {
 	var targetLayer=rvDataSets[0].getSelectedLayer();
 	var color = $("#color").val();
-	var targetSelection = rvDataSets[0].getSelection("Main");
+	var targetSelection = rvDataSets[0].getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
 	for (var i = 0; i < targetSelection.Residues.length; i++) {
 		targetLayer.dataLayerColors[targetSelection.Residues[i].map_Index - 1] = color;
 	}
@@ -1621,11 +1628,11 @@ function handleFileSelect(event) {
 						alert("No recognized colomns found. Please check input.");
 					}
 				}
-				
+			
 				if ($.inArray("DataDescription", customkeys) >= 0) {
-					$("#FileDiv").find("[name=DataDescription]").text(rvDataSets[0].CustomData[0]["DataDescription"]);
+					$("#FileDiv").find(".DataDescription").text(rvDataSets[0].CustomData[0]["DataDescription"]);
 				} else {
-					$("#FileDiv").find("[name=DataDescription]").text("Data Description is missing.");
+					$("#FileDiv").find(".DataDescription").text("Data Description is missing.");
 				}
 			};
 		}
@@ -1794,7 +1801,8 @@ function savePML() {
 		var script = "";
 		var PyMOL_obj = [];
 		var PDB_Obj_Names = [];
-		var targetSelection = rvDataSets[0].getSelection("Main");
+		// Come back and make this loop for all Selections
+		var targetSelection = rvDataSets[0].getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
 		
 		var PDB_files = [rvDataSets[0].SpeciesEntry.PDB_File_rRNA, rvDataSets[0].SpeciesEntry.PDB_File_rProtein];
 		
@@ -1927,7 +1935,8 @@ function canvasToSVG() {
 	var SupportesLayerTypes = ["lines", "labels", "residues", "circles", "selected"];
 	var ChosenSide;
 	var Orientation;
-	var targetSelection = rvDataSets[0].getSelection("Main");
+	//come back and make loop for all selections
+	var targetSelection = rvDataSets[0].getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
 	
 	var AllMode = $('input[name="savelayers"][value=all]').attr("checked");
 	
@@ -2080,7 +2089,8 @@ function canvasToSVG() {
 function updateModel() {
 	var n;
 	var script = "set hideNotSelected true;select (" + (SubunitNames.indexOf(rvDataSets[0].SpeciesEntry.Subunit) + 1) + ".1 and (";
-	var targetSelection = rvDataSets[0].getSelection("Main");
+	//Come back and support multiple selections?
+	var targetSelection = rvDataSets[0].getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
 	for (var i = 0; i < targetSelection.Residues.length; i++) {
 		if (targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") != null) {
 			if (script != "set hideNotSelected true;select (" + (SubunitNames.indexOf(rvDataSets[0].SpeciesEntry.Subunit) + 1) + ".1 and (") {
@@ -2125,7 +2135,7 @@ function resetColorState() {
 	
 	//jmolScript(jscript);
 	Jmol.script(myJmol, jscript);
-	commandSelect();
+	//commandSelect();
 	updateModel();
 }
 ///////////////////////////////////////////////////////////////////////////////

@@ -265,18 +265,18 @@ function rvDataSet(DataSetName) {
 			});
 		}
 	};
-	this.drawSelection = function (layer) {
+	this.drawSelection = function (layer,SeleName) {
 		var ind = $.inArray(layer, this.LayerTypes);
 		if (ind >= 0) {
 			$.each(this.Layers, function (key, value) {
 				if (value.Type === layer) {
-					drawSelection(value);
+					drawSelection(value,SeleName);
 				}
 			});
 		} else {
 			$.each(this.Layers, function (key, value) {
 				if (value.LayerName === layer) {
-					drawSelection(value);
+					drawSelection(value,SeleName);
 				}
 			});
 		}
@@ -511,30 +511,39 @@ function rvDataSet(DataSetName) {
 			}
 		}
 	}
-	function drawSelection(targetLayer) {
+	function drawSelection(targetLayer,SeleName) {
+		var SelectionList =[];
+		if (!SeleName){
+			//SeleName = "Main";
+			$('.checkBoxDIV-S').find(".visibilityCheckImg[value=visible]").parent().parent().each(function (index){SelectionList.push($(this).attr("name"))});
+		} else {
+			SelectionList[0]=SeleName;
+		}
 		targetLayer.clearCanvas();
 		targetLayer.Data = [];
 		targetLayer.dataLayerColors = [];
-		targetSelection = rvDataSets[0].getSelection("Main");
 		if (rvDataSets[0].Residues && rvDataSets[0].Residues.length > 0) {
 			for (var i = rvDataSets[0].Residues.length - 1; i >= 0; i--) {
 				targetLayer.Data[i] = false;
 				targetLayer.dataLayerColors[i] = "#858585";
 			}
-			for (var j = targetSelection.Residues.length - 1; j >= 0; j--) {
-				targetLayer.CanvasContext.beginPath();
-				targetLayer.CanvasContext.arc(targetSelection.Residues[j].X, targetSelection.Residues[j].Y, (targetLayer.ScaleFactor * 1.7), 0, 2 * Math.PI, false);
-				targetLayer.CanvasContext.closePath();
-				targetLayer.CanvasContext.strokeStyle = targetSelection.Color;
-				targetLayer.CanvasContext.lineWidth = 0.5;
-				targetLayer.CanvasContext.stroke();
-				targetLayer.Data[targetSelection.Residues[j].map_Index - 1] = true;
-				targetLayer.dataLayerColors[targetSelection.Residues[j].map_Index - 1] = targetSelection.Color;
+			for (var k = SelectionList.length - 1 ; k >= 0 ; k--){
+				targetSelection = rvDataSets[0].getSelection(SelectionList[k]);
+				for (var j = targetSelection.Residues.length - 1; j >= 0; j--) {
+					targetLayer.CanvasContext.beginPath();
+					targetLayer.CanvasContext.arc(targetSelection.Residues[j].X, targetSelection.Residues[j].Y, (targetLayer.ScaleFactor * 1.7), 0, 2 * Math.PI, false);
+					targetLayer.CanvasContext.closePath();
+					targetLayer.CanvasContext.strokeStyle = targetSelection.Color;
+					targetLayer.CanvasContext.lineWidth = 0.5;
+					targetLayer.CanvasContext.stroke();
+					targetLayer.Data[targetSelection.Residues[j].map_Index - 1] = true;
+					targetLayer.dataLayerColors[targetSelection.Residues[j].map_Index - 1] = targetSelection.Color;
+				}
 			}
-		}
-		var linkedLayer = rvDataSets[0].getLinkedLayer();
-		if (linkedLayer.Type == "selected") {
-			update3Dcolors();
+			var linkedLayer = rvDataSets[0].getLinkedLayer();
+			if (linkedLayer.Type == "selected") {
+				update3Dcolors();
+			}
 		}
 	}
 	function drawDataCircles(targetLayer, dataIndices, ColorArray, noClear) {
@@ -688,7 +697,9 @@ function rvView(x, y, scale) {
 		}
 	}
 	this.drag = function (event) {
-		rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#ff0000";
+		var targetSelection=rvDataSets[0].getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
+		//rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#ff0000";
+		rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = targetSelection.Color;
 		rvDataSets[0].HighlightLayer.CanvasContext.strokeRect(this.startX, this.startY, (event.clientX - $("#menu").outerWidth() - this.x) / this.scale - this.startX, (event.clientY - $("#topMenu").outerHeight() - this.y) / this.scale - this.startY);
 	}
 	

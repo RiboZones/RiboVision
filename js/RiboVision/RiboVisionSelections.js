@@ -133,6 +133,7 @@ $("#dialog-confirm-delete-S").dialog({
 		"Delete the Selection" : function (event) {
 			$("[name=" + $('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name') + "]").remove();
 			rvDataSets[0].deleteSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
+			rvDataSets[0].drawSelection("selected");
 			$(this).dialog("close");
 		},
 		Cancel : function () {
@@ -189,7 +190,7 @@ function SelectionMenu(targetSelection, key, RVcolor) {
 	$visibleImgPath = "images/visible.png";
 	$invisibleImgPath = "images/invisible.png";
 	$($currentGroup)
-	.append($("<div>").addClass("checkBoxDIV").css({
+	.append($("<div>").addClass("checkBoxDIV-S").css({
 			'float' : 'left',
 			'padding-top' : 5,
 			'margin-left' : 5,
@@ -203,12 +204,14 @@ function SelectionMenu(targetSelection, key, RVcolor) {
 			if($type == 'visible'){
 				this.setAttribute('value','invisible'); 
 				this.setAttribute('src', $invisibleImgPath);
+				rvDataSets[0].drawSelection("selected");
 				//targetLayer=rvDataSets[0].getLayer(this.parentNode.parentNode.getAttribute("name"));
 				//targetLayer.setVisibility("hidden");
 			}
 			else if($type == 'invisible'){
 				this.setAttribute('value','visible');
 				this.setAttribute('src', $visibleImgPath);
+				rvDataSets[0].drawSelection("selected");
 				//targetLayer=rvDataSets[0].getLayer(this.parentNode.parentNode.getAttribute("name"));
 				//targetLayer.setVisibility("visible");
 			}
@@ -270,7 +273,14 @@ function SelectionMenu(targetSelection, key, RVcolor) {
 	.append($("<div>").addClass("selectionContent").css({
 			'margin-left' : 83
 		}));	
-		
+	
+	$("#SelectionPanel div").first().next().find(".selectionContent").first().append($('<div name="' + 'selectDiv' + '">'));
+	//Circle buttons
+	$("#SelectionPanel div").first().next().find(".selectionContent").append($('<div>').text("Auto Draw Circles:").append($("<br>")));
+	$("#SelectionPanel div").first().next().find(".selectionContent").first().find("div").last().append($('<label><input type="radio" name="autodraw' + '" value="on" checked="checked">On</label>'));
+	$("#SelectionPanel div").first().next().find(".selectionContent").first().find("div").last().append($('<label><input type="radio" name="autodraw' + '" value="off">Off</label>'));
+	$('input[name="filled' + key + '"][value=filled]').attr("checked", true);
+	
 	//$count++;
 /*
 	
@@ -406,6 +416,7 @@ $("#SelectionPanel").multiAccordion();
 $("#SelectionPanel").sortable({
 	update : function (event, ui) {
 		$("#SelectionPanel .selectionContent").each(function (e, f) {
+			rvDataSets[0].drawSelection("selected");
 			//$(this).find('p').text(rvDataSets[0].LastLayer - e - 1);
 			//$("#" + rvDataSets[0].getLayer($(this).parent().attr("name")).CanvasName).css('zIndex', rvDataSets[0].LastLayer - e - 1)
 		});
@@ -452,3 +463,18 @@ function changeCurrentSelectionName() {
 	targetSelection.Name = $("#selectionNameInput").val();
 	RefreshSelectionMenu();
 }
+
+$("#openSelectionBtn").click(function () {
+	$("#PanelTabs").tabs( "option", "active", 1 );
+	$("#LayerDialog").dialog("open");
+	return false;
+});
+
+$("#openSelectionBtn").button({
+	text : false,
+	icons : {
+		primary : "ui-icon-tag"
+	}
+});
+
+
