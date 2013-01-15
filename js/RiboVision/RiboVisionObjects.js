@@ -143,9 +143,16 @@ function rvDataSet(DataSetName) {
 		this.Residues = rvResidues;
 		this.ResidueList = makeResidueList(rvResidues);
 	};
-	this.addLabels = function (rvTextLabels, rvLineLabels) {
-		this.rvTextLabels = rvTextLabels;
-		this.rvLineLabels = rvLineLabels;
+	this.addLabels = function (rvTextLabels, rvLineLabels, rvExtraLabels) {
+		if (rvTextLabels !== undefined){
+			this.rvTextLabels = rvTextLabels;
+		}
+		if (rvLineLabels !== undefined){
+			this.rvLineLabels = rvLineLabels;
+		}
+		if (rvExtraLabels !== undefined){
+			this.rvExtraLabels = rvExtraLabels;
+		}
 	};
 	this.addBasePairs = function (BasePairs) {
 		this.BasePairs = BasePairs;
@@ -214,20 +221,20 @@ function rvDataSet(DataSetName) {
 			});
 		}
 	};
-	this.drawLabels = function (layer) {
+	this.drawLabels = function (layer,drawExtra) {
 		this.clearCanvas(layer);
 		var ind = $.inArray(layer, this.LayerTypes);
 		if (ind >= 0) {
 			$.each(this.Layers, function (key, value) {
 				if (value.Type === layer) {
 					
-					drawLabels(value);
+					drawLabels(value,drawExtra);
 				}
 			});
 		} else {
 			$.each(this.Layers, function (key, value) {
 				if (value.LayerName === layer) {
-					drawLabels(value);
+					drawLabels(value,drawExtra);
 				}
 			});
 		}
@@ -454,7 +461,7 @@ function rvDataSet(DataSetName) {
 			}
 		}
 	}
-	function drawLabels(targetLayer) {
+	function drawLabels(targetLayer,drawExtra) {
 		targetLayer.CanvasContext.textAlign = 'left';
 		
 		if (rvDataSets[0].rvTextLabels != undefined) {
@@ -475,6 +482,19 @@ function rvDataSet(DataSetName) {
 				targetLayer.CanvasContext.closePath();
 				targetLayer.CanvasContext.stroke();
 			}
+		}
+		
+		if (1){
+			var data = "data:image/svg+xml," + "<svg xmlns='http://www.w3.org/2000/svg' width='612' height='792'>" + "\n";
+			for (var j = 0 ;  j <rvDataSets[0].rvExtraLabels.length ; j++){
+				data = data +  	rvDataSets[0].rvExtraLabels[j].SVGLine + "\n";
+			}
+			data = data + "</svg>";
+			//alert(data);
+			var img = new Image();
+			img.src = data;
+			//img.onload = function() { ctx.drawImage(img, 0, 0); }
+			targetLayer.CanvasContext.drawImage(img, 0, 0);
 		}
 	}
 	function drawResidues(targetLayer, dataIndices, ColorArray, noClear) {
