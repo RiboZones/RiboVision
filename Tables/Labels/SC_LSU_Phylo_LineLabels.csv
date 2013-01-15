@@ -1,5 +1,5 @@
 X1,Y1,X2,Y2,Fill,Stroke,StrokeWidth,StrokeLineJoin,StrokeMiterLimit
-"real(8,3)'","real(8,3)'","real(8,3)'","real(8,3)'",char(7),char(7),"real(6,3)'",char(5),"real(6,3)'"
+'real(8,3)','real(8,3)','real(8,3)','real(8,3)',char(7),char(7),'real(6,3)',char(5),'real(6,3)'
 351.256,377.973,353.671,377.973,,#231F20,0.25,round,10
 351.509,405.789,353.925,405.789,,#231F21,0.25,round,10
 376.173,411.627,376.214,414.045,,#231F22,0.25,round,10
