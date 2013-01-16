@@ -171,46 +171,12 @@ function RiboVisionReady() {
 	
 	$('.ui-slider-handle').height(21).width(21);
 	$("#TemplateLink").button();
-	$("#UserNameField").button().addClass('ui-textfield').keydown(function (event) {
-		if (event.keyCode == 13) {
-			$("#User-Name-Request").dialog("option", "buttons")['Ok'].apply($("#User-Name-Request"));
-		}
-	});
 	$("#newLayerName").button().addClass('ui-textfield').keydown(function (event) {
 		if (event.keyCode == 13) {
 			$("#dialog-addLayer").dialog("option", "buttons")['Create New Layer'].apply($("#dialog-addLayer"));
 		}
 	});
-		
-	$("#saveSelection").button().click(function () {
-		$("#User-Name-Request").dialog('open');
-	})
 	
-	$("#savedSelections").multiselect({
-		minWidth : 160,
-		click : function (event, ui) {
-			var array_of_checked_values = $("#savedSelections").multiselect("getChecked").map(function () {
-					return this.value;
-				});
-			clearSelection();
-			$.each(array_of_checked_values, function (i, val) {
-				commandSelect(val.replace(/\,/g, ";"))
-			});
-		},
-		uncheckAll : function () {
-			clearSelection();
-		},
-		checkAll : function (event, ui) {
-			var array_of_checked_values = $("#savedSelections").multiselect("getChecked").map(function () {
-					return this.value;
-				});
-			clearSelection();
-			$.each(array_of_checked_values, function (i, val) {
-				commandSelect(val.replace(/\,/g, ";"))
-			});
-		}
-	});
-	$("#savedSelections").multiselect().multiselectfilter();
 	$("#dialog-addLayer").dialog({
 		resizable : false,
 		autoOpen : false,
@@ -322,28 +288,7 @@ function RiboVisionReady() {
 			$("#jmolApplet0").css("visibility", "visible");
 		}
 	});
-	$("#User-Name-Request").dialog({
-		resizable : false,
-		autoOpen : false,
-		height : "auto",
-		width : 400,
-		modal : true,
-		buttons : {
-			"Ok" : function () {
-				$("#savedSelections").append(new Option($("#UserNameField").val(), $("#selectDiv").text().replace(/\s/g, "").replace(/\([^\)]*\)/g,"")));
-				$("#savedSelections").multiselect("refresh");
-				SelectionMenu(rvDataSets[0].Selections[0]);
-				RefreshSelectionMenu();
-				$(this).dialog("close");
-			}
-		},
-		open : function () {
-			$("#jmolApplet0").css("visibility", "hidden");
-		},
-		close : function () { 
-			$("#jmolApplet0").css("visibility", "visible");
-		}
-	});
+	
 	$("#Privacy-confirm").dialog({
 		resizable : false,
 		autoOpen : false,

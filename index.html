@@ -108,18 +108,18 @@
                 <div id="SelectionDiv">
                     Selection Options:<br />
                     <input id="commandline" type="text" onkeydown="if (event.keyCode == 13) document.getElementById(&#39;commandSelect&#39;).click();" /><br />
-                    <input id="commandSelect" name="selebutton" type="button" onclick="JavaScript:commandSelect();" value="Apply Selection 2D" /> <input id=
-                    "select3d" name="selebutton" type="button" onclick="JavaScript:commandSelect();updateModel();" value="Apply Selection 3D" /> <input id=
-                    "saveSelection" name="saveSelection" type="button" value="Save Selection" /> <input id="clearselection" name="selebutton" type="button"
+                    <input id="commandSelect" name="selebutton" type="button" onclick="JavaScript:commandSelect();" value="Apply Selection 2D" /> 
+					
+					<input id=
+                    "select3d" name="selebutton" type="button" onclick="JavaScript:commandSelect();updateModel();" value="Apply Selection 3D" /> 
+					
+					<input id="clearselection" name="selebutton" type="button"
                     onclick="JavaScript:clearSelection();" value="Clear Selection" /><br />
                     <br />
                     Select Residues by Domain and/or Helix:<br />
                     <select id="selectByDomainHelix" name="SelectByDomainHelix" multiple="multiple">
                         </select><br />
-                    Saved Selections:<br />
-                    <select id="savedSelections" name="savedSelections" multiple="multiple">
-                        </select>
-                </div>
+
 
                 <h3><a href="#">Structure Data</a></h3>
 
@@ -228,9 +228,6 @@
 
     <div id="Privacy-confirm" title="Privacy Policy"></div>
 
-    <div id="User-Name-Request" title="Please Enter a Name">
-        <p>Please type a name for the variable you are saving.</p><input id="UserNameField" name="UserNameField" type="text" />
-    </div>
 
     <div id="dialog-addLayer" title="Create a New Layer">
         <input id="newLayerName" name="newLayerName" type="text" />
