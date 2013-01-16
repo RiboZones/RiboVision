@@ -463,7 +463,7 @@ function RiboVisionReady() {
 	noneSelectedText: "Select a Species and Molecule",
 	selectedList: 1
 	});*/
-	//$("#speciesList").menu({});
+	$("#speciesList").menu({});
 	$("#selectByDomainHelix").multiselect({
 		minWidth : 160,
 		click : function (event, ui) {
@@ -894,13 +894,9 @@ function InitRibovision() {
 			
 		});
 		
-		//$("#speciesList").menu("refresh");
-		$('#speciesList').dcDrilldown();
-		
-		/*
+		$("#speciesList").menu("refresh");
 		var list = $('#speciesList');
 		var firstLI = list.find('li').first();
-		
 		list
 		.iosMenu()
 		.focus()
@@ -909,7 +905,7 @@ function InitRibovision() {
 			var species = $(ui.item).find("a").attr('href');
 			loadSpecies(species.substr(1));
 			
-		});*/
+		});
 		
 		/*
 		var ml = document.getElementById("speciesList");
