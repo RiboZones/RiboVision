@@ -483,7 +483,7 @@ function rvDataSet(DataSetName) {
 				targetLayer.CanvasContext.stroke();
 			}
 		}
-		
+		/*
 		var data = "data:image/svg+xml," + "<svg xmlns='http://www.w3.org/2000/svg' width='612' height='792'>" + "\n";
 		for (var j = 0 ;  j < rvDataSets[0].rvExtraLabels.length ; j++){
 			data +=	rvDataSets[0].rvExtraLabels[j].SVGLine;
@@ -495,6 +495,7 @@ function rvDataSet(DataSetName) {
 		img.src = "js/RiboVision/SC_28S_Struct_Dash_Lines_v.svg";
 		img.onload = function() { targetLayer.CanvasContext.drawImage(img, 0, 0,612,792); };
 		//targetLayer.CanvasContext.drawImage(img, 0, 0);
+		*/
 	}
 	function drawResidues(targetLayer, dataIndices, ColorArray, noClear) {
 		if (targetLayer.Type === "residues") {

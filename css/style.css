@@ -24,16 +24,6 @@
 	
 }
 
-#currentDiv{
-	width:auto;
-}
-
-#selectDiv{
-	width:auto;
-	height:300px;
-	overflow:auto;
-}
-
 #menu{
 	width: inherit;
 	position:absolute;
@@ -46,11 +36,7 @@
 	-moz-box-sizing:border-box; /* Firefox */
 	-webkit-box-sizing:border-box; /* Safari */
 }
-/*
-#ManLink {
-	position : absolute;
-	bottom : 100%;
-}*/
+
 #LogoDiv{
 	position : absolute;
 	left : 0px;
@@ -69,6 +55,7 @@
 	height:60%;
 	width : 100%;
 }
+
 #MainLogo {
 	display:block;
 	margin-left:auto;
@@ -266,7 +253,17 @@ body{
 	margin-bottom: 6px;
 }
 
+#SelectionPanel {
+	margin-bottom: 6px;
+}
+
 .layerName {
+	height:1.5em;
+	line-height: 1.2em;
+	font-size: 1.2em;
+}
+
+.selectionName {
 	height:1.5em;
 	line-height: 1.2em;
 	font-size: 1.2em;
@@ -281,10 +278,11 @@ body{
 	/*background: #0000FF;*/
 }
 
-.layerVisiblity {
-	left:3px;
-}
 .layerContent {
+	padding:0em 0.8em;
+}
+
+.selectionContent {
 	padding:0em 0.8em;
 }
 
