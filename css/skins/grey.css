@@ -1,0 +1,17 @@
+.grey .dd-wrapper {background: #ececec; color: #222; font: bold 12px Arial, sans-serif; border: 1px solid #ccc;}
+.grey .dd-menu {border-top: 1px solid #ccc;}
+.grey .dd-menu a {text-decoration: none; padding: 10px 10px 10px 50px; display: block; color: #222; border-bottom: 1px solid #ccc; border-top: 1px solid #fff; position: relative; text-shadow: 1px 1px 1px #fff;}
+.grey .dd-menu a:hover {background: #ccc; color: #000;}
+.grey .dd-menu li a .dd-icon {position: absolute; top: 50%; left: 14px; width: 34px; margin-top: -15px; height: 34px; background: url(images/arrow_grey_right.png) no-repeat 0 center;}
+.grey .dd-menu li.dd-parent a.dd-parent-a{background: #ececec url(images/bg_grey.png) repeat-x center center;}
+.grey .dd-menu li.dd-parent a:hover {color: #990000;}
+.grey .dd-menu li.dd-parent a.active .dd-icon {}
+.grey .dd-menu li.dd-parent a.active {color: #000; background: #ececec;}
+.grey .dd-header {font: normal 11px Arial, sans-serif;}
+.grey .dd-header ul {width: 100%; overflow: hidden; line-height: 1.5em; padding: 5px 10px;}
+.grey .dd-header li {display: inline;}
+.grey .dd-header li a {text-decoration: none; float: left; display: block; padding: 1px 15px 1px 5px; background: url(images/arrow_red_right.png) no-repeat 100% center; color: #222;}
+.grey .dd-header li a:hover {color: #990000; text-decoration: underline;}
+.grey .dd-header a.link-back {text-decoration: none; display: block; padding: 5px 10px 0 20px; background: url(images/arrow_red_left.png) no-repeat 0 center; color: #222;}
+.grey .dd-header h3 {clear: both; padding: 5px 10px; margin: 0; font-size: 1.1em;}
+.grey .dd-header h3 .dd-count {display: none;}

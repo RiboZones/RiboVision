@@ -484,18 +484,17 @@ function rvDataSet(DataSetName) {
 			}
 		}
 		
-		if (1){
-			var data = "data:image/svg+xml," + "<svg xmlns='http://www.w3.org/2000/svg' width='612' height='792'>" + "\n";
-			for (var j = 0 ;  j <rvDataSets[0].rvExtraLabels.length ; j++){
-				data = data +  	rvDataSets[0].rvExtraLabels[j].SVGLine + "\n";
-			}
-			data = data + "</svg>";
-			//alert(data);
-			var img = new Image();
-			img.src = data;
-			//img.onload = function() { ctx.drawImage(img, 0, 0); }
-			targetLayer.CanvasContext.drawImage(img, 0, 0);
+		var data = "data:image/svg+xml," + "<svg xmlns='http://www.w3.org/2000/svg' width='612' height='792'>" + "\n";
+		for (var j = 0 ;  j < rvDataSets[0].rvExtraLabels.length ; j++){
+			data +=	rvDataSets[0].rvExtraLabels[j].SVGLine;
 		}
+		data +="</svg>";
+		//alert(data);
+		var img = new Image();
+		//img.src = data;
+		img.src = "js/RiboVision/SC_28S_Struct_Dash_Lines_v.svg";
+		img.onload = function() { targetLayer.CanvasContext.drawImage(img, 0, 0,612,792); };
+		//targetLayer.CanvasContext.drawImage(img, 0, 0);
 	}
 	function drawResidues(targetLayer, dataIndices, ColorArray, noClear) {
 		if (targetLayer.Type === "residues") {
