@@ -636,6 +636,8 @@ function InitRibovision() {
 	});
 
 	$("#clearLayer").click(function () {
+		targetLayer = rvDataSets[0].getSelectedLayer();
+		targetLayer.clearAll();
 		//$("#dialog-addSelection").dialog("open");
 	});
 	

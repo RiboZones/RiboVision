@@ -89,6 +89,29 @@ function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color) 
 			alert("this shouldn't happen");
 		}
 	}
+	this.clearAll = function (){
+		switch (this.Type){
+			case "circles":
+				this.DataLabel = "empty data";
+				$(this).parent().find(".DataDescription").text("");
+				$("[name=" + this.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
+				this.clearData();
+				rvDataSets[0].clearCanvas(this.LayerName);
+				update3Dcolors();
+				break;
+			case "residues":
+				clearColor(false);
+				update3Dcolors();
+				break;
+			case "lines":
+				this.DataLabel = "None";
+				$(this).find(".layerContent").find("[name=datalabel]").text("None").append($("<br>")).append($("<br>"));
+				$(this).parent().parent().find(".DataDescription").text("Empty Data");
+				refreshBasePairs("clear_lines");
+				break;
+			default:
+		}			
+	}
 }
 
 function RvSelection(SelectionName,rvResidues,rvColor){

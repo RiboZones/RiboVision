@@ -55,7 +55,7 @@ $("#clearSelection").button({
 });
 
 $("#clearSelection").click(function () {
-	//$("#dialog-addSelection").dialog("open");
+	clearSelection();
 });
 
 $("#deleteSelection").button({
