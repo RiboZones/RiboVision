@@ -56,7 +56,7 @@ function RiboVisionReady() {
 			duration : 500
 		},
 		height : 600,
-		width : 315,
+		width : 370,
 		position : {
 			my : "right top",
 			at : "right top",
@@ -616,6 +616,7 @@ function InitRibovision() {
 			'name' : 'TopLayerBar'
 		}).html("C&nbspV&nbsp&nbsp&nbspS&nbsp&nbsp&nbsp&nbspL&nbsp&nbsp&nbsp&nbspLayerName&nbsp&nbsp")); // where to add letters
 	$('[name=TopLayerBar]').append($('<button id="newLayer" class="toolBarBtn2" title="Create a new layer"></button>'));
+	$('[name=TopLayerBar]').append($('<button id="clearLayer" class="toolBarBtn2" title="Clear the selected layer"></button>'));	
 	$('[name=TopLayerBar]').append($('<button id="deleteLayer" class="toolBarBtn2" title="Delete the selected layer"></button>'));
 	$("#newLayer").button({
 		text : false,
@@ -623,27 +624,48 @@ function InitRibovision() {
 			primary : "ui-icon-document"
 		}
 	});
-	$("#newLayer").css('height', $("#openLayerBtn").css('height'));
-	$("#newLayer").css('width', $("#openLayerBtn").css('width'));
-	$("#newSelection").css('height', $("#openLayerBtn").css('height'));
-	$("#newSelection").css('width', $("#openLayerBtn").css('width'));
-	$("#deleteSelection").css('height', $("#openLayerBtn").css('height'));
-	$("#deleteSelection").css('width', $("#openLayerBtn").css('width'));
 	$("#newLayer").click(function () {
 		$("#dialog-addLayer").dialog("open");
 	});
+	
+	$("#clearLayer").button({
+		text : false,
+		icons : {
+			primary : "ui-icon-cancel"
+		}
+	});
+
+	$("#clearLayer").click(function () {
+		//$("#dialog-addSelection").dialog("open");
+	});
+	
 	$("#deleteLayer").button({
 		text : false,
 		icons : {
 			primary : "ui-icon-trash"
 		}
 	});
-	$("#deleteLayer").css('height', $("#openLayerBtn").css('height'));
-	$("#deleteLayer").css('width', $("#openLayerBtn").css('width'));
+	
 	$("#deleteLayer").click(function (event) {
 		$("#dialog-confirm-delete p").append("The " + rvDataSets[0].getSelectedLayer().LayerName + " layer will be permanently deleted and cannot be recovered.");
 		$("#dialog-confirm-delete").dialog('open');
 	});
+	
+	$(".toolBarBtn2").css('height', $("#openLayerBtn").css('height'));
+	/*
+	$("#newLayer").css('height', $("#openLayerBtn").css('height'));
+	$("#newLayer").css('width', $("#openLayerBtn").css('width'));
+	$("#newSelection").css('height', $("#openLayerBtn").css('height'));
+	$("#newSelection").css('width', $("#openLayerBtn").css('width'));
+	$("#deleteSelection").css('height', $("#openLayerBtn").css('height'));
+	$("#deleteSelection").css('width', $("#openLayerBtn").css('width'));
+	$("#deleteLayer").css('height', $("#openLayerBtn").css('height'));
+	$("#deleteLayer").css('width', $("#openLayerBtn").css('width'));
+	*/
+	
+	
+	
+	
 	
 	// Put in Layers
 	$.each(rvDataSets[0].Layers, function (key, value){

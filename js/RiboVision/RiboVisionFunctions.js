@@ -1642,6 +1642,7 @@ function handleFileSelect(event) {
 				} else {
 					$("#FileDiv").find(".DataDescription").text("Data Description is missing.");
 				}
+				updateSelectionDiv(targetSelection.Name);
 			};
 		}
 	};

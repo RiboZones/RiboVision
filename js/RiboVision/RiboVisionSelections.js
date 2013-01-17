@@ -34,6 +34,7 @@ $("#SelectionPanel").prepend($("<div id='topBarS'>").attr({
 		'name' : 'TopSelectionBar'
 	}).html("C&nbspV&nbsp&nbsp&nbspS&nbsp&nbsp&nbsp&nbspL&nbsp&nbspSelectionName&nbsp")); // where to add letters
 $('[name=TopSelectionBar]').append($('<button id="newSelection" class="toolBarBtn2" title="Create a new selection"></button>'));
+$('[name=TopSelectionBar]').append($('<button id="clearSelection" class="toolBarBtn2" title="Clear the selected selection"></button>'));
 $('[name=TopSelectionBar]').append($('<button id="deleteSelection" class="toolBarBtn2" title="Delete the selected selection"></button>'));
 $("#newSelection").button({
 	text : false,
@@ -45,6 +46,18 @@ $("#newSelection").button({
 $("#newSelection").click(function () {
 	$("#dialog-addSelection").dialog("open");
 });
+
+$("#clearSelection").button({
+	text : false,
+	icons : {
+		primary : "ui-icon-cancel"
+	}
+});
+
+$("#clearSelection").click(function () {
+	//$("#dialog-addSelection").dialog("open");
+});
+
 $("#deleteSelection").button({
 	text : false,
 	icons : {
