@@ -583,122 +583,14 @@ function RiboVisionReady() {
 	$("[name=savelayers]").button();
 	$("#colorSelection").button();
 	//$("#layerColorSelection").button();
-	InitRibovision();
-};
-
-function InitRibovision() {
-	set_cookie("MeaningOfLife", "42", 42);
-	rvDataSets[0] = new rvDataSet("EmptyDataSet");
-	rvViews[0] = new rvView(20, 20, 1.2);
-	
-	// Create rvLayers
-	rvDataSets[0].addLayer("Data2", "CircleLayer1", [], true, 1.0, 'circles');
-	rvDataSets[0].addLayer("Data1", "CircleLayer2", [], true, 1.0, 'circles');
-	rvDataSets[0].addLayer("Selection", "SelectedLayer", [], false, 1.176, 'selected');
-	rvDataSets[0].addLayer("Residues", "ResidueLayer", [], true, 1.0, 'residues');
-	rvDataSets[0].addLayer("Labels", "LabelLayer", [], true, 1.0, 'labels');
-	rvDataSets[0].addLayer("Interactions1", "MainLineLayer", [], true, 1.0, 'lines');
-	rvDataSets[0].addLayer("ContourLine", "ContourLayer", [], true, 1.0, 'contour');
-	rvDataSets[0].addHighlightLayer("HighlightLayer", "HighlightLayer", [], false, 1.176, 'highlight');
-	rvDataSets[0].addSelection("Main");
-	//creat popup window in canvas
-	//rvDataSets[0].addHighlightLayer("ResidueInfoLayer", "ResidueInfoLayer", [], false, 1.176, 'residueInfo');
-	
-	HighlightLayer = rvDataSets[0].HighlightLayer.Canvas;
-	
-	// Sort rvLayers by zIndex for convience
-	rvDataSets[0].sort();
-	
-	// Build Layer Menu
-	
-	// Put in Top Labels and ToolBar
-	$("#LayerPanel").prepend($("<div id='tipBar'>").attr({
-			'name' : 'TopLayerBar'
-		}).html("C&nbspV&nbsp&nbsp&nbspS&nbsp&nbsp&nbsp&nbspL&nbsp&nbsp&nbsp&nbspLayerName&nbsp&nbsp")); // where to add letters
-	$('[name=TopLayerBar]').append($('<button id="newLayer" class="toolBarBtn2" title="Create a new layer"></button>'));
-	$('[name=TopLayerBar]').append($('<button id="clearLayer" class="toolBarBtn2" title="Clear the selected layer"></button>'));	
-	$('[name=TopLayerBar]').append($('<button id="deleteLayer" class="toolBarBtn2" title="Delete the selected layer"></button>'));
-	$("#newLayer").button({
-		text : false,
-		icons : {
-			primary : "ui-icon-document"
-		}
-	});
-	$("#newLayer").click(function () {
-		$("#dialog-addLayer").dialog("open");
-	});
-	
-	$("#clearLayer").button({
-		text : false,
-		icons : {
-			primary : "ui-icon-cancel"
-		}
-	});
-
-	$("#clearLayer").click(function () {
-		targetLayer = rvDataSets[0].getSelectedLayer();
-		targetLayer.clearAll();
-		//$("#dialog-addSelection").dialog("open");
-	});
-	
-	$("#deleteLayer").button({
-		text : false,
-		icons : {
-			primary : "ui-icon-trash"
-		}
-	});
-	
-	$("#deleteLayer").click(function (event) {
-		$("#dialog-confirm-delete p").append("The " + rvDataSets[0].getSelectedLayer().LayerName + " layer will be permanently deleted and cannot be recovered.");
-		$("#dialog-confirm-delete").dialog('open');
-	});
-	
-	$(".toolBarBtn2").css('height', $("#openLayerBtn").css('height'));
-	/*
-	$("#newLayer").css('height', $("#openLayerBtn").css('height'));
-	$("#newLayer").css('width', $("#openLayerBtn").css('width'));
-	$("#newSelection").css('height', $("#openLayerBtn").css('height'));
-	$("#newSelection").css('width', $("#openLayerBtn").css('width'));
-	$("#deleteSelection").css('height', $("#openLayerBtn").css('height'));
-	$("#deleteSelection").css('width', $("#openLayerBtn").css('width'));
-	$("#deleteLayer").css('height', $("#openLayerBtn").css('height'));
-	$("#deleteLayer").css('width', $("#openLayerBtn").css('width'));
-	*/
-	
-	
-	
-	
-	
-	// Put in Layers
-	$.each(rvDataSets[0].Layers, function (key, value){
-		LayerMenu(value, key);
-	});
-	
-	// Put in Selections
-	//SelectionMenu(rvDataSets[0].Selections);
-	$.each(rvDataSets[0].Selections, function (key, value){
-		SelectionMenu(value, key);
-	});
-	$("#SelectionPanel div").first().next().find(".selectSelectionRadioBtn").attr("checked", "checked");
-	RefreshSelectionMenu();
-	
-	//Accordion that support multiple sections open
-	$("#LayerPanel").multiAccordion();
-	$("#LayerPanel").sortable({
-		update : function (event, ui) {
-			$("#LayerPanel .layerContent").each(function (e, f) {
-				//$(this).find('p').text(rvDataSets[0].LastLayer - e - 1);
-				$("#" + rvDataSets[0].getLayer($(this).parent().attr("name")).CanvasName).css('zIndex', rvDataSets[0].LastLayer - e - 1)
-			});
-			rvDataSets[0].sort();
-		},
-		items : ".oneLayerGroup"
-		
-	});
-	$("#LayerPanel").disableSelection();
-	
-	//RefreshLayerMenu();
-		
+	if(typeof(Storage)!=="undefined"){
+	  localStorageAvailable = true;
+	  // Yes! localStorage and sessionStorage support!
+	  // Some code.....
+	}else{
+	  localStorageAvailable = false;
+	  alert("Sorry! No web storage support..");
+	}
 	
 	$("#ProtList").bind("multiselectclick", function (event, ui) {
 		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
@@ -783,6 +675,220 @@ function InitRibovision() {
 			rvDataSets[0].clearCanvas("lines");
 		}
 	});
+	// Check for the various File API support.
+	if (window.File && window.FileReader && window.FileList && window.Blob) {
+		// Great success! All the File APIs are supported.
+		$("#files").on('change', function (event) {
+			handleFileSelect(event);
+		});
+		
+		//document.getElementById('files').addEventListener('change',{$('#files').on('change', handleFileSelect);handleFileSelect}, false);
+		//alert('File APIs are as good as Curiosity');
+	} else {
+		dd = document.getElementById('FileDiv');
+		dd.innerHTML = "Your browser doesn't support file loading feature. IE does not support it until IE10+.";
+	}
+	
+	modeSelect("move");
+	
+	$("#canvasDiv").bind("mousedown", mouseEventFunction);
+	$("#canvasDiv").bind("mouseup", mouseEventFunction);
+	$(window).bind("mouseup", function (event) {
+		$("#canvasDiv").unbind("mousemove", dragHandle);
+		return false;
+	});
+	
+	$(window).bind("resize", resizeElements);
+	$("#canvasDiv").bind('mousewheel', function (event, delta) {
+		rvViews[0].zoom(event, delta);
+		
+		var sel = getSelected(event);
+		rvDataSets[0].HighlightLayer.clearCanvas();
+		
+		if (sel == -1) {
+			//document.getElementById("currentDiv").innerHTML = "<br/>";
+		} else {
+			//document.getElementById("currentDiv").innerHTML = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[sel].ChainID)] + ":" + rvDataSets[0].Residues[sel].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+			
+			rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
+			rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, 2, 0, 2 * Math.PI, false);
+			rvDataSets[0].HighlightLayer.CanvasContext.closePath();
+			rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
+			rvDataSets[0].HighlightLayer.CanvasContext.stroke();
+			
+		}
+		if (drag) {
+			rvViews[0].drag(event);
+		}
+		return false;
+		
+	});
+	$("#canvasDiv").bind("mousemove", function (event) {
+		var sel = getSelected(event);
+		var selLine = getSelectedLine(event);
+		rvDataSets[0].HighlightLayer.clearCanvas();
+		
+		if (sel == -1) {
+			//document.getElementById("currentDiv").innerHTML = "<br/>";
+			// remove previous popup windonw if exists
+			/*
+			var popup = document.getElementById("residuetip")
+		    if (popup) {
+		    	popup.parentNode.removeChild(popup);
+		    }*/
+			$("#ResidueTip").tooltip("close");
+		} else {
+			$("#ResidueTip").tooltip("close");
+			/*
+			document.getElementById("currentDiv").innerHTML = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[sel].ChainID)] + ":" + rvDataSets[0].Residues[sel].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + "(" + rvDataSets[0].Residues[sel].CurrentData + ")";
+			if (rvDataSets[0].Residues[sel].resNum.replace(/[^:]*:/g, "") == 42) {
+				document.getElementById("currentDiv").innerHTML = document.getElementById("currentDiv").innerHTML + ". You found the secret base! ";
+			}*/
+			
+			rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
+			rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, 2, 0, 2 * Math.PI, false);
+			rvDataSets[0].HighlightLayer.CanvasContext.closePath();
+			rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
+			rvDataSets[0].HighlightLayer.CanvasContext.stroke();
+			
+			createInfoWindow(sel);
+			$("#ResidueTip").css("bottom",$(window).height() - event.clientY);
+			$("#ResidueTip").css("left",event.clientX);
+			$("#ResidueTip").tooltip("open");
+		}
+		if (drag) {
+			rvViews[0].drag(event);
+		}
+		
+		if(selLine != -1){
+			var j = rvDataSets[0].BasePairs[selLine].resIndex1;
+			var k = rvDataSets[0].BasePairs[selLine].resIndex2;
+				rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
+				rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
+				rvDataSets[0].HighlightLayer.CanvasContext.moveTo(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y);
+				rvDataSets[0].HighlightLayer.CanvasContext.lineTo(rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
+				rvDataSets[0].HighlightLayer.CanvasContext.closePath();
+				rvDataSets[0].HighlightLayer.CanvasContext.stroke();
+			//$("#currentDiv").html(rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[j].ChainID)] + ":" + rvDataSets[0].Residues[j].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + " - " + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[k].ChainID)] + ":" + rvDataSets[0].Residues[k].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + " (" + rvDataSets[0].BasePairs[selLine].bp_type + ")");
+
+		}
+		
+		////add popup window
+		//createInfoWindow(event); 
+		
+	});
+	///////For popup window////
+	function createInfoWindow(ResIndex){
+    	addPopUpWindow(ResIndex);
+		$("#ResidueTip").tooltip("option","content",$("#residuetip").html());
+	}
+	
+  /////////////
+	
+	$("#canvasDiv").bind("mouseout", function (event) {
+		$("#canvasDiv").trigger({
+			type : 'mouseup',
+			which : 1,
+			clientX : event.clientX,
+			clientY : event.clientY
+		});
+		rvDataSets[0].HighlightLayer.clearCanvas();
+		
+	});
+	   $( "#canvasPorportionSlider" ).slider({
+    	min : 5,
+		max : 95,
+		value : 50,
+		orientation : "horizontal",
+		slide : function (event, ui) {
+			PanelDivide = ui.value / 100;
+			resizeElements();
+			//views_proportion_change($(this).slider("value"), 100-$(this).slider("value"));
+		}
+    });
+	
+
+	//$("#canvasPorportionSlider").slider({ from: 0, to: 100, step: 1, round: 1, limits:false, dimension: '&nbsp;%', skin: "blue", scale: ['0%', '|', '20%', '|' , '40%', '|', '60%', '|', '80%', '|', '100%'] });
+
+    //var w = document.getElementById('canvasPorportionSlider').style.width;
+	
+	$( "#topPorportionSlider" ).slider({
+		min : 50,
+		max : 90,
+		value : 72,
+		orientation : "vertical",
+		slide : function (event, ui) {
+			TopDivide = (100 - ui.value) / 100;
+			resizeElements();
+			//views_proportion_change($(this).slider("value"), 100-$(this).slider("value"));
+		}
+	});
+	$('.ui-slider-handle').height(21).width(21);  
+	InitRibovision();
+	$( "#lineOpacitySlider" ).slider({
+    	min : 0,
+		max : 100,
+		value : 100,
+		orientation : "horizontal",
+		slide : function (event, ui) {
+			//changeLineOpacity($(this).slider("value"));
+		}
+    });  
+	$('.ui-slider-handle').height(21).width(21);  
+};
+
+function InitRibovision() {
+	//set_cookie("MeaningOfLife", "42", 42);
+	if (localStorageAvailable && localStorage.rvDataSets){
+		rvDataSets = localStorage.rvDataSets;
+	} else {
+		rvDataSets[0] = new rvDataSet("EmptyDataSet");
+		// Create rvLayers
+		rvDataSets[0].addLayer("Data2", "CircleLayer1", [], true, 1.0, 'circles');
+		rvDataSets[0].addLayer("Data1", "CircleLayer2", [], true, 1.0, 'circles');
+		rvDataSets[0].addLayer("Selection", "SelectedLayer", [], false, 1.176, 'selected');
+		rvDataSets[0].addLayer("Residues", "ResidueLayer", [], true, 1.0, 'residues');
+		rvDataSets[0].addLayer("Labels", "LabelLayer", [], true, 1.0, 'labels');
+		rvDataSets[0].addLayer("Interactions1", "MainLineLayer", [], true, 1.0, 'lines');
+		rvDataSets[0].addLayer("ContourLine", "ContourLayer", [], true, 1.0, 'contour');
+		rvDataSets[0].addHighlightLayer("HighlightLayer", "HighlightLayer", [], false, 1.176, 'highlight');
+		rvDataSets[0].addSelection("Main");
+		// Sort rvLayers by zIndex for convience
+		rvDataSets[0].sort();
+	}
+	if (localStorageAvailable && localStorage.rvViews){
+		rvViews = localStorage.rvViews;
+	} else {
+		rvViews[0] = new rvView(20, 20, 1.2);
+	}
+	rvViews[0].width = rvDataSets[0].HighlightLayer.Canvas.width;
+	rvViews[0].height = rvDataSets[0].HighlightLayer.Canvas.height;
+	rvViews[0].cWidth = rvDataSets[0].HighlightLayer.Canvas.clientWidth;
+	rvViews[0].cHeight = rvDataSets[0].HighlightLayer.Canvas.clientHeight;
+	
+
+	// Put in Layers
+	$.each(rvDataSets[0].Layers, function (key, value){
+		LayerMenu(value, key);
+	});
+	RefreshLayerMenu();
+	
+	// Put in Selections
+	$.each(rvDataSets[0].Selections, function (key, value){
+		SelectionMenu(value, key);
+	});
+	//Default check first selection. Come back to these to restore saved state
+	$("#SelectionPanel div").first().next().find(".selectSelectionRadioBtn").attr("checked", "checked");
+	RefreshSelectionMenu();
+			
+	document.getElementById("moveMode").checked = true;
+	document.getElementById("ProtList").selectedIndex = 0;
+	document.getElementById("alnList").selectedIndex = 0;
+	document.getElementById("PrimaryInteractionList").selectedIndex = 0;
+	document.getElementById("speciesList").selectedIndex = 0;
+	document.getElementById('commandline').value = "";	
+	
+	resizeElements();
 	
 	$.getJSON('getData.php', {
 		FetchMapList : "42"
@@ -889,183 +995,5 @@ function InitRibovision() {
 		 */
 	});
 	
-	// Check for the various File API support.
-	if (window.File && window.FileReader && window.FileList && window.Blob) {
-		// Great success! All the File APIs are supported.
-		$("#files").on('change', function (event) {
-			handleFileSelect(event);
-		});
-		
-		//document.getElementById('files').addEventListener('change',{$('#files').on('change', handleFileSelect);handleFileSelect}, false);
-		//alert('File APIs are as good as Curiosity');
-	} else {
-		dd = document.getElementById('FileDiv');
-		dd.innerHTML = "Your browser doesn't support file loading feature. IE does not support it until IE10+.";
-	}
-	
-	modeSelect("move");
-	
-	$("#canvasDiv").bind("mousedown", mouseEventFunction);
-	$("#canvasDiv").bind("mouseup", mouseEventFunction);
-	$(window).bind("mouseup", function (event) {
-		$("#canvasDiv").unbind("mousemove", dragHandle);
-		return false;
-	});
-	
-	$(window).bind("resize", resizeElements);
-	
-	$("#canvasDiv").bind('mousewheel', function (event, delta) {
-		rvViews[0].zoom(event, delta);
-		
-		var sel = getSelected(event);
-		rvDataSets[0].HighlightLayer.clearCanvas();
-		
-		if (sel == -1) {
-			//document.getElementById("currentDiv").innerHTML = "<br/>";
-		} else {
-			//document.getElementById("currentDiv").innerHTML = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[sel].ChainID)] + ":" + rvDataSets[0].Residues[sel].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-			
-			rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
-			rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, 2, 0, 2 * Math.PI, false);
-			rvDataSets[0].HighlightLayer.CanvasContext.closePath();
-			rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
-			rvDataSets[0].HighlightLayer.CanvasContext.stroke();
-			
-		}
-		if (drag) {
-			rvViews[0].drag(event);
-		}
-		return false;
-		
-	});
-	$("#canvasDiv").bind("mousemove", function (event) {
-		var sel = getSelected(event);
-		var selLine = getSelectedLine(event);
-		rvDataSets[0].HighlightLayer.clearCanvas();
-		
-		if (sel == -1) {
-			//document.getElementById("currentDiv").innerHTML = "<br/>";
-			// remove previous popup windonw if exists
-			/*
-			var popup = document.getElementById("residuetip")
-		    if (popup) {
-		    	popup.parentNode.removeChild(popup);
-		    }*/
-			$("#ResidueTip").tooltip("close");
-		} else {
-			$("#ResidueTip").tooltip("close");
-			/*
-			document.getElementById("currentDiv").innerHTML = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[sel].ChainID)] + ":" + rvDataSets[0].Residues[sel].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + "(" + rvDataSets[0].Residues[sel].CurrentData + ")";
-			if (rvDataSets[0].Residues[sel].resNum.replace(/[^:]*:/g, "") == 42) {
-				document.getElementById("currentDiv").innerHTML = document.getElementById("currentDiv").innerHTML + ". You found the secret base! ";
-			}*/
-			
-			rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
-			rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, 2, 0, 2 * Math.PI, false);
-			rvDataSets[0].HighlightLayer.CanvasContext.closePath();
-			rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
-			rvDataSets[0].HighlightLayer.CanvasContext.stroke();
-			
-			createInfoWindow(sel);
-			$("#ResidueTip").css("bottom",$(window).height() - event.clientY);
-			$("#ResidueTip").css("left",event.clientX);
-			$("#ResidueTip").tooltip("open");
-		}
-		if (drag) {
-			rvViews[0].drag(event);
-		}
-		
-		if(selLine != -1){
-			var j = rvDataSets[0].BasePairs[selLine].resIndex1;
-			var k = rvDataSets[0].BasePairs[selLine].resIndex2;
-				rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
-				rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
-				rvDataSets[0].HighlightLayer.CanvasContext.moveTo(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y);
-				rvDataSets[0].HighlightLayer.CanvasContext.lineTo(rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
-				rvDataSets[0].HighlightLayer.CanvasContext.closePath();
-				rvDataSets[0].HighlightLayer.CanvasContext.stroke();
-			//$("#currentDiv").html(rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[j].ChainID)] + ":" + rvDataSets[0].Residues[j].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + " - " + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[k].ChainID)] + ":" + rvDataSets[0].Residues[k].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + " (" + rvDataSets[0].BasePairs[selLine].bp_type + ")");
-
-		}
-		
-		////add popup window
-		//createInfoWindow(event); 
-		
-	});
-	
-	///////For popup window////
-	function createInfoWindow(ResIndex){
-    	addPopUpWindow(ResIndex);
-		$("#ResidueTip").tooltip("option","content",$("#residuetip").html());
-	}
-	
-  /////////////
-	
-	$("#canvasDiv").bind("mouseout", function (event) {
-		$("#canvasDiv").trigger({
-			type : 'mouseup',
-			which : 1,
-			clientX : event.clientX,
-			clientY : event.clientY
-		});
-		rvDataSets[0].HighlightLayer.clearCanvas();
-		
-	});
-	
-	document.getElementById("moveMode").checked = true;
-	document.getElementById("ProtList").selectedIndex = 0;
-	document.getElementById("alnList").selectedIndex = 0;
-	document.getElementById("PrimaryInteractionList").selectedIndex = 0;
-	document.getElementById("speciesList").selectedIndex = 0;
-	document.getElementById('commandline').value = "";
-	resizeElements();
-		
 }
 ///////////////////////////////////////////////////////////////////////////////
-
-//using slider to change views size
-$(function() {
-    $( "#canvasPorportionSlider" ).slider({
-    	min : 5,
-		max : 95,
-		value : 50,
-		orientation : "horizontal",
-		slide : function (event, ui) {
-			PanelDivide = ui.value / 100;
-			resizeElements();
-			//views_proportion_change($(this).slider("value"), 100-$(this).slider("value"));
-		}
-    });
-	
-
-	//$("#canvasPorportionSlider").slider({ from: 0, to: 100, step: 1, round: 1, limits:false, dimension: '&nbsp;%', skin: "blue", scale: ['0%', '|', '20%', '|' , '40%', '|', '60%', '|', '80%', '|', '100%'] });
-
-    //var w = document.getElementById('canvasPorportionSlider').style.width;
-	
-	$( "#topPorportionSlider" ).slider({
-		min : 50,
-		max : 90,
-		value : 72,
-		orientation : "vertical",
-		slide : function (event, ui) {
-			TopDivide = (100 - ui.value) / 100;
-			resizeElements();
-			//views_proportion_change($(this).slider("value"), 100-$(this).slider("value"));
-		}
-	});
-	$('.ui-slider-handle').height(21).width(21);  
-})
-
-//using slider to change opacity of lines
-$(function() {
-	$( "#lineOpacitySlider" ).slider({
-    	min : 0,
-		max : 100,
-		value : 100,
-		orientation : "horizontal",
-		slide : function (event, ui) {
-			//changeLineOpacity($(this).slider("value"));
-		}
-    });  
-	$('.ui-slider-handle').height(21).width(21);  
-})

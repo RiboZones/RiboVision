@@ -35,7 +35,9 @@ var FileReaderFile;
 
 var FullBasePairSet;
 
+
 // Website Settings
+var localStorageAvailable = false;
 var zoomEnabled = true;
 var onebuttonmode;
 var clickedNASA = 0;
@@ -114,6 +116,17 @@ $.ajax({
 	type: "GET",
 	crossDomain : true,
 	url: "js/RiboVision/RiboVisionSelections.js",
+	dataType: "script",
+	success: function(){
+		$.holdReady(false);},
+	error: function(){
+		alert("js load fail");}
+});
+$.holdReady(true);
+$.ajax({
+	type: "GET",
+	crossDomain : true,
+	url: "js/RiboVision/RiboVisionLayers.js",
 	dataType: "script",
 	success: function(){
 		$.holdReady(false);},

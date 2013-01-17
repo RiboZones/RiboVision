@@ -26,184 +26,115 @@ based on:
 // for documentation see apollo.chemistry.gatech.edu/Ribovision/documentation
 //This doesn't exist and this probably won't be the final license.
 
-
-// Build Selection Menu
+// Build Layer Menu
 
 // Put in Top Labels and ToolBar
-$("#SelectionPanel").prepend($("<div id='topBarS'>").attr({
-		'name' : 'TopSelectionBar'
-	}).html("C&nbspV&nbsp&nbsp&nbspS&nbsp&nbsp&nbsp&nbspL&nbsp&nbspSelectionName&nbsp")); // where to add letters
-$('[name=TopSelectionBar]').append($('<button id="newSelection" class="toolBarBtn2" title="Create a new selection"></button>'));
-$('[name=TopSelectionBar]').append($('<button id="clearSelection" class="toolBarBtn2" title="Clear the selected selection"></button>'));
-$('[name=TopSelectionBar]').append($('<button id="deleteSelection" class="toolBarBtn2" title="Delete the selected selection"></button>'));
-$("#newSelection").button({
+$("#LayerPanel").prepend($("<div id='tipBar'>").attr({
+		'name' : 'TopLayerBar'
+	}).html("C&nbspV&nbsp&nbsp&nbspS&nbsp&nbsp&nbsp&nbspL&nbsp&nbsp&nbsp&nbspLayerName&nbsp&nbsp")); // where to add letters
+$('[name=TopLayerBar]').append($('<button id="newLayer" class="toolBarBtn2" title="Create a new layer"></button>'));
+$('[name=TopLayerBar]').append($('<button id="clearLayer" class="toolBarBtn2" title="Clear the selected layer"></button>'));	
+$('[name=TopLayerBar]').append($('<button id="deleteLayer" class="toolBarBtn2" title="Delete the selected layer"></button>'));
+$("#newLayer").button({
 	text : false,
 	icons : {
 		primary : "ui-icon-document"
 	}
 });
-
-$("#newSelection").click(function () {
-	$("#dialog-addSelection").dialog("open");
+$("#newLayer").click(function () {
+	$("#dialog-addLayer").dialog("open");
 });
 
-$("#clearSelection").button({
+$("#clearLayer").button({
 	text : false,
 	icons : {
 		primary : "ui-icon-cancel"
 	}
 });
 
-$("#clearSelection").click(function () {
-	clearSelection();
+$("#clearLayer").click(function () {
+	targetLayer = rvDataSets[0].getSelectedLayer();
+	targetLayer.clearAll();
+	//$("#dialog-addSelection").dialog("open");
 });
 
-$("#deleteSelection").button({
+$("#deleteLayer").button({
 	text : false,
 	icons : {
 		primary : "ui-icon-trash"
 	}
 });
 
-$("#deleteSelection").click(function (event) {
-	$("#dialog-confirm-delete-S p").text("The " + $('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name') + " selection will be permanently deleted and cannot be recovered.");
-	$("#dialog-confirm-delete-S").dialog('open');
+$("#deleteLayer").click(function (event) {
+	$("#dialog-confirm-delete p").append("The " + rvDataSets[0].getSelectedLayer().LayerName + " layer will be permanently deleted and cannot be recovered.");
+	$("#dialog-confirm-delete").dialog('open');
 });
 
-/*
-// Put in Layers
-$.each(rvDataSets[0].Layers, function (key, value){
-	LayerMenu(value, key);
-});
-
-//Accordion that support multiple sections open
-$("#LayerPanel").multiAccordion();
-$("#LayerPanel").sortable({
-	update : function (event, ui) {
-		$("#LayerPanel .layerContent").each(function (e, f) {
-			//$(this).find('p').text(rvDataSets[0].LastLayer - e - 1);
-			$("#" + $(this).parent().find('h3').text()).css('zIndex', rvDataSets[0].LastLayer - e - 1)
-			
-		});
-		rvDataSets[0].sort();
-	},
-	items : ".oneLayerGroup"
-	
-});
-$("#LayerPanel").disableSelection();
-
-//RefreshLayerMenu();
-*/
-///////////////////////// Add Selection Dialog ////////////////////////////////
-$("#dialog-addSelection").dialog({
-	resizable : false,
-	autoOpen : false,
-	height : "auto",
-	width : 400,
-	modal : true,
-	buttons : {
-		"Create New Selection" : function () {
-			var namecheck = $("#newSelectionName").val().match(/[A-z][\w-_:\.]*/);
-			if (namecheck[0].length === $("#newSelectionName").val().length && $("#newSelectionName").val().length <= 16){
-				if (rvDataSets[0].isUniqueSelection($("#newSelectionName").val())){
-					//$("#canvasDiv").append($('<canvas id="' + $("#newLayerName").val() + '" style="z-index:' + ( rvDataSets[0].LastLayer + 1 ) + ';"></canvas>')); 
-					//resizeElements();
-					rvDataSets[0].addSelection($("#newSelectionName").val(),[],$("#selectionColor2").val());
-					SelectionMenu(rvDataSets[0].getSelection($("#newSelectionName").val()));
-					RefreshSelectionMenu();
-					$(this).dialog("close");
-				} else {
-					$( "#dialog-unique-selection-error" ).dialog("open");
-				}
-				$(this).dialog("close");
-			} else {
-				$( "#dialog-name-error" ).dialog("open");
-			}
-		},
-		Cancel: function (){
-			$(this).dialog("close");
-		}
-	},
-	open : function () {
-		$("#jmolApplet0").css("visibility", "hidden");
-		$("#newSelectionName").val("Selection_" + (rvDataSets[0].Selections.length + 1));
-	},
-	close : function () { 
-		$("#jmolApplet0").css("visibility", "visible");
-	}
-});
-$("#dialog-addSelection p").append("Not done yet." + 
-	"<br><br>Please enter a name for the new Selection.");
-
-	///////////////////////// Delete Selection Dialog ////////////////////////////////
-$("#dialog-confirm-delete-S").dialog({
-	resizable : false,
-	autoOpen : false,
-	height : "auto",
-	width : 400,
-	modal : true,
-	buttons : {
-		"Delete the Selection" : function (event) {
-			$("[name=" + $('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name') + "]").remove();
-			rvDataSets[0].deleteSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
-			rvDataSets[0].drawSelection("selected");
-			$(this).dialog("close");
-		},
-		Cancel : function () {
-			$(this).dialog("close");
-		}
-	},
-	open : function (event) {
-		$("#jmolApplet0").css("visibility", "hidden");
-	},
-	close : function () { 
-		$("#jmolApplet0").css("visibility", "visible");
-	}
-});
-
-$("#newSelectionName").button().addClass('ui-textfield').keydown(function (event) {
-	if (event.keyCode == 13) {
-		$("#dialog-addSelection").dialog("option", "buttons")['Create New Selection'].apply($("#dialog-addSelection"));
-	}
-});
-
-$("#selectionNameInput").button().addClass('ui-textfield').keydown(function (event) {
-	if (event.keyCode == 13) {
-		changeCurrentSelectionName();
-	}
-});
-	
-$("#selectionColorPicker").farbtastic("#selectionColor");
-$("#selectionColorPicker2").farbtastic("#selectionColor2");
+$(".toolBarBtn2").css('height', $("#openLayerBtn").css('height'));
 
 
 
-function SelectionMenu(targetSelection, key, RVcolor) {
-	
-	$currentSelectionName = targetSelection.Name;
-	$('[name=TopSelectionBar]').after(($("<div>").addClass("oneSelectionGroup").attr({
-		'name' : $currentSelectionName
+
+function changeLayerColor(){
+	$($dblClickedLayer).parent().find(".colorBox").css("background",$("#layerColor").val());
+	targetLayer = rvDataSets[0].getLayer($dblClickedLayerName);
+	targetLayer.Color = $("#layerColor").val();
+	drawNavLine();
+	//console.log(42);
+	//$dblClickedLayerName = this.innerHTML.substring(this.innerHTML.lastIndexOf("</span>")+7);
+	//$dblClickedLayer = this;
+	//$($dblClickedLayer).parent().attr("name",$("#layerNameInput").val());
+	//console.log(color);
+}
+
+//in "Layer Preferfence" 
+function changeCurrentLayerName() {
+	//console.log("function changeCurrentLayerName is called!");
+	//console.log("current layer name: " + $dblClickedLayerName);	
+	//$($dblClickedLayer).innerHTML = document.getElementById("layerNameInput").value;
+	//$newName = document.getElementById("layerNameInput").value;
+	//$currentLayerName = $newName;
+	//console.log("new layer name: " + $newName);	
+	$($dblClickedLayer).parent().attr("name",$("#layerNameInput").val());
+	$($dblClickedLayer).html($("#layerNameInput").val()).prepend('<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-e"></span>');
+	targetLayer = rvDataSets[0].getLayer($dblClickedLayerName);
+	targetLayer.LayerName = $("#layerNameInput").val();
+	RefreshLayerMenu();
+}
+
+function LayerMenu(Layer, key, RVcolor) {
+	//console.log($count);
+	$currentLayerName = Layer.LayerName;
+	//console.log($currentLayerName);
+	$('[name=TopLayerBar]').after(($("<div>").addClass("oneLayerGroup").attr({
+		'name' : $currentLayerName
 	})));
+	//console.log("id:" + $('.oneLayerGroup').attr("name"));
+	//$('.oneLayerGroup').append(("<div>").addClass("visibilityCheckbox"));
+	//$('.visibilityCheckbox').append($("<input />").attr({type:'checkbox'}).addClass("layerVisiblity"))
 	
-	//This is necessary because if just use $('.oneSelectionGroup'), then duplicated layers will be added to different groups
-	$currentGroup = document.getElementsByName($currentSelectionName);
+	//This is necessary because if just use $('.oneLayerGroup'), then duplicated layers will be added to different groups
+	$currentGroup = document.getElementsByName($currentLayerName);
+	//console.log($currentGroup);
 	
 	//adding color box
 	$($currentGroup)
 	.append($("<div>").addClass("colorBox"));
-	//targetSelection = rvDataSets[0].getSelection($currentSelectionName);
+	targetLayer = rvDataSets[0].getLayer($currentLayerName);
 	if (RVcolor){
 		$($currentGroup).find(".colorBox").css("background",RVcolor);
-		targetSelection.Color = RVcolor;
+		targetLayer.Color = RVcolor;
 	} else {
-		$($currentGroup).find(".colorBox").css("background",targetSelection.Color);
+		$($currentGroup).find(".colorBox").css("background",targetLayer.Color);
 	}
-		
+	
+	//targetLayer.Color = $($currentGroup).find(".colorBox").css("background");
+	
 	//hide and show icon: eye 
 	$visibleImgPath = "images/visible.png";
 	$invisibleImgPath = "images/invisible.png";
 	$($currentGroup)
-	.append($("<div>").addClass("checkBoxDIV-S").css({
+	.append($("<div>").addClass("checkBoxDIV").css({
 			'float' : 'left',
 			'padding-top' : 5,
 			'margin-left' : 5,
@@ -217,20 +148,18 @@ function SelectionMenu(targetSelection, key, RVcolor) {
 			if($type == 'visible'){
 				this.setAttribute('value','invisible'); 
 				this.setAttribute('src', $invisibleImgPath);
-				rvDataSets[0].drawSelection("selected");
-				//targetLayer=rvDataSets[0].getLayer(this.parentNode.parentNode.getAttribute("name"));
-				//targetLayer.setVisibility("hidden");
+				targetLayer=rvDataSets[0].getLayer(this.parentNode.parentNode.getAttribute("name"));
+				targetLayer.setVisibility("hidden");
 			}
 			else if($type == 'invisible'){
 				this.setAttribute('value','visible');
 				this.setAttribute('src', $visibleImgPath);
-				rvDataSets[0].drawSelection("selected");
-				//targetLayer=rvDataSets[0].getLayer(this.parentNode.parentNode.getAttribute("name"));
-				//targetLayer.setVisibility("visible");
+				targetLayer=rvDataSets[0].getLayer(this.parentNode.parentNode.getAttribute("name"));
+				targetLayer.setVisibility("visible");
 			}
 		}))		
 	);
-			
+				
 	//adding raido button for selection		
 	$($currentGroup)
 	.append($("<div>").addClass("radioDIV").css({
@@ -240,11 +169,11 @@ function SelectionMenu(targetSelection, key, RVcolor) {
 		'width' : 20
 	}).append($("<input />").attr({
 			type : 'radio',
-			name : 'selectedRadioS',
-			title : 'select Selection' 
-		}).addClass("selectSelectionRadioBtn").change ( function (event) {
-			//rvDataSets[0].selectLayer($(event.currentTarget).parent().parent().attr("name"));
-			//drawNavLine();
+			name : 'selectedRadioL',
+			title : 'select layer' 
+		}).addClass("selectLayerRadioBtn").change ( function (event) {
+			rvDataSets[0].selectLayer($(event.currentTarget).parent().parent().attr("name"));
+			drawNavLine();
 			})));
 	
 	//raido button for telling 2D-3D mapping 
@@ -255,47 +184,48 @@ function SelectionMenu(targetSelection, key, RVcolor) {
 		'padding-left' : 5,
 		'width' : 20
 	}).append($("<input />").attr({
-			type : 'radio',	
-			name : 'mappingRadioS',
-			title : 'select which selection to map into 3D',
+			type : 'radio',
+			name : 'mappingRadioL',
+			title : 'select which layer to map into 3D',
 			disabled : 'disabled'
 		}).addClass("mappingRadioBtn").change (function (event) {
-			//rvDataSets[0].linkLayer($(event.currentTarget).parent().parent().attr("name"));
-			//update3Dcolors();
+			rvDataSets[0].linkLayer($(event.currentTarget).parent().parent().attr("name"));
+			update3Dcolors();
 			})));
-	 
+	/*
+	$selectBox = document.getElementsByClassName("checkBoxDIV");
+	console.log("DivDialog' width: " + $("#LayerDialog").width());
+	console.log("panelTabs' width: " + $("#PanelTabs").width());
+	console.log("CBDiv width: " + $('.checkBoxDIV').width());
+	console.log("checkbox width: " + $('.visibilityCheckBox').width());
+	$accordionWidth = $("#PanelTabs").width() - $('.visibilityCheckBox').width();
+	console.log("accordion width: " + $accordionWidth); //why 0??!!!
+	 */
+
 	//adding accordion
 	$($currentGroup)
-	.append($("<h3>").addClass("selectionName").css({
+	.append($("<h3>").addClass("layerName").css({
 			'margin-left' : 83
-		}).append($currentSelectionName)
+		}).append($currentLayerName)
 	.dblclick(function() { //double click to open dialog to change layer name and set color
 		//watch out! $currentLayerName != the layer you are clicking right now!
 		//open a dialog window for changing layer names
-		$("#SelectionPreferenceDialog").dialog("open");
+		$("#LayerPreferenceDialog").dialog("open");
 
 		//get the name of the layer that just got double clicked
-		$dblClickedSelectionName = this.innerHTML.substring(this.innerHTML.lastIndexOf("</span>")+7);
-		$dblClickedSelection = this;
-		document.getElementById("selectionNameInput").value = "";
-		document.getElementById("selectionNameInput").placeholder = $dblClickedSelectionName;			
-		var flc = $.farbtastic("#selectionColor");
-		flc.setColor(rgb2hex($($dblClickedSelection).parent().find(".colorBox").css("background-color")));
+		$dblClickedLayerName = this.innerHTML.substring(this.innerHTML.lastIndexOf("</span>")+7);
+		$dblClickedLayer = this;
+		document.getElementById("layerNameInput").value = "";
+		document.getElementById("layerNameInput").placeholder = $dblClickedLayerName;			
+		var flc = $.farbtastic("#layerColor");
+		flc.setColor(rgb2hex($($dblClickedLayer).parent().find(".colorBox").css("background-color")));
 		//console.log(this.innerHTML);			
 	}))
-	.append($("<div>").addClass("selectionContent").css({
+	.append($("<div>").addClass("layerContent").css({
 			'margin-left' : 83
 		}));	
-	
-	$("#SelectionPanel div").first().next().find(".selectionContent").first().append($('<div name="' + 'selectDiv' + '">'));
-	//Circle buttons
-	$("#SelectionPanel div").first().next().find(".selectionContent").append($('<div>').text("Auto Draw Circles:").append($("<br>")));
-	$("#SelectionPanel div").first().next().find(".selectionContent").first().find("div").last().append($('<label><input type="radio" name="autodraw' + '" value="on" checked="checked">On</label>'));
-	$("#SelectionPanel div").first().next().find(".selectionContent").first().find("div").last().append($('<label><input type="radio" name="autodraw' + '" value="off">Off</label>'));
-	$('input[name="filled' + key + '"][value=filled]').attr("checked", true);
-	
+		
 	//$count++;
-/*
 	
 	switch (Layer.Type) {
 		case "circles":
@@ -412,83 +342,64 @@ function SelectionMenu(targetSelection, key, RVcolor) {
 		
 			break;
 		case "selected":
-			$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="selectDiv">'))
+			//$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="selectDiv">'))
 			$("#LayerPanel div").first().next().find(".radioDIV2").find('input').removeAttr("disabled");
 			//$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="' + 'sele-' + key + '">'))
 			//$("#selectDiv").html(text)
 			break;
 		default:
 			break;
-	}*/
-	$("#SelectionPanel div").first().next().find(".visibilityCheckImg").attr("value", "visible");
-	
+	}
+	$("#LayerPanel div").first().next().find(".visibilityCheckImg").attr("value", "visible");
 }
-
-//Accordion that support multiple sections open
-$("#SelectionPanel").multiAccordion();
-$("#SelectionPanel").sortable({
-	update : function (event, ui) {
-		$("#SelectionPanel .selectionContent").each(function (e, f) {
-			rvDataSets[0].drawSelection("selected");
-			//$(this).find('p').text(rvDataSets[0].LastLayer - e - 1);
-			//$("#" + rvDataSets[0].getLayer($(this).parent().attr("name")).CanvasName).css('zIndex', rvDataSets[0].LastLayer - e - 1)
-		});
-		//rvDataSets[0].sort();
-	},
-	items : ".oneSelectionGroup"
-	
-});
-$("#SelectionPanel").disableSelection();
-
-//RefreshLayerMenu();
-
 // Refresh Menu
-function RefreshSelectionMenu(){
-	$("#SelectionPanel").multiAccordion();
-}	
-	
-$("#SelectionPreferenceDialog").dialog({
-	autoOpen : false,
-	show : {
-		effect : "blind",
-		duration : 300
+function RefreshLayerMenu(){
+	//Assign function to check boxes
+	/*
+	$(".visibilityCheckImg").change(function (event) {
+		console.log("visibilityCheckImg changed!");
+		$(event.currentTarget).parent().parent().attr("name")
+		if ($(event.currentTarget).attr("value") == "visible") {
+			$(rvDataSets[0].getLayer($(event.currentTarget).parent().parent().attr("name")).Canvas).css("visibility", "visible")
+		} else {
+			$(rvDataSets[0].getLayer($(event.currentTarget).parent().parent().attr("name")).Canvas).css("visibility", "hidden")
+		}
+	});*/
+	/*
+	$(".selectLayerRadioBtn").change(function (event) {
+		rvDataSets[0].selectLayer($(event.currentTarget).parent().parent().attr("name"));
+	});
+	$(".mappingRadioBtn").change(function (event) {
+		alert($(event.currentTarget).parent().parent().attr("name"));
+	});
+	*/
+	//Accordion that support multiple sections open
+	$("#LayerPanel").multiAccordion();
+	/*
+	$("#LayerPanel").sortable({
+		update : function (event, ui) {
+			$("#LayerPanel .layerContent").each(function (e, f) {
+				//$(this).find('p').text(rvDataSets[0].LastLayer - e - 1);
+				$("#" + $(this).parent().find('h3').text()).css('zIndex', rvDataSets[0].LastLayer - e - 1)
+				
+			});
+			rvDataSets[0].sort();
+		},
+		items : ".oneLayerGroup"
+		
+	});
+	$("#LayerPanel").disableSelection();	
+*/	
+}
+$("#LayerPanel").sortable({
+	update : function (event, ui) {
+		$("#LayerPanel .layerContent").each(function (e, f) {
+			//$(this).find('p').text(rvDataSets[0].LastLayer - e - 1);
+			$("#" + rvDataSets[0].getLayer($(this).parent().attr("name")).CanvasName).css('zIndex', rvDataSets[0].LastLayer - e - 1)
+		});
+		rvDataSets[0].sort();
 	},
-	height : 600,
-	width : 400,
-	position : {
-		my : "center",
-		at : "center",
-		of : $("#canvasDiv")
-	}
+	items : ".oneLayerGroup"
+	
 });
-
-function changeSelectionColor(){
-	$($dblClickedSelection).parent().find(".colorBox").css("background",$("#selectionColor").val());
-	targetSelection = rvDataSets[0].getSelection($dblClickedSelectionName);
-	targetSelection.Color = $("#selectionColor").val();
-	rvDataSets[0].drawSelection("selected");
-}
-
-function changeCurrentSelectionName() {
-	$($dblClickedSelection).parent().attr("name",$("#selectionNameInput").val());
-	$($dblClickedSelection).html($("#selectionNameInput").val()).prepend('<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-e"></span>');
-	targetSelection = rvDataSets[0].getSelection($dblClickedSelectionName);
-	targetSelection.Name = $("#selectionNameInput").val();
-	RefreshSelectionMenu();
-}
-
-$("#openSelectionBtn").click(function () {
-	$("#PanelTabs").tabs( "option", "active", 1 );
-	$("#LayerDialog").dialog("open");
-	return false;
-});
-
-$("#openSelectionBtn").button({
-	text : false,
-	icons : {
-		primary : "ui-icon-tag"
-	}
-});
-
-
-$(".toolBarBtn2").css('height', $("#openLayerBtn").css('height'));
+$("#LayerPanel").disableSelection();

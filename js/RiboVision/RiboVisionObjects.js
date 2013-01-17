@@ -60,7 +60,7 @@ function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color) 
 	//Methods
 	this.clearCanvas = function () {
 		this.CanvasContext.setTransform(1, 0, 0, 1, 0, 0);
-		this.CanvasContext.clearRect(0, 0, HighlightLayer.width, HighlightLayer.height);
+		this.CanvasContext.clearRect(0, 0, rvViews[0].width, rvViews[0].height);
 		this.CanvasContext.setTransform(rvViews[0].scale, 0, 0, rvViews[0].scale, rvViews[0].x, rvViews[0].y);
 	};
 	this.addLinearGradient = function (LinearGradient) {
@@ -652,8 +652,8 @@ function rvDataSet(DataSetName) {
 					if ((150 - rvViews[0].scale * 23) > jkdist) {
 						continue;
 					}
-					if (((rvDataSets[0].Residues[j].X * rvViews[0].scale + rvViews[0].x < 0) || (rvDataSets[0].Residues[j].X * rvViews[0].scale + rvViews[0].x > HighlightLayer.clientWidth) || (rvDataSets[0].Residues[j].Y * rvViews[0].scale + rvViews[0].y < 0) || (rvDataSets[0].Residues[j].Y * rvViews[0].scale + rvViews[0].y > HighlightLayer.clientHeight))
-						 && ((rvDataSets[0].Residues[k].X * rvViews[0].scale + rvViews[0].x < 0) || (rvDataSets[0].Residues[k].X * rvViews[0].scale + rvViews[0].x > HighlightLayer.clientWidth) || (rvDataSets[0].Residues[k].Y * rvViews[0].scale + rvViews[0].y < 0) || (rvDataSets[0].Residues[k].Y * rvViews[0].scale + rvViews[0].y > HighlightLayer.clientHeight))) {
+					if (((rvDataSets[0].Residues[j].X * rvViews[0].scale + rvViews[0].x < 0) || (rvDataSets[0].Residues[j].X * rvViews[0].scale + rvViews[0].x > rvViews[0].clientWidth) || (rvDataSets[0].Residues[j].Y * rvViews[0].scale + rvViews[0].y < 0) || (rvDataSets[0].Residues[j].Y * rvViews[0].scale + rvViews[0].y > rvViews[0].clientHeight))
+						 && ((rvDataSets[0].Residues[k].X * rvViews[0].scale + rvViews[0].x < 0) || (rvDataSets[0].Residues[k].X * rvViews[0].scale + rvViews[0].x > rvViews[0].clientWidth) || (rvDataSets[0].Residues[k].Y * rvViews[0].scale + rvViews[0].y < 0) || (rvDataSets[0].Residues[k].Y * rvViews[0].scale + rvViews[0].y > rvViews[0].clientHeight))) {
 						continue;
 					}
 				}
@@ -731,6 +731,10 @@ function rvView(x, y, scale) {
 	this.lastY = [];
 	this.startX = [];
 	this.startY = [];
+	this.width = [];
+	this.height = [];
+	this.clientWidth = [];
+	this.clientHeight = [];
 	
 	//Methods
 	this.zoom = function (event, delta) {
