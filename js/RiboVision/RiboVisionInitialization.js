@@ -165,7 +165,7 @@ function RiboVisionReady() {
 		value : 20,
 		orientation : "vertical",
 		slide : function (event, ui) {
-			zoom(HighlightLayer.width / 2, HighlightLayer.height / 2, Math.pow(1.1, (ui.value - $(this).slider("value"))));
+			zoom(rvViews[0].width / 2, rvViews[0].height / 2, Math.pow(1.1, (ui.value - $(this).slider("value"))));
 		}
 	});
 	
@@ -824,7 +824,6 @@ function RiboVisionReady() {
 		}
 	});
 	$('.ui-slider-handle').height(21).width(21);  
-	InitRibovision();
 	$( "#lineOpacitySlider" ).slider({
     	min : 0,
 		max : 100,
@@ -835,11 +834,21 @@ function RiboVisionReady() {
 		}
     });  
 	$('.ui-slider-handle').height(21).width(21);  
+	
+	$(window).unload(function() {		
+		localStorage.setItem("rvDataSets",rvDataSets);
+	});
+	
+	$("#SelectionMode").click(function () {
+		InitRibovision();
+	});
 };
 
 function InitRibovision() {
 	//set_cookie("MeaningOfLife", "42", 42);
-	if (localStorageAvailable && localStorage.rvDataSets){
+	var savedDS = localStorage.getItem("rvDataSets");
+
+	if (localStorageAvailable && savedDS instanceof rvDataSet){
 		rvDataSets = localStorage.rvDataSets;
 	} else {
 		rvDataSets[0] = new rvDataSet("EmptyDataSet");

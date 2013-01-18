@@ -217,6 +217,11 @@ function resizeElements() {
 	$("#LogoDiv").css('height', 0.1 * height);
 	$("#LogoDiv").css('top', $("#menu").css('height'));
 	
+	rvViews[0].width = rvDataSets[0].HighlightLayer.Canvas.width;
+	rvViews[0].height = rvDataSets[0].HighlightLayer.Canvas.height;
+	rvViews[0].cWidth = rvDataSets[0].HighlightLayer.Canvas.clientWidth;
+	rvViews[0].cHeight = rvDataSets[0].HighlightLayer.Canvas.clientHeight;
+	
 	rvDataSets[0].drawResidues("residues");
 	rvDataSets[0].drawSelection("selected");
 	rvDataSets[0].refreshResiduesExpanded("circles");
@@ -264,8 +269,8 @@ function getSelectedLine(event){
 					if((150 - rvViews[0].scale*23) > jkdist){
 						continue;
 					}
-					if(( (rvDataSets[0].Residues[j].X*rvViews[0].scale+rvViews[0].x < 0) || (rvDataSets[0].Residues[j].X*rvViews[0].scale+rvViews[0].x > HighlightLayer.clientWidth) || (rvDataSets[0].Residues[j].Y*rvViews[0].scale+rvViews[0].y < 0) ||  (rvDataSets[0].Residues[j].Y*rvViews[0].scale+rvViews[0].y > HighlightLayer.clientHeight))
-					&& ( (rvDataSets[0].Residues[k].X*rvViews[0].scale+rvViews[0].x < 0) || (rvDataSets[0].Residues[k].X*rvViews[0].scale+rvViews[0].x > HighlightLayer.clientWidth) || (rvDataSets[0].Residues[k].Y*rvViews[0].scale+rvViews[0].y < 0) ||  (rvDataSets[0].Residues[k].Y*rvViews[0].scale+rvViews[0].y > HighlightLayer.clientHeight)) )  {
+					if(( (rvDataSets[0].Residues[j].X*rvViews[0].scale+rvViews[0].x < 0) || (rvDataSets[0].Residues[j].X*rvViews[0].scale+rvViews[0].x > rvViews[0].clientWidth) || (rvDataSets[0].Residues[j].Y*rvViews[0].scale+rvViews[0].y < 0) ||  (rvDataSets[0].Residues[j].Y*rvViews[0].scale+rvViews[0].y > rvViews[0].clientHeight))
+					&& ( (rvDataSets[0].Residues[k].X*rvViews[0].scale+rvViews[0].x < 0) || (rvDataSets[0].Residues[k].X*rvViews[0].scale+rvViews[0].x > rvViews[0].clientWidth) || (rvDataSets[0].Residues[k].Y*rvViews[0].scale+rvViews[0].y < 0) ||  (rvDataSets[0].Residues[k].Y*rvViews[0].scale+rvViews[0].y > rvViews[0].clientHeight)) )  {
 					continue;
 						}
 						}

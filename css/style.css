@@ -25,12 +25,12 @@
 }
 
 #menu{
-	width: inherit;
+	width: 16%;
 	position:absolute;
 	top:0px;
 	left:0px;
 	height:86%;	
-	min-width: inherit;
+	min-width: 350px;
 	overflow: hidden;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
@@ -71,6 +71,7 @@
 #SiteInfo{
 	position:absolute;
 	height: 25%;
+	width: 100%;
 	top:0px;
 	left:0px;
 	box-sizing:border-box;
@@ -86,8 +87,9 @@
 #MainMenu{
 	position:absolute;
 	left:-2px;
+	top:25%;
 	height:75%;	
-	width: 100%;
+	width: 95%;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
 	-webkit-box-sizing:border-box; /* Safari */
@@ -153,7 +155,7 @@
 
 #navigator{
 	position:absolute;
-	top:8%;
+	top:28%;
 	left:16%;
 	height:auto;
 	width:65px;
@@ -174,7 +176,7 @@ canvas{
 	position:absolute;
 	top:28%;
 	left:58%;
-	width:42%;
+	width:40%;
 	height:72%;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
