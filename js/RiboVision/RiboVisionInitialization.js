@@ -141,7 +141,10 @@ function RiboVisionReady() {
 	});
 
 	$("#openInteractionSettingBtn").click(function () {
-		$("#InteractionSettingDialog").dialog("open");
+		//localStorage.setItem("rvDataSets",rvDataSets);
+		//$("#InteractionSettingDialog").dialog("open");
+		//localStorage.setItem("test2",JSON.stringify(rvDataSets[0]));
+		saveRvState(JSON.stringify(rvDataSets[0]));
 		return false;
 	});
 	
@@ -841,13 +844,19 @@ function RiboVisionReady() {
 	
 	$("#SelectionMode").click(function () {
 		InitRibovision();
+		//localStorage.setItem("rvDataSets",rvDataSets);
 	});
 };
 
 function InitRibovision() {
 	//set_cookie("MeaningOfLife", "42", 42);
-	var savedDS = localStorage.getItem("rvDataSets");
-
+	var savedDS = localStorage.getItem("test2");
+	//var testThing = RvLayer.fromJSON(savedDS);
+	rvDataSets[0] = new rvDataSet("EmptyDataSet");
+	//rvDataSets[0].addHighlightLayer("HighlightLayer", "HighlightLayer", [], false, 1.176, 'highlight');
+	//rvDataSets[0].HighlightLayer.fromJSON(savedDS);
+	rvDataSets[0]=rvDataSets[0].fromJSON(savedDS);
+	
 	if (localStorageAvailable && savedDS instanceof rvDataSet){
 		rvDataSets = localStorage.rvDataSets;
 	} else {

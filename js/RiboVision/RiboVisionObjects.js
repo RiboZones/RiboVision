@@ -58,6 +58,46 @@ function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color) 
 	}
 	
 	//Methods
+	
+	this.toJSON = function () {
+		return {
+			LayerName: this.LayerName,
+			CanvasName: this.CanvasName, 
+			Data: this.Data, 
+			dataLayerColors: this.dataLayerColors,
+			Filled: this.Filled,
+			ScaleFactor: this.ScaleFactor,
+			LinearGradients: this.LinearGradients,
+			Type: this.Type,
+			zIndex: this.zIndex,
+			Visible: this.Visible,
+			Selected: this.Selected,
+			Linked: this.Linked,
+			ColorLayer: this.ColorLayer,
+			ColorGradientMode: this.ColorGradientMode,
+			DataLabel: this.DataLabel,
+			Color: this.Color,
+			ColorLayer: this.ColorLayer,
+			ColorGradientMode: this.ColorGradientMode
+		};
+	};
+	
+	this.fromJSON = function (json) {
+		var data = JSON.parse(json);
+		var e = new RvLayer(data.LayerName, data.CanvasName, data.Data, data.Filled, data.ScaleFactor, data.Type, data.Color);
+		e.dataLayerColors = data.dataLayerColors;
+		e.LinearGradients = data.LinearGradients;
+		e.zIndex = data.zIndex;
+		e.Visible = data.Visible;
+		e.Selected = data.Selected;
+		e.Linked = data.Linked;
+		e.ColorLayer = data.ColorLayer;
+		e.ColorGradientMode = data.ColorGradientMode;
+		e.DataLabel = data.DataLabel;
+		e.ColorLayer = data.ColorLayer;
+		e.ColorGradientMode = data.ColorGradientMode;
+		return e;
+	};
 	this.clearCanvas = function () {
 		this.CanvasContext.setTransform(1, 0, 0, 1, 0, 0);
 		this.CanvasContext.clearRect(0, 0, rvViews[0].width, rvViews[0].height);
@@ -140,7 +180,6 @@ function rvDataSet(DataSetName) {
 	this.rvTextLabels = [];
 	this.rvLineLabels = [];
 	this.BasePairs = [];
-	//this.Selected = [];
 	this.CustomData = [];
 	this.SpeciesEntry = [];
 	this.Selections = [];
@@ -149,6 +188,41 @@ function rvDataSet(DataSetName) {
 	this.ConservationTable = [];
 	this.DataDescriptions = [];
 	//Methods
+	this.toJSON = function () {
+		return {
+			DataSetName: this.Name,
+			Layers: this.Layers,
+			//this.HighlightLayer = [];
+			Residues: this.Residues,
+			ResidueList: this.ResidueList,
+			rvTextLabels: this.rvTextLabels,
+			rvLineLabels: this.rvLineLabels,
+			BasePairs: this.BasePairs,
+			CustomData: this.CustomData,
+			SpeciesEntry: this.SpeciesEntry,
+			Selections: this.Selections,
+			LastLayer: this.LastLayer,
+			LayerTypes: this.LayerTypes,
+			ConservationTable: this.ConservationTable,
+			DataDescriptions: this.DataDescriptions
+		};
+	};
+	this.fromJSON = function (json) {
+		var data = JSON.parse(json);
+		var e = new rvDataSet(DataSetName);
+		e.Residues = data.Residues;
+		e.ResidueList = data.ResidueList;
+		e.rvTextLabels = data.rvTextLabels;
+		e.rvLineLabels = data.rvLineLabels;
+		e.BasePairs = data.BasePairs;
+		e.CustomData = data.CustomData;
+		e.SpeciesEntry = data.SpeciesEntry;
+		e.Selections = data.Selections;
+		e.LastLayer = data.LastLayer;
+		e.ConservationTable = data.ConservationTable;
+		e.DataDescriptions = data.DataDescriptions;
+		return e;
+	};
 	this.addLayers = function (rvLayers) {
 		this.Layers = rvLayers;
 		this.LastLayer = this.Layers.length - 1;

@@ -1188,13 +1188,14 @@ function handleFileSelect(event) {
 				var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
 				//rvDataSets[0].Selections["temp"] = [];
 				rvDataSets[0].addSelection();
+				var SeleLen = 0;
 				for (var ii = 0; ii < rvDataSets[0].CustomData.length; ii++) {
 					if (rvDataSets[0].CustomData[ii][customkeys[0]].indexOf("(") > 0) {
 						command = rvDataSets[0].CustomData[ii][customkeys[0]].split(";");
 						targetSelection = rvDataSets[0].Selections[0];
 						expandSelection(command, targetSelection.Name);
 						var l = targetSelection.Residues.length;
-						for (var iii = 0; iii < l; iii++) {
+						for (var iii = SeleLen; iii < l; iii++) {
 							if (targetSelection.Residues[iii].resNum.indexOf(":") >= 0) {
 								alert("didn't do this yet");
 							} else {
@@ -1212,6 +1213,7 @@ function handleFileSelect(event) {
 							}
 							
 						}
+						SeleLen = l;
 					} else {
 						var comsplit = rvDataSets[0].CustomData[ii][customkeys[0]].split(":");
 						if (comsplit.length > 1) {
@@ -1363,7 +1365,28 @@ function saveJmolImg() {
 	}
 	checkSavePrivacyStatus();
 }
-	
+
+function saveRvState(RvDS){
+	AgreeFunction = function (RvDS) {
+		//var CS = canvasToSVG();
+		var form = document.createElement("form");
+		form.setAttribute("method", "post");
+		form.setAttribute("action", "saveRvState.php");
+		var hiddenField = document.createElement("input");
+		hiddenField.setAttribute("type", "hidden");
+		hiddenField.setAttribute("name", "content");
+		hiddenField.setAttribute("value", RvDS);
+		//var hiddenField2 = document.createElement("input");
+		//hiddenField2.setAttribute("type", "hidden");
+		//hiddenField2.setAttribute("name", "orientation");
+		//hiddenField2.setAttribute("value", CS.Orientation);
+		form.appendChild(hiddenField);
+		//form.appendChild(hiddenField2);
+		document.body.appendChild(form);
+		form.submit();
+	}
+	checkSavePrivacyStatus();
+}
 function saveJPG() {
 	AgreeFunction = function () {
 		var CS = canvasToSVG();
