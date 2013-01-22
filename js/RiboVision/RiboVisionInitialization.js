@@ -144,7 +144,7 @@ function RiboVisionReady() {
 		//localStorage.setItem("rvDataSets",rvDataSets);
 		//$("#InteractionSettingDialog").dialog("open");
 		//localStorage.setItem("test2",JSON.stringify(rvDataSets[0]));
-		saveRvState(JSON.stringify(rvDataSets[0]));
+		saveRvState();
 		return false;
 	});
 	
@@ -291,7 +291,25 @@ function RiboVisionReady() {
 			$("#jmolApplet0").css("visibility", "visible");
 		}
 	});
-	
+	$( "#dialog-restore-state" ).dialog({
+		resizable : false,
+		autoOpen : false,
+		height : "auto",
+		width : 400,
+		modal : true,
+		buttons: {
+			Ok: function() {
+				openRvState();
+				//$( this ).dialog( "close" );
+			}
+		},
+		open : function () {
+			$("#jmolApplet0").css("visibility", "hidden");
+		},
+		close : function () { 
+			$("#jmolApplet0").css("visibility", "visible");
+		}
+	});
 	$("#Privacy-confirm").dialog({
 		resizable : false,
 		autoOpen : false,

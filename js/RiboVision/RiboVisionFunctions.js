@@ -1157,6 +1157,9 @@ function updateStructData(ui) {
 	drawNavLine();
 	//eval("colorMapping('42'," + value + ")");
 }
+function openRvState() {
+	
+}
 
 function handleFileSelect(event) {
 	var PrivacyStatus = get_cookie("privacy_status_data");
@@ -1367,8 +1370,9 @@ function saveJmolImg() {
 }
 
 function saveRvState(RvDS){
-	AgreeFunction = function (RvDS) {
+	AgreeFunction = function () {
 		//var CS = canvasToSVG();
+		var RvDS = JSON.stringify(rvDataSets[0]);
 		var form = document.createElement("form");
 		form.setAttribute("method", "post");
 		form.setAttribute("action", "saveRvState.php");

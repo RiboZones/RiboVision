@@ -5,13 +5,7 @@ header('Content-Disposition: attachment; filename="Ribovision_State.zip"');
 header('Content-Transfer-Encoding: binary');
 header("Pragma: public");
 
-require_once('FirePHPCore/FirePHP.class.php');
-
 ob_start(); 
-
-$firephp = FirePHP::getInstance(true);
-$var = $_POST['pdbfiles'];
-$pdb_files = explode(",", $var);
 
 $data = $_POST['content'];
 $seed = rand();
@@ -26,24 +20,18 @@ $zip = new ZipArchive();
 $zip->open($file2, ZipArchive::OVERWRITE);
 
 // Staff with content
-//$zip->addFromString('pdbfile.pdb', $var);
 $zip->addFile($file . ".rvs.txt", 'Ribovision_State.rvs.txt');
-
-//foreach ($pdb_files as $v) {
-//	$zip->addFile("pdb/" . $v , $v);
-//}
 
 // Close and send to users
 $zip->close();
 
-sleep(3);
+sleep(4);
 
 $length_file = filesize($file2);
 header('Content-Length: ' . $length_file);
 
 readfile($file2);
 
-//echo "Saved to $file2 successfully!";
 //ob_clean();
 //flush();
 //unlink($file2); 
