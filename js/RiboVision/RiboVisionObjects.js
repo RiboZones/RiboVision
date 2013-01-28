@@ -83,7 +83,8 @@ function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color) 
 	};
 	
 	this.fromJSON = function (json) {
-		var data = JSON.parse(json);
+		//var data = JSON.parse(json);
+		var data = json;
 		var e = new RvLayer(data.LayerName, data.CanvasName, data.Data, data.Filled, data.ScaleFactor, data.Type, data.Color);
 		e.dataLayerColors = data.dataLayerColors;
 		e.LinearGradients = data.LinearGradients;
@@ -221,6 +222,10 @@ function rvDataSet(DataSetName) {
 		e.LastLayer = data.LastLayer;
 		e.ConservationTable = data.ConservationTable;
 		e.DataDescriptions = data.DataDescriptions;
+		e.addHighlightLayer("HighlightLayer", "HighlightLayer", [], false, 1.176, 'highlight');
+		$.each(data.Layers, function (index, value) {
+			e.Layers[index] = e.HighlightLayer.fromJSON(value);
+		});
 		return e;
 	};
 	this.addLayers = function (rvLayers) {
@@ -809,12 +814,14 @@ function rvView(x, y, scale) {
 	this.height = [];
 	this.clientWidth = [];
 	this.clientHeight = [];
+	this.slideValue = 20;
 	
 	//Methods
 	this.zoom = function (event, delta) {
 		if (($("#slider").slider("value") + delta) <= $("#slider").slider("option", "max") & ($("#slider").slider("value") + delta) >= $("#slider").slider("option", "min")) {
 			zoom(event.clientX - $("#menu").outerWidth(), event.clientY - $("#topMenu").outerHeight(), Math.pow(1.1, delta), this);
 			$("#slider").slider("value", $("#slider").slider("value") + delta);
+			this.slideValue = $("#slider").slider("value") + delta;
 		}
 	}
 	this.drag = function (event) {
@@ -822,6 +829,47 @@ function rvView(x, y, scale) {
 		//rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#ff0000";
 		rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = targetSelection.Color;
 		rvDataSets[0].HighlightLayer.CanvasContext.strokeRect(this.startX, this.startY, (event.clientX - $("#menu").outerWidth() - this.x) / this.scale - this.startX, (event.clientY - $("#topMenu").outerHeight() - this.y) / this.scale - this.startY);
+	}
+	this.restore = function () {
+		$("#slider").slider("value",this.slideValue);
+		rvDataSets[0].drawResidues("residues");
+		rvDataSets[0].drawSelection("selected");
+		rvDataSets[0].refreshResiduesExpanded("circles");
+		rvDataSets[0].drawLabels("labels");
+		rvDataSets[0].drawBasePairs("lines");
+	}
+	
+	this.toJSON = function () {
+		return {
+			x: this.x,
+			y: this.y, 
+			scale: this.scale, 
+			lastX: this.lastX,
+			lastY: this.lastY,
+			startX: this.startX,
+			startY: this.startY,
+			width: this.width,
+			height: this.height,
+			clientWidth: this.clientWidth,
+			clientHeight: this.clientHeight,
+			slideValue : this.slideValue
+		};
+	}
+	
+	this.fromJSON = function (json) {
+		var data = JSON.parse(json);
+		//var data = json;
+		var e = new rvView(data.x, data.y, data.scale);
+		e.lastX = data.lastX;
+		e.lastY = data.lastY;
+		e.startX = data.startX;
+		e.startY = data.startY;
+		e.width = data.width;
+		e.height = data.height;
+		e.clientWidth = data.clientWidth;
+		e.clientHeight = data.clientHeight;
+		e.slideValue = data.slideValue;
+		return e;
 	}
 	
 };

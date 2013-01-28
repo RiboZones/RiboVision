@@ -29,24 +29,21 @@ based on:
 /////////////////////////// Global Variable Declaration ///////////////////////
 // Main Variables
 var rvDataSets = [];
-var SubunitNames = ['LSU', 'SSU'];
 var rvViews = [];
-var FileReaderFile;
 
+// Other Global Variables
 var FullBasePairSet;
-
+var AgreeFunction = function () {};
+var drag;
 
 // Website Settings
 var localStorageAvailable = false;
-var zoomEnabled = true;
-var onebuttonmode;
-var clickedNASA = 0;
-var clickedRiboEvo = 0;
+var zoomEnabled = true;  //needs restoration, after adding a switch for it.
+var onebuttonmode;      //needs restoration
 var CurrPrivacyCookie;
-var AgreeFunction = function () {};
-var drag;
-var PanelDivide = 0.5;
-var TopDivide = 0.28;
+var PanelDivide = 0.5; //needs restoration
+var TopDivide = 0.28; //needs restoration
+var OpenStateOnLoad = true;
 
 // Color Palettes, need to be consolidated
 var OnionColors = ["#000000", "#ff0000", "#008000", "#0000ff", "#800080", "#ff8c00", "#ff8c00", "#ff8c00"];
@@ -66,9 +63,7 @@ var RainBowColors = ["#00008f", "#00009f", "#0000af", "#0000bf", "#0000cf", "#00
 	"#ff1000", "#ff0000", "#ef0000", "#df0000", "#cf0000", "#bf0000",
 	"#af0000", "#9f0000", "#8f0000", "#800000"];
 
-var oCanvas1, oCanvas2, Lines;
 
-var HighlightLayer;
 ///////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////// RiboVision Object Definitions  /////////////////////

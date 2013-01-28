@@ -219,8 +219,8 @@ function resizeElements() {
 	
 	rvViews[0].width = rvDataSets[0].HighlightLayer.Canvas.width;
 	rvViews[0].height = rvDataSets[0].HighlightLayer.Canvas.height;
-	rvViews[0].cWidth = rvDataSets[0].HighlightLayer.Canvas.clientWidth;
-	rvViews[0].cHeight = rvDataSets[0].HighlightLayer.Canvas.clientHeight;
+	rvViews[0].clientWidth = rvDataSets[0].HighlightLayer.Canvas.clientWidth;
+	rvViews[0].clientHeight = rvDataSets[0].HighlightLayer.Canvas.clientHeight;
 	
 	rvDataSets[0].drawResidues("residues");
 	rvDataSets[0].drawSelection("selected");
@@ -561,9 +561,10 @@ function update3Dcolors() {
 						r1 = r1.replace(n, "^" + n);
 					}
 					if (colourNameToHex(residueLastColor).indexOf("#") == -1) {
-						script += "select " + (SubunitNames.indexOf(rvDataSets[0].SpeciesEntry.Subunit) + 1) + ".1 and :" + curr_chain + " and (" + r0 + " - " + r1 + "); color Cartoon opaque [x" + curr_color + "]; ";
+						//script += "select " + (SubunitNames.indexOf(rvDataSets[0].SpeciesEntry.Subunit) + 1) + ".1 and :" + curr_chain + " and (" + r0 + " - " + r1 + "); color Cartoon opaque [x" + curr_color + "]; ";
+						script += "select " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and :" + curr_chain + " and (" + r0 + " - " + r1 + "); color Cartoon opaque [x" + curr_color + "]; ";
 					} else {
-						script += "select " + (SubunitNames.indexOf(rvDataSets[0].SpeciesEntry.Subunit) + 1) + ".1 and :" + curr_chain + " and (" + r0 + " - " + r1 + "); color Cartoon opaque [" + curr_color.replace("#", "x") + "]; ";
+						script += "select " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and :" + curr_chain + " and (" + r0 + " - " + r1 + "); color Cartoon opaque [" + curr_color.replace("#", "x") + "]; ";
 					}
 					r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""); ;
 					m = r0.match(/[A-z]/g);
@@ -1158,7 +1159,46 @@ function updateStructData(ui) {
 	//eval("colorMapping('42'," + value + ")");
 }
 function openRvState() {
+	var PrivacyStatus = get_cookie("privacy_status_data");
+	var PrivacyString = "This feature does not currently upload any data to our server. We don't have a privacy policy at this time"
+		 + " because one isn't needed. We can not see these data you are about to graph. Click \"I agree\" to acknowledge acceptance of our policy.";
+	 
+	 var FileReaderFile = $("#files2")[0].files; // FileList object
+	 
+	 AgreeFunction = function () {
+		for (var i = 0; i < FileReaderFile.length; i++) {
+			reader = new FileReader();
+			reader.readAsText(FileReaderFile[i]);
+			reader.onload = function () {
+				var rvSaveState = JSON.parse(reader.result);
 	
+				rvViews[0] = rvViews[0].fromJSON(rvSaveState["RvV"]);
+				rvViews[0].restore();
+				rvDataSets[0]=rvDataSets[0].fromJSON(rvSaveState["RvDS"]);
+				rvDataSets[0].drawResidues("residues");
+				rvDataSets[0].drawSelection("selected");
+				rvDataSets[0].refreshResiduesExpanded("circles");
+				rvDataSets[0].drawLabels("labels");
+				rvDataSets[0].drawBasePairs("lines");
+				
+				Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
+				var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
+				Jmol.script(myJmol, jscript);
+				var a = rvSaveState["JmolState"].match(/reset[^\n]+/);
+				Jmol.script(myJmol, a[0]);
+				resizeElements();
+				InitRibovision2();
+			}
+		}
+	 };
+	 
+	 if (PrivacyStatus != "Agreed") {
+		$("#Privacy-confirm").text(PrivacyString);
+		CurrPrivacyCookie = "privacy_status_data";
+		$("#Privacy-confirm").dialog('open');
+	} else {
+		AgreeFunction();
+	}
 }
 
 function handleFileSelect(event) {
@@ -1369,17 +1409,21 @@ function saveJmolImg() {
 	checkSavePrivacyStatus();
 }
 
-function saveRvState(RvDS){
+function saveRvState(){
 	AgreeFunction = function () {
 		//var CS = canvasToSVG();
-		var RvDS = JSON.stringify(rvDataSets[0]);
+		
+		var RvSaveState = {};
+		RvSaveState["RvDS"] = JSON.stringify(rvDataSets[0]);
+		RvSaveState["RvV"] = JSON.stringify(rvViews[0]);
+		RvSaveState["JmolState"] = Jmol.evaluate(myJmol,"script('show orientation')");
 		var form = document.createElement("form");
 		form.setAttribute("method", "post");
 		form.setAttribute("action", "saveRvState.php");
 		var hiddenField = document.createElement("input");
 		hiddenField.setAttribute("type", "hidden");
 		hiddenField.setAttribute("name", "content");
-		hiddenField.setAttribute("value", RvDS);
+		hiddenField.setAttribute("value", JSON.stringify(RvSaveState));
 		//var hiddenField2 = document.createElement("input");
 		//hiddenField2.setAttribute("type", "hidden");
 		//hiddenField2.setAttribute("name", "orientation");
@@ -1761,12 +1805,12 @@ function canvasToSVG() {
 //////////////////////////////// Jmol Functions ////////////////////////////////
 function updateModel() {
 	var n;
-	var script = "set hideNotSelected true;select (" + (SubunitNames.indexOf(rvDataSets[0].SpeciesEntry.Subunit) + 1) + ".1 and (";
+	var script = "set hideNotSelected true;select (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (";
 	//Come back and support multiple selections?
 	var targetSelection = rvDataSets[0].getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
 	for (var i = 0; i < targetSelection.Residues.length; i++) {
 		if (targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") != null) {
-			if (script != "set hideNotSelected true;select (" + (SubunitNames.indexOf(rvDataSets[0].SpeciesEntry.Subunit) + 1) + ".1 and (") {
+			if (script != "set hideNotSelected true;select (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (") {
 				script += " or ";
 			};
 			n = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "").match(/[A-z]/g);
@@ -1778,7 +1822,7 @@ function updateModel() {
 			script += r1 + ":" + targetSelection.Residues[i].ChainID;
 		}
 	}
-	if (script == "set hideNotSelected true;select (" + (SubunitNames.indexOf(rvDataSets[0].SpeciesEntry.Subunit) + 1) + ".1 and (") {
+	if (script == "set hideNotSelected true;select (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (") {
 		for (var ii = 0; ii < rvDataSets[0].SpeciesEntry.PDB_chains.length; ii++) {
 			script += ":" + rvDataSets[0].SpeciesEntry.PDB_chains[ii];
 			if (ii < (rvDataSets[0].SpeciesEntry.PDB_chains.length - 1)) {
@@ -1801,12 +1845,9 @@ function updateModel() {
 
 function resetColorState() {
 	clearColor(false);
-	//jmolScript("script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
 	Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
-	//var jscript = "frame " + (SubunitNames.indexOf(rvDataSets[0].SpeciesEntry.Subunit) + 1 ) + ".1" ;
 	var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
 	
-	//jmolScript(jscript);
 	Jmol.script(myJmol, jscript);
 	//commandSelect();
 	updateModel();

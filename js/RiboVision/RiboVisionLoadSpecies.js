@@ -125,12 +125,9 @@ function loadSpecies(species) {
 				$("#PrimaryInteractionList").multiselect("refresh");
 				
 				Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
-				//jmolScript("script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
-				//var jscript = "frame " + (SubunitNames.indexOf(rvDataSets[0].SpeciesEntry.Subunit) + 1 ) ;
 				var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
-				
-				//jmolScript(jscript);
 				Jmol.script(myJmol, jscript);
+				
 				clearSelection();
 				rvDataSets[0].drawResidues("residues");
 				rvDataSets[0].drawLabels("labels");

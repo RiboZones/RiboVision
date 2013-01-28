@@ -149,7 +149,8 @@ function RiboVisionReady() {
 	});
 	
 	$("#RiboVisionSettings").click(function () {
-		$("#RiboVisionSettingsPanel").dialog("open");
+		//$("#RiboVisionSettingsPanel").dialog("open");
+		$("#dialog-restore-state").dialog("open");
 		return false;
 	});
 	
@@ -169,6 +170,7 @@ function RiboVisionReady() {
 		orientation : "vertical",
 		slide : function (event, ui) {
 			zoom(rvViews[0].width / 2, rvViews[0].height / 2, Math.pow(1.1, (ui.value - $(this).slider("value"))));
+			rvViews[0].slideValue = ui.value;
 		}
 	});
 	
@@ -300,7 +302,11 @@ function RiboVisionReady() {
 		buttons: {
 			Ok: function() {
 				openRvState();
-				//$( this ).dialog( "close" );
+				$( this ).dialog( "close" );
+			},
+			Fresh State: function() {
+				InitRibovision(true);
+				$( this ).dialog( "close" );
 			}
 		},
 		open : function () {
@@ -857,7 +863,7 @@ function RiboVisionReady() {
 	$('.ui-slider-handle').height(21).width(21);  
 	
 	$(window).unload(function() {		
-		localStorage.setItem("rvDataSets",rvDataSets);
+		//localStorage.setItem("rvDataSets",rvDataSets);
 	});
 	
 	$("#SelectionMode").click(function () {
@@ -866,19 +872,15 @@ function RiboVisionReady() {
 	});
 };
 
-function InitRibovision() {
-	//set_cookie("MeaningOfLife", "42", 42);
-	var savedDS = localStorage.getItem("test2");
-	//var testThing = RvLayer.fromJSON(savedDS);
+function InitRibovision(FreshState) {
 	rvDataSets[0] = new rvDataSet("EmptyDataSet");
-	//rvDataSets[0].addHighlightLayer("HighlightLayer", "HighlightLayer", [], false, 1.176, 'highlight');
-	//rvDataSets[0].HighlightLayer.fromJSON(savedDS);
-	rvDataSets[0]=rvDataSets[0].fromJSON(savedDS);
+	rvDataSets[0].addHighlightLayer("HighlightLayer", "HighlightLayer", [], false, 1.176, 'highlight');
+	rvViews[0] = new rvView(20, 20, 1.2);
+	resizeElements();
 	
-	if (localStorageAvailable && savedDS instanceof rvDataSet){
-		rvDataSets = localStorage.rvDataSets;
-	} else {
-		rvDataSets[0] = new rvDataSet("EmptyDataSet");
+	if (OpenStateOnLoad && !FreshState) {
+		$("#dialog-restore-state").dialog("open");
+	} else { 
 		// Create rvLayers
 		rvDataSets[0].addLayer("Data2", "CircleLayer1", [], true, 1.0, 'circles');
 		rvDataSets[0].addLayer("Data1", "CircleLayer2", [], true, 1.0, 'circles');
@@ -887,22 +889,20 @@ function InitRibovision() {
 		rvDataSets[0].addLayer("Labels", "LabelLayer", [], true, 1.0, 'labels');
 		rvDataSets[0].addLayer("Interactions1", "MainLineLayer", [], true, 1.0, 'lines');
 		rvDataSets[0].addLayer("ContourLine", "ContourLayer", [], true, 1.0, 'contour');
-		rvDataSets[0].addHighlightLayer("HighlightLayer", "HighlightLayer", [], false, 1.176, 'highlight');
 		rvDataSets[0].addSelection("Main");
 		// Sort rvLayers by zIndex for convience
 		rvDataSets[0].sort();
+		InitRibovision2();
 	}
-	if (localStorageAvailable && localStorage.rvViews){
-		rvViews = localStorage.rvViews;
-	} else {
-		rvViews[0] = new rvView(20, 20, 1.2);
-	}
+}
+
+function InitRibovision2() {
+	//adopt to current screen size
 	rvViews[0].width = rvDataSets[0].HighlightLayer.Canvas.width;
 	rvViews[0].height = rvDataSets[0].HighlightLayer.Canvas.height;
-	rvViews[0].cWidth = rvDataSets[0].HighlightLayer.Canvas.clientWidth;
-	rvViews[0].cHeight = rvDataSets[0].HighlightLayer.Canvas.clientHeight;
+	rvViews[0].clientWidth = rvDataSets[0].HighlightLayer.Canvas.clientWidth;
+	rvViews[0].clientHeight = rvDataSets[0].HighlightLayer.Canvas.clientHeight;
 	
-
 	// Put in Layers
 	$.each(rvDataSets[0].Layers, function (key, value){
 		LayerMenu(value, key);
@@ -913,18 +913,18 @@ function InitRibovision() {
 	$.each(rvDataSets[0].Selections, function (key, value){
 		SelectionMenu(value, key);
 	});
+	
 	//Default check first selection. Come back to these to restore saved state
 	$("#SelectionPanel div").first().next().find(".selectSelectionRadioBtn").attr("checked", "checked");
 	RefreshSelectionMenu();
-			
+	
+	//Set some menu choices, none being restored yet
 	document.getElementById("moveMode").checked = true;
 	document.getElementById("ProtList").selectedIndex = 0;
 	document.getElementById("alnList").selectedIndex = 0;
 	document.getElementById("PrimaryInteractionList").selectedIndex = 0;
 	document.getElementById("speciesList").selectedIndex = 0;
 	document.getElementById('commandline').value = "";	
-	
-	resizeElements();
 	
 	$.getJSON('getData.php', {
 		FetchMapList : "42"
@@ -1017,19 +1017,6 @@ function InitRibovision() {
 			loadSpecies(species.substr(1));
 			
 		});
-		
-		/*
-		var ml = document.getElementById("speciesList");
-		ml.options.length = 0;
-		ml.options[0]=new Option("None","None");
-		if (MapList[0]!=""){
-		for (var i = 0; i < MapList.length; i++){
-		ml.options[i+1] = new Option(MapList[i].Species_Name,MapList[i].SS_Table);
-		}
-		}
-		$("#speciesList").multiselect("refresh");
-		 */
 	});
-	
 }
 ///////////////////////////////////////////////////////////////////////////////
