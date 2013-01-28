@@ -129,6 +129,20 @@ function RiboVisionReady() {
 		}
 	});
 	
+	$("#RiboVisionSaveManagerPanel").dialog({
+		autoOpen : false,
+		show : {
+			effect : "blind",
+			duration : 300
+		},
+		height : 500,
+		position : {
+			my : "left top",
+			at : "left top",
+			of : $("#SiteInfo")
+		}
+	});
+	
 	$("#openLayerBtn").click(function () {
 		$("#PanelTabs").tabs( "option", "active", 0 );
 		$("#LayerDialog").dialog("open");
@@ -141,19 +155,22 @@ function RiboVisionReady() {
 	});
 
 	$("#openInteractionSettingBtn").click(function () {
-		//localStorage.setItem("rvDataSets",rvDataSets);
-		//$("#InteractionSettingDialog").dialog("open");
-		//localStorage.setItem("test2",JSON.stringify(rvDataSets[0]));
-		saveRvState();
+		$("#InteractionSettingDialog").dialog("open");
+		//saveRvState();
 		return false;
 	});
 	
 	$("#RiboVisionSettings").click(function () {
-		//$("#RiboVisionSettingsPanel").dialog("open");
-		$("#dialog-restore-state").dialog("open");
+		$("#RiboVisionSettingsPanel").dialog("open");
+		//$("#dialog-restore-state").dialog("open");
 		return false;
 	});
 	
+	$("#RiboVisionSaveManager").click(function () {
+		//$("#RiboVisionSettingsPanel").dialog("open");
+		//$("#dialog-restore-state").dialog("open");
+		return false;
+	});
 	
 	//////////////////////////////////////////////////
 	//radio buttons for line interaction
@@ -304,7 +321,7 @@ function RiboVisionReady() {
 				openRvState();
 				$( this ).dialog( "close" );
 			},
-			Fresh State: function() {
+			"Fresh State": function () {
 				InitRibovision(true);
 				$( this ).dialog( "close" );
 			}
@@ -588,6 +605,13 @@ function RiboVisionReady() {
 		}
 	});
 	
+	$("#RiboVisionSaveManager").button({
+		text : false,
+		icons : {
+			primary : "ui-icon-wrench"
+		}
+	});
+	
 	$("#openManualBtn").button({
 		text : false,
 		icons : {
@@ -867,9 +891,8 @@ function RiboVisionReady() {
 	});
 	
 	$("#SelectionMode").click(function () {
-		InitRibovision();
-		//localStorage.setItem("rvDataSets",rvDataSets);
 	});
+	InitRibovision();
 };
 
 function InitRibovision(FreshState) {
