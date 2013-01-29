@@ -255,6 +255,7 @@ function dragHandle(event) {
 function getSelectedLine(event){
 	var nx = (event.clientX - rvViews[0].x - $("#menu").width()) / rvViews[0].scale; //subtract 250 for the menu width
 	var ny = (event.clientY - rvViews[0].y - $("#topMenu").height()) / rvViews[0].scale; //subtract 80 for the info height
+	var zoomEnabled = $('input[name="za"][value=on]').attr("checked");
 	if(rvDataSets[0].BasePairs != undefined){
 		for (var i = 0; i < rvDataSets[0].BasePairs.length; i++) {
 			var j = rvDataSets[0].BasePairs[i].resIndex1;
@@ -1078,7 +1079,8 @@ function filterBasePairs(FullBasePairSet,IncludeTypes){
 
 //////////////////////////// Mouse Functions //////////////////////////////////
 function mouseEventFunction(event) {
-	if (event.handleObj.origType == "mousedown") {
+	var BaseViewMode = $('input[name="bv"][value=on]').attr("checked");
+	if (event.handleObj.origType == "mousedown" && !BaseViewMode) {
 		if (onebuttonmode == "select" || event.which == 3 || (event.which == 1 && event.shiftKey == true)) {
 			$("#canvasDiv").unbind("mousemove", dragHandle);
 			selectionBox(event);
@@ -1092,6 +1094,9 @@ function mouseEventFunction(event) {
 			rvViews[0].lastY = event.clientY;
 			$("#canvasDiv").bind("mousemove", dragHandle);
 		}
+	} else if (event.handleObj.origType == "mousedown" && BaseViewMode) {
+		$("#canvasDiv").unbind("mousemove", dragHandle);
+		BaseViewCenter(event);
 	}
 	if (event.handleObj.origType == "mouseup") {
 		$("#canvasDiv").unbind("mousemove", dragHandle);
@@ -1114,7 +1119,14 @@ function mouseEventFunction(event) {
 	}
 	
 }*/
-
+function BaseViewCenter(event){
+	var sel = getSelected(event);
+	if (sel != -1) {
+		var res = rvDataSets[0].Residues[sel];
+		var script = "center " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and " + res.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') +":" + res.ChainID;
+		Jmol.script(myJmol, script);
+	}
+}
 function modeSelect(mode) {
 	onebuttonmode = mode;
 }
@@ -1175,11 +1187,6 @@ function openRvState() {
 				rvViews[0] = rvViews[0].fromJSON(rvSaveState["RvV"]);
 				rvViews[0].restore();
 				rvDataSets[0]=rvDataSets[0].fromJSON(rvSaveState["RvDS"]);
-				rvDataSets[0].drawResidues("residues");
-				rvDataSets[0].drawSelection("selected");
-				rvDataSets[0].refreshResiduesExpanded("circles");
-				rvDataSets[0].drawLabels("labels");
-				rvDataSets[0].drawBasePairs("lines");
 				
 				Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
 				var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
@@ -1190,6 +1197,12 @@ function openRvState() {
 				InitRibovision2();
 			}
 		}
+		welcomeScreen();
+		rvDataSets[0].drawResidues("residues");
+		rvDataSets[0].drawSelection("selected");
+		rvDataSets[0].refreshResiduesExpanded("circles");
+		rvDataSets[0].drawLabels("labels");
+		rvDataSets[0].drawBasePairs("lines");
 	 };
 	 
 	 if (PrivacyStatus != "Agreed") {

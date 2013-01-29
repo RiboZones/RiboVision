@@ -167,7 +167,7 @@ function RiboVisionReady() {
 	});
 	
 	$("#RiboVisionSaveManager").click(function () {
-		//$("#RiboVisionSettingsPanel").dialog("open");
+		$("#RiboVisionSaveManagerPanel").dialog("open");
 		//$("#dialog-restore-state").dialog("open");
 		return false;
 	});
@@ -625,9 +625,23 @@ function RiboVisionReady() {
 		}
 	});
 	
+	$("#moveMode").attr("checked","checked");
 	$("#buttonmode").buttonset();
 	$("#colorLinesMode").buttonset();
 	$("#colorLinesGradientMode").buttonset();
+	$("#zaOFF").attr("checked","checked");
+	$("#ZAset").buttonset();
+	$("[name=za]").button().change(function(event,ui){
+		rvDataSets[0].drawBasePairs("lines");
+	});
+	
+	$("#BaseView").buttonset();
+	$("#bvOFF").attr("checked","checked");
+	$("#BaseView").buttonset("refresh");
+	
+	$("[name=bv]").button().change(function(event,ui){
+		//
+	});
 	$("[name=clearColor]").button();
 	$("[name=selebutton]").button();
 	$("[name=saveas]").button();	
@@ -898,6 +912,7 @@ function RiboVisionReady() {
 function InitRibovision(FreshState) {
 	rvDataSets[0] = new rvDataSet("EmptyDataSet");
 	rvDataSets[0].addHighlightLayer("HighlightLayer", "HighlightLayer", [], false, 1.176, 'highlight');
+
 	rvViews[0] = new rvView(20, 20, 1.2);
 	resizeElements();
 	
@@ -942,7 +957,6 @@ function InitRibovision2() {
 	RefreshSelectionMenu();
 	
 	//Set some menu choices, none being restored yet
-	document.getElementById("moveMode").checked = true;
 	document.getElementById("ProtList").selectedIndex = 0;
 	document.getElementById("alnList").selectedIndex = 0;
 	document.getElementById("PrimaryInteractionList").selectedIndex = 0;
@@ -1041,5 +1055,10 @@ function InitRibovision2() {
 			
 		});
 	});
+	rvDataSets[0].drawResidues("residues");
+	rvDataSets[0].drawSelection("selected");
+	rvDataSets[0].refreshResiduesExpanded("circles");
+	rvDataSets[0].drawLabels("labels");
+	rvDataSets[0].drawBasePairs("lines");
 }
 ///////////////////////////////////////////////////////////////////////////////

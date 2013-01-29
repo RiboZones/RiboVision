@@ -706,8 +706,8 @@ function rvDataSet(DataSetName) {
 		}
 	};
 	function drawBasePairs(targetLayer, colorLayer) {
-		var color1,
-		color2;
+		var color1,color2;
+		var zoomEnabled = $('input[name="za"][value=on]').attr("checked");
 		targetLayer.clearCanvas();
 		if (!colorLayer) {
 			colorLayer = targetLayer.ColorLayer;

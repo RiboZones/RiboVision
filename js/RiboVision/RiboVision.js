@@ -38,7 +38,7 @@ var drag;
 
 // Website Settings
 var localStorageAvailable = false;
-var zoomEnabled = true;  //needs restoration, after adding a switch for it.
+//var zoomEnabled = true;  //needs restoration, after adding a switch for it.
 var onebuttonmode;      //needs restoration
 var CurrPrivacyCookie;
 var PanelDivide = 0.5; //needs restoration
