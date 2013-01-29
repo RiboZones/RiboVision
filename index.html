@@ -367,7 +367,26 @@
     </div>
 	
 	<div id="RiboVisionSaveManagerPanel" title="Save/Restore Manager">
-	Fill Me
+		<div id="LocalStorageDiv" class="ui-widget-content">
+			LocalStorage: <br>
+			<br>
+			<input name="LayersCheck" value="LayersCheck" type="checkbox"><label for="LayersCheck">LayersCheck</label><br>
+			<input name="SelectionsCheck" value="SelectionsCheck" type="checkbox"><label for="SelectionsCheck">SelectionsCheck</label><br>
+			<input name="LastSpeciesCheck" value="LastSpeciesCheck" type="checkbox"><label for="LastSpeciesCheck">LastSpeciesCheck</label><br>
+			<input name="PanelSizesCheck" value="PanelSizesCheck" type="checkbox"><label for="PanelSizesCheck">PanelSizesCheck</label><br>
+			<input name="MouseModeCheck" value="MouseModeCheck" type="checkbox"><label for="MouseModeCheck">MouseModeCheck</label><br>
+			<input name="SubOptionsCheck" value="SubOptionsCheck" type="checkbox"><label for="SubOptionsCheck">SubOptionsCheck</label><br>
+			<input name="JmolOrientationCheck" value="JmolOrientationCheck" type="checkbox"><label for="JmolOrientationCheck">JmolOrientationCheck</label><br>
+		</div>
+	<div id="SaveStateDiv" class="ui-widget-content">
+		Save State Only: <br>
+		<br>
+		Whole DataSet<br>
+	</div>
+	<input id="saveRvState" name="savebutton" type="button" value="Save State" />
+	<input id="restoreRvState" name="savebutton" type="button" value="Restore State" />
+	<input id="freshenRvState" name="savebutton" type="button" value="Fresh State" />
+		
 	</div>
 
     <div id="dialog-confirm-delete" title="Delete the currently selected layer?">

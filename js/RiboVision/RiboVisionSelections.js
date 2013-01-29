@@ -125,11 +125,11 @@ $("#dialog-addSelection").dialog({
 		}
 	},
 	open : function () {
-		$("#jmolApplet0").css("visibility", "hidden");
+		$("#myJmol_object").css("visibility", "hidden");
 		$("#newSelectionName").val("Selection_" + (rvDataSets[0].Selections.length + 1));
 	},
 	close : function () { 
-		$("#jmolApplet0").css("visibility", "visible");
+		$("#myJmol_object").css("visibility", "visible");
 	}
 });
 $("#dialog-addSelection p").append("Not done yet." + 
@@ -154,10 +154,10 @@ $("#dialog-confirm-delete-S").dialog({
 		}
 	},
 	open : function (event) {
-		$("#jmolApplet0").css("visibility", "hidden");
+		$("#myJmol_object").css("visibility", "hidden");
 	},
 	close : function () { 
-		$("#jmolApplet0").css("visibility", "visible");
+		$("#myJmol_object").css("visibility", "visible");
 	}
 });
 

@@ -184,7 +184,7 @@ function rvDataSet(DataSetName) {
 	this.CustomData = [];
 	this.SpeciesEntry = [];
 	this.Selections = [];
-	this.LastLayer = 0;
+	this.LastLayer = -1;
 	this.LayerTypes = ['circles', 'lines', 'labels', 'residues', 'contour', 'selected'];
 	this.ConservationTable = [];
 	this.DataDescriptions = [];

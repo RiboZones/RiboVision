@@ -135,11 +135,18 @@ function RiboVisionReady() {
 			effect : "blind",
 			duration : 300
 		},
-		height : 500,
+		height : 400,
+		width : 600,
 		position : {
-			my : "left top",
-			at : "left top",
-			of : $("#SiteInfo")
+			my : "center",
+			at : "center",
+			of : $("#canvasDiv")
+		},
+		open : function () {
+			$("#myJmol_object").css("visibility", "hidden");
+		},
+		close : function () { 
+			$("#myJmol_object").css("visibility", "visible");
 		}
 	});
 	
@@ -156,19 +163,16 @@ function RiboVisionReady() {
 
 	$("#openInteractionSettingBtn").click(function () {
 		$("#InteractionSettingDialog").dialog("open");
-		//saveRvState();
 		return false;
 	});
 	
 	$("#RiboVisionSettings").click(function () {
 		$("#RiboVisionSettingsPanel").dialog("open");
-		//$("#dialog-restore-state").dialog("open");
 		return false;
 	});
 	
 	$("#RiboVisionSaveManager").click(function () {
 		$("#RiboVisionSaveManagerPanel").dialog("open");
-		//$("#dialog-restore-state").dialog("open");
 		return false;
 	});
 	
@@ -229,10 +233,10 @@ function RiboVisionReady() {
 		},
 		open : function () {
 			$("#newLayerName").val("Layer_" + (rvDataSets[0].Layers.length + 1));
-			$("#jmolApplet0").css("visibility", "hidden");
+			$("#myJmol_object").css("visibility", "hidden");
 		},
 		close : function () { 
-			$("#jmolApplet0").css("visibility", "visible");
+			$("#myJmol_object").css("visibility", "visible");
 		}
 	});
 	$("#dialog-addLayer p").append("We currently are only supporting the addition of new circle type layers." + 
@@ -250,10 +254,10 @@ function RiboVisionReady() {
 			}
 		},
 		open : function () {
-			$("#jmolApplet0").css("visibility", "hidden");
+			$("#myJmol_object").css("visibility", "hidden");
 		},
 		close : function () { 
-			$("#jmolApplet0").css("visibility", "visible");
+			$("#myJmol_object").css("visibility", "visible");
 		}
 	});
 	$( "#dialog-name-error" ).dialog({
@@ -268,10 +272,10 @@ function RiboVisionReady() {
 			}
 		},
 		open : function () {
-			$("#jmolApplet0").css("visibility", "hidden");
+			$("#myJmol_object").css("visibility", "hidden");
 		},
 		close : function () { 
-			$("#jmolApplet0").css("visibility", "visible");
+			$("#myJmol_object").css("visibility", "visible");
 		}
 	});
 	$( "#dialog-generic-notice" ).dialog({
@@ -286,10 +290,10 @@ function RiboVisionReady() {
 			}
 		},
 		open : function () {
-			$("#jmolApplet0").css("visibility", "hidden");
+			$("#myJmol_object").css("visibility", "hidden");
 		},
 		close : function () { 
-			$("#jmolApplet0").css("visibility", "visible");
+			$("#myJmol_object").css("visibility", "visible");
 		}
 	});
 	$( "#dialog-layer-type-error" ).dialog({
@@ -304,10 +308,10 @@ function RiboVisionReady() {
 			}
 		},
 		open : function () {
-			$("#jmolApplet0").css("visibility", "hidden");
+			$("#myJmol_object").css("visibility", "hidden");
 		},
 		close : function () { 
-			$("#jmolApplet0").css("visibility", "visible");
+			$("#myJmol_object").css("visibility", "visible");
 		}
 	});
 	$( "#dialog-restore-state" ).dialog({
@@ -327,10 +331,10 @@ function RiboVisionReady() {
 			}
 		},
 		open : function () {
-			$("#jmolApplet0").css("visibility", "hidden");
+			$("#myJmol_object").css("visibility", "hidden");
 		},
 		close : function () { 
-			$("#jmolApplet0").css("visibility", "visible");
+			$("#myJmol_object").css("visibility", "visible");
 		}
 	});
 	$("#Privacy-confirm").dialog({
@@ -350,10 +354,10 @@ function RiboVisionReady() {
 			}
 		},
 		open : function (event) {
-			$("#jmolApplet0").css("visibility", "hidden");
+			$("#myJmol_object").css("visibility", "hidden");
 		},
 		close : function () { 
-			$("#jmolApplet0").css("visibility", "visible");
+			$("#myJmol_object").css("visibility", "visible");
 		}
 	});
 	$("#dialog-confirm-delete").dialog({
@@ -373,10 +377,10 @@ function RiboVisionReady() {
 			}
 		},
 		open : function (event) {
-			$("#jmolApplet0").css("visibility", "hidden");
+			$("#myJmol_object").css("visibility", "hidden");
 		},
 		close : function () { 
-			$("#jmolApplet0").css("visibility", "visible");
+			$("#myJmol_object").css("visibility", "visible");
 		}
 	});
 	
@@ -392,10 +396,10 @@ function RiboVisionReady() {
 			}
 		},
 		open : function (event) {
-			$("#jmolApplet0").css("visibility", "hidden");
+			$("#myJmol_object").css("visibility", "hidden");
 		},
 		close : function () { 
-			$("#jmolApplet0").css("visibility", "visible");
+			$("#myJmol_object").css("visibility", "visible");
 		}
 	});
 	
@@ -568,6 +572,15 @@ function RiboVisionReady() {
 			}).get();
 			filterBasePairs(FullBasePairSet,array_of_checked_values);
 		},
+	});
+	$("#saveRvState").button().click(function(){
+		saveRvState();
+	});
+	$("#restoreRvState").button().click(function(){
+		$("#dialog-restore-state").dialog("open");
+	});
+	$("#freshenRvState").button().click(function(){
+		InitRibovision(true);
 	});
 	
 	$("#openLayerBtn").button({
@@ -907,6 +920,8 @@ function RiboVisionReady() {
 	$("#SelectionMode").click(function () {
 	});
 	InitRibovision();
+	//$("#RiboVisionSaveManagerPanel").dialog("open");
+
 };
 
 function InitRibovision(FreshState) {
@@ -917,7 +932,7 @@ function InitRibovision(FreshState) {
 	resizeElements();
 	
 	if (OpenStateOnLoad && !FreshState) {
-		$("#dialog-restore-state").dialog("open");
+		$("#RiboVisionSaveManagerPanel").dialog("open");
 	} else { 
 		// Create rvLayers
 		rvDataSets[0].addLayer("Data2", "CircleLayer1", [], true, 1.0, 'circles');

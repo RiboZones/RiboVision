@@ -185,10 +185,10 @@ function resizeElements() {
 	 */
 	
 	//Jmol.resizeApplet(myJmol,[(rp - 2 * MajorBorderSize),(s - 2 * MajorBorderSize)]);
-	//$("#jmolApplet0").css('height', );
-	//$("#jmolApplet0").css('width', );
-	//$("#jmolApplet0").css('top', 0);
-	//$("#jmolApplet0").css('left', 0);
+	//$("#myJmol_object").css('height', );
+	//$("#myJmol_object").css('width', );
+	//$("#myJmol_object").css('top', 0);
+	//$("#myJmol_object").css('left', 0);
 	
 	// Layer Panel
 	$( "#LayerDialog" ).dialog( "option", "height", s - 2 * MajorBorderSize );	
