@@ -32,6 +32,10 @@ function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color) 
 	//Properties
 	this.LayerName = LayerName;
 	this.CanvasName = CanvasName;
+	if (document.getElementById(CanvasName) == null){
+		$("#canvasDiv").append($('<canvas id="' + CanvasName + '" style="z-index:' + ( rvDataSets[0].LastLayer + 1 ) + ';"></canvas>')); 
+	}
+	//this.Canvas = $("#" + CanvasName);
 	this.Canvas = document.getElementById(CanvasName);
 	this.CanvasContext = this.Canvas.getContext("2d");
 	this.Data = Data;
@@ -287,6 +291,9 @@ function rvDataSet(DataSetName) {
 	this.sort = function () {
 		this.Layers.sort(function (a, b) {
 			return (Number(a.Canvas.style.zIndex) - Number(b.Canvas.style.zIndex));
+		});
+		$.each(this.Layers, function (key, value) {
+			this.zIndex = key;
 		});
 	};
 	this.clearCanvas = function (layer) {

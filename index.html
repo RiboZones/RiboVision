@@ -367,26 +367,36 @@
     </div>
 	
 	<div id="RiboVisionSaveManagerPanel" title="Save/Restore Manager">
+		<div id="FreshDiv" class="ui-widget-content">
+			Default RiboVision Settings
+			<input id="freshenRvState" name="savebuttonT" type="button" value="Restore Default State" />
+		</div>
+		
 		<div id="LocalStorageDiv" class="ui-widget-content">
 			LocalStorage: <br>
 			<br>
-			<input name="LayersCheck" value="LayersCheck" type="checkbox"><label for="LayersCheck">LayersCheck</label><br>
-			<input name="SelectionsCheck" value="SelectionsCheck" type="checkbox"><label for="SelectionsCheck">SelectionsCheck</label><br>
-			<input name="LastSpeciesCheck" value="LastSpeciesCheck" type="checkbox"><label for="LastSpeciesCheck">LastSpeciesCheck</label><br>
-			<input name="PanelSizesCheck" value="PanelSizesCheck" type="checkbox"><label for="PanelSizesCheck">PanelSizesCheck</label><br>
-			<input name="MouseModeCheck" value="MouseModeCheck" type="checkbox"><label for="MouseModeCheck">MouseModeCheck</label><br>
-			<input name="SubOptionsCheck" value="SubOptionsCheck" type="checkbox"><label for="SubOptionsCheck">SubOptionsCheck</label><br>
-			<input name="JmolOrientationCheck" value="JmolOrientationCheck" type="checkbox"><label for="JmolOrientationCheck">JmolOrientationCheck</label><br>
+			<input name="LastSpeciesCheck" value="LastSpeciesCheck" type="checkbox"><label for="LastSpeciesCheck">Current Species Loaded</label><br>
+			<input name="LayersCheck" value="LayersCheck" type="checkbox" checked="checked"><label for="LayersCheck">Layers with data</label><br>
+			<input name="SubOptionsCheckL" value="SubOptionsCheckL" type="checkbox"><label for="SubOptionsCheckL">Layer Options</label><br>
+			<input name="SelectionsCheck" value="SelectionsCheck" type="checkbox"><label for="SelectionsCheck">Selections</label><br>
+			<input name="SubOptionsCheckS" value="SubOptionsCheckS" type="checkbox"><label for="SubOptionsCheckS">Selection Options</label><br>
+			<input name="MouseModeCheck" value="MouseModeCheck" type="checkbox"><label for="MouseModeCheck">Mouse Mode</label><br>
+			<input name="PanelSizesCheck" value="PanelSizesCheck" type="checkbox"><label for="PanelSizesCheck">Panel Divider Settings</label><br>
+			<input name="CanvasOrientationCheck" value="CanvasOrientationCheck" type="checkbox"><label for="CanvasOrientationCheck">2D Settings</label><br>			
+			<input name="JmolOrientationCheck" value="JmolOrientationCheck" type="checkbox"><label for="JmolOrientationCheck">3D Settings</label><br>
+			<br>
+			<input id="updateLS" name="savebuttonL" type="button" value="Save to LocalStorage" /><br>
+			<input id="restoreLS" name="savebuttonL" type="button" value="Restore from LocalStorage" /><br>
 		</div>
-	<div id="SaveStateDiv" class="ui-widget-content">
-		Save State Only: <br>
-		<br>
-		Whole DataSet<br>
-	</div>
-	<input id="saveRvState" name="savebutton" type="button" value="Save State" />
-	<input id="restoreRvState" name="savebutton" type="button" value="Restore State" />
-	<input id="freshenRvState" name="savebutton" type="button" value="Fresh State" />
 		
+		<div id="SaveStateDiv" class="ui-widget-content">
+			Save State Only: <br>
+			<br>
+			<input name="WholeDataSetCheck" value="WholeDataSetCheck" type="checkbox"><label for="WholeDataSetCheck">Entire DataSet</label><br>
+			<br>
+			<input id="saveRvState" name="savebuttonR" type="button" value="Save State" /><br>
+			<input id="restoreRvState" name="savebuttonR" type="button" value="Restore State" /><br>
+		</div>
 	</div>
 
     <div id="dialog-confirm-delete" title="Delete the currently selected layer?">

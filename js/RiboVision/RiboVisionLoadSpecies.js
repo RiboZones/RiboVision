@@ -27,12 +27,8 @@ based on:
 //This doesn't exist and this probably won't be the final license.
 
 
-function loadSpecies(species) {
-	/*
-	for (i in rvDataSets[0].Layers) {
-		rvDataSets[0].Layers[i].clearCanvas();
-	}
-	*/
+function loadSpecies(species,DoneLoading) {
+	rvDataSets[0].Name=species;
 	$.each(rvDataSets[0].Layers, function (i, item){
 		item.clearCanvas();
 	});
@@ -147,8 +143,11 @@ function loadSpecies(species) {
 				});
 				
 				drawNavLine(); //load navLine 
-			});
-			
+			}
+			);
+			if (DoneLoading){
+				DoneLoading.resolve();
+			}
 		});
 	} else {
 		rvDataSets[0].addResidues([]);
@@ -182,6 +181,9 @@ function loadSpecies(species) {
 		clearSelection();
 		//console.log("Nothing to see here, move along now, and 42!");
 		welcomeScreen();
+		if (DoneLoading){
+			DoneLoading.resolve();
+		}
 	}
 	document.getElementById("ProtList").selectedIndex = 0;
 	document.getElementById("alnList").selectedIndex = 0;

@@ -135,7 +135,7 @@ function RiboVisionReady() {
 			effect : "blind",
 			duration : 300
 		},
-		height : 400,
+		height : 500,
 		width : 600,
 		position : {
 			my : "center",
@@ -214,9 +214,9 @@ function RiboVisionReady() {
 				var namecheck = $("#newLayerName").val().match(/[A-z][\w-_:\.]*/);
 				if (namecheck[0].length === $("#newLayerName").val().length && $("#newLayerName").val().length <= 16){
 					if (rvDataSets[0].isUniqueLayer($("#newLayerName").val())){
-						$("#canvasDiv").append($('<canvas id="' + $("#newLayerName").val() + '" style="z-index:' + ( rvDataSets[0].LastLayer + 1 ) + ';"></canvas>')); 
-						resizeElements();
+						//$("#canvasDiv").append($('<canvas id="' + $("#newLayerName").val() + '" style="z-index:' + ( rvDataSets[0].LastLayer + 1 ) + ';"></canvas>')); 
 						rvDataSets[0].addLayer($("#newLayerName").val(), $("#newLayerName").val(), [], true, 1.0, 'circles',$("#layerColor2").val());
+						resizeElements();
 						LayerMenu(rvDataSets[0].getLayer($("#newLayerName").val()),(1000 + ( rvDataSets[0].LastLayer + 1 ) ));
 						RefreshLayerMenu();
 						$(this).dialog("close");
@@ -582,7 +582,12 @@ function RiboVisionReady() {
 	$("#freshenRvState").button().click(function(){
 		InitRibovision(true);
 	});
-	
+	$("#updateLS").button().click(function(){
+		UpdateLocalStorage();
+	});
+	$("#restoreLS").button().click(function(){
+		RestoreLocalStorage();
+	});
 	$("#openLayerBtn").button({
 		text : false,
 		icons : {
@@ -930,7 +935,7 @@ function InitRibovision(FreshState) {
 
 	rvViews[0] = new rvView(20, 20, 1.2);
 	resizeElements();
-	
+	$(".oneLayerGroup").remove();
 	if (OpenStateOnLoad && !FreshState) {
 		$("#RiboVisionSaveManagerPanel").dialog("open");
 	} else { 
@@ -946,6 +951,7 @@ function InitRibovision(FreshState) {
 		// Sort rvLayers by zIndex for convience
 		rvDataSets[0].sort();
 		InitRibovision2();
+		resizeElements();
 	}
 }
 

@@ -245,18 +245,38 @@ body{
 	padding: 0.1em 0.1em;
 	box-sizing:border-box;
 }
+
+#FreshDiv {
+	position: absolute;
+	top:4%;
+	right: 4%;
+	width: 92%;
+	height: 10%;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+}
+
 #LocalStorageDiv {
 	position: absolute;
+	top:18%;
 	left: 4%;
-	width: 40%;
-	height: 70%;
+	width: 42%;
+	height: 78%;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
 }
 
 #SaveStateDiv {
 	position: absolute;
+	top:18%;
 	right: 4%;
-	width: 40%;
-	height: 70%;
+	width: 42%;
+	height: 78%;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
 }
 
 #ColorDialog {
@@ -339,7 +359,18 @@ body{
 	background: #F2F5F7;
 }
 
-input[name="savebutton"]{
-	top:80%;
-	float:left;
+input[name="savebuttonL"]{
+	/*position:relative;
+	//top:80%;*/
+}
+
+input[name="savebuttonR"]{
+	/*position:relative;
+	top:60%;
+	left:55%;*/
+}
+input[name="savebuttonT"]{
+	/*display:block;
+	margin-left:auto;
+	margin-right:auto;*/
 }

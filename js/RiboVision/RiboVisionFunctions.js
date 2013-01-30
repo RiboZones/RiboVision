@@ -2407,3 +2407,96 @@ function addPopUpWindow(ResIndex){
 
 //////////End of navline functions////
 
+function UpdateLocalStorage(){
+	if (localStorageAvailable){
+		if($("input[name='LayersCheck']").attr("checked")){
+			localStorage.setItem("rvLayers",JSON.stringify(rvDataSets[0].Layers));
+		}
+		if($("input[name='SelectionsCheck']").attr("checked")){
+			localStorage.setItem("rvSelections",1);
+		}
+		if($("input[name='LastSpeciesCheck']").attr("checked")){
+			localStorage.setItem("rvLastSpecies",rvDataSets[0].Name);
+		}
+		if($("input[name='PanelSizesCheck']").attr("checked")){
+			localStorage.setItem("rvPanelSizes",3);
+		}
+		if($("input[name='MouseModeCheck']").attr("checked")){
+			localStorage.setItem("rvMouseMode",4);	
+		}
+		if($("input[name='SubOptionsCheckL']").attr("checked")){
+			localStorage.setItem("rvLayerOptions",5);
+		}
+		if($("input[name='SubOptionsCheckS']").attr("checked")){
+			localStorage.setItem("rvSelectionOptions",6);
+		}
+		if($("input[name='CanvasOrientationCheck']").attr("checked")){
+			localStorage.setItem("rvView",7);
+		}
+		if($("input[name='JmolOrientationCheck']").attr("checked")){
+			localStorage.setItem("rvJmolOrientation",8);
+		}
+	}
+}
+function RestoreLocalStorage() { 
+	var DoneLoading = $.Deferred();
+	if (localStorageAvailable){
+		if($("input[name='LastSpeciesCheck']").attr("checked")){
+			loadSpecies(localStorage.rvLastSpecies,DoneLoading);
+		} else {
+			DoneLoading.resolve();
+		}
+	}
+	DoneLoading.done(function() {
+		RestoreLocalStorage2(); 
+	});
+}
+function RestoreLocalStorage2() {
+	if($("input[name='LayersCheck']").attr("checked")){
+		var data = JSON.parse(localStorage.rvLayers);
+		$.each(data, function (index, value) {
+			rvDataSets[0].Layers[index] = rvDataSets[0].HighlightLayer.fromJSON(value);
+		});
+		// Sort rvLayers by zIndex for convience
+		//rvDataSets[0].sort();
+		
+		$.each(rvDataSets[0].Layers,function (index, value) {
+			$("#" + this.CanvasName).css('zIndex', index);
+		});
+		
+		resizeElements();
+		$(".oneLayerGroup").remove();
+		// Put in Layers
+		$.each(rvDataSets[0].Layers, function (key, value){
+			LayerMenu(value, key);
+		});
+		RefreshLayerMenu();
+	}
+	if($("input[name='SelectionsCheck']").attr("checked")){
+		//localStorage.setItem("rvSelections",1);
+	}
+	
+	if($("input[name='PanelSizesCheck']").attr("checked")){
+		//localStorage.setItem("rvPanelSizes",3);
+	}
+	if($("input[name='MouseModeCheck']").attr("checked")){
+		//localStorage.setItem("rvMouseMode",4);	
+	}
+	if($("input[name='SubOptionsCheckL']").attr("checked")){
+		//localStorage.setItem("rvLayerOptions",5);
+	}
+	if($("input[name='SubOptionsCheckS']").attr("checked")){
+		//localStorage.setItem("rvSelectionOptions",6);
+	}
+	if($("input[name='CanvasOrientationCheck']").attr("checked")){
+		//localStorage.setItem("rvView",7);
+	}
+	if($("input[name='JmolOrientationCheck']").attr("checked")){
+		//localStorage.setItem("rvJmolOrientation",8);
+	}
+	rvDataSets[0].drawResidues("residues");
+	rvDataSets[0].drawSelection("selected");
+	rvDataSets[0].refreshResiduesExpanded("circles");
+	rvDataSets[0].drawLabels("labels");
+	rvDataSets[0].drawBasePairs("lines");
+}
