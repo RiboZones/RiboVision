@@ -143,10 +143,10 @@ function RiboVisionReady() {
 			of : $("#canvasDiv")
 		},
 		open : function () {
-			$("#myJmol_object").css("visibility", "hidden");
+			//$("#myJmol_object").css("visibility", "hidden");
 		},
 		close : function () { 
-			$("#myJmol_object").css("visibility", "visible");
+			//$("#myJmol_object").css("visibility", "visible");
 		}
 	});
 	
@@ -932,22 +932,28 @@ function RiboVisionReady() {
 function InitRibovision(FreshState) {
 	rvDataSets[0] = new rvDataSet("EmptyDataSet");
 	rvDataSets[0].addHighlightLayer("HighlightLayer", "HighlightLayer", [], false, 1.176, 'highlight');
-
+	rvDataSets[0].addLayer("Interactions1", "MainLineLayer", [], true, 1.0, 'lines');
+	rvDataSets[0].addLayer("Labels", "LabelLayer", [], true, 1.0, 'labels');
+	rvDataSets[0].addLayer("Residues", "ResidueLayer", [], true, 1.0, 'residues');
+	rvDataSets[0].addLayer("Selection", "SelectedLayer", [], false, 1.176, 'selected');
+	
 	rvViews[0] = new rvView(20, 20, 1.2);
-	resizeElements();
+	//resizeElements(true);
 	$(".oneLayerGroup").remove();
+	$(".oneSelectionGroup").remove();
+	rvDataSets[0].addSelection("Main");
+	InitRibovision2();
+	resizeElements();
+	
 	if (OpenStateOnLoad && !FreshState) {
 		$("#RiboVisionSaveManagerPanel").dialog("open");
 	} else { 
 		// Create rvLayers
+		
 		rvDataSets[0].addLayer("Data2", "CircleLayer1", [], true, 1.0, 'circles');
 		rvDataSets[0].addLayer("Data1", "CircleLayer2", [], true, 1.0, 'circles');
-		rvDataSets[0].addLayer("Selection", "SelectedLayer", [], false, 1.176, 'selected');
-		rvDataSets[0].addLayer("Residues", "ResidueLayer", [], true, 1.0, 'residues');
-		rvDataSets[0].addLayer("Labels", "LabelLayer", [], true, 1.0, 'labels');
-		rvDataSets[0].addLayer("Interactions1", "MainLineLayer", [], true, 1.0, 'lines');
-		rvDataSets[0].addLayer("ContourLine", "ContourLayer", [], true, 1.0, 'contour');
-		rvDataSets[0].addSelection("Main");
+		//rvDataSets[0].addLayer("ContourLine", "ContourLayer", [], true, 1.0, 'contour');
+		
 		// Sort rvLayers by zIndex for convience
 		rvDataSets[0].sort();
 		InitRibovision2();

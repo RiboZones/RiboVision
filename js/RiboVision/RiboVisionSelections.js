@@ -292,7 +292,7 @@ function SelectionMenu(targetSelection, key, RVcolor) {
 	$("#SelectionPanel div").first().next().find(".selectionContent").append($('<div>').text("Auto Draw Circles:").append($("<br>")));
 	$("#SelectionPanel div").first().next().find(".selectionContent").first().find("div").last().append($('<label><input type="radio" name="autodraw' + '" value="on" checked="checked">On</label>'));
 	$("#SelectionPanel div").first().next().find(".selectionContent").first().find("div").last().append($('<label><input type="radio" name="autodraw' + '" value="off">Off</label>'));
-	$('input[name="filled' + key + '"][value=filled]').attr("checked", true);
+	//$('input[name="filled' + key + '"][value=filled]').attr("checked", true);
 	
 	//$count++;
 /*

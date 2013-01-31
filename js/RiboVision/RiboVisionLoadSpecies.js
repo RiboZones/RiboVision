@@ -27,7 +27,7 @@ based on:
 //This doesn't exist and this probably won't be the final license.
 
 
-function loadSpecies(species,DoneLoading) {
+function loadSpecies(species,DoneLoading,DoneLoading2) {
 	rvDataSets[0].Name=species;
 	$.each(rvDataSets[0].Layers, function (i, item){
 		item.clearCanvas();
@@ -124,7 +124,7 @@ function loadSpecies(species,DoneLoading) {
 				var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
 				Jmol.script(myJmol, jscript);
 				
-				clearSelection();
+				//clearSelection();
 				rvDataSets[0].drawResidues("residues");
 				rvDataSets[0].drawLabels("labels");
 				
@@ -143,6 +143,9 @@ function loadSpecies(species,DoneLoading) {
 				});
 				
 				drawNavLine(); //load navLine 
+				if (DoneLoading2){
+				DoneLoading2.resolve();
+				}
 			}
 			);
 			if (DoneLoading){
@@ -178,7 +181,7 @@ function loadSpecies(species,DoneLoading) {
 		rvDataSets[0].SpeciesEntry.Jmol_Script = "blank_state.spt";
 		//jmolScript("script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
 		Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
-		clearSelection();
+		//clearSelection();
 		//console.log("Nothing to see here, move along now, and 42!");
 		welcomeScreen();
 		if (DoneLoading){

@@ -101,7 +101,7 @@ function pan(dx, dy) {
 	
 }
 
-function resizeElements() {
+function resizeElements(noDraw) {
 	var MajorBorderSize = 1;
 	var width = $(window).width();
 	var height = $(window).height();
@@ -222,11 +222,13 @@ function resizeElements() {
 	rvViews[0].clientWidth = rvDataSets[0].HighlightLayer.Canvas.clientWidth;
 	rvViews[0].clientHeight = rvDataSets[0].HighlightLayer.Canvas.clientHeight;
 	
-	rvDataSets[0].drawResidues("residues");
-	rvDataSets[0].drawSelection("selected");
-	rvDataSets[0].refreshResiduesExpanded("circles");
-	rvDataSets[0].drawLabels("labels");
-	rvDataSets[0].drawBasePairs("lines");
+	if (!noDraw){
+		rvDataSets[0].drawResidues("residues");
+		rvDataSets[0].drawSelection("selected");
+		rvDataSets[0].refreshResiduesExpanded("circles");
+		rvDataSets[0].drawLabels("labels");
+		rvDataSets[0].drawBasePairs("lines");
+	}
 	
 }
 
@@ -2413,7 +2415,7 @@ function UpdateLocalStorage(){
 			localStorage.setItem("rvLayers",JSON.stringify(rvDataSets[0].Layers));
 		}
 		if($("input[name='SelectionsCheck']").attr("checked")){
-			localStorage.setItem("rvSelections",1);
+			localStorage.setItem("rvSelections",JSON.stringify(rvDataSets[0].Selections));
 		}
 		if($("input[name='LastSpeciesCheck']").attr("checked")){
 			localStorage.setItem("rvLastSpecies",rvDataSets[0].Name);
@@ -2440,15 +2442,20 @@ function UpdateLocalStorage(){
 }
 function RestoreLocalStorage() { 
 	var DoneLoading = $.Deferred();
+	var DoneLoading2 = $.Deferred();
+	
 	if (localStorageAvailable){
 		if($("input[name='LastSpeciesCheck']").attr("checked")){
-			loadSpecies(localStorage.rvLastSpecies,DoneLoading);
+			loadSpecies(localStorage.rvLastSpecies,DoneLoading,DoneLoading2);
 		} else {
 			DoneLoading.resolve();
 		}
 	}
 	DoneLoading.done(function() {
 		RestoreLocalStorage2(); 
+	});
+	DoneLoading2.done(function() {
+		update3Dcolors();
 	});
 }
 function RestoreLocalStorage2() {
@@ -2463,17 +2470,30 @@ function RestoreLocalStorage2() {
 		$.each(rvDataSets[0].Layers,function (index, value) {
 			$("#" + this.CanvasName).css('zIndex', index);
 		});
-		
-		resizeElements();
+		// Restore Selected and Linked
+		var selectedLayer = rvDataSets[0].getSelectedLayer();
+		var linkedLayer = rvDataSets[0].getLinkedLayer();
+		resizeElements(true);
 		$(".oneLayerGroup").remove();
 		// Put in Layers
 		$.each(rvDataSets[0].Layers, function (key, value){
 			LayerMenu(value, key);
 		});
 		RefreshLayerMenu();
+		
+		$(".oneLayerGroup" + "[name=" + selectedLayer.LayerName + "]").find(".selectLayerRadioBtn").attr("checked","checked");
+		$(".oneLayerGroup" + "[name=" + linkedLayer.LayerName + "]").find(".mappingRadioBtn").attr("checked","checked");
 	}
 	if($("input[name='SelectionsCheck']").attr("checked")){
-		//localStorage.setItem("rvSelections",1);
+		rvDataSets[0].Selections = JSON.parse(localStorage.rvSelections);
+		$(".oneSelectionGroup").remove();
+		// Put in Selections
+		$.each(rvDataSets[0].Selections.reverse(), function (key, value){
+			SelectionMenu(value, key);
+		});
+		//Default check first selection. Come back to these to restore saved state
+		$("#SelectionPanel div").first().next().find(".selectSelectionRadioBtn").attr("checked", "checked");
+		RefreshSelectionMenu();
 	}
 	
 	if($("input[name='PanelSizesCheck']").attr("checked")){
@@ -2499,4 +2519,5 @@ function RestoreLocalStorage2() {
 	rvDataSets[0].refreshResiduesExpanded("circles");
 	rvDataSets[0].drawLabels("labels");
 	rvDataSets[0].drawBasePairs("lines");
+	update3Dcolors();
 }
