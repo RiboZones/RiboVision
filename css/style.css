@@ -374,3 +374,7 @@ input[name="savebuttonT"]{
 	margin-left:auto;
 	margin-right:auto;*/
 }
+#nocanvas{
+	position:absolute;
+	top:50%;
+}

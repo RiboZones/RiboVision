@@ -330,7 +330,7 @@ RegExp.escape= function(s) {
 
       var state = {
         rowNum:1,
-        colNum:1,
+        colNum:1
       }
 
       var options = {
@@ -390,7 +390,7 @@ RegExp.escape= function(s) {
 
       var state = {
         rowNum:1,
-        colNum:2,
+        colNum:2
       };
 
       var options = {

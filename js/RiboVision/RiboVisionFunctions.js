@@ -590,7 +590,7 @@ function update3Dcolors() {
 	} else {
 		script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and :" + curr_chain + " and (" + r0 + " - " + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "); color Cartoon opaque [" + curr_color.replace("#", "x") + "]; ";
 	}
-	updateSelectionDiv();
+	//updateSelectionDiv();
 	//jmolScript(script);
 	Jmol.script(myJmol, script);
 }
@@ -2009,8 +2009,10 @@ function welcomeScreen() {
 	// New Welcome Screen
 	var img = new Image();
 	img.onload = function() {
-		rvDataSets[0].Layers[0].clearCanvas();
-		rvDataSets[0].Layers[0].CanvasContext.drawImage(img,  -1 * rvViews[0].x, -1 * rvViews[0].y,733 * scale_factor,550 * scale_factor);
+		if (canvas2DSupported) {
+			rvDataSets[0].Layers[0].clearCanvas();
+			rvDataSets[0].Layers[0].CanvasContext.drawImage(img,  -1 * rvViews[0].x, -1 * rvViews[0].y,733 * scale_factor,550 * scale_factor);
+		}
 	}
 	img.src = "images/RiboVisionLogo.png"; //
 
@@ -2421,22 +2423,20 @@ function UpdateLocalStorage(){
 			localStorage.setItem("rvLastSpecies",rvDataSets[0].Name);
 		}
 		if($("input[name='PanelSizesCheck']").attr("checked")){
-			localStorage.setItem("rvPanelSizes",3);
+			var po = {
+				PanelDivide : PanelDivide,
+				TopDivide : TopDivide
+			}
+			localStorage.setItem("rvPanelSizes",JSON.stringify(po));
 		}
 		if($("input[name='MouseModeCheck']").attr("checked")){
-			localStorage.setItem("rvMouseMode",4);	
-		}
-		if($("input[name='SubOptionsCheckL']").attr("checked")){
-			localStorage.setItem("rvLayerOptions",5);
-		}
-		if($("input[name='SubOptionsCheckS']").attr("checked")){
-			localStorage.setItem("rvSelectionOptions",6);
+			localStorage.setItem("rvMouseMode",onebuttonmode);	
 		}
 		if($("input[name='CanvasOrientationCheck']").attr("checked")){
-			localStorage.setItem("rvView",7);
+			localStorage.setItem("rvView",JSON.stringify(rvViews[0]));
 		}
 		if($("input[name='JmolOrientationCheck']").attr("checked")){
-			localStorage.setItem("rvJmolOrientation",8);
+			localStorage.setItem("rvJmolOrientation",Jmol.evaluate(myJmol,"script('show orientation')"));
 		}
 	}
 }
@@ -2455,7 +2455,14 @@ function RestoreLocalStorage() {
 		RestoreLocalStorage2(); 
 	});
 	DoneLoading2.done(function() {
+		//updateSelectionDiv();
+		updateModel();
 		update3Dcolors();
+		if($("input[name='JmolOrientationCheck']").attr("checked")){
+			//localStorage.setItem("rvJmolOrientation",8);
+			var a = localStorage.rvJmolOrientation.match(/reset[^\n]+/);
+			Jmol.script(myJmol, a[0]);
+		}
 	});
 }
 function RestoreLocalStorage2() {
@@ -2482,7 +2489,9 @@ function RestoreLocalStorage2() {
 		RefreshLayerMenu();
 		
 		$(".oneLayerGroup" + "[name=" + selectedLayer.LayerName + "]").find(".selectLayerRadioBtn").attr("checked","checked");
+		rvDataSets[0].selectLayer(selectedLayer.LayerName);
 		$(".oneLayerGroup" + "[name=" + linkedLayer.LayerName + "]").find(".mappingRadioBtn").attr("checked","checked");
+		rvDataSets[0].linkLayer(linkedLayer.LayerName);
 	}
 	if($("input[name='SelectionsCheck']").attr("checked")){
 		rvDataSets[0].Selections = JSON.parse(localStorage.rvSelections);
@@ -2497,27 +2506,33 @@ function RestoreLocalStorage2() {
 	}
 	
 	if($("input[name='PanelSizesCheck']").attr("checked")){
-		//localStorage.setItem("rvPanelSizes",3);
+		var po = JSON.parse(localStorage.rvPanelSizes);
+		PanelDivide = po.PanelDivide;
+		TopDivide = po.TopDivide;
+		$( "#canvasPorportionSlider" ).slider("value",PanelDivide);
+		$( "#topPorportionSlider" ).slider("value",TopDivide);
+		resizeElements();
 	}
 	if($("input[name='MouseModeCheck']").attr("checked")){
-		//localStorage.setItem("rvMouseMode",4);	
-	}
-	if($("input[name='SubOptionsCheckL']").attr("checked")){
-		//localStorage.setItem("rvLayerOptions",5);
-	}
-	if($("input[name='SubOptionsCheckS']").attr("checked")){
-		//localStorage.setItem("rvSelectionOptions",6);
+		$("#buttonmode").find("input[value='" + localStorage.rvMouseMode + "']").trigger("click");
 	}
 	if($("input[name='CanvasOrientationCheck']").attr("checked")){
 		//localStorage.setItem("rvView",7);
+		rvViews[0] = rvViews[0].fromJSON(localStorage.rvView);
+		rvViews[0].restore();
 	}
 	if($("input[name='JmolOrientationCheck']").attr("checked")){
 		//localStorage.setItem("rvJmolOrientation",8);
+		var a = localStorage.rvJmolOrientation.match(/reset[^\n]+/);
+		Jmol.script(myJmol, a[0]);
 	}
 	rvDataSets[0].drawResidues("residues");
 	rvDataSets[0].drawSelection("selected");
 	rvDataSets[0].refreshResiduesExpanded("circles");
 	rvDataSets[0].drawLabels("labels");
 	rvDataSets[0].drawBasePairs("lines");
-	update3Dcolors();
+	if(!$("input[name='LastSpeciesCheck']").attr("checked")){
+		updateModel();
+		update3Dcolors();
+	}
 }

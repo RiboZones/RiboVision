@@ -58,5 +58,5 @@ var JmolInfo = {
 	serverURL: "http://chemapps.stolaf.edu/jmol/jmolcd.php",
 	src: null,
 	use: "Java WebGL HTML5",
-	width: "100%",
+	width: "100%"
 };	

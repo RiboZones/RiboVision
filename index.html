@@ -26,16 +26,8 @@
     <script type="text/javascript" src="js/jquery.mousewheel.min.js">
 </script>
     <script type="text/javascript" src="js/jquery.csv-0.65pre.js">
-</script><!--Use D3 visualization library-->
-
-    <script type="text/javascript" src="js/d3.js">
 </script>
-    <script type="text/javascript" src="js/d3.csv.js">
-</script>
-    <script type="text/javascript" src="js/d3.v3.js">
-</script>
-    <script type="text/javascript" src="js/d3.v2.js">
-</script><!--Use farbtastic library-->
+<!--Use farbtastic library-->
 
     <script type="text/javascript" src="js/farbtastic/farbtastic.js">
 </script><!--Use Jmol library-->
@@ -69,7 +61,7 @@
     <div id="menu" class="ui-widget-content">
         <div id="SiteInfo" class="ui-widget-content">
             <h3 class="ui-widget-header" style="padding:3px; padding-left:10px; background-image:url(images/ui-bg_glass_50_3baae3_1x400.png); font-size:16px;">
-            <a href="./ChangeLog.txt" target="_blank" style="color:#FFF">RiboVision: Version 0.595</a></h3>
+            <a href="./ChangeLog.txt" target="_blank" style="color:#FFF">RiboVision: Version 0.596</a></h3>
 
             <div id="MainLogoDiv"><img src="images/RiboVisionLogo.png" id="MainLogo" title="RiboVision Logo" alt="Ribovision Logo" /></div>
 
@@ -213,8 +205,12 @@
     </div>
 
     <div id="canvasDiv" oncontextmenu="return false" class="ui-widget-content">
-        <!--
-		<canvas id="LabelLayer" style="z-index:2;">Get a Better Browser Dummy!</canvas> <canvas id="HighlightLayer" style="z-index:998; width:100%"></canvas>
+        <canvas id="HighlightLayer" style="z-index:998; width:100%"><p id="nocanvas">Your browser does not support Canvas and can not use this site. We recommend Firefox. Internet Explorer users need to be 
+		at least on version 9, which requires Windows Vista or higher. Internet Explorer 10 (Windows 7 or higher) is needed for all features to work. Check out  
+		<a href="http://caniuse.com/#feat=canvas" target="_blank">this nice table of browser support.</a>. Also, in order to use Custom Data Feature, 
+		<a href="http://caniuse.com/#feat=filereader" target="_blank">check out this table. </a></p></canvas>
+		<!--
+		<canvas id="LabelLayer" style="z-index:2;"></canvas> <canvas id="HighlightLayer" style="z-index:998; width:100%"></canvas>
         <canvas id="SelectedLayer" style="z-index:6; width:100%"></canvas> <canvas id="MainLineLayer" style="z-index:1; width:100%"></canvas> <canvas id=
         "CircleLayer1" style="z-index:4; width:100%"></canvas> <canvas id="ResidueLayer" style="z-index:3; width:100%"></canvas> <canvas id="CircleLayer2"
         style="z-index:5; width:100%"></canvas> <canvas id="ContourLayer" style="z-index:0; width:100%"></canvas>//-->
@@ -378,13 +374,11 @@
 			<br>
 			<input name="LastSpeciesCheck" value="LastSpeciesCheck" type="checkbox" checked="checked"><label for="LastSpeciesCheck">Current Species Loaded</label><br>
 			<input name="LayersCheck" value="LayersCheck" type="checkbox" checked="checked"><label for="LayersCheck">Layers with data</label><br>
-			<input name="SubOptionsCheckL" value="SubOptionsCheckL" type="checkbox"><label for="SubOptionsCheckL">Layer Options</label><br>
 			<input name="SelectionsCheck" value="SelectionsCheck" type="checkbox" checked="checked"><label for="SelectionsCheck">Selections</label><br>
-			<input name="SubOptionsCheckS" value="SubOptionsCheckS" type="checkbox"><label for="SubOptionsCheckS">Selection Options</label><br>
-			<input name="MouseModeCheck" value="MouseModeCheck" type="checkbox"><label for="MouseModeCheck">Mouse Mode</label><br>
-			<input name="PanelSizesCheck" value="PanelSizesCheck" type="checkbox"><label for="PanelSizesCheck">Panel Divider Settings</label><br>
-			<input name="CanvasOrientationCheck" value="CanvasOrientationCheck" type="checkbox"><label for="CanvasOrientationCheck">2D Settings</label><br>			
-			<input name="JmolOrientationCheck" value="JmolOrientationCheck" type="checkbox"><label for="JmolOrientationCheck">3D Settings</label><br>
+			<input name="MouseModeCheck" value="MouseModeCheck" type="checkbox" checked="checked"><label for="MouseModeCheck">Mouse Mode</label><br>
+			<input name="PanelSizesCheck" value="PanelSizesCheck" type="checkbox" checked="checked"><label for="PanelSizesCheck">Panel Divider Settings</label><br>
+			<input name="CanvasOrientationCheck" value="CanvasOrientationCheck" type="checkbox" checked="checked"><label for="CanvasOrientationCheck">2D Settings</label><br>			
+			<input name="JmolOrientationCheck" value="JmolOrientationCheck" type="checkbox" checked="checked"><label for="JmolOrientationCheck">3D Settings</label><br>
 			<br>
 			<input id="updateLS" name="savebuttonL" type="button" value="Save to LocalStorage" /><br>
 			<input id="restoreLS" name="savebuttonL" type="button" value="Restore from LocalStorage" /><br>

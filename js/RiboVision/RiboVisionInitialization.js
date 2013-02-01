@@ -426,7 +426,7 @@ function RiboVisionReady() {
 		minWidth : 160,
 		selectedText : "# of # proteins selected",
 		noneSelectedText : 'Select proteins',
-		selectedList : 9,
+		selectedList : 9
 	});
 	
 	$("#StructDataList").multiselect({
@@ -571,7 +571,7 @@ function RiboVisionReady() {
 			   return this.value;	
 			}).get();
 			filterBasePairs(FullBasePairSet,array_of_checked_values);
-		},
+		}
 	});
 	$("#saveRvState").button().click(function(){
 		saveRvState();
@@ -672,7 +672,7 @@ function RiboVisionReady() {
 	  // Some code.....
 	}else{
 	  localStorageAvailable = false;
-	  alert("Sorry! No web storage support..");
+	  //alert("Sorry! No web storage support..");
 	}
 	
 	$("#ProtList").bind("multiselectclick", function (event, ui) {
@@ -942,9 +942,11 @@ function InitRibovision(FreshState) {
 	$(".oneLayerGroup").remove();
 	$(".oneSelectionGroup").remove();
 	rvDataSets[0].addSelection("Main");
-	InitRibovision2();
+	if (canvas2DSupported) {
+		InitRibovision2();
+	}
 	resizeElements();
-	
+	if (!canvas2DSupported) {return};
 	if (OpenStateOnLoad && !FreshState) {
 		$("#RiboVisionSaveManagerPanel").dialog("open");
 	} else { 
@@ -956,7 +958,9 @@ function InitRibovision(FreshState) {
 		
 		// Sort rvLayers by zIndex for convience
 		rvDataSets[0].sort();
-		InitRibovision2();
+		if (canvas2DSupported) {
+			InitRibovision2();
+		}
 		resizeElements();
 	}
 }

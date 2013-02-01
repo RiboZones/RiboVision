@@ -37,7 +37,9 @@ function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color) 
 	}
 	//this.Canvas = $("#" + CanvasName);
 	this.Canvas = document.getElementById(CanvasName);
-	this.CanvasContext = this.Canvas.getContext("2d");
+	if (this.Canvas.getContext){
+		this.CanvasContext = this.Canvas.getContext("2d");
+	}
 	this.Data = Data;
 	this.dataLayerColors = [];
 	this.Filled = Filled;
@@ -104,9 +106,11 @@ function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color) 
 		return e;
 	};
 	this.clearCanvas = function () {
-		this.CanvasContext.setTransform(1, 0, 0, 1, 0, 0);
-		this.CanvasContext.clearRect(0, 0, rvViews[0].width, rvViews[0].height);
-		this.CanvasContext.setTransform(rvViews[0].scale, 0, 0, rvViews[0].scale, rvViews[0].x, rvViews[0].y);
+		if (canvas2DSupported){
+			this.CanvasContext.setTransform(1, 0, 0, 1, 0, 0);
+			this.CanvasContext.clearRect(0, 0, rvViews[0].width, rvViews[0].height);
+			this.CanvasContext.setTransform(rvViews[0].scale, 0, 0, rvViews[0].scale, rvViews[0].x, rvViews[0].y);
+		}
 	};
 	this.addLinearGradient = function (LinearGradient) {
 		this.LinearGradients.push(LinearGradient);
@@ -571,6 +575,7 @@ function rvDataSet(DataSetName) {
 		}
 	}
 	function drawLabels(targetLayer,drawExtra) {
+		if (!canvas2DSupported){return};
 		targetLayer.CanvasContext.textAlign = 'left';
 		
 		if (rvDataSets[0].rvTextLabels != undefined) {
