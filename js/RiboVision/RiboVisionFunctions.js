@@ -1195,16 +1195,52 @@ function openRvState() {
 				Jmol.script(myJmol, jscript);
 				var a = rvSaveState["JmolState"].match(/reset[^\n]+/);
 				Jmol.script(myJmol, a[0]);
-				resizeElements();
-				InitRibovision2();
+				
+				if($("input[name='PanelSizesCheck']").attr("checked")){
+					var po = JSON.parse(rvSaveState.rvPanelSizes);
+					PanelDivide = po.PanelDivide;
+					TopDivide = po.TopDivide;
+					$( "#canvasPorportionSlider" ).slider("value",PanelDivide);
+					$( "#topPorportionSlider" ).slider("value",TopDivide);					
+				}
+				if($("input[name='MouseModeCheck']").attr("checked")){
+					$("#buttonmode").find("input[value='" + rvSaveState.rvMouseMode + "']").trigger("click");
+				}
+				$.each(rvDataSets[0].Layers,function (index, value) {
+					$("#" + this.CanvasName).css('zIndex', index);
+				});
+				// Restore Selected and Linked
+				var selectedLayer = rvDataSets[0].getSelectedLayer();
+				var linkedLayer = rvDataSets[0].getLinkedLayer();
+				
+				resizeElements(true);
+				InitRibovision2(true);
+				$(".oneLayerGroup" + "[name=" + selectedLayer.LayerName + "]").find(".selectLayerRadioBtn").attr("checked","checked");
+				rvDataSets[0].selectLayer(selectedLayer.LayerName);
+				$(".oneLayerGroup" + "[name=" + linkedLayer.LayerName + "]").find(".mappingRadioBtn").attr("checked","checked");
+				rvDataSets[0].linkLayer(linkedLayer.LayerName);
+				//Default check first selection. Come back to these to restore saved state
+				$("#SelectionPanel div").first().next().find(".selectSelectionRadioBtn").attr("checked", "checked");
+				
+				var ret = false;
+				$.each(rvDataSets[0].Selections, function (key, value) {
+					if (value.Selected) {
+						ret = value.Name;
+						return false;
+					}
+				});
+				$(".oneSelectionGroup[name='" + ret + "']").find(".selectSelectionRadioBtn").trigger("click");
+			
+				updateModel();
+				update3Dcolors();
 			}
 		}
-		welcomeScreen();
+		/*welcomeScreen();
 		rvDataSets[0].drawResidues("residues");
 		rvDataSets[0].drawSelection("selected");
 		rvDataSets[0].refreshResiduesExpanded("circles");
 		rvDataSets[0].drawLabels("labels");
-		rvDataSets[0].drawBasePairs("lines");
+		rvDataSets[0].drawBasePairs("lines");*/
 	 };
 	 
 	 if (PrivacyStatus != "Agreed") {
@@ -1432,6 +1468,17 @@ function saveRvState(){
 		RvSaveState["RvDS"] = JSON.stringify(rvDataSets[0]);
 		RvSaveState["RvV"] = JSON.stringify(rvViews[0]);
 		RvSaveState["JmolState"] = Jmol.evaluate(myJmol,"script('show orientation')");
+		if($("input[name='PanelSizesCheck']").attr("checked")){
+			var po = {
+				PanelDivide : PanelDivide,
+				TopDivide : TopDivide
+			}
+			RvSaveState["rvPanelSizes"] = JSON.stringify(po);
+		}
+		if($("input[name='MouseModeCheck']").attr("checked")){
+			RvSaveState["rvMouseMode"] = onebuttonmode;	
+		}
+		
 		var form = document.createElement("form");
 		form.setAttribute("method", "post");
 		form.setAttribute("action", "saveRvState.php");

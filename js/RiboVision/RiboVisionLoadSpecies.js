@@ -125,6 +125,7 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 				Jmol.script(myJmol, jscript);
 				
 				//clearSelection();
+				updateModel();
 				rvDataSets[0].drawResidues("residues");
 				rvDataSets[0].drawLabels("labels");
 				

@@ -176,6 +176,7 @@ function RvSelection(SelectionName,rvResidues,rvColor){
 	} else {
 		this.Color = "#940B06";
 	}
+	this.Selected = false;
 	
 	//Methods
 }

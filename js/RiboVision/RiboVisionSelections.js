@@ -243,9 +243,15 @@ function SelectionMenu(targetSelection, key, RVcolor) {
 			name : 'selectedRadioS',
 			title : 'select Selection' 
 		}).addClass("selectSelectionRadioBtn").change ( function (event) {
-			//rvDataSets[0].selectLayer($(event.currentTarget).parent().parent().attr("name"));
-			//drawNavLine();
-			})));
+			var selectionname = $(event.currentTarget).parent().parent().attr("name");
+			$.each(rvDataSets[0].Selections, function (key, value) {
+				if (value.Name === selectionname) {
+					value.Selected = true;
+				} else {
+					value.Selected = false;
+				}
+			});
+		})));
 	
 	//raido button for telling 2D-3D mapping 
 	$($currentGroup)

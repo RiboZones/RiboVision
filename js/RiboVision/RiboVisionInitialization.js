@@ -965,7 +965,7 @@ function InitRibovision(FreshState) {
 	}
 }
 
-function InitRibovision2() {
+function InitRibovision2(noLoad) {
 	//adopt to current screen size
 	rvViews[0].width = rvDataSets[0].HighlightLayer.Canvas.width;
 	rvViews[0].height = rvDataSets[0].HighlightLayer.Canvas.height;
@@ -973,13 +973,15 @@ function InitRibovision2() {
 	rvViews[0].clientHeight = rvDataSets[0].HighlightLayer.Canvas.clientHeight;
 	
 	// Put in Layers
+	$(".oneLayerGroup").remove();
 	$.each(rvDataSets[0].Layers, function (key, value){
 		LayerMenu(value, key);
 	});
 	RefreshLayerMenu();
 	
 	// Put in Selections
-	$.each(rvDataSets[0].Selections, function (key, value){
+	$(".oneSelectionGroup").remove();
+	$.each(rvDataSets[0].Selections.reverse(), function (key, value){
 		SelectionMenu(value, key);
 	});
 	
@@ -994,6 +996,18 @@ function InitRibovision2() {
 	document.getElementById("speciesList").selectedIndex = 0;
 	document.getElementById('commandline').value = "";	
 	
+
+	rvDataSets[0].drawResidues("residues");
+	rvDataSets[0].drawSelection("selected");
+	rvDataSets[0].refreshResiduesExpanded("circles");
+	rvDataSets[0].drawLabels("labels");
+	rvDataSets[0].drawBasePairs("lines");
+	
+	if (!noLoad){
+		InitRibovision3();
+	}
+}
+function InitRibovision3() { 
 	$.getJSON('getData.php', {
 		FetchMapList : "42"
 	}, function (MapList) {
@@ -1086,10 +1100,5 @@ function InitRibovision2() {
 			
 		});
 	});
-	rvDataSets[0].drawResidues("residues");
-	rvDataSets[0].drawSelection("selected");
-	rvDataSets[0].refreshResiduesExpanded("circles");
-	rvDataSets[0].drawLabels("labels");
-	rvDataSets[0].drawBasePairs("lines");
 }
 ///////////////////////////////////////////////////////////////////////////////
