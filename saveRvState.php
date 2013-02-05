@@ -1,7 +1,6 @@
 <?php
 header('Content-Description: File Transfer');
 header('Content-type: application/zip');
-header('Content-Disposition: attachment; filename="Ribovision_State.zip"');
 header('Content-Transfer-Encoding: binary');
 header("Pragma: public");
 
@@ -29,6 +28,8 @@ sleep(4);
 
 $length_file = filesize($file2);
 header('Content-Length: ' . $length_file);
+$filenamesend = $_POST['datasetname'];
+header('Content-Disposition: attachment; filename="' . $filenamesend . '.zip"');
 
 readfile($file2);
 

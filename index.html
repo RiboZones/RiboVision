@@ -371,7 +371,6 @@
 		
 		<div id="LocalStorageDiv" class="ui-widget-content">
 			LocalStorage: <br>
-			<br>
 			<input name="LastSpeciesCheck" value="LastSpeciesCheck" type="checkbox" checked="checked"><label for="LastSpeciesCheck">Current Species Loaded</label><br>
 			<input name="LayersCheck" value="LayersCheck" type="checkbox" checked="checked"><label for="LayersCheck">Layers with data</label><br>
 			<input name="SelectionsCheck" value="SelectionsCheck" type="checkbox" checked="checked"><label for="SelectionsCheck">Selections</label><br>
@@ -379,9 +378,6 @@
 			<input name="PanelSizesCheck" value="PanelSizesCheck" type="checkbox" checked="checked"><label for="PanelSizesCheck">Panel Divider Settings</label><br>
 			<input name="CanvasOrientationCheck" value="CanvasOrientationCheck" type="checkbox" checked="checked"><label for="CanvasOrientationCheck">2D Settings</label><br>			
 			<input name="JmolOrientationCheck" value="JmolOrientationCheck" type="checkbox" checked="checked"><label for="JmolOrientationCheck">3D Settings</label><br>
-			<br>
-			<input id="updateLS" name="savebuttonL" type="button" value="Save to LocalStorage" /><br>
-			<input id="restoreLS" name="savebuttonL" type="button" value="Restore from LocalStorage" /><br>
 		</div>
 		
 		<div id="SaveStateDiv" class="ui-widget-content">
@@ -391,6 +387,22 @@
 			<br>
 			<input id="saveRvState" name="savebuttonR" type="button" value="Save State" /><br>
 			<input id="restoreRvState" name="savebuttonR" type="button" value="Restore State" /><br>
+		</div>
+		
+		<div id="SaveControlDiv" class="ui-widget-content">
+			<div id="SaveControl">
+				Save To / Restore From:</br>
+				<input id="sscB" type="radio" name="ssc" value="LocalStorage" /><label for="sscB">Browser</label>
+				<input id="sscF" type="radio" name="ssc" value="File" /><label for="sscF">File</label>
+				<input id="sscS" type="radio" name="ssc" value="Server" /><label for="sscS">Server</label>
+				
+				<input id="SaveStateFileName" name="SaveStateFileName" type="text" />
+				<p>Warning! Save to "Server" is currently being provided for testing purposes only. Data can be overwritten and/or deleted at any time.
+				Additionally, other people may be able to see your work. Don't rely on this feature right now, keep backups in files. 
+				</p>
+				<input id="ssSave" type="button" value="Save" />
+				<input id="ssRestore" type="button" value="Restore" />
+			</div>
 		</div>
 	</div>
 

@@ -582,11 +582,11 @@ function RiboVisionReady() {
 	$("#freshenRvState").button().click(function(){
 		InitRibovision(true);
 	});
-	$("#updateLS").button().click(function(){
-		UpdateLocalStorage();
+	$("#ssSave").button().click(function(){
+		rvSaveManager("Save");
 	});
-	$("#restoreLS").button().click(function(){
-		RestoreLocalStorage();
+	$("#ssRestore").button().click(function(){
+		rvSaveManager("Restore")
 	});
 	$("#openLayerBtn").button({
 		text : false,
@@ -660,6 +660,15 @@ function RiboVisionReady() {
 	$("[name=bv]").button().change(function(event,ui){
 		//
 	});
+	
+	$("#SaveControl").buttonset();
+	$("#sscB").attr("checked","checked");
+	$("#SaveControl").buttonset("refresh");
+	$("[name=ssc]").button().change(function(event,ui){
+		//rvSaveManager();
+	});
+	
+	
 	$("[name=clearColor]").button();
 	$("[name=selebutton]").button();
 	$("[name=saveas]").button();	

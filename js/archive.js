@@ -246,7 +246,8 @@ var Inflater = function() {
                 buf.position(buf.length());
                 while(len--) buf.writeByte(buf.readByteAt(buf.length() - dist));
             }
-        } while (symbol != 256);
+        //} while (symbol != 256);
+		} while (symbol != 256 || buf.length() <= 10000);
         return 0;
     }
 
@@ -503,9 +504,12 @@ var ZipLoader = function(zipURL) {
     }
 
     function loadBinaryResource(url) {
-        var req = getXMLHttpObj();
-        req.open('GET', url, false);
-
+        _zipUrl = "localfile.zip";
+		loadComplete(url);
+		/*
+		//var req = getXMLHttpObj();
+        //req.open('GET', url, false);
+		
         if(!req.overrideMimeType) {
             var vbScript = '<scr' + 'ipt type="text/vbscript">\n'+
                       '<!-' + '-\n' +
@@ -528,7 +532,7 @@ var ZipLoader = function(zipURL) {
             req.overrideMimeType('text/plain; charset=x-user-defined');
             req.send();
             loadComplete(req.responseText);
-        }
+        }*/
     }
 
     function loadComplete(data) {
