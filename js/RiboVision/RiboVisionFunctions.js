@@ -1480,6 +1480,55 @@ function saveJmolImg() {
 	checkSavePrivacyStatus();
 }
 
+function storeRvState(filename){
+	SaveStateFileName=filename;
+	AgreeFunction = function () {
+		//var CS = canvasToSVG();
+		
+		var RvSaveState = {};
+		RvSaveState["RvDS"] = JSON.stringify(rvDataSets[0]);
+		RvSaveState["RvV"] = JSON.stringify(rvViews[0]);
+		RvSaveState["JmolState"] = Jmol.evaluate(myJmol,"script('show orientation')");
+		if($("input[name='PanelSizesCheck']").attr("checked")){
+			var po = {
+				PanelDivide : PanelDivide,
+				TopDivide : TopDivide
+			}
+			RvSaveState["rvPanelSizes"] = JSON.stringify(po);
+		}
+		if($("input[name='MouseModeCheck']").attr("checked")){
+			RvSaveState["rvMouseMode"] = onebuttonmode;	
+		}
+		
+		$form = $("<form></form>");
+		$('body').append($form);
+		data = {
+			content: JSON.stringify(RvSaveState,null,'\t'),
+			datasetname : SaveStateFileName,
+			username : UserName
+		};
+		$.post("storeRvState.php", data, function(d) {
+        
+		});
+		/*
+		var form = document.createElement("form");
+		form.setAttribute("method", "post");
+		form.setAttribute("action", "storeRvState.php");
+		var hiddenField = document.createElement("input");
+		hiddenField.setAttribute("type", "hidden");
+		hiddenField.setAttribute("name", "content");
+		hiddenField.setAttribute("value", JSON.stringify(RvSaveState,null,'\t'));
+		var hiddenField2 = document.createElement("input");
+		hiddenField2.setAttribute("type", "hidden");
+		hiddenField2.setAttribute("name", "datasetname");
+		hiddenField2.setAttribute("value", datasetname);
+		form.appendChild(hiddenField);
+		form.appendChild(hiddenField2);
+		document.body.appendChild(form);
+		form.submit();*/
+	}
+	checkSavePrivacyStatus();
+}
 function saveRvState(filename){
 	SaveStateFileName=filename;
 	AgreeFunction = function () {
@@ -2629,7 +2678,7 @@ function rvSaveManager(rvAction) {
 					saveRvState(SaveStateFileName);
 					break;		
 				case "Server":
-				
+					storeRvState(SaveStateFileName);
 					break;
 				default:
 					alert("huh?");
