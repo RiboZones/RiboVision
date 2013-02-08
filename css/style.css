@@ -257,33 +257,23 @@ body{
 	-webkit-box-sizing:border-box; /* Safari */
 }
 
-#LocalStorageDiv {
+#SaveOptionsDiv {
 	position: absolute;
 	top:18%;
 	left: 4%;
-	width: 42%;
-	height: 38%;
+	width: 38%;
+	height: 78%;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
 	-webkit-box-sizing:border-box; /* Safari */
 }
 
-#SaveStateDiv {
-	position: absolute;
-	top:18%;
-	right: 4%;
-	width: 42%;
-	height: 38%;
-	box-sizing:border-box;
-	-moz-box-sizing:border-box; /* Firefox */
-	-webkit-box-sizing:border-box; /* Safari */
-}
 #SaveControlDiv {
 	position: absolute;
-	top:60%;
-	right: 4%;
-	width: 92%;
-	height: 36%;
+	top:18%;
+	left: 46%;
+	width: 50%;
+	height: 78%;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
 	-webkit-box-sizing:border-box; /* Safari */
