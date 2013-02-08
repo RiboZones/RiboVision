@@ -1197,63 +1197,20 @@ function openRvState() {
 					reader.readAsText(FileReaderFile[i]);
 					reader.onload = function () {
 						var rvSaveState = JSON.parse(reader.result);
+						rvDataSets[0]=rvDataSets[0].fromJSON(rvSaveState["RvDS"]);
+						// Re stringify a few things for compatibility / symmetry with local storage
+						rvSaveState["rvLayers"] = JSON.stringify(rvDataSets[0].Layers);
+						rvSaveState["rvSelections"] = JSON.stringify(rvDataSets[0].Selections);
+						rvSaveState["rvLastSpecies"] = rvDataSets[0].Name;
+						
+						Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
+						var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
+						Jmol.script(myJmol, jscript);
 						processRvState(rvSaveState);
 					}
 					break;
 			}
 			
-				
-			processRvState = function (rvSaveState) {
-				//var rvSaveState = JSON.parse(reader.result);
-	
-				rvViews[0] = rvViews[0].fromJSON(rvSaveState["RvV"]);
-				rvViews[0].restore();
-				rvDataSets[0]=rvDataSets[0].fromJSON(rvSaveState["RvDS"]);
-				
-				Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
-				var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
-				Jmol.script(myJmol, jscript);
-				var a = rvSaveState["JmolState"].match(/reset[^\n]+/);
-				Jmol.script(myJmol, a[0]);
-				
-				if($("input[name='PanelSizesCheck']").attr("checked")){
-					var po = JSON.parse(rvSaveState.rvPanelSizes);
-					PanelDivide = po.PanelDivide;
-					TopDivide = po.TopDivide;
-					$( "#canvasPorportionSlider" ).slider("value",PanelDivide);
-					$( "#topPorportionSlider" ).slider("value",TopDivide);					
-				}
-				if($("input[name='MouseModeCheck']").attr("checked")){
-					$("#buttonmode").find("input[value='" + rvSaveState.rvMouseMode + "']").trigger("click");
-				}
-				$.each(rvDataSets[0].Layers,function (index, value) {
-					$("#" + this.CanvasName).css('zIndex', index);
-				});
-				// Restore Selected and Linked
-				var selectedLayer = rvDataSets[0].getSelectedLayer();
-				var linkedLayer = rvDataSets[0].getLinkedLayer();
-				
-				resizeElements(true);
-				InitRibovision2(true);
-				$(".oneLayerGroup" + "[name=" + selectedLayer.LayerName + "]").find(".selectLayerRadioBtn").attr("checked","checked");
-				rvDataSets[0].selectLayer(selectedLayer.LayerName);
-				$(".oneLayerGroup" + "[name=" + linkedLayer.LayerName + "]").find(".mappingRadioBtn").attr("checked","checked");
-				rvDataSets[0].linkLayer(linkedLayer.LayerName);
-				//Default check first selection. Come back to these to restore saved state
-				$("#SelectionPanel div").first().next().find(".selectSelectionRadioBtn").attr("checked", "checked");
-				
-				var ret = false;
-				$.each(rvDataSets[0].Selections, function (key, value) {
-					if (value.Selected) {
-						ret = value.Name;
-						return false;
-					}
-				});
-				$(".oneSelectionGroup[name='" + ret + "']").find(".selectSelectionRadioBtn").trigger("click");
-			
-				updateModel();
-				update3Dcolors();
-			}
 		}
 		/*welcomeScreen();
 		rvDataSets[0].drawResidues("residues");
@@ -1479,16 +1436,26 @@ function saveJmolImg() {
 	}
 	checkSavePrivacyStatus();
 }
+function retrieveRvState(filename) {
+	SaveStateFileName=filename;
+	AgreeFunction = function () {
+		$.post('retrieveRvState.php', {
+			datasetname : SaveStateFileName,
+			username : UserName
+		}, function (RvSaveState) {
+			alert(RvSaveState);
+		});
+	}
+	checkSavePrivacyStatus();
+}
 
 function storeRvState(filename){
 	SaveStateFileName=filename;
 	AgreeFunction = function () {
-		//var CS = canvasToSVG();
-		
 		var RvSaveState = {};
 		RvSaveState["RvDS"] = JSON.stringify(rvDataSets[0]);
-		RvSaveState["RvV"] = JSON.stringify(rvViews[0]);
-		RvSaveState["JmolState"] = Jmol.evaluate(myJmol,"script('show orientation')");
+		RvSaveState["rvView"] = JSON.stringify(rvViews[0]);
+		RvSaveState["rvJmolOrientation"] = Jmol.evaluate(myJmol,"script('show orientation')");
 		if($("input[name='PanelSizesCheck']").attr("checked")){
 			var po = {
 				PanelDivide : PanelDivide,
@@ -1507,25 +1474,7 @@ function storeRvState(filename){
 			datasetname : SaveStateFileName,
 			username : UserName
 		};
-		$.post("storeRvState.php", data, function(d) {
-        
-		});
-		/*
-		var form = document.createElement("form");
-		form.setAttribute("method", "post");
-		form.setAttribute("action", "storeRvState.php");
-		var hiddenField = document.createElement("input");
-		hiddenField.setAttribute("type", "hidden");
-		hiddenField.setAttribute("name", "content");
-		hiddenField.setAttribute("value", JSON.stringify(RvSaveState,null,'\t'));
-		var hiddenField2 = document.createElement("input");
-		hiddenField2.setAttribute("type", "hidden");
-		hiddenField2.setAttribute("name", "datasetname");
-		hiddenField2.setAttribute("value", datasetname);
-		form.appendChild(hiddenField);
-		form.appendChild(hiddenField2);
-		document.body.appendChild(form);
-		form.submit();*/
+		$.post("storeRvState.php", data, function(d) {});
 	}
 	checkSavePrivacyStatus();
 }
@@ -1536,8 +1485,8 @@ function saveRvState(filename){
 		
 		var RvSaveState = {};
 		RvSaveState["RvDS"] = JSON.stringify(rvDataSets[0]);
-		RvSaveState["RvV"] = JSON.stringify(rvViews[0]);
-		RvSaveState["JmolState"] = Jmol.evaluate(myJmol,"script('show orientation')");
+		RvSaveState["rvView"] = JSON.stringify(rvViews[0]);
+		RvSaveState["rvJmolOrientation"] = Jmol.evaluate(myJmol,"script('show orientation')");
 		if($("input[name='PanelSizesCheck']").attr("checked")){
 			var po = {
 				PanelDivide : PanelDivide,
@@ -2529,19 +2478,19 @@ function addPopUpWindow(ResIndex){
 //////////End of navline functions////
 
 function UpdateLocalStorage(SaveStateFileName){
-	var rvSSobj = {};
+	var rvSaveState = {};
 	if (localStorageAvailable){
 		if($("input[name='LayersCheck']").attr("checked")){
 			//localStorage.setItem("rvLayers",JSON.stringify(rvDataSets[0].Layers));
-			rvSSobj["rvLayers"] = JSON.stringify(rvDataSets[0].Layers);
+			rvSaveState["rvLayers"] = JSON.stringify(rvDataSets[0].Layers);
 		}
 		if($("input[name='SelectionsCheck']").attr("checked")){
 			//localStorage.setItem("rvSelections",JSON.stringify(rvDataSets[0].Selections));
-			rvSSobj["rvSelections"] = JSON.stringify(rvDataSets[0].Selections);
+			rvSaveState["rvSelections"] = JSON.stringify(rvDataSets[0].Selections);
 		}
 		if($("input[name='LastSpeciesCheck']").attr("checked")){
 			//localStorage.setItem("rvLastSpecies",rvDataSets[0].Name);
-			rvSSobj["rvLastSpecies"] = rvDataSets[0].Name;
+			rvSaveState["rvLastSpecies"] = rvDataSets[0].Name;
 		}
 		if($("input[name='PanelSizesCheck']").attr("checked")){
 			var po = {
@@ -2549,21 +2498,21 @@ function UpdateLocalStorage(SaveStateFileName){
 				TopDivide : TopDivide
 			}
 			//localStorage.setItem("rvPanelSizes",JSON.stringify(po));
-			rvSSobj["rvPanelSizes"] = JSON.stringify(po);
+			rvSaveState["rvPanelSizes"] = JSON.stringify(po);
 		}
 		if($("input[name='MouseModeCheck']").attr("checked")){
 			//localStorage.setItem("rvMouseMode",onebuttonmode);	
-			rvSSobj["rvMouseMode"] = onebuttonmode;
+			rvSaveState["rvMouseMode"] = onebuttonmode;
 		}
 		if($("input[name='CanvasOrientationCheck']").attr("checked")){
 			//localStorage.setItem("rvView",JSON.stringify(rvViews[0]));
-			rvSSobj["rvView"] = JSON.stringify(rvViews[0]);			
+			rvSaveState["rvView"] = JSON.stringify(rvViews[0]);			
 		}
 		if($("input[name='JmolOrientationCheck']").attr("checked")){
 			//localStorage.setItem("rvJmolOrientation",Jmol.evaluate(myJmol,"script('show orientation')"));
-			rvSSobj["rvJmolOrientation"] = Jmol.evaluate(myJmol,"script('show orientation')");						
+			rvSaveState["rvJmolOrientation"] = Jmol.evaluate(myJmol,"script('show orientation')");						
 		}
-		localStorage.setItem(SaveStateFileName,JSON.stringify(rvSSobj));
+		localStorage.setItem(SaveStateFileName,JSON.stringify(rvSaveState));
 	}
 }
 function RestoreLocalStorage(SaveStateFileName) { 
@@ -2571,15 +2520,16 @@ function RestoreLocalStorage(SaveStateFileName) {
 	var DoneLoading2 = $.Deferred();
 	
 	if (localStorageAvailable){
-		rvSSobj = JSON.parse(localStorage[SaveStateFileName]);
+		rvSaveState = JSON.parse(localStorage[SaveStateFileName]);
 		if($("input[name='LastSpeciesCheck']").attr("checked")){
-			loadSpecies(rvSSobj.rvLastSpecies,DoneLoading,DoneLoading2);
+			loadSpecies(rvSaveState.rvLastSpecies,DoneLoading,DoneLoading2);
 		} else {
 			DoneLoading.resolve();
 		}
 	}
 	DoneLoading.done(function() {
-		RestoreLocalStorage2(); 
+		processRvState(rvSaveState);
+		//RestoreLocalStorage2();
 	});
 	DoneLoading2.done(function() {
 		//updateSelectionDiv();
@@ -2587,12 +2537,14 @@ function RestoreLocalStorage(SaveStateFileName) {
 		update3Dcolors();
 		if($("input[name='JmolOrientationCheck']").attr("checked")){
 			//localStorage.setItem("rvJmolOrientation",8);
-			var a = rvSSobj.rvJmolOrientation.match(/reset[^\n]+/);
+			var a = rvSaveState.rvJmolOrientation.match(/reset[^\n]+/);
 			Jmol.script(myJmol, a[0]);
 		}
 	});
 }
-function RestoreLocalStorage2() {
+function RestoreLocalStorage2(rvSaveState) {
+	processRvState(rvSaveState);
+	/*
 	if($("input[name='LayersCheck']").attr("checked")){
 		var data = JSON.parse(rvSSobj.rvLayers);
 		$.each(data, function (index, value) {
@@ -2661,7 +2613,7 @@ function RestoreLocalStorage2() {
 	if(!$("input[name='LastSpeciesCheck']").attr("checked")){
 		updateModel();
 		update3Dcolors();
-	}
+	}*/
 }
 
 function rvSaveManager(rvAction) {
@@ -2694,7 +2646,7 @@ function rvSaveManager(rvAction) {
 					$("#dialog-restore-state").dialog("open");
 					break;		
 				case "Server":
-				
+					retrieveRvState(SaveStateFileName);
 					break;
 				default:
 					alert("huh?");
@@ -2703,4 +2655,84 @@ function rvSaveManager(rvAction) {
 		default: 
 			alert("shouldn't happen right now");
 		}
+}
+
+function processRvState(rvSaveState) {
+	if($("input[name='LayersCheck']").attr("checked")){
+		var data = JSON.parse(rvSaveState.rvLayers);
+		$.each(data, function (index, value) {
+			rvDataSets[0].Layers[index] = rvDataSets[0].HighlightLayer.fromJSON(value);
+		});
+		
+		$.each(rvDataSets[0].Layers,function (index, value) {
+			$("#" + this.CanvasName).css('zIndex', index);
+		});
+		// Restore Selected and Linked
+		var selectedLayer = rvDataSets[0].getSelectedLayer();
+		var linkedLayer = rvDataSets[0].getLinkedLayer();
+		resizeElements(true);
+		$(".oneLayerGroup").remove();
+		// Put in Layers
+		$.each(rvDataSets[0].Layers, function (key, value){
+			LayerMenu(value, key);
+		});
+		RefreshLayerMenu();
+		
+		$(".oneLayerGroup" + "[name=" + selectedLayer.LayerName + "]").find(".selectLayerRadioBtn").attr("checked","checked");
+		rvDataSets[0].selectLayer(selectedLayer.LayerName);
+		$(".oneLayerGroup" + "[name=" + linkedLayer.LayerName + "]").find(".mappingRadioBtn").attr("checked","checked");
+		rvDataSets[0].linkLayer(linkedLayer.LayerName);
+	}
+	if($("input[name='SelectionsCheck']").attr("checked")){
+		rvDataSets[0].Selections = JSON.parse(rvSaveState.rvSelections);
+		$(".oneSelectionGroup").remove();
+		// Put in Selections
+		$.each(rvDataSets[0].Selections.reverse(), function (key, value){
+			SelectionMenu(value, key);
+		});
+		//Default check first selection. Come back to these to restore saved state
+		$("#SelectionPanel div").first().next().find(".selectSelectionRadioBtn").attr("checked", "checked");
+		RefreshSelectionMenu();
+		var ret = false;
+		$.each(rvDataSets[0].Selections, function (key, value) {
+			if (value.Selected) {
+				ret = value.Name;
+				return false;
+			}
+		});
+		$(".oneSelectionGroup[name='" + ret + "']").find(".selectSelectionRadioBtn").trigger("click");
+	}
+	if($("input[name='PanelSizesCheck']").attr("checked")){
+		var po = JSON.parse(rvSaveState.rvPanelSizes);
+		PanelDivide = po.PanelDivide;
+		TopDivide = po.TopDivide;
+		$( "#canvasPorportionSlider" ).slider("value",PanelDivide);
+		$( "#topPorportionSlider" ).slider("value",TopDivide);					
+	}
+	if($("input[name='MouseModeCheck']").attr("checked")){
+		$("#buttonmode").find("input[value='" + rvSaveState.rvMouseMode + "']").trigger("click");
+	}
+	if($("input[name='CanvasOrientationCheck']").attr("checked")){
+		//localStorage.setItem("rvView",7);
+		rvViews[0] = rvViews[0].fromJSON(rvSaveState.rvView);
+		rvViews[0].restore();
+	}
+	if($("input[name='JmolOrientationCheck']").attr("checked")){
+		//localStorage.setItem("rvJmolOrientation",8);
+		var a = rvSaveState.rvJmolOrientation.match(/reset[^\n]+/);
+		Jmol.script(myJmol, a[0]);
+	}
+	
+	rvDataSets[0].drawResidues("residues");
+	rvDataSets[0].drawSelection("selected");
+	rvDataSets[0].refreshResiduesExpanded("circles");
+	rvDataSets[0].drawLabels("labels");
+	rvDataSets[0].drawBasePairs("lines");
+	
+	if(!$("input[name='LastSpeciesCheck']").attr("checked")){
+		updateModel();
+		update3Dcolors();
+	}
+	
+	//InitRibovision2(true);
 }
