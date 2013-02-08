@@ -1438,15 +1438,23 @@ function saveJmolImg() {
 }
 function retrieveRvState(filename) {
 	SaveStateFileName=filename;
-	AgreeFunction = function () {
-		$.post('retrieveRvState.php', {
-			datasetname : SaveStateFileName,
-			username : UserName
-		}, function (RvSaveState) {
-			alert(RvSaveState);
-		});
-	}
-	checkSavePrivacyStatus();
+	$.post('retrieveRvState.php', {
+		datasetname : SaveStateFileName,
+		username : UserName
+	}, function (RvSaveState) {
+		//alert(RvSaveState);
+		var rvSaveState = JSON.parse(RvSaveState);
+		rvDataSets[0]=rvDataSets[0].fromJSON(rvSaveState["RvDS"]);
+		// Re stringify a few things for compatibility / symmetry with local storage
+		rvSaveState["rvLayers"] = JSON.stringify(rvDataSets[0].Layers);
+		rvSaveState["rvSelections"] = JSON.stringify(rvDataSets[0].Selections);
+		rvSaveState["rvLastSpecies"] = rvDataSets[0].Name;
+		
+		Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
+		var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
+		Jmol.script(myJmol, jscript);
+		processRvState(rvSaveState);
+	});
 }
 
 function storeRvState(filename){

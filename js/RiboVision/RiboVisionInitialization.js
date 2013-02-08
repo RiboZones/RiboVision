@@ -573,12 +573,6 @@ function RiboVisionReady() {
 			filterBasePairs(FullBasePairSet,array_of_checked_values);
 		}
 	});
-	$("#saveRvState").button().click(function(){
-		saveRvState();
-	});
-	$("#restoreRvState").button().click(function(){
-		$("#dialog-restore-state").dialog("open");
-	});
 	$("#freshenRvState").button().click(function(){
 		InitRibovision(true);
 	});

@@ -22,7 +22,7 @@ echo $json_data;
 
 //ob_clean();
 //flush();
-//unlink($file); 
+unlink("/var/www/data/rvStates/" . $_POST['username'] . '/Ribovision_State.rvs.txt'); 
 exit;
 
 ?>
