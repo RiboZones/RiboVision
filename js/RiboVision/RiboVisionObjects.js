@@ -120,8 +120,10 @@ function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color) 
 	};
 	this.clearData = function () {
 		this.dataLayerColors = new Array;
+		this.Data = new Array;
 		for (var jj = 0; jj < rvDataSets[0].Residues.length; jj++) {
 			this.dataLayerColors[jj] = undefined;
+			this.Data[jj] = undefined;
 		}
 	}
 	this.setVisibility = function (visibility_prop) {

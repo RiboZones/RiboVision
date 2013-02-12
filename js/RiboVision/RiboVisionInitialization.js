@@ -1012,11 +1012,13 @@ function InitRibovision2(noLoad) {
 }
 function InitRibovision3() { 
 	$.getJSON('getData.php', {
-		FetchMapList : "42"
+		FetchMapList : true
 	}, function (MapList) {
 		
 		var SpeciesList = [];
 		var SubUnits = [];
+		$("#speciesList li[role=presentation]").remove();
+		
 		$.each(MapList, function (ind, item) {
 			SpeciesList.push(MapList[ind].Species_Name);
 			SubUnits.push(MapList[ind].Subunit);

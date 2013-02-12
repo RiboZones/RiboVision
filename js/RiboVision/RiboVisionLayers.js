@@ -106,10 +106,10 @@ function LayerMenu(Layer, key, RVcolor) {
 	//console.log($count);
 	$currentLayerName = Layer.LayerName;
 	//console.log($currentLayerName);
-	$('[name=TopLayerBar]').after(($("<div>").addClass("oneLayerGroup").attr({
+	$('[name=TopLayerBar]').after($("<div>").addClass("oneLayerGroup").attr({
 		'name' : $currentLayerName
-	})));
-	//console.log("id:" + $('.oneLayerGroup').attr("name"));
+	}));
+	//console.log($("<div>").addClass("oneLayerGroup").attr({'name' : $currentLayerName}).html());
 	//$('.oneLayerGroup').append(("<div>").addClass("visibilityCheckbox"));
 	//$('.visibilityCheckbox').append($("<input />").attr({type:'checkbox'}).addClass("layerVisiblity"))
 	
@@ -277,19 +277,23 @@ function LayerMenu(Layer, key, RVcolor) {
 		case "lines":
 			//Data Label Section 
 			$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div name="' + 'datalabel' + '">').text(Layer.DataLabel).append($("<br>")).append($("<br>")));
+			$("#LayerPanel div").first().next().find(".layerContent").append($('<div name="llm">').text("Color lines like:").append($("<br>")));
+			//$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<select id="' + 'llm-' + key + 'lineselect' + '" name="' + 'llm-' + key + 'lineselect' + '" multiple="multiple"></select>'));
+			$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<select multiple="multiple"></select>'));
+		
+			console.log($("#LayerPanel div").first().next().html());
 			
-			$("#LayerPanel div").first().next().find(".layerContent").append($('<div id="' + 'llm-' + key + '">').text("Color lines like:").append($("<br>")));
-			$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<select id="' + 'llm-' + key + 'lineselect' + '" name="' + 'llm-' + key + 'lineselect' + '" multiple="multiple"></select>'));
-			$('#' + 'llm-' + key + 'lineselect').multiselect({
+			$("#LayerPanel div").first().next().find(".layerContent").find("[name='llm']").find("select").multiselect({
 				minWidth : 160,
 				multiple : false,
 				header : "Select a layer",
 				noneSelectedText : "Select an Option",
 				selectedList : 1
 			});
-			$('#' + 'llm-' + key + 'lineselect').multiselect().multiselectfilter();
+			$("#LayerPanel div").first().next().find(".layerContent").find("[name='llm']").find("select").multiselect().multiselectfilter();
+			
 			//Fill Menu
-			var llm = document.getElementById('llm-' + key + 'lineselect');
+			var llm = $("#LayerPanel div").first().next().find(".layerContent").find("[name='llm']").find("select")[0];
 			//var SDList=rvDataSets[0].SpeciesEntry.StructDataMenu.split(";");
 			//llm.options.length = 0;
 			llm.options[0] = new Option("All Gray", "gray_lines");
@@ -303,10 +307,10 @@ function LayerMenu(Layer, key, RVcolor) {
 			$.each(cLayers, function (key, value) {
 				llm.options[llm.options.length] = new Option(value.LayerName, value.LayerName);
 			});
-			$('#' + 'llm-' + key + 'lineselect').multiselect("refresh");
+			$("#LayerPanel div").first().next().find(".layerContent").find("[name='llm']").find("select").multiselect("refresh");
 			
-			$('#' + 'llm-' + key + 'lineselect').change(function (event) {
-				var array_of_checked_values = $('#' + 'llm-' + key + 'lineselect').multiselect("getChecked").map(function () {
+			$("#LayerPanel div").first().next().find(".layerContent").find("[name='llm']").find("select").change(function (event) {
+				var array_of_checked_values = $("#LayerPanel div").first().next().find(".layerContent").find("[name='llm']").find("select").multiselect("getChecked").map(function () {
 						return this.value;
 					});
 				if (array_of_checked_values[0] === "gray_lines") {
@@ -395,7 +399,7 @@ $("#LayerPanel").sortable({
 	update : function (event, ui) {
 		$("#LayerPanel .layerContent").each(function (e, f) {
 			//$(this).find('p').text(rvDataSets[0].LastLayer - e - 1);
-			$("#" + rvDataSets[0].getLayer($(this).parent().attr("name")).CanvasName).css('zIndex', rvDataSets[0].LastLayer - e - 1)
+			$("#" + rvDataSets[0].getLayer($(this).parent().attr("name")).CanvasName).css('zIndex', rvDataSets[0].LastLayer - e)
 		});
 		rvDataSets[0].sort();
 	},

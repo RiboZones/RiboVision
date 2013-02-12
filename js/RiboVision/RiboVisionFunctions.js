@@ -222,7 +222,7 @@ function resizeElements(noDraw) {
 	rvViews[0].clientWidth = rvDataSets[0].HighlightLayer.Canvas.clientWidth;
 	rvViews[0].clientHeight = rvDataSets[0].HighlightLayer.Canvas.clientHeight;
 	
-	if (!noDraw){
+	if (noDraw!==true){
 		rvDataSets[0].drawResidues("residues");
 		rvDataSets[0].drawSelection("selected");
 		rvDataSets[0].refreshResiduesExpanded("circles");
@@ -1143,34 +1143,8 @@ function updateStructData(ui) {
 		}
 	}
 	newargs.unshift('42');
-	//console.log(newargs);
-	/*
-	if (newargs[1]=='Domains_Color'){
-		drawNavLine(2); 
-	}
-	else if (newargs[1]=='mean_tempFactor'){
-		drawNavLine(1); 
-	}
-	else if (newargs[1]=='Onion'){
-		drawNavLine(3); 
-	}
-	else if (newargs[1]=='Helix_Color'){
-		drawNavLine(4); 
-	}
-	else if (newargs[1]=='Mg_ions_24'){
-		drawNavLine(5); 
-	}
-	else if (newargs[1]=='Mg_ions_26'){
-		drawNavLine(6); 
-	}
-	else if (newargs[1]=='Mg_ions_60'){
-		drawNavLine(7); 
-	}
-	*/	
-
 	colorMapping.apply(this, newargs);
 	drawNavLine();
-	//eval("colorMapping('42'," + value + ")");
 }
 function openRvState() {
 	var PrivacyStatus = get_cookie("privacy_status_data");
@@ -2385,7 +2359,7 @@ function addPopUpWindow(ResIndex){
 	//document.getElementById('Gaps').innerHTML="Gaps = " + Gpn;
 	
 	//Remove old SVG
-	d3.select("svg").remove();
+	d3.select("#residuetip svg").remove();
 	//Create SVG element
 	var svg = d3.select("#residuetip")
 		.append("svg")

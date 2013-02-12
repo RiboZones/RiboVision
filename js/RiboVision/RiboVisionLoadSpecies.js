@@ -43,6 +43,8 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 			});
 			rvDataSets[0].addResidues(data);
 			rvDataSets[0].clearData("circles");
+			rvDataSets[0].clearData("residues");
+			rvDataSets[0].clearData("lines");
 			clearColor(false);
 			
 			$.getJSON('getData.php', {
