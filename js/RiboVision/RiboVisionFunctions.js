@@ -1418,6 +1418,28 @@ function checkSavePrivacyStatus() {
 
 
 //////////////////////////////// Save Functions ///////////////////////////////
+function saveNavLine() {
+	AgreeFunction = function () {
+		var tmp  = document.getElementById("NavLineDiv");
+		var svg = tmp.getElementsByTagName("svg")[0];
+		// Extract the data as SVG text string
+		var svg_xml = (new XMLSerializer).serializeToString(svg);
+		
+		//alert(jmlImgB64);
+		//var CS = canvasToSVG();
+		var form = document.createElement("form");
+		form.setAttribute("method", "post");
+		form.setAttribute("action", "saveNavLine.php");
+		var hiddenField = document.createElement("input");
+		hiddenField.setAttribute("type", "hidden");
+		hiddenField.setAttribute("name", "content");
+		hiddenField.setAttribute("value", svg_xml);
+		form.appendChild(hiddenField);
+		document.body.appendChild(form);
+		form.submit();
+	}
+	checkSavePrivacyStatus();
+}
 function saveJmolImg() {
 	AgreeFunction = function () {
 		var jmlImgB64 = Jmol.getPropertyAsString(myJmol,'image');

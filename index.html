@@ -180,6 +180,7 @@
                     onclick="JavaScript:saveSVG();" value="SVG: Best for Editing" /><br />
 
                     <p>Save 3D side as JPG</p><input name="saveas" type="button" onclick="JavaScript:saveJmolImg();" value="JPG: 3D side" /><br />
+					<p>Save 1D side as SVG</p><input name="saveas" type="button" onclick="JavaScript:saveNavLine();" value="SVG: 1D side" /><br />
 
                     <p>Additionally, you may export a Pymol Script.</p><input name="saveas" type="button" onclick="JavaScript:savePML();" value=
                     "PyMOL Script" />
@@ -370,7 +371,7 @@
 		</div>
 		
 		<div id="SaveOptionsDiv" class="ui-widget-content">
-			LocalStorage: <br>
+			All Locations: <br>
 			<input name="LastSpeciesCheck" value="LastSpeciesCheck" type="checkbox" checked="checked"><label for="LastSpeciesCheck">Current Species Loaded</label><br>
 			<input name="LayersCheck" value="LayersCheck" type="checkbox" checked="checked"><label for="LayersCheck">Layers with data</label><br>
 			<input name="SelectionsCheck" value="SelectionsCheck" type="checkbox" checked="checked"><label for="SelectionsCheck">Selections</label><br>
@@ -379,9 +380,8 @@
 			<input name="CanvasOrientationCheck" value="CanvasOrientationCheck" type="checkbox" checked="checked"><label for="CanvasOrientationCheck">2D Settings</label><br>			
 			<input name="JmolOrientationCheck" value="JmolOrientationCheck" type="checkbox" checked="checked"><label for="JmolOrientationCheck">3D Settings</label><br>
 			</br>
-			Save State Only: <br>
-			<br>
-			<input name="WholeDataSetCheck" value="WholeDataSetCheck" type="checkbox"><label for="WholeDataSetCheck">Entire DataSet</label><br>
+			File / Server only: <br>
+			<input name="WholeDataSetCheck" value="WholeDataSetCheck" type="checkbox" checked="checked"><label for="WholeDataSetCheck">Entire DataSet</label><br>
 			<br>
 		</div>
 		
