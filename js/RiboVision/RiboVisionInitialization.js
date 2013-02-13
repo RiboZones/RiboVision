@@ -38,7 +38,10 @@ function RiboVisionReady() {
 	$("#ResidueTip").tooltip({
 			show: false,
 			hide: false,
-			track: true
+			track: false,
+			open : function(event,ui) {
+				//alert(this);
+			}
 	});
 	
 	// New Stuff Section, Layers, Selections Panels
@@ -411,8 +414,7 @@ function RiboVisionReady() {
 	$("#layerColorPicker2").farbtastic("#layerColor2");
 	
 	$("#SideBarAccordian").accordion({
-		fillSpace : true,
-		autoHeight : false,
+		heightStyle: "fill",
 		activate : function (event, ui) {
 			resetFileInput($('#files'));
 			$('#files').on('change', function (event) {
@@ -840,6 +842,7 @@ function RiboVisionReady() {
 			createInfoWindow(sel);
 			$("#ResidueTip").css("bottom",$(window).height() - event.clientY);
 			$("#ResidueTip").css("left",event.clientX);
+			console.log($(window).height() - event.clientY,event.clientX);
 			$("#ResidueTip").tooltip("open");
 		}
 		if (drag) {

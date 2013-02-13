@@ -150,7 +150,7 @@ function resizeElements(noDraw) {
 	$("#MainMenu").css('top', parseFloat($("#SiteInfo").css('height')));
 	
 	//SideBarAccordian
-	$("#SideBarAccordian").accordion("resize");
+	$("#SideBarAccordian").accordion("refresh");
 	
 	//Canvas Section
 	$("#canvasDiv").css('height', s);
