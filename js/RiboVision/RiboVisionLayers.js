@@ -66,7 +66,7 @@ $("#deleteLayer").button({
 });
 
 $("#deleteLayer").click(function (event) {
-	$("#dialog-confirm-delete p").append("The " + rvDataSets[0].getSelectedLayer().LayerName + " layer will be permanently deleted and cannot be recovered.");
+	$("#dialog-confirm-delete p").text("The " + rvDataSets[0].getSelectedLayer().LayerName + " layer will be permanently deleted and cannot be recovered.");
 	$("#dialog-confirm-delete").dialog('open');
 });
 
@@ -281,7 +281,7 @@ function LayerMenu(Layer, key, RVcolor) {
 			//$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<select id="' + 'llm-' + key + 'lineselect' + '" name="' + 'llm-' + key + 'lineselect' + '" multiple="multiple"></select>'));
 			$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<select multiple="multiple"></select>'));
 		
-			console.log($("#LayerPanel div").first().next().html());
+			//console.log($("#LayerPanel div").first().next().html());
 			
 			$("#LayerPanel div").first().next().find(".layerContent").find("[name='llm']").find("select").multiselect({
 				minWidth : 160,
@@ -310,7 +310,7 @@ function LayerMenu(Layer, key, RVcolor) {
 			$("#LayerPanel div").first().next().find(".layerContent").find("[name='llm']").find("select").multiselect("refresh");
 			
 			$("#LayerPanel div").first().next().find(".layerContent").find("[name='llm']").find("select").change(function (event) {
-				var array_of_checked_values = $("#LayerPanel div").first().next().find(".layerContent").find("[name='llm']").find("select").multiselect("getChecked").map(function () {
+				var array_of_checked_values = $(event.currentTarget).parent().find("select").multiselect("getChecked").map(function () {
 						return this.value;
 					});
 				if (array_of_checked_values[0] === "gray_lines") {
@@ -358,43 +358,30 @@ function LayerMenu(Layer, key, RVcolor) {
 }
 // Refresh Menu
 function RefreshLayerMenu(){
-	//Assign function to check boxes
-	/*
-	$(".visibilityCheckImg").change(function (event) {
-		console.log("visibilityCheckImg changed!");
-		$(event.currentTarget).parent().parent().attr("name")
-		if ($(event.currentTarget).attr("value") == "visible") {
-			$(rvDataSets[0].getLayer($(event.currentTarget).parent().parent().attr("name")).Canvas).css("visibility", "visible")
-		} else {
-			$(rvDataSets[0].getLayer($(event.currentTarget).parent().parent().attr("name")).Canvas).css("visibility", "hidden")
-		}
-	});*/
-	/*
-	$(".selectLayerRadioBtn").change(function (event) {
-		rvDataSets[0].selectLayer($(event.currentTarget).parent().parent().attr("name"));
-	});
-	$(".mappingRadioBtn").change(function (event) {
-		alert($(event.currentTarget).parent().parent().attr("name"));
-	});
-	*/
 	//Accordion that support multiple sections open
 	$("#LayerPanel").multiAccordion();
-	/*
-	$("#LayerPanel").sortable({
-		update : function (event, ui) {
-			$("#LayerPanel .layerContent").each(function (e, f) {
-				//$(this).find('p').text(rvDataSets[0].LastLayer - e - 1);
-				$("#" + $(this).parent().find('h3').text()).css('zIndex', rvDataSets[0].LastLayer - e - 1)
-				
-			});
-			rvDataSets[0].sort();
-		},
-		items : ".oneLayerGroup"
-		
-	});
-	$("#LayerPanel").disableSelection();	
-*/	
+	var targetLayers=rvDataSets[0].getLayerByType("lines");
+	$.each(targetLayers, function (index,value){
+	    var $selectbox = $(".oneLayerGroup[name=" + targetLayers[0].LayerName + "]").find(".layerContent").find("div[name=llm]").find("select")[0];
+	    //Fill Menu
+		//var llm = $("#LayerPanel div").first().next().find(".layerContent").find("[name='llm']").find("select")[0];
+		//var SDList=rvDataSets[0].SpeciesEntry.StructDataMenu.split(";");
+		$selectbox.options.length = 0;
+		$selectbox.options[0] = new Option("All Gray", "gray_lines");
+		$selectbox.options[0].setAttribute("selected", "selected");
+
+		var rLayers = rvDataSets[0].getLayerByType("residues");
+		var cLayers = rvDataSets[0].getLayerByType("circles");
+		$.each(rLayers, function (key, value) {
+			$selectbox.options[$selectbox.options.length] = new Option(value.LayerName, value.LayerName);
+		});
+		$.each(cLayers, function (key, value) {
+			$selectbox.options[$selectbox.options.length] = new Option(value.LayerName, value.LayerName);
+		});
+		$(".oneLayerGroup[name=" + targetLayers[0].LayerName + "]").find(".layerContent").find("div[name=llm]").find("select").multiselect("refresh");
+    });
 }
+
 $("#LayerPanel").sortable({
 	update : function (event, ui) {
 		$("#LayerPanel .layerContent").each(function (e, f) {

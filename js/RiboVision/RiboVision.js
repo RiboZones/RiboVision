@@ -34,7 +34,8 @@ var rvViews = [];
 // Other Global Variables
 var FullBasePairSet;
 var AgreeFunction = function () {};
-var drag;
+var drag = false;
+//var seleLineMode = false;
 
 // Website Settings
 var localStorageAvailable = false;

@@ -124,6 +124,7 @@ function RiboVisionReady() {
 			effect : "blind",
 			duration : 300
 		},
+		width : 600,
 		height : 500,
 		position : {
 			my : "left top",
@@ -371,8 +372,22 @@ function RiboVisionReady() {
 		modal : true,
 		buttons : {
 			"Delete the Layer" : function (event) {
-				$("[name=" + rvDataSets[0].getSelectedLayer().LayerName + "]").remove();
-				rvDataSets[0].deleteLayer(rvDataSets[0].getSelectedLayer().LayerName);
+				//check selected layer and linked layer
+				var targetLayer = rvDataSets[0].getSelectedLayer();
+				var rLayers = rvDataSets[0].getLayerByType("residues");
+				var cLayers = rvDataSets[0].getLayerByType("circles");
+				if (rLayers){
+					$(".oneLayerGroup[name='" + rLayers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("click");		
+				} else if (cLayers){
+					$(".oneLayerGroup[name='" + cLayers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("click");	
+				} else {
+					$(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("click");	
+				}
+				$("[name=" + targetLayer.LayerName + "]").remove();
+				rvDataSets[0].deleteLayer(targetLayer.LayerName);
+				rvDataSets[0].sort();
+				RefreshLayerMenu();
+				
 				$(this).dialog("close");
 			},
 			Cancel : function () {
@@ -783,94 +798,15 @@ function RiboVisionReady() {
 	$("#canvasDiv").bind("mouseup", mouseEventFunction);
 	$(window).bind("mouseup", function (event) {
 		$("#canvasDiv").unbind("mousemove", dragHandle);
+		//$("#canvasDiv").unbind("mousemove", mouseMoveFunction);
+		$("#canvasDiv").unbind("mousemove", dragSelBox);
+		rvDataSets[0].HighlightLayer.clearCanvas();
 		return false;
 	});
 	
 	$(window).bind("resize", resizeElements);
-	$("#canvasDiv").bind('mousewheel', function (event, delta) {
-		rvViews[0].zoom(event, delta);
-		
-		var sel = getSelected(event);
-		rvDataSets[0].HighlightLayer.clearCanvas();
-		
-		if (sel == -1) {
-			//document.getElementById("currentDiv").innerHTML = "<br/>";
-		} else {
-			//document.getElementById("currentDiv").innerHTML = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[sel].ChainID)] + ":" + rvDataSets[0].Residues[sel].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-			
-			rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
-			rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, 2, 0, 2 * Math.PI, false);
-			rvDataSets[0].HighlightLayer.CanvasContext.closePath();
-			rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
-			rvDataSets[0].HighlightLayer.CanvasContext.stroke();
-			
-		}
-		if (drag) {
-			rvViews[0].drag(event);
-		}
-		return false;
-		
-	});
-	$("#canvasDiv").bind("mousemove", function (event) {
-		var sel = getSelected(event);
-		var selLine = getSelectedLine(event);
-		rvDataSets[0].HighlightLayer.clearCanvas();
-		
-		if (sel == -1) {
-			//document.getElementById("currentDiv").innerHTML = "<br/>";
-			// remove previous popup windonw if exists
-			/*
-			var popup = document.getElementById("residuetip")
-		    if (popup) {
-		    	popup.parentNode.removeChild(popup);
-		    }*/
-			$("#ResidueTip").tooltip("close");
-		} else {
-			$("#ResidueTip").tooltip("close");
-			/*
-			document.getElementById("currentDiv").innerHTML = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[sel].ChainID)] + ":" + rvDataSets[0].Residues[sel].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + "(" + rvDataSets[0].Residues[sel].CurrentData + ")";
-			if (rvDataSets[0].Residues[sel].resNum.replace(/[^:]*:/g, "") == 42) {
-				document.getElementById("currentDiv").innerHTML = document.getElementById("currentDiv").innerHTML + ". You found the secret base! ";
-			}*/
-			
-			rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
-			rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, 2, 0, 2 * Math.PI, false);
-			rvDataSets[0].HighlightLayer.CanvasContext.closePath();
-			rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
-			rvDataSets[0].HighlightLayer.CanvasContext.stroke();
-			
-			createInfoWindow(sel);
-			$("#ResidueTip").css("bottom",$(window).height() - event.clientY);
-			$("#ResidueTip").css("left",event.clientX);
-			console.log($(window).height() - event.clientY,event.clientX);
-			$("#ResidueTip").tooltip("open");
-		}
-		if (drag) {
-			rvViews[0].drag(event);
-		}
-		
-		if(selLine != -1){
-			var j = rvDataSets[0].BasePairs[selLine].resIndex1;
-			var k = rvDataSets[0].BasePairs[selLine].resIndex2;
-				rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
-				rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
-				rvDataSets[0].HighlightLayer.CanvasContext.moveTo(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y);
-				rvDataSets[0].HighlightLayer.CanvasContext.lineTo(rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
-				rvDataSets[0].HighlightLayer.CanvasContext.closePath();
-				rvDataSets[0].HighlightLayer.CanvasContext.stroke();
-			//$("#currentDiv").html(rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[j].ChainID)] + ":" + rvDataSets[0].Residues[j].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + " - " + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[k].ChainID)] + ":" + rvDataSets[0].Residues[k].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + " (" + rvDataSets[0].BasePairs[selLine].bp_type + ")");
-
-		}
-		
-		////add popup window
-		//createInfoWindow(event); 
-		
-	});
-	///////For popup window////
-	function createInfoWindow(ResIndex){
-    	addPopUpWindow(ResIndex);
-		$("#ResidueTip").tooltip("option","content",$("#residuetip").html());
-	}
+	$("#canvasDiv").bind('mousewheel',mouseWheelFunction);
+	//$("#canvasDiv").bind("mousemove", mouseMoveFunction);
 	
   /////////////
 	
@@ -941,6 +877,8 @@ function InitRibovision(FreshState) {
 	rvDataSets[0].addLayer("Interactions1", "MainLineLayer", [], true, 1.0, 'lines');
 	rvDataSets[0].addLayer("Labels", "LabelLayer", [], true, 1.0, 'labels');
 	rvDataSets[0].addLayer("Residues", "ResidueLayer", [], true, 1.0, 'residues');
+	rvDataSets[0].addLayer("Data1", "CircleLayer1", [], true, 1.0, 'circles');
+	rvDataSets[0].addLayer("Data2", "CircleLayer2", [], true, 1.0, 'circles');
 	rvDataSets[0].addLayer("Selection", "SelectedLayer", [], false, 1.176, 'selected');
 	
 	rvViews[0] = new rvView(20, 20, 1.2);
@@ -958,8 +896,8 @@ function InitRibovision(FreshState) {
 	} else { 
 		// Create rvLayers
 		
-		rvDataSets[0].addLayer("Data2", "CircleLayer1", [], true, 1.0, 'circles');
-		rvDataSets[0].addLayer("Data1", "CircleLayer2", [], true, 1.0, 'circles');
+		//rvDataSets[0].addLayer("Data2", "CircleLayer1", [], true, 1.0, 'circles');
+		//rvDataSets[0].addLayer("Data1", "CircleLayer2", [], true, 1.0, 'circles');
 		//rvDataSets[0].addLayer("ContourLine", "ContourLayer", [], true, 1.0, 'contour');
 		
 		// Sort rvLayers by zIndex for convience

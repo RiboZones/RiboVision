@@ -520,6 +520,7 @@ function rvDataSet(DataSetName) {
 				value.Canvas.style.zIndex = key;
 			}
 		});
+		this.LastLayer = this.Layers.length - 1;
 	};
 	this.getSelection = function (rvSelectionName) {
 		var ret = false;

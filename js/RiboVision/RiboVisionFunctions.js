@@ -420,6 +420,9 @@ function selectResidue(event) {
 		}
 	}
 	$("#canvasDiv").unbind("mouseup", selectResidue);
+	if (onebuttonmode === "move") {
+		$("#canvasDiv").bind("mousemove", mouseMoveFunction);
+	}
 	//console.log('selected Residue by mouse' );
 	//drawNavLine(1);
 }
@@ -465,7 +468,7 @@ function colorResidue(event) {
 		var color = $("#color").val();
 		res.color = color;
 		targetLayer=rvDataSets[0].getLayerByType("residues");
-		targetLayer.dataCirclesColor[sel]=color;
+		targetLayer[0].dataLayerColors[sel]=color;
 		rvDataSets[0].drawResidues("residues");
 		//drawLabels();
 		update3Dcolors(); ;
@@ -1082,14 +1085,20 @@ function filterBasePairs(FullBasePairSet,IncludeTypes){
 //////////////////////////// Mouse Functions //////////////////////////////////
 function mouseEventFunction(event) {
 	var BaseViewMode = $('input[name="bv"][value=on]').attr("checked");
+	$("#ResidueTip").tooltip("close");
 	if (event.handleObj.origType == "mousedown" && !BaseViewMode) {
-		if (onebuttonmode == "select" || event.which == 3 || (event.which == 1 && event.shiftKey == true)) {
+		if (onebuttonmode == "select" || (event.which == 3 && event.altKey == false) || (event.which == 1 && event.shiftKey == true)) {
 			$("#canvasDiv").unbind("mousemove", dragHandle);
+			$("#canvasDiv").unbind("mousemove", mouseMoveFunction);
 			selectionBox(event);
+			$("#canvasDiv").bind("mousemove", dragSelBox);
 			$("#canvasDiv").bind("mouseup", selectResidue);
-			
+		} else if (onebuttonmode == "selectL" || (event.which == 3 && event.altKey == true )) {
+			$("#canvasDiv").unbind("mousemove", dragHandle);
+			$("#canvasDiv").unbind("mousemove", mouseMoveFunction);
 		} else if (onebuttonmode == "color" || event.which == 2 || (event.which == 1 && event.ctrlKey == true)) {
 			$("#canvasDiv").unbind("mousemove", dragHandle);
+			$("#canvasDiv").unbind("mousemove", mouseMoveFunction);
 			colorResidue(event);
 		} else {
 			rvViews[0].lastX = event.clientX;
@@ -1102,7 +1111,82 @@ function mouseEventFunction(event) {
 	}
 	if (event.handleObj.origType == "mouseup") {
 		$("#canvasDiv").unbind("mousemove", dragHandle);
+		$("#canvasDiv").unbind("mousemove", dragSelBox);
+		//$("#canvasDiv").bind("mousemove", mouseMoveFunction);
+		rvDataSets[0].HighlightLayer.clearCanvas();
 	}
+}
+
+function mouseMoveFunction(event){
+	rvDataSets[0].HighlightLayer.clearCanvas();
+	$("#ResidueTip").tooltip("close");
+	
+	if (event.altKey == true){
+		var selLine = getSelectedLine(event);
+		if(selLine >=0 ){
+			var j = rvDataSets[0].BasePairs[selLine].resIndex1;
+			var k = rvDataSets[0].BasePairs[selLine].resIndex2;
+			rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
+			rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
+			rvDataSets[0].HighlightLayer.CanvasContext.moveTo(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y);
+			rvDataSets[0].HighlightLayer.CanvasContext.lineTo(rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
+			rvDataSets[0].HighlightLayer.CanvasContext.closePath();
+			rvDataSets[0].HighlightLayer.CanvasContext.stroke();
+			//$("#currentDiv").html(rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[j].ChainID)] + ":" + rvDataSets[0].Residues[j].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + " - " + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[k].ChainID)] + ":" + rvDataSets[0].Residues[k].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + " (" + rvDataSets[0].BasePairs[selLine].bp_type + ")");
+		}	
+	} else {
+		var sel = getSelected(event);
+		if (sel >=0){
+			rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
+			rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, 2, 0, 2 * Math.PI, false);
+			rvDataSets[0].HighlightLayer.CanvasContext.closePath();
+			rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
+			rvDataSets[0].HighlightLayer.CanvasContext.stroke();
+			
+			createInfoWindow(sel);
+			$("#ResidueTip").css("bottom",$(window).height() - event.clientY);
+			$("#ResidueTip").css("left",event.clientX);
+			//console.log($(window).height() - event.clientY,event.clientX);
+			$("#ResidueTip").tooltip("open");
+		}
+	}
+}
+
+function dragSelBox(event){
+	rvDataSets[0].HighlightLayer.clearCanvas();
+	rvViews[0].drag(event);
+}
+
+function mouseWheelFunction(event,delta){
+	rvViews[0].zoom(event, delta);
+	
+	var sel = getSelected(event);
+	rvDataSets[0].HighlightLayer.clearCanvas();
+	
+	if (sel == -1) {
+		//document.getElementById("currentDiv").innerHTML = "<br/>";
+	} else {
+		//document.getElementById("currentDiv").innerHTML = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[sel].ChainID)] + ":" + rvDataSets[0].Residues[sel].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+		
+		rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
+		rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, 2, 0, 2 * Math.PI, false);
+		rvDataSets[0].HighlightLayer.CanvasContext.closePath();
+		rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
+		rvDataSets[0].HighlightLayer.CanvasContext.stroke();
+		
+	}
+	if (drag) {
+		rvViews[0].drag(event);
+	}
+	return false;
+
+
+}
+
+///////For popup window////
+function createInfoWindow(ResIndex){
+	addPopUpWindow(ResIndex);
+	$("#ResidueTip").tooltip("option","content",$("#residuetip").html());
 }
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1131,6 +1215,23 @@ function BaseViewCenter(event){
 }
 function modeSelect(mode) {
 	onebuttonmode = mode;
+	
+	switch (mode){
+		case "selectL":
+			$("#canvasDiv").unbind("mousemove", mouseMoveFunction);
+			break;
+		case "select":
+			$("#canvasDiv").unbind("mousemove", mouseMoveFunction);
+			break;
+		case "move":
+			$("#canvasDiv").bind("mousemove", mouseMoveFunction);
+			break;
+		case "color":
+			$("#canvasDiv").unbind("mousemove", mouseMoveFunction);
+			break;
+		default: 
+			//seleLineMode = false;
+	}
 }
 
 function updateStructData(ui) {
