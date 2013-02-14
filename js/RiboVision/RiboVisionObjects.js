@@ -723,7 +723,7 @@ function rvDataSet(DataSetName) {
 	};
 	function drawBasePairs(targetLayer, colorLayer) {
 		var color1,color2;
-		var zoomEnabled = $('input[name="za"][value=on]').attr("checked");
+		var zoomEnabled = $('input[name="za"][value=on]').is(':checked');
 		targetLayer.clearCanvas();
 		if (!colorLayer) {
 			colorLayer = targetLayer.ColorLayer;
@@ -745,10 +745,12 @@ function rvDataSet(DataSetName) {
 					var jkdist = Math.sqrt(((rvDataSets[0].Residues[j].X - rvDataSets[0].Residues[k].X) * (rvDataSets[0].Residues[j].X - rvDataSets[0].Residues[k].X) + (rvDataSets[0].Residues[j].Y - rvDataSets[0].Residues[k].Y) * (rvDataSets[0].Residues[j].Y - rvDataSets[0].Residues[k].Y)));
 					
 					if ((150 - rvViews[0].scale * 23) > jkdist) {
+						rvDataSets[0].BasePairs[i]["color"] = "rgba(35,31,32,0)";
 						continue;
 					}
 					if (((rvDataSets[0].Residues[j].X * rvViews[0].scale + rvViews[0].x < 0) || (rvDataSets[0].Residues[j].X * rvViews[0].scale + rvViews[0].x > rvViews[0].clientWidth) || (rvDataSets[0].Residues[j].Y * rvViews[0].scale + rvViews[0].y < 0) || (rvDataSets[0].Residues[j].Y * rvViews[0].scale + rvViews[0].y > rvViews[0].clientHeight))
 						 && ((rvDataSets[0].Residues[k].X * rvViews[0].scale + rvViews[0].x < 0) || (rvDataSets[0].Residues[k].X * rvViews[0].scale + rvViews[0].x > rvViews[0].clientWidth) || (rvDataSets[0].Residues[k].Y * rvViews[0].scale + rvViews[0].y < 0) || (rvDataSets[0].Residues[k].Y * rvViews[0].scale + rvViews[0].y > rvViews[0].clientHeight))) {
+						rvDataSets[0].BasePairs[i]["color"] = "rgba(35,31,32,0)";
 						continue;
 					}
 				}

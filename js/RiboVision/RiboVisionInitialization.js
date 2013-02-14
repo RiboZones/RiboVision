@@ -43,7 +43,14 @@ function RiboVisionReady() {
 				//alert(this);
 			}
 	});
-	
+	$("#InteractionTip").tooltip({
+			show: false,
+			hide: false,
+			track: false,
+			open : function(event,ui) {
+				//alert(this);
+			}
+	});
 	// New Stuff Section, Layers, Selections Panels
 	$.fx.speeds._default = 1000;
 	$("#PanelTabs").tabs();

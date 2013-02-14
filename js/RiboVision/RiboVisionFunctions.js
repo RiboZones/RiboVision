@@ -257,7 +257,7 @@ function dragHandle(event) {
 function getSelectedLine(event){
 	var nx = (event.clientX - rvViews[0].x - $("#menu").width()) / rvViews[0].scale; //subtract 250 for the menu width
 	var ny = (event.clientY - rvViews[0].y - $("#topMenu").height()) / rvViews[0].scale; //subtract 80 for the info height
-	var zoomEnabled = $('input[name="za"][value=on]').attr("checked");
+	var zoomEnabled = $('input[name="za"][value=on]').is(':checked');
 	if(rvDataSets[0].BasePairs != undefined){
 		for (var i = 0; i < rvDataSets[0].BasePairs.length; i++) {
 			var j = rvDataSets[0].BasePairs[i].resIndex1;
@@ -1084,8 +1084,9 @@ function filterBasePairs(FullBasePairSet,IncludeTypes){
 
 //////////////////////////// Mouse Functions //////////////////////////////////
 function mouseEventFunction(event) {
-	var BaseViewMode = $('input[name="bv"][value=on]').attr("checked");
+	var BaseViewMode = $('input[name="bv"][value=on]').is(':checked');
 	$("#ResidueTip").tooltip("close");
+	$("#InteractionTip").tooltip("close");
 	if (event.handleObj.origType == "mousedown" && !BaseViewMode) {
 		if (onebuttonmode == "select" || (event.which == 3 && event.altKey == false) || (event.which == 1 && event.shiftKey == true)) {
 			$("#canvasDiv").unbind("mousemove", dragHandle);
@@ -1120,6 +1121,7 @@ function mouseEventFunction(event) {
 function mouseMoveFunction(event){
 	rvDataSets[0].HighlightLayer.clearCanvas();
 	$("#ResidueTip").tooltip("close");
+	$("#InteractionTip").tooltip("close");
 	
 	if (event.altKey == true){
 		var selLine = getSelectedLine(event);
@@ -1133,6 +1135,11 @@ function mouseMoveFunction(event){
 			rvDataSets[0].HighlightLayer.CanvasContext.closePath();
 			rvDataSets[0].HighlightLayer.CanvasContext.stroke();
 			//$("#currentDiv").html(rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[j].ChainID)] + ":" + rvDataSets[0].Residues[j].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + " - " + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[k].ChainID)] + ":" + rvDataSets[0].Residues[k].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + " (" + rvDataSets[0].BasePairs[selLine].bp_type + ")");
+			createInfoWindow(sel,"lines");
+			$("#InteractionTip").css("bottom",$(window).height() - event.clientY);
+			$("#InteractionTip").css("left",event.clientX);
+			//console.log($(window).height() - event.clientY,event.clientX);
+			$("#InteractionTip").tooltip("open");
 		}	
 	} else {
 		var sel = getSelected(event);
@@ -1143,7 +1150,7 @@ function mouseMoveFunction(event){
 			rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
 			rvDataSets[0].HighlightLayer.CanvasContext.stroke();
 			
-			createInfoWindow(sel);
+			createInfoWindow(sel,"residue");
 			$("#ResidueTip").css("bottom",$(window).height() - event.clientY);
 			$("#ResidueTip").css("left",event.clientX);
 			//console.log($(window).height() - event.clientY,event.clientX);
@@ -1184,9 +1191,14 @@ function mouseWheelFunction(event,delta){
 }
 
 ///////For popup window////
-function createInfoWindow(ResIndex){
-	addPopUpWindow(ResIndex);
-	$("#ResidueTip").tooltip("option","content",$("#residuetip").html());
+function createInfoWindow(Index,InfoMode){
+	if (InfoMode === "residue"){
+		addPopUpWindowResidue(Index);
+		$("#ResidueTip").tooltip("option","content",$("#residuetip").html());
+	} else {
+		//addPopUpWindowLine(Index);
+		$("#InteractionTip").tooltip("option","content",$("#interactiontip").html());
+	}
 }
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1343,7 +1355,8 @@ function handleFileSelect(event) {
 						var l = targetSelection.Residues.length;
 						for (var iii = SeleLen; iii < l; iii++) {
 							if (targetSelection.Residues[iii].resNum.indexOf(":") >= 0) {
-								alert("didn't do this yet");
+								var ressplit = targetSelection.Residues[iii].resNum.split(":");
+								var ResName = rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(ressplit[0])] + "_" + ressplit[1];				
 							} else {
 								var chainID = rvDataSets[0].SpeciesEntry.PDB_chains[0];
 								var ResName = chainID + "_" + targetSelection.Residues[iii].resNum;
@@ -1865,7 +1878,7 @@ function canvasToSVG() {
 					if (value.ColorLayer === "gray_lines"){
 						for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
 							var BasePair = rvDataSets[0].BasePairs[j];
-							output = output + '<line fill="none" stroke="' + '#231F20' + '" stroke-opacity="' + 0.5 + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
+							output = output + '<line fill="none" stroke="' + '#231F20' + '" stroke-opacity="' + rvDataSets[0].BasePairs[j].color.match(/,[\.\d]+\)/g)[0].slice(1,-1) + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
 						}
 					} else {
 						if (value.ColorLayer.ColorGradientMode == "Matched") {
@@ -1893,13 +1906,13 @@ function canvasToSVG() {
 								*/
 								for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
 									var BasePair = rvDataSets[0].BasePairs[j];
-									output = output + '<line fill="none" stroke="' + rvDataSets[0].Residues[BasePair[ChosenSide]].color + '" stroke-opacity="' + 0.5 + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
+									output = output + '<line fill="none" stroke="' + rvDataSets[0].Residues[BasePair[ChosenSide]].color + '" stroke-opacity="' + rvDataSets[0].BasePairs[j].color.match(/,[\.\d]+\)/g)[0].slice(1,-1) + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
 								}
 								break;
 							case "circles" : 
 								for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
 									var BasePair = rvDataSets[0].BasePairs[j];
-									output = output + '<line fill="none" stroke="' + value.ColorLayer.dataLayerColors[BasePair[ChosenSide]] + '" stroke-opacity="' + 0.5 + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
+									output = output + '<line fill="none" stroke="' + value.ColorLayer.dataLayerColors[BasePair[ChosenSide]] + '" stroke-opacity="' + rvDataSets[0].BasePairs[j].color.match(/,[\.\d]+\)/g)[0].slice(1,-1) + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
 								}
 								break;
 							default :
@@ -2410,7 +2423,7 @@ function drawNavLine(){
 			
 }
 
-function addPopUpWindow(ResIndex){
+function addPopUpWindowResidue(ResIndex){
 	//Width and height
 	var Xoffset = 40;
 	var Yoffset = 20;
