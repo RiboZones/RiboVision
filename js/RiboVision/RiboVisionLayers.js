@@ -89,17 +89,23 @@ function changeLayerColor(){
 
 //in "Layer Preferfence" 
 function changeCurrentLayerName() {
-	//console.log("function changeCurrentLayerName is called!");
-	//console.log("current layer name: " + $dblClickedLayerName);	
-	//$($dblClickedLayer).innerHTML = document.getElementById("layerNameInput").value;
-	//$newName = document.getElementById("layerNameInput").value;
-	//$currentLayerName = $newName;
-	//console.log("new layer name: " + $newName);	
-	$($dblClickedLayer).parent().attr("name",$("#layerNameInput").val());
-	$($dblClickedLayer).html($("#layerNameInput").val()).prepend('<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-e"></span>');
-	targetLayer = rvDataSets[0].getLayer($dblClickedLayerName);
-	targetLayer.LayerName = $("#layerNameInput").val();
-	RefreshLayerMenu();
+	if ($("#layerNameInput").val() !== $($dblClickedLayer).parent().attr("name")){
+		var namecheck = $("#layerNameInput").val().match(/[A-z][\w-_:\.]*/);
+		if (namecheck[0].length === $("#layerNameInput").val().length && $("#layerNameInput").val().length <= 16){
+			if (rvDataSets[0].isUniqueLayer($("#layerNameInput").val())){
+				$($dblClickedLayer).parent().attr("name",$("#layerNameInput").val());
+				$($dblClickedLayer).html($("#layerNameInput").val()).prepend('<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-e"></span>');
+				targetLayer = rvDataSets[0].getLayer($dblClickedLayerName);
+				targetLayer.LayerName = $("#layerNameInput").val();
+				RefreshLayerMenu();
+				$(this).dialog("close");
+			} else {
+				$( "#dialog-unique-layer-error" ).dialog("open");
+			}
+		} else {
+			$( "#dialog-name-error" ).dialog("open");
+		}
+	}
 }
 
 function LayerMenu(Layer, key, RVcolor) {
@@ -113,9 +119,7 @@ function LayerMenu(Layer, key, RVcolor) {
 	//$('.oneLayerGroup').append(("<div>").addClass("visibilityCheckbox"));
 	//$('.visibilityCheckbox').append($("<input />").attr({type:'checkbox'}).addClass("layerVisiblity"))
 	
-	//This is necessary because if just use $('.oneLayerGroup'), then duplicated layers will be added to different groups
-	$currentGroup = document.getElementsByName($currentLayerName);
-	//console.log($currentGroup);
+	$currentGroup = $(".oneLayerGroup[name=" + $currentLayerName + "]")[0];
 	
 	//adding color box
 	$($currentGroup)
@@ -394,3 +398,69 @@ $("#LayerPanel").sortable({
 	
 });
 $("#LayerPanel").disableSelection();
+
+$("#LayerPreferenceDialog").dialog({
+	autoOpen : false,
+	show : {
+		effect : "blind",
+		duration : 300
+	},
+	modal : true,
+	height : 600,
+	width : 400,
+	position : {
+		my : "center",
+		at : "center",
+		of : $("#canvasDiv")
+	},
+	open : function (event) {
+	$("#myJmol_object").css("visibility", "hidden");
+	},
+	close : function () { 
+		$("#myJmol_object").css("visibility", "visible");
+	}
+});
+
+$("#dialog-addLayer").dialog({
+	resizable : false,
+	autoOpen : false,
+	height : "auto",
+	width : 400,
+	modal : true,
+	buttons : {
+		"Create New Layer" : function () {
+			var namecheck = $("#newLayerName").val().match(/[A-z][\w-_:\.]*/);
+			if (namecheck[0].length === $("#newLayerName").val().length && $("#newLayerName").val().length <= 16){
+				if (rvDataSets[0].isUniqueLayer($("#newLayerName").val())){
+					//$("#canvasDiv").append($('<canvas id="' + $("#newLayerName").val() + '" style="z-index:' + ( rvDataSets[0].LastLayer + 1 ) + ';"></canvas>')); 
+					rvDataSets[0].addLayer($("#newLayerName").val(), $("#newLayerName").val(), [], true, 1.0, 'circles',$("#layerColor2").val());
+					resizeElements();
+					LayerMenu(rvDataSets[0].getLayer($("#newLayerName").val()),(1000 + ( rvDataSets[0].LastLayer + 1 ) ));
+					RefreshLayerMenu();
+					$(this).dialog("close");
+				} else {
+					$( "#dialog-unique-layer-error" ).dialog("open");
+				}
+			} else {
+				$( "#dialog-name-error" ).dialog("open");
+			}
+		},
+		Cancel: function (){
+			$(this).dialog("close");
+		}
+	},
+	open : function () {
+		$("#newLayerName").val("Layer_" + (rvDataSets[0].Layers.length + 1));
+		$("#myJmol_object").css("visibility", "hidden");
+	},
+	close : function () { 
+		$("#myJmol_object").css("visibility", "visible");
+	}
+});
+$("#newLayerName").button().addClass('ui-textfield').keydown(function (event) {
+	if (event.keyCode == 13) {
+		$("#dialog-addLayer").dialog("option", "buttons")['Create New Layer'].apply($("#dialog-addLayer"));
+	}
+});
+	
+	

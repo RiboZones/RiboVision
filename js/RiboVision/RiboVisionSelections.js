@@ -115,7 +115,6 @@ $("#dialog-addSelection").dialog({
 				} else {
 					$( "#dialog-unique-selection-error" ).dialog("open");
 				}
-				$(this).dialog("close");
 			} else {
 				$( "#dialog-name-error" ).dialog("open");
 			}
@@ -185,8 +184,7 @@ function SelectionMenu(targetSelection, key, RVcolor) {
 		'name' : $currentSelectionName
 	})));
 	
-	//This is necessary because if just use $('.oneSelectionGroup'), then duplicated layers will be added to different groups
-	$currentGroup = document.getElementsByName($currentSelectionName);
+	$currentGroup = $(".oneSelectionGroup[name=" + $currentSelectionName + "]")[0];
 	
 	//adding color box
 	$($currentGroup)
@@ -300,132 +298,6 @@ function SelectionMenu(targetSelection, key, RVcolor) {
 	$("#SelectionPanel div").first().next().find(".selectionContent").first().find("div").last().append($('<label><input type="radio" name="autodraw' + '" value="off">Off</label>'));
 	//$('input[name="filled' + key + '"][value=filled]').attr("checked", true);
 	
-	//$count++;
-/*
-	
-	switch (Layer.Type) {
-		case "circles":
-			//Data Label Section 
-			$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div name="' + 'datalabel' + '">').text(Layer.DataLabel).append($("<br>")).append($("<br>")));
-			
-			//Circle buttons
-			$("#LayerPanel div").first().next().find(".layerContent").append($('<div id="' + 'pr-' + key + '">').text("Draw Circles as:").append($("<br>")));
-			$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="filled' + key + '" id="' + 'pr-' + key + '-1' + '" value="filled" checked="checked"> <label for="' + 'pr-' + key + '-1' + ' ">filled</label>'));
-			$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="filled' + key + '" id="' + 'pr-' + key + '-2' + '" value="unfilled"> <label for="' + 'pr-' + key + '-2' + '">unfilled</label>'));
-			//$('#' + 'pr-' + key).buttonset();
-			if (Layer.Filled) {
-				$('input[name="filled' + key + '"][value=filled]').attr("checked", true);
-			} else {
-				$('input[name="filled' + key + '"][value=unfilled]').attr("checked", true);
-			}
-			$('input[name="filled' + key + '"]').change(function (event) {
-				if ($('input[name="filled' + key + '"][value=filled]').attr("checked")) {
-					Layer.Filled = true;
-				} else {
-					Layer.Filled = false;
-				}
-				rvDataSets[0].refreshResiduesExpanded($(event.currentTarget).parent().parent().parent().attr("name"));
-			});
-			
-			
-			$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="' + 'prs-' + key + '">').text("Circle Size:").append($("<br>")));
-			$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="size' + key + '" id="' + 'prs-' + key + '-1' + '" value="regular" checked="checked"> <label for="' + 'prs-' + key + '-1' + ' ">regular</label>'));
-			$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="size' + key + '" id="' + 'prs-' + key + '-2' + '" value="large"> <label for="' + 'prs-' + key + '-2' + '">large</label>'));
-			//$('#' + 'pr-' + key).buttonset();
-			if (Layer.ScaleFactor <= 1.0) {
-				$('input[name="size' + key + '"][value=regular]').attr("checked", true);
-			} else {
-				$('input[name="size' + key + '"][value=large]').attr("checked", true);
-			}
-			
-			$("#LayerPanel div").first().next().find(".radioDIV2").find('input').removeAttr("disabled");
-		
-			$('input[name="size' + key + '"]').change(function (event) {
-				if ($('input[name="size' + key + '"][value=regular]').attr("checked")) {
-					Layer.ScaleFactor = 1.0;
-				} else {
-					Layer.ScaleFactor = 1.2;
-				}
-				rvDataSets[0].refreshResiduesExpanded($(event.currentTarget).parent().parent().parent().attr("name"));
-			});
-			$(this);
-			break;
-		case "lines":
-			//Data Label Section 
-			$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div name="' + 'datalabel' + '">').text(Layer.DataLabel).append($("<br>")).append($("<br>")));
-			
-			$("#LayerPanel div").first().next().find(".layerContent").append($('<div id="' + 'llm-' + key + '">').text("Color lines like:").append($("<br>")));
-			$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<select id="' + 'llm-' + key + 'lineselect' + '" name="' + 'llm-' + key + 'lineselect' + '" multiple="multiple"></select>'));
-			$('#' + 'llm-' + key + 'lineselect').multiselect({
-				minWidth : 160,
-				multiple : false,
-				header : "Select a layer",
-				noneSelectedText : "Select an Option",
-				selectedList : 1
-			});
-			$('#' + 'llm-' + key + 'lineselect').multiselect().multiselectfilter();
-			//Fill Menu
-			var llm = document.getElementById('llm-' + key + 'lineselect');
-			//var SDList=rvDataSets[0].SpeciesEntry.StructDataMenu.split(";");
-			//llm.options.length = 0;
-			llm.options[0] = new Option("All Gray", "gray_lines");
-			llm.options[0].setAttribute("selected", "selected");
-
-			var rLayers = rvDataSets[0].getLayerByType("residues");
-			var cLayers = rvDataSets[0].getLayerByType("circles");
-			$.each(rLayers, function (key, value) {
-				llm.options[llm.options.length] = new Option(value.LayerName, value.LayerName);
-			});
-			$.each(cLayers, function (key, value) {
-				llm.options[llm.options.length] = new Option(value.LayerName, value.LayerName);
-			});
-			$('#' + 'llm-' + key + 'lineselect').multiselect("refresh");
-			
-			$('#' + 'llm-' + key + 'lineselect').change(function (event) {
-				var array_of_checked_values = $('#' + 'llm-' + key + 'lineselect').multiselect("getChecked").map(function () {
-						return this.value;
-					});
-				if (array_of_checked_values[0] === "gray_lines") {
-					rvDataSets[0].drawBasePairs("lines", "gray_lines");
-					$(event.currentTarget).parent().parent().find(':radio').attr('disabled','disabled');
-				} else {
-					rvDataSets[0].drawBasePairs("lines", rvDataSets[0].getLayer(array_of_checked_values[0]));
-					$(event.currentTarget).parent().parent().find(':radio').removeAttr('disabled');
-				}
-			});
-			
-			$("#LayerPanel div").first().next().find(".layerContent").first().append($('<br>'));
-			$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="' + 'llmg-' + key + '">').text("Line Gradient Direction:").append($("<br>")));
-			$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="color_lines_gradient' + key + '" id="' + 'llmg-' + key + '-1' + '" value="Matched" checked="checked"> <label for="' + 'llmg-' + key + '-1' + ' ">Matched</label>'));
-			$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="color_lines_gradient' + key + '" id="' + 'llmg-' + key + '-2' + '" value="Opposite"> <label for="' + 'llmg-' + key + '-2' + '">Opposite</label>'));
-			$('[name="color_lines_gradient' + key + '"]').attr('disabled', 'disabled');
-			$('input[name="color_lines_gradient' + key + '"]').change(function (event) {
-				targetLayer = rvDataSets[0].getLayer($('input[name="color_lines_gradient' + key + '"]' + ':checked').parent().parent().parent().find('h3').text());
-				targetLayer.ColorGradientMode =  $(event.currentTarget).parent().parent().find('input:checked').val();
-				rvDataSets[0].drawBasePairs("lines");
-			});
-			
-			break;
-		case "residues":
-			//Data Label Section 
-			$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div name="' + 'datalabel' + '">').text(Layer.DataLabel).append($("<br>")).append($("<br>")));
-			
-			$("#LayerPanel div").first().next().find(".selectLayerRadioBtn").attr("checked", "checked");
-			rvDataSets[0].selectLayer($("#LayerPanel div").first().next().attr("name"));
-			rvDataSets[0].linkLayer($("#LayerPanel div").first().next().attr("name"));
-			$("#LayerPanel div").first().next().find(".radioDIV2").find('input').removeAttr("disabled");
-			$("#LayerPanel div").first().next().find(".radioDIV2").find('input').attr("checked","checked");
-		
-			break;
-		case "selected":
-			$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="selectDiv">'))
-			$("#LayerPanel div").first().next().find(".radioDIV2").find('input').removeAttr("disabled");
-			//$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="' + 'sele-' + key + '">'))
-			//$("#selectDiv").html(text)
-			break;
-		default:
-			break;
-	}*/
 	$("#SelectionPanel div").first().next().find(".visibilityCheckImg").attr("value", "visible");
 	
 }
@@ -459,12 +331,19 @@ $("#SelectionPreferenceDialog").dialog({
 		effect : "blind",
 		duration : 300
 	},
+	modal : true,
 	height : 600,
 	width : 400,
 	position : {
 		my : "center",
 		at : "center",
 		of : $("#canvasDiv")
+	},
+	open : function (event) {
+		$("#myJmol_object").css("visibility", "hidden");
+	},
+	close : function () { 
+		$("#myJmol_object").css("visibility", "visible");
 	}
 });
 
@@ -476,11 +355,23 @@ function changeSelectionColor(){
 }
 
 function changeCurrentSelectionName() {
-	$($dblClickedSelection).parent().attr("name",$("#selectionNameInput").val());
-	$($dblClickedSelection).html($("#selectionNameInput").val()).prepend('<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-e"></span>');
-	targetSelection = rvDataSets[0].getSelection($dblClickedSelectionName);
-	targetSelection.Name = $("#selectionNameInput").val();
-	RefreshSelectionMenu();
+	if ($("#selectionNameInput").val() !== $($dblClickedSelection).parent().attr("name")){
+		var namecheck = $("#selectionNameInput").val().match(/[A-z][\w-_:\.]*/);
+		if (namecheck[0].length === $("#selectionNameInput").val().length && $("#selectionNameInput").val().length <= 16){
+			if (rvDataSets[0].isUniqueSelection($("#selectionNameInput").val())){
+				$($dblClickedSelection).parent().attr("name",$("#selectionNameInput").val());
+				$($dblClickedSelection).html($("#selectionNameInput").val()).prepend('<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-e"></span>');
+				targetSelection = rvDataSets[0].getSelection($dblClickedSelectionName);
+				targetSelection.Name = $("#selectionNameInput").val();
+				RefreshSelectionMenu();
+				$(this).dialog("close");
+			} else {
+				$( "#dialog-unique-selection-error" ).dialog("open");
+			}
+		} else {
+			$( "#dialog-name-error" ).dialog("open");
+		}
+	}
 }
 
 $("#openSelectionBtn").click(function () {

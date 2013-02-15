@@ -412,7 +412,7 @@ function selectResidue(event) {
 			rvDataSets[0].drawSelection("selected");
 			
 			//drawLabels();
-			updateSelectionDiv();
+			updateSelectionDiv(targetSelection.Name);
 			drag = false;
 			//updateModel();
 		} else {
@@ -448,7 +448,7 @@ function clearSelection() {
 	rvDataSets[0].drawSelection("selected");
 	
 	//drawLabels();
-	updateSelectionDiv();
+	updateSelectionDiv(targetSelection.Name);
 	updateModel();
 }
 
@@ -1124,10 +1124,10 @@ function mouseMoveFunction(event){
 	$("#InteractionTip").tooltip("close");
 	
 	if (event.altKey == true){
-		var selLine = getSelectedLine(event);
-		if(selLine >=0 ){
-			var j = rvDataSets[0].BasePairs[selLine].resIndex1;
-			var k = rvDataSets[0].BasePairs[selLine].resIndex2;
+		var seleLine = getSelectedLine(event);
+		if(seleLine >=0 ){
+			var j = rvDataSets[0].BasePairs[seleLine].resIndex1;
+			var k = rvDataSets[0].BasePairs[seleLine].resIndex2;
 			rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
 			rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
 			rvDataSets[0].HighlightLayer.CanvasContext.moveTo(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y);
@@ -1135,7 +1135,7 @@ function mouseMoveFunction(event){
 			rvDataSets[0].HighlightLayer.CanvasContext.closePath();
 			rvDataSets[0].HighlightLayer.CanvasContext.stroke();
 			//$("#currentDiv").html(rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[j].ChainID)] + ":" + rvDataSets[0].Residues[j].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + " - " + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[k].ChainID)] + ":" + rvDataSets[0].Residues[k].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + " (" + rvDataSets[0].BasePairs[selLine].bp_type + ")");
-			createInfoWindow(sel,"lines");
+			createInfoWindow(seleLine,"lines");
 			$("#InteractionTip").css("bottom",$(window).height() - event.clientY);
 			$("#InteractionTip").css("left",event.clientX);
 			//console.log($(window).height() - event.clientY,event.clientX);
@@ -1196,7 +1196,7 @@ function createInfoWindow(Index,InfoMode){
 		addPopUpWindowResidue(Index);
 		$("#ResidueTip").tooltip("option","content",$("#residuetip").html());
 	} else {
-		//addPopUpWindowLine(Index);
+		addPopUpWindowLine(Index);
 		$("#InteractionTip").tooltip("option","content",$("#interactiontip").html());
 	}
 }
@@ -2443,156 +2443,142 @@ function addPopUpWindowResidue(ResIndex){
 	//var Xpadding = 30;
 	var barColors = ["green","blue","black","red","orange"];
 	
-	var dobj = rvDataSets[0].ConservationTable[ResIndex];
-	//round the number to two decimal places
-	var Anum = dobj.A*100;
-	var An = Anum.toFixed(1);
-	var Cnum = dobj.C*100;
-	var Cn = Cnum.toFixed(1);
-	var Gnum = dobj.G*100;
-	var Gn = Gnum.toFixed(1);
-	var Unum = dobj.U*100;
-	var Un = Unum.toFixed(1);
-	var Hnum = dobj.Shannon * 1;
-	var Hn = Hnum.toFixed(2);	 
-	var Gpnum = dobj.Gaps*100;
-	var Gpn = Gpnum.toFixed(1);	 
-	var dataset = [An,Cn,Gn,Un,Gpn];
-	var sLabels = ["A","C","G","U","gaps"];
-	
-	var lenDataSet = dataset.length;
-	
-	$('#resName').html("Residue: " + rvDataSets[0].Residues[ResIndex].resName + "(" + dobj.Consensus  + ") " + 
-	rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[ResIndex].ChainID)] +
-	":" + rvDataSets[0].Residues[ResIndex].resNum);
-	$('#activeData').html("Active Data: " + rvDataSets[0].Residues[ResIndex].CurrentData);
-
-	$("#conPercentage").html("Shannon Entropy: " + Hn);
-	//document.getElementById('Shannon').innerHTML="Shannon Entropy = " + Hn;
-	//document.getElementById('Concensus').innerHTML="Consensus = " + dobj.Consensus;
-	//document.getElementById('Gaps').innerHTML="Gaps = " + Gpn;
-	
 	//Remove old SVG
 	d3.select("#residuetip svg").remove();
-	//Create SVG element
-	var svg = d3.select("#residuetip")
-		.append("svg")
-		.attr("width", w)
-		.attr("height", h);
 	
-	var barWidth = (w - Xoffset) / (lenDataSet + ( barPaddingPer/100 * (lenDataSet -1) ) );
-	//Scales
-	//var xScale = d3.scale.linear();				
+	var dobj = rvDataSets[0].ConservationTable[ResIndex];
+	if (dobj){
+		//round the number to two decimal places
+		var Anum = dobj.A*100;
+		var An = Anum.toFixed(1);
+		var Cnum = dobj.C*100;
+		var Cn = Cnum.toFixed(1);
+		var Gnum = dobj.G*100;
+		var Gn = Gnum.toFixed(1);
+		var Unum = dobj.U*100;
+		var Un = Unum.toFixed(1);
+		var Hnum = dobj.Shannon * 1;
+		var Hn = Hnum.toFixed(2);	 
+		var Gpnum = dobj.Gaps*100;
+		var Gpn = Gpnum.toFixed(1);	 
+		var dataset = [An,Cn,Gn,Un,Gpn];
+		var sLabels = ["A","C","G","U","gaps"];
+		var lenDataSet = dataset.length;
+		var ConsensusSymbol = dobj.Consensus;
+		drawConGraph();
+	} else {
+		var ConsensusSymbol = "n/a";
+		var Hn = "n/a";
+	}
+		
+	if (rvDataSets[0].Residues[ResIndex].resNum.indexOf(":") >= 0 ){
+		var ResName = rvDataSets[0].Residues[ResIndex].resNum;
+	} else {
+		var ResName = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[ResIndex].ChainID)] +
+		":" + rvDataSets[0].Residues[ResIndex].resNum;
+	}
+	$('#resName').html("Residue: " + rvDataSets[0].Residues[ResIndex].resName + "(" + ConsensusSymbol  + ") " + ResName);
+	$('#activeData').html("Active Data: " + rvDataSets[0].Residues[ResIndex].CurrentData);
+	$("#conPercentage").html("Shannon Entropy: " + Hn);
 	
-	var xScale = d3.scale.linear()
-							 .domain([0, lenDataSet - 1])
-							 .range([Xoffset, w - barWidth]);
-							
-	var yScale = d3.scale.linear()
-						.domain([0, 100])
-						.range([h - 2*Yoffset,0]);
+	function drawConGraph(){
 		
-	svg.selectAll("rect")
-	   .data(dataset)
-	   .enter()
-	   .append("rect")
-	   .attr("x", function(d, i) {
-			return xScale(i);
-	  })
-	   .attr("y", function(d) {
-			return Yoffset + yScale(d);
-	   })
-	   .attr("width", barWidth)
-	   .attr("height", function(d) {
-			return h - 2*Yoffset - yScale(d);
-	   })
-	   .attr("fill", function(d, i) {
-		 return barColors[i];
-		});
-
-	svg.selectAll("text.number")
-	   .data(dataset)		 
-	   .enter()
-	   .append("text")
-	   .text(function(d) {
-			return d;
-	   })
-	   .attr("text-anchor", "middle")
-	   .attr("x", function(d, i) {
-			return xScale(i) + barWidth/2;
-	   })
-	   .attr("y", function(d) {
-			return Yoffset + yScale(d) - 5;
-	   })
-	   .attr("font-family", "sans-serif")
-	   .attr("font-size", "10px")
-	   .attr("fill", "black")
-	   .attr('class','number')
-	   .text(String);
-	   /*
-	   svg.selectAll("text.label")
-	   .data(dataset)		 
-	   .enter()
-	   .append("text")
-	   .text(function(d,i) {
-			return sLabels[i];
-	   })
-	   .attr("text-anchor", "middle")
-	   .attr("x", function(d, i) {
-			return xScale(i) + barWidth/2;
-	   })
-	   .attr("y", function(d) {
-			return h - 5;
-	   })
-	   .attr("font-family", "sans-serif")
-	   .attr("font-size", "10px")
-	   .attr("fill", "black")
-	   .attr('class','number')
-	   .text(String);*/
-	   
-	   
-		// Axis						 
-		/*
-		var xAxis = d3.svg.axis()
-			  .scale(xScale)
-			  .orient("bottom");
-		svg.append("g")
-			.call(xAxis);
-	   */
-	   
-	   //Define X axis
+		//Create SVG element
+		var svg = d3.select("#residuetip")
+			.append("svg")
+			.attr("width", w)
+			.attr("height", h);
+		
+		var barWidth = (w - Xoffset) / (lenDataSet + ( barPaddingPer/100 * (lenDataSet -1) ) );
+		//Scales
+		//var xScale = d3.scale.linear();				
+		
+		var xScale = d3.scale.linear()
+								 .domain([0, lenDataSet - 1])
+								 .range([Xoffset, w - barWidth]);
+								
+		var yScale = d3.scale.linear()
+							.domain([0, 100])
+							.range([h - 2*Yoffset,0]);
 			
-		var xAxis = d3.svg.axis()
-						  .scale(xScale)
-						  .orient("bottom")
-						  .ticks(5);
+		svg.selectAll("rect")
+		   .data(dataset)
+		   .enter()
+		   .append("rect")
+		   .attr("x", function(d, i) {
+				return xScale(i);
+		  })
+		   .attr("y", function(d) {
+				return Yoffset + yScale(d);
+		   })
+		   .attr("width", barWidth)
+		   .attr("height", function(d) {
+				return h - 2*Yoffset - yScale(d);
+		   })
+		   .attr("fill", function(d, i) {
+			 return barColors[i];
+			});
 
-	   //Define Y axis
-		var yAxis = d3.svg.axis()
-                  .scale(yScale)
-                  .orient("left")
-                  .ticks(5);
-		xAxis.tickFormat(function(d,i){
-				return sLabels[i];
-		});
-		
-		//Create X axis
-		
-		svg.append("g")
-			.attr("class", "axis")
-			.attr("transform", "translate(" + barWidth/2 + "," + (h - Yoffset) + ")")
-			.call(xAxis);
-		//Create Y axis
-		svg.append("g")
-			.attr("class", "axis")
-			.attr("transform", "translate(" + 0.8* Xoffset + "," + Yoffset + ")")
-			.call(yAxis);	
-		
-		
+		svg.selectAll("text.number")
+		   .data(dataset)		 
+		   .enter()
+		   .append("text")
+		   .text(function(d) {
+				return d;
+		   })
+		   .attr("text-anchor", "middle")
+		   .attr("x", function(d, i) {
+				return xScale(i) + barWidth/2;
+		   })
+		   .attr("y", function(d) {
+				return Yoffset + yScale(d) - 5;
+		   })
+		   .attr("font-family", "sans-serif")
+		   .attr("font-size", "10px")
+		   .attr("fill", "black")
+		   .attr('class','number')
+		   .text(String);
+		   
+		   //Define X axis
+				
+			var xAxis = d3.svg.axis()
+							  .scale(xScale)
+							  .orient("bottom")
+							  .ticks(5);
 
+		   //Define Y axis
+			var yAxis = d3.svg.axis()
+					  .scale(yScale)
+					  .orient("left")
+					  .ticks(5);
+			xAxis.tickFormat(function(d,i){
+					return sLabels[i];
+			});
 			
+			//Create X axis
+			
+			svg.append("g")
+				.attr("class", "axis")
+				.attr("transform", "translate(" + barWidth/2 + "," + (h - Yoffset) + ")")
+				.call(xAxis);
+			//Create Y axis
+			svg.append("g")
+				.attr("class", "axis")
+				.attr("transform", "translate(" + 0.8* Xoffset + "," + Yoffset + ")")
+				.call(yAxis);	
+	}			
 }
+function addPopUpWindowLine(SeleLine){
+	
+	var j = rvDataSets[0].BasePairs[SeleLine].resIndex1;
+	var k = rvDataSets[0].BasePairs[SeleLine].resIndex2;
 
+	$('#BasePairType').html("Base Pair Type: " + "");
+	$('#BasePairSubType').html("Base Pair Subtype: " + rvDataSets[0].BasePairs[SeleLine].bp_type);
+	$("#BasePairRes1").html("Residue1: " + rvDataSets[0].Residues[j].resNum);
+	$("#BasePairRes2").html("Residue2: " + rvDataSets[0].Residues[k].resNum);
+	
+}
 //////////End of navline functions////
 
 function UpdateLocalStorage(SaveStateFileName){

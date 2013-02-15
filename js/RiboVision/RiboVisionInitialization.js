@@ -109,21 +109,6 @@ function RiboVisionReady() {
 			of : $("#canvasDiv")
 		}
 	});
-	
-	$("#LayerPreferenceDialog").dialog({
-		autoOpen : false,
-		show : {
-			effect : "blind",
-			duration : 300
-		},
-		height : 600,
-		width : 400,
-		position : {
-			my : "center",
-			at : "center",
-			of : $("#canvasDiv")
-		}
-	});
 
 	$("#RiboVisionSettingsPanel").dialog({
 		autoOpen : false,
@@ -208,48 +193,7 @@ function RiboVisionReady() {
 	
 	$('.ui-slider-handle').height(21).width(21);
 	$("#TemplateLink").button();
-	$("#newLayerName").button().addClass('ui-textfield').keydown(function (event) {
-		if (event.keyCode == 13) {
-			$("#dialog-addLayer").dialog("option", "buttons")['Create New Layer'].apply($("#dialog-addLayer"));
-		}
-	});
 	
-	$("#dialog-addLayer").dialog({
-		resizable : false,
-		autoOpen : false,
-		height : "auto",
-		width : 400,
-		modal : true,
-		buttons : {
-			"Create New Layer" : function () {
-				var namecheck = $("#newLayerName").val().match(/[A-z][\w-_:\.]*/);
-				if (namecheck[0].length === $("#newLayerName").val().length && $("#newLayerName").val().length <= 16){
-					if (rvDataSets[0].isUniqueLayer($("#newLayerName").val())){
-						//$("#canvasDiv").append($('<canvas id="' + $("#newLayerName").val() + '" style="z-index:' + ( rvDataSets[0].LastLayer + 1 ) + ';"></canvas>')); 
-						rvDataSets[0].addLayer($("#newLayerName").val(), $("#newLayerName").val(), [], true, 1.0, 'circles',$("#layerColor2").val());
-						resizeElements();
-						LayerMenu(rvDataSets[0].getLayer($("#newLayerName").val()),(1000 + ( rvDataSets[0].LastLayer + 1 ) ));
-						RefreshLayerMenu();
-						$(this).dialog("close");
-					} else {
-						$( "#dialog-unique-layer-error" ).dialog("open");
-					}
-				} else {
-					$( "#dialog-name-error" ).dialog("open");
-				}
-			},
-			Cancel: function (){
-				$(this).dialog("close");
-			}
-		},
-		open : function () {
-			$("#newLayerName").val("Layer_" + (rvDataSets[0].Layers.length + 1));
-			$("#myJmol_object").css("visibility", "hidden");
-		},
-		close : function () { 
-			$("#myJmol_object").css("visibility", "visible");
-		}
-	});
 	$("#dialog-addLayer p").append("We currently are only supporting the addition of new circle type layers." + 
 		" Future updates will let you add additional layers of any type." + 
 		"<br><br>Please enter a name for the new layer.");
@@ -265,10 +209,28 @@ function RiboVisionReady() {
 			}
 		},
 		open : function () {
-			$("#myJmol_object").css("visibility", "hidden");
+			//$("#myJmol_object").css("visibility", "hidden");
 		},
 		close : function () { 
-			$("#myJmol_object").css("visibility", "visible");
+			//$("#myJmol_object").css("visibility", "visible");
+		}
+	});
+	$( "#dialog-unique-selection-error" ).dialog({
+		resizable : false,
+		autoOpen : false,
+		height : "auto",
+		width : 400,
+		modal : true,
+		buttons: {
+			Ok: function() {
+				$( this ).dialog( "close" );
+			}
+		},
+		open : function () {
+			//$("#myJmol_object").css("visibility", "hidden");
+		},
+		close : function () { 
+			//$("#myJmol_object").css("visibility", "visible");
 		}
 	});
 	$( "#dialog-name-error" ).dialog({
@@ -283,10 +245,10 @@ function RiboVisionReady() {
 			}
 		},
 		open : function () {
-			$("#myJmol_object").css("visibility", "hidden");
+			//$("#myJmol_object").css("visibility", "hidden");
 		},
 		close : function () { 
-			$("#myJmol_object").css("visibility", "visible");
+			//$("#myJmol_object").css("visibility", "visible");
 		}
 	});
 	$( "#dialog-generic-notice" ).dialog({
