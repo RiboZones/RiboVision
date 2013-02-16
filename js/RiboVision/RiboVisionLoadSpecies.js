@@ -41,11 +41,15 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 				data[i]["selected"] = 0;
 				data[i]["CurrentData"] = data[i]["map_Index"];
 			});
+			var targetLayer = rvDataSets[0].getLayerByType("residues");
+			targetLayer[0].DataLabel = "Rainbow";
 			rvDataSets[0].addResidues(data);
 			rvDataSets[0].clearData("circles");
 			rvDataSets[0].clearData("residues");
 			rvDataSets[0].clearData("lines");
+			rvDataSets[0].clearData("selected");
 			clearColor(false);
+			clearSelection(true);
 			
 			$.getJSON('getData.php', {
 				SpeciesTable : species

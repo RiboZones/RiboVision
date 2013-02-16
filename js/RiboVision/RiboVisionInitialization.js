@@ -496,6 +496,7 @@ function RiboVisionReady() {
 				$(this).parent().find(".DataDescription").text("Data Description is missing.");
 			}
 			colorMapping("42",ui.value);
+			drawNavLine();
 		}
 	});
 	$("#PrimaryInteractionList").multiselect({

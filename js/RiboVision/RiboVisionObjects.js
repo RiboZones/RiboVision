@@ -33,7 +33,11 @@ function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color) 
 	this.LayerName = LayerName;
 	this.CanvasName = CanvasName;
 	if (document.getElementById(CanvasName) == null){
-		$("#canvasDiv").append($('<canvas id="' + CanvasName + '" style="z-index:' + ( rvDataSets[0].LastLayer + 1 ) + ';"></canvas>')); 
+		if (this.Type === "selected"){
+			$("#canvasDiv").append($('<canvas id="' + CanvasName + '" style="z-index:' + ( rvDataSets[0].LastLayer + 1 + 800) + ';"></canvas>')); 
+		} else {			
+			$("#canvasDiv").append($('<canvas id="' + CanvasName + '" style="z-index:' + ( rvDataSets[0].LastLayer + 1 ) + ';"></canvas>')); 
+		}
 	}
 	//this.Canvas = $("#" + CanvasName);
 	this.Canvas = document.getElementById(CanvasName);
@@ -46,7 +50,7 @@ function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color) 
 	this.ScaleFactor = ScaleFactor;
 	this.LinearGradients = [];
 	this.Type = Type;
-	this.zIndex = this.Canvas.style.zIndex;
+	this.zIndex = rvDataSets[0].LastLayer + 1;
 	this.Visible = true;
 	this.Selected = false;
 	this.Linked = false;
@@ -64,7 +68,14 @@ function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color) 
 	}
 	
 	//Methods
-	
+	this.updateZIndex = function(zIndex){
+		if (this.Type === "selected"){
+			this.Canvas.style.zIndex = zIndex + 800;
+		} else {
+			this.Canvas.style.zIndex = zIndex;
+		}
+		this.zIndex = zIndex;
+	}
 	this.toJSON = function () {
 		return {
 			LayerName: this.LayerName,
@@ -143,25 +154,32 @@ function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color) 
 	this.clearAll = function (){
 		switch (this.Type){
 			case "circles":
-				this.DataLabel = "empty data";
-				$(this).parent().find(".DataDescription").text("");
+				this.DataLabel = "None";
+				//$(this).parent().find(".DataDescription").text("");
 				$("[name=" + this.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
 				this.clearData();
+				drawNavLine();
 				rvDataSets[0].clearCanvas(this.LayerName);
 				update3Dcolors();
 				break;
 			case "residues":
+				this.DataLabel = "None";
+				$("[name=" + this.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
 				clearColor(false);
+				drawNavLine();
 				update3Dcolors();
 				break;
 			case "lines":
 				this.DataLabel = "None";
-				$(this).find(".layerContent").find("[name=datalabel]").text("None").append($("<br>")).append($("<br>"));
-				$(this).parent().parent().find(".DataDescription").text("Empty Data");
+				$("[name=" + this.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
+				//$(this).find(".layerContent").find("[name=datalabel]").text("None").append($("<br>")).append($("<br>"));
+				//$(this).parent().parent().find(".DataDescription").text("Empty Data");
+				drawNavLine();
 				refreshBasePairs("clear_lines");
 				break;
 			default:
 		}			
+		//this.DataLabel = "None";
 	}
 }
 
@@ -245,7 +263,7 @@ function rvDataSet(DataSetName) {
 	};
 	this.addLayer = function (LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color) {
 		var b = new RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color);
-		this.Layers[b.zIndex] = b;
+		this.Layers[this.Layers.length] = b;
 		this.LastLayer = this.Layers.length - 1;
 	};
 	this.addHighlightLayer = function (LayerName, CanvasName, Data, Filled, ScaleFactor, Type) {
@@ -297,10 +315,10 @@ function rvDataSet(DataSetName) {
 	};*/
 	this.sort = function () {
 		this.Layers.sort(function (a, b) {
-			return (Number(a.Canvas.style.zIndex) - Number(b.Canvas.style.zIndex));
+			return (Number(a.zIndex) - Number(b.zIndex));
 		});
 		$.each(this.Layers, function (key, value) {
-			this.zIndex = key;
+			this.updateZIndex(key);
 		});
 	};
 	this.clearCanvas = function (layer) {
@@ -517,7 +535,7 @@ function rvDataSet(DataSetName) {
 		});
 		$.each(this.Layers, function (key, value) {
 			if (value.LayerName === layer) {
-				value.Canvas.style.zIndex = key;
+				value.updateZIndex(key);
 			}
 		});
 		this.LastLayer = this.Layers.length - 1;

@@ -53,8 +53,9 @@ $("#clearLayer").button({
 });
 
 $("#clearLayer").click(function () {
-	targetLayer = rvDataSets[0].getSelectedLayer();
+	var targetLayer = rvDataSets[0].getSelectedLayer();
 	targetLayer.clearAll();
+	drawNavLine();
 	//$("#dialog-addSelection").dialog("open");
 });
 
@@ -77,7 +78,7 @@ $(".toolBarBtn2").css('height', $("#openLayerBtn").css('height'));
 
 function changeLayerColor(){
 	$($dblClickedLayer).parent().find(".colorBox").css("background",$("#layerColor").val());
-	targetLayer = rvDataSets[0].getLayer($dblClickedLayerName);
+	var targetLayer = rvDataSets[0].getLayer($dblClickedLayerName);
 	targetLayer.Color = $("#layerColor").val();
 	drawNavLine();
 	//console.log(42);
@@ -95,7 +96,7 @@ function changeCurrentLayerName() {
 			if (rvDataSets[0].isUniqueLayer($("#layerNameInput").val())){
 				$($dblClickedLayer).parent().attr("name",$("#layerNameInput").val());
 				$($dblClickedLayer).html($("#layerNameInput").val()).prepend('<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-e"></span>');
-				targetLayer = rvDataSets[0].getLayer($dblClickedLayerName);
+				var targetLayer = rvDataSets[0].getLayer($dblClickedLayerName);
 				targetLayer.LayerName = $("#layerNameInput").val();
 				RefreshLayerMenu();
 				$(this).dialog("close");
@@ -124,7 +125,7 @@ function LayerMenu(Layer, key, RVcolor) {
 	//adding color box
 	$($currentGroup)
 	.append($("<div>").addClass("colorBox"));
-	targetLayer = rvDataSets[0].getLayer($currentLayerName);
+	var targetLayer = rvDataSets[0].getLayer($currentLayerName);
 	if (RVcolor){
 		$($currentGroup).find(".colorBox").css("background",RVcolor);
 		targetLayer.Color = RVcolor;
@@ -332,7 +333,7 @@ function LayerMenu(Layer, key, RVcolor) {
 			$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="color_lines_gradient' + key + '" id="' + 'llmg-' + key + '-2' + '" value="Opposite"> <label for="' + 'llmg-' + key + '-2' + '">Opposite</label>'));
 			$('[name="color_lines_gradient' + key + '"]').attr('disabled', 'disabled');
 			$('input[name="color_lines_gradient' + key + '"]').change(function (event) {
-				targetLayer = rvDataSets[0].getLayer($('input[name="color_lines_gradient' + key + '"]' + ':checked').parent().parent().parent().find('h3').text());
+				var targetLayer = rvDataSets[0].getLayer($('input[name="color_lines_gradient' + key + '"]' + ':checked').parent().parent().parent().find('h3').text());
 				targetLayer.ColorGradientMode =  $(event.currentTarget).parent().parent().find('input:checked').val();
 				rvDataSets[0].drawBasePairs("lines");
 			});
@@ -389,8 +390,8 @@ function RefreshLayerMenu(){
 $("#LayerPanel").sortable({
 	update : function (event, ui) {
 		$("#LayerPanel .layerContent").each(function (e, f) {
-			//$(this).find('p').text(rvDataSets[0].LastLayer - e - 1);
-			$("#" + rvDataSets[0].getLayer($(this).parent().attr("name")).CanvasName).css('zIndex', rvDataSets[0].LastLayer - e)
+			var tl = rvDataSets[0].getLayer($(this).parent().attr("name"));
+			tl.updateZIndex(rvDataSets[0].LastLayer - e);
 		});
 		rvDataSets[0].sort();
 	},

@@ -370,6 +370,7 @@ function commandSelect(command,SeleName) {
 	command = command.split(";");
 	expandSelection(command,SeleName);
 	updateSelectionDiv(SeleName);
+	drawNavLine();
 	rvDataSets[0].drawResidues("residues");
 	rvDataSets[0].drawSelection("selected");
 	//console.log('selected Residue by command input');
@@ -413,6 +414,7 @@ function selectResidue(event) {
 			
 			//drawLabels();
 			updateSelectionDiv(targetSelection.Name);
+			drawNavLine();
 			drag = false;
 			//updateModel();
 		} else {
@@ -441,15 +443,21 @@ function updateSelectionDiv(SeleName) {
 	$("[name=" + SeleName + "]").find(".selectionContent").find("[name=selectDiv]").text(text);
 }
 
-function clearSelection() {
-	var targetSelection = rvDataSets[0].getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
-	targetSelection.Residues = []
+function clearSelection(AllFlag) {
+	if (AllFlag){
+		$.each(rvDataSets[0].Selections, function(index,value){
+			value.Residues = [];
+			updateSelectionDiv(value.Name);
+		});
+	} else {
+		var targetSelection = rvDataSets[0].getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
+		targetSelection.Residues = []
+		updateSelectionDiv(targetSelection.Name);
+		updateModel();
+	}
 	rvDataSets[0].drawResidues("residues");
 	rvDataSets[0].drawSelection("selected");
-	
-	//drawLabels();
-	updateSelectionDiv(targetSelection.Name);
-	updateModel();
+	drawNavLine();
 }
 
 function selectionBox(event) {
@@ -467,7 +475,7 @@ function colorResidue(event) {
 		var res = rvDataSets[0].Residues[sel];
 		var color = $("#color").val();
 		res.color = color;
-		targetLayer=rvDataSets[0].getLayerByType("residues");
+		var targetLayer=rvDataSets[0].getLayerByType("residues");
 		targetLayer[0].dataLayerColors[sel]=color;
 		rvDataSets[0].drawResidues("residues");
 		//drawLabels();
@@ -522,7 +530,7 @@ function update3Dcolors() {
 	//r0=rvDataSets[0].Residues[0].resNum.replace(/[^:]*:/g,"");
 	r0 = rvDataSets[0].Residues[0].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
 	curr_chain = rvDataSets[0].Residues[0].ChainID;
-	targetLayer=rvDataSets[0].getLinkedLayer();
+	var targetLayer=rvDataSets[0].getLinkedLayer();
 	rvDataSets[0].Residues[0].CurrentData=targetLayer.Data[0];
 
 	curr_color = colourNameToHex(targetLayer.dataLayerColors[0]);
@@ -1441,6 +1449,7 @@ function handleFileSelect(event) {
 					$("#FileDiv").find(".DataDescription").text("Data Description is missing.");
 				}
 				updateSelectionDiv(targetSelection.Name);
+				drawNavLine();
 			};
 		}
 	};
@@ -2229,52 +2238,15 @@ function changeLineOpacity(opacity){
 function drawNavLine(){
 		$('#NavLineDiv').empty(); //clean div before draw new graph
 		
-		var linename = '';
+		
 		var data = [];
 		var selectedData=[];
 		var selectedDataX=[];
 		var selectedDataY=[];
+		var maxdata = 1; //default to 1 for empty sets and selection layers
 	
 		var targetLayer=rvDataSets[0].getSelectedLayer();
-	
-		/*
-		for (var i =0; i<rvDataSets[0].Residues.length;i++){
-			if (selectedParam ==1){
-				var newNumber = rvDataSets[0].Residues[i].mean_tempFactor;
-				linename = 'B-Factors';
-				}
-			else if (selectedParam ==2){
-				var newNumber = rvDataSets[0].Residues[i].Domains_Color;
-				linename = 'Domains';
-			}		
-			
-			else if (selectedParam ==3){
-				var newNumber = rvDataSets[0].Residues[i].Onion;
-				linename = 'Onion';
-			}
-			else if (selectedParam ==4){
-				var newNumber = rvDataSets[0].Residues[i].Helix_Color;
-				linename = 'Helices';
-			}
-			else if (selectedParam ==5){
-				var newNumber = rvDataSets[0].Residues[i].Mg_ions_24; 
-				linename = 'Mg ions 2.4A';
-			}
-			else if (selectedParam ==6){
-				var newNumber = rvDataSets[0].Residues[i].Mg_ions_26;
-				linename = 'Mg ions 2.6A';
-			}
-			else if (selectedParam ==7){
-				var newNumber = rvDataSets[0].Residues[i].Mg_ions_60;
-				linename = 'Mg ions 6.0A';
-			}
-        data = data.concat(newNumber);
-		}
-		*/
-	
-		//console.log(data);
-		//console.log(d3.max(data));
-		var maxdata = d3.max($.map(targetLayer.Data, function(d) { return parseFloat(d); }));
+		var linename = targetLayer.DataLabel;
 		var	w = 1.00 * $('#NavLineDiv').innerWidth();
 		var h = 0.95 * $('#NavLineDiv').innerHeight();
 		var	MarginXL = 60;
@@ -2282,6 +2254,10 @@ function drawNavLine(){
 		var MarginYT = 40;
 		var MarginYB = 40;
 		
+		var maxdata2 = d3.max($.map(targetLayer.Data, function(d) { return parseFloat(d); }));
+		if (maxdata2 !== undefined){
+			maxdata = maxdata2;
+		}
 		var	xScale = d3.scale.linear().domain([0, targetLayer.Data.length]).range([0 + MarginXL, w - MarginXR]);
 		var	yScale = d3.scale.linear().domain([0, maxdata]).range([h - MarginYB,0 + MarginYT ]);
 
@@ -2300,7 +2276,24 @@ function drawNavLine(){
 			    .x(function(d,i) { return xScale(i); })
 			    .y(function(d) { return yScale(d); });
 			
-			g.append("svg:path").attr("d", line(targetLayer.Data)).style("stroke", targetLayer.Color);
+			var GraphData = [];
+			if (targetLayer.Type === "selected"){
+				$.each(targetLayer.Data, function (index,value){
+					if (value === false){
+						GraphData[index]=0;
+					} else {
+						GraphData[index]=1;
+					}
+				});
+				linename = "Selected Residues";
+			} else if ((targetLayer.DataLabel === "empty data") || (targetLayer.DataLabel === "None")){
+				$.each(targetLayer.Data, function (index,value){
+					GraphData[index]=0;
+				});
+			} else {
+				GraphData = targetLayer.Data;
+			}
+			g.append("svg:path").attr("d", line(GraphData)).style("stroke", targetLayer.Color);
 			
 			//Axes
 			var xAxis = d3.svg.axis()
@@ -2329,96 +2322,13 @@ function drawNavLine(){
 		      .attr("y", h-MarginYB/4)
 		      .attr("text-anchor", "middle")
 			  .text("Map Index");	
-			
-				
-			////////draw selected residue on navlines/////
-			/*if(rvDataSets[0].Selected.length>0){
-				
-				for (var i =0; i<rvDataSets[0].Selected.length;i++){
-					var newNumber = rvDataSets[0].Selected[i].mean_tempFactor;
-	        		selectedDataY = selectedDataY.concat(newNumber);
-				}
-				console.log("selectedDataY"+selectedDataY );
-				
-				for (var i =0; i<rvDataSets[0].Selected.length;i++){
-						var newNumber = rvDataSets[0].Selected[i].map_Index;
-		        		selectedDataX = selectedDataX.concat(newNumber);
-				}
-				console.log('selectedDataX'+selectedDataX);
-				
-				for (var k=0; k<selectedDataY.length; k++){
-					selectedData.push([selectedDataX[k],selectedDataY[k]]);				
-				}
-				console.log('selectedData'+selectedData);
-			
-			//y1 = d3.scale.linear().domain([0, d3.max(selectedDataY)]),
-			//x1 = d3.scale.linear().domain([0, d3.max(selectedDataX)]);
-			
-			var line = d3.svg.line() //call the create line function
-			.x(function(d){ return d.x1;}) //map x to 'd' attribute element zero
-			.y(function(d){ return d.y1;}) //map y to 'd' attribute element one	
-			
-			g.append("svg:path").attr("d", line(selectedDataY))
-								.style("stroke", '#e377c2'); 
-			}*/
-		
-			//////////////////////////////
-			
-			/*
-			g.append("svg:line")
-			    .attr("x1", xScale(0))
-			    .attr("y1", yScale(0))
-			    .attr("x2", w - margin)
-			    .attr("y2", yScale(0));
-			
-			g.append("svg:line")
-			    .attr("x1", xScale(0))
-			    .attr("y1", yScale(0))
-			    .attr("x2", xScale(0))
-			    .attr("y2", yScale(maxdata));
-			
-			g.selectAll(".xLabel")
-			    .data(xScale.ticks(20))
-			    .enter().append("svg:text")
-			    .attr("class", "xLabel")
-			    .text(String)
-			    .attr("x", function(d) { return xScale(d) })
-			    .attr("y", h-4)
-			    .attr("text-anchor", "bottom");
-
-			g.selectAll(".yLabel")
-			    .data(yScale.ticks(10))
-			    .enter().append("svg:text")
-			    .attr("class", "yLabel")
-			    .text(String)
-			    .attr("x", 0)
-			    .attr("y", function(d) { return yScale(d) })
-			    .attr("text-anchor", "right")
-			    .attr("dy", 4);
-			
-			g.selectAll(".xTicks")
-			    .data(xScale.ticks(20))
-			    .enter().append("svg:line")
-			    .attr("class", "xTicks")
-			    .attr("x1", function(d) { return xScale(d); })
-			    .attr("y1", yScale(0))
-			    .attr("x2", function(d) { return xScale(d); })
-			    .attr("y2", yScale(-0.2));
-
-			g.selectAll(".yTicks")
-			    .data(yScale.ticks(10))
-			    .enter().append("svg:line")
-			    .attr("class", "yTicks")
-			    .attr("y1", function(d) { return yScale(d); })
-			    .attr("x1", xScale(-0.3))
-			    .attr("y2", function(d) { return yScale(d); })
-			    .attr("x2", xScale(0));
-			 */
 			  
 			//add legend to the navline 
 			 g.append("text")
-		      .attr("x", w-90)
-		      .attr("y", "30")
+		      .attr("x", MarginXL/4)
+		      .attr("y", h/2)
+			  .attr("text-anchor", "middle")
+			  .attr("transform", "rotate(-90 " + "," + MarginXL/4 + "," + h/2 + ")")
 		      .text(linename);	
 			
 }
@@ -2572,11 +2482,23 @@ function addPopUpWindowLine(SeleLine){
 	
 	var j = rvDataSets[0].BasePairs[SeleLine].resIndex1;
 	var k = rvDataSets[0].BasePairs[SeleLine].resIndex2;
-
-	$('#BasePairType').html("Base Pair Type: " + "");
-	$('#BasePairSubType').html("Base Pair Subtype: " + rvDataSets[0].BasePairs[SeleLine].bp_type);
-	$("#BasePairRes1").html("Residue1: " + rvDataSets[0].Residues[j].resNum);
-	$("#BasePairRes2").html("Residue2: " + rvDataSets[0].Residues[k].resNum);
+	
+	if (rvDataSets[0].Residues[j].resNum.indexOf(":") >= 0 ){
+		var ResName1 = rvDataSets[0].Residues[j].resNum;
+	} else {
+		var ResName1 = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[j].ChainID)] +
+		":" + rvDataSets[0].Residues[j].resNum;
+	}
+	if (rvDataSets[0].Residues[k].resNum.indexOf(":") >= 0 ){
+		var ResName2 = rvDataSets[0].Residues[k].resNum;
+	} else {
+		var ResName2 = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[k].ChainID)] +
+		":" + rvDataSets[0].Residues[k].resNum;
+	}
+	$('#BasePairType').html("Interaction Type: " +  $("#PrimaryInteractionList").multiselect("getChecked").attr("title"));
+	$('#BasePairSubType').html("Interaction Subtype: " + rvDataSets[0].BasePairs[SeleLine].bp_type);
+	$("#BasePairRes1").html("Residue1: " + ResName1);
+	$("#BasePairRes2").html("Residue2: " + ResName2);
 	
 }
 //////////End of navline functions////
@@ -2769,7 +2691,7 @@ function processRvState(rvSaveState) {
 		});
 		
 		$.each(rvDataSets[0].Layers,function (index, value) {
-			$("#" + this.CanvasName).css('zIndex', index);
+			value.updateZIndex(index);
 		});
 		// Restore Selected and Linked
 		var selectedLayer = rvDataSets[0].getSelectedLayer();
