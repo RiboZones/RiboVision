@@ -341,21 +341,47 @@ function RiboVisionReady() {
 		modal : true,
 		buttons : {
 			"Delete the Layer" : function (event) {
-				//check selected layer and linked layer
 				var targetLayer = rvDataSets[0].getSelectedLayer();
-				var rLayers = rvDataSets[0].getLayerByType("residues");
-				var cLayers = rvDataSets[0].getLayerByType("circles");
-				if (rLayers){
-					$(".oneLayerGroup[name='" + rLayers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("click");		
-				} else if (cLayers){
-					$(".oneLayerGroup[name='" + cLayers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("click");	
-				} else {
-					$(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("click");	
-				}
-				$("[name=" + targetLayer.LayerName + "]").remove();
 				rvDataSets[0].deleteLayer(targetLayer.LayerName);
+				$("[name=" + targetLayer.LayerName + "]").remove();
 				rvDataSets[0].sort();
 				RefreshLayerMenu();
+				
+				//check selected layer and linked layer
+				
+				var rLayers = rvDataSets[0].getLayerByType("residues");
+				var cLayers = rvDataSets[0].getLayerByType("circles");
+				var sLayers = rvDataSets[0].getLayerByType("selected");
+				if (rLayers.length >= 1){
+					$(".oneLayerGroup[name='" + rLayers[0].LayerName + "']").find(".selectLayerRadioBtn").prop("checked",true);	
+					$(".oneLayerGroup[name='" + rLayers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("change");	
+				} else if (cLayers.length >= 1){
+					$(".oneLayerGroup[name='" + cLayers[0].LayerName + "']").find(".selectLayerRadioBtn").prop("checked",true);	
+					$(".oneLayerGroup[name='" + cLayers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("change");	
+				} else if (sLayers.length >= 1){
+					$(".oneLayerGroup[name='" + sLayers[0].LayerName + "']").find(".selectLayerRadioBtn").prop("checked",true);	
+					$(".oneLayerGroup[name='" + sLayers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("change");	
+				} else {
+					$(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".selectLayerRadioBtn").prop("checked",true);	
+					$(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("change");	
+				}
+				if (targetLayer.Linked){
+					if (rLayers.length >= 1){
+						$(".oneLayerGroup[name='" + rLayers[0].LayerName + "']").find(".mappingRadioBtn").prop("checked",true);	
+						$(".oneLayerGroup[name='" + rLayers[0].LayerName + "']").find(".mappingRadioBtn").trigger("change");	
+					} else if (cLayers.length >= 1){
+						$(".oneLayerGroup[name='" + cLayers[0].LayerName + "']").find(".mappingRadioBtn").prop("checked",true);	
+						$(".oneLayerGroup[name='" + cLayers[0].LayerName + "']").find(".mappingRadioBtn").trigger("change");	
+					} else if (sLayers.length >= 1){
+						$(".oneLayerGroup[name='" + sLayers[0].LayerName + "']").find(".mappingRadioBtn").prop("checked",true);	
+						$(".oneLayerGroup[name='" + sLayers[0].LayerName + "']").find(".mappingRadioBtn").trigger("change");	
+					} else {
+						if ($(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".mappingRadioBtn").prop("disabled") == false){
+							$(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".mappingRadioBtn").prop("checked",true);	
+							$(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".mappingRadioBtn").trigger("change");	
+						}
+					}
+				}
 				
 				$(this).dialog("close");
 			},
@@ -776,7 +802,7 @@ function RiboVisionReady() {
 	
 	$(window).bind("resize", resizeElements);
 	$("#canvasDiv").bind('mousewheel',mouseWheelFunction);
-	//$("#canvasDiv").bind("mousemove", mouseMoveFunction);
+	$("#canvasDiv").bind("mousemove", mouseMoveFunction);
 	
   /////////////
 	

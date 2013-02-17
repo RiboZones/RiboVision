@@ -422,9 +422,10 @@ function selectResidue(event) {
 		}
 	}
 	$("#canvasDiv").unbind("mouseup", selectResidue);
+	/*
 	if (onebuttonmode === "move") {
 		$("#canvasDiv").bind("mousemove", mouseMoveFunction);
-	}
+	}*/
 	//console.log('selected Residue by mouse' );
 	//drawNavLine(1);
 }
@@ -472,14 +473,22 @@ function selectionBox(event) {
 function colorResidue(event) {
 	var sel = getSelected(event);
 	if (sel != -1) {
-		var res = rvDataSets[0].Residues[sel];
+		var targetLayer=rvDataSets[0].getSelectedLayer();
 		var color = $("#color").val();
-		res.color = color;
-		var targetLayer=rvDataSets[0].getLayerByType("residues");
-		targetLayer[0].dataLayerColors[sel]=color;
-		rvDataSets[0].drawResidues("residues");
+		targetLayer.dataLayerColors[sel]=color;	
+		switch (targetLayer.Type){
+			case "residues" : 
+				var res = rvDataSets[0].Residues[sel];
+				res.color = color;
+				rvDataSets[0].drawResidues("residues");
+				break;
+			case "circles" :
+				rvDataSets[0].refreshResiduesExpanded(targetLayer.LayerName);
+				break;
+			default:
+		}
 		//drawLabels();
-		update3Dcolors(); ;
+		update3Dcolors();
 	}
 }
 
@@ -527,6 +536,7 @@ function update3Dcolors() {
 	compare_color,
 	n,
 	m;
+	if (rvDataSets[0].Residues[0] == undefined){return};
 	//r0=rvDataSets[0].Residues[0].resNum.replace(/[^:]*:/g,"");
 	r0 = rvDataSets[0].Residues[0].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
 	curr_chain = rvDataSets[0].Residues[0].ChainID;
@@ -1107,7 +1117,7 @@ function mouseEventFunction(event) {
 			$("#canvasDiv").unbind("mousemove", mouseMoveFunction);
 		} else if (onebuttonmode == "color" || event.which == 2 || (event.which == 1 && event.ctrlKey == true)) {
 			$("#canvasDiv").unbind("mousemove", dragHandle);
-			$("#canvasDiv").unbind("mousemove", mouseMoveFunction);
+			//$("#canvasDiv").unbind("mousemove", mouseMoveFunction);
 			colorResidue(event);
 		} else {
 			rvViews[0].lastX = event.clientX;
@@ -1121,7 +1131,7 @@ function mouseEventFunction(event) {
 	if (event.handleObj.origType == "mouseup") {
 		$("#canvasDiv").unbind("mousemove", dragHandle);
 		$("#canvasDiv").unbind("mousemove", dragSelBox);
-		//$("#canvasDiv").bind("mousemove", mouseMoveFunction);
+		$("#canvasDiv").bind("mousemove", mouseMoveFunction);
 		rvDataSets[0].HighlightLayer.clearCanvas();
 	}
 }
@@ -1130,40 +1140,106 @@ function mouseMoveFunction(event){
 	rvDataSets[0].HighlightLayer.clearCanvas();
 	$("#ResidueTip").tooltip("close");
 	$("#InteractionTip").tooltip("close");
-	
-	if (event.altKey == true){
-		var seleLine = getSelectedLine(event);
-		if(seleLine >=0 ){
-			var j = rvDataSets[0].BasePairs[seleLine].resIndex1;
-			var k = rvDataSets[0].BasePairs[seleLine].resIndex2;
-			rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
-			rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
-			rvDataSets[0].HighlightLayer.CanvasContext.moveTo(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y);
-			rvDataSets[0].HighlightLayer.CanvasContext.lineTo(rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
-			rvDataSets[0].HighlightLayer.CanvasContext.closePath();
-			rvDataSets[0].HighlightLayer.CanvasContext.stroke();
-			//$("#currentDiv").html(rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[j].ChainID)] + ":" + rvDataSets[0].Residues[j].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + " - " + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[k].ChainID)] + ":" + rvDataSets[0].Residues[k].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + " (" + rvDataSets[0].BasePairs[selLine].bp_type + ")");
-			createInfoWindow(seleLine,"lines");
-			$("#InteractionTip").css("bottom",$(window).height() - event.clientY);
-			$("#InteractionTip").css("left",event.clientX);
-			//console.log($(window).height() - event.clientY,event.clientX);
-			$("#InteractionTip").tooltip("open");
-		}	
-	} else {
-		var sel = getSelected(event);
-		if (sel >=0){
-			rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
-			rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, 2, 0, 2 * Math.PI, false);
-			rvDataSets[0].HighlightLayer.CanvasContext.closePath();
-			rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
-			rvDataSets[0].HighlightLayer.CanvasContext.stroke();
+	switch (onebuttonmode){
+		case "selectL":
+			return;
+			break;
+		case "select":
+			return;
+			break;
+		case "move":
+			if (event.altKey == true){
+				var seleLine = getSelectedLine(event);
+				if(seleLine >=0 ){
+					var j = rvDataSets[0].BasePairs[seleLine].resIndex1;
+					var k = rvDataSets[0].BasePairs[seleLine].resIndex2;
+					rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
+					rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
+					rvDataSets[0].HighlightLayer.CanvasContext.moveTo(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y);
+					rvDataSets[0].HighlightLayer.CanvasContext.lineTo(rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
+					rvDataSets[0].HighlightLayer.CanvasContext.closePath();
+					rvDataSets[0].HighlightLayer.CanvasContext.stroke();
+					//$("#currentDiv").html(rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[j].ChainID)] + ":" + rvDataSets[0].Residues[j].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + " - " + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[k].ChainID)] + ":" + rvDataSets[0].Residues[k].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + " (" + rvDataSets[0].BasePairs[selLine].bp_type + ")");
+					createInfoWindow(seleLine,"lines");
+					$("#InteractionTip").css("bottom",$(window).height() - event.clientY);
+					$("#InteractionTip").css("left",event.clientX);
+					//console.log($(window).height() - event.clientY,event.clientX);
+					$("#InteractionTip").tooltip("open");
+				}	
+			} else if (event.ctrlKey == true) {
+				var sel = getSelected(event);
+				if (sel != -1) {
+					var targetLayer=rvDataSets[0].getSelectedLayer();
+					switch (targetLayer.Type){
+						case "residues" : 
+							rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#000000";
+							rvDataSets[0].HighlightLayer.CanvasContext.font = "3pt Arial";
+							rvDataSets[0].HighlightLayer.CanvasContext.textBaseline = "middle";
+							rvDataSets[0].HighlightLayer.CanvasContext.textAlign = "center";
+							rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = $("#color").val();
+							rvDataSets[0].HighlightLayer.CanvasContext.fillText(rvDataSets[0].Residues[sel].resName, rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y);
+							break;
+						case "circles" :
+							rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
+							rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, (targetLayer.ScaleFactor * 1.7), 0, 2 * Math.PI, false);
+							rvDataSets[0].HighlightLayer.CanvasContext.closePath();
+							rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = $("#color").val();
+							rvDataSets[0].HighlightLayer.CanvasContext.stroke();
+							if (targetLayer.Filled) {
+								rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = $("#color").val();
+								rvDataSets[0].HighlightLayer.CanvasContext.fill();
+							}
+							break;
+						default :
+					}
+				}
+			} else {
+				var sel = getSelected(event);
+				if (sel >=0){
+					rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
+					rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, 2, 0, 2 * Math.PI, false);
+					rvDataSets[0].HighlightLayer.CanvasContext.closePath();
+					rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
+					rvDataSets[0].HighlightLayer.CanvasContext.stroke();
+					
+					createInfoWindow(sel,"residue");
+					$("#ResidueTip").css("bottom",$(window).height() - event.clientY);
+					$("#ResidueTip").css("left",event.clientX);
+					$("#ResidueTip").tooltip("open");
+				}
+			}
+			break;
+		case "color":
+			var sel = getSelected(event);
+			if (sel != -1) {
+				var targetLayer=rvDataSets[0].getSelectedLayer();
+				switch (targetLayer.Type){
+					case "residues" : 
+						rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#000000";
+						rvDataSets[0].HighlightLayer.CanvasContext.font = "3pt Arial";
+						rvDataSets[0].HighlightLayer.CanvasContext.textBaseline = "middle";
+						rvDataSets[0].HighlightLayer.CanvasContext.textAlign = "center";
+						rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = $("#color").val();
+						rvDataSets[0].HighlightLayer.CanvasContext.fillText(rvDataSets[0].Residues[sel].resName, rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y);
+						break;
+					case "circles" :
+						rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
+						rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, (targetLayer.ScaleFactor * 1.7), 0, 2 * Math.PI, false);
+						rvDataSets[0].HighlightLayer.CanvasContext.closePath();
+						rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = $("#color").val();
+						rvDataSets[0].HighlightLayer.CanvasContext.stroke();
+						if (targetLayer.Filled) {
+							rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = $("#color").val();
+							rvDataSets[0].HighlightLayer.CanvasContext.fill();
+						}
+						break;
+					default :
+				}
+			}
 			
-			createInfoWindow(sel,"residue");
-			$("#ResidueTip").css("bottom",$(window).height() - event.clientY);
-			$("#ResidueTip").css("left",event.clientX);
-			//console.log($(window).height() - event.clientY,event.clientX);
-			$("#ResidueTip").tooltip("open");
-		}
+			
+			break;
+		default: 
 	}
 }
 
@@ -1235,7 +1311,7 @@ function BaseViewCenter(event){
 }
 function modeSelect(mode) {
 	onebuttonmode = mode;
-	
+	/*
 	switch (mode){
 		case "selectL":
 			$("#canvasDiv").unbind("mousemove", mouseMoveFunction);
@@ -1248,10 +1324,11 @@ function modeSelect(mode) {
 			break;
 		case "color":
 			$("#canvasDiv").unbind("mousemove", mouseMoveFunction);
+			$("#canvasDiv").bind("mousemove", mouseMoveFunction);
 			break;
 		default: 
 			//seleLineMode = false;
-	}
+	}*/
 }
 
 function updateStructData(ui) {

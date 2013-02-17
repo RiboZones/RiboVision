@@ -243,12 +243,12 @@ function LayerMenu(Layer, key, RVcolor) {
 			$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="filled' + key + '" id="' + 'pr-' + key + '-2' + '" value="unfilled"> <label for="' + 'pr-' + key + '-2' + '">unfilled</label>'));
 			//$('#' + 'pr-' + key).buttonset();
 			if (Layer.Filled) {
-				$('input[name="filled' + key + '"][value=filled]').attr("checked", true);
+				$('input[name="filled' + key + '"][value=filled]').prop("checked", true);
 			} else {
-				$('input[name="filled' + key + '"][value=unfilled]').attr("checked", true);
+				$('input[name="filled' + key + '"][value=unfilled]').prop("checked", true);
 			}
 			$('input[name="filled' + key + '"]').change(function (event) {
-				if ($('input[name="filled' + key + '"][value=filled]').attr("checked")) {
+				if ($(this).attr("value") === "filled") {
 					Layer.Filled = true;
 				} else {
 					Layer.Filled = false;
@@ -262,15 +262,15 @@ function LayerMenu(Layer, key, RVcolor) {
 			$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="size' + key + '" id="' + 'prs-' + key + '-2' + '" value="large"> <label for="' + 'prs-' + key + '-2' + '">large</label>'));
 			//$('#' + 'pr-' + key).buttonset();
 			if (Layer.ScaleFactor <= 1.0) {
-				$('input[name="size' + key + '"][value=regular]').attr("checked", true);
+				$('input[name="size' + key + '"][value=regular]').prop("checked", true);
 			} else {
-				$('input[name="size' + key + '"][value=large]').attr("checked", true);
+				$('input[name="size' + key + '"][value=large]').prop("checked", true);
 			}
 			
-			$("#LayerPanel div").first().next().find(".radioDIV2").find('input').removeAttr("disabled");
+			$("#LayerPanel div").first().next().find(".radioDIV2").find('input').prop("disabled",false);
 		
 			$('input[name="size' + key + '"]').change(function (event) {
-				if ($('input[name="size' + key + '"][value=regular]').attr("checked")) {
+				if ($(this).attr("value") === "regular") {
 					Layer.ScaleFactor = 1.0;
 				} else {
 					Layer.ScaleFactor = 1.2;
@@ -346,13 +346,13 @@ function LayerMenu(Layer, key, RVcolor) {
 			$("#LayerPanel div").first().next().find(".selectLayerRadioBtn").attr("checked", "checked");
 			rvDataSets[0].selectLayer($("#LayerPanel div").first().next().attr("name"));
 			rvDataSets[0].linkLayer($("#LayerPanel div").first().next().attr("name"));
-			$("#LayerPanel div").first().next().find(".radioDIV2").find('input').removeAttr("disabled");
-			$("#LayerPanel div").first().next().find(".radioDIV2").find('input').attr("checked","checked");
+			$("#LayerPanel div").first().next().find(".radioDIV2").find('input').prop("disabled",false);
+			$("#LayerPanel div").first().next().find(".radioDIV2").find('input').prop("checked",true);
 		
 			break;
 		case "selected":
 			//$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="selectDiv">'))
-			$("#LayerPanel div").first().next().find(".radioDIV2").find('input').removeAttr("disabled");
+			$("#LayerPanel div").first().next().find(".radioDIV2").find('input').prop("disabled",false);
 			//$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="' + 'sele-' + key + '">'))
 			//$("#selectDiv").html(text)
 			break;
@@ -438,6 +438,8 @@ $("#dialog-addLayer").dialog({
 					resizeElements();
 					LayerMenu(rvDataSets[0].getLayer($("#newLayerName").val()),(1000 + ( rvDataSets[0].LastLayer + 1 ) ));
 					RefreshLayerMenu();
+					$(".oneLayerGroup[name=" + $("#newLayerName").val() + "]").find(".selectLayerRadioBtn").prop("checked",true);
+					$(".oneLayerGroup[name=" + $("#newLayerName").val() + "]").find(".selectLayerRadioBtn").trigger("change");
 					$(this).dialog("close");
 				} else {
 					$( "#dialog-unique-layer-error" ).dialog("open");

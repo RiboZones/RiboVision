@@ -111,6 +111,8 @@ $("#dialog-addSelection").dialog({
 					rvDataSets[0].addSelection($("#newSelectionName").val(),[],$("#selectionColor2").val());
 					SelectionMenu(rvDataSets[0].getSelection($("#newSelectionName").val()));
 					RefreshSelectionMenu();
+					$(".oneSelectionGroup[name=" + $("#newSelectionName").val() + "]").find(".selectSelectionRadioBtn").prop("checked", true);
+					$(".oneSelectionGroup[name=" + $("#newSelectionName").val() + "]").find(".selectSelectionRadioBtn").trigger("change");
 					$(this).dialog("close");
 				} else {
 					$( "#dialog-unique-selection-error" ).dialog("open");
@@ -143,8 +145,10 @@ $("#dialog-confirm-delete-S").dialog({
 	modal : true,
 	buttons : {
 		"Delete the Selection" : function (event) {
-			$("[name=" + $('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name') + "]").remove();
 			rvDataSets[0].deleteSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
+			$("[name=" + $('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name') + "]").remove();
+			$(".oneSelectionGroup[name='" + rvDataSets[0].Selections[0].Name + "']").find(".selectSelectionRadioBtn").prop("checked",true);	
+			$(".oneSelectionGroup[name='" + rvDataSets[0].Selections[0].Name + "']").find(".selectSelectionRadioBtn").trigger("change");	
 			rvDataSets[0].drawSelection("selected");
 			$(this).dialog("close");
 		},
