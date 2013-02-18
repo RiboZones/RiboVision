@@ -753,6 +753,7 @@ function colorMappingLoop(seleProt, OverRideColors) {
 		}
 	}
 	
+	
 	Jscript += "));";
 	//JscriptP+="display " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA ) + ".1, " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein ) + ".1;" ;
 	
@@ -1026,6 +1027,7 @@ function appendBasePairs(BasePairTable, colName) {
 			BasePairs : BasePairTable
 		}, function (basePairs2) {
 			rvDataSets[0].BasePairs = rvDataSets[0].BasePairs.concat(basePairs2);
+			FullBasePairSet = rvDataSets[0].BasePairs;
 			rvDataSets[0].drawBasePairs("lines");
 		});
 	} else {
@@ -1036,6 +1038,7 @@ function appendBasePairs(BasePairTable, colName) {
 			ProtChain : colName
 		}, function (basePairs2) {
 			rvDataSets[0].BasePairs = rvDataSets[0].BasePairs.concat(basePairs2);
+			FullBasePairSet = rvDataSets[0].BasePairs;
 			rvDataSets[0].drawBasePairs("lines");
 		});
 	}
@@ -1076,6 +1079,11 @@ function refreshBasePairs(BasePairTable) {
 			var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
 					return this.value;
 				}).get();
+			var ims = document.getElementById("SecondaryInteractionList");
+			ims.options.length = 0;
+			ims.options[0] = new Option("NPN", "NPN");
+			ims.options[0].setAttribute("selected", "selected");
+			$("#SecondaryInteractionList").multiselect("refresh");
 			colorMappingLoop(array_of_checked_values);
 			
 		}
