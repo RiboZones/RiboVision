@@ -609,12 +609,6 @@ function RiboVisionReady() {
 		}
 	});
 	
-	$("#SelectionMode").button({
-		text : false,
-		icons : {
-			primary : "ui-icon-pin-w"
-		}
-	});
 
 	$("#openInteractionSettingBtn").button({
 		text : false,
@@ -853,8 +847,6 @@ function RiboVisionReady() {
 		//localStorage.setItem("rvDataSets",rvDataSets);
 	});
 	
-	$("#SelectionMode").click(function () {
-	});
 	InitRibovision();
 	//$("#RiboVisionSaveManagerPanel").dialog("open");
 
