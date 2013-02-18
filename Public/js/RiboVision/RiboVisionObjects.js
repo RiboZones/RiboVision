@@ -812,25 +812,6 @@ function rvDataSet(DataSetName) {
 					targetLayer.CanvasContext.lineTo(rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
 					targetLayer.CanvasContext.closePath();
 					targetLayer.CanvasContext.stroke();
-					if (zoomEnabled && (rvViews[0].scale > 10)) {
-						//draw the interaction type labels here
-						var x1 = rvDataSets[0].Residues[j].X;
-						var x2 = rvDataSets[0].Residues[k].X;
-						var x12mid = x1 - ((x1 - x2) / 2);
-						var xmid = rvDataSets[0].Residues[j].X - (rvDataSets[0].Residues[j].X - rvDataSets[0].Residues[k].X) / 2;
-						var ymid = rvDataSets[0].Residues[j].Y - (rvDataSets[0].Residues[j].Y - rvDataSets[0].Residues[k].Y) / 2;
-						targetLayer.CanvasContext.save();
-						targetLayer.CanvasContext.lineWidth = .2;
-						targetLayer.CanvasContext.fillStyle = "white";
-						targetLayer.CanvasContext.fillRect(xmid - 2.4, ymid - .8, 4.7, 1.7);
-						targetLayer.CanvasContext.strokeRect(xmid - 2.3, ymid - .7, 4.5, 1.5);
-						targetLayer.CanvasContext.restore();
-						targetLayer.CanvasContext.save();
-						targetLayer.CanvasContext.font = ".5px Arial";
-						targetLayer.CanvasContext.fillText(rvDataSets[0].BasePairs[i].bp_type, xmid - 2, ymid + .5);
-						targetLayer.CanvasContext.restore();
-						
-					}
 				}
 			}
 		}

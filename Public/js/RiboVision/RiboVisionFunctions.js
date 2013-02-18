@@ -1110,10 +1110,9 @@ function filterBasePairs(FullBasePairSet,IncludeTypes){
 
 //////////////////////////// Mouse Functions //////////////////////////////////
 function mouseEventFunction(event) {
-	var BaseViewMode = $('input[name="bv"][value=on]').is(':checked');
 	$("#ResidueTip").tooltip("close");
 	$("#InteractionTip").tooltip("close");
-	if (event.handleObj.origType == "mousedown" && !BaseViewMode) {
+	if (event.handleObj.origType == "mousedown") {
 		if (onebuttonmode == "select" || (event.which == 3 && event.altKey == false) || (event.which == 1 && event.shiftKey == true)) {
 			$("#canvasDiv").unbind("mousemove", dragHandle);
 			$("#canvasDiv").unbind("mousemove", mouseMoveFunction);
@@ -1132,9 +1131,6 @@ function mouseEventFunction(event) {
 			rvViews[0].lastY = event.clientY;
 			$("#canvasDiv").bind("mousemove", dragHandle);
 		}
-	} else if (event.handleObj.origType == "mousedown" && BaseViewMode) {
-		$("#canvasDiv").unbind("mousemove", dragHandle);
-		BaseViewCenter(event);
 	}
 	if (event.handleObj.origType == "mouseup") {
 		$("#canvasDiv").unbind("mousemove", dragHandle);

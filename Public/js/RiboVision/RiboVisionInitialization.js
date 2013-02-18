@@ -659,14 +659,7 @@ function RiboVisionReady() {
 	$("[name=za]").button().change(function(event,ui){
 		rvDataSets[0].drawBasePairs("lines");
 	});
-	
-	$("#BaseView").buttonset();
-	$("#bvOFF").attr("checked","checked");
-	$("#BaseView").buttonset("refresh");
-	
-	$("[name=bv]").button().change(function(event,ui){
-		//
-	});
+
 	
 	$("#SaveControl").buttonset();
 	$("#sscB").attr("checked","checked");
