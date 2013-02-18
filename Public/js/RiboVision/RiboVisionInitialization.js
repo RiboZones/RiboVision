@@ -92,23 +92,6 @@ function RiboVisionReady() {
 		}
 	});
 
-	$("#InteractionSettingDialog").dialog({
-		autoOpen : false,
-		show : {
-			effect : "blind",
-			duration : 500
-		}, //change blindin animation attributes
-		hide : {
-			effect : "blind",
-			duration : 500
-		},
-		height : 500,
-		position : {
-			my : "right top",
-			at : "right top",
-			of : $("#canvasDiv")
-		}
-	});
 
 	$("#RiboVisionSettingsPanel").dialog({
 		autoOpen : false,
@@ -157,10 +140,6 @@ function RiboVisionReady() {
 		return false;
 	});
 
-	$("#openInteractionSettingBtn").click(function () {
-		$("#InteractionSettingDialog").dialog("open");
-		return false;
-	});
 	
 	$("#RiboVisionSettings").click(function () {
 		$("#RiboVisionSettingsPanel").dialog("open");
@@ -609,13 +588,6 @@ function RiboVisionReady() {
 		}
 	});
 	
-
-	$("#openInteractionSettingBtn").button({
-		text : false,
-		icons : {
-			primary : "ui-icon-transfer-e-w"
-		}
-	});	
 	
 	$("#RiboVisionSettings").button({
 		text : false,
