@@ -13,7 +13,7 @@ if(isset($_GET['Residues'])) {
 	$stmt->execute(array($_GET['SpeciesTable']));
 	$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } else if(isset($_GET['FetchMapList'])){
-	$query = "SELECT Species_Name, Species_Abr, Subunit, MapType, SS_Table FROM SpeciesTables";
+	$query = "SELECT Species_Name, Species_Abr, Subunit,DataSetName, MapType, SS_Table FROM SpeciesTables";
 	$stmt = $pdo->query($query);
 	$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } else if(isset($_GET['TextLabels'])) {
