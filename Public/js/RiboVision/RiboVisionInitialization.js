@@ -959,7 +959,7 @@ function InitRibovision3() {
 								$("#" + SpeciesListU[i].replace(/[\s]/g, "") + 'sub' + 'LSU').append(
 									$("<li>").append(
 										$("<a>").attr('href', '#' + MapList[ii].SS_Table).append(
-											MapList[ii].MapType + ' Map')))
+											MapList[ii].DataSetName)))
 							}
 						}
 					});
@@ -977,7 +977,7 @@ function InitRibovision3() {
 								$("#" + SpeciesListU[i].replace(/[\s]/g, "") + 'sub' + 'SSU').append(
 									$("<li>").append(
 										$("<a>").attr('href', '#' + MapList[iii].SS_Table).append(
-											MapList[iii].MapType + ' Map')))
+											MapList[ii].DataSetName)))
 							}
 						}
 					});
