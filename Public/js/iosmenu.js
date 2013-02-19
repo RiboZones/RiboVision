@@ -34,7 +34,7 @@ $.widget( "ui.iosMenu", {
 					}
 				});
 
-		var menu = iosMenu.element.data( 'menu' );
+		var menu = iosMenu.element.data( 'uiMenu' );
 
 		// Override menu#select to account for nesting and back buttons:
 		menu.select = function( event ) {
@@ -134,7 +134,7 @@ $.widget( "ui.iosMenu", {
 	},
 
 	destroy: function() {
-	  var menu = this.element && this.element.data( 'menu' );
+	  var menu = this.element && this.element.data( 'uiMenu' );
 		menu && menu.destroy();
 	}
 });
