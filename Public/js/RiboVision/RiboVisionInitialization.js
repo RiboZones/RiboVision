@@ -977,7 +977,7 @@ function InitRibovision3() {
 								$("#" + SpeciesListU[i].replace(/[\s]/g, "") + 'sub' + 'SSU').append(
 									$("<li>").append(
 										$("<a>").attr('href', '#' + MapList[iii].SS_Table).append(
-											MapList[ii].DataSetName)))
+											MapList[iii].DataSetName)))
 							}
 						}
 					});
