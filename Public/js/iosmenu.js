@@ -38,6 +38,7 @@ $.widget( "ui.iosMenu", {
 
 		// Override menu#select to account for nesting and back buttons:
 		menu.select = function( event ) {
+			menu.active = menu.active || $( event.target ).closest( ".ui-menu-item" ); //new random line
 			if ( menu.active && menu.active.find('a').attr("href") == "#menu-back" ) {
 				// if you selected "back", go back:
 				menu.focus( event, menu.active );
