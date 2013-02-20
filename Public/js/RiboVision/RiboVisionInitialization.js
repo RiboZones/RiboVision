@@ -531,7 +531,7 @@ function RiboVisionReady() {
 			targetLayer[0].DataLabel = ui.text;
 			$("[name=" + targetLayer[0].LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer[0].DataLabel).append($("<br>")).append($("<br>"));
 			var ColName =[];
-			var ColName[0] = ui.value.replace(/[^_]+_[^_]+_/,"");
+			ColName[0] = ui.value.replace(/[^_]+_[^_]+_/,"");
 			var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
 			if (result[0]){
 				$(this).parent().parent().find(".DataDescription").text(result[0].Description);
