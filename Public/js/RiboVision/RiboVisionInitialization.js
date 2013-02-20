@@ -841,7 +841,7 @@ function InitRibovision(FreshState) {
 	$(".oneSelectionGroup").remove();
 	rvDataSets[0].addSelection("Main");
 	if (canvas2DSupported) {
-		InitRibovision2();
+		InitRibovision2(false,FreshState);
 	}
 	resizeElements();
 	if (!canvas2DSupported) {return};
@@ -850,7 +850,7 @@ function InitRibovision(FreshState) {
 	}
 }
 
-function InitRibovision2(noLoad) {
+function InitRibovision2(noLoad,FreshState) {
 	//adopt to current screen size
 	rvViews[0].width = rvDataSets[0].HighlightLayer.Canvas.width;
 	rvViews[0].height = rvDataSets[0].HighlightLayer.Canvas.height;
@@ -889,10 +889,10 @@ function InitRibovision2(noLoad) {
 	rvDataSets[0].drawBasePairs("lines");
 	
 	if (!noLoad){
-		InitRibovision3();
+		InitRibovision3(FreshState);
 	}
 }
-function InitRibovision3() { 
+function InitRibovision3(FreshState) { 
 	$.getJSON('getData.php', {
 		FetchMapList : true
 	}, function (MapList) {
@@ -986,6 +986,9 @@ function InitRibovision3() {
 			loadSpecies(species.substr(1));
 			
 		});
+		if (FreshState){
+			list.iosMenu().data("iosMenu")._insertBackButtons();
+		};
 	});
 }
 ///////////////////////////////////////////////////////////////////////////////
