@@ -833,6 +833,7 @@ function InitRibovision(FreshState) {
 	rvDataSets[0].addLayer("Data1", "CircleLayer1", [], true, 1.0, 'circles');
 	rvDataSets[0].addLayer("Data2", "CircleLayer2", [], true, 1.0, 'circles');
 	rvDataSets[0].addLayer("Selection", "SelectedLayer", [], false, 1.176, 'selected');
+	rvDataSets[0].sort();
 	
 	rvViews[0] = new rvView(20, 20, 1.2);
 	//resizeElements(true);
@@ -846,19 +847,6 @@ function InitRibovision(FreshState) {
 	if (!canvas2DSupported) {return};
 	if (OpenStateOnLoad && !FreshState) {
 		$("#RiboVisionSaveManagerPanel").dialog("open");
-	} else { 
-		// Create rvLayers
-		
-		//rvDataSets[0].addLayer("Data2", "CircleLayer1", [], true, 1.0, 'circles');
-		//rvDataSets[0].addLayer("Data1", "CircleLayer2", [], true, 1.0, 'circles');
-		//rvDataSets[0].addLayer("ContourLine", "ContourLayer", [], true, 1.0, 'contour');
-		
-		// Sort rvLayers by zIndex for convience
-		rvDataSets[0].sort();
-		if (canvas2DSupported) {
-			InitRibovision2();
-		}
-		resizeElements();
 	}
 }
 
