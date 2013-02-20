@@ -530,7 +530,8 @@ function RiboVisionReady() {
 			var targetLayer = rvDataSets[0].getLayerByType("lines");
 			targetLayer[0].DataLabel = ui.text;
 			$("[name=" + targetLayer[0].LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer[0].DataLabel).append($("<br>")).append($("<br>"));
-			var ColName = ui.value.replace(/[^_]+_[^_]+_/,"");
+			var ColName =[];
+			var ColName[0] = ui.value.replace(/[^_]+_[^_]+_/,"");
 			var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
 			if (result[0]){
 				$(this).parent().parent().find(".DataDescription").text(result[0].Description);
@@ -659,7 +660,8 @@ function RiboVisionReady() {
 		targetLayer.DataLabel = "Protein Contacts";
 		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
 		//var ColName = ui.value.match(/[^\'\\,]+/);
-		var ColName = "All_Proteins";
+		var ColName = [];
+		ColName[0] = "All_Proteins";
 		var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
 		if (result[0]){
 			$(this).parent().find(".DataDescription").text(result[0].Description);
@@ -676,7 +678,8 @@ function RiboVisionReady() {
 		//targetLayer.DataLabel = ui.text;
 		targetLayer.DataLabel = "Protein Contacts";
 		//var ColName = ui.value.match(/[^\'\\,]+/);
-		var ColName = "All_Proteins";
+		var ColName = [];
+		ColName[0] = "All_Proteins";
 		var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
 		if (result[0]){
 			$(this).parent().find(".DataDescription").text(result[0].Description);
@@ -694,7 +697,8 @@ function RiboVisionReady() {
 		//targetLayer.DataLabel = ui.text;
 		targetLayer.DataLabel = "Protein Contacts";
 		//var ColName = ui.value.match(/[^\'\\,]+/);
-		var ColName = "All_Proteins";
+		var ColName = [];
+		ColName[0] = "All_Proteins";
 		var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
 		if (result[0]){
 			$(this).parent().find(".DataDescription").text(result[0].Description);
