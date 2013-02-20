@@ -434,8 +434,10 @@ function RiboVisionReady() {
 			var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
 			if (result[0]){
 				$(this).parent().find(".DataDescription").text(result[0].Description);
+				$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation/" + result[0].HelpLink + ".html");
 			} else {
 				$(this).parent().find(".DataDescription").text("Data Description is missing.");
+				$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation");				
 			}
 			updateStructData(ui);
 		}
@@ -497,8 +499,10 @@ function RiboVisionReady() {
 			var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
 			if (result[0]){
 				$(this).parent().find(".DataDescription").text(result[0].Description);
+				$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation/" + result[0].HelpLink + ".html");				
 			} else {
 				$(this).parent().find(".DataDescription").text("Data Description is missing.");
+				$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation");				
 			}
 			colorMapping("42",ui.value);
 			drawNavLine();
@@ -535,8 +539,10 @@ function RiboVisionReady() {
 			var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
 			if (result[0]){
 				$(this).parent().parent().find(".DataDescription").text(result[0].Description);
+				$(this).parent().parent().find(".ManualLink").find("a").attr("href","/Documentation/" + result[0].HelpLink + ".html");
 			} else {
 				$(this).parent().parent().find(".DataDescription").text("Data Description is missing.");
+				$(this).parent().parent().find(".ManualLink").find("a").attr("href","/Documentation");				
 			}
 			refreshBasePairs(interactionchoice);
 		}
@@ -665,8 +671,10 @@ function RiboVisionReady() {
 		var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
 		if (result[0]){
 			$(this).parent().find(".DataDescription").text(result[0].Description);
+			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation/" + result[0].HelpLink + ".html");
 		} else {
 			$(this).parent().find(".DataDescription").text("Data Description is missing.");
+			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation");
 		}	
 		colorMappingLoop(array_of_checked_values);
 	});
@@ -683,8 +691,10 @@ function RiboVisionReady() {
 		var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
 		if (result[0]){
 			$(this).parent().find(".DataDescription").text(result[0].Description);
+			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation/" + result[0].HelpLink + ".html");
 		} else {
 			$(this).parent().find(".DataDescription").text("Data Description is missing.");
+			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation");
 		}
 		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
 		colorMappingLoop(array_of_checked_values);
@@ -702,8 +712,10 @@ function RiboVisionReady() {
 		var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
 		if (result[0]){
 			$(this).parent().find(".DataDescription").text(result[0].Description);
+			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation/" + result[0].HelpLink + ".html");
 		} else {
 			$(this).parent().find(".DataDescription").text("Data Description is missing.");
+			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation");
 		}
 		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
 		colorMappingLoop(array_of_checked_values);
@@ -720,6 +732,8 @@ function RiboVisionReady() {
 		//	$(this).parent().find(".DataDescription").text(result[0].Description);
 		//} else {
 			$(this).parent().find(".DataDescription").text("");
+			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation");
+	
 		//}
 		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
 		targetLayer.clearData();
