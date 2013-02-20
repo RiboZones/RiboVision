@@ -34,11 +34,11 @@ $.widget( "ui.iosMenu", {
 					}
 				});
 
-		var menu = iosMenu.element.data( 'uiIosMenu' );
+		var menu = iosMenu.element.data( 'uiMenu' );
 
 		// Override menu#select to account for nesting and back buttons:
 		menu.select = function( event ) {
-			menu.active = menu.active || $( event.target ).closest( ".ui-menu-item" ); //new random line
+			//menu.active = menu.active || $( event.target ).closest( ".ui-menu-item" ); //new random line
 			if ( menu.active && menu.active.find('a').attr("href") == "#menu-back" ) {
 				// if you selected "back", go back:
 				menu.focus( event, menu.active );
@@ -134,7 +134,7 @@ $.widget( "ui.iosMenu", {
 	},
 
 	destroy: function() {
-	  var menu = this.element && this.element.data( 'uiIosMenu' );
+	  var menu = this.element && this.element.data( 'uiMenu' );
 		menu && menu.destroy();
 	}
 });
