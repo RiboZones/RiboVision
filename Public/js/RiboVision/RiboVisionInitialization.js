@@ -677,6 +677,7 @@ function RiboVisionReady() {
 			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation");
 		}	
 		colorMappingLoop(array_of_checked_values);
+		//drawNavLine();
 	});
 	$("#ProtList").bind("multiselectopen", function (event, ui) {
 		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
@@ -698,6 +699,7 @@ function RiboVisionReady() {
 		}
 		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
 		colorMappingLoop(array_of_checked_values);
+		//drawNavLine();
 	});
 	$("#ProtList").bind("multiselectcheckall", function (event, ui) {
 		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
@@ -750,6 +752,7 @@ function RiboVisionReady() {
 			rvDataSets[0].BasePairs = [];
 			rvDataSets[0].clearCanvas("lines");
 		}
+		drawNavLine();
 	});
 	// Check for the various File API support.
 	if (window.File && window.FileReader && window.FileList && window.Blob) {

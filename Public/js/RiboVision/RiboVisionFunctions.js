@@ -753,7 +753,7 @@ function colorMappingLoop(seleProt, OverRideColors) {
 		}
 	}
 	
-	
+	drawNavLine();
 	Jscript += "));";
 	//JscriptP+="display " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA ) + ".1, " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein ) + ".1;" ;
 	
@@ -2304,6 +2304,15 @@ function drawNavLine(){
 				$.each(targetLayer.Data, function (index,value){
 					GraphData[index]=0;
 				});
+			} else if (targetLayer.DataLabel === "Protein Contacts"){
+				$.each(targetLayer.Data, function (index,value){
+						if (value === " "){
+							GraphData[index]=0;
+						} else {
+							GraphData[index]=1;
+						}
+					});
+				linename = "Protein Contacts";
 			} else {
 				GraphData = targetLayer.Data;
 			}
