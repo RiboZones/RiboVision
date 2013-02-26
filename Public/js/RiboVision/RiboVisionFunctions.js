@@ -2391,7 +2391,15 @@ function addPopUpWindowResidue(ResIndex){
 	//Remove old SVG
 	d3.select("#residuetip svg").remove();
 	
-	var dobj = rvDataSets[0].ConservationTable[ResIndex];
+	if (rvDataSets[0].Residues[ResIndex].resNum.indexOf(":") >= 0 ){
+		var ResName = rvDataSets[0].Residues[ResIndex].resNum;
+	} else {
+		var ResName = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[ResIndex].ChainID)] +
+		":" + rvDataSets[0].Residues[ResIndex].resNum;
+	}
+	
+	var dobj = $.grep(rvDataSets[0].ConservationTable, function(e){ return e.resNum == ResName; })[0];
+	//var dobj = rvDataSets[0].ConservationTable[ResIndex];
 	if (dobj){
 		//round the number to two decimal places
 		var Anum = dobj.A*100;
@@ -2416,12 +2424,7 @@ function addPopUpWindowResidue(ResIndex){
 		var Hn = "n/a";
 	}
 		
-	if (rvDataSets[0].Residues[ResIndex].resNum.indexOf(":") >= 0 ){
-		var ResName = rvDataSets[0].Residues[ResIndex].resNum;
-	} else {
-		var ResName = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[ResIndex].ChainID)] +
-		":" + rvDataSets[0].Residues[ResIndex].resNum;
-	}
+	
 	$('#resName').html("Residue: " + rvDataSets[0].Residues[ResIndex].resName + "(" + ConsensusSymbol  + ") " + ResName);
 	$('#activeData').html("Active Data: " + rvDataSets[0].Residues[ResIndex].CurrentData);
 	$("#conPercentage").html("Shannon Entropy: " + Hn);
