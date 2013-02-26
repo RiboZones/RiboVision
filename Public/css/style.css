@@ -198,6 +198,20 @@ canvas{
     text-align: inherit;
     outline: none;
 }
+#layerColor2 {
+	background-image: none;	
+}
+
+#layerColor {
+	background-image: none;	
+}
+#layerColor2 {
+	background-image: none;	
+}
+
+#color {
+	background-image: none;	
+}
 
 html{
 	overflow: hidden;

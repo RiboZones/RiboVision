@@ -173,10 +173,28 @@ function RiboVisionReady() {
 	$('.ui-slider-handle').height(21).width(21);
 	$("#TemplateLink").button();
 	
-	$("#dialog-addLayer p").append("We currently are only supporting the addition of new circle type layers." + 
+	$("#dialog-addLayer span[name='warning']").html("We currently are only supporting the addition of new circle type layers." + 
 		" Future updates will let you add additional layers of any type." + 
-		"<br><br>Please enter a name for the new layer.");
+		"<br>");
 	$( "#dialog-unique-layer-error" ).dialog({
+		resizable : false,
+		autoOpen : false,
+		height : "auto",
+		width : 400,
+		modal : true,
+		buttons: {
+			Ok: function() {
+				$( this ).dialog( "close" );
+			}
+		},
+		open : function () {
+			//$("#myJmol_object").css("visibility", "hidden");
+		},
+		close : function () { 
+			//$("#myJmol_object").css("visibility", "visible");
+		}
+	});
+	$( "#dialog-invalid-color-error" ).dialog({
 		resizable : false,
 		autoOpen : false,
 		height : "auto",
@@ -395,8 +413,13 @@ function RiboVisionReady() {
 		}
 	});
 	
-	$("#colorpicker").farbtastic("#color");
-	
+	$("#colorpicker").farbtastic("#MainColor");
+	$("#MainColor").button().addClass('ui-textfield').keydown(function (event) {
+		if (event.keyCode == 13) {
+			var farbobj = $.farbtastic("#colorpicker");
+			farbobj.setColor(colorNameToHex($("#MainColor").val()));
+		}
+	});
 	//$("#layerColor").change(changeLayerColor);
 	
 	$("#layerColorPicker").farbtastic("#layerColor");
@@ -429,7 +452,7 @@ function RiboVisionReady() {
 		click: function(event,ui){
 			var targetLayer = rvDataSets[0].getSelectedLayer();
 			targetLayer.DataLabel = ui.text;
-			$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
+			$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
 			var ColName = ui.value.match(/[^\'\\,]+/);
 			var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
 			if (result[0]){
@@ -494,7 +517,7 @@ function RiboVisionReady() {
 		click: function(event,ui){
 			var targetLayer = rvDataSets[0].getSelectedLayer();
 			targetLayer.DataLabel = ui.text;
-			$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
+			$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
 			var ColName = ui.value.match(/[^\'\\,]+/);
 			var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
 			if (result[0]){
@@ -533,7 +556,7 @@ function RiboVisionReady() {
 			//var targetLayer = rvDataSets[0].getSelectedLayer();
 			var targetLayer = rvDataSets[0].getLayerByType("lines");
 			targetLayer[0].DataLabel = ui.text;
-			$("[name=" + targetLayer[0].LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer[0].DataLabel).append($("<br>")).append($("<br>"));
+			$("[name=" + targetLayer[0].LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer[0].DataLabel);
 			var ColName =[];
 			ColName[0] = ui.value.replace(/[^_]+_[^_]+_/,"");
 			var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
@@ -617,11 +640,6 @@ function RiboVisionReady() {
 		}
 	});
 	
-	$("#layerNameInput").button().addClass('ui-textfield').keydown(function (event) {
-		if (event.keyCode == 13) {
-			changeCurrentLayerName();
-		}
-	});
 	
 	$("#moveMode").attr("checked","checked");
 	$("#buttonmode").buttonset();
@@ -664,7 +682,7 @@ function RiboVisionReady() {
 		var targetLayer = rvDataSets[0].getSelectedLayer();
 		//targetLayer.DataLabel = ui.text;
 		targetLayer.DataLabel = "Protein Contacts";
-		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
+		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
 		//var ColName = ui.value.match(/[^\'\\,]+/);
 		var ColName = [];
 		ColName[0] = "All_Proteins";
@@ -697,7 +715,7 @@ function RiboVisionReady() {
 			$(this).parent().find(".DataDescription").text("Data Description is missing.");
 			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation");
 		}
-		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
+		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
 		colorMappingLoop(array_of_checked_values);
 		//drawNavLine();
 	});
@@ -719,7 +737,7 @@ function RiboVisionReady() {
 			$(this).parent().find(".DataDescription").text("Data Description is missing.");
 			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation");
 		}
-		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
+		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
 		colorMappingLoop(array_of_checked_values);
 	});
 	$("#ProtList").bind("multiselectuncheckall", function (event, ui) {
@@ -737,7 +755,7 @@ function RiboVisionReady() {
 			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation");
 	
 		//}
-		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
+		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
 		targetLayer.clearData();
 		if ( targetLayer.Type == "circles"){
 			rvDataSets[0].clearCanvas(rvDataSets[0].getSelectedLayer().LayerName);

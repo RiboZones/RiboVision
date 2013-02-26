@@ -156,7 +156,7 @@ function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color) 
 			case "circles":
 				this.DataLabel = "None";
 				//$(this).parent().find(".DataDescription").text("");
-				$("[name=" + this.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
+				$("[name=" + this.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
 				this.clearData();
 				drawNavLine();
 				rvDataSets[0].clearCanvas(this.LayerName);
@@ -164,15 +164,15 @@ function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color) 
 				break;
 			case "residues":
 				this.DataLabel = "None";
-				$("[name=" + this.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
+				$("[name=" + this.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
 				clearColor(false);
 				drawNavLine();
 				update3Dcolors();
 				break;
 			case "lines":
 				this.DataLabel = "None";
-				$("[name=" + this.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
-				//$(this).find(".layerContent").find("[name=datalabel]").text("None").append($("<br>")).append($("<br>"));
+				$("[name=" + this.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
+				//$(this).find(".layerContent").find("span[name=DataLabel]").text("None"));
 				//$(this).parent().parent().find(".DataDescription").text("Empty Data");
 				drawNavLine();
 				refreshBasePairs("clear_lines");
@@ -780,8 +780,8 @@ function rvDataSet(DataSetName) {
 					case "residues":
 						var grd = colorLayer.CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
 						if (rvDataSets[0].Residues[j].color && rvDataSets[0].Residues[k].color) {
-							color1 = colourNameToHex(rvDataSets[0].Residues[j].color);
-							color2 = colourNameToHex(rvDataSets[0].Residues[k].color);
+							color1 = colorNameToHex(rvDataSets[0].Residues[j].color);
+							color2 = colorNameToHex(rvDataSets[0].Residues[k].color);
 							
 							grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + ",.5)");
 							grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + ",.5)");
@@ -792,8 +792,8 @@ function rvDataSet(DataSetName) {
 					case "circles":
 						var grd = colorLayer.CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
 						if (colorLayer.dataLayerColors[j] && colorLayer.dataLayerColors[k]) {
-							color1 = colourNameToHex(colorLayer.dataLayerColors[j]);
-							color2 = colourNameToHex(colorLayer.dataLayerColors[k]);
+							color1 = colorNameToHex(colorLayer.dataLayerColors[j]);
+							color2 = colorNameToHex(colorLayer.dataLayerColors[k]);
 							
 							grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + ",.5)");
 							grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + ",.5)");

@@ -221,11 +221,12 @@
 
 
     <div id="dialog-addLayer" title="Create a New Layer">
-        <input id="newLayerName" name="newLayerName" type="text" />
+        <span name="warning"></span>
+		<b>Layer Name:</b>
+		<input id="newLayerName" name="newLayerName" type="text" />
 
         <div id="LayerColorDiv2">
-            Layer Color: <input id="layerColor2" type="text" name="color" value="#940B06" />
-
+            <b>Layer Color: </b><input id="layerColor2" type="text" name="color" value="#940B06" />
             <div id="layerColorPicker2"></div>
         </div>
     </div>
@@ -281,12 +282,10 @@
     </div>
 
     <div id="LayerPreferenceDialog" title="Layer Preferences">
-        <label for="layerNameInput">Layer Name:</label> <input type="text" id="layerNameInput" value="" name="layerNameInput" /> <input id="layerNameChangeBtn"
-        type="button" value="Change" onclick="Javascript:changeCurrentLayerName()" />
+        <label for="layerNameInput"><b>Layer Name:</b></label> <input type="text" id="layerNameInput" value="" name="layerNameInput" /> 
 
         <div id="LayerColorDiv">
-            Layer Color: <input id="layerColor" type="text" name="color" value="#940B06" /> <input id="layerColorChangeBtn" type="button" value="Change"
-            onclick="Javascript:changeLayerColor()" />
+            <b>Layer Color: </b><input id="layerColor" type="text" name="color" value="#940B06" /> 
 
             <div id="layerColorPicker"></div>
         </div>
@@ -308,7 +307,7 @@
     <div id="ColorDialog" title="Residue Coloring">
         <div id="ColorDiv">
             Color Options:<br />
-            <input id="color" type="text" name="color" value="#940B06" /><br />
+            <input id="MainColor" type="text" name="color" value="#940B06" /><br />
 
             <div id="colorpicker"></div><input id="clearColor" type="button" name="clearColor" onclick="Javascript:clearColor(true)" value="Clear Color" />
             <input id="colorSelection" type="button" onclick="Javascript:colorSelection()" value="Color Selection" /> <input id="clearselection2" name=
@@ -387,7 +386,9 @@
     <div id="dialog-selection-warning" title="No layers are currently selected!">
         <p>Replace Me Text.</p>
     </div>
-
+	<div id="dialog-invalid-color-error" title="Invalid color name. Try again.">
+        <p>Sorry, the color you have entered is invalid. It is neither a valid "Hex Code" nor a valid HTML5 color name. Please try again.</p>
+    </div>
     <div id="dialog-unique-layer-error" title="This name is taken. Try again.">
         <p>Sorry, all layer names must be unique. The name you entered already exists. Please try again.</p>
     </div>
