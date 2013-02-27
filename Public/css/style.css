@@ -249,11 +249,6 @@ body{
 	height: auto;
 }
 
-/* IE has layout issues when sorting (see #5413) */
-.group { 
-	zoom: 1;
-	margin-bottom:6px;	
-}
 
 #LayerDialog {
 	padding: 0.1em 0.1em;

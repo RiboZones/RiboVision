@@ -173,7 +173,7 @@ function RiboVisionReady() {
 	$('.ui-slider-handle').height(21).width(21);
 	$("#TemplateLink").button();
 	
-	$("#dialog-addLayer span[name='warning']").html("We currently are only supporting the addition of new circle type layers." + 
+	$("#dialog-addLayer span").html("We currently are only supporting the addition of new circle type layers." + 
 		" Future updates will let you add additional layers of any type." + 
 		"<br>");
 	$( "#dialog-unique-layer-error" ).dialog({

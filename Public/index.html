@@ -46,7 +46,7 @@
 </script>
 <script type="text/javascript" src="js/archive.js">
 </script>
-    <script type="text/javascript" src="js/RiboVision/RiboVision.js"><!--Use RiboVision library-->
+    <script type="text/javascript" src="js/RiboVision/RiboVision.js">//Use RiboVision library
 </script><!--Style Sheets-->
     <link rel="stylesheet" type="text/css" href="css/style.css" />
     <link rel="stylesheet" type="text/css" href="css/jquery-ui-1.9.0.custom.css" />
@@ -65,9 +65,9 @@
 
             <div id="MainLogoDiv"><img src="images/RiboVisionLogo.png" id="MainLogo" title="RiboVision Logo" alt="Ribovision Logo" /></div>
 
-            <p id="infoP">RiboVision is in the RiboZone family of products, brought to you by RiboEvo at Georgia Tech.<br />
-            <a id="ManLink" href="/Documentation/index.html" target="_blank">Ribovision Manual</a></br>
-			<a id="CreditsLink" href="/Documentation/Structures.html" target="_blank">Ribosome Structure Credits</a></br>
+            <p id="infoP">RiboVision is in the RiboZone family of products, brought to you by RiboEvo at Georgia Tech.<br>
+            <a id="ManLink" href="/Documentation/index.html" target="_blank">Ribovision Manual</a><br>
+			<a id="CreditsLink" href="/Documentation/Structures.html" target="_blank">Ribosome Structure Credits</a><br>
 			</p>
         </div>
 
@@ -76,7 +76,7 @@
                 <h3><a href="#">Ribosome Selection</a></h3>
 
                 <div id="SpeciesDiv">
-                    Species &amp; Subunit Selection:<br />
+                    Species &amp; Subunit Selection:<br>
 
                     <ul id="speciesList">
                         <li class="ui-menu-item ios-menu-back-link" role="menu">
@@ -89,22 +89,22 @@
                 <h3><a href="#">Residue Selection</a></h3>
 
                 <div id="SelectionDiv">
-                    Selection Options:<br />
-                    <input id="commandline" type="text" onkeydown="if (event.keyCode == 13) document.getElementById(&#39;commandSelect&#39;).click();" /><br />
-                    <input id="commandSelect" name="selebutton" type="button" onclick="JavaScript:commandSelect();" value="Apply Selection 2D" /> 
-					<input id="select3d" name="selebutton" type="button" onclick="JavaScript:commandSelect();updateModel();" value="Apply Selection 3D" /> 
-					
-					<br />
-                    <br />
-                    Select Residues by Domain and/or Helix:<br />
+                    Selection Options:<br>
+                    <input id="commandline" type="text" onkeydown="if (event.keyCode == 13) document.getElementById(&#39;commandSelect&#39;).click();" /><br>
+                    <input id="commandSelect" name="selebutton" type="button" onclick="JavaScript:commandSelect();" value="Apply Selection 2D" /> <br>
+					<input id="select3d" name="selebutton" type="button" onclick="JavaScript:commandSelect();updateModel();" value="Apply Selection 3D" /> <br>
+					<input id="clearselection" name="selebutton" type="button" onclick="JavaScript:clearSelection();" value="Clear Selection" />
+					<br>
+                    <br>
+                    Select Residues by Domain and/or Helix:<br>
                     <select id="selectByDomainHelix" name="SelectByDomainHelix" multiple="multiple">
-                        </select><br />
+                        </select><br>
 				</div>
 
                 <h3><a href="#">Structure Data</a></h3>
 
                 <div id="StructDataDiv">
-                    Structure Data:<br />
+                    Structure Data:<br>
                     <select id="StructDataList" multiple="multiple">
                         </select>
 
@@ -115,7 +115,7 @@
                 <h3><a href="#">Alignment Data</a></h3>
 
                 <div id="AlnDiv">
-                    Alignment Data:<br />
+                    Alignment Data:<br>
                     <select id="alnList" multiple="multiple">
                         </select>
 
@@ -127,7 +127,7 @@
                 <h3><a href="#">Protein Data</a></h3>
 
                 <div id="ProtDiv">
-                    Protein Data:<br />
+                    Protein Data:<br>
                     <select id="ProtList" multiple="multiple">
                         </select>
 
@@ -140,13 +140,13 @@
 
                 <div id="InteractDataDiv">
                     <div id="primaryInteractData">
-                        Interaction Type:<br />
+                        Interaction Type:<br>
                         <select id="PrimaryInteractionList" multiple="multiple" onchange="JavaScript:refreshBasePairs(value);">
                             </select>
                     </div>
 
                     <div id="secondaryInteractData" style="margin-top:10px">
-                        Interaction Sub-Type:<br />
+                        Interaction Sub-Type:<br>
                         <select id="SecondaryInteractionList" multiple="multiple">
                             </select>
                     </div>
@@ -159,7 +159,7 @@
                 <h3><a href="#">User-Generated Data</a></h3>
 
                 <div id="FileDiv">
-                    <a id="TemplateLink" href="#" target="_blank">Download Data Template</a><br />
+                    <a id="TemplateLink" href="#" target="_blank">Download Data Template</a><br>
                     Load Data Template: <input type="file" id="files" name="files[]" accept="text/csv" /> <output id="list"></output>
 
                     <p class="DataDescription"></p>
@@ -168,17 +168,17 @@
                 <h3><a href="#">Export Data</a></h3>
 
                 <div id="saveDiv">
-                    The default behavior is to export just the visible layers.<br />
+                    The default behavior is to export just the visible layers.<br>
                     <input id="visibleLayers" type="radio" name="savelayers" value="visible" checked="checked" /><label for="visibleLayers">Visible
                     Layers</label> <input id="allLayers" type="radio" name="savelayers" value="all" /><label for="allLayers">All Layers</label>
 
                     <p>Choose which file type to export.</p><input name="saveas" type="button" onclick="JavaScript:savePDF();" value=
                     "PDF: Best for Printing" /> <input name="saveas" type="button" onclick="JavaScript:savePNG();" value="PNG: Best for Displaying" />
                     <input name="saveas" type="button" onclick="JavaScript:saveJPG();" value="JPG: Best Data Compression" /> <input name="saveas" type="button"
-                    onclick="JavaScript:saveSVG();" value="SVG: Best for Editing" /><br />
+                    onclick="JavaScript:saveSVG();" value="SVG: Best for Editing" /><br>
 
-                    <p>Save 3D side as JPG</p><input name="saveas" type="button" onclick="JavaScript:saveJmolImg();" value="JPG: 3D side" /><br />
-					<p>Save 1D side as SVG</p><input name="saveas" type="button" onclick="JavaScript:saveNavLine();" value="SVG: 1D side" /><br />
+                    <p>Save 3D side as JPG</p><input name="saveas" type="button" onclick="JavaScript:saveJmolImg();" value="JPG: 3D side" /><br>
+					<p>Save 1D side as SVG</p><input name="saveas" type="button" onclick="JavaScript:saveNavLine();" value="SVG: 1D side" /><br>
 
                     <p>Additionally, you may export a Pymol Script.</p><input name="saveas" type="button" onclick="JavaScript:savePML();" value=
                     "PyMOL Script" />
@@ -223,7 +223,7 @@
 
 
     <div id="dialog-addLayer" title="Create a New Layer">
-        <span name="warning"></span>
+        <span></span>
 		<b>Layer Name:</b>
 		<input id="newLayerName" name="newLayerName" type="text" />
 
@@ -256,11 +256,11 @@
     </div>
 
     <div id="toolBar">
-        <button id="openLayerBtn" class="toolBarBtn" title="Open Layer Manager"></button><br />
-		<button id="openSelectionBtn" class="toolBarBtn" title="Open Selection Manager"></button><br />
-        <button id="openColorBtn" class="toolBarBtn" title="Open Color Picker"></button><br />
-        <button id="RiboVisionSettings" class="toolBarBtn" title="RiboVision Settings"></button><br />
-		<button id="RiboVisionSaveManager" class="toolBarBtn" title="RiboVision Save/Restore Manager"></button><br />
+        <button id="openLayerBtn" class="toolBarBtn" title="Open Layer Manager"></button><br>
+		<button id="openSelectionBtn" class="toolBarBtn" title="Open Selection Manager"></button><br>
+        <button id="openColorBtn" class="toolBarBtn" title="Open Color Picker"></button><br>
+        <button id="RiboVisionSettings" class="toolBarBtn" title="RiboVision Settings"></button><br>
+		<button id="RiboVisionSaveManager" class="toolBarBtn" title="RiboVision Save/Restore Manager"></button><br>
         <button id="openManualBtn" class="toolBarBtn" title="Ribovision Manual" onclick="window.open(&#39;/Documentation/index.html&#39;)">Ribovision
         Manual</button>
     </div><!--Layer Control Dialog Box-->
@@ -308,8 +308,8 @@
 	<!--Color Control Dialog Box-->
     <div id="ColorDialog" title="Residue Coloring">
         <div id="ColorDiv">
-            Color Options:<br />
-            <input id="MainColor" type="text" name="color" value="#940B06" /><br />
+            Color Options:<br>
+            <input id="MainColor" type="text" name="color" value="#940B06" /><br>
 
             <div id="colorpicker"></div><input id="clearColor" type="button" name="clearColor" onclick="Javascript:clearColor(true)" value="Clear Color" />
             <input id="colorSelection" type="button" onclick="Javascript:colorSelection()" value="Color Selection" /> <input id="clearselection2" name=
@@ -320,7 +320,7 @@
 
     <div id="RiboVisionSettingsPanel" title="Settings Panel">
         <div id="buttonmode">
-            One Button Mode:<br />
+            One Button Mode:<br>
             <input id="moveMode" type="radio" name="mode" value="move" onclick="modeSelect(&#39;move&#39;)" /><label for="moveMode">Move / ResidueInfo</label> 
 			<input id="selectMode" type="radio" name="mode" value="select" onclick="modeSelect(&#39;select&#39;)" /><label for="selectMode">Select Residues</label>
 			<input id="selectModeL" type="radio" name="mode" value="selectL" onclick="modeSelect(&#39;selectL&#39;)" /><label for="selectModeL">Select Lines</label> 			
@@ -350,16 +350,16 @@
 		
 		<div id="SaveOptionsDiv" class="ui-widget-content">
 			All Locations: <br>
-			<input name="LastSpeciesCheck" value="LastSpeciesCheck" type="checkbox" checked="checked"><label for="LastSpeciesCheck">Current Species Loaded</label><br>
-			<input name="LayersCheck" value="LayersCheck" type="checkbox" checked="checked"><label for="LayersCheck">Layers with data</label><br>
-			<input name="SelectionsCheck" value="SelectionsCheck" type="checkbox" checked="checked"><label for="SelectionsCheck">Selections</label><br>
-			<input name="MouseModeCheck" value="MouseModeCheck" type="checkbox" checked="checked"><label for="MouseModeCheck">Mouse Mode</label><br>
-			<input name="PanelSizesCheck" value="PanelSizesCheck" type="checkbox" checked="checked"><label for="PanelSizesCheck">Panel Divider Settings</label><br>
-			<input name="CanvasOrientationCheck" value="CanvasOrientationCheck" type="checkbox" checked="checked"><label for="CanvasOrientationCheck">2D Settings</label><br>			
-			<input name="JmolOrientationCheck" value="JmolOrientationCheck" type="checkbox" checked="checked"><label for="JmolOrientationCheck">3D Settings</label><br>
+			<input id="LastSpeciesCheck" name="LastSpeciesCheck" value="LastSpeciesCheck" type="checkbox" checked="checked"><label for="LastSpeciesCheck">Current Species Loaded</label><br>
+			<input id="LayersCheck" name="LayersCheck" value="LayersCheck" type="checkbox" checked="checked"><label for="LayersCheck">Layers with data</label><br>
+			<input id="SelectionsCheck" name="SelectionsCheck" value="SelectionsCheck" type="checkbox" checked="checked"><label for="SelectionsCheck">Selections</label><br>
+			<input id="MouseModeCheck" name="MouseModeCheck" value="MouseModeCheck" type="checkbox" checked="checked"><label for="MouseModeCheck">Mouse Mode</label><br>
+			<input id="PanelSizesCheck" name="PanelSizesCheck" value="PanelSizesCheck" type="checkbox" checked="checked"><label for="PanelSizesCheck">Panel Divider Settings</label><br>
+			<input id="CanvasOrientationCheck" name="CanvasOrientationCheck" value="CanvasOrientationCheck" type="checkbox" checked="checked"><label for="CanvasOrientationCheck">2D Settings</label><br>			
+			<input id="JmolOrientationCheck" name="JmolOrientationCheck" value="JmolOrientationCheck" type="checkbox" checked="checked"><label for="JmolOrientationCheck">3D Settings</label><br>
 			<br>
 			File only: <br>
-			<input name="WholeDataSetCheck" value="WholeDataSetCheck" type="checkbox" checked="checked"><label for="WholeDataSetCheck">Entire DataSet</label><br>
+			<input id="WholeDataSetCheck" name="WholeDataSetCheck" value="WholeDataSetCheck" type="checkbox" checked="checked"><label for="WholeDataSetCheck">Entire DataSet</label><br>
 			<br>
 		</div>
 		
