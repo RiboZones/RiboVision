@@ -866,12 +866,12 @@ function RiboVisionReady() {
 function InitRibovision(FreshState) {
 	rvDataSets[0] = new rvDataSet("EmptyDataSet");
 	rvDataSets[0].addHighlightLayer("HighlightLayer", "HighlightLayer", [], false, 1.176, 'highlight');
-	rvDataSets[0].addLayer("Interactions1", "MainLineLayer", [], true, 1.0, 'lines');
+	rvDataSets[0].addLayer("Interactions1", "InteractionsLayer1", [], true, 1.0, 'lines');
 	rvDataSets[0].addLayer("Labels", "LabelLayer", [], true, 1.0, 'labels');
-	rvDataSets[0].addLayer("Residues", "ResidueLayer", [], true, 1.0, 'residues');
+	rvDataSets[0].addLayer("Nucleotides", "NucleotideLayer", [], true, 1.0, 'residues');
 	rvDataSets[0].addLayer("Data1", "CircleLayer1", [], true, 1.0, 'circles');
 	rvDataSets[0].addLayer("Data2", "CircleLayer2", [], true, 1.0, 'circles');
-	rvDataSets[0].addLayer("Selection", "SelectedLayer", [], false, 1.176, 'selected');
+	rvDataSets[0].addLayer("Selection", "SSelectionLayer", [], false, 1.176, 'selected');
 	rvDataSets[0].sort();
 	
 	rvViews[0] = new rvView(20, 20, 1.2);
