@@ -116,7 +116,7 @@ $.widget( "ui.iosMenu", {
 
 			submenu.animate({
 				left: 0,
-				height: menu.element[0].clientHeight - 4 ,
+				height: menu.element[0].clientHeight - 4,
 				width: menu.element[0].clientWidth 
 			}, iosMenu.options.slideDuration, iosMenu.options.slideEasing);
 		};

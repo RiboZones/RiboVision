@@ -2356,7 +2356,7 @@ function drawNavLine(){
 		      .attr("x", (w - MarginXR-MarginXL)/2 + MarginXL)
 		      .attr("y", h-MarginYB/4)
 		      .attr("text-anchor", "middle")
-			  .text("Map Index");	
+			  .text("Nucleotide Number");	
 			  
 			//add legend to the navline 
 			 g.append("text")
