@@ -241,23 +241,21 @@ function _setModelState() {
   
 
 
-  select :0 and ((619-642) or  (1358-1374) or  (1723-1759) or  (2031-2098) or (2646-2660));
-  color Cartoon opaque [xffd4a2];
   
-  select :0 and ((1-618) or (2915-2922));
+  select :0 and ((1-527) or (2915-2922));
   color Cartoon opaque [xa999fb];
   
   
-  select :0 and (643-1357);
+  select :0 and (528-1374);
   color Cartoon opaque [x3aa7ff];
   
   select :0 and (1375-1722);
   color Cartoon opaque [xcc99cc];
   
-  select :0 and (1760-2030);
+  select :0 and (1723-2058);
   color Cartoon opaque [xf0ff00];
   
-  select :0 and (2099-2645);
+  select :0 and (2059-2660);
   color Cartoon opaque [xff99cc];
   
   select :0 and ( 2661-2914);

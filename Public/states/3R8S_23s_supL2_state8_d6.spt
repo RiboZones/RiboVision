@@ -32,7 +32,8 @@ function _setFileState() {
   set defaultLoadScript "";
   set defaultStructureDssp true;
   set defaultVDW Auto;
-  set forceAutoBond false;  
+  set forceAutoBond false;
+  #set defaultDirectory "C:/Users/Anton S Petrov/Desktop/Jmol-12.2.17-binary/jmol-12.2.17";
   #set loadFormat "http://www.rcsb.org/pdb/files/%FILE.pdb.gz";
   #set loadLigandFormat "http://www.rcsb.org/pdb/files/ligand/%FILE.cif";
   #set smilesUrlFormat "http://cactus.nci.nih.gov/chemical/structure/%FILE/file?format=sdf&get3d=True";
@@ -49,11 +50,8 @@ function _setFileState() {
   set percentVdwAtom 23;
   set smallMoleculeMaxAtoms 40000;
   set smartAromatic true;
-  set  chainCaseSensitive true;
-  load "./pdb/3U5D.pdb";
-  load append "./pdb/3U5B.pdb";
-  load append  "./pdb/3U5E.pdb";
-  load append  "./pdb/3U5C.pdb";
+  load "./pdb/EC_50S.pdb";
+  load append "./pdb/EC_30S.pdb";
  
 
 
@@ -90,9 +88,7 @@ function _setVariableState() {
   set bondtolerance 0.45;
   set cartoonbaseedges false;
   set cartoonrockets false;
-  set chaincasesensitive true;
-  set chainCaseSensitive true;
-
+  set chaincasesensitive false;
   set dataseparator "~~~";
   set defaultstructuredssp true;
   set delaymaximumms 0;
@@ -225,7 +221,9 @@ function _setVariableState() {
 
 }
 
-function _setModelState() {
+
+
+ function _setModelState() {
 
   select *;
 #  Cartoon off;
@@ -237,6 +235,8 @@ function _setModelState() {
   Color Cartoon blue;
  
  
+
+ 
   measures delete;
   select *; set measures nanometers;
   
@@ -245,61 +245,50 @@ function _setModelState() {
 #  display (1.1 and (:A or :B));
 #  display (2.1 and :A); 
   wireframe off;
-  Cartoon on;
-  
-  
+  Cartoon on;  
 
 
-  select (1.1 and :1 and ((636-660) or (1432-1451) or (1879-1910) or (2333-2399) or (2980-2994)));
-  color Cartoon opaque [xffd4a2];
   
-  select (1.1 and :1 and (1-635));
+  select (1.1 and :A and ((1-531) or ( 2895-2905)));
   color Cartoon opaque [xa999fb];
-
-    
-  select (1.1 and :1 and (661-1431));
+  
+  select (1.1 and :A and (532-1270));
   color Cartoon opaque [x3aa7ff];
   
-  select (1.1 and :1 and (1452-1878));
+  select (1.1 and :A and (1271-1646));
   color Cartoon opaque [xcc99cc];
   
-  select (1.1 and :1 and (1911-2332));
+  select (1.1 and :A and (1647-2017));
   color Cartoon opaque [xf0ff00];
   
-  select (1.1 and :1 and (2400-2979));
+  select (1.1 and :A and (2018-2625));
   color Cartoon opaque [xff99cc];
   
-  select (1.1 and :1 and (2995-3396));
+  select (1.1 and :A and (2626-2894));
   color Cartoon opaque [x0ba34a];
   
-  select (1.1 and :3  and (1-121));
-  color Cartoon opaque [x8ec640]; 
+  select (1.1 and :B and (1-124));
+  color Cartoon opaque [x8ec640];  
 
-  select (1.1 and :4 and (1-158));
-  color Cartoon opaque [xb27643]; 
-  
-  
-  select (2.1 and :2 and (1-609));
+
+
+  select (2.1 and :A and (1-561));
   color Cartoon opaque [x3aa7ff];
   
-  select (2.1 and :2 and (610-1141));
+  select (2.1 and :A and (562-916));
   color Cartoon opaque [xffd4a2];
   
-  select (2.1 and :2 and (1142-1634));
+  select (2.1 and :A and (917-1396));
   color Cartoon opaque [xff99cc];
   
-  select (2.1 and :2 and (1635-1800));
+  select (2.1 and :A and (1397-1542));
   color Cartoon opaque [x0ba34a];
-  
+
 #  display (1.1 and (:A or :B));
 #  display (2.1 and :A);
    
   
-  
-   
-  
-    
-  
+
   boundBox off;
   font boundBox 14.0 SansSerif Plain;
   boundBox off;
@@ -336,12 +325,11 @@ function _setPerspectiveState() {
 }
 
 function _setSelectionState() {
-
-  set  chainCaseSensitive true;
-  select   *:1 or *:2 or *:3 or *:4;
-  frame all
-  display (1.1 and (:1 or :3 or :4));
-  display (2.1 and :2);
+  
+  select   *:A or *:B;
+  frame all;
+  display (1.1 and (:A or :B));
+  display (2.1 and :A);
   set hideNotSelected true;
   center selected;
 }

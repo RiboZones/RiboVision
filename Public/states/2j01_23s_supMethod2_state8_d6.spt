@@ -1,12 +1,8 @@
 # Jmol state version 12.2.17  2011-12-13 21:20;
-  # fullName = "jmolApplet0__5459232675059036__";
-  # documentBase = "http://apollo.chemistry.gatech.edu/Ribovision/sandbox2/";
-  # codeBase = "http://apollo.chemistry.gatech.edu/Ribovision/sandbox2/jmol/";
-
 
 function _setWindowState() {
-# width 831;
-# height 781;
+# width 1420;
+# height 745;
   stateVersion = 1202017;
   background [xffffff];
   axis1Color = "[xff0000]";
@@ -24,7 +20,39 @@ function _setWindowState() {
 
 function _setFileState() {
 
-  zap;
+  set allowEmbeddedScripts false;
+  set appendNew true;
+  set appletProxy "";
+  set applySymmetryToBonds false;
+  set autoBond true;
+  set bondRadiusMilliAngstroms 150;
+  set bondTolerance 0.45;
+  set defaultLattice {0.0 0.0 0.0};
+  set defaultLoadFilter "";
+  set defaultLoadScript "";
+  set defaultStructureDssp true;
+  set defaultVDW Auto;
+  set forceAutoBond false;  
+  #set loadFormat "http://www.rcsb.org/pdb/files/%FILE.pdb.gz";
+  #set loadLigandFormat "http://www.rcsb.org/pdb/files/ligand/%FILE.cif";
+  #set smilesUrlFormat "http://cactus.nci.nih.gov/chemical/structure/%FILE/file?format=sdf&get3d=True";
+  #set nihResolverFormat "http://cactus.nci.nih.gov/chemical/structure/%FILE";
+  #set edsUrlFormat "http://eds.bmc.uu.se/eds/dfs/%LC13/%LCFILE/%LCFILE.omap";
+  #set edsUrlCutoff "load('http://eds.bmc.uu.se/eds/dfs/%LC13/%LCFILE/%LCFILE.sfdat').lines.find('MAP_SIGMA').split(' ')[2]";
+  set legacyAutoBonding false;
+  set minBondDistance 0.4;
+  set minimizationCriterion  0.0010;
+  set minimizationSteps  100;
+  set pdbAddHydrogens false;
+  set pdbGetHeader false;
+  set pdbSequential false;
+  set percentVdwAtom 23;
+  set smallMoleculeMaxAtoms 40000;
+  set smartAromatic true;
+  load "./pdb/2J01_23s_supMethod2_vis1_fixed.pdb";
+  load append "./pdb/2J00_16s_supMethod2_vis1_fixed.pdb";
+ 
+
 
 }
 
@@ -36,7 +64,7 @@ function _setVariableState() {
    set defaultdrawarrowscale 0.5;
    set defaultlabelpdb "%m%r";
    set defaultlabelxyz "%a";
-   set defaultlattice "{0 0 0}";
+   set defaultlattice "{0.0 0.0 0.0}";
    set defaultloadfilter "";
    set defaultloadscript "";
    set defaulttorsionlabel "%VALUE %UNITS";
@@ -110,7 +138,7 @@ function _setVariableState() {
   set measurementlabels true;
   set messagestylechime false;
   set minbonddistance 0.4;
-  set minimizationcriterion 0.001;
+  set minimizationcriterion 0.0010;
   set minimizationrefresh true;
   set minimizationsilent false;
   set minimizationsteps 100;
@@ -158,7 +186,7 @@ function _setVariableState() {
   set solventprobe false;
   set solventproberadius 1.2;
   set ssbondsbackbone false;
-  set stereodegrees -5;
+  set stereodegrees -5.0;
   set strandcountformeshribbon 7;
   set strandcountforstrands 5;
   set strutdefaultradius 0.3;
@@ -174,7 +202,7 @@ function _setVariableState() {
   set useminimizationthread true;
   set usenumberlocalization true;
   set vectorscale 1.0;
-  set vibrationscale 1.0;
+  set vibrationscale 0.5;
   set waitformoveto true;
   set wireframerotation false;
   set zdepth 0;
@@ -194,17 +222,89 @@ function _setVariableState() {
 
 function _setModelState() {
 
+  select *;
+#  Cartoon off;
+#  Spacefill 2;
+   cartoon only; 
+  wireframe off;  
+  Cartoon on;
+  select protein;
+  Color Cartoon blue;
+ 
+ 
   measures delete;
   select *; set measures nanometers;
+  
   font measures 15.0 SansSerif Plain;
+#  select :A or :B;
+#  display (1.1 and (:A or :B));
+#  display (2.1 and :A); 
+  wireframe off;
+  Cartoon on;
+  
+  
 
+
+ 
+  
+  select (1.1 and :A and ((1-531) or ( 2895-2905)));
+  color Cartoon opaque [xa999fb];
+  
+  select (1.1 and :A and (532-1270));
+  color Cartoon opaque [x3aa7ff];
+  
+  select (1.1 and :A and (1271-1646));
+  color Cartoon opaque [xcc99cc];
+  
+  select (1.1 and :A and (1647-2017));
+  color Cartoon opaque [xf0ff00];
+  
+  select (1.1 and :A and (2018-2625));
+  color Cartoon opaque [xff99cc];
+  
+  select (1.1 and :A and (2626-2894));
+  color Cartoon opaque [x0ba34a];
+  
+  select (1.1 and :B and (1-124));
+  color Cartoon opaque [x8ec640]; 
+  
+  
+  select (2.1 and :A and (1-561));
+  color Cartoon opaque [x3aa7ff];
+  
+  select (2.1 and :A and (562-916));
+  color Cartoon opaque [xffd4a2];
+  
+  select (2.1 and :A and (917-1396));
+  color Cartoon opaque [xff99cc];
+  
+  select (2.1 and :A and (1397-1542));
+  color Cartoon opaque [x0ba34a];
+  
+#  display (1.1 and (:A or :B));
+#  display (2.1 and :A);
+   
+  
+  
+   
+  
+    
+  
   boundBox off;
   font boundBox 14.0 SansSerif Plain;
   boundBox off;
 
+  unitcell off;
+  font unitcell 14.0 SansSerif Plain;
+  unitcell off;
+
+  hover "%U";
+
   frank on;
   font frank 16.0 SansSerif Bold;
   select *;
+  frame 1.1; set unitcell {0.0 0.0 0.0};
+  unitcell OFF;
   set fontScaling false;
 
 }
@@ -215,18 +315,23 @@ function _setPerspectiveState() {
   set perspectiveDepth true;
   set visualRange 5.0;
   set cameraDepth 3.0;
-  boundbox corners {-10.0 -10.0 -10.0} {10.0 10.0 10.0} # volume = 8000.0;
-  center {0.0 0.0 0.0};
-  moveto -1.0 {0 0 1 0} 100.0 0.0 0.0 {0.0 0.0 0.0} 10.0 {0.0 0.0 0.0} 0.0 0.0 0.0;
+  boundbox corners {-144.84799 23.633987 68.34201} {71.63199 248.62102 257.848} # volume = 9229924.0;
+  center {2.8253148 187.43567 169.35358};
+  moveto -1.0 {0 0 1 0} 100.0 0.0 0.0 {-36.607998 136.1275 163.095} 155.71933 {0.0 0.0 0.0} 0.0 0.0 0.0;
   save orientation "default";
-  moveto 0.0 {0 0 1 0} 100.0 0.0 0.0 {0.0 0.0 0.0} 10.0 {0.0 0.0 0.0} 0.0 0.0 0.0;;
+  moveto 0.0 { 443 509 738 160.7} 105.7 0.0 0.0 {2.8253148 187.43567 169.35358} 182.38565 {0.0 0.0 0.0} -42.880226 8.713927 0.0;;
   slab 100;depth 0;
   set slabRange 0.0;
   set spinX 0; set spinY 30; set spinZ 0; set spinFps 30;  set navX 0; set navY 0; set navZ 0; set navFps 10;
 }
 
 function _setSelectionState() {
-  set hideNotSelected false;
+  frame all;
+  select   *:A or *:B;
+  display (1.1 and (:A or :B));
+  display (2.1 and :A);
+  set hideNotSelected true;
+  center selected;
 }
 
 function _setState() {
