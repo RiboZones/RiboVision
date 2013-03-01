@@ -474,7 +474,7 @@ function colorResidue(event) {
 	var sel = getSelected(event);
 	if (sel != -1) {
 		var targetLayer=rvDataSets[0].getSelectedLayer();
-		var color = $("#color").val();
+		var color = $("#MainColor").val();
 		targetLayer.dataLayerColors[sel]=color;	
 		switch (targetLayer.Type){
 			case "residues" : 
@@ -515,7 +515,7 @@ function clearColor(update3D) {
 
 function colorSelection() {
 	var targetLayer=rvDataSets[0].getSelectedLayer();
-	var color = $("#color").val();
+	var color = $("#MainColor").val();
 	var targetSelection = rvDataSets[0].getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
 	for (var i = 0; i < targetSelection.Residues.length; i++) {
 		targetLayer.dataLayerColors[targetSelection.Residues[i].map_Index - 1] = color;
@@ -1192,17 +1192,17 @@ function mouseMoveFunction(event){
 							rvDataSets[0].HighlightLayer.CanvasContext.font = "3pt Arial";
 							rvDataSets[0].HighlightLayer.CanvasContext.textBaseline = "middle";
 							rvDataSets[0].HighlightLayer.CanvasContext.textAlign = "center";
-							rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = $("#color").val();
+							rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = $("#MainColor").val();
 							rvDataSets[0].HighlightLayer.CanvasContext.fillText(rvDataSets[0].Residues[sel].resName, rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y);
 							break;
 						case "circles" :
 							rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
 							rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, (targetLayer.ScaleFactor * 1.7), 0, 2 * Math.PI, false);
 							rvDataSets[0].HighlightLayer.CanvasContext.closePath();
-							rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = $("#color").val();
+							rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = $("#MainColor").val();
 							rvDataSets[0].HighlightLayer.CanvasContext.stroke();
 							if (targetLayer.Filled) {
-								rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = $("#color").val();
+								rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = $("#MainColor").val();
 								rvDataSets[0].HighlightLayer.CanvasContext.fill();
 							}
 							break;
@@ -1235,17 +1235,17 @@ function mouseMoveFunction(event){
 						rvDataSets[0].HighlightLayer.CanvasContext.font = "3pt Arial";
 						rvDataSets[0].HighlightLayer.CanvasContext.textBaseline = "middle";
 						rvDataSets[0].HighlightLayer.CanvasContext.textAlign = "center";
-						rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = $("#color").val();
+						rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = $("#MainColor").val();
 						rvDataSets[0].HighlightLayer.CanvasContext.fillText(rvDataSets[0].Residues[sel].resName, rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y);
 						break;
 					case "circles" :
 						rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
 						rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, (targetLayer.ScaleFactor * 1.7), 0, 2 * Math.PI, false);
 						rvDataSets[0].HighlightLayer.CanvasContext.closePath();
-						rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = $("#color").val();
+						rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = $("#MainColor").val();
 						rvDataSets[0].HighlightLayer.CanvasContext.stroke();
 						if (targetLayer.Filled) {
-							rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = $("#color").val();
+							rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = $("#MainColor").val();
 							rvDataSets[0].HighlightLayer.CanvasContext.fill();
 						}
 						break;
@@ -1459,7 +1459,8 @@ function handleFileSelect(event) {
 								var ressplit = targetSelection.Residues[iii].resNum.split(":");
 								var ResName = rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(ressplit[0])] + "_" + ressplit[1];				
 							} else {
-								var chainID = rvDataSets[0].SpeciesEntry.PDB_chains[0];
+								var comsplit = command[0].split(":");
+								var chainID =  rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(comsplit[0])];
 								var ResName = chainID + "_" + targetSelection.Residues[iii].resNum;
 							}
 							var k = rvDataSets[0].ResidueList.indexOf(ResName);

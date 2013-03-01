@@ -53,7 +53,9 @@ var DomainColors = ["#ffd4a2", "#a999fb", "#3aa7ff", "#cc99cc", "#f0ff00", "#ff9
 var HelixColors = ["#000000", "#ed1c24", "#00a651", "#1c75bc", "#662d91"];
 var ShapeColors = ["#808080", "#0000ff", "#008000", "#ffd700", "#ff0000"];
 //var BinaryColors = ["#509467", "#FF784F", "#FF0DE7"];
-var BinaryColors = ["#858585", "#FF0DE7", "#FF0DE7"];
+//var BinaryColors = ["#858585", "#FF0DE7", "#FF0DE7"];
+var BinaryColors=["#279027","#FF0DE7","#FF0DE7"];
+
 
 var RainBowColors = ["#00008f", "#00009f", "#0000af", "#0000bf", "#0000cf", "#0000df",
 	"#0000ef", "#0000ff", "#0010ff", "#0020ff", "#0030ff", "#0040ff",
