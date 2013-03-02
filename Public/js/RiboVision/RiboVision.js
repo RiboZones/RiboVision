@@ -48,7 +48,7 @@ var OpenStateOnLoad = false;
 var UserName = "Guest";
 
 // Color Palettes, need to be consolidated
-var OnionColors = ["#000000", "#ff0000", "#008000", "#0000ff", "#800080", "#ff8c00", "#ff8c00", "#ff8c00"];
+var OnionColors = ["#000000", "#ff0000", "#008000", "#0000ff", "#800080", "#ff8c00", "#ff8c00", "#ff8c00", "#ff8c00"];
 var DomainColors = ["#ffd4a2", "#a999fb", "#3aa7ff", "#cc99cc", "#f0ff00", "#ff99cc", "#0ba34a", "#8ec640", "#B27643"];
 var HelixColors = ["#000000", "#ed1c24", "#00a651", "#1c75bc", "#662d91"];
 var ShapeColors = ["#808080", "#0000ff", "#008000", "#ffd700", "#ff0000"];
