@@ -1466,8 +1466,11 @@ function handleFileSelect(event) {
 							var k = rvDataSets[0].ResidueList.indexOf(ResName);
 							
 							if ($.inArray("DataCol", customkeys) >= 0) {
-								//rvDataSets[0].Residues[k]["CustomData1"] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
-								NewData[k] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
+								if (isNaN(parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]))){
+									NewData[k] = rvDataSets[0].CustomData[ii]["DataCol"];
+								} else {
+									NewData[k] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
+								}
 							}
 							if ($.inArray("ColorCol", customkeys) >= 0) {
 								targetLayer.dataLayerColors[k] = rvDataSets[0].CustomData[ii]["ColorCol"];
@@ -1489,10 +1492,12 @@ function handleFileSelect(event) {
 						targetSelection = rvDataSets[0].Selections[0];
 						targetSelection.Residues.push(rvDataSets[0].Residues[k]);
 						if ($.inArray("DataCol", customkeys) >= 0) {
-							//rvDataSets[0].Residues[k]["CustomData1"] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
-							NewData[k] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
-							//rvDataSets[0].Residues[k].CurrentData = NewData[k];
-						}
+							if (isNaN(parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]))){
+								NewData[k] = rvDataSets[0].CustomData[ii]["DataCol"];
+							} else {
+								NewData[k] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
+							}
+						}	
 						if ($.inArray("ColorCol", customkeys) >= 0) {
 							targetLayer.dataLayerColors[k] = rvDataSets[0].CustomData[ii]["ColorCol"];
 						}
