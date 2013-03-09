@@ -1,3 +1,17 @@
-ColName,Description
-Onion,A brief description of the onion
-Shannon_Entropy,A brief description of Shannon Entropy
+ColName,Description,HelpLink
+Onion,This is a coloring of rach residue according to its shell in our onion model. ,StructuralData
+Shannon_Entropy,This is a coloring of each residue according to its Shannon Entropy in our alignment. Blue is most conserved and red is least conserved. ,AlignmentData
+map_Index,This is a coloring of each residue according to its index in our secondary structure. The 5S is placed at the end. There is a rainbow gradient ranging from blue on the 5' end to red on the 3' end. ,StructuralData
+Domains_Color,This is a coloring of each residue according to its placement in a traditional secondary structure domain. ,StructuralData
+Helix_Color,Data Description not yet written,StructuralData
+mean_tempFactor,Data Description not yet written,StructuralData
+Mg_ions_24,Data Description not yet written,StructuralData
+Mg_ions_26,Data Description not yet written,StructuralData
+Mg_ions_60,Data Description not yet written,StructuralData
+All_Proteins,This is a coloring of all residues which contact the selected proteins. Each color represents a different protein in your list of selected proteins,ProteinData
+Phylo_BasePairs,This is a set of base-base interactions as defined in FR3D. ,InteractionData
+Phylo_BasePhosphate,This is a set of base-phosphate interactions as defined in FR3D. ,InteractionData
+Phylo_BaseSugar,This is a set of base-sugar interactions as defined in FR3D. ,InteractionData
+Phylo_Stacking,This is a set of base-base stacking as defined in FR3D. ,InteractionData
+Phylo_NMN,Data Description not yet written,InteractionData
+Phylo_NPN,Data Description not yet written,InteractionData
