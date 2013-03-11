@@ -77,35 +77,50 @@ $(".toolBarBtn2").css('height', $("#openLayerBtn").css('height'));
 
 
 function changeLayerColor(){
-	$($dblClickedLayer).parent().find(".colorBox").css("background",$("#layerColor").val());
+	var newcolor,newcolorH,farbobj;
+	var colorcheck = $("#layerColor").val().match(/#[\dABCDEFabcdef]{6,6}$/);
+	if (colorcheck && (colorcheck[0].length === 7)){
+		newcolor = colorcheck[0];
+	} else {
+		newcolorH = colorNameToHex($("#layerColor").val());
+		if (newcolorH === false){
+			$( "#dialog-invalid-color-error" ).dialog("open");
+			return false;
+		} else {
+			newcolor = $("#layerColor").val();
+			farbobj = $.farbtastic("#layerColorPicker");
+			farbobj.setColor(newcolorH);
+		}
+	}
+	$($dblClickedLayer).parent().find(".colorBox").css("background",newcolor);
 	var targetLayer = rvDataSets[0].getLayer($dblClickedLayerName);
-	targetLayer.Color = $("#layerColor").val();
+	targetLayer.Color = newcolor;
 	drawNavLine();
-	//console.log(42);
-	//$dblClickedLayerName = this.innerHTML.substring(this.innerHTML.lastIndexOf("</span>")+7);
-	//$dblClickedLayer = this;
-	//$($dblClickedLayer).parent().attr("name",$("#layerNameInput").val());
-	//console.log(color);
+	return true;
 }
 
 //in "Layer Preferfence" 
 function changeCurrentLayerName() {
-	if ($("#layerNameInput").val() !== $($dblClickedLayer).parent().attr("name")){
+	if ($("#layerNameInput").val() !="" && ($("#layerNameInput").val() !== $($dblClickedLayer).parent().attr("name"))){
 		var namecheck = $("#layerNameInput").val().match(/[A-z][\w-_:\.]*/);
-		if (namecheck[0].length === $("#layerNameInput").val().length && $("#layerNameInput").val().length <= 16){
+		if (namecheck !==null && namecheck[0].length === $("#layerNameInput").val().length && $("#layerNameInput").val().length <= 16){
 			if (rvDataSets[0].isUniqueLayer($("#layerNameInput").val())){
 				$($dblClickedLayer).parent().attr("name",$("#layerNameInput").val());
 				$($dblClickedLayer).html($("#layerNameInput").val()).prepend('<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-e"></span>');
 				var targetLayer = rvDataSets[0].getLayer($dblClickedLayerName);
 				targetLayer.LayerName = $("#layerNameInput").val();
 				RefreshLayerMenu();
-				$(this).dialog("close");
+				return true;
 			} else {
 				$( "#dialog-unique-layer-error" ).dialog("open");
+				return false;
 			}
 		} else {
 			$( "#dialog-name-error" ).dialog("open");
+			return false;
 		}
+	} else {
+		return true;
 	}
 }
 
@@ -231,11 +246,11 @@ function LayerMenu(Layer, key, RVcolor) {
 		}));	
 		
 	//$count++;
-	
+	$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div>').html("<b>Layer Type:</b> " + Layer.Type).append($("<br>")));
 	switch (Layer.Type) {
 		case "circles":
 			//Data Label Section 
-			$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div name="' + 'datalabel' + '">').text(Layer.DataLabel).append($("<br>")).append($("<br>")));
+			$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div>').html("<b>Loaded Data: </b><span name='DataLabel'>" + Layer.DataLabel + "</span>").append($("<br>")).append($("<br>")));
 			
 			//Circle buttons
 			$("#LayerPanel div").first().next().find(".layerContent").append($('<div id="' + 'pr-' + key + '">').text("Draw Circles as:").append($("<br>")));
@@ -281,7 +296,7 @@ function LayerMenu(Layer, key, RVcolor) {
 			break;
 		case "lines":
 			//Data Label Section 
-			$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div name="' + 'datalabel' + '">').text(Layer.DataLabel).append($("<br>")).append($("<br>")));
+			$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div>').html("<b>Loaded Data: </b><span name='DataLabel'>" + Layer.DataLabel + "</span>").append($("<br>")).append($("<br>")));
 			$("#LayerPanel div").first().next().find(".layerContent").append($('<div name="llm">').text("Color lines like:").append($("<br>")));
 			//$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<select id="' + 'llm-' + key + 'lineselect' + '" name="' + 'llm-' + key + 'lineselect' + '" multiple="multiple"></select>'));
 			$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<select multiple="multiple"></select>'));
@@ -341,7 +356,7 @@ function LayerMenu(Layer, key, RVcolor) {
 			break;
 		case "residues":
 			//Data Label Section 
-			$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div name="' + 'datalabel' + '">').text(Layer.DataLabel).append($("<br>")).append($("<br>")));
+			$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div>').html("<b>Loaded Data: </b><span name='DataLabel'>" + Layer.DataLabel + "</span>").append($("<br>")).append($("<br>")));
 			
 			$("#LayerPanel div").first().next().find(".selectLayerRadioBtn").attr("checked", "checked");
 			rvDataSets[0].selectLayer($("#LayerPanel div").first().next().attr("name"));
@@ -414,6 +429,18 @@ $("#LayerPreferenceDialog").dialog({
 		at : "center",
 		of : $("#canvasDiv")
 	},
+	buttons : {
+		"Save" : function () {
+			var ret = changeCurrentLayerName();
+			var ret2 = changeLayerColor();
+			if (ret && ret2) {
+				$("#LayerPreferenceDialog").dialog("close");
+			}
+		},
+		Cancel: function (){
+			$(this).dialog("close");
+		}
+	},
 	open : function (event) {
 	$("#myJmol_object").css("visibility", "hidden");
 	},
@@ -431,7 +458,7 @@ $("#dialog-addLayer").dialog({
 	buttons : {
 		"Create New Layer" : function () {
 			var namecheck = $("#newLayerName").val().match(/[A-z][\w-_:\.]*/);
-			if (namecheck[0].length === $("#newLayerName").val().length && $("#newLayerName").val().length <= 16){
+			if (namecheck !==null && namecheck[0].length === $("#newLayerName").val().length && $("#newLayerName").val().length <= 16){
 				if (rvDataSets[0].isUniqueLayer($("#newLayerName").val())){
 					//$("#canvasDiv").append($('<canvas id="' + $("#newLayerName").val() + '" style="z-index:' + ( rvDataSets[0].LastLayer + 1 ) + ';"></canvas>')); 
 					rvDataSets[0].addLayer($("#newLayerName").val(), $("#newLayerName").val(), [], true, 1.0, 'circles',$("#layerColor2").val());
@@ -440,6 +467,8 @@ $("#dialog-addLayer").dialog({
 					RefreshLayerMenu();
 					$(".oneLayerGroup[name=" + $("#newLayerName").val() + "]").find(".selectLayerRadioBtn").prop("checked",true);
 					$(".oneLayerGroup[name=" + $("#newLayerName").val() + "]").find(".selectLayerRadioBtn").trigger("change");
+					var farbobj = $.farbtastic("#layerColorPicker2");
+					farbobj.setColor(colorNameToHex($("#layerColor2").val()));
 					$(this).dialog("close");
 				} else {
 					$( "#dialog-unique-layer-error" ).dialog("open");
@@ -465,5 +494,21 @@ $("#newLayerName").button().addClass('ui-textfield').keydown(function (event) {
 		$("#dialog-addLayer").dialog("option", "buttons")['Create New Layer'].apply($("#dialog-addLayer"));
 	}
 });
-	
-	
+$("#layerColor2").button().addClass('ui-textfield').keydown(function (event) {
+	if (event.keyCode == 13) {
+		$("#dialog-addLayer").dialog("option", "buttons")['Create New Layer'].apply($("#dialog-addLayer"));
+	}
+});
+$("#layerColor").button().addClass('ui-textfield').keydown(function (event) {
+	if (event.keyCode == 13) {
+		//$("#LayerPreferenceDialog").dialog("option", "buttons")['Save'].apply($("#LayerPreferenceDialog"));
+		var ret2 = changeLayerColor();
+	}
+});
+
+$("#layerNameInput").button().addClass('ui-textfield').keydown(function (event) {
+	if (event.keyCode == 13) {
+		//$("#LayerPreferenceDialog").dialog("option", "buttons")['Save'].apply($("#LayerPreferenceDialog"));
+		var ret = changeCurrentLayerName();
+	}
+});
