@@ -9,11 +9,11 @@ if(isset($_GET['Residues'])) {
 	$stmt = $pdo->query($query);
 	$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } else if(isset($_GET['SpeciesTable'])) {
-	$stmt = $pdo->prepare("SELECT * FROM SpeciesTables2 WHERE SS_Table = ?");
+	$stmt = $pdo->prepare("SELECT * FROM SpeciesTables WHERE SS_Table = ?");
 	$stmt->execute(array($_GET['SpeciesTable']));
 	$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } else if(isset($_GET['FetchMapList'])){
-	$query = "SELECT Species_Name, Species_Abr, Subunit, MapType, SS_Table FROM SpeciesTables2";
+	$query = "SELECT Species_Name, Species_Abr, Subunit, MapType, SS_Table FROM SpeciesTables";
 	$stmt = $pdo->query($query);
 	$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } else if(isset($_GET['TextLabels'])) {
