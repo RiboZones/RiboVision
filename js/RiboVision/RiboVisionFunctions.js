@@ -474,7 +474,7 @@ function colorResidue(event) {
 	var sel = getSelected(event);
 	if (sel != -1) {
 		var targetLayer=rvDataSets[0].getSelectedLayer();
-		var color = $("#color").val();
+		var color = $("#MainColor").val();
 		targetLayer.dataLayerColors[sel]=color;	
 		switch (targetLayer.Type){
 			case "residues" : 
@@ -515,7 +515,7 @@ function clearColor(update3D) {
 
 function colorSelection() {
 	var targetLayer=rvDataSets[0].getSelectedLayer();
-	var color = $("#color").val();
+	var color = $("#MainColor").val();
 	var targetSelection = rvDataSets[0].getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
 	for (var i = 0; i < targetSelection.Residues.length; i++) {
 		targetLayer.dataLayerColors[targetSelection.Residues[i].map_Index - 1] = color;
@@ -543,7 +543,7 @@ function update3Dcolors() {
 	var targetLayer=rvDataSets[0].getLinkedLayer();
 	rvDataSets[0].Residues[0].CurrentData=targetLayer.Data[0];
 
-	curr_color = colourNameToHex(targetLayer.dataLayerColors[0]);
+	curr_color = colorNameToHex(targetLayer.dataLayerColors[0]);
 	
 	if (!curr_color || curr_color === '#000000') {
 		curr_color = '#858585';
@@ -560,14 +560,14 @@ function update3Dcolors() {
 		if (residue.ChainID != "") {
 			if (curr_chain == "") {
 				curr_chain = residue.ChainID;
-				curr_color = colourNameToHex(targetLayer.dataLayerColors[i]);
+				curr_color = colorNameToHex(targetLayer.dataLayerColors[i]);
 				if (!curr_color || curr_color === '#000000') {
 					curr_color = '#858585';
 				}
 				r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""); ;
 			} else if (residue.ChainID == null) {
 				curr_chain = residue.ChainID;
-				curr_color = colourNameToHex(targetLayer.dataLayerColors[i]);
+				curr_color = colorNameToHex(targetLayer.dataLayerColors[i]);
 				if (!curr_color || curr_color === '#000000') {
 					curr_color = '#858585';
 				}
@@ -576,15 +576,15 @@ function update3Dcolors() {
 				if (!targetLayer.dataLayerColors[i]){
 					compare_color = '#858585';
 				} else {
-					compare_color = colourNameToHex(targetLayer.dataLayerColors[i]);
+					compare_color = colorNameToHex(targetLayer.dataLayerColors[i]);
 				}
-				if (((compare_color != colourNameToHex(residueLastColor)) || (curr_chain != residue.ChainID)) || (i == (rvDataSets[0].Residues.length - 1))) {
+				if (((compare_color != colorNameToHex(residueLastColor)) || (curr_chain != residue.ChainID)) || (i == (rvDataSets[0].Residues.length - 1))) {
 					r1 = residueLast.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""); ;
 					n = r1.match(/[A-z]/g);
 					if (n != undefined) {
 						r1 = r1.replace(n, "^" + n);
 					}
-					if (colourNameToHex(residueLastColor).indexOf("#") == -1) {
+					if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
 						//script += "select " + (SubunitNames.indexOf(rvDataSets[0].SpeciesEntry.Subunit) + 1) + ".1 and :" + curr_chain + " and (" + r0 + " - " + r1 + "); color Cartoon opaque [x" + curr_color + "]; ";
 						script += "select " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and :" + curr_chain + " and (" + r0 + " - " + r1 + "); color Cartoon opaque [x" + curr_color + "]; ";
 					} else {
@@ -598,7 +598,7 @@ function update3Dcolors() {
 					if (residue.ChainID != "") {
 						curr_chain = residue.ChainID;
 					}
-					curr_color = colourNameToHex(targetLayer.dataLayerColors[i]);
+					curr_color = colorNameToHex(targetLayer.dataLayerColors[i]);
 					if (!curr_color || curr_color === '#000000') {
 						curr_color = '#858585';
 					}
@@ -606,7 +606,7 @@ function update3Dcolors() {
 			}
 		}
 	}
-	if (colourNameToHex(residueLastColor).indexOf("#") == -1) {
+	if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
 		script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and :" + curr_chain + " and (" + r0 + " - " + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "); color Cartoon opaque [x" + curr_color + "]; ";
 	} else {
 		script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and :" + curr_chain + " and (" + r0 + " - " + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "); color Cartoon opaque [" + curr_color.replace("#", "x") + "]; ";
@@ -753,7 +753,7 @@ function colorMappingLoop(seleProt, OverRideColors) {
 		}
 	}
 	
-	
+	drawNavLine();
 	Jscript += "));";
 	//JscriptP+="display " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA ) + ".1, " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein ) + ".1;" ;
 	
@@ -854,153 +854,165 @@ function colorMapping(ChoiceList, ManualCol, OverRideColors, indexMode, rePlaceD
 		
 }
 
-function colourNameToHex(colour) {
-	var colours = {
-		"aliceblue" : "#f0f8ff",
-		"antiquewhite" : "#faebd7",
-		"aqua" : "#00ffff",
-		"aquamarine" : "#7fffd4",
-		"azure" : "#f0ffff",
-		"beige" : "#f5f5dc",
-		"bisque" : "#ffe4c4",
-		"black" : "#000000",
-		"blanchedalmond" : "#ffebcd",
-		"blue" : "#0000ff",
-		"blueviolet" : "#8a2be2",
-		"brown" : "#a52a2a",
-		"burlywood" : "#deb887",
-		"cadetblue" : "#5f9ea0",
-		"chartreuse" : "#7fff00",
-		"chocolate" : "#d2691e",
-		"coral" : "#ff7f50",
-		"cornflowerblue" : "#6495ed",
-		"cornsilk" : "#fff8dc",
-		"crimson" : "#dc143c",
-		"cyan" : "#00ffff",
-		"darkblue" : "#00008b",
-		"darkcyan" : "#008b8b",
-		"darkgoldenrod" : "#b8860b",
-		"darkgray" : "#a9a9a9",
-		"darkgreen" : "#006400",
-		"darkkhaki" : "#bdb76b",
-		"darkmagenta" : "#8b008b",
-		"darkolivegreen" : "#556b2f",
-		"darkorange" : "#ff8c00",
-		"darkorchid" : "#9932cc",
-		"darkred" : "#8b0000",
-		"darksalmon" : "#e9967a",
-		"darkseagreen" : "#8fbc8f",
-		"darkslateblue" : "#483d8b",
-		"darkslategray" : "#2f4f4f",
-		"darkturquoise" : "#00ced1",
-		"darkviolet" : "#9400d3",
-		"deeppink" : "#ff1493",
-		"deepskyblue" : "#00bfff",
-		"dimgray" : "#696969",
-		"dodgerblue" : "#1e90ff",
-		"firebrick" : "#b22222",
-		"floralwhite" : "#fffaf0",
-		"forestgreen" : "#228b22",
-		"fuchsia" : "#ff00ff",
-		"gainsboro" : "#dcdcdc",
-		"ghostwhite" : "#f8f8ff",
-		"gold" : "#ffd700",
-		"goldenrod" : "#daa520",
-		"gray" : "#808080",
-		"green" : "#008000",
-		"greenyellow" : "#adff2f",
-		"honeydew" : "#f0fff0",
-		"hotpink" : "#ff69b4",
-		"indianred " : "#cd5c5c",
-		"indigo " : "#4b0082",
-		"ivory" : "#fffff0",
-		"khaki" : "#f0e68c",
-		"lavender" : "#e6e6fa",
-		"lavenderblush" : "#fff0f5",
-		"lawngreen" : "#7cfc00",
-		"lemonchiffon" : "#fffacd",
-		"lightblue" : "#add8e6",
-		"lightcoral" : "#f08080",
-		"lightcyan" : "#e0ffff",
-		"lightgoldenrodyellow" : "#fafad2",
-		"lightgrey" : "#d3d3d3",
-		"lightgreen" : "#90ee90",
-		"lightpink" : "#ffb6c1",
-		"lightsalmon" : "#ffa07a",
-		"lightseagreen" : "#20b2aa",
-		"lightskyblue" : "#87cefa",
-		"lightslategray" : "#778899",
-		"lightsteelblue" : "#b0c4de",
-		"lightyellow" : "#ffffe0",
-		"lime" : "#00ff00",
-		"limegreen" : "#32cd32",
-		"linen" : "#faf0e6",
-		"magenta" : "#ff00ff",
-		"maroon" : "#800000",
-		"mediumaquamarine" : "#66cdaa",
-		"mediumblue" : "#0000cd",
-		"mediumorchid" : "#ba55d3",
-		"mediumpurple" : "#9370d8",
-		"mediumseagreen" : "#3cb371",
-		"mediumslateblue" : "#7b68ee",
-		"mediumspringgreen" : "#00fa9a",
-		"mediumturquoise" : "#48d1cc",
-		"mediumvioletred" : "#c71585",
-		"midnightblue" : "#191970",
-		"mintcream" : "#f5fffa",
-		"mistyrose" : "#ffe4e1",
-		"moccasin" : "#ffe4b5",
-		"navajowhite" : "#ffdead",
-		"navy" : "#000080",
-		"oldlace" : "#fdf5e6",
-		"olive" : "#808000",
-		"olivedrab" : "#6b8e23",
-		"orange" : "#ffa500",
-		"orangered" : "#ff4500",
-		"orchid" : "#da70d6",
-		"palegoldenrod" : "#eee8aa",
-		"palegreen" : "#98fb98",
-		"paleturquoise" : "#afeeee",
-		"palevioletred" : "#d87093",
-		"papayawhip" : "#ffefd5",
-		"peachpuff" : "#ffdab9",
-		"peru" : "#cd853f",
-		"pink" : "#ffc0cb",
-		"plum" : "#dda0dd",
-		"powderblue" : "#b0e0e6",
-		"purple" : "#800080",
-		"red" : "#ff0000",
-		"rosybrown" : "#bc8f8f",
-		"royalblue" : "#4169e1",
-		"saddlebrown" : "#8b4513",
-		"salmon" : "#fa8072",
-		"sandybrown" : "#f4a460",
-		"seagreen" : "#2e8b57",
-		"seashell" : "#fff5ee",
-		"sienna" : "#a0522d",
-		"silver" : "#c0c0c0",
-		"skyblue" : "#87ceeb",
-		"slateblue" : "#6a5acd",
-		"slategray" : "#708090",
-		"snow" : "#fffafa",
-		"springgreen" : "#00ff7f",
-		"steelblue" : "#4682b4",
-		"tan" : "#d2b48c",
-		"teal" : "#008080",
-		"thistle" : "#d8bfd8",
-		"tomato" : "#ff6347",
-		"turquoise" : "#40e0d0",
-		"violet" : "#ee82ee",
-		"wheat" : "#f5deb3",
-		"white" : "#ffffff",
-		"whitesmoke" : "#f5f5f5",
-		"yellow" : "#ffff00",
-		"yellowgreen" : "#9acd32"
+function colorNameToHex(color) {
+	var colors = { 
+		"aliceblue": "#f0f8ff",
+		 "antiquewhite": "#faebd7",
+		 "aqua": "#00ffff",
+		 "aquamarine": "#7fffd4",
+		 "azure": "#f0ffff",
+		 "beige": "#f5f5dc",
+		 "bisque": "#ffe4c4",
+		 "black": "#000000",
+		 "blanchedalmond": "#ffebcd",
+		 "blue": "#0000ff",
+		 "blueviolet": "#8a2be2",
+		 "brown": "#a52a2a",
+		 "burlywood": "#deb887",
+		 "cadetblue": "#5f9ea0",
+		 "chartreuse": "#7fff00",
+		 "chocolate": "#d2691e",
+		 "coral": "#ff7f50",
+		 "cornflowerblue": "#6495ed",
+		 "cornsilk": "#fff8dc",
+		 "crimson": "#dc143c",
+		 "cyan": "#00ffff",
+		 "darkblue": "#00008b",
+		 "darkcyan": "#008b8b",
+		 "darkgoldenrod": "#b8860b",
+		 "darkgray": "#a9a9a9",
+		 "darkgreen": "#006400",
+		 "darkkhaki": "#bdb76b",
+		 "darkmagenta": "#8b008b",
+		 "darkolivegreen": "#556b2f",
+		 "darkorange": "#ff8c00",
+		 "darkorchid": "#9932cc",
+		 "darkred": "#8b0000",
+		 "darksalmon": "#e9967a",
+		 "darkseagreen": "#8fbc8f",
+		 "darkslateblue": "#483d8b",
+		 "darkslategray": "#2f4f4f",
+		 "darkturquoise": "#00ced1",
+		 "darkviolet": "#9400d3",
+		 "deeppink": "#ff1493",
+		 "deepskyblue": "#00bfff",
+		 "dimgray": "#696969",
+		 "dodgerblue": "#1e90ff",
+		 "firebrick": "#b22222",
+		 "floralwhite": "#fffaf0",
+		 "forestgreen": "#228b22",
+		 "fuchsia": "#ff00ff",
+		 "gainsboro": "#dcdcdc",
+		 "ghostwhite": "#f8f8ff",
+		 "gold": "#ffd700",
+		 "goldenrod": "#daa520",
+		 "gray": "#808080",
+		 "green": "#008000",
+		 "greenyellow": "#adff2f",
+		 "honeydew": "#f0fff0",
+		 "hotpink": "#ff69b4",
+		 "indianred ": "#cd5c5c",
+		 "indigo ": "#4b0082",
+		 "ivory": "#fffff0",
+		 "khaki": "#f0e68c",
+		 "lavender": "#e6e6fa",
+		 "lavenderblush": "#fff0f5",
+		 "lawngreen": "#7cfc00",
+		 "lemonchiffon": "#fffacd",
+		 "lightblue": "#add8e6",
+		 "lightcoral": "#f08080",
+		 "lightcyan": "#e0ffff",
+		 "lightgoldenrodyellow": "#fafad2",
+		 "lightgrey": "#d3d3d3",
+		 "lightgreen": "#90ee90",
+		 "lightpink": "#ffb6c1",
+		 "lightsalmon": "#ffa07a",
+		 "lightseagreen": "#20b2aa",
+		 "lightskyblue": "#87cefa",
+		 "lightslategray": "#778899",
+		 "lightsteelblue": "#b0c4de",
+		 "lightyellow": "#ffffe0",
+		 "lime": "#00ff00",
+		 "limegreen": "#32cd32",
+		 "linen": "#faf0e6",
+		 "magenta": "#ff00ff",
+		 "maroon": "#800000",
+		 "mediumaquamarine": "#66cdaa",
+		 "mediumblue": "#0000cd",
+		 "mediumorchid": "#ba55d3",
+		 "mediumpurple": "#9370d8",
+		 "mediumseagreen": "#3cb371",
+		 "mediumslateblue": "#7b68ee",
+		 "mediumspringgreen": "#00fa9a",
+		 "mediumturquoise": "#48d1cc",
+		 "mediumvioletred": "#c71585",
+		 "midnightblue": "#191970",
+		 "mintcream": "#f5fffa",
+		 "mistyrose": "#ffe4e1",
+		 "moccasin": "#ffe4b5",
+		 "navajowhite": "#ffdead",
+		 "navy": "#000080",
+		 "oldlace": "#fdf5e6",
+		 "olive": "#808000",
+		 "olivedrab": "#6b8e23",
+		 "orange": "#ffa500",
+		 "orangered": "#ff4500",
+		 "orchid": "#da70d6",
+		 "palegoldenrod": "#eee8aa",
+		 "palegreen": "#98fb98",
+		 "paleturquoise": "#afeeee",
+		 "palevioletred": "#d87093",
+		 "papayawhip": "#ffefd5",
+		 "peachpuff": "#ffdab9",
+		 "peru": "#cd853f",
+		 "pink": "#ffc0cb",
+		 "plum": "#dda0dd",
+		 "powderblue": "#b0e0e6",
+		 "purple": "#800080",
+		 "red": "#ff0000",
+		 "rosybrown": "#bc8f8f",
+		 "royalblue": "#4169e1",
+		 "saddlebrown": "#8b4513",
+		 "salmon": "#fa8072",
+		 "sandybrown": "#f4a460",
+		 "seagreen": "#2e8b57",
+		 "seashell": "#fff5ee",
+		 "sienna": "#a0522d",
+		 "silver": "#c0c0c0",
+		 "skyblue": "#87ceeb",
+		 "slateblue": "#6a5acd",
+		 "slategray": "#708090",
+		 "snow": "#fffafa",
+		 "springgreen": "#00ff7f",
+		 "steelblue": "#4682b4",
+		 "tan": "#d2b48c",
+		 "teal": "#008080",
+		 "thistle": "#d8bfd8",
+		 "tomato": "#ff6347",
+		 "turquoise": "#40e0d0",
+		 "violet": "#ee82ee",
+		 "wheat": "#f5deb3",
+		 "white": "#ffffff",
+		 "whitesmoke": "#f5f5f5",
+		 "yellow": "#ffff00",
+		 "yellowgreen": "#9acd32",
+		 "darkgrey": "#a9a9a9",
+		 "darkslategrey": "#2f4f4f",
+		 "dimgrey": "#696969",
+		 "grey": "#808080",
+		 "lightgray": "#d3d3d3",
+		 "lightslategrey": "#778899",
+		 "slategrey": "#708090"
 	};
-	if (colour && colour.indexOf("#") >= 0) {
-		return colour;
-	} else if (colour && typeof colours[colour.toLowerCase()] != 'undefined') {
-		return colours[colour.toLowerCase()];
+	if (color) {
+		var newcolorH = color.match(/#[\dABCDEFabcdef]{6,6}$/);
+		if ((newcolorH  !=null) && newcolorH[0].length === 7){
+			return newcolorH[0];
+		} else if (typeof colors[color.toLowerCase()] != 'undefined'){
+			return colors[color.toLowerCase()];
+		} else {
+			return false
+		}
 	} else {
 		return false;
 	}
@@ -1184,17 +1196,17 @@ function mouseMoveFunction(event){
 							rvDataSets[0].HighlightLayer.CanvasContext.font = "3pt Arial";
 							rvDataSets[0].HighlightLayer.CanvasContext.textBaseline = "middle";
 							rvDataSets[0].HighlightLayer.CanvasContext.textAlign = "center";
-							rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = $("#color").val();
+							rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = $("#MainColor").val();
 							rvDataSets[0].HighlightLayer.CanvasContext.fillText(rvDataSets[0].Residues[sel].resName, rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y);
 							break;
 						case "circles" :
 							rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
 							rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, (targetLayer.ScaleFactor * 1.7), 0, 2 * Math.PI, false);
 							rvDataSets[0].HighlightLayer.CanvasContext.closePath();
-							rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = $("#color").val();
+							rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = $("#MainColor").val();
 							rvDataSets[0].HighlightLayer.CanvasContext.stroke();
 							if (targetLayer.Filled) {
-								rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = $("#color").val();
+								rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = $("#MainColor").val();
 								rvDataSets[0].HighlightLayer.CanvasContext.fill();
 							}
 							break;
@@ -1227,17 +1239,17 @@ function mouseMoveFunction(event){
 						rvDataSets[0].HighlightLayer.CanvasContext.font = "3pt Arial";
 						rvDataSets[0].HighlightLayer.CanvasContext.textBaseline = "middle";
 						rvDataSets[0].HighlightLayer.CanvasContext.textAlign = "center";
-						rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = $("#color").val();
+						rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = $("#MainColor").val();
 						rvDataSets[0].HighlightLayer.CanvasContext.fillText(rvDataSets[0].Residues[sel].resName, rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y);
 						break;
 					case "circles" :
 						rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
 						rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, (targetLayer.ScaleFactor * 1.7), 0, 2 * Math.PI, false);
 						rvDataSets[0].HighlightLayer.CanvasContext.closePath();
-						rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = $("#color").val();
+						rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = $("#MainColor").val();
 						rvDataSets[0].HighlightLayer.CanvasContext.stroke();
 						if (targetLayer.Filled) {
-							rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = $("#color").val();
+							rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = $("#MainColor").val();
 							rvDataSets[0].HighlightLayer.CanvasContext.fill();
 						}
 						break;
@@ -1434,7 +1446,7 @@ function handleFileSelect(event) {
 				NewData = [];
 				var targetLayer = rvDataSets[0].getSelectedLayer();
 				targetLayer.DataLabel = FileReaderFile[0].name;
-				$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("[name=datalabel]").text("User File:").append($("<br>")).append(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
+				$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text("User File:").append($("<br>")).append(targetLayer.DataLabel);
 				targetLayer.clearData();
 				var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
 				//rvDataSets[0].Selections["temp"] = [];
@@ -1451,14 +1463,18 @@ function handleFileSelect(event) {
 								var ressplit = targetSelection.Residues[iii].resNum.split(":");
 								var ResName = rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(ressplit[0])] + "_" + ressplit[1];				
 							} else {
-								var chainID = rvDataSets[0].SpeciesEntry.PDB_chains[0];
+								var comsplit = command[0].split(":");
+								var chainID =  rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(comsplit[0])];
 								var ResName = chainID + "_" + targetSelection.Residues[iii].resNum;
 							}
 							var k = rvDataSets[0].ResidueList.indexOf(ResName);
 							
 							if ($.inArray("DataCol", customkeys) >= 0) {
-								//rvDataSets[0].Residues[k]["CustomData1"] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
-								NewData[k] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
+								if (isNaN(parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]))){
+									NewData[k] = rvDataSets[0].CustomData[ii]["DataCol"];
+								} else {
+									NewData[k] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
+								}
 							}
 							if ($.inArray("ColorCol", customkeys) >= 0) {
 								targetLayer.dataLayerColors[k] = rvDataSets[0].CustomData[ii]["ColorCol"];
@@ -1480,10 +1496,12 @@ function handleFileSelect(event) {
 						targetSelection = rvDataSets[0].Selections[0];
 						targetSelection.Residues.push(rvDataSets[0].Residues[k]);
 						if ($.inArray("DataCol", customkeys) >= 0) {
-							//rvDataSets[0].Residues[k]["CustomData1"] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
-							NewData[k] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
-							//rvDataSets[0].Residues[k].CurrentData = NewData[k];
-						}
+							if (isNaN(parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]))){
+								NewData[k] = rvDataSets[0].CustomData[ii]["DataCol"];
+							} else {
+								NewData[k] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
+							}
+						}	
 						if ($.inArray("ColorCol", customkeys) >= 0) {
 							targetLayer.dataLayerColors[k] = rvDataSets[0].CustomData[ii]["ColorCol"];
 						}
@@ -1989,8 +2007,8 @@ function canvasToSVG() {
 								//var grd = value.ColorLayer.CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
 								/*
 								if (rvDataSets[0].Residues[j].color && rvDataSets[0].Residues[k].color){
-									color1 = colourNameToHex(rvDataSets[0].Residues[j].color);
-									color2 = colourNameToHex(rvDataSets[0].Residues[k].color);
+									color1 = colorNameToHex(rvDataSets[0].Residues[j].color);
+									color2 = colorNameToHex(rvDataSets[0].Residues[k].color);
 									
 									grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + ",.5)");
 									grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + ",.5)");
@@ -2266,24 +2284,6 @@ function canvas_arrow(fromx, fromy, tox, toy) {
 
 function welcomeScreen() {
 	var scale_factor = parseFloat($("#canvasDiv").css('width')) / 733;
-
-	//Old welcome screen
-	/*
-	var line_unit = 25;
-	rvDataSets[0].Layers[0].clearCanvas();
-	rvDataSets[0].Layers[0].CanvasContext.strokeStyle = "#000000";
-	rvDataSets[0].Layers[0].CanvasContext.font = (36 * scale_factor) + "pt Arial";
-	rvDataSets[0].Layers[0].CanvasContext.textBaseline = "middle";
-	rvDataSets[0].Layers[0].CanvasContext.textAlign = "center";
-	rvDataSets[0].Layers[0].CanvasContext.fillStyle = "OrangeRed";
-	rvDataSets[0].Layers[0].CanvasContext.fillText('Hello, Astrobiologist!', HighlightLayer.width / 2 / rvViews[0].scale - rvViews[0].x, HighlightLayer.height / 2 / rvViews[0].scale - rvViews[0].y - (3 * scale_factor * line_unit));
-	rvDataSets[0].Layers[0].CanvasContext.fillText('Welcome to Ribovision.', HighlightLayer.width / 2 / rvViews[0].scale - rvViews[0].x, HighlightLayer.height / 2 / rvViews[0].scale - rvViews[0].y - (1 * scale_factor * line_unit));
-	rvDataSets[0].Layers[0].CanvasContext.fillText('Please select a molecule', HighlightLayer.width / 2 / rvViews[0].scale - rvViews[0].x, HighlightLayer.height / 2 / rvViews[0].scale - rvViews[0].y + (3 * scale_factor * line_unit));
-	rvDataSets[0].Layers[0].CanvasContext.fillText('to get started.', HighlightLayer.width / 2 / rvViews[0].scale - rvViews[0].x, HighlightLayer.height / 2 / rvViews[0].scale - rvViews[0].y + (5 * scale_factor * line_unit));
-	
-	//canvas_arrow(HighlightLayer.width / 2 / rvViews[0].scale - rvViews[0].x, HighlightLayer.height / 2 / rvViews[0].scale - rvViews[0].y - 25, 50, 50);
-	*/
-
 	// New Welcome Screen
 	var img = new Image();
 	img.onload = function() {
@@ -2375,6 +2375,15 @@ function drawNavLine(){
 				$.each(targetLayer.Data, function (index,value){
 					GraphData[index]=0;
 				});
+			} else if (targetLayer.DataLabel === "Protein Contacts"){
+				$.each(targetLayer.Data, function (index,value){
+						if (value === " "){
+							GraphData[index]=0;
+						} else {
+							GraphData[index]=1;
+						}
+					});
+				linename = "Protein Contacts";
 			} else {
 				GraphData = targetLayer.Data;
 			}
@@ -2406,7 +2415,7 @@ function drawNavLine(){
 		      .attr("x", (w - MarginXR-MarginXL)/2 + MarginXL)
 		      .attr("y", h-MarginYB/4)
 		      .attr("text-anchor", "middle")
-			  .text("Map Index");	
+			  .text("Nucleotide Number");	
 			  
 			//add legend to the navline 
 			 g.append("text")
@@ -2441,7 +2450,15 @@ function addPopUpWindowResidue(ResIndex){
 	//Remove old SVG
 	d3.select("#residuetip svg").remove();
 	
-	var dobj = rvDataSets[0].ConservationTable[ResIndex];
+	if (rvDataSets[0].Residues[ResIndex].resNum.indexOf(":") >= 0 ){
+		var ResName = rvDataSets[0].Residues[ResIndex].resNum;
+	} else {
+		var ResName = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[ResIndex].ChainID)] +
+		":" + rvDataSets[0].Residues[ResIndex].resNum;
+	}
+	
+	var dobj = $.grep(rvDataSets[0].ConservationTable, function(e){ return e.resNum == ResName; })[0];
+	//var dobj = rvDataSets[0].ConservationTable[ResIndex];
 	if (dobj){
 		//round the number to two decimal places
 		var Anum = dobj.A*100;
@@ -2466,12 +2483,7 @@ function addPopUpWindowResidue(ResIndex){
 		var Hn = "n/a";
 	}
 		
-	if (rvDataSets[0].Residues[ResIndex].resNum.indexOf(":") >= 0 ){
-		var ResName = rvDataSets[0].Residues[ResIndex].resNum;
-	} else {
-		var ResName = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[ResIndex].ChainID)] +
-		":" + rvDataSets[0].Residues[ResIndex].resNum;
-	}
+	
 	$('#resName').html("Residue: " + rvDataSets[0].Residues[ResIndex].resName + "(" + ConsensusSymbol  + ") " + ResName);
 	$('#activeData').html("Active Data: " + rvDataSets[0].Residues[ResIndex].CurrentData);
 	$("#conPercentage").html("Shannon Entropy: " + Hn);
