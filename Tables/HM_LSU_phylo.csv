@@ -1,5 +1,5 @@
-map_Index,resNum,resName,ChainID,X,Y,Xtal_Index,aln_Index,Domain_RN,Domain_AN,Domains_Color,Helix_Num,Helix_Color,Onion,mean_tempFactor,L2,L3,L4,L5,L6,L7AE,L10,L10E,L13,L14,L15,L15E,L18,L18E,L19E,L21E,L22,L23,L24,L24E,L29,L30,L31E,L32E,L37AE,L37E,L39E,L44E,Shannon_Entropy,HM_Mg_ions_24Phylo,HM_Mg_ions_26Phylo,HM_Mg_ions_60Phylo
-int,varchar(6),varchar(3),char(1),'real(8,3)','real(8,3)',int,int,varchar(4),char(1),int,varchar(4),int,int,'real(8,3)',int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,'real(5,3)',int,int,int,int,int,int
+map_Index,resNum,resName,ChainID,X,Y,Xtal_Index,aln_Index,Domain_RN,Domain_AN,Domains_Color,Helix_Num,Helix_Color,Onion,mean_tempFactor,L2,L3,L4,L5,L6,L7AE,L10,L10E,L13,L14,L15,L15E,L18,L18E,L19E,L21E,L22,L23,L24,L24E,L29,L30,L31E,L32E,L37AE,L37E,L39E,L44E,Shannon_Entropy,Mg_ions_24,Mg_ions_26,Mg_ions_6
+int,varchar(6),varchar(3),char(1),'real(8,3)','real(8,3)',int,int,varchar(4),char(1),int,varchar(4),int,int,'real(8,3)',int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,'real(5,3)',int,int,'real(5,3)',int,int,int
 1,1,G,0,311.6281,351.8609,,,I,1,1,1,1,,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,,0,0,0
 2,2,U,0,311.6261,349.3169,,,I,1,1,1,1,,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.980760486,0,0,0
 3,3,U,0,311.6671,346.8628,,,I,1,1,1,1,,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.927410342,0,0,0
