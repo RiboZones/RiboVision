@@ -194,10 +194,28 @@ function RiboVisionReady() {
 	$('.ui-slider-handle').height(21).width(21);
 	$("#TemplateLink").button();
 	
-	$("#dialog-addLayer p").append("We currently are only supporting the addition of new circle type layers." + 
+	$("#dialog-addLayer span").html("We currently are only supporting the addition of new circle type layers." + 
 		" Future updates will let you add additional layers of any type." + 
-		"<br><br>Please enter a name for the new layer.");
+		"<br>");
 	$( "#dialog-unique-layer-error" ).dialog({
+		resizable : false,
+		autoOpen : false,
+		height : "auto",
+		width : 400,
+		modal : true,
+		buttons: {
+			Ok: function() {
+				$( this ).dialog( "close" );
+			}
+		},
+		open : function () {
+			//$("#myJmol_object").css("visibility", "hidden");
+		},
+		close : function () { 
+			//$("#myJmol_object").css("visibility", "visible");
+		}
+	});
+	$( "#dialog-invalid-color-error" ).dialog({
 		resizable : false,
 		autoOpen : false,
 		height : "auto",
@@ -416,8 +434,13 @@ function RiboVisionReady() {
 		}
 	});
 	
-	$("#colorpicker").farbtastic("#color");
-	
+	$("#colorpicker").farbtastic("#MainColor");
+	$("#MainColor").button().addClass('ui-textfield').keydown(function (event) {
+		if (event.keyCode == 13) {
+			var farbobj = $.farbtastic("#colorpicker");
+			farbobj.setColor(colorNameToHex($("#MainColor").val()));
+		}
+	});
 	//$("#layerColor").change(changeLayerColor);
 	
 	$("#layerColorPicker").farbtastic("#layerColor");
@@ -450,13 +473,15 @@ function RiboVisionReady() {
 		click: function(event,ui){
 			var targetLayer = rvDataSets[0].getSelectedLayer();
 			targetLayer.DataLabel = ui.text;
-			$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
+			$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
 			var ColName = ui.value.match(/[^\'\\,]+/);
 			var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
 			if (result[0]){
 				$(this).parent().find(".DataDescription").text(result[0].Description);
+				$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation/" + result[0].HelpLink + ".html");
 			} else {
 				$(this).parent().find(".DataDescription").text("Data Description is missing.");
+				$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation");				
 			}
 			updateStructData(ui);
 		}
@@ -513,13 +538,15 @@ function RiboVisionReady() {
 		click: function(event,ui){
 			var targetLayer = rvDataSets[0].getSelectedLayer();
 			targetLayer.DataLabel = ui.text;
-			$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
+			$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
 			var ColName = ui.value.match(/[^\'\\,]+/);
 			var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
 			if (result[0]){
 				$(this).parent().find(".DataDescription").text(result[0].Description);
+				$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation/" + result[0].HelpLink + ".html");				
 			} else {
 				$(this).parent().find(".DataDescription").text("Data Description is missing.");
+				$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation");				
 			}
 			colorMapping("42",ui.value);
 			drawNavLine();
@@ -550,13 +577,16 @@ function RiboVisionReady() {
 			//var targetLayer = rvDataSets[0].getSelectedLayer();
 			var targetLayer = rvDataSets[0].getLayerByType("lines");
 			targetLayer[0].DataLabel = ui.text;
-			$("[name=" + targetLayer[0].LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer[0].DataLabel).append($("<br>")).append($("<br>"));
-			var ColName = ui.value.replace(/[^_]+_[^_]+_/,"");
+			$("[name=" + targetLayer[0].LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer[0].DataLabel);
+			var ColName =[];
+			ColName[0] = ui.value.replace(/[^_]+_[^_]+_/,"");
 			var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
 			if (result[0]){
 				$(this).parent().parent().find(".DataDescription").text(result[0].Description);
+				$(this).parent().parent().find(".ManualLink").find("a").attr("href","/Documentation/" + result[0].HelpLink + ".html");
 			} else {
 				$(this).parent().parent().find(".DataDescription").text("Data Description is missing.");
+				$(this).parent().parent().find(".ManualLink").find("a").attr("href","/Documentation");				
 			}
 			refreshBasePairs(interactionchoice);
 		}
@@ -644,11 +674,6 @@ function RiboVisionReady() {
 		}
 	});
 	
-	$("#layerNameInput").button().addClass('ui-textfield').keydown(function (event) {
-		if (event.keyCode == 13) {
-			changeCurrentLayerName();
-		}
-	});
 	
 	$("#moveMode").attr("checked","checked");
 	$("#buttonmode").buttonset();
@@ -659,6 +684,7 @@ function RiboVisionReady() {
 	$("[name=za]").button().change(function(event,ui){
 		rvDataSets[0].drawBasePairs("lines");
 	});
+
 	
 	$("#BaseView").buttonset();
 	$("#bvOFF").attr("checked","checked");
@@ -698,16 +724,20 @@ function RiboVisionReady() {
 		var targetLayer = rvDataSets[0].getSelectedLayer();
 		//targetLayer.DataLabel = ui.text;
 		targetLayer.DataLabel = "Protein Contacts";
-		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
+		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
 		//var ColName = ui.value.match(/[^\'\\,]+/);
-		var ColName = "All_Proteins";
+		var ColName = [];
+		ColName[0] = "All_Proteins";
 		var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
 		if (result[0]){
 			$(this).parent().find(".DataDescription").text(result[0].Description);
+			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation/" + result[0].HelpLink + ".html");
 		} else {
 			$(this).parent().find(".DataDescription").text("Data Description is missing.");
+			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation");
 		}	
 		colorMappingLoop(array_of_checked_values);
+		//drawNavLine();
 	});
 	$("#ProtList").bind("multiselectopen", function (event, ui) {
 		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
@@ -717,15 +747,19 @@ function RiboVisionReady() {
 		//targetLayer.DataLabel = ui.text;
 		targetLayer.DataLabel = "Protein Contacts";
 		//var ColName = ui.value.match(/[^\'\\,]+/);
-		var ColName = "All_Proteins";
+		var ColName = [];
+		ColName[0] = "All_Proteins";
 		var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
 		if (result[0]){
 			$(this).parent().find(".DataDescription").text(result[0].Description);
+			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation/" + result[0].HelpLink + ".html");
 		} else {
 			$(this).parent().find(".DataDescription").text("Data Description is missing.");
+			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation");
 		}
-		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
+		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
 		colorMappingLoop(array_of_checked_values);
+		//drawNavLine();
 	});
 	$("#ProtList").bind("multiselectcheckall", function (event, ui) {
 		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
@@ -735,14 +769,17 @@ function RiboVisionReady() {
 		//targetLayer.DataLabel = ui.text;
 		targetLayer.DataLabel = "Protein Contacts";
 		//var ColName = ui.value.match(/[^\'\\,]+/);
-		var ColName = "All_Proteins";
+		var ColName = [];
+		ColName[0] = "All_Proteins";
 		var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
 		if (result[0]){
 			$(this).parent().find(".DataDescription").text(result[0].Description);
+			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation/" + result[0].HelpLink + ".html");
 		} else {
 			$(this).parent().find(".DataDescription").text("Data Description is missing.");
+			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation");
 		}
-		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
+		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
 		colorMappingLoop(array_of_checked_values);
 	});
 	$("#ProtList").bind("multiselectuncheckall", function (event, ui) {
@@ -757,8 +794,10 @@ function RiboVisionReady() {
 		//	$(this).parent().find(".DataDescription").text(result[0].Description);
 		//} else {
 			$(this).parent().find(".DataDescription").text("");
+			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation");
+	
 		//}
-		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("[name=datalabel]").text(targetLayer.DataLabel).append($("<br>")).append($("<br>"));
+		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
 		targetLayer.clearData();
 		if ( targetLayer.Type == "circles"){
 			rvDataSets[0].clearCanvas(rvDataSets[0].getSelectedLayer().LayerName);
@@ -773,6 +812,7 @@ function RiboVisionReady() {
 			rvDataSets[0].BasePairs = [];
 			rvDataSets[0].clearCanvas("lines");
 		}
+		drawNavLine();
 	});
 	// Check for the various File API support.
 	if (window.File && window.FileReader && window.FileList && window.Blob) {
@@ -870,12 +910,13 @@ function RiboVisionReady() {
 function InitRibovision(FreshState) {
 	rvDataSets[0] = new rvDataSet("EmptyDataSet");
 	rvDataSets[0].addHighlightLayer("HighlightLayer", "HighlightLayer", [], false, 1.176, 'highlight');
-	rvDataSets[0].addLayer("Interactions1", "MainLineLayer", [], true, 1.0, 'lines');
+	rvDataSets[0].addLayer("Interactions1", "InteractionsLayer1", [], true, 1.0, 'lines');
 	rvDataSets[0].addLayer("Labels", "LabelLayer", [], true, 1.0, 'labels');
-	rvDataSets[0].addLayer("Residues", "ResidueLayer", [], true, 1.0, 'residues');
+	rvDataSets[0].addLayer("Nucleotides", "NucleotideLayer", [], true, 1.0, 'residues');
 	rvDataSets[0].addLayer("Data1", "CircleLayer1", [], true, 1.0, 'circles');
 	rvDataSets[0].addLayer("Data2", "CircleLayer2", [], true, 1.0, 'circles');
-	rvDataSets[0].addLayer("Selection", "SelectedLayer", [], false, 1.176, 'selected');
+	rvDataSets[0].addLayer("Selection", "SSelectionLayer", [], false, 1.176, 'selected');
+	rvDataSets[0].sort();
 	
 	rvViews[0] = new rvView(20, 20, 1.2);
 	//resizeElements(true);
@@ -883,29 +924,16 @@ function InitRibovision(FreshState) {
 	$(".oneSelectionGroup").remove();
 	rvDataSets[0].addSelection("Main");
 	if (canvas2DSupported) {
-		InitRibovision2();
+		InitRibovision2(false,FreshState);
 	}
 	resizeElements();
 	if (!canvas2DSupported) {return};
 	if (OpenStateOnLoad && !FreshState) {
 		$("#RiboVisionSaveManagerPanel").dialog("open");
-	} else { 
-		// Create rvLayers
-		
-		//rvDataSets[0].addLayer("Data2", "CircleLayer1", [], true, 1.0, 'circles');
-		//rvDataSets[0].addLayer("Data1", "CircleLayer2", [], true, 1.0, 'circles');
-		//rvDataSets[0].addLayer("ContourLine", "ContourLayer", [], true, 1.0, 'contour');
-		
-		// Sort rvLayers by zIndex for convience
-		rvDataSets[0].sort();
-		if (canvas2DSupported) {
-			InitRibovision2();
-		}
-		resizeElements();
 	}
 }
 
-function InitRibovision2(noLoad) {
+function InitRibovision2(noLoad,FreshState) {
 	//adopt to current screen size
 	rvViews[0].width = rvDataSets[0].HighlightLayer.Canvas.width;
 	rvViews[0].height = rvDataSets[0].HighlightLayer.Canvas.height;
@@ -944,10 +972,10 @@ function InitRibovision2(noLoad) {
 	rvDataSets[0].drawBasePairs("lines");
 	
 	if (!noLoad){
-		InitRibovision3();
+		InitRibovision3(FreshState);
 	}
 }
-function InitRibovision3() { 
+function InitRibovision3(FreshState) { 
 	$.getJSON('getData.php', {
 		FetchMapList : true
 	}, function (MapList) {
@@ -1002,7 +1030,7 @@ function InitRibovision3() {
 								$("#" + SpeciesListU[i].replace(/[\s]/g, "") + 'sub' + 'LSU').append(
 									$("<li>").append(
 										$("<a>").attr('href', '#' + MapList[ii].SS_Table).append(
-											MapList[ii].MapType + ' Map')))
+											MapList[ii].DataSetName)))
 							}
 						}
 					});
@@ -1020,7 +1048,7 @@ function InitRibovision3() {
 								$("#" + SpeciesListU[i].replace(/[\s]/g, "") + 'sub' + 'SSU').append(
 									$("<li>").append(
 										$("<a>").attr('href', '#' + MapList[iii].SS_Table).append(
-											MapList[iii].MapType + ' Map')))
+											MapList[iii].DataSetName)))
 							}
 						}
 					});
@@ -1041,6 +1069,9 @@ function InitRibovision3() {
 			loadSpecies(species.substr(1));
 			
 		});
+		if (FreshState){
+			list.iosMenu().data("iosMenu")._insertBackButtons();
+		};
 	});
 }
 ///////////////////////////////////////////////////////////////////////////////
