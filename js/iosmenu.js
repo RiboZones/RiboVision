@@ -34,10 +34,11 @@ $.widget( "ui.iosMenu", {
 					}
 				});
 
-		var menu = iosMenu.element.data( 'menu' );
+		var menu = iosMenu.element.data( 'uiMenu' );
 
 		// Override menu#select to account for nesting and back buttons:
 		menu.select = function( event ) {
+			//menu.active = menu.active || $( event.target ).closest( ".ui-menu-item" ); //new random line
 			if ( menu.active && menu.active.find('a').attr("href") == "#menu-back" ) {
 				// if you selected "back", go back:
 				menu.focus( event, menu.active );
@@ -115,7 +116,7 @@ $.widget( "ui.iosMenu", {
 
 			submenu.animate({
 				left: 0,
-				height: menu.element[0].clientHeight - 4 ,
+				height: menu.element[0].clientHeight - 4,
 				width: menu.element[0].clientWidth 
 			}, iosMenu.options.slideDuration, iosMenu.options.slideEasing);
 		};
@@ -133,7 +134,7 @@ $.widget( "ui.iosMenu", {
 	},
 
 	destroy: function() {
-	  var menu = this.element && this.element.data( 'menu' );
+	  var menu = this.element && this.element.data( 'uiMenu' );
 		menu && menu.destroy();
 	}
 });
