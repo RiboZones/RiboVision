@@ -1,4 +1,4 @@
-map_Index,resNum,resName,ChainID,X,Y,Xtal_Index,Domain_RN,Domain_AN,Domains_Color,Helix_Num,Helix_Color,Onion,mean_tempFactor,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12,S13,S14,S15,S16,S17,S18,S19,S20,THX,Shannon,Mg_ions_24,Mg_ions_26,Mg_ions_60
+map_Index,resNum,resName,ChainID,X,Y,Xtal_Index,Domain_RN,Domain_AN,Domains_Color,Helix_Num,Helix_Color,Onion,mean_tempFactor,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12,S13,S14,S15,S16,S17,S18,S19,S20,THX,Shannon_Entropy,Mg_ions_24,Mg_ions_26,Mg_ions_60
 int,varchar(6),varchar(3),char(1),'real(8,3)','real(8,3)',int,varchar(3),char(1),int,varchar(4),int,int,'real(8,3)',int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,'real(5,3)',int,int,int
 1,1,U,A,265.58,409.988,,5\',1,2,1,4,,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.215119658,0,0,0
 2,2,U,A,265.58,405.661,,5\',1,2,1,4,,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.249984025,0,0,0
