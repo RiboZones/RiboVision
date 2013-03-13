@@ -902,6 +902,14 @@ function RiboVisionReady() {
 	
 	$("#SelectionMode").click(function () {
 	});
+	
+	$("#New3DTestButton").button().click(function(){
+		Jmol.script(myJmol, "script states/" + "3OFR_23s_supNone_state8_d6.spt");
+		var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
+		Jmol.script(myJmol, jscript);
+		updateModel();
+	});
+	
 	InitRibovision();
 	//$("#RiboVisionSaveManagerPanel").dialog("open");
 

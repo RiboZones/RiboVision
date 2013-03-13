@@ -1981,7 +1981,13 @@ function canvasToSVG() {
 	output = "<?xml version='1.0' encoding='UTF-8'?>\n" +
 		'<svg version="1.1" baseProfile="basic" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" ' +
 		mapsize2 + 'viewBox="0 0 ' + mapsize + '" xml:space="preserve">\n';
-	
+	if(rvDataSets[0].Name === 'SC_LSU_Struct'){;
+		var stringData = $.ajax({
+						url: "js/RiboVision/SC_28S_Struct_Dash_Lines_g.svg",
+						async: false
+					 }).responseText;
+		output = output + stringData;
+	}
 	$.each(rvDataSets[0].Layers, function (index, value) {
 		if (AllMode || value.Visible){
 			switch (value.Type) {

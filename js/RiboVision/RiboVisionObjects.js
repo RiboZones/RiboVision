@@ -599,6 +599,8 @@ function rvDataSet(DataSetName) {
 	function drawLabels(targetLayer,drawExtra) {
 		if (!canvas2DSupported){return};
 		targetLayer.CanvasContext.textAlign = 'left';
+		//canvg(targetLayer.CanvasName, 'js/RiboVision/SC_28S_Struct_Dash_Lines_m.svg',{ ignoreMouse : false, ignoreClear : false, scaleWidth: 1, scaleHeight: 1});
+		//canvg(targetLayer.CanvasName, 'js/RiboVision/SC_28S_Struct_Dash_Lines_m.svg', { ignoreMouse: false, ignoreClear: true, ignoreDimensions: true});
 		
 		if (rvDataSets[0].rvTextLabels != undefined) {
 			var n = watermark(false);
@@ -628,7 +630,7 @@ function rvDataSet(DataSetName) {
 		//alert(data);
 		var img = new Image();
 		//img.src = data;
-		img.src = "js/RiboVision/SC_28S_Struct_Dash_Lines_v.svg";
+		img.src = "js/RiboVision/SC_28S_Struct_Dash_Lines_m.svg";
 		img.onload = function() { targetLayer.CanvasContext.drawImage(img, 0, 0,612,792); };
 		//targetLayer.CanvasContext.drawImage(img, 0, 0);
 		*/
