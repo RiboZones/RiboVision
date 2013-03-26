@@ -169,6 +169,9 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 		rvDataSets[0].SpeciesEntry.LineLabels = [];
 		rvDataSets[0].SpeciesEntry["SubunitProtChains"] = [];
 		rvDataSets[0].SpeciesEntry.MapType = "None";
+		//var targetLayer = rvDataSets[0].getSelectedLayer();
+		//targetLayer.clearAll();
+		drawNavLine();
 		
 		initLabels(species);
 		
