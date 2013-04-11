@@ -373,6 +373,7 @@ function commandSelect(command,SeleName) {
 	drawNavLine();
 	rvDataSets[0].drawResidues("residues");
 	rvDataSets[0].drawSelection("selected");
+	rvDataSets[0].drawBasePairs("lines");
 	//console.log('selected Residue by command input');
 }
 
@@ -411,6 +412,7 @@ function selectResidue(event) {
 			}
 			rvDataSets[0].drawResidues("residues");
 			rvDataSets[0].drawSelection("selected");
+			rvDataSets[0].drawBasePairs("lines");
 			
 			//drawLabels();
 			updateSelectionDiv(targetSelection.Name);
@@ -458,6 +460,7 @@ function clearSelection(AllFlag) {
 	}
 	rvDataSets[0].drawResidues("residues");
 	rvDataSets[0].drawSelection("selected");
+	rvDataSets[0].drawBasePairs("lines");
 	drawNavLine();
 }
 
@@ -758,7 +761,7 @@ function colorMappingLoop(seleProt, OverRideColors) {
 	//JscriptP+="display " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA ) + ".1, " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein ) + ".1;" ;
 	
 	update3Dcolors();
-	updateModel();
+	refreshModel();
 	//jmolScript(Jscript);
 	//jmolScript(JscriptP);
 	Jmol.script(myJmol, Jscript);
@@ -2122,42 +2125,42 @@ function canvasToSVG() {
 //////////////////////////////// Jmol Functions ////////////////////////////////
 function updateModel() {
 	var n;
-	var script = "set hideNotSelected true;select (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (";
+	
 	//Come back and support multiple selections?
 	var targetSelection = rvDataSets[0].getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
-	for (var i = 0; i < targetSelection.Residues.length; i++) {
-		if (targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") != null) {
-			if (script != "set hideNotSelected true;select (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (") {
-				script += " or ";
-			};
-			n = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "").match(/[A-z]/g);
-			if (n != null) {
-				r1 = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "").replace(n, "^" + n);
-			} else {
-				r1 = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-			}
-			script += r1 + ":" + targetSelection.Residues[i].ChainID;
-		}
-	}
-	if (script == "set hideNotSelected true;select (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (") {
-		for (var ii = 0; ii < rvDataSets[0].SpeciesEntry.PDB_chains.length; ii++) {
-			script += ":" + rvDataSets[0].SpeciesEntry.PDB_chains[ii];
-			if (ii < (rvDataSets[0].SpeciesEntry.PDB_chains.length - 1)) {
-				script += " or ";
+	if (targetSelection.Residues.length > 0){
+		var script = "set hideNotSelected true;select (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (";
+		for (var i = 0; i < targetSelection.Residues.length; i++) {
+			if (targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") != null) {
+				if (script != "set hideNotSelected true;select (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (") {
+					script += " or ";
+				};
+				n = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "").match(/[A-z]/g);
+				if (n != null) {
+					r1 = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "").replace(n, "^" + n);
+				} else {
+					r1 = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+				}
+				script += r1 + ":" + targetSelection.Residues[i].ChainID;
 			}
 		}
 		script += ")); center selected;";
-		
+		Jmol.script(myJmol, script);
 	} else {
-		script += ")); center selected;";
+		refreshModel();
 	}
-	//jmolScript(script);
+}
+
+function refreshModel() {
+	var script = "set hideNotSelected true;select (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (";
+	for (var ii = 0; ii < rvDataSets[0].SpeciesEntry.PDB_chains.length; ii++) {
+		script += ":" + rvDataSets[0].SpeciesEntry.PDB_chains[ii];
+		if (ii < (rvDataSets[0].SpeciesEntry.PDB_chains.length - 1)) {
+			script += " or ";
+		}
+	}
+	script += ")); center selected;";
 	Jmol.script(myJmol, script);
-	/*
-	var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function(){
-	return this.value;
-	}).get();
-	update3DProteins(array_of_checked_values);*/
 }
 
 function resetColorState() {
@@ -2359,78 +2362,81 @@ function drawNavLine(){
 
 		var g = NavLine.append("svg:g")
 			.attr("width", w)
-			.attr("height", h)
+			.attr("height", h);
 			//.attr("transform", "translate(0, " + 200+")");
 			
 			
-			var line = d3.svg.line()
-			    .x(function(d,i) { return xScale(i); })
-			    .y(function(d) { return yScale(d); });
-			
-			var GraphData = [];
-			if (targetLayer.Type === "selected"){
-				$.each(targetLayer.Data, function (index,value){
-					if (value === false){
+		var line = d3.svg.line()
+			.defined(function(d) { 
+				return ((d!==undefined) ? !isNaN(d) : false) 
+			})			
+			.x(function(d,i) { return xScale(i); })
+			.y(function(d) { return yScale(d); });	
+		
+		var GraphData = [];
+		if (targetLayer.Type === "selected"){
+			$.each(targetLayer.Data, function (index,value){
+				if (value === false){
+					GraphData[index]=0;
+				} else {
+					GraphData[index]=1;
+				}
+			});
+			linename = "Selected Residues";
+		} else if ((targetLayer.DataLabel === "empty data") || (targetLayer.DataLabel === "None")){
+			$.each(targetLayer.Data, function (index,value){
+				GraphData[index]=0;
+			});
+		} else if (targetLayer.DataLabel === "Protein Contacts"){
+			$.each(targetLayer.Data, function (index,value){
+					if (value === " "){
 						GraphData[index]=0;
 					} else {
 						GraphData[index]=1;
 					}
 				});
-				linename = "Selected Residues";
-			} else if ((targetLayer.DataLabel === "empty data") || (targetLayer.DataLabel === "None")){
-				$.each(targetLayer.Data, function (index,value){
-					GraphData[index]=0;
-				});
-			} else if (targetLayer.DataLabel === "Protein Contacts"){
-				$.each(targetLayer.Data, function (index,value){
-						if (value === " "){
-							GraphData[index]=0;
-						} else {
-							GraphData[index]=1;
-						}
-					});
-				linename = "Protein Contacts";
-			} else {
-				GraphData = targetLayer.Data;
-			}
-			g.append("svg:path").attr("d", line(GraphData)).style("stroke", targetLayer.Color);
-			
-			//Axes
-			var xAxis = d3.svg.axis()
-                  .scale(xScale)
-                  .orient("bottom")
-				  .ticks(20);  //Set rough # of ticks
-				  
-			NavLine.append("g")
-				.attr("class", "axis")  //Assign "axis" class
-				.attr("transform", "translate(0," + (yScale(0)) + ")")
-				.call(xAxis);
-				
-			var yAxis = d3.svg.axis()
-                  .scale(yScale)
-                  .orient("left")
-                  .ticks(10);
-			
-			NavLine.append("g")
-				.attr("class", "axis")
-				.attr("transform", "translate(" + MarginXL + ",0)")
-				.call(yAxis);
-			
-			//XLabel			
-			g.append("text")
-		      .attr("x", (w - MarginXR-MarginXL)/2 + MarginXL)
-		      .attr("y", h-MarginYB/4)
-		      .attr("text-anchor", "middle")
-			  .text("Nucleotide Number");	
+			linename = "Protein Contacts";
+		} else {
+			GraphData = targetLayer.Data;
+		}
+		g.append("svg:path").attr("d", line(GraphData)).style("stroke", targetLayer.Color);
+		
+		//Axes
+		var xAxis = d3.svg.axis()
+			  .scale(xScale)
+			  .orient("bottom")
+			  .ticks(20);  //Set rough # of ticks
 			  
-			//add legend to the navline 
-			 g.append("text")
-		      .attr("x", MarginXL/4)
-		      .attr("y", h/2)
-			  .attr("text-anchor", "middle")
-			  .attr("transform", "rotate(-90 " + "," + MarginXL/4 + "," + h/2 + ")")
-		      .text(linename);	
+		NavLine.append("g")
+			.attr("class", "axis")  //Assign "axis" class
+			.attr("transform", "translate(0," + (yScale(0)) + ")")
+			.call(xAxis);
 			
+		var yAxis = d3.svg.axis()
+			  .scale(yScale)
+			  .orient("left")
+			  .ticks(10);
+		
+		NavLine.append("g")
+			.attr("class", "axis")
+			.attr("transform", "translate(" + MarginXL + ",0)")
+			.call(yAxis);
+		
+		//XLabel			
+		g.append("text")
+		  .attr("x", (w - MarginXR-MarginXL)/2 + MarginXL)
+		  .attr("y", h-MarginYB/4)
+		  .attr("text-anchor", "middle")
+		  .text("Nucleotide Number");	
+		  
+		//add legend to the navline 
+		 g.append("text")
+		  .attr("x", MarginXL/4)
+		  .attr("y", h/2)
+		  .attr("text-anchor", "middle")
+		  .attr("transform", "rotate(-90 " + "," + MarginXL/4 + "," + h/2 + ")")
+		  .text(linename);	
+		
 }
 
 function addPopUpWindowResidue(ResIndex){
@@ -2599,7 +2605,12 @@ function addPopUpWindowLine(SeleLine){
 		":" + rvDataSets[0].Residues[k].resNum;
 	}
 	$('#BasePairType').html("Interaction Type: " +  $("#PrimaryInteractionList").multiselect("getChecked").attr("title"));
-	$('#BasePairSubType').html("Interaction Subtype: " + rvDataSets[0].BasePairs[SeleLine].bp_type);
+	if (rvDataSets[0].BasePairs[SeleLine].ProteinName){
+		$('#BasePairSubType').html("Interaction Subtype: " + rvDataSets[0].BasePairs[SeleLine].ProteinName + " " + rvDataSets[0].BasePairs[SeleLine].bp_type);
+	} else {
+		$('#BasePairSubType').html("Interaction Subtype: " + rvDataSets[0].BasePairs[SeleLine].bp_type);
+	}
+	
 	$("#BasePairRes1").html("Residue1: " + ResName1);
 	$("#BasePairRes2").html("Residue2: " + ResName2);
 	
