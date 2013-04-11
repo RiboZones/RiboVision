@@ -803,6 +803,19 @@ function rvDataSet(DataSetName) {
 						colorLayer.addLinearGradient(grd);
 						rvDataSets[0].BasePairs[i]["color"] = grd;
 						break;
+					case "selected":
+						var grd = colorLayer.CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
+						if (colorLayer.Data[j] || colorLayer.Data[k]) {
+							//color1 = colorNameToHex(colorLayer.dataLayerColors[j]);
+							//color2 = colorNameToHex(colorLayer.dataLayerColors[k]);
+							color1 = colorNameToHex("#231F20");
+							color2 = colorNameToHex("#231F20");
+							grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + ",.5)");
+							grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + ",.5)");
+						}
+						colorLayer.addLinearGradient(grd);
+						rvDataSets[0].BasePairs[i]["color"] = grd;
+						break;
 					default:
 						alert("this shouldn't be happening right now.");
 					}
