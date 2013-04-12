@@ -321,14 +321,10 @@ function LayerMenu(Layer, key, RVcolor) {
 
 			var rLayers = rvDataSets[0].getLayerByType("residues");
 			var cLayers = rvDataSets[0].getLayerByType("circles");
-			var sLayers = rvDataSets[0].getLayerByType("selected");
 			$.each(rLayers, function (key, value) {
 				llm.options[llm.options.length] = new Option(value.LayerName, value.LayerName);
 			});
 			$.each(cLayers, function (key, value) {
-				llm.options[llm.options.length] = new Option(value.LayerName, value.LayerName);
-			});
-			$.each(sLayers, function (key, value) {
 				llm.options[llm.options.length] = new Option(value.LayerName, value.LayerName);
 			});
 			$("#LayerPanel div").first().next().find(".layerContent").find("[name='llm']").find("select").multiselect("refresh");
@@ -396,14 +392,10 @@ function RefreshLayerMenu(){
 
 		var rLayers = rvDataSets[0].getLayerByType("residues");
 		var cLayers = rvDataSets[0].getLayerByType("circles");
-		var sLayers = rvDataSets[0].getLayerByType("selected");
 		$.each(rLayers, function (key, value) {
 			$selectbox.options[$selectbox.options.length] = new Option(value.LayerName, value.LayerName);
 		});
 		$.each(cLayers, function (key, value) {
-			$selectbox.options[$selectbox.options.length] = new Option(value.LayerName, value.LayerName);
-		});
-		$.each(sLayers, function (key, value) {
 			$selectbox.options[$selectbox.options.length] = new Option(value.LayerName, value.LayerName);
 		});
 		$(".oneLayerGroup[name=" + targetLayers[0].LayerName + "]").find(".layerContent").find("div[name=llm]").find("select").multiselect("refresh");

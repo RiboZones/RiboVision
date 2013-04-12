@@ -1,6 +1,6 @@
 <?php
-mysql_connect("localhost", "RVU", "DBcrystal84") or die(mysql_error());
-mysql_select_db("Ribosome_View1") or die(mysql_error());
+mysql_connect("localhost", "RVUp", "BDcrystal48") or die(mysql_error());
+mysql_select_db("RiboVisionPublic") or die(mysql_error());
 $filename = $argv[1];
 $start = strrpos($filename, "/");
 if ($start == False) $start = -1;

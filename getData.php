@@ -1,5 +1,5 @@
 <?php
-$dsn = "mysql:host=localhost;dbname=Ribosome_View1";
+$dsn = "mysql:host=localhost;dbname=RiboVisionPublic";
 $username = "website";
 $pdo = new PDO($dsn, $username);
 

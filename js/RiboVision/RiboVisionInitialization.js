@@ -92,23 +92,6 @@ function RiboVisionReady() {
 		}
 	});
 
-	$("#InteractionSettingDialog").dialog({
-		autoOpen : false,
-		show : {
-			effect : "blind",
-			duration : 500
-		}, //change blindin animation attributes
-		hide : {
-			effect : "blind",
-			duration : 500
-		},
-		height : 500,
-		position : {
-			my : "right top",
-			at : "right top",
-			of : $("#canvasDiv")
-		}
-	});
 
 	$("#RiboVisionSettingsPanel").dialog({
 		autoOpen : false,
@@ -157,10 +140,6 @@ function RiboVisionReady() {
 		return false;
 	});
 
-	$("#openInteractionSettingBtn").click(function () {
-		$("#InteractionSettingDialog").dialog("open");
-		return false;
-	});
 	
 	$("#RiboVisionSettings").click(function () {
 		$("#RiboVisionSettingsPanel").dialog("open");
@@ -639,19 +618,6 @@ function RiboVisionReady() {
 		}
 	});
 	
-	$("#SelectionMode").button({
-		text : false,
-		icons : {
-			primary : "ui-icon-pin-w"
-		}
-	});
-
-	$("#openInteractionSettingBtn").button({
-		text : false,
-		icons : {
-			primary : "ui-icon-transfer-e-w"
-		}
-	});	
 	
 	$("#RiboVisionSettings").button({
 		text : false,
@@ -685,14 +651,6 @@ function RiboVisionReady() {
 		rvDataSets[0].drawBasePairs("lines");
 	});
 
-	
-	$("#BaseView").buttonset();
-	$("#bvOFF").attr("checked","checked");
-	$("#BaseView").buttonset("refresh");
-	
-	$("[name=bv]").button().change(function(event,ui){
-		//
-	});
 	
 	$("#SaveControl").buttonset();
 	$("#sscB").attr("checked","checked");
@@ -898,16 +856,6 @@ function RiboVisionReady() {
 	
 	$(window).unload(function() {		
 		//localStorage.setItem("rvDataSets",rvDataSets);
-	});
-	
-	$("#SelectionMode").click(function () {
-	});
-	
-	$("#New3DTestButton").button().click(function(){
-		Jmol.script(myJmol, "script states/" + "3OFR_23s_supNone_state8_d6.spt");
-		var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
-		Jmol.script(myJmol, jscript);
-		updateModel();
 	});
 	
 	InitRibovision();

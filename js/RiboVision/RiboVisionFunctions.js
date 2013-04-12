@@ -373,7 +373,6 @@ function commandSelect(command,SeleName) {
 	drawNavLine();
 	rvDataSets[0].drawResidues("residues");
 	rvDataSets[0].drawSelection("selected");
-	rvDataSets[0].drawBasePairs("lines");
 	//console.log('selected Residue by command input');
 }
 
@@ -412,7 +411,6 @@ function selectResidue(event) {
 			}
 			rvDataSets[0].drawResidues("residues");
 			rvDataSets[0].drawSelection("selected");
-			rvDataSets[0].drawBasePairs("lines");
 			
 			//drawLabels();
 			updateSelectionDiv(targetSelection.Name);
@@ -460,7 +458,6 @@ function clearSelection(AllFlag) {
 	}
 	rvDataSets[0].drawResidues("residues");
 	rvDataSets[0].drawSelection("selected");
-	rvDataSets[0].drawBasePairs("lines");
 	drawNavLine();
 }
 
@@ -761,7 +758,7 @@ function colorMappingLoop(seleProt, OverRideColors) {
 	//JscriptP+="display " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA ) + ".1, " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein ) + ".1;" ;
 	
 	update3Dcolors();
-	refreshModel();
+	updateModel();
 	//jmolScript(Jscript);
 	//jmolScript(JscriptP);
 	Jmol.script(myJmol, Jscript);
@@ -1125,10 +1122,9 @@ function filterBasePairs(FullBasePairSet,IncludeTypes){
 
 //////////////////////////// Mouse Functions //////////////////////////////////
 function mouseEventFunction(event) {
-	var BaseViewMode = $('input[name="bv"][value=on]').is(':checked');
 	$("#ResidueTip").tooltip("close");
 	$("#InteractionTip").tooltip("close");
-	if (event.handleObj.origType == "mousedown" && !BaseViewMode) {
+	if (event.handleObj.origType == "mousedown") {
 		if (onebuttonmode == "select" || (event.which == 3 && event.altKey == false) || (event.which == 1 && event.shiftKey == true)) {
 			$("#canvasDiv").unbind("mousemove", dragHandle);
 			$("#canvasDiv").unbind("mousemove", mouseMoveFunction);
@@ -1147,9 +1143,6 @@ function mouseEventFunction(event) {
 			rvViews[0].lastY = event.clientY;
 			$("#canvasDiv").bind("mousemove", dragHandle);
 		}
-	} else if (event.handleObj.origType == "mousedown" && BaseViewMode) {
-		$("#canvasDiv").unbind("mousemove", dragHandle);
-		BaseViewCenter(event);
 	}
 	if (event.handleObj.origType == "mouseup") {
 		$("#canvasDiv").unbind("mousemove", dragHandle);
@@ -1661,56 +1654,7 @@ function saveJmolImg() {
 	}
 	checkSavePrivacyStatus();
 }
-function retrieveRvState(filename) {
-	SaveStateFileName=filename;
-	$.post('retrieveRvState.php', {
-		datasetname : SaveStateFileName,
-		username : UserName
-	}, function (RvSaveState) {
-		//alert(RvSaveState);
-		var rvSaveState = JSON.parse(RvSaveState);
-		rvDataSets[0]=rvDataSets[0].fromJSON(rvSaveState["RvDS"]);
-		// Re stringify a few things for compatibility / symmetry with local storage
-		rvSaveState["rvLayers"] = JSON.stringify(rvDataSets[0].Layers);
-		rvSaveState["rvSelections"] = JSON.stringify(rvDataSets[0].Selections);
-		rvSaveState["rvLastSpecies"] = rvDataSets[0].Name;
-		
-		Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
-		var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
-		Jmol.script(myJmol, jscript);
-		processRvState(rvSaveState);
-	});
-}
 
-function storeRvState(filename){
-	SaveStateFileName=filename;
-	AgreeFunction = function () {
-		var RvSaveState = {};
-		RvSaveState["RvDS"] = JSON.stringify(rvDataSets[0]);
-		RvSaveState["rvView"] = JSON.stringify(rvViews[0]);
-		RvSaveState["rvJmolOrientation"] = Jmol.evaluate(myJmol,"script('show orientation')");
-		if($("input[name='PanelSizesCheck']").attr("checked")){
-			var po = {
-				PanelDivide : PanelDivide,
-				TopDivide : TopDivide
-			}
-			RvSaveState["rvPanelSizes"] = JSON.stringify(po);
-		}
-		if($("input[name='MouseModeCheck']").attr("checked")){
-			RvSaveState["rvMouseMode"] = onebuttonmode;	
-		}
-		
-		$form = $("<form></form>");
-		$('body').append($form);
-		data = {
-			content: JSON.stringify(RvSaveState,null,'\t'),
-			datasetname : SaveStateFileName,
-			username : UserName
-		};
-		$.post("storeRvState.php", data, function(d) {});
-	}
-	checkSavePrivacyStatus();
-}
 function saveRvState(filename){
 	SaveStateFileName=filename;
 	AgreeFunction = function () {
@@ -1984,13 +1928,7 @@ function canvasToSVG() {
 	output = "<?xml version='1.0' encoding='UTF-8'?>\n" +
 		'<svg version="1.1" baseProfile="basic" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" ' +
 		mapsize2 + 'viewBox="0 0 ' + mapsize + '" xml:space="preserve">\n';
-	if(rvDataSets[0].Name === 'SC_LSU_Struct'){;
-		var stringData = $.ajax({
-						url: "js/RiboVision/SC_28S_Struct_Dash_Lines_g.svg",
-						async: false
-					 }).responseText;
-		output = output + stringData;
-	}
+	
 	$.each(rvDataSets[0].Layers, function (index, value) {
 		if (AllMode || value.Visible){
 			switch (value.Type) {
@@ -2125,42 +2063,42 @@ function canvasToSVG() {
 //////////////////////////////// Jmol Functions ////////////////////////////////
 function updateModel() {
 	var n;
-	
+	var script = "set hideNotSelected true;select (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (";
 	//Come back and support multiple selections?
 	var targetSelection = rvDataSets[0].getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
-	if (targetSelection.Residues.length > 0){
-		var script = "set hideNotSelected true;select (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (";
-		for (var i = 0; i < targetSelection.Residues.length; i++) {
-			if (targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") != null) {
-				if (script != "set hideNotSelected true;select (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (") {
-					script += " or ";
-				};
-				n = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "").match(/[A-z]/g);
-				if (n != null) {
-					r1 = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "").replace(n, "^" + n);
-				} else {
-					r1 = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-				}
-				script += r1 + ":" + targetSelection.Residues[i].ChainID;
+	for (var i = 0; i < targetSelection.Residues.length; i++) {
+		if (targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") != null) {
+			if (script != "set hideNotSelected true;select (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (") {
+				script += " or ";
+			};
+			n = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "").match(/[A-z]/g);
+			if (n != null) {
+				r1 = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "").replace(n, "^" + n);
+			} else {
+				r1 = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+			}
+			script += r1 + ":" + targetSelection.Residues[i].ChainID;
+		}
+	}
+	if (script == "set hideNotSelected true;select (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (") {
+		for (var ii = 0; ii < rvDataSets[0].SpeciesEntry.PDB_chains.length; ii++) {
+			script += ":" + rvDataSets[0].SpeciesEntry.PDB_chains[ii];
+			if (ii < (rvDataSets[0].SpeciesEntry.PDB_chains.length - 1)) {
+				script += " or ";
 			}
 		}
 		script += ")); center selected;";
-		Jmol.script(myJmol, script);
+		
 	} else {
-		refreshModel();
+		script += ")); center selected;";
 	}
-}
-
-function refreshModel() {
-	var script = "set hideNotSelected true;select (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (";
-	for (var ii = 0; ii < rvDataSets[0].SpeciesEntry.PDB_chains.length; ii++) {
-		script += ":" + rvDataSets[0].SpeciesEntry.PDB_chains[ii];
-		if (ii < (rvDataSets[0].SpeciesEntry.PDB_chains.length - 1)) {
-			script += " or ";
-		}
-	}
-	script += ")); center selected;";
+	//jmolScript(script);
 	Jmol.script(myJmol, script);
+	/*
+	var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function(){
+	return this.value;
+	}).get();
+	update3DProteins(array_of_checked_values);*/
 }
 
 function resetColorState() {
@@ -2362,81 +2300,78 @@ function drawNavLine(){
 
 		var g = NavLine.append("svg:g")
 			.attr("width", w)
-			.attr("height", h);
+			.attr("height", h)
 			//.attr("transform", "translate(0, " + 200+")");
 			
 			
-		var line = d3.svg.line()
-			.defined(function(d) { 
-				return ((d!==undefined) ? !isNaN(d) : false) 
-			})			
-			.x(function(d,i) { return xScale(i); })
-			.y(function(d) { return yScale(d); });	
-		
-		var GraphData = [];
-		if (targetLayer.Type === "selected"){
-			$.each(targetLayer.Data, function (index,value){
-				if (value === false){
-					GraphData[index]=0;
-				} else {
-					GraphData[index]=1;
-				}
-			});
-			linename = "Selected Residues";
-		} else if ((targetLayer.DataLabel === "empty data") || (targetLayer.DataLabel === "None")){
-			$.each(targetLayer.Data, function (index,value){
-				GraphData[index]=0;
-			});
-		} else if (targetLayer.DataLabel === "Protein Contacts"){
-			$.each(targetLayer.Data, function (index,value){
-					if (value === " "){
+			var line = d3.svg.line()
+			    .x(function(d,i) { return xScale(i); })
+			    .y(function(d) { return yScale(d); });
+			
+			var GraphData = [];
+			if (targetLayer.Type === "selected"){
+				$.each(targetLayer.Data, function (index,value){
+					if (value === false){
 						GraphData[index]=0;
 					} else {
 						GraphData[index]=1;
 					}
 				});
-			linename = "Protein Contacts";
-		} else {
-			GraphData = targetLayer.Data;
-		}
-		g.append("svg:path").attr("d", line(GraphData)).style("stroke", targetLayer.Color);
-		
-		//Axes
-		var xAxis = d3.svg.axis()
-			  .scale(xScale)
-			  .orient("bottom")
-			  .ticks(20);  //Set rough # of ticks
-			  
-		NavLine.append("g")
-			.attr("class", "axis")  //Assign "axis" class
-			.attr("transform", "translate(0," + (yScale(0)) + ")")
-			.call(xAxis);
+				linename = "Selected Residues";
+			} else if ((targetLayer.DataLabel === "empty data") || (targetLayer.DataLabel === "None")){
+				$.each(targetLayer.Data, function (index,value){
+					GraphData[index]=0;
+				});
+			} else if (targetLayer.DataLabel === "Protein Contacts"){
+				$.each(targetLayer.Data, function (index,value){
+						if (value === " "){
+							GraphData[index]=0;
+						} else {
+							GraphData[index]=1;
+						}
+					});
+				linename = "Protein Contacts";
+			} else {
+				GraphData = targetLayer.Data;
+			}
+			g.append("svg:path").attr("d", line(GraphData)).style("stroke", targetLayer.Color);
 			
-		var yAxis = d3.svg.axis()
-			  .scale(yScale)
-			  .orient("left")
-			  .ticks(10);
-		
-		NavLine.append("g")
-			.attr("class", "axis")
-			.attr("transform", "translate(" + MarginXL + ",0)")
-			.call(yAxis);
-		
-		//XLabel			
-		g.append("text")
-		  .attr("x", (w - MarginXR-MarginXL)/2 + MarginXL)
-		  .attr("y", h-MarginYB/4)
-		  .attr("text-anchor", "middle")
-		  .text("Nucleotide Number");	
-		  
-		//add legend to the navline 
-		 g.append("text")
-		  .attr("x", MarginXL/4)
-		  .attr("y", h/2)
-		  .attr("text-anchor", "middle")
-		  .attr("transform", "rotate(-90 " + "," + MarginXL/4 + "," + h/2 + ")")
-		  .text(linename);	
-		
+			//Axes
+			var xAxis = d3.svg.axis()
+                  .scale(xScale)
+                  .orient("bottom")
+				  .ticks(20);  //Set rough # of ticks
+				  
+			NavLine.append("g")
+				.attr("class", "axis")  //Assign "axis" class
+				.attr("transform", "translate(0," + (yScale(0)) + ")")
+				.call(xAxis);
+				
+			var yAxis = d3.svg.axis()
+                  .scale(yScale)
+                  .orient("left")
+                  .ticks(10);
+			
+			NavLine.append("g")
+				.attr("class", "axis")
+				.attr("transform", "translate(" + MarginXL + ",0)")
+				.call(yAxis);
+			
+			//XLabel			
+			g.append("text")
+		      .attr("x", (w - MarginXR-MarginXL)/2 + MarginXL)
+		      .attr("y", h-MarginYB/4)
+		      .attr("text-anchor", "middle")
+			  .text("Nucleotide Number");	
+			  
+			//add legend to the navline 
+			 g.append("text")
+		      .attr("x", MarginXL/4)
+		      .attr("y", h/2)
+			  .attr("text-anchor", "middle")
+			  .attr("transform", "rotate(-90 " + "," + MarginXL/4 + "," + h/2 + ")")
+		      .text(linename);	
+			
 }
 
 function addPopUpWindowResidue(ResIndex){
@@ -2605,12 +2540,7 @@ function addPopUpWindowLine(SeleLine){
 		":" + rvDataSets[0].Residues[k].resNum;
 	}
 	$('#BasePairType').html("Interaction Type: " +  $("#PrimaryInteractionList").multiselect("getChecked").attr("title"));
-	if (rvDataSets[0].BasePairs[SeleLine].ProteinName){
-		$('#BasePairSubType').html("Interaction Subtype: " + rvDataSets[0].BasePairs[SeleLine].ProteinName + " " + rvDataSets[0].BasePairs[SeleLine].bp_type);
-	} else {
-		$('#BasePairSubType').html("Interaction Subtype: " + rvDataSets[0].BasePairs[SeleLine].bp_type);
-	}
-	
+	$('#BasePairSubType').html("Interaction Subtype: " + rvDataSets[0].BasePairs[SeleLine].bp_type);
 	$("#BasePairRes1").html("Residue1: " + ResName1);
 	$("#BasePairRes2").html("Residue2: " + ResName2);
 	
@@ -2684,76 +2614,6 @@ function RestoreLocalStorage(SaveStateFileName) {
 }
 function RestoreLocalStorage2(rvSaveState) {
 	processRvState(rvSaveState);
-	/*
-	if($("input[name='LayersCheck']").attr("checked")){
-		var data = JSON.parse(rvSSobj.rvLayers);
-		$.each(data, function (index, value) {
-			rvDataSets[0].Layers[index] = rvDataSets[0].HighlightLayer.fromJSON(value);
-		});
-		// Sort rvLayers by zIndex for convience
-		//rvDataSets[0].sort();
-		
-		$.each(rvDataSets[0].Layers,function (index, value) {
-			$("#" + this.CanvasName).css('zIndex', index);
-		});
-		// Restore Selected and Linked
-		var selectedLayer = rvDataSets[0].getSelectedLayer();
-		var linkedLayer = rvDataSets[0].getLinkedLayer();
-		resizeElements(true);
-		$(".oneLayerGroup").remove();
-		// Put in Layers
-		$.each(rvDataSets[0].Layers, function (key, value){
-			LayerMenu(value, key);
-		});
-		RefreshLayerMenu();
-		
-		$(".oneLayerGroup" + "[name=" + selectedLayer.LayerName + "]").find(".selectLayerRadioBtn").attr("checked","checked");
-		rvDataSets[0].selectLayer(selectedLayer.LayerName);
-		$(".oneLayerGroup" + "[name=" + linkedLayer.LayerName + "]").find(".mappingRadioBtn").attr("checked","checked");
-		rvDataSets[0].linkLayer(linkedLayer.LayerName);
-	}
-	if($("input[name='SelectionsCheck']").attr("checked")){
-		rvDataSets[0].Selections = JSON.parse(rvSSobj.rvSelections);
-		$(".oneSelectionGroup").remove();
-		// Put in Selections
-		$.each(rvDataSets[0].Selections.reverse(), function (key, value){
-			SelectionMenu(value, key);
-		});
-		//Default check first selection. Come back to these to restore saved state
-		$("#SelectionPanel div").first().next().find(".selectSelectionRadioBtn").attr("checked", "checked");
-		RefreshSelectionMenu();
-	}
-	
-	if($("input[name='PanelSizesCheck']").attr("checked")){
-		var po = JSON.parse(rvSSobj.rvPanelSizes);
-		PanelDivide = po.PanelDivide;
-		TopDivide = po.TopDivide;
-		$( "#canvasPorportionSlider" ).slider("value",PanelDivide);
-		$( "#topPorportionSlider" ).slider("value",TopDivide);
-		resizeElements();
-	}
-	if($("input[name='MouseModeCheck']").attr("checked")){
-		$("#buttonmode").find("input[value='" + rvSSobj.rvMouseMode + "']").trigger("click");
-	}
-	if($("input[name='CanvasOrientationCheck']").attr("checked")){
-		//localStorage.setItem("rvView",7);
-		rvViews[0] = rvViews[0].fromJSON(rvSSobj.rvView);
-		rvViews[0].restore();
-	}
-	if($("input[name='JmolOrientationCheck']").attr("checked")){
-		//localStorage.setItem("rvJmolOrientation",8);
-		var a = rvSSobj.rvJmolOrientation.match(/reset[^\n]+/);
-		Jmol.script(myJmol, a[0]);
-	}
-	rvDataSets[0].drawResidues("residues");
-	rvDataSets[0].drawSelection("selected");
-	rvDataSets[0].refreshResiduesExpanded("circles");
-	rvDataSets[0].drawLabels("labels");
-	rvDataSets[0].drawBasePairs("lines");
-	if(!$("input[name='LastSpeciesCheck']").attr("checked")){
-		updateModel();
-		update3Dcolors();
-	}*/
 }
 
 function rvSaveManager(rvAction) {
@@ -2769,9 +2629,6 @@ function rvSaveManager(rvAction) {
 				case "File":
 					saveRvState(SaveStateFileName);
 					break;		
-				case "Server":
-					storeRvState(SaveStateFileName);
-					break;
 				default:
 					alert("huh?");
 			}
@@ -2785,9 +2642,6 @@ function rvSaveManager(rvAction) {
 				case "File":
 					$("#dialog-restore-state").dialog("open");
 					break;		
-				case "Server":
-					retrieveRvState(SaveStateFileName);
-					break;
 				default:
 					alert("huh?");
 			}

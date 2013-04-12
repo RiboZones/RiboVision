@@ -599,8 +599,6 @@ function rvDataSet(DataSetName) {
 	function drawLabels(targetLayer,drawExtra) {
 		if (!canvas2DSupported){return};
 		targetLayer.CanvasContext.textAlign = 'left';
-		//canvg(targetLayer.CanvasName, 'js/RiboVision/SC_28S_Struct_Dash_Lines_m.svg',{ ignoreMouse : false, ignoreClear : false, scaleWidth: 1, scaleHeight: 1});
-		//canvg(targetLayer.CanvasName, 'js/RiboVision/SC_28S_Struct_Dash_Lines_m.svg', { ignoreMouse: false, ignoreClear: true, ignoreDimensions: true});
 		
 		if (rvDataSets[0].rvTextLabels != undefined) {
 			var n = watermark(false);
@@ -630,7 +628,7 @@ function rvDataSet(DataSetName) {
 		//alert(data);
 		var img = new Image();
 		//img.src = data;
-		img.src = "js/RiboVision/SC_28S_Struct_Dash_Lines_m.svg";
+		img.src = "js/RiboVision/SC_28S_Struct_Dash_Lines_v.svg";
 		img.onload = function() { targetLayer.CanvasContext.drawImage(img, 0, 0,612,792); };
 		//targetLayer.CanvasContext.drawImage(img, 0, 0);
 		*/
@@ -803,19 +801,6 @@ function rvDataSet(DataSetName) {
 						colorLayer.addLinearGradient(grd);
 						rvDataSets[0].BasePairs[i]["color"] = grd;
 						break;
-					case "selected":
-						var grd = colorLayer.CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
-						if (colorLayer.Data[j] || colorLayer.Data[k]) {
-							//color1 = colorNameToHex(colorLayer.dataLayerColors[j]);
-							//color2 = colorNameToHex(colorLayer.dataLayerColors[k]);
-							color1 = colorNameToHex("#231F20");
-							color2 = colorNameToHex("#231F20");
-							grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + ",.5)");
-							grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + ",.5)");
-						}
-						colorLayer.addLinearGradient(grd);
-						rvDataSets[0].BasePairs[i]["color"] = grd;
-						break;
 					default:
 						alert("this shouldn't be happening right now.");
 					}
@@ -827,25 +812,6 @@ function rvDataSet(DataSetName) {
 					targetLayer.CanvasContext.lineTo(rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
 					targetLayer.CanvasContext.closePath();
 					targetLayer.CanvasContext.stroke();
-					if (zoomEnabled && (rvViews[0].scale > 10)) {
-						//draw the interaction type labels here
-						var x1 = rvDataSets[0].Residues[j].X;
-						var x2 = rvDataSets[0].Residues[k].X;
-						var x12mid = x1 - ((x1 - x2) / 2);
-						var xmid = rvDataSets[0].Residues[j].X - (rvDataSets[0].Residues[j].X - rvDataSets[0].Residues[k].X) / 2;
-						var ymid = rvDataSets[0].Residues[j].Y - (rvDataSets[0].Residues[j].Y - rvDataSets[0].Residues[k].Y) / 2;
-						targetLayer.CanvasContext.save();
-						targetLayer.CanvasContext.lineWidth = .2;
-						targetLayer.CanvasContext.fillStyle = "white";
-						targetLayer.CanvasContext.fillRect(xmid - 2.4, ymid - .8, 4.7, 1.7);
-						targetLayer.CanvasContext.strokeRect(xmid - 2.3, ymid - .7, 4.5, 1.5);
-						targetLayer.CanvasContext.restore();
-						targetLayer.CanvasContext.save();
-						targetLayer.CanvasContext.font = ".5px Arial";
-						targetLayer.CanvasContext.fillText(rvDataSets[0].BasePairs[i].bp_type, xmid - 2, ymid + .5);
-						targetLayer.CanvasContext.restore();
-						
-					}
 				}
 			}
 		}
