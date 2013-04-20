@@ -79,10 +79,10 @@
             <div id="SideBarAccordian">
                 <h3><a href="#">Species Selection</a></h3>
 
-                <div id="SpeciesDiv">
+                <div id="SpeciesDiv" style="padding:0.1em">
                     Species &amp; Subunit Selection:<br>
 
-                    <ul id="speciesList">
+                    <ul id="speciesList" style="font-size:0.9em">
                         <li class="ui-menu-item ios-menu-back-link" role="menu">
                             <a href="#None" class="ui-corner-role" tabindex="-1" role="menuitem" aria-haspopup="true">No Molecule</a>
                         </li>
@@ -115,8 +115,9 @@
                 <h3><a href="#">Structure Data</a></h3>
 
                 <div id="StructDataDiv">
-                    Structure Data:<br>
-                    <select id="StructDataList" multiple="multiple">
+                    <span id="StructDataLabel" > Structure Data: </span><br>
+                    <div id="StructDataBubbles"></div>
+					<select id="StructDataList" multiple="multiple">
                         </select>
 
                     <p class="DataDescription"></p>
@@ -126,7 +127,8 @@
                 <h3><a href="#">Alignment Data</a></h3>
 
                 <div id="AlnDiv">
-                    Alignment Data:<br>
+                   <br><span id="AlnLabel" >  Alignment Data: </span><br>
+					<div id="AlnBubbles"></div>
                     <select id="alnList" multiple="multiple">
                         </select>
 
@@ -196,6 +198,14 @@
                 </div>
             </div>
         </div>
+		<div id="MiniLayer" class="ui-widget-content">
+			<h3 class="ui-widget-header" style="padding:3px; padding-left:10px; background-image:url(images/ui-bg_glass_50_3baae3_1x400.png); color:#FFF; font-size:16px;">
+			Layers
+			</h3>
+			<input type="button" id="MiniOpenLayerBtn" title="Open Layer Manager" value="Edit ..." style="margin: auto;"/><br><br>
+			<span id="MiniLayerLabel">Data Layers:</span><br>
+		</div>
+		
     </div>
 
     <div id="LogoDiv" class="ui-widget-content"><img src="images/RiboEvoNASAlogo.png" id="ComboLogo" title="RiboEvo and NASA Logos" alt=

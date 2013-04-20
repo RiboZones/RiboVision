@@ -92,6 +92,7 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 					for (var ii = 0; ii < AlnList.length; ii++) {
 						var NewAlnPair = AlnList[ii].split(":");
 						al.options[ii + 1] = new Option(NewAlnPair[0], NewAlnPair[1]);
+						$("#AlnBubbles").append($('<h3 class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom" style="text-align:center;padding:0.2em">').text(NewAlnPair[0]).attr('name',NewAlnPair[1]));
 					}
 				}
 				
@@ -107,7 +108,9 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 					for (var ii = 0; ii < SDList.length; ii++) {
 						var NewSDPair = SDList[ii].split(":");
 						sl.options[ii + 1] = new Option(NewSDPair[0], NewSDPair[1]);
+						$("#StructDataBubbles").append($('<h3 class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom" style="text-align:center;padding:0.2em">').text(NewSDPair[0]).attr('name',NewSDPair[1]));
 					}
+					
 				}
 				
 				$("#StructDataList").multiselect("refresh");
@@ -129,6 +132,28 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 				Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
 				var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
 				Jmol.script(myJmol, jscript);
+				
+				//Set sortable to imply draggable
+				$("#StructDataDiv").sortable({
+					update : function (event, ui) {
+						/*$("#LayerPanel .layerContent").each(function (e, f) {
+							var tl = rvDataSets[0].getLayer($(this).parent().attr("name"));
+							tl.updateZIndex(rvDataSets[0].LastLayer - e);
+							});
+						rvDataSets[0].sort();*/
+					},
+					items : ".dataBubble"
+				});
+				$("#AlnDiv").sortable({
+					update : function (event, ui) {
+						/*$("#LayerPanel .layerContent").each(function (e, f) {
+							var tl = rvDataSets[0].getLayer($(this).parent().attr("name"));
+							tl.updateZIndex(rvDataSets[0].LastLayer - e);
+							});
+						rvDataSets[0].sort();*/
+					},
+					items : ".dataBubble"
+				});
 				
 				//clearSelection();
 				updateModel();

@@ -35,6 +35,15 @@ function RiboVisionReady() {
 	myJmol = Jmol.getApplet("myJmol", JmolInfo); 
 	$('#jmolDiv').html(Jmol.getAppletHtml(myJmol));
 	
+	$("#MiniOpenLayerBtn").button({
+	});
+	
+	$("#MiniOpenLayerBtn").click(function () {
+		$("#PanelTabs").tabs( "option", "active", 0 );
+		$("#LayerDialog").dialog("open");
+		return false;
+	});
+	
 	$("#ResidueTip").tooltip({
 			show: false,
 			hide: false,
