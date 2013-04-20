@@ -105,7 +105,7 @@ function resizeElements(noDraw) {
 	var MajorBorderSize = 1;
 	var width = $(window).width();
 	var height = $(window).height();
-	
+	var MainMenuFrac = 0.65;
 	//TopMenu
 	$("#topMenu").outerHeight(TopDivide * height);
 	//ToolBar
@@ -145,9 +145,14 @@ function resizeElements(noDraw) {
 	*/
 
 	//MainMenu
-	$("#MainMenu").css('width', xcorr);
+	$("#MainMenu").css('width', MainMenuFrac * xcorr); //75%, make room for new MiniLayer
 	$("#MainMenu").css('height', (0.9 * height) - parseFloat($("#SiteInfo").css('height')));
 	$("#MainMenu").css('top', parseFloat($("#SiteInfo").css('height')));
+	
+	//MiniLayer
+	$("#MiniLayer").css('width', (1 - MainMenuFrac) * xcorr); //25%, for new MiniLayer
+	$("#MiniLayer").css('height', (0.9 * height) - parseFloat($("#SiteInfo").css('height')));
+	$("#MiniLayer").css('top', parseFloat($("#SiteInfo").css('height')));
 	
 	//SideBarAccordian
 	$("#SideBarAccordian").accordion("refresh");
@@ -619,7 +624,7 @@ function update3Dcolors() {
 	Jmol.script(myJmol, script);
 }
 
-function colorProcess(data, indexMode) {
+function colorProcess(data, indexMode,targetLayer) {
 	var color_data = new Array();
 	var DataPoints = 0;
 	for (var ii = 0; ii < rvDataSets[0].Residues.length; ii++) {
@@ -637,7 +642,10 @@ function colorProcess(data, indexMode) {
 	var max = Math.max.apply(Math, color_data);
 	var range = max - min;
 	
-	var targetLayer = rvDataSets[0].getSelectedLayer();
+	if (arguments.length < 3) {
+		var targetLayer = rvDataSets[0].getSelectedLayer();
+	}
+	
 	if (!targetLayer) {
 		$("#dialog-selection-warning p").text("Please select a valid layer and try again.");
 		$("#dialog-selection-warning").dialog("open");
@@ -792,22 +800,22 @@ function update3DProteins(seleProt, OverRideColors) {
 	Jmol.script(myJmol, JscriptP);
 }
 
-function colorMapping(ChoiceList, ManualCol, OverRideColors, indexMode, rePlaceData) {
-	if (arguments.length == 1 || ManualCol == "42") {
+function colorMapping(targetLayer,ChoiceList, ManualCol, OverRideColors, indexMode, rePlaceData) {
+	if (arguments.length == 2 || ManualCol == "42") {
 		//var dd = document.getElementById(ChoiceList);
 		
 		var colName = $("#" + ChoiceList).val();
 	}
-	if (arguments.length >= 2 && ManualCol != "42") {
+	if (arguments.length >= 3 && ManualCol != "42") {
 		var colName = ManualCol;
 	}
-	if (arguments.length >= 3) {
+	if (arguments.length >= 4) {
 		colors = OverRideColors;
 	} else {
 		colors = RainBowColors;
 	}
 	
-	var targetLayer = rvDataSets[0].getSelectedLayer()
+	//var targetLayer = rvDataSets[0].getSelectedLayer()
 		if (!targetLayer) {
 			$("#dialog-selection-warning p").text("Please select a valid layer and try again.");
 			$("#dialog-selection-warning").dialog("open");
@@ -820,7 +828,7 @@ function colorMapping(ChoiceList, ManualCol, OverRideColors, indexMode, rePlaceD
 				for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
 					data[j] = rvDataSets[0].Residues[j][colName];
 				}
-				colorProcess(data, indexMode);
+				colorProcess(data, indexMode,targetLayer);
 			} else {
 				targetLayer.Data = [];
 				targetLayer.dataLayerColors = [];
@@ -840,7 +848,7 @@ function colorMapping(ChoiceList, ManualCol, OverRideColors, indexMode, rePlaceD
 				for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
 					data[j] = rvDataSets[0].Residues[j][colName];
 				}
-				colorProcess(data, indexMode);
+				colorProcess(data, indexMode,targetLayer);
 			} else {
 				//var data = new Array;
 				//targetLayer.clearCanvas();
@@ -1354,8 +1362,8 @@ function modeSelect(mode) {
 	}*/
 }
 
-function updateStructData(ui) {
-	var newargs = ui.value.split(",");
+function updateStructData(ui,targetLayer) {
+	var newargs = $(ui).attr("name").split(",");
 	for (var i = 0; i < newargs.length; i++) {
 		if (newargs[i].indexOf("'") > -1) {
 			newargs[i] = newargs[i].match(/[^\\']+/);
@@ -1364,6 +1372,7 @@ function updateStructData(ui) {
 		}
 	}
 	newargs.unshift('42');
+	newargs.unshift(targetLayer);
 	colorMapping.apply(this, newargs);
 	drawNavLine();
 }

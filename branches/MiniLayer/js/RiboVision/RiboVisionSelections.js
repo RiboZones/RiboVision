@@ -317,7 +317,8 @@ $("#SelectionPanel").sortable({
 		});
 		//rvDataSets[0].sort();
 	},
-	items : ".oneSelectionGroup"
+	items : ".oneSelectionGroup",
+	axis: "y"
 	
 });
 $("#SelectionPanel").disableSelection();

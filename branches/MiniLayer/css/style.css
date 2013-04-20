@@ -89,10 +89,21 @@
 	left:-2px;
 	top:25%;
 	height:75%;	
-	width: 95%;
+	width: 65%;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
 	-webkit-box-sizing:border-box; /* Safari */
+}
+#MiniLayer{
+	position:absolute;
+	left:65%;
+	top:25%;
+	height:75%;	
+	width: 32%;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+	border-left:thick double orange;
 }
 
 #SideBarAccordian{
@@ -309,6 +320,14 @@ body{
 	font-size: 1.2em;
 }
 
+.miniLayerName {
+	line-height: 3.0em;
+	font-size: 0.85em;
+}
+
+.dataBubble {
+
+}
 .selectionName {
 	height:1.5em;
 	line-height: 1.2em;
