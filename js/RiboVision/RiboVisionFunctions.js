@@ -105,7 +105,7 @@ function resizeElements(noDraw) {
 	var MajorBorderSize = 1;
 	var width = $(window).width();
 	var height = $(window).height();
-	
+	var MainMenuFrac = 0.65;
 	//TopMenu
 	$("#topMenu").outerHeight(TopDivide * height);
 	//ToolBar
@@ -138,6 +138,9 @@ function resizeElements(noDraw) {
 	//SiteInfo
 	$("#SiteInfo").css('width', xcorr);
 	
+	//ExportData
+	$("#ExportData").css('width', xcorr);
+	
 	/*
 	//NavDiv
 	$("#NavDiv").css('width', xcorr);
@@ -145,9 +148,14 @@ function resizeElements(noDraw) {
 	*/
 
 	//MainMenu
-	$("#MainMenu").css('width', xcorr);
-	$("#MainMenu").css('height', (0.9 * height) - parseFloat($("#SiteInfo").css('height')));
+	$("#MainMenu").css('width', MainMenuFrac * xcorr); //75%, make room for new MiniLayer
+	$("#MainMenu").css('height', (0.9 * height) - parseFloat($("#SiteInfo").css('height')) - parseFloat($("#ExportData").css('height')));
 	$("#MainMenu").css('top', parseFloat($("#SiteInfo").css('height')));
+	
+	//MiniLayer
+	$("#MiniLayer").css('width', (1 - MainMenuFrac) * xcorr); //25%, for new MiniLayer
+	$("#MiniLayer").css('height', (0.9 * height) - parseFloat($("#SiteInfo").css('height')) - parseFloat($("#ExportData").css('height')));
+	$("#MiniLayer").css('top', parseFloat($("#SiteInfo").css('height')));
 	
 	//SideBarAccordian
 	$("#SideBarAccordian").accordion("refresh");
@@ -619,7 +627,7 @@ function update3Dcolors() {
 	Jmol.script(myJmol, script);
 }
 
-function colorProcess(data, indexMode) {
+function colorProcess(data, indexMode,targetLayer) {
 	var color_data = new Array();
 	var DataPoints = 0;
 	for (var ii = 0; ii < rvDataSets[0].Residues.length; ii++) {
@@ -637,7 +645,10 @@ function colorProcess(data, indexMode) {
 	var max = Math.max.apply(Math, color_data);
 	var range = max - min;
 	
-	var targetLayer = rvDataSets[0].getSelectedLayer();
+	if (arguments.length < 3) {
+		var targetLayer = rvDataSets[0].getSelectedLayer();
+	}
+	
 	if (!targetLayer) {
 		$("#dialog-selection-warning p").text("Please select a valid layer and try again.");
 		$("#dialog-selection-warning").dialog("open");
@@ -694,23 +705,32 @@ function colorProcess(data, indexMode) {
 
 }
 
-function colorMappingLoop(seleProt, OverRideColors) {
-	if (arguments.length >= 2) {
+function colorMappingLoop(targetLayer, seleProt, OverRideColors) {
+	if (arguments.length >= 3) {
 		var colors2 = OverRideColors;
 	} else {
 		var colors2 = RainBowColors;
 	}
+	//Residue Part
+	if (targetLayer){
+		//var targetLayer = rvDataSets[0].getSelectedLayer();
+		if (targetLayer.Type === "circles"){
+			targetLayer.clearCanvas();
+			targetLayer.clearData();
+		}
+		if (targetLayer.Type === "residues"){
+			//targetLayer.clearCanvas();
+			clearColor(false);
+			targetLayer.clearData();
+		}
+		targetLayer.Data = new Array;
+		for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
+			targetLayer.Data[j] = " ";
+		}
+		
+	}
 	
-	var targetLayer = rvDataSets[0].getSelectedLayer();
-	if (targetLayer.Type === "circles"){
-		targetLayer.clearCanvas();
-		targetLayer.clearData();
-	}
-	if (targetLayer.Type === "residues"){
-		//targetLayer.clearCanvas();
-		clearColor(false);
-		targetLayer.clearData();
-	}
+	//Interaction Part
 	var array_of_checked_values = $("#PrimaryInteractionList").multiselect("getChecked").map(function(){
 	   return this.value;	
 	}).get();
@@ -722,12 +742,13 @@ function colorMappingLoop(seleProt, OverRideColors) {
 		rvDataSets[0].clearCanvas("lines");
 	}
 	
+	//Jmol Part
 	var Jscript = "display (selected), (" + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and (";
 	var JscriptP = "set hideNotSelected false;";
-	targetLayer.Data = new Array;
-	for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
-		targetLayer.Data[j] = " ";
-	}
+	
+	
+	//Loop
+	
 	for (var i = 0; i < seleProt.length; i++) {
 		if (seleProt.length > 1) {
 			var val = Math.round((i / (seleProt.length - 1)) * (colors2.length - 1));
@@ -735,16 +756,17 @@ function colorMappingLoop(seleProt, OverRideColors) {
 			var val = 0;
 		}
 		var newcolor = (val < 0 || val >= colors2.length) ? "#000000" : colors2[val];
-		var dataIndices = new Array;
-		for (var jj = 0; jj < rvDataSets[0].Residues.length; jj++) {
-			if (rvDataSets[0].Residues[jj][seleProt[i]] && rvDataSets[0].Residues[jj][seleProt[i]] >0){
-				dataIndices[jj] = rvDataSets[0].Residues[jj][seleProt[i]];
-				targetLayer.Data[jj] = targetLayer.Data[jj] + seleProt[i] + " ";
+		if (targetLayer){
+			var dataIndices = new Array;
+			for (var jj = 0; jj < rvDataSets[0].Residues.length; jj++) {
+				if (rvDataSets[0].Residues[jj][seleProt[i]] && rvDataSets[0].Residues[jj][seleProt[i]] >0){
+					dataIndices[jj] = rvDataSets[0].Residues[jj][seleProt[i]];
+					targetLayer.Data[jj] = targetLayer.Data[jj] + seleProt[i] + " ";
+				}
 			}
+			rvDataSets[0].drawDataCircles(targetLayer.LayerName, dataIndices, ["#000000", newcolor], true);
+			rvDataSets[0].drawResidues(targetLayer.LayerName, dataIndices, ["#000000", newcolor], true);
 		}
-		rvDataSets[0].drawDataCircles(targetLayer.LayerName, dataIndices, ["#000000", newcolor], true);
-		rvDataSets[0].drawResidues(targetLayer.LayerName, dataIndices, ["#000000", newcolor], true);
-
 		if (i === 0) {
 			Jscript += ":" + rvDataSets[0].SpeciesEntry.SubunitProtChains[1][rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(seleProt[i])];
 		} else {
@@ -792,22 +814,22 @@ function update3DProteins(seleProt, OverRideColors) {
 	Jmol.script(myJmol, JscriptP);
 }
 
-function colorMapping(ChoiceList, ManualCol, OverRideColors, indexMode, rePlaceData) {
-	if (arguments.length == 1 || ManualCol == "42") {
+function colorMapping(targetLayer,ChoiceList, ManualCol, OverRideColors, indexMode, rePlaceData) {
+	if (arguments.length == 2 || ManualCol == "42") {
 		//var dd = document.getElementById(ChoiceList);
 		
 		var colName = $("#" + ChoiceList).val();
 	}
-	if (arguments.length >= 2 && ManualCol != "42") {
+	if (arguments.length >= 3 && ManualCol != "42") {
 		var colName = ManualCol;
 	}
-	if (arguments.length >= 3) {
+	if (arguments.length >= 4) {
 		colors = OverRideColors;
 	} else {
 		colors = RainBowColors;
 	}
 	
-	var targetLayer = rvDataSets[0].getSelectedLayer()
+	//var targetLayer = rvDataSets[0].getSelectedLayer()
 		if (!targetLayer) {
 			$("#dialog-selection-warning p").text("Please select a valid layer and try again.");
 			$("#dialog-selection-warning").dialog("open");
@@ -820,7 +842,7 @@ function colorMapping(ChoiceList, ManualCol, OverRideColors, indexMode, rePlaceD
 				for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
 					data[j] = rvDataSets[0].Residues[j][colName];
 				}
-				colorProcess(data, indexMode);
+				colorProcess(data, indexMode,targetLayer);
 			} else {
 				targetLayer.Data = [];
 				targetLayer.dataLayerColors = [];
@@ -840,7 +862,7 @@ function colorMapping(ChoiceList, ManualCol, OverRideColors, indexMode, rePlaceD
 				for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
 					data[j] = rvDataSets[0].Residues[j][colName];
 				}
-				colorProcess(data, indexMode);
+				colorProcess(data, indexMode,targetLayer);
 			} else {
 				//var data = new Array;
 				//targetLayer.clearCanvas();
@@ -1099,7 +1121,7 @@ function refreshBasePairs(BasePairTable) {
 			ims.options[0] = new Option("NPN", "NPN");
 			ims.options[0].setAttribute("selected", "selected");
 			$("#SecondaryInteractionList").multiselect("refresh");
-			colorMappingLoop(array_of_checked_values);
+			colorMappingLoop(undefined,array_of_checked_values);
 			
 		}
 		
@@ -1353,9 +1375,28 @@ function modeSelect(mode) {
 			//seleLineMode = false;
 	}*/
 }
-
-function updateStructData(ui) {
-	var newargs = ui.value.split(",");
+function ProcessBubble(ui,targetLayer){
+	switch ($(ui).parent().attr("id")) {
+		case "AlnBubbles" :
+			colorMapping(targetLayer,"42",$(ui).attr("name"));
+			drawNavLine();
+			break;
+		case "StructDataBubbles" :
+			updateStructData(ui,targetLayer);
+			break;
+		case "ProteinBubbles" : 
+			var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
+					return this.value;
+				}).get();
+			colorMappingLoop(targetLayer,array_of_checked_values);
+			break;
+		default :
+			alert("other");
+	}
+	
+}
+function updateStructData(ui,targetLayer) {
+	var newargs = $(ui).attr("name").split(",");
 	for (var i = 0; i < newargs.length; i++) {
 		if (newargs[i].indexOf("'") > -1) {
 			newargs[i] = newargs[i].match(/[^\\']+/);
@@ -1364,6 +1405,7 @@ function updateStructData(ui) {
 		}
 	}
 	newargs.unshift('42');
+	newargs.unshift(targetLayer);
 	colorMapping.apply(this, newargs);
 	drawNavLine();
 }

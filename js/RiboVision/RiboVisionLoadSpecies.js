@@ -32,6 +32,7 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 	$.each(rvDataSets[0].Layers, function (i, item){
 		item.clearCanvas();
 	});
+	$(".dataBubble").remove();
 	if (species != "None") {
 		$.getJSON('getData.php', {
 			Residues : species
@@ -76,41 +77,45 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 						rvDataSets[0].SpeciesEntry.SubunitProtChains[0][i] = NewProtPair[0];
 						rvDataSets[0].SpeciesEntry.SubunitProtChains[1][i] = NewProtPair[2];
 						rvDataSets[0].SpeciesEntry.SubunitProtChains[2][i] = NewProtPair[1];
-						
 					}
+					$("#ProteinBubbles").append($('<h3 class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom" style="text-align:center;padding:0.2em">').text("Protein Contacts").attr('name',"All_Proteins"));
+
 				}
 				rvDataSets[0].SpeciesEntry["SubunitProtChains"] = rvDataSets[0].SpeciesEntry.SubunitProtChains;
 				$("#ProtList").multiselect("refresh");
 				
 				//Set Alignment Menu
-				var al = document.getElementById("alnList");
+				//var al = document.getElementById("alnList");
 				var AlnList = rvDataSets[0].SpeciesEntry.AlnMenu.split(";");
-				al.options.length = 0;
-				al.options[0] = new Option("None", "clear_data");
-				al.options[0].setAttribute("selected", "selected");
+				//al.options.length = 0;
+				//al.options[0] = new Option("None", "clear_data");
+				//al.options[0].setAttribute("selected", "selected");
 				if (AlnList[0] != "") {
 					for (var ii = 0; ii < AlnList.length; ii++) {
 						var NewAlnPair = AlnList[ii].split(":");
-						al.options[ii + 1] = new Option(NewAlnPair[0], NewAlnPair[1]);
+						//al.options[ii + 1] = new Option(NewAlnPair[0], NewAlnPair[1]);
+						$("#AlnBubbles").append($('<h3 class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom" style="text-align:center;padding:0.2em">').text(NewAlnPair[0]).attr('name',NewAlnPair[1]));
 					}
 				}
 				
-				$("#alnList").multiselect("refresh");
+				//$("#alnList").multiselect("refresh");
 				
 				//Set StructData Menu
-				var sl = document.getElementById("StructDataList");
+				//var sl = document.getElementById("StructDataList");
 				var SDList = rvDataSets[0].SpeciesEntry.StructDataMenu.split(";");
-				sl.options.length = 0;
-				sl.options[0] = new Option("None", "'clear_data'");				
-				sl.options[0].setAttribute("selected", "selected");
+				//sl.options.length = 0;
+				//sl.options[0] = new Option("None", "'clear_data'");				
+				//sl.options[0].setAttribute("selected", "selected");
 				if (SDList[0] != "") {
 					for (var ii = 0; ii < SDList.length; ii++) {
 						var NewSDPair = SDList[ii].split(":");
-						sl.options[ii + 1] = new Option(NewSDPair[0], NewSDPair[1]);
+						//sl.options[ii + 1] = new Option(NewSDPair[0], NewSDPair[1]);
+						$("#StructDataBubbles").append($('<h3 class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom" style="text-align:center;padding:0.2em">').text(NewSDPair[0]).attr('name',NewSDPair[1]));
 					}
+					
 				}
 				
-				$("#StructDataList").multiselect("refresh");
+				//$("#StructDataList").multiselect("refresh");
 				
 				//Set interaction Menu
 				var il = document.getElementById("PrimaryInteractionList");
@@ -130,6 +135,37 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 				var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
 				Jmol.script(myJmol, jscript);
 				
+				//Set sortable to imply draggable
+				$("#StructDataDiv").sortable({
+					update : function (event, ui) {
+						/*$("#LayerPanel .layerContent").each(function (e, f) {
+							var tl = rvDataSets[0].getLayer($(this).parent().attr("name"));
+							tl.updateZIndex(rvDataSets[0].LastLayer - e);
+							});
+						rvDataSets[0].sort();*/
+					},
+					items : ".dataBubble"
+				});
+				$("#AlnDiv").sortable({
+					update : function (event, ui) {
+						/*$("#LayerPanel .layerContent").each(function (e, f) {
+							var tl = rvDataSets[0].getLayer($(this).parent().attr("name"));
+							tl.updateZIndex(rvDataSets[0].LastLayer - e);
+							});
+						rvDataSets[0].sort();*/
+					},
+					items : ".dataBubble"
+				});
+				$("#ProtDiv").sortable({
+					update : function (event, ui) {
+						/*$("#LayerPanel .layerContent").each(function (e, f) {
+							var tl = rvDataSets[0].getLayer($(this).parent().attr("name"));
+							tl.updateZIndex(rvDataSets[0].LastLayer - e);
+							});
+						rvDataSets[0].sort();*/
+					},
+					items : ".dataBubble"
+				});
 				//clearSelection();
 				updateModel();
 				rvDataSets[0].drawResidues("residues");
@@ -175,12 +211,12 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 		var pl = document.getElementById("ProtList");
 		pl.options.length = 0;
 		pl.options[0] = new Option("None", "clear_data");
-		var al = document.getElementById("alnList");
-		al.options.length = 0;
-		al.options[0] = new Option("None", "clear_data");
-		var sl = document.getElementById("StructDataList");
-		sl.options.length = 0;
-		sl.options[0] = new Option("None", "clear_data");
+		//var al = document.getElementById("alnList");
+		//al.options.length = 0;
+		//al.options[0] = new Option("None", "clear_data");
+		//var sl = document.getElementById("StructDataList");
+		//sl.options.length = 0;
+		//sl.options[0] = new Option("None", "clear_data");
 		var il = document.getElementById("PrimaryInteractionList");
 		il.options.length = 0;
 		il.options[0] = new Option("None", "clear_lines");
@@ -196,7 +232,7 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 		}
 	}
 	document.getElementById("ProtList").selectedIndex = 0;
-	document.getElementById("alnList").selectedIndex = 0;
+	//document.getElementById("alnList").selectedIndex = 0;
 	document.getElementById("PrimaryInteractionList").selectedIndex = 0;
 	rvDataSets[0].BasePairs = [];
 }
