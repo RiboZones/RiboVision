@@ -1,4 +1,4 @@
-.ios-style, .ios-style ul, .ios-style ol { position: fixed; background: #eeeeee; height: auto; padding: 2px; width: auto; }
+.ios-style, .ios-style ul, .ios-style ol {background: #eeeeee; height: auto; padding: 2px; width: auto; }
 .ios-style { overflow-x: hidden; overflow-y: auto; color: #ef8c08; }
 .ios-style::-webkit-scrollbar { width: 5px; height: 5px; }
 .ios-style::-webkit-scrollbar-thumb { background: rgba(128, 128, 128, 0.6); border-radius: 4px; }

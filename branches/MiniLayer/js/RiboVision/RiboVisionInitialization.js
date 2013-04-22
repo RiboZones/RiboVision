@@ -37,7 +37,16 @@ function RiboVisionReady() {
 	
 	$("#MiniOpenLayerBtn").button({
 	});
-	
+	$("#LinkSection").droppable({
+		drop: function (event,ui) {
+			if ($(ui.draggable[0]).hasClass("miniLayerName")){
+				$("#JmolColorLayer").text($(ui.draggable[0]).attr("name"));
+				var targetLayer = rvDataSets[0].getLayer($(ui.draggable[0]).attr("name"));
+				$(".oneLayerGroup[name='" + targetLayer.LayerName + "']").find(".mappingRadioBtn").prop("checked",true);	
+				$(".oneLayerGroup[name='" + targetLayer.LayerName + "']").find(".mappingRadioBtn").trigger("change");	
+			}
+		}
+	});
 	$("#MiniOpenLayerBtn").click(function () {
 		$("#PanelTabs").tabs( "option", "active", 0 );
 		$("#LayerDialog").dialog("open");
@@ -63,7 +72,24 @@ function RiboVisionReady() {
 	// New Stuff Section, Layers, Selections Panels
 	$.fx.speeds._default = 1000;
 	$("#PanelTabs").tabs();
-	
+	$("#dialog-saveFigures").dialog({
+		resizable : false,
+		autoOpen : false,
+		height : "auto",
+		width : 800,
+		modal : true,
+		buttons: {
+			Ok: function() {
+				$( this ).dialog( "close" );
+			}
+		},
+		open : function () {
+			$("#myJmol_object").css("visibility", "hidden");
+		},
+		close : function () { 
+			$("#myJmol_object").css("visibility", "visible");
+		}
+	});
 	$("#LayerDialog").dialog({
 		autoOpen : false,
 		show : {
@@ -360,69 +386,7 @@ function RiboVisionReady() {
 			$("#myJmol_object").css("visibility", "visible");
 		}
 	});
-	$("#dialog-confirm-delete").dialog({
-		resizable : false,
-		autoOpen : false,
-		height : "auto",
-		width : 400,
-		modal : true,
-		buttons : {
-			"Delete the Layer" : function (event) {
-				var targetLayer = rvDataSets[0].getSelectedLayer();
-				rvDataSets[0].deleteLayer(targetLayer.LayerName);
-				$("[name=" + targetLayer.LayerName + "]").remove();
-				rvDataSets[0].sort();
-				RefreshLayerMenu();
-				
-				//check selected layer and linked layer
-				
-				var rLayers = rvDataSets[0].getLayerByType("residues");
-				var cLayers = rvDataSets[0].getLayerByType("circles");
-				var sLayers = rvDataSets[0].getLayerByType("selected");
-				if (rLayers.length >= 1){
-					$(".oneLayerGroup[name='" + rLayers[0].LayerName + "']").find(".selectLayerRadioBtn").prop("checked",true);	
-					$(".oneLayerGroup[name='" + rLayers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("change");	
-				} else if (cLayers.length >= 1){
-					$(".oneLayerGroup[name='" + cLayers[0].LayerName + "']").find(".selectLayerRadioBtn").prop("checked",true);	
-					$(".oneLayerGroup[name='" + cLayers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("change");	
-				} else if (sLayers.length >= 1){
-					$(".oneLayerGroup[name='" + sLayers[0].LayerName + "']").find(".selectLayerRadioBtn").prop("checked",true);	
-					$(".oneLayerGroup[name='" + sLayers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("change");	
-				} else {
-					$(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".selectLayerRadioBtn").prop("checked",true);	
-					$(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("change");	
-				}
-				if (targetLayer.Linked){
-					if (rLayers.length >= 1){
-						$(".oneLayerGroup[name='" + rLayers[0].LayerName + "']").find(".mappingRadioBtn").prop("checked",true);	
-						$(".oneLayerGroup[name='" + rLayers[0].LayerName + "']").find(".mappingRadioBtn").trigger("change");	
-					} else if (cLayers.length >= 1){
-						$(".oneLayerGroup[name='" + cLayers[0].LayerName + "']").find(".mappingRadioBtn").prop("checked",true);	
-						$(".oneLayerGroup[name='" + cLayers[0].LayerName + "']").find(".mappingRadioBtn").trigger("change");	
-					} else if (sLayers.length >= 1){
-						$(".oneLayerGroup[name='" + sLayers[0].LayerName + "']").find(".mappingRadioBtn").prop("checked",true);	
-						$(".oneLayerGroup[name='" + sLayers[0].LayerName + "']").find(".mappingRadioBtn").trigger("change");	
-					} else {
-						if ($(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".mappingRadioBtn").prop("disabled") == false){
-							$(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".mappingRadioBtn").prop("checked",true);	
-							$(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".mappingRadioBtn").trigger("change");	
-						}
-					}
-				}
-				
-				$(this).dialog("close");
-			},
-			Cancel : function () {
-				$(this).dialog("close");
-			}
-		},
-		open : function (event) {
-			$("#myJmol_object").css("visibility", "hidden");
-		},
-		close : function () { 
-			$("#myJmol_object").css("visibility", "visible");
-		}
-	});
+	
 	
 	$("#dialog-selection-warning").dialog({
 		resizable : false,
@@ -472,7 +436,7 @@ function RiboVisionReady() {
 		noneSelectedText : 'Select proteins',
 		selectedList : 9
 	});
-	
+	/*
 	$("#StructDataList").multiselect({
 		minWidth : 160,
 		multiple : false,
@@ -480,6 +444,7 @@ function RiboVisionReady() {
 		noneSelectedText : "Select an Option",
 		selectedList : 1,
 		click: function(event,ui){
+			
 			var targetLayer = rvDataSets[0].getSelectedLayer();
 			targetLayer.DataLabel = ui.text;
 			$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
@@ -494,7 +459,7 @@ function RiboVisionReady() {
 			}
 			updateStructData(ui);
 		}
-	});
+	});*/
 	/*
 	$( "#speciesList" ).multiselect({
 	multiple: false,
@@ -538,29 +503,30 @@ function RiboVisionReady() {
 	});
 	$("#selectByDomainHelix").multiselect().multiselectfilter();
 	
-	$("#alnList").multiselect({
+	/*$("#alnList").multiselect({
 		minWidth : 160,
 		multiple : false,
 		header : "Select a Data Set",
 		noneSelectedText : "Select an Option",
 		selectedList : 1,
 		click: function(event,ui){
+			
 			var targetLayer = rvDataSets[0].getSelectedLayer();
 			targetLayer.DataLabel = ui.text;
 			$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
 			var ColName = ui.value.match(/[^\'\\,]+/);
 			var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
 			if (result[0]){
-				$(this).parent().find(".DataDescription").text(result[0].Description);
-				$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation/" + result[0].HelpLink + ".html");				
+				//$(this).parent().find(".DataDescription").text(result[0].Description);
+				//$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation/" + result[0].HelpLink + ".html");				
 			} else {
-				$(this).parent().find(".DataDescription").text("Data Description is missing.");
-				$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation");				
+				//$(this).parent().find(".DataDescription").text("Data Description is missing.");
+				//$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation");				
 			}
 			colorMapping("42",ui.value);
 			drawNavLine();
 		}
-	});
+	});*/
 	$("#PrimaryInteractionList").multiselect({
 		minWidth : 160,
 		multiple : false,
@@ -624,6 +590,14 @@ function RiboVisionReady() {
 			}).get();
 			filterBasePairs(FullBasePairSet,array_of_checked_values);
 		}
+	});
+	$("#SaveFigureBtn").button().click(function(){
+		$("#dialog-saveFigures").dialog("open");
+		return false;
+	});
+	$("#SaveSessionBtn").button().click(function(){
+		$("#RiboVisionSaveManagerPanel").dialog("open");
+		return false;
 	});
 	$("#freshenRvState").button().click(function(){
 		InitRibovision(true);
@@ -730,47 +704,14 @@ function RiboVisionReady() {
 		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
 				return this.value;
 			}).get();
-		var targetLayer = rvDataSets[0].getSelectedLayer();
-		//targetLayer.DataLabel = ui.text;
-		targetLayer.DataLabel = "Protein Contacts";
-		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
-		//var ColName = ui.value.match(/[^\'\\,]+/);
-		var ColName = [];
-		ColName[0] = "All_Proteins";
-		var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
-		if (result[0]){
-			$(this).parent().find(".DataDescription").text(result[0].Description);
-			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation/" + result[0].HelpLink + ".html");
-		} else {
-			$(this).parent().find(".DataDescription").text("Data Description is missing.");
-			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation");
-		}	
-		colorMappingLoop(array_of_checked_values);
-		//drawNavLine();
+		colorMappingLoop(undefined,array_of_checked_values);
 	});
 	$("#ProtList").bind("multiselectopen", function (event, ui) {
 		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
 				return this.value;
 			}).get();
-		var targetLayer = rvDataSets[0].getSelectedLayer();
-		//targetLayer.DataLabel = ui.text;
-		targetLayer.DataLabel = "Protein Contacts";
-		//var ColName = ui.value.match(/[^\'\\,]+/);
-		var ColName = [];
-		ColName[0] = "All_Proteins";
-		var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
-		if (result[0]){
-			$(this).parent().find(".DataDescription").text(result[0].Description);
-			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation/" + result[0].HelpLink + ".html");
-		} else {
-			$(this).parent().find(".DataDescription").text("Data Description is missing.");
-			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation");
-		}
-		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
-		colorMappingLoop(array_of_checked_values);
-		//drawNavLine();
-	});
-	$("#ProtList").bind("multiselectcheckall", function (event, ui) {
+		colorMappingLoop(undefined,array_of_checked_values);
+		/*
 		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
 				return this.value;
 			}).get();
@@ -790,9 +731,40 @@ function RiboVisionReady() {
 		}
 		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
 		colorMappingLoop(array_of_checked_values);
+		//drawNavLine();*/
+	});
+	$("#ProtList").bind("multiselectcheckall", function (event, ui) {
+		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
+				return this.value;
+			}).get();
+		colorMappingLoop(undefined,array_of_checked_values);
+		/*
+		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
+				return this.value;
+			}).get();
+		var targetLayer = rvDataSets[0].getSelectedLayer();
+		//targetLayer.DataLabel = ui.text;
+		targetLayer.DataLabel = "Protein Contacts";
+		//var ColName = ui.value.match(/[^\'\\,]+/);
+		var ColName = [];
+		ColName[0] = "All_Proteins";
+		var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
+		if (result[0]){
+			$(this).parent().find(".DataDescription").text(result[0].Description);
+			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation/" + result[0].HelpLink + ".html");
+		} else {
+			$(this).parent().find(".DataDescription").text("Data Description is missing.");
+			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation");
+		}
+		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
+		colorMappingLoop(array_of_checked_values);*/
 	});
 	$("#ProtList").bind("multiselectuncheckall", function (event, ui) {
-			
+		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
+				return this.value;
+			}).get();
+		colorMappingLoop(undefined,array_of_checked_values);
+		/*	
 		resetColorState();
 		targetLayer=rvDataSets[0].getSelectedLayer();
 		targetLayer.DataLabel = "empty data";
@@ -821,7 +793,7 @@ function RiboVisionReady() {
 			rvDataSets[0].BasePairs = [];
 			rvDataSets[0].clearCanvas("lines");
 		}
-		drawNavLine();
+		drawNavLine();*/
 	});
 	// Check for the various File API support.
 	if (window.File && window.FileReader && window.FileList && window.Blob) {
@@ -975,10 +947,10 @@ function InitRibovision2(noLoad,FreshState) {
 	RefreshSelectionMenu();
 	
 	//Set some menu choices, none being restored yet
-	document.getElementById("ProtList").selectedIndex = 0;
-	document.getElementById("alnList").selectedIndex = 0;
-	document.getElementById("PrimaryInteractionList").selectedIndex = 0;
-	document.getElementById("speciesList").selectedIndex = 0;
+	//document.getElementById("ProtList").selectedIndex = 0;
+	//document.getElementById("alnList").selectedIndex = 0;
+	//document.getElementById("PrimaryInteractionList").selectedIndex = 0;
+	//document.getElementById("speciesList").selectedIndex = 0;
 	document.getElementById('commandline').value = "";	
 	
 
