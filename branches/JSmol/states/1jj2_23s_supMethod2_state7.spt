@@ -91,7 +91,7 @@ function _setVariableState() {
   set bondtolerance 0.45;
   set cartoonbaseedges false;
   set cartoonfancy false;
-  set cartoonladder false;
+
   set cartoonrockets false;
   set chaincasesensitive false;
   set dataseparator "~~~";
