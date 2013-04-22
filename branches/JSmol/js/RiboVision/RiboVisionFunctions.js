@@ -842,7 +842,7 @@ function colorMapping(targetLayer,ChoiceList, ManualCol, OverRideColors, indexMo
 				for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
 					data[j] = rvDataSets[0].Residues[j][colName[0]];
 				}
-				colorProcess(data, indexMode,targetLayer);
+				colorProcess(data, indexMode[0],targetLayer);
 			} else {
 				targetLayer.Data = [];
 				targetLayer.dataLayerColors = [];
@@ -862,7 +862,7 @@ function colorMapping(targetLayer,ChoiceList, ManualCol, OverRideColors, indexMo
 				for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
 					data[j] = rvDataSets[0].Residues[j][colName[0]];
 				}
-				colorProcess(data, indexMode,targetLayer);
+				colorProcess(data, indexMode[0],targetLayer);
 			} else {
 				//var data = new Array;
 				//targetLayer.clearCanvas();
