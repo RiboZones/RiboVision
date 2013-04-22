@@ -105,6 +105,7 @@ function changeCurrentLayerName() {
 		var namecheck = $("#layerNameInput").val().match(/[A-z][\w-_:\.]*/);
 		if (namecheck !==null && namecheck[0].length === $("#layerNameInput").val().length && $("#layerNameInput").val().length <= 16){
 			if (rvDataSets[0].isUniqueLayer($("#layerNameInput").val())){
+				$("#MiniLayer").find("[name=" + $($dblClickedLayer).parent().attr("name") +"]").attr("name",$("#layerNameInput").val()).text($("#layerNameInput").val());
 				$($dblClickedLayer).parent().attr("name",$("#layerNameInput").val());
 				$($dblClickedLayer).html($("#layerNameInput").val()).prepend('<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-e"></span>');
 				var targetLayer = rvDataSets[0].getLayer($dblClickedLayerName);
@@ -209,6 +210,7 @@ function LayerMenu(Layer, key, RVcolor) {
 			title : 'select which layer to map into 3D',
 			disabled : 'disabled'
 		}).addClass("mappingRadioBtn").change (function (event) {
+			$("#JmolColorLayer").text($(event.currentTarget).parent().parent().attr("name"));
 			rvDataSets[0].linkLayer($(event.currentTarget).parent().parent().attr("name"));
 			update3Dcolors();
 			})));
@@ -292,7 +294,14 @@ function LayerMenu(Layer, key, RVcolor) {
 				}
 				rvDataSets[0].refreshResiduesExpanded($(event.currentTarget).parent().parent().parent().attr("name"));
 			});
-			$(this);
+			$("#MiniLayerLabel").after($('<h3 class="miniLayerName ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom " style="font-size:0.85em;line-height:3em;text-align:center">')
+			.text($currentLayerName).attr('name',$currentLayerName).droppable({
+				drop: function (event,ui) {
+					ProcessBubbleDrop(event,ui);
+				}
+			}));
+			
+			
 			break;
 		case "lines":
 			//Data Label Section 
@@ -367,7 +376,13 @@ function LayerMenu(Layer, key, RVcolor) {
 			rvDataSets[0].linkLayer($("#LayerPanel div").first().next().attr("name"));
 			$("#LayerPanel div").first().next().find(".radioDIV2").find('input').prop("disabled",false);
 			$("#LayerPanel div").first().next().find(".radioDIV2").find('input').prop("checked",true);
-		
+			$("#MiniLayerLabel").after($('<h3 class="miniLayerName ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom " style="font-size:0.85em;line-height:3em;text-align:center">')
+			.text($currentLayerName).attr('name',$currentLayerName).droppable({
+				drop: function (event,ui) {
+					ProcessBubbleDrop(event,ui);
+				}
+			}));
+
 			break;
 		case "selected":
 			//$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="selectDiv">'))
@@ -418,7 +433,8 @@ $("#LayerPanel").sortable({
 		});
 		rvDataSets[0].sort();
 	},
-	items : ".oneLayerGroup"
+	items : ".oneLayerGroup",
+	axis: "y"
 	
 });
 $("#LayerPanel").disableSelection();
@@ -520,3 +536,103 @@ $("#layerNameInput").button().addClass('ui-textfield').keydown(function (event) 
 		var ret = changeCurrentLayerName();
 	}
 });
+
+//MiniLayer
+$("#MiniLayer").sortable({
+	update : function (event, ui) {
+		/*$("#LayerPanel .layerContent").each(function (e, f) {
+			var tl = rvDataSets[0].getLayer($(this).parent().attr("name"));
+			tl.updateZIndex(rvDataSets[0].LastLayer - e);
+		});
+		rvDataSets[0].sort();*/
+	},
+	items : ".miniLayerName",
+	axis: "y"
+});
+$("#MiniLayer").disableSelection();
+
+$("#dialog-confirm-delete").dialog({
+	resizable : false,
+	autoOpen : false,
+	height : "auto",
+	width : 400,
+	modal : true,
+	buttons : {
+		"Delete the Layer" : function (event) {
+			var targetLayer = rvDataSets[0].getSelectedLayer();
+			rvDataSets[0].deleteLayer(targetLayer.LayerName);
+			$("[name=" + targetLayer.LayerName + "]").remove();
+			rvDataSets[0].sort();
+			RefreshLayerMenu();
+			
+			//check selected layer and linked layer
+			
+			var rLayers = rvDataSets[0].getLayerByType("residues");
+			var cLayers = rvDataSets[0].getLayerByType("circles");
+			var sLayers = rvDataSets[0].getLayerByType("selected");
+			if (rLayers.length >= 1){
+				$(".oneLayerGroup[name='" + rLayers[0].LayerName + "']").find(".selectLayerRadioBtn").prop("checked",true);	
+				$(".oneLayerGroup[name='" + rLayers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("change");	
+			} else if (cLayers.length >= 1){
+				$(".oneLayerGroup[name='" + cLayers[0].LayerName + "']").find(".selectLayerRadioBtn").prop("checked",true);	
+				$(".oneLayerGroup[name='" + cLayers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("change");	
+			} else if (sLayers.length >= 1){
+				$(".oneLayerGroup[name='" + sLayers[0].LayerName + "']").find(".selectLayerRadioBtn").prop("checked",true);	
+				$(".oneLayerGroup[name='" + sLayers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("change");	
+			} else {
+				$(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".selectLayerRadioBtn").prop("checked",true);	
+				$(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("change");	
+			}
+			if (targetLayer.Linked){
+				if (rLayers.length >= 1){
+					$(".oneLayerGroup[name='" + rLayers[0].LayerName + "']").find(".mappingRadioBtn").prop("checked",true);	
+					$(".oneLayerGroup[name='" + rLayers[0].LayerName + "']").find(".mappingRadioBtn").trigger("change");	
+				} else if (cLayers.length >= 1){
+					$(".oneLayerGroup[name='" + cLayers[0].LayerName + "']").find(".mappingRadioBtn").prop("checked",true);	
+					$(".oneLayerGroup[name='" + cLayers[0].LayerName + "']").find(".mappingRadioBtn").trigger("change");	
+				} else if (sLayers.length >= 1){
+					$(".oneLayerGroup[name='" + sLayers[0].LayerName + "']").find(".mappingRadioBtn").prop("checked",true);	
+					$(".oneLayerGroup[name='" + sLayers[0].LayerName + "']").find(".mappingRadioBtn").trigger("change");	
+				} else {
+					if ($(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".mappingRadioBtn").prop("disabled") == false){
+						$(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".mappingRadioBtn").prop("checked",true);	
+						$(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".mappingRadioBtn").trigger("change");	
+					}
+				}
+			}
+			
+			$(this).dialog("close");
+		},
+		Cancel : function () {
+			$(this).dialog("close");
+		}
+	},
+	open : function (event) {
+		$("#myJmol_object").css("visibility", "hidden");
+	},
+	close : function () { 
+		$("#myJmol_object").css("visibility", "visible");
+	}
+});
+
+function ProcessBubbleDrop(event,ui){
+	if ($(ui.draggable[0]).hasClass("dataBubble")){
+		var targetLayer = rvDataSets[0].getLayer($(event.target).attr("name"));
+		targetLayer.DataLabel = $(ui.draggable[0]).text();
+		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
+		var ColName = $(ui.draggable[0]).attr("name").match(/[^\'\\,]+/);
+		var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
+		if (result[0]){
+			//$(this).parent().find(".DataDescription").text(result[0].Description);
+			//$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation/" + result[0].HelpLink + ".html");
+		} else {
+			//$(this).parent().find(".DataDescription").text("Data Description is missing.");
+			//$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation");				
+		}
+		ProcessBubble($(ui.draggable[0]),targetLayer);
+		$(".oneLayerGroup[name='" + targetLayer.LayerName + "']").find(".selectLayerRadioBtn").prop("checked",true);	
+		$(".oneLayerGroup[name='" + targetLayer.LayerName + "']").find(".selectLayerRadioBtn").trigger("change");	
+		$(".oneLayerGroup[name='" + targetLayer.LayerName + "']").find(".mappingRadioBtn").prop("checked",true);	
+		$(".oneLayerGroup[name='" + targetLayer.LayerName + "']").find(".mappingRadioBtn").trigger("change");	
+	}
+}
