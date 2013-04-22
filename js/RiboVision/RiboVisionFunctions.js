@@ -837,10 +837,10 @@ function colorMapping(targetLayer,ChoiceList, ManualCol, OverRideColors, indexMo
 		}
 		switch (targetLayer.Type) {
 		case "circles":
-			if (colName != "clear_data") {
+			if (colName[0] != "clear_data") {
 				var data = new Array;
 				for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
-					data[j] = rvDataSets[0].Residues[j][colName];
+					data[j] = rvDataSets[0].Residues[j][colName[0]];
 				}
 				colorProcess(data, indexMode,targetLayer);
 			} else {
@@ -857,10 +857,10 @@ function colorMapping(targetLayer,ChoiceList, ManualCol, OverRideColors, indexMo
 			break;
 		case "residues":
 			//alert("how did this happen yet");
-			if (colName != "clear_data") {
+			if (colName[0] != "clear_data") {
 				var data = new Array;
 				for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
-					data[j] = rvDataSets[0].Residues[j][colName];
+					data[j] = rvDataSets[0].Residues[j][colName[0]];
 				}
 				colorProcess(data, indexMode,targetLayer);
 			} else {
