@@ -88,7 +88,7 @@
 	position:absolute;
 	left:-2px;
 	top:25%;
-	height:75%;	
+	height:65%;	
 	width: 65%;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
@@ -98,14 +98,32 @@
 	position:absolute;
 	left:65%;
 	top:25%;
-	height:75%;	
+	height:65%;	
 	width: 32%;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
 	-webkit-box-sizing:border-box; /* Safari */
-	border-left:thick double orange;
+	border-left: ridge OrangeRed;
 }
-
+#ExportData{
+	position:absolute;
+	left:-2px;
+	top:90%;
+	height:10%;	
+	width: 100%;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+}
+#LinkSection {
+	position:absolute;
+	top:85%;
+	height:15%;
+	width:100%;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+}
 #SideBarAccordian{
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
@@ -209,6 +227,19 @@ canvas{
     text-align: inherit;
     outline: none;
 }
+.ui-widget-header2 {
+	padding:3px;
+	padding-left:10px;
+	background: OrangeRed;
+	/*url(../images/ui-bg_glass_80_d7ebf9_1x400.png),url(../images/ui-bg_glass_50_3baae3_1x400.png)*/
+	color:#FFF;
+	font-size:16px;
+	text-align:center;
+	border: 1px solid #aed0ea;
+	margin: 0px;
+	font-weight: bold;
+}
+
 #layerColor2 {
 	background-image: none;	
 }

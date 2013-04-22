@@ -64,8 +64,8 @@
 <body>
     <div id="menu" class="ui-widget-content">
         <div id="SiteInfo" class="ui-widget-content">
-            <h3 class="ui-widget-header" style="padding:3px; padding-left:10px; background-image:url(images/ui-bg_glass_50_3baae3_1x400.png); font-size:16px;">
-            <a href="./ChangeLog.txt" target="_blank" style="color:#FFF">RiboVision: Version 0.6</a></h3>
+            <h3 class="ui-widget-header2" >
+            <a href="./ChangeLog.txt" target="_blank" style="color:#FFF">RiboVision: Version 0.91</a></h3>
 
             <div id="MainLogoDiv"><img src="images/RiboVisionLogo.png" id="MainLogo" title="RiboVision Logo" alt="Ribovision Logo" /></div>
 
@@ -76,8 +76,11 @@
         </div>
 
         <div id="MainMenu" class="ui-widget-content">
-            <div id="SideBarAccordian">
-                <h3><a href="#">Species Selection</a></h3>
+			<h3 class="ui-widget-header2" >
+			Select Data
+			</h3>
+			<div id="SideBarAccordian">
+                <h3><a href="#">Select Ribosome(s)</a></h3>
 
                 <div id="SpeciesDiv" style="padding:0.1em">
                     Species &amp; Subunit Selection:<br>
@@ -91,13 +94,12 @@
 					<br>
 					<br>
 					<br>
-					<br><br>
-					<br>
-					<input id="New3DTestButton" type="button" value="Load 3OFR" /><br>
+					<br><br><!--
+					<input id="New3DTestButton" type="button" value="Load 3OFR" /><br>//-->
                 </div>
 				
 				
-                <h3><a href="#">Residue Selection</a></h3>
+                <h3><a href="#">Select Nucleotides</a></h3>
 
                 <div id="SelectionDiv">
                     Selection Options:<br>
@@ -112,26 +114,27 @@
                         </select><br>
 				</div>
 
-                <h3><a href="#">Structure Data</a></h3>
+                <h3><a href="#">Structural Data</a></h3>
 
                 <div id="StructDataDiv">
                     <span id="StructDataLabel" > Structure Data: </span><br>
                     <div id="StructDataBubbles"></div>
-					<select id="StructDataList" multiple="multiple">
+					<!--<select id="StructDataList" multiple="multiple">
                         </select>
-
+					//-->
                     <p class="DataDescription"></p>
 					<p class="ManualLink">For more detailed information, <a href="/Documentation" target="_blank">see this section of the manual.</a></p>
                 </div>
 
-                <h3><a href="#">Alignment Data</a></h3>
+                <h3><a href="#">Sequence Data</a></h3>
 
                 <div id="AlnDiv">
                    <br><span id="AlnLabel" >  Alignment Data: </span><br>
 					<div id="AlnBubbles"></div>
-                    <select id="alnList" multiple="multiple">
+                    <!--
+					<select id="alnList" multiple="multiple">
                         </select>
-
+					//-->
                     <p class="DataDescription"></p>
 					<p class="ManualLink">For more detailed information, <a href="/Documentation" target="_blank">see this section of the manual.</a></p>
 					
@@ -140,7 +143,9 @@
                 <h3><a href="#">Protein Data</a></h3>
 
                 <div id="ProtDiv">
-                    Protein Data:<br>
+					<span id="ProtLabel" > Protein Data: </span><br>
+                    <div id="ProteinBubbles"></div>
+
                     <select id="ProtList" multiple="multiple">
                         </select>
 
@@ -149,7 +154,7 @@
 					
                 </div>
 
-                <h3><a href="#">Interaction Data</a></h3>
+                <h3><a href="#">Inter-Nucleotide Interactions</a></h3>
 
                 <div id="InteractDataDiv">
                     <div id="primaryInteractData">
@@ -177,35 +182,28 @@
 
                     <p class="DataDescription"></p>
                 </div>
-
-                <h3><a href="#">Export Data</a></h3>
-
-                <div id="saveDiv">
-                    The default behavior is to export just the visible layers.<br>
-                    <input id="visibleLayers" type="radio" name="savelayers" value="visible" checked="checked" /><label for="visibleLayers">Visible
-                    Layers</label> <input id="allLayers" type="radio" name="savelayers" value="all" /><label for="allLayers">All Layers</label>
-
-                    <p>Choose which file type to export.</p><input name="saveas" type="button" onclick="JavaScript:savePDF();" value=
-                    "PDF: Best for Printing" /> <input name="saveas" type="button" onclick="JavaScript:savePNG();" value="PNG: Best for Displaying" />
-                    <input name="saveas" type="button" onclick="JavaScript:saveJPG();" value="JPG: Best Data Compression" /> <input name="saveas" type="button"
-                    onclick="JavaScript:saveSVG();" value="SVG: Best for Editing" /><br>
-
-                    <p>Save 3D side as JPG</p><input name="saveas" type="button" onclick="JavaScript:saveJmolImg();" value="JPG: 3D side" /><br>
-					<p>Save 1D side as SVG</p><input name="saveas" type="button" onclick="JavaScript:saveNavLine();" value="SVG: 1D side" /><br>
-
-                    <p>Additionally, you may export a Pymol Script.</p><input name="saveas" type="button" onclick="JavaScript:savePML();" value=
-                    "PyMOL Script" />
-                </div>
             </div>
         </div>
 		<div id="MiniLayer" class="ui-widget-content">
-			<h3 class="ui-widget-header" style="padding:3px; padding-left:10px; background-image:url(images/ui-bg_glass_50_3baae3_1x400.png); color:#FFF; font-size:16px;">
-			Layers
+			<h3 class="ui-widget-header2" >			
+			Map Data
 			</h3>
 			<input type="button" id="MiniOpenLayerBtn" title="Open Layer Manager" value="Edit ..." style="margin: auto;"/><br><br>
+			<p style="color:red;text-align:center;">Drag data to a layer below</p>
 			<span id="MiniLayerLabel">Data Layers:</span><br>
+			
+			<div id="LinkSection" class="ui-widget-content">
+			<h3 class="ui-widget-header2" >Jmol Color</h3>
+			<p id="JmolColorLayer" style="border:dotted red">Drag Layer Here<p>
+			</div>
 		</div>
-		
+		<div id="ExportData" class="ui-widget-content">
+		<h3 class="ui-widget-header2" >
+			Save Data
+			</h3>
+			<input id="SaveFigureBtn" type="button" value="Save Figures" />
+			<input id="SaveSessionBtn" type="button" value="Save Session" />
+		</div>
     </div>
 
     <div id="LogoDiv" class="ui-widget-content"><img src="images/RiboEvoNASAlogo.png" id="ComboLogo" title="RiboEvo and NASA Logos" alt=
@@ -237,7 +235,22 @@
 
     <div id="Privacy-confirm" title="Privacy Policy"></div>
 
+	<div id="dialog-saveFigures" title="Save / Export Figures">
+		The default behavior is to export just the visible layers.<br>
+		<input id="visibleLayers" type="radio" name="savelayers" value="visible" checked="checked" /><label for="visibleLayers">Visible
+		Layers</label> <input id="allLayers" type="radio" name="savelayers" value="all" /><label for="allLayers">All Layers</label>
 
+		<p>Choose which file type to export.</p><input name="saveas" type="button" onclick="JavaScript:savePDF();" value=
+		"PDF: Best for Printing" /> <input name="saveas" type="button" onclick="JavaScript:savePNG();" value="PNG: Best for Displaying" />
+		<input name="saveas" type="button" onclick="JavaScript:saveJPG();" value="JPG: Best Data Compression" /> <input name="saveas" type="button"
+		onclick="JavaScript:saveSVG();" value="SVG: Best for Editing" /><br>
+
+		<p>Save 3D side as JPG</p><input name="saveas" type="button" onclick="JavaScript:saveJmolImg();" value="JPG: 3D side" /><br>
+		<p>Save 1D side as SVG</p><input name="saveas" type="button" onclick="JavaScript:saveNavLine();" value="SVG: 1D side" /><br>
+
+		<p>Additionally, you may export a Pymol Script.</p><input name="saveas" type="button" onclick="JavaScript:savePML();" value=
+		"PyMOL Script" />
+	</div>
     <div id="dialog-addLayer" title="Create a New Layer">
         <span></span>
 		<b>Layer Name:</b>
