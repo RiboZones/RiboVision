@@ -48,6 +48,7 @@ var JmolInfo = {
 	debug: false,
 	defaultModel: "",
 	height: "100%",
+	j2sPath: "./jmol/j2s", 
 	isSigned: true,
 	jarFile: "JmolAppletSigned0.jar",
 	jarPath: "./jmol",
@@ -55,8 +56,8 @@ var JmolInfo = {
 	memoryLimit: 1024,
 	readyFunction: null,
 	script: null,
-	serverURL: "http://chemapps.stolaf.edu/jmol/jmolcd.php",
+	serverURL: "http://chemapps.stolaf.edu/jmol/jsmol/jsmol.php",
 	src: null,
-	use: "Java WebGL HTML5",
+	use: "HTML5",
 	width: "100%"
 };	
