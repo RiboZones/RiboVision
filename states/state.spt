@@ -56,7 +56,7 @@ function _setFileState() {
   set percentVdwAtom 23;
   set smallMoleculeMaxAtoms 40000;
   set smartAromatic true;
-  load "./pdb/1jj2.pdb.gz";
+  load "./pdb/1JJ2_23s_supMethod2_vis1_fixed.pdb";
 
 }
 
