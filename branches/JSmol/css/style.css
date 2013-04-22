@@ -1,0 +1,426 @@
+
+#topMenu{
+	position:absolute;
+	top:0%;
+	left:16%;
+	height:28%;
+	width:82%;
+	overflow:auto;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+}
+
+#NavLineDiv{
+	position:absolute;
+	top:0%;
+	left:0%;
+	height:100%;
+	width:100%;
+	overflow:auto;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+	
+}
+
+#menu{
+	width: 16%;
+	position:absolute;
+	top:0px;
+	left:0px;
+	height:86%;	
+	min-width: 350px;
+	overflow: hidden;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+}
+
+#LogoDiv{
+	position : absolute;
+	left : 0px;
+	width : 16%;
+	height : 14%;
+	bottom : 0px;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+}
+
+#MainLogoDiv {
+	position:absolute;
+	margin-left:auto;
+	margin-right:auto;
+	height:60%;
+	width : 100%;
+}
+
+#MainLogo {
+	display:block;
+	margin-left:auto;
+	margin-right:auto;
+	height:100%;
+}
+
+#ComboLogo {
+	position:absolute;
+	height:100%;
+}
+
+#SiteInfo{
+	position:absolute;
+	height: 25%;
+	width: 100%;
+	top:0px;
+	left:0px;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+	overflow: hidden;
+}
+
+#buttonmode{
+	padding-left: 1em;
+}
+
+#MainMenu{
+	position:absolute;
+	left:-2px;
+	top:25%;
+	height:65%;	
+	width: 65%;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+}
+#MiniLayer{
+	position:absolute;
+	left:65%;
+	top:25%;
+	height:65%;	
+	width: 32%;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+	border-left: ridge OrangeRed;
+}
+#ExportData{
+	position:absolute;
+	left:-2px;
+	top:90%;
+	height:10%;	
+	width: 100%;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+}
+#LinkSection {
+	position:absolute;
+	top:85%;
+	height:15%;
+	width:100%;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+}
+#SideBarAccordian{
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+}
+
+#SpeciesDiv{
+}
+
+#SelectionDiv{
+	
+}
+
+#ColorDiv{
+}
+
+#StructDataDiv{
+} 
+
+#ProtDiv{
+} 
+
+#AlnDiv{
+}
+
+#InteractDataDiv{
+}
+
+#FileDiv{
+}
+
+#saveDiv{
+}
+
+#infoP{
+	position:absolute;
+	top:60%;
+	font-size: .9em;
+	margin: 0px;
+	padding: 0.2em;
+	padding-left: 1em;
+	font-family: Lucida Grande, Lucida Sans, Arial, sans-serif;
+}
+
+#canvasDiv{
+	position:absolute;
+	top:28%;
+	left:16%;
+	height:72%;
+	width:42%;
+	background:#FFFFFF;
+	border-style:solid;
+	border-width:1px;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+}
+
+#navigator{
+	position:absolute;
+	top:28%;
+	left:16%;
+	height:auto;
+	width:65px;
+}
+
+canvas{
+	position:absolute;
+	top:0px;
+	left:0px;
+	background:transparent;
+}
+
+#jmolApplet0{
+	position:absolute;
+}
+
+#jmolDiv{
+	position:absolute;
+	top:28%;
+	left:58%;
+	width:40%;
+	height:72%;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+	border-style:solid;
+	border-width:1px;
+	background:transparent;
+}
+
+#sideBar {
+	height: 100%;
+	width: 15%;
+	min-width: 140px;
+}
+
+.ui-textfield {
+    font: inherit;
+    color: inherit;
+    text-align: inherit;
+    outline: none;
+}
+.ui-widget-header2 {
+	padding:3px;
+	padding-left:10px;
+	background: OrangeRed;
+	/*url(../images/ui-bg_glass_80_d7ebf9_1x400.png),url(../images/ui-bg_glass_50_3baae3_1x400.png)*/
+	color:#FFF;
+	font-size:16px;
+	text-align:center;
+	border: 1px solid #aed0ea;
+	margin: 0px;
+	font-weight: bold;
+}
+
+#layerColor2 {
+	background-image: none;	
+}
+
+#layerColor {
+	background-image: none;	
+}
+#layerColor2 {
+	background-image: none;	
+}
+
+#MainColor {
+	background-image: none;	
+}
+
+html{
+	overflow: hidden;
+	width: 100%;
+	height: 100%;
+	margin: 0px; 
+	padding: 0px;
+}
+
+body{
+	font-family:Arial, Helvetica, sans-serif;
+	width: 100%;
+	height: 100%;
+	margin: 0px; 
+	padding: 0px;
+}
+
+#slider {
+	height: 200px;
+	width: 12px;
+	margin-left: 23px;
+	margin-top: 14px;
+	float:left;
+}
+
+.compass {
+	margin: 0px; 	
+	float: left;
+	width: 20px;
+	height: auto;
+}
+
+#compassImgs {
+	width: 60px;
+	height: auto;
+}
+
+
+#LayerDialog {
+	padding: 0.1em 0.1em;
+	box-sizing:border-box;
+}
+
+#FreshDiv {
+	position: absolute;
+	top:4%;
+	right: 4%;
+	width: 92%;
+	height: 10%;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+}
+
+#SaveOptionsDiv {
+	position: absolute;
+	top:18%;
+	left: 4%;
+	width: 38%;
+	height: 78%;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+}
+
+#SaveControlDiv {
+	position: absolute;
+	top:18%;
+	left: 46%;
+	width: 50%;
+	height: 78%;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+}
+#SaveControlDiv  p {
+	font-size: small;
+}
+#ColorDialog {
+	padding: 0.5em 0.5em;
+	box-sizing:border-box;
+}
+
+#LayerPanel {
+	margin-bottom: 6px;
+}
+
+#SelectionPanel {
+	margin-bottom: 6px;
+}
+
+.layerName {
+	height:1.5em;
+	line-height: 1.2em;
+	font-size: 1.2em;
+}
+
+.miniLayerName {
+	line-height: 3.0em;
+	font-size: 0.85em;
+}
+
+.dataBubble {
+
+}
+.selectionName {
+	height:1.5em;
+	line-height: 1.2em;
+	font-size: 1.2em;
+}
+
+.colorBox {
+	width: 3px;
+	height: 28px;
+	float: left;
+	position: relative;
+	margin-top: 3px;
+	/*background: #0000FF;*/
+}
+
+.layerContent {
+	padding:0em 0.8em;
+}
+
+.selectionContent {
+	padding:0em 0.8em;
+}
+
+#toolBar {
+	position:absolute;
+	left:98%;	
+	top:0%;
+	width:2%;
+	height:100%;
+	padding-top:4px;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+	border-style:solid;
+	border-color:#DDDDDD;
+	border-width:1px;
+}
+
+.toolBarBtn{
+	position:absolute;
+	margin-right:10%;
+	margin-left:8%;
+	width:82%;
+	height:4%;
+	margin-bottom:4px;
+}
+
+.toolBarBtn2{
+	position:absolute;
+	padding: 0em;
+	margin: 0em;
+	width:82%;
+	height:50%;
+}
+
+.dialogContentArea{
+	width: 100%;
+	height: 100%;
+	background: #F2F5F7;
+}
+
+#nocanvas{
+	position:absolute;
+	top:50%;
+}
