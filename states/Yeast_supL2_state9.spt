@@ -348,6 +348,7 @@ function _setSelectionState() {
   display (2.1 and :2);
   set hideNotSelected true;
   center selected;
+  spacefill off;
 }
 
 function _setState() {
