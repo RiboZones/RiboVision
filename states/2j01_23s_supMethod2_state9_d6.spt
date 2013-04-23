@@ -339,6 +339,7 @@ function _setSelectionState() {
   display (2.1 and :A);
   set hideNotSelected true;
   center selected;
+  spacefill off;
 
 }
 

@@ -230,7 +230,6 @@ function _setModelState() {
   select *;
 #  Cartoon off;
 #  Spacefill 2;
-   cartoon only; 
   wireframe off;  
   Cartoon on;
   select protein;
@@ -249,8 +248,8 @@ function _setModelState() {
   
   
 
-
-
+  select (1.1 and :1 and ((636-660) or (1432-1451) or (1879-1910) or (2333-2399) or (2980-2994)));
+  color Cartoon opaque [xffd4a2];
   
   select (1.1 and :1 and (1-419));
   color Cartoon opaque [xa999fb];
@@ -342,7 +341,8 @@ function _setSelectionState() {
   display (1.1 and (:1 or :3 or :4));
   display (2.1 and :2);
   set hideNotSelected true;
-  center selected;
+  center selected;;
+  spacefill off;
 }
 
 function _setState() {
