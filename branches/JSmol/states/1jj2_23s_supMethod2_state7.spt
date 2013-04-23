@@ -237,7 +237,8 @@ function _setModelState() {
   #  Cartoon off;
 #  Spacefill 2;
 
-   wireframe off;  
+   wireframe off;
+  
   Cartoon on;
   select protein;
   Color Cartoon blue;
@@ -300,6 +301,7 @@ select :0 or :9;
   font unitcell 14 SansSerif Plain;
   unitcell off;
   select *;
+
   set fontScaling false;
 
 }

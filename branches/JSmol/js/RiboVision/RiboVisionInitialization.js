@@ -657,6 +657,39 @@ function RiboVisionReady() {
 		}
 	});
 	
+	 $( "#JJSmolToggle" ).button({
+		text: "J",
+	})
+	.click(function() {
+		var options;
+		if ( $( this ).text() === "J" ) {
+			options = {
+				label: "JS",
+				text: "JS"
+			};
+			JmolInfo["use"]="HTML5";
+		} else {
+			options = {
+				label: "J",
+				text: "J"
+			};
+			JmolInfo["use"]="Java";
+		}
+		$( this ).button( "option", options );
+		var O = Jmol.evaluate(myJmol,"script('show orientation')");
+		myJmol = Jmol.getApplet("myJmol", JmolInfo); 
+		$('#jmolDiv').html(Jmol.getAppletHtml(myJmol));
+		Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
+		var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
+		Jmol.script(myJmol, jscript);
+		updateModel();
+		update3Dcolors();
+		var a = O.match(/reset[^\n]+/);
+		Jmol.script(myJmol, a[0]);
+	});
+	$(".toolBarBtn").css('height', $("#openLayerBtn").css('height'));
+	$(".toolBarBtn").css('width', $("#openLayerBtn").css('width'));
+	
 	
 	$("#moveMode").attr("checked","checked");
 	$("#buttonmode").buttonset();

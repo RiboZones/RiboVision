@@ -772,7 +772,7 @@ function colorMappingLoop(targetLayer, seleProt, OverRideColors) {
 		} else {
 			Jscript += " or :" + rvDataSets[0].SpeciesEntry.SubunitProtChains[1][rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(seleProt[i])];
 		}
-		JscriptP += "select (" + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + rvDataSets[0].SpeciesEntry.SubunitProtChains[1][rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(seleProt[i])] + "); color Cartoon opaque [" + newcolor.replace("#", "x") + "];";
+		JscriptP += "select (" + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + rvDataSets[0].SpeciesEntry.SubunitProtChains[1][rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(seleProt[i])] + "); color Cartoon opaque [" + newcolor.replace("#", "x") + "];spacefill off;";
 		if (p > 0) {
 			appendBasePairs(interactionchoice, seleProt[i]);
 		}
@@ -788,6 +788,7 @@ function colorMappingLoop(targetLayer, seleProt, OverRideColors) {
 	//jmolScript(JscriptP);
 	Jmol.script(myJmol, Jscript);
 	Jmol.script(myJmol, JscriptP);
+	//Jmol.script(myJmol, "spacefill off");
 }
 
 function update3DProteins(seleProt, OverRideColors) {
@@ -827,6 +828,10 @@ function colorMapping(targetLayer,ChoiceList, ManualCol, OverRideColors, indexMo
 		colors = OverRideColors;
 	} else {
 		colors = RainBowColors;
+	}
+	if (indexMode==undefined){
+		var indexMode=[];
+		indexMode[0]=false;
 	}
 	
 	//var targetLayer = rvDataSets[0].getSelectedLayer()
