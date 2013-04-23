@@ -90,7 +90,7 @@ function _setVariableState() {
   set bondradiusmilliangstroms 150;
   set bondtolerance 0.45;
   set cartoonbaseedges false;
-  set cartoonfancy false;
+  set cartoonfancy true;
 
   set cartoonrockets false;
   set chaincasesensitive false;
@@ -234,21 +234,22 @@ function _setVariableState() {
 function _setModelState() {
 
   select *;
-#  Cartoon off;
+  #  Cartoon off;
 #  Spacefill 2;
-   cartoon only; 
-  wireframe off;  
+
+   wireframe off;  
   Cartoon on;
   select protein;
   Color Cartoon blue;
+  spacefill off;
 
   measures delete;
   select *; set measures nanometers;
   font measures 15 SansSerif Plain;
-
-  select :0 or :9;
+select :0 or :9;
   wireframe off;
   Cartoon on;
+  spacefill off;
   
   
 
@@ -278,8 +279,6 @@ function _setModelState() {
   select :9 and (1-124);
   color Cartoon opaque [x8ec640]; 
   
-  
-  
   boundBox off;
   font boundBox 14 SansSerif Plain;
   boundBox off;
@@ -296,6 +295,8 @@ function _setModelState() {
   frame 1.1; set unitcell {0 0 0};
 
   unitcell off;
+  
+ 
   font unitcell 14 SansSerif Plain;
   unitcell off;
   select *;
@@ -313,8 +314,8 @@ function _setPerspectiveState() {
   center {2.8253148 187.43567 169.35358};
   moveto -1.0 {0 0 1 0} 100.0 0.0 0.0 {-36.607998 136.1275 163.095} 155.71933 {0.0 0.0 0.0} 0.0 0.0 0.0;
   save orientation "default";
-
   moveto 0.0 { 443 509 738 160.7} 105.7 0.0 0.0 {2.8253148 187.43567 169.35358} 182.38565 {0.0 0.0 0.0} -42.880226 8.713927 0.0;
+  moveto /* time, axisAngle */ 1.0 { -608 793 -32 156.68} /* zoom, translation */  97.54 2.88 4.27  /* center, rotationRadius */ {-23.542461 135.18326 170.56868} 135.33453 /* navigation center, translation, depth */ {0.0 0.0 0.0} 28.991364 49.727108 0.0;
   slab 100;depth 0;
   set slabRange 0.0;
   set spinX 0; set spinY 30; set spinZ 0; set spinFps 30;  set navX 0; set navY 0; set navZ 0; set navFps 10;
@@ -323,7 +324,8 @@ function _setPerspectiveState() {
 function _setSelectionState() {
   select   *:0 or *:9;
   set hideNotSelected true;
-  center selected;
+   center selected;
+
 }
 
 function _setState() {
