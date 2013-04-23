@@ -51,13 +51,13 @@ var JmolInfo = {
 	j2sPath: "./jmol/j2s", 
 	isSigned: true,
 	jarFile: "JmolAppletSigned0.jar",
-	jarPath: "./jmol",
+	jarPath: "./jmol/java",
 	//j2sPath: "jmol/jsmol/j2s",
 	memoryLimit: 1024,
 	readyFunction: null,
 	script: null,
-	serverURL: "http://chemapps.stolaf.edu/jmol/jsmol/jsmol.php",
+	serverURL: "./jsmol.php",
 	src: null,
-	use: "HTML5",
+	use: "Java HTML5",
 	width: "100%"
 };	
