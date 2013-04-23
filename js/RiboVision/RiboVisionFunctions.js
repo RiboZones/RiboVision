@@ -772,7 +772,7 @@ function colorMappingLoop(targetLayer, seleProt, OverRideColors) {
 		} else {
 			Jscript += " or :" + rvDataSets[0].SpeciesEntry.SubunitProtChains[1][rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(seleProt[i])];
 		}
-		JscriptP += "select (" + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + rvDataSets[0].SpeciesEntry.SubunitProtChains[1][rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(seleProt[i])] + "); color Cartoon opaque [" + newcolor.replace("#", "x") + "];";
+		JscriptP += "select (" + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + rvDataSets[0].SpeciesEntry.SubunitProtChains[1][rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(seleProt[i])] + "); color Cartoon opaque [" + newcolor.replace("#", "x") + "];spacefill off;";
 		if (p > 0) {
 			appendBasePairs(interactionchoice, seleProt[i]);
 		}
@@ -788,6 +788,7 @@ function colorMappingLoop(targetLayer, seleProt, OverRideColors) {
 	//jmolScript(JscriptP);
 	Jmol.script(myJmol, Jscript);
 	Jmol.script(myJmol, JscriptP);
+	//Jmol.script(myJmol, "spacefill off");
 }
 
 function update3DProteins(seleProt, OverRideColors) {
@@ -828,6 +829,10 @@ function colorMapping(targetLayer,ChoiceList, ManualCol, OverRideColors, indexMo
 	} else {
 		colors = RainBowColors;
 	}
+	if (indexMode==undefined){
+		var indexMode=[];
+		indexMode[0]=false;
+	}
 	
 	//var targetLayer = rvDataSets[0].getSelectedLayer()
 		if (!targetLayer) {
@@ -837,12 +842,12 @@ function colorMapping(targetLayer,ChoiceList, ManualCol, OverRideColors, indexMo
 		}
 		switch (targetLayer.Type) {
 		case "circles":
-			if (colName != "clear_data") {
+			if (colName[0] != "clear_data") {
 				var data = new Array;
 				for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
-					data[j] = rvDataSets[0].Residues[j][colName];
+					data[j] = rvDataSets[0].Residues[j][colName[0]];
 				}
-				colorProcess(data, indexMode,targetLayer);
+				colorProcess(data, indexMode[0],targetLayer);
 			} else {
 				targetLayer.Data = [];
 				targetLayer.dataLayerColors = [];
@@ -857,12 +862,12 @@ function colorMapping(targetLayer,ChoiceList, ManualCol, OverRideColors, indexMo
 			break;
 		case "residues":
 			//alert("how did this happen yet");
-			if (colName != "clear_data") {
+			if (colName[0] != "clear_data") {
 				var data = new Array;
 				for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
-					data[j] = rvDataSets[0].Residues[j][colName];
+					data[j] = rvDataSets[0].Residues[j][colName[0]];
 				}
-				colorProcess(data, indexMode,targetLayer);
+				colorProcess(data, indexMode[0],targetLayer);
 			} else {
 				//var data = new Array;
 				//targetLayer.clearCanvas();
