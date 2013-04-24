@@ -1395,6 +1395,9 @@ function ProcessBubble(ui,targetLayer){
 				}).get();
 			colorMappingLoop(targetLayer,array_of_checked_values);
 			break;
+		case "CustomDataBubbles" :
+			customDataProcess(ui,targetLayer)
+			break;
 		default :
 			alert("other");
 	}
@@ -1486,123 +1489,28 @@ function handleFileSelect(event) {
 	FileReaderFile = event.target.files; // FileList object
 	
 	AgreeFunction = function (event) {
-		//clearColor(true);
-		
 		for (var i = 0; i < FileReaderFile.length; i++) {
 			reader = new FileReader();
 			reader.readAsText(FileReaderFile[i]);
+			$("#CustomDataBubbles").append($('<h3 class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom" style="text-align:center;padding:0.2em">')
+				.text("User Data").attr('name',"CustomData").attr('title',"Custom"));
+			$("#CustomDataBubbles").sortable({
+				update : function (event, ui) {
+				},
+				items : ".dataBubble"
+			});
 			reader.onload = function () {
+				//Process File
 				rvDataSets[0].addCustomData($.csv.toObjects(reader.result));
-				NewData = [];
-				var targetLayer = rvDataSets[0].getSelectedLayer();
-				targetLayer.DataLabel = FileReaderFile[0].name;
-				$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text("User File:").append($("<br>")).append(targetLayer.DataLabel);
-				targetLayer.clearData();
 				var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
-				//rvDataSets[0].Selections["temp"] = [];
-				rvDataSets[0].addSelection();
-				var SeleLen = 0;
-				for (var ii = 0; ii < rvDataSets[0].CustomData.length; ii++) {
-					if (rvDataSets[0].CustomData[ii][customkeys[0]].indexOf("(") > 0) {
-						command = rvDataSets[0].CustomData[ii][customkeys[0]].split(";");
-						targetSelection = rvDataSets[0].Selections[0];
-						expandSelection(command, targetSelection.Name);
-						var l = targetSelection.Residues.length;
-						for (var iii = SeleLen; iii < l; iii++) {
-							if (targetSelection.Residues[iii].resNum.indexOf(":") >= 0) {
-								var ressplit = targetSelection.Residues[iii].resNum.split(":");
-								var ResName = rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(ressplit[0])] + "_" + ressplit[1];				
-							} else {
-								var comsplit = command[0].split(":");
-								var chainID =  rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(comsplit[0])];
-								var ResName = chainID + "_" + targetSelection.Residues[iii].resNum;
-							}
-							var k = rvDataSets[0].ResidueList.indexOf(ResName);
-							
-							if ($.inArray("DataCol", customkeys) >= 0) {
-								if (isNaN(parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]))){
-									NewData[k] = rvDataSets[0].CustomData[ii]["DataCol"];
-								} else {
-									NewData[k] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
-								}
-							}
-							if ($.inArray("ColorCol", customkeys) >= 0) {
-								targetLayer.dataLayerColors[k] = rvDataSets[0].CustomData[ii]["ColorCol"];
-							}
-							
-						}
-						SeleLen = l;
-					} else {
-						var comsplit = rvDataSets[0].CustomData[ii][customkeys[0]].split(":");
-						if (comsplit.length > 1) {
-							var chainID = rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(comsplit[0])];
-							var ResName = chainID + "_" + comsplit[1];
-						} else {
-							var chainID = rvDataSets[0].SpeciesEntry.PDB_chains[0];
-							var ResName = chainID + "_" + comsplit[0];
-						}
-						
-						var k = rvDataSets[0].ResidueList.indexOf(ResName);
-						targetSelection = rvDataSets[0].Selections[0];
-						targetSelection.Residues.push(rvDataSets[0].Residues[k]);
-						if ($.inArray("DataCol", customkeys) >= 0) {
-							if (isNaN(parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]))){
-								NewData[k] = rvDataSets[0].CustomData[ii]["DataCol"];
-							} else {
-								NewData[k] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
-							}
-						}	
-						if ($.inArray("ColorCol", customkeys) >= 0) {
-							targetLayer.dataLayerColors[k] = rvDataSets[0].CustomData[ii]["ColorCol"];
-						}
-					}
-					
-					//ColorList[ii]=rvDataSets[0].CustomData[ii]["ColorCol"];
-					//DataList[ii]=rvDataSets[0].CustomData[ii]["DataCol"];
-
-				}
-				targetLayer.Data = NewData;
-				SelectionMenu(targetSelection);
-				RefreshSelectionMenu();
-				
-				if (targetLayer.Type === "selected"){
-					//rvDataSets[0].changeSelection("temp");
-				} else {
-					if ($.inArray("ColorCol", customkeys) >= 0) {
-						rvDataSets[0].drawResidues("residues");
-						rvDataSets[0].refreshResiduesExpanded(targetLayer.LayerName);
-						update3Dcolors();
-						/*
-						ColorListU = $.grep(ColorList, function (v, k) {
-							return $.inArray(v, ColorList) === k;
-						});
-						
-						DataListU = $.grep(DataList, function (v, k) {
-							return $.inArray(v, DataList) === k;
-						});
-						// Hack. Assume positive consecutive integers for now. 
-						var a = Math.min.apply(Math, DataListU);
-						$.each(DataListU, function (key, value){
-							ColorGrad[value - a] = ColorListU[key];
-						});
-						colors = ColorGrad;
-						colorProcess(NewData,true);
-						*/
-					} else if ($.inArray("DataCol", customkeys) >= 0) {
-						colors = RainBowColors;
-						colorProcess(NewData);
-					} else {
-						alert("No recognized colomns found. Please check input.");
-					}
-				}
-			
 				if ($.inArray("DataDescription", customkeys) >= 0) {
 					$("#FileDiv").find(".DataDescription").text(rvDataSets[0].CustomData[0]["DataDescription"]);
+					$("#CustomDataBubbles").find(".dataBubble").attr("title",rvDataSets[0].CustomData[0]["DataDescription"]);
 				} else {
 					$("#FileDiv").find(".DataDescription").text("Data Description is missing.");
 				}
-				updateSelectionDiv(targetSelection.Name);
-				drawNavLine();
+				$("#CustomDataBubbles").find(".dataBubble").attr("FileName",FileReaderFile[0].name);
+			
 			};
 		}
 	};
@@ -1617,6 +1525,117 @@ function handleFileSelect(event) {
 	
 }
 
+function customDataProcess(ui,targetLayer){
+	//Move to Draw Function
+	NewData = [];
+	//var targetLayer = rvDataSets[0].getSelectedLayer();
+	targetLayer.DataLabel = $(ui[0]).attr("filename");
+	$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text("User File:").append($("<br>")).append(targetLayer.DataLabel);
+	targetLayer.clearData();
+	
+	var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
+	
+	//Move to Selection Section
+	rvDataSets[0].addSelection();
+	var SeleLen = 0;
+	for (var ii = 0; ii < rvDataSets[0].CustomData.length; ii++) {
+		if (rvDataSets[0].CustomData[ii][customkeys[0]].indexOf("(") > 0) {
+			command = rvDataSets[0].CustomData[ii][customkeys[0]].split(";");
+			targetSelection = rvDataSets[0].Selections[0];
+			expandSelection(command, targetSelection.Name);
+			var l = targetSelection.Residues.length;
+			for (var iii = SeleLen; iii < l; iii++) {
+				if (targetSelection.Residues[iii].resNum.indexOf(":") >= 0) {
+					var ressplit = targetSelection.Residues[iii].resNum.split(":");
+					var ResName = rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(ressplit[0])] + "_" + ressplit[1];				
+				} else {
+					var comsplit = command[0].split(":");
+					var chainID =  rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(comsplit[0])];
+					var ResName = chainID + "_" + targetSelection.Residues[iii].resNum;
+				}
+				var k = rvDataSets[0].ResidueList.indexOf(ResName);
+				
+				if ($.inArray("DataCol", customkeys) >= 0) {
+					if (isNaN(parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]))){
+						NewData[k] = rvDataSets[0].CustomData[ii]["DataCol"];
+					} else {
+						NewData[k] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
+					}
+				}
+				if ($.inArray("ColorCol", customkeys) >= 0) {
+					targetLayer.dataLayerColors[k] = rvDataSets[0].CustomData[ii]["ColorCol"];
+				}
+				
+			}
+			SeleLen = l;
+		} else {
+			var comsplit = rvDataSets[0].CustomData[ii][customkeys[0]].split(":");
+			if (comsplit.length > 1) {
+				var chainID = rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(comsplit[0])];
+				var ResName = chainID + "_" + comsplit[1];
+			} else {
+				var chainID = rvDataSets[0].SpeciesEntry.PDB_chains[0];
+				var ResName = chainID + "_" + comsplit[0];
+			}
+			
+			var k = rvDataSets[0].ResidueList.indexOf(ResName);
+			targetSelection = rvDataSets[0].Selections[0];
+			targetSelection.Residues.push(rvDataSets[0].Residues[k]);
+			if ($.inArray("DataCol", customkeys) >= 0) {
+				if (isNaN(parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]))){
+					NewData[k] = rvDataSets[0].CustomData[ii]["DataCol"];
+				} else {
+					NewData[k] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
+				}
+			}	
+			if ($.inArray("ColorCol", customkeys) >= 0) {
+				targetLayer.dataLayerColors[k] = rvDataSets[0].CustomData[ii]["ColorCol"];
+			}
+		}
+		
+		//ColorList[ii]=rvDataSets[0].CustomData[ii]["ColorCol"];
+		//DataList[ii]=rvDataSets[0].CustomData[ii]["DataCol"];
+
+	}
+	targetLayer.Data = NewData;
+	SelectionMenu(targetSelection);
+	RefreshSelectionMenu();
+	
+	if (targetLayer.Type === "selected"){
+		//rvDataSets[0].changeSelection("temp");
+	} else {
+		if ($.inArray("ColorCol", customkeys) >= 0) {
+			rvDataSets[0].drawResidues("residues");
+			rvDataSets[0].refreshResiduesExpanded(targetLayer.LayerName);
+			update3Dcolors();
+			/*
+			ColorListU = $.grep(ColorList, function (v, k) {
+				return $.inArray(v, ColorList) === k;
+			});
+			
+			DataListU = $.grep(DataList, function (v, k) {
+				return $.inArray(v, DataList) === k;
+			});
+			// Hack. Assume positive consecutive integers for now. 
+			var a = Math.min.apply(Math, DataListU);
+			$.each(DataListU, function (key, value){
+				ColorGrad[value - a] = ColorListU[key];
+			});
+			colors = ColorGrad;
+			colorProcess(NewData,true);
+			*/
+		} else if ($.inArray("DataCol", customkeys) >= 0) {
+			colors = RainBowColors;
+			colorProcess(NewData,undefined,targetLayer);
+		} else {
+			alert("No recognized colomns found. Please check input.");
+		}
+	}
+
+	updateSelectionDiv(targetSelection.Name);
+	drawNavLine();
+	
+}
 function resetFileInput($element) {
 	var clone = $element.clone(false, false);
 	$element.replaceWith(clone);

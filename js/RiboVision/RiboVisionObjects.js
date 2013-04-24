@@ -465,14 +465,16 @@ function rvDataSet(DataSetName) {
 		return ret;
 	};
 	this.getLayerByType = function (layer) {
-		var ind = $.inArray(layer, this.LayerTypes),
+		if (!$.isArray(layer)){
+			layer=[layer];
+		}
 		ret = [];
-		if (ind >= 0) {
-			$.each(this.Layers, function (key, value) {
-				if (value.Type === layer) {
-					ret.push(value);
-				}
-			});
+		$.each(this.Layers, function (key, value) {
+			if ($.inArray(value.Type, layer) >=0) {
+				ret.push(value);
+			}
+		});
+		if (ret.length >0){
 			return ret;
 		}
 		return false;

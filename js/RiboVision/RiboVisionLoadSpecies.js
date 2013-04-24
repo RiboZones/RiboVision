@@ -28,6 +28,18 @@ based on:
 
 
 function loadSpecies(species,DoneLoading,DoneLoading2) {
+	// Get conservation table
+	$.getJSON('getData.php', {
+		FullTable : rvDataSets[0].SpeciesEntry.ConservationTable
+		}, function (ConservationTable) {
+			rvDataSets[0].ConservationTable=ConservationTable;
+	});
+	// get data description table
+	$.getJSON('getData.php', {
+		FullTable : "DataDescriptions"
+		}, function (data) {
+		rvDataSets[0].DataDescriptions=data;
+	});
 	rvDataSets[0].Name=species;
 	$.each(rvDataSets[0].Layers, function (i, item){
 		item.clearCanvas();
@@ -64,7 +76,6 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 				var pl = document.getElementById("ProtList");
 				var ProtList = rvDataSets[0].SpeciesEntry.ProteinMenu.split(";");
 				pl.options.length = 0;
-				//pl.options[0]=new Option("None","clear_data");
 				rvDataSets[0].SpeciesEntry.SubunitProtChains = new Array;
 				rvDataSets[0].SpeciesEntry.SubunitProtChains[0] = new Array;
 				rvDataSets[0].SpeciesEntry.SubunitProtChains[1] = new Array;
@@ -73,44 +84,56 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 				if (ProtList[0] != "") {
 					for (var i = 0; i < ProtList.length; i++) {
 						var NewProtPair = ProtList[i].split(":");
+						var ColName = ["All_Proteins"];
+						var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
+						if (result[0]){
+							var title = "All_Proteins" + ": " + result[0].Description;
+						} else {
+							var title = "Data Description is missing.";
+						}
 						pl.options[i] = new Option(NewProtPair[0], NewProtPair[1]);
 						rvDataSets[0].SpeciesEntry.SubunitProtChains[0][i] = NewProtPair[0];
 						rvDataSets[0].SpeciesEntry.SubunitProtChains[1][i] = NewProtPair[2];
 						rvDataSets[0].SpeciesEntry.SubunitProtChains[2][i] = NewProtPair[1];
 					}
-					$("#ProteinBubbles").append($('<h3 class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom" style="text-align:center;padding:0.2em">').text("Protein Contacts").attr('name',"All_Proteins"));
+					$("#ProteinBubbles").append($('<h3 class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom" style="text-align:center;padding:0.2em">')
+					.text("Protein Contacts").attr('name',"All_Proteins").attr('title',title));
 
 				}
 				rvDataSets[0].SpeciesEntry["SubunitProtChains"] = rvDataSets[0].SpeciesEntry.SubunitProtChains;
 				$("#ProtList").multiselect("refresh");
 				
 				//Set Alignment Menu
-				//var al = document.getElementById("alnList");
 				var AlnList = rvDataSets[0].SpeciesEntry.AlnMenu.split(";");
-				//al.options.length = 0;
-				//al.options[0] = new Option("None", "clear_data");
-				//al.options[0].setAttribute("selected", "selected");
 				if (AlnList[0] != "") {
 					for (var ii = 0; ii < AlnList.length; ii++) {
 						var NewAlnPair = AlnList[ii].split(":");
-						//al.options[ii + 1] = new Option(NewAlnPair[0], NewAlnPair[1]);
-						$("#AlnBubbles").append($('<h3 class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom" style="text-align:center;padding:0.2em">').text(NewAlnPair[0]).attr('name',NewAlnPair[1]));
+						var ColName = NewAlnPair[1].match(/[^\'\\,]+/);
+						var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
+						if (result[0]){
+							var title = NewAlnPair[0] + ": " + result[0].Description;
+						} else {
+							var title = "Data Description is missing.";
+						}
+						$("#AlnBubbles").append($('<h3 class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom" style="text-align:center;padding:0.2em">')
+						.text(NewAlnPair[0]).attr('name',NewAlnPair[1]).attr('title',title));
 					}
 				}
-				
-				//$("#alnList").multiselect("refresh");
-				
+								
 				//Set StructData Menu
-				//var sl = document.getElementById("StructDataList");
 				var SDList = rvDataSets[0].SpeciesEntry.StructDataMenu.split(";");
-				//sl.options.length = 0;
-				//sl.options[0] = new Option("None", "'clear_data'");				
-				//sl.options[0].setAttribute("selected", "selected");
 				if (SDList[0] != "") {
 					for (var ii = 0; ii < SDList.length; ii++) {
 						var NewSDPair = SDList[ii].split(":");
-						//sl.options[ii + 1] = new Option(NewSDPair[0], NewSDPair[1]);
-						$("#StructDataBubbles").append($('<h3 class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom" style="text-align:center;padding:0.2em">').text(NewSDPair[0]).attr('name',NewSDPair[1]));
+						var ColName = NewSDPair[1].match(/[^\'\\,]+/);
+						var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
+						if (result[0]){
+							var title = NewSDPair[0] + ": " + result[0].Description;
+						} else {
+							var title = "Data Description is missing.";
+						}
+						$("#StructDataBubbles").append($('<h3 class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom" style="text-align:center;padding:0.2em">')
+						.text(NewSDPair[0]).attr('name',NewSDPair[1]).attr('title',title));
 					}
 					
 				}
@@ -172,18 +195,6 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 				rvDataSets[0].drawLabels("labels");
 				
 				$("#TemplateLink").attr("href", "./Templates/" + species + "_UserDataTemplate.csv")
-				// Get conservation table
-				$.getJSON('getData.php', {
-					FullTable : rvDataSets[0].SpeciesEntry.ConservationTable
-					}, function (ConservationTable) {
-						rvDataSets[0].ConservationTable=ConservationTable;
-				});
-				// get data description table
-				$.getJSON('getData.php', {
-					FullTable : "DataDescriptions"
-					}, function (data) {
-					rvDataSets[0].DataDescriptions=data;
-				});
 				
 				drawNavLine(); //load navLine 
 				if (DoneLoading2){

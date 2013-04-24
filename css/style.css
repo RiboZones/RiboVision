@@ -238,6 +238,8 @@ canvas{
 	border: 1px solid #aed0ea;
 	margin: 0px;
 	font-weight: bold;
+	word-wrap:break-word;
+	
 }
 
 #layerColor2 {
