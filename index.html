@@ -113,47 +113,30 @@
                 <h3><a href="#">Structural Data</a></h3>
 
                 <div id="StructDataDiv">
-                    <span id="StructDataLabel" > Structure Data: </span><br>
+					<span id="StructDataLabel" ><a class="ManualLink" href="/Documentation/StructuralData.html" target="_blank">Help?</a></span><br><br>
                     <div id="StructDataBubbles"></div>
-					<!--<select id="StructDataList" multiple="multiple">
-                        </select>
-					//-->
-                    <p class="DataDescription"></p>
-					<p class="ManualLink">For more detailed information, <a href="/Documentation" target="_blank">see this section of the manual.</a></p>
                 </div>
 
                 <h3><a href="#">Sequence Data</a></h3>
 
                 <div id="AlnDiv">
-                   <br><span id="AlnLabel" >  Alignment Data: </span><br>
-					<div id="AlnBubbles"></div>
-                    <!--
-					<select id="alnList" multiple="multiple">
-                        </select>
-					//-->
-                    <p class="DataDescription"></p>
-					<p class="ManualLink">For more detailed information, <a href="/Documentation" target="_blank">see this section of the manual.</a></p>
-					
+				   <span id="AlnLabel" ><a class="ManualLink" href="/Documentation/AlignmentData.html" target="_blank">Help?</a></span><br><br>
+					<div id="AlnBubbles"></div>			
                 </div>
 
                 <h3><a href="#">Protein Data</a></h3>
 
                 <div id="ProtDiv">
-					<span id="ProtLabel" > Protein Data: </span><br>
-                    <div id="ProteinBubbles"></div>
-
-                    <select id="ProtList" multiple="multiple">
-                        </select>
-
-                    <p class="DataDescription"></p>
-					<p class="ManualLink">For more detailed information, <a href="/Documentation" target="_blank">see this section of the manual.</a></p>
-					
+					<span id="ProtLabel" ><a class="ManualLink" href="/Documentation/ProteinData.html" target="_blank">Help?</a></span><br><br>
+                    <select id="ProtList" multiple="multiple"></select><br><br>
+					<div id="ProteinBubbles"></div>
                 </div>
 
                 <h3><a href="#">Inter-Nucleotide Interactions</a></h3>
 
                 <div id="InteractDataDiv">
-                    <div id="primaryInteractData">
+                    <span id="InteractionLabel" ><a class="ManualLink" href="/Documentation/InteractionData.html" target="_blank">Help?</a></span><br><br>
+					<div id="primaryInteractData">
                         Interaction Type:<br>
                         <select id="PrimaryInteractionList" multiple="multiple" onchange="JavaScript:refreshBasePairs(value);">
                             </select>
@@ -164,18 +147,20 @@
                         <select id="SecondaryInteractionList" multiple="multiple">
                             </select>
                     </div>
-
                     <p class="DataDescription"></p>
-					<p class="ManualLink">For more detailed information, <a href="/Documentation" target="_blank">see this section of the manual.</a></p>
-					
                 </div>
 
                 <h3><a href="#">Import Data</a></h3>
 
                 <div id="FileDiv">
-                    <a id="TemplateLink" href="#" target="_blank">Download Data Template</a><br>
-                    Load Data Template: <input type="file" id="files" name="files[]" accept="text/csv" /> <output id="list"></output>
-
+					<span id="ImportDataLabel" ><a class="ManualLink" href="/Documentation/UserDataSyntax.html" target="_blank">Help?</a></span><br><br>
+					
+					<a id="TemplateLink" href="#" target="_blank">Download Data Template</a><br><br>
+					
+                    Load Data Template: <input type="file" id="files" name="files[]" accept="text/csv" /><br>
+					<output id="list"></output>
+					<br>
+					<div id="CustomDataBubbles"></div>
                     <p class="DataDescription"></p>
                 </div>
             </div>

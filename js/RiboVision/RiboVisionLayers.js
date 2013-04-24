@@ -408,20 +408,24 @@ function RefreshLayerMenu(){
 		$selectbox.options.length = 0;
 		$selectbox.options[0] = new Option("All Gray", "gray_lines");
 		$selectbox.options[0].setAttribute("selected", "selected");
-
-		var rLayers = rvDataSets[0].getLayerByType("residues");
-		var cLayers = rvDataSets[0].getLayerByType("circles");
-		var sLayers = rvDataSets[0].getLayerByType("selected");
-		$.each(rLayers, function (key, value) {
-			$selectbox.options[$selectbox.options.length] = new Option(value.LayerName, value.LayerName);
-		});
-		$.each(cLayers, function (key, value) {
-			$selectbox.options[$selectbox.options.length] = new Option(value.LayerName, value.LayerName);
-		});
-		$.each(sLayers, function (key, value) {
+		
+		var dsLayers = rvDataSets[0].getLayerByType(["residues","circles","selected"]);
+		$.each(dsLayers.reverse(), function (key, value) {
 			$selectbox.options[$selectbox.options.length] = new Option(value.LayerName, value.LayerName);
 		});
 		$(".oneLayerGroup[name=" + targetLayers[0].LayerName + "]").find(".layerContent").find("div[name=llm]").find("select").multiselect("refresh");
+		
+		// Refresh MiniLayers
+		$(".miniLayerName").remove();
+		var dLayers = rvDataSets[0].getLayerByType(["residues","circles"]);
+		$.each(dLayers, function (key, value) {
+			$("#MiniLayerLabel").after($('<h3 class="miniLayerName ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom " style="font-size:0.85em;line-height:3em;text-align:center">')
+				.text(value.LayerName).attr('name',value.LayerName).droppable({
+					drop: function (event,ui) {
+						ProcessBubbleDrop(event,ui);
+					}
+				}));
+		});
     });
 }
 
@@ -432,6 +436,7 @@ $("#LayerPanel").sortable({
 			tl.updateZIndex(rvDataSets[0].LastLayer - e);
 		});
 		rvDataSets[0].sort();
+		RefreshLayerMenu();
 	},
 	items : ".oneLayerGroup",
 	axis: "y"
@@ -540,11 +545,26 @@ $("#layerNameInput").button().addClass('ui-textfield').keydown(function (event) 
 //MiniLayer
 $("#MiniLayer").sortable({
 	update : function (event, ui) {
-		/*$("#LayerPanel .layerContent").each(function (e, f) {
+		//Determine Layer to move
+		var target = $(ui.item[0]).attr("name");
+		if (target === $(".miniLayerName:first").attr("name")){
+			var Pos = $(".miniLayerName[name="+$(ui.item[0]).attr("name") + "]").next().attr("name");
+			//Move Layer
+			$("#LayerPanel").find("[name=" + target  + "]").insertBefore($("#LayerPanel").find("[name=" + Pos  + "]"));
+		} else {
+			var Pos = $(".miniLayerName[name="+$(ui.item[0]).attr("name") + "]").prev().attr("name");
+			//Move Layer
+			$("#LayerPanel").find("[name=" + target  + "]").insertAfter($("#LayerPanel").find("[name=" + Pos  + "]"));
+		}
+				
+		
+		//Update ZIndex
+		$("#LayerPanel .layerContent").each(function (e, f) {
 			var tl = rvDataSets[0].getLayer($(this).parent().attr("name"));
 			tl.updateZIndex(rvDataSets[0].LastLayer - e);
 		});
-		rvDataSets[0].sort();*/
+		rvDataSets[0].sort();
+		RefreshLayerMenu();
 	},
 	items : ".miniLayerName",
 	axis: "y"
@@ -623,11 +643,11 @@ function ProcessBubbleDrop(event,ui){
 		var ColName = $(ui.draggable[0]).attr("name").match(/[^\'\\,]+/);
 		var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
 		if (result[0]){
-			//$(this).parent().find(".DataDescription").text(result[0].Description);
-			//$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation/" + result[0].HelpLink + ".html");
+			$(event.target).attr("title",targetLayer.DataLabel + ": " + result[0].Description);
+			$(ui.draggable[0]).parent().parent().find(".ManualLink").attr("href","/Documentation/" + result[0].HelpLink + ".html");
 		} else {
-			//$(this).parent().find(".DataDescription").text("Data Description is missing.");
-			//$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation");				
+			$(event.target).attr("title","Data Description is missing.");
+			$(ui.draggable[0]).parent().parent().find(".ManualLink").attr("href","/Documentation");				
 		}
 		ProcessBubble($(ui.draggable[0]),targetLayer);
 		$(".oneLayerGroup[name='" + targetLayer.LayerName + "']").find(".selectLayerRadioBtn").prop("checked",true);	
