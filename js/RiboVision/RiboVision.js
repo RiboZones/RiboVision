@@ -74,6 +74,7 @@ var RainBowColors = ["#00008f", "#00009f", "#0000af", "#0000bf", "#0000cf", "#00
 var canvas2DSupported = !!window.CanvasRenderingContext2D;
 /////////////////////////// D3 Library IE 9+ //////////////////////////////////
 if (canvas2DSupported){
+	/*
 	$.holdReady(true);
 	$.ajax({
 		type: "GET",
@@ -118,6 +119,7 @@ if (canvas2DSupported){
 		error: function(){
 		alert("js load fail");}
 	});
+	*/
 }
 ///////////////////////////////////////////////////////////////////////////////
 ////////////////////////// RiboVision Object Definitions  /////////////////////
