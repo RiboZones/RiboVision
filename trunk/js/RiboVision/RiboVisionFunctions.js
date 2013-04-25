@@ -1487,7 +1487,7 @@ function handleFileSelect(event) {
 	var ColorGrad=[];
 	
 	FileReaderFile = event.target.files; // FileList object
-	
+	$("#CustomDataBubbles").find(".dataBubble").remove();
 	AgreeFunction = function (event) {
 		for (var i = 0; i < FileReaderFile.length; i++) {
 			reader = new FileReader();
@@ -1526,18 +1526,45 @@ function handleFileSelect(event) {
 }
 
 function customDataProcess(ui,targetLayer){
-	//Move to Draw Function
-	NewData = [];
-	//var targetLayer = rvDataSets[0].getSelectedLayer();
+	var NewData = [];
 	targetLayer.DataLabel = $(ui[0]).attr("filename");
 	$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text("User File:").append($("<br>")).append(targetLayer.DataLabel);
 	targetLayer.clearData();
 	
 	var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
+	NewData = CustomDataExpand();
+	targetLayer.Data = NewData;
+	SelectionMenu(targetSelection);
+	RefreshSelectionMenu();
 	
-	//Move to Selection Section
+	if (targetLayer.Type === "selected"){
+
+	} else {
+		if ($.inArray("ColorCol", customkeys) >= 0) {
+			rvDataSets[0].drawResidues("residues");
+			rvDataSets[0].refreshResiduesExpanded(targetLayer.LayerName);
+			update3Dcolors();
+		} else if ($.inArray("DataCol", customkeys) >= 0) {
+			colors = RainBowColors;
+			colorProcess(NewData,undefined,targetLayer);
+		} else {
+			alert("No recognized colomns found. Please check input.");
+		}
+	}
+
+	updateSelectionDiv(targetSelection.Name);
+	drawNavLine();
+}
+function resetFileInput($element) {
+	var clone = $element.clone(false, false);
+	$element.replaceWith(clone);
+}
+
+function CustomDataExpand(){
 	rvDataSets[0].addSelection();
 	var SeleLen = 0;
+	var NewData = [];
+	var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
 	for (var ii = 0; ii < rvDataSets[0].CustomData.length; ii++) {
 		if (rvDataSets[0].CustomData[ii][customkeys[0]].indexOf("(") > 0) {
 			command = rvDataSets[0].CustomData[ii][customkeys[0]].split(";");
@@ -1592,53 +1619,8 @@ function customDataProcess(ui,targetLayer){
 				targetLayer.dataLayerColors[k] = rvDataSets[0].CustomData[ii]["ColorCol"];
 			}
 		}
-		
-		//ColorList[ii]=rvDataSets[0].CustomData[ii]["ColorCol"];
-		//DataList[ii]=rvDataSets[0].CustomData[ii]["DataCol"];
-
 	}
-	targetLayer.Data = NewData;
-	SelectionMenu(targetSelection);
-	RefreshSelectionMenu();
-	
-	if (targetLayer.Type === "selected"){
-		//rvDataSets[0].changeSelection("temp");
-	} else {
-		if ($.inArray("ColorCol", customkeys) >= 0) {
-			rvDataSets[0].drawResidues("residues");
-			rvDataSets[0].refreshResiduesExpanded(targetLayer.LayerName);
-			update3Dcolors();
-			/*
-			ColorListU = $.grep(ColorList, function (v, k) {
-				return $.inArray(v, ColorList) === k;
-			});
-			
-			DataListU = $.grep(DataList, function (v, k) {
-				return $.inArray(v, DataList) === k;
-			});
-			// Hack. Assume positive consecutive integers for now. 
-			var a = Math.min.apply(Math, DataListU);
-			$.each(DataListU, function (key, value){
-				ColorGrad[value - a] = ColorListU[key];
-			});
-			colors = ColorGrad;
-			colorProcess(NewData,true);
-			*/
-		} else if ($.inArray("DataCol", customkeys) >= 0) {
-			colors = RainBowColors;
-			colorProcess(NewData,undefined,targetLayer);
-		} else {
-			alert("No recognized colomns found. Please check input.");
-		}
-	}
-
-	updateSelectionDiv(targetSelection.Name);
-	drawNavLine();
-	
-}
-function resetFileInput($element) {
-	var clone = $element.clone(false, false);
-	$element.replaceWith(clone);
+	return NewData;
 }
 ///////////////////////////////////////////////////////////////////////////////
 
