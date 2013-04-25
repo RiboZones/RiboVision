@@ -1532,7 +1532,7 @@ function customDataProcess(ui,targetLayer){
 	targetLayer.clearData();
 	
 	var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
-	NewData = CustomDataExpand();
+	NewData = CustomDataExpand(targetLayer);
 	targetLayer.Data = NewData;
 	SelectionMenu(targetSelection);
 	RefreshSelectionMenu();
@@ -1560,64 +1560,37 @@ function resetFileInput($element) {
 	$element.replaceWith(clone);
 }
 
-function CustomDataExpand(){
+function CustomDataExpand(targetLayer){
 	rvDataSets[0].addSelection();
 	var SeleLen = 0;
 	var NewData = [];
 	var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
 	for (var ii = 0; ii < rvDataSets[0].CustomData.length; ii++) {
-		if (rvDataSets[0].CustomData[ii][customkeys[0]].indexOf("(") > 0) {
-			command = rvDataSets[0].CustomData[ii][customkeys[0]].split(";");
-			targetSelection = rvDataSets[0].Selections[0];
-			expandSelection(command, targetSelection.Name);
-			var l = targetSelection.Residues.length;
-			for (var iii = SeleLen; iii < l; iii++) {
-				if (targetSelection.Residues[iii].resNum.indexOf(":") >= 0) {
-					var ressplit = targetSelection.Residues[iii].resNum.split(":");
-					var ResName = rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(ressplit[0])] + "_" + ressplit[1];				
-				} else {
-					var comsplit = command[0].split(":");
-					var chainID =  rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(comsplit[0])];
-					var ResName = chainID + "_" + targetSelection.Residues[iii].resNum;
-				}
-				var k = rvDataSets[0].ResidueList.indexOf(ResName);
-				
-				if ($.inArray("DataCol", customkeys) >= 0) {
-					if (isNaN(parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]))){
-						NewData[k] = rvDataSets[0].CustomData[ii]["DataCol"];
-					} else {
-						NewData[k] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
-					}
-				}
-				if ($.inArray("ColorCol", customkeys) >= 0) {
-					targetLayer.dataLayerColors[k] = rvDataSets[0].CustomData[ii]["ColorCol"];
-				}
-				
-			}
-			SeleLen = l;
-		} else {
-			var comsplit = rvDataSets[0].CustomData[ii][customkeys[0]].split(":");
-			if (comsplit.length > 1) {
-				var chainID = rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(comsplit[0])];
-				var ResName = chainID + "_" + comsplit[1];
+		var command = rvDataSets[0].CustomData[ii][customkeys[0]].split(";");
+		var targetSelection = rvDataSets[0].Selections[0];
+		expandSelection(command, targetSelection.Name);
+		var l = targetSelection.Residues.length;
+		for (var iii = SeleLen; iii < l; iii++) {
+			if (targetSelection.Residues[iii].resNum.indexOf(":") >= 0) {
+				var ressplit = targetSelection.Residues[iii].resNum.split(":");
+				var ResName = rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(ressplit[0])] + "_" + ressplit[1];				
 			} else {
-				var chainID = rvDataSets[0].SpeciesEntry.PDB_chains[0];
-				var ResName = chainID + "_" + comsplit[0];
+				var chainID =  targetSelection.Residues[iii].ChainID;
+				var ResName = chainID + "_" + targetSelection.Residues[iii].resNum;
 			}
-			
 			var k = rvDataSets[0].ResidueList.indexOf(ResName);
-			targetSelection = rvDataSets[0].Selections[0];
-			targetSelection.Residues.push(rvDataSets[0].Residues[k]);
+			
 			if ($.inArray("DataCol", customkeys) >= 0) {
 				if (isNaN(parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]))){
 					NewData[k] = rvDataSets[0].CustomData[ii]["DataCol"];
 				} else {
 					NewData[k] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
 				}
-			}	
+			}
 			if ($.inArray("ColorCol", customkeys) >= 0) {
 				targetLayer.dataLayerColors[k] = rvDataSets[0].CustomData[ii]["ColorCol"];
 			}
+			SeleLen = l;
 		}
 	}
 	return NewData;
@@ -2315,9 +2288,9 @@ function watermark(usetime) {
 		var x = 10;
 		var y = h - 20;
 		var Message = "A " + rvDataSets[0].SpeciesEntry.MapType + " Map: Brought to you by RiboEvo @ Geogia Tech.";
-		df = d.toLocaleString().indexOf("G");
+		var df = d.toLocaleString().indexOf("G");
 		var LabelLayers = rvDataSets[0].getLayerByType("labels");
-		targetLayer = LabelLayers[0];
+		var targetLayer = LabelLayers[0];
 		targetLayer.CanvasContext.textAlign = 'left';
 		targetLayer.CanvasContext.font = "10pt Calibri";
 		targetLayer.CanvasContext.fillStyle = "#f6a828";

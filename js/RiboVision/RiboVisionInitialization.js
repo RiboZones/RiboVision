@@ -831,6 +831,12 @@ function RiboVisionReady() {
 	// Check for the various File API support.
 	if (window.File && window.FileReader && window.FileList && window.Blob) {
 		// Great success! All the File APIs are supported.
+		$("#files").on('click', function (event) {
+			resetFileInput($('#files'));
+			$('#files').on('change', function (event) {
+				handleFileSelect(event);
+			});
+		});
 		$("#files").on('change', function (event) {
 			handleFileSelect(event);
 		});
