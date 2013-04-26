@@ -1558,6 +1558,7 @@ function customDataProcess(ui,targetLayer){
 function resetFileInput($element) {
 	var clone = $element.clone(false, false);
 	$element.replaceWith(clone);
+	alert(42);
 }
 
 function CustomDataExpand(targetLayer){
