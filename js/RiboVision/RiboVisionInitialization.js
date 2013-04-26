@@ -75,14 +75,15 @@ function RiboVisionReady() {
 	$("#dialog-saveFigures").dialog({
 		resizable : false,
 		autoOpen : false,
-		height : "auto",
-		width : 800,
+		height : 600,
+		width : 1000,
 		modal : true,
+		/*
 		buttons: {
 			Ok: function() {
 				$( this ).dialog( "close" );
 			}
-		},
+		},*/
 		open : function () {
 			$("#myJmol_object").css("visibility", "hidden");
 		},
@@ -422,10 +423,10 @@ function RiboVisionReady() {
 	$("#SideBarAccordian").accordion({
 		heightStyle: "fill",
 		activate : function (event, ui) {
-			resetFileInput($('#files'));
+			/*resetFileInput($('#files'));
 			$('#files').on('change', function (event) {
 				handleFileSelect(event);
-			});
+			});*/
 		}
 	});
 	
@@ -831,14 +832,13 @@ function RiboVisionReady() {
 	// Check for the various File API support.
 	if (window.File && window.FileReader && window.FileList && window.Blob) {
 		// Great success! All the File APIs are supported.
-		$("#files").on('click', function (event) {
-			resetFileInput($('#files'));
-			$('#files').on('change', function (event) {
-				handleFileSelect(event);
-			});
+		
+		$("#FileDiv").on('click', "input:file", function (event) {
+			    this.value = null;
 		});
-		$("#files").on('change', function (event) {
+		$("#FileDiv").on('change', "input:file", function (event) {
 			handleFileSelect(event);
+			//resetFileInput($('#files'));
 		});
 		
 		//document.getElementById('files').addEventListener('change',{$('#files').on('change', handleFileSelect);handleFileSelect}, false);

@@ -219,20 +219,42 @@
     <div id="Privacy-confirm" title="Privacy Policy"></div>
 
 	<div id="dialog-saveFigures" title="Save / Export Figures">
-		The default behavior is to export just the visible layers.<br>
-		<input id="visibleLayers" type="radio" name="savelayers" value="visible" checked="checked" /><label for="visibleLayers">Visible
-		Layers</label> <input id="allLayers" type="radio" name="savelayers" value="all" /><label for="allLayers">All Layers</label>
+		<p>RiboVision is intended for making high-quality protypes of publication-quality images.
+			For this reason we provide exporting in both draft quality formats and formats intended to be imported
+			into more advanced editors. Each of the three panels are saved separately. </p>
+			
+		<div id="NavLineExport" class="ui-widget-content ExportDiv">
+		<h3 class="ui-widget-header2" >NavLine</h3>
+		<p>We support saving of NavLine in SVG only.</p><input name="saveas" type="button" onclick="JavaScript:saveNavLine();" value="Save NavLine" /><br>
 
-		<p>Choose which file type to export.</p><input name="saveas" type="button" onclick="JavaScript:savePDF();" value=
-		"PDF: Best for Printing" /> <input name="saveas" type="button" onclick="JavaScript:savePNG();" value="PNG: Best for Displaying" />
-		<input name="saveas" type="button" onclick="JavaScript:saveJPG();" value="JPG: Best Data Compression" /> <input name="saveas" type="button"
-		onclick="JavaScript:saveSVG();" value="SVG: Best for Editing" /><br>
+		</div>		
+		<div id="CanvasExport" class="ui-widget-content ExportDiv">
+		<h3 class="ui-widget-header2" >2deg Structure</h3>
+				<p>Would you like to export just the visible layers, or all layers?</p>
+			<input id="visibleLayers" type="radio" name="savelayers" value="visible" checked="checked" /><label for="visibleLayers">Visible
+			Layers</label> <input id="allLayers" type="radio" name="savelayers" value="all" /><label for="allLayers">All Layers</label>
 
-		<p>Save 3D side as JPG</p><input name="saveas" type="button" onclick="JavaScript:saveJmolImg();" value="JPG: 3D side" /><br>
-		<p>Save 1D side as SVG</p><input name="saveas" type="button" onclick="JavaScript:saveNavLine();" value="SVG: 1D side" /><br>
+			<p>We reccommend exporting as SVG files.</p>
+			<input name="saveas" type="button" onclick="JavaScript:saveSVG();" value="Save as SVG" /><br>
+			<p>For your convenience, you may also save as PDF, PNG, or JPG. The PNGs are set to have a transparent background.</p>
+			<input name="saveas" type="button" onclick="JavaScript:savePDF();" value="Save as PDF" />
+			<input name="saveas" type="button" onclick="JavaScript:savePNG();" value="Save as PNG" />
+			<input name="saveas" type="button" onclick="JavaScript:saveJPG();" value="Save as JPG" /> 
+		</div>	
+		<div id="JmolExport" class="ui-widget-content ExportDiv">
+				<h3 class="ui-widget-header2" >3D</h3>	
+					<p>You may prefer to use Jmol's built-in image saving capabilities.</p>
+					<p>Additionally, you may export a PyMOL Script for further processing in PyMOL.</p>
+					<input name="saveas" type="button" onclick="JavaScript:savePML();" value="PyMOL Script" />
+					
+					<p>We support saving to JPG for your convenience.</p>
+					<input name="saveas" type="button" onclick="JavaScript:saveJmolImg();" value="JPG: 3D side" /><br>
+			
+		</div>	
+		
 
-		<p>Additionally, you may export a Pymol Script.</p><input name="saveas" type="button" onclick="JavaScript:savePML();" value=
-		"PyMOL Script" />
+
+		
 	</div>
     <div id="dialog-addLayer" title="Create a New Layer">
         <span></span>
