@@ -29,12 +29,6 @@ based on:
 	
 // Ready Function
 function RiboVisionReady() {
-	
-	Jmol.setDocument(0);
-	Jmol.setAppletCss("jmolapplet", "style='left:40px'");
-	myJmol = Jmol.getApplet("myJmol", JmolInfo); 
-	$('#jmolDiv').html(Jmol.getAppletHtml(myJmol));
-	
 	$("#MiniOpenLayerBtn").button({
 	});
 	$("#LinkSection").droppable({
@@ -152,8 +146,8 @@ function RiboVisionReady() {
 			effect : "blind",
 			duration : 300
 		},
-		width : 900,
-		height : 600,
+		width : 1200,
+		height : 650,
 		position : {
 			my : "left top",
 			at : "left top",
@@ -658,36 +652,6 @@ function RiboVisionReady() {
 		}
 	});
 	
-	 $( "#JJSmolToggle" ).button({
-		text: "J",
-	})
-	.click(function() {
-		var options;
-		if ( $( this ).text() === "J" ) {
-			options = {
-				label: "JS",
-				text: "JS"
-			};
-			JmolInfo["use"]="HTML5";
-		} else {
-			options = {
-				label: "J",
-				text: "J"
-			};
-			JmolInfo["use"]="Java";
-		}
-		$( this ).button( "option", options );
-		var O = Jmol.evaluate(myJmol,"script('show orientation')");
-		myJmol = Jmol.getApplet("myJmol", JmolInfo); 
-		$('#jmolDiv').html(Jmol.getAppletHtml(myJmol));
-		Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
-		var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
-		Jmol.script(myJmol, jscript);
-		updateModel();
-		update3Dcolors();
-		var a = O.match(/reset[^\n]+/);
-		Jmol.script(myJmol, a[0]);
-	});
 	$(".toolBarBtn").css('height', $("#openLayerBtn").css('height'));
 	$(".toolBarBtn").css('width', $("#openLayerBtn").css('width'));
 	
@@ -725,10 +689,15 @@ function RiboVisionReady() {
 	});
 	
 	$("#JmolToggle").buttonset();
-	$("#jpON").attr("checked","checked");
-	$("#JmolToggle").buttonset("refresh");
+	//$("#jpON").attr("checked","checked");
+	//$("#JmolToggle").buttonset("refresh");
 	$("[name=jp]").button().change(function(event,ui){
 		if($('input[name="jp"][value=on]').is(':checked')){
+			if($('input[name="jjsmol"][value=JS]').is(':checked')){
+				JmolInfo["use"]="HTML5";
+			} else {
+				JmolInfo["use"]="Java";
+			}
 			myJmol = Jmol.getApplet("myJmol", JmolInfo); 
 			$('#jmolDiv').html(Jmol.getAppletHtml(myJmol));
 			if(rvDataSets[0].SpeciesEntry.Jmol_Script){
@@ -747,6 +716,35 @@ function RiboVisionReady() {
 			myJmol=null;
 		}
 		resizeElements();
+	});
+	
+	$("#JmolTypeToggle").buttonset();
+	//$("#JmolJava").attr("checked","checked");
+	//$("#JmolTypeToggle").buttonset("refresh");
+	$("[name=jjsmol]").button().change(function(event,ui){
+		if($('input[name="jp"][value=off]').is(':checked')){
+			return;
+		}
+		if($('input[name="jjsmol"][value=JS]').is(':checked')){
+			JmolInfo["use"]="HTML5";
+		} else {
+			JmolInfo["use"]="Java";
+		}
+		
+		var O = Jmol.evaluate(myJmol,"script('show orientation')");
+		myJmol = Jmol.getApplet("myJmol", JmolInfo); 
+		$('#jmolDiv').html(Jmol.getAppletHtml(myJmol));
+		Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
+		var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
+		Jmol.script(myJmol, jscript);
+		updateModel();
+		update3Dcolors();
+		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
+			return this.value;
+		}).get();
+		colorMappingLoop(undefined,array_of_checked_values);
+		var a = O.match(/reset[^\n]+/);
+		Jmol.script(myJmol, a[0]);
 	});
 	
 	$("#SaveControl").buttonset();
@@ -960,16 +958,72 @@ function RiboVisionReady() {
 	
 	$("#SelectionMode").click(function () {
 	});
-	
+	/*
 	$("#New3DTestButton").button().click(function(){
 		Jmol.script(myJmol, "script states/" + "3OFR_23s_supNone_state8_d6.spt");
 		var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
 		Jmol.script(myJmol, jscript);
 		updateModel();
+	});*/
+	
+	$("#JmolTypeToggle2").buttonset();
+	$("#SetDefaultJmolType").button().click(function() {
+		$("#dialog-Jmol-Type").dialog("open");
 	});
 	
+	$( "#dialog-Jmol-Type" ).dialog({
+		resizable : false,
+		autoOpen : false,
+		height : "auto",
+		width : 800,
+		modal : true,
+		buttons: {
+			Ok: function() {
+				if ($('input[name="jjsmol2"][value=Java]').is(':checked')){
+					$('[name="jjsmol"][value="Java"]').attr("checked", true);
+					$('[name="jp"][value="on"]').attr("checked", true).trigger("change");
+					//.trigger("change");
+				} else if ($('input[name="jjsmol2"][value=JS]').is(':checked')) {
+					$('[name="jjsmol"][value="JS"]').attr("checked", true)
+					$('[name="jp"][value="on"]').attr("checked", true).trigger("change");
+					//.trigger("change");
+				} else if ($('input[name="jjsmol2"][value=Disabled]').is(':checked')) {
+					$('[name="jp"][value="off"]').attr("checked", true).trigger("change");;
+					$('[name="jjsmol"][value="Java"]').attr("checked", true);
+				} else {
+					alert("How did this happen?");
+				}
+				$("#JmolTypeToggle").buttonset("refresh");
+
+				$( this ).dialog( "close" );
+			}
+		},
+		open : function () {
+			myJmol = Jmol.getApplet("myJmol", JmolInfo,true); 
+			$("#myJmol_object").css("visibility", "hidden");
+			if (myJmol._isJava){
+				$("#JmolType").text("Jmol (Java)");	
+				$("#JmolJava2").attr("checked","checked");
+			} else {
+				$("#JmolType").text("JSmol (no Java)");
+				$("#JSmolJS2").attr("checked","checked");				
+			}
+			$("#JmolTypeToggle2").buttonset("refresh");
+		},
+		close : function () { 
+			$("#myJmol_object").css("visibility", "visible");
+		}
+	});
+	
+	Jmol.setDocument(0);
+	//Jmol.setAppletCss("jmolapplet", "style='left:40px'");
+	
+	
+	//$('#jmolDiv').html(Jmol.getAppletHtml(myJmol));	
+	$("#dialog-Jmol-Type").dialog("open");
+		
+
 	InitRibovision();
-	//$("#RiboVisionSaveManagerPanel").dialog("open");
 
 };
 
