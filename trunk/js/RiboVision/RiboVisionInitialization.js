@@ -152,8 +152,8 @@ function RiboVisionReady() {
 			effect : "blind",
 			duration : 300
 		},
-		width : 600,
-		height : 500,
+		width : 900,
+		height : 600,
 		position : {
 			my : "left top",
 			at : "left top",
@@ -709,6 +709,44 @@ function RiboVisionReady() {
 	
 	$("[name=bv]").button().change(function(event,ui){
 		//
+	});
+	
+	$("#ResidueTipToggle").buttonset();
+	$("#rtON").attr("checked","checked");
+	$("#ResidueTipToggle").buttonset("refresh");
+	
+	$("#NavLineToggle").buttonset();
+	$("#nlON").attr("checked","checked");
+	$("#NavLineToggle").buttonset("refresh");
+	$("[name=nl]").button().change(function(event,ui){
+		resizeElements();
+		$('#NavLineDiv').empty();
+		drawNavLine();
+	});
+	
+	$("#JmolToggle").buttonset();
+	$("#jpON").attr("checked","checked");
+	$("#JmolToggle").buttonset("refresh");
+	$("[name=jp]").button().change(function(event,ui){
+		if($('input[name="jp"][value=on]').is(':checked')){
+			myJmol = Jmol.getApplet("myJmol", JmolInfo); 
+			$('#jmolDiv').html(Jmol.getAppletHtml(myJmol));
+			if(rvDataSets[0].SpeciesEntry.Jmol_Script){
+				Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
+				var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
+				Jmol.script(myJmol, jscript);
+				updateModel();
+				update3Dcolors();
+				var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
+					return this.value;
+				}).get();
+				colorMappingLoop(undefined,array_of_checked_values);
+			}
+		} else {
+			$("#jmolDiv").html("");
+			myJmol=null;
+		}
+		resizeElements();
 	});
 	
 	$("#SaveControl").buttonset();

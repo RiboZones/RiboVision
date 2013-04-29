@@ -468,7 +468,7 @@ function rvDataSet(DataSetName) {
 		if (!$.isArray(layer)){
 			layer=[layer];
 		}
-		ret = [];
+		var ret = [];
 		$.each(this.Layers, function (key, value) {
 			if ($.inArray(value.Type, layer) >=0) {
 				ret.push(value);

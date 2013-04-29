@@ -127,7 +127,7 @@ function changeCurrentLayerName() {
 
 function LayerMenu(Layer, key, RVcolor) {
 	//console.log($count);
-	$currentLayerName = Layer.LayerName;
+	var $currentLayerName = Layer.LayerName;
 	//console.log($currentLayerName);
 	$('[name=TopLayerBar]').after($("<div>").addClass("oneLayerGroup").attr({
 		'name' : $currentLayerName
@@ -136,7 +136,7 @@ function LayerMenu(Layer, key, RVcolor) {
 	//$('.oneLayerGroup').append(("<div>").addClass("visibilityCheckbox"));
 	//$('.visibilityCheckbox').append($("<input />").attr({type:'checkbox'}).addClass("layerVisiblity"))
 	
-	$currentGroup = $(".oneLayerGroup[name=" + $currentLayerName + "]")[0];
+	var $currentGroup = $(".oneLayerGroup[name=" + $currentLayerName + "]")[0];
 	
 	//adding color box
 	$($currentGroup)
@@ -152,8 +152,8 @@ function LayerMenu(Layer, key, RVcolor) {
 	//targetLayer.Color = $($currentGroup).find(".colorBox").css("background");
 	
 	//hide and show icon: eye 
-	$visibleImgPath = "images/visible.png";
-	$invisibleImgPath = "images/invisible.png";
+	var $visibleImgPath = "images/visible.png";
+	var $invisibleImgPath = "images/invisible.png";
 	$($currentGroup)
 	.append($("<div>").addClass("checkBoxDIV").css({
 			'float' : 'left',
@@ -165,17 +165,17 @@ function LayerMenu(Layer, key, RVcolor) {
 			'height': 'auto',
 			'margin-top': 3
 		}).click( function() {
-			$type = this.getAttribute('value');
+			var $type = this.getAttribute('value');
 			if($type == 'visible'){
 				this.setAttribute('value','invisible'); 
 				this.setAttribute('src', $invisibleImgPath);
-				targetLayer=rvDataSets[0].getLayer(this.parentNode.parentNode.getAttribute("name"));
+				var targetLayer=rvDataSets[0].getLayer(this.parentNode.parentNode.getAttribute("name"));
 				targetLayer.setVisibility("hidden");
 			}
 			else if($type == 'invisible'){
 				this.setAttribute('value','visible');
 				this.setAttribute('src', $visibleImgPath);
-				targetLayer=rvDataSets[0].getLayer(this.parentNode.parentNode.getAttribute("name"));
+				var targetLayer=rvDataSets[0].getLayer(this.parentNode.parentNode.getAttribute("name"));
 				targetLayer.setVisibility("visible");
 			}
 		}))		
@@ -214,15 +214,6 @@ function LayerMenu(Layer, key, RVcolor) {
 			rvDataSets[0].linkLayer($(event.currentTarget).parent().parent().attr("name"));
 			update3Dcolors();
 			})));
-	/*
-	$selectBox = document.getElementsByClassName("checkBoxDIV");
-	console.log("DivDialog' width: " + $("#LayerDialog").width());
-	console.log("panelTabs' width: " + $("#PanelTabs").width());
-	console.log("CBDiv width: " + $('.checkBoxDIV').width());
-	console.log("checkbox width: " + $('.visibilityCheckBox').width());
-	$accordionWidth = $("#PanelTabs").width() - $('.visibilityCheckBox').width();
-	console.log("accordion width: " + $accordionWidth); //why 0??!!!
-	 */
 
 	//adding accordion
 	$($currentGroup)
@@ -232,7 +223,6 @@ function LayerMenu(Layer, key, RVcolor) {
 	.dblclick(function() { //double click to open dialog to change layer name and set color
 		//watch out! $currentLayerName != the layer you are clicking right now!
 		//open a dialog window for changing layer names
-		$("#LayerPreferenceDialog").dialog("open");
 
 		//get the name of the layer that just got double clicked
 		$dblClickedLayerName = this.innerHTML.substring(this.innerHTML.lastIndexOf("</span>")+7);
@@ -241,7 +231,8 @@ function LayerMenu(Layer, key, RVcolor) {
 		document.getElementById("layerNameInput").placeholder = $dblClickedLayerName;			
 		var flc = $.farbtastic("#layerColor");
 		flc.setColor(rgb2hex($($dblClickedLayer).parent().find(".colorBox").css("background-color")));
-		//console.log(this.innerHTML);			
+		
+		$("#LayerPreferenceDialog").dialog("open");
 	}))
 	.append($("<div>").addClass("layerContent").css({
 			'margin-left' : 83
