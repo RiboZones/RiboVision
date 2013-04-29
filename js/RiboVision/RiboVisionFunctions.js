@@ -45,11 +45,11 @@ function initLabels(species) {
 		$.getJSON('getData.php', {
 			TextLabels : rvDataSets[0].SpeciesEntry.TextLabels
 		}, function (labelData2) {
-			TextLabels = labelData2;
+			var TextLabels = labelData2;
 			$.getJSON('getData.php', {
 				LineLabels : rvDataSets[0].SpeciesEntry.LineLabels
 			}, function (labelLines2) {
-				LineLabels = labelLines2;
+				var LineLabels = labelLines2;
 				rvDataSets[0].clearCanvas("labels");
 				rvDataSets[0].addLabels(TextLabels, LineLabels);
 				rvDataSets[0].drawLabels("labels");
@@ -106,46 +106,41 @@ function resizeElements(noDraw) {
 	var width = $(window).width();
 	var height = $(window).height();
 	var MainMenuFrac = 0.65;
-	//TopMenu
-	$("#topMenu").outerHeight(TopDivide * height);
 	//ToolBar
-	//$("#toolBar").outerHeight((1-TopDivide) * height);
-	//$("#toolBar").css('top',$("#topMenu").outerHeight())+1;
-	//var tbw = $("#toolBar").outerWidth();
+	var toolBarWidth = $("#toolBar").outerWidth();
+	
 	//Menu
 	$("#menu").css('height', 0.9 * height);
 	$("#menu").css('width', 0.16 * width);
 	var xcorr = $("#menu").outerWidth();
-	var ycorr = $("#topMenu").outerHeight();
-	var toolBarWidth = $("#toolBar").outerWidth();
-	//var toolBarHeight = $("#toolBar").height();
-	//console.log(toolBarWidth/width + "; " + toolBarHeight/height);
-	//var t = (width - xcorr - toolBarWidth) / 2;
-	var lp = (width - xcorr - toolBarWidth) * PanelDivide;
-	var rp = (width - xcorr - toolBarWidth) - lp;
-	var s = (height - ycorr);
 	
 	//Top Menu Section
-	$("#topMenu").css('width', width - xcorr - toolBarWidth);
 	$("#topMenu").css('left', xcorr );
 	$("#topMenu").css('top', 0);
-	
-	//$("#tabs").css('width', $("#topMenu").css('width') - 10);
-	//$("#tabs").css('height', $("#topMenu").css('height'));
-	//$("#tabs").css('left', 0);
-	//$("#tabs").css('top', 0);
+	if($('input[name="nl"][value=on]').is(':checked')){
+		$("#topMenu").show();
+		$("#topMenu").outerHeight(TopDivide * height);
+		$("#topMenu").css('width', width - xcorr - toolBarWidth);
+		var ycorr = $("#topMenu").outerHeight();
+	} else {
+		$("#topMenu").hide();
+		$("#topMenu").outerHeight(0);
+		$("#topMenu").css('width', 0);
+	}
+	var ycorr = $("#topMenu").outerHeight();
+	if($('input[name="jp"][value=on]').is(':checked')){
+		var lp = (width - xcorr - toolBarWidth) * PanelDivide;
+	} else {
+		var lp = (width - xcorr - toolBarWidth);
+	}
+	var rp = (width - xcorr - toolBarWidth) - lp;
+	var s = (height - ycorr);
 	
 	//SiteInfo
 	$("#SiteInfo").css('width', xcorr);
 	
 	//ExportData
 	$("#ExportData").css('width', xcorr);
-	
-	/*
-	//NavDiv
-	$("#NavDiv").css('width', xcorr);
-	$("#NavDiv").css('top', parseFloat($("#SiteInfo").css('height')));
-	*/
 
 	//MainMenu
 	$("#MainMenu").css('width', MainMenuFrac * xcorr); //75%, make room for new MiniLayer
@@ -174,8 +169,6 @@ function resizeElements(noDraw) {
 	$("canvas").css('left', 0);
 	
 	//Navigator Section
-	//$("#navigator").css('height',0.4 * s);
-	//$("#navigator").css('width',0.24 * t);
 	$("#navigator").css('left', xcorr);
 	$("#navigator").css('top', ycorr);
 	
@@ -184,13 +177,6 @@ function resizeElements(noDraw) {
 	$("#jmolDiv").css('width', rp);
 	$("#jmolDiv").css('left', xcorr + parseFloat($("#canvasDiv").css('width')) - 1);
 	$("#jmolDiv").css('top', ycorr - 1);
-	
-	/*
-	$("#JmolIframe").css('height',s);
-	$("#JmolIframe").css('width',t);
-	$("#JmolIframe").css('left',xcorr + parseFloat($("#canvasDiv").css('width')) - 1);
-	$("#JmolIframe").css('top',ycorr - 1);
-	 */
 	
 	//Jmol.resizeApplet(myJmol,[(rp - 2 * MajorBorderSize),(s - 2 * MajorBorderSize)]);
 	//$("#myJmol_object").css('height', );
@@ -212,13 +198,6 @@ function resizeElements(noDraw) {
 		at: "right top",
 		of: $( "#canvasDiv" )
 	});
-	// Settings Panel
-	//$( "#RiboVisionSettingsPanel" ).dialog( "option", "height", 0.75 * s - 2 * MajorBorderSize );	
-	/*$( "#RiboVisionSettingsPanel" ).dialog("widget").position({
-		my: "right top",
-		at: "right top",
-		of: $( "#canvasDiv" )
-	});*/
 	
 	//LogoDiv
 	$("#LogoDiv").css('width', xcorr);
@@ -237,7 +216,7 @@ function resizeElements(noDraw) {
 		rvDataSets[0].drawLabels("labels");
 		rvDataSets[0].drawBasePairs("lines");
 	}
-	
+	drawNavLine();
 }
 
 function resetView() {
@@ -539,6 +518,9 @@ function colorSelection() {
 }
 
 function update3Dcolors() {
+	if($('input[name="jp"][value=off]').is(':checked')){
+		return;
+	}
 	var script = "set hideNotSelected false;";
 	var r0,
 	r1,
@@ -627,7 +609,7 @@ function update3Dcolors() {
 	Jmol.script(myJmol, script);
 }
 
-function colorProcess(data, indexMode,targetLayer) {
+function colorProcess(data, indexMode,targetLayer,colors) {
 	var color_data = new Array();
 	var DataPoints = 0;
 	for (var ii = 0; ii < rvDataSets[0].Residues.length; ii++) {
@@ -781,17 +763,18 @@ function colorMappingLoop(targetLayer, seleProt, OverRideColors) {
 	drawNavLine();
 	Jscript += "));";
 	//JscriptP+="display " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA ) + ".1, " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein ) + ".1;" ;
-	
-	update3Dcolors();
-	refreshModel();
-	//jmolScript(Jscript);
-	//jmolScript(JscriptP);
-	Jmol.script(myJmol, Jscript);
-	Jmol.script(myJmol, JscriptP);
-	//Jmol.script(myJmol, "spacefill off");
+	if($('input[name="jp"][value=on]').is(':checked')){
+		update3Dcolors();
+		refreshModel();
+		Jmol.script(myJmol, Jscript);
+		Jmol.script(myJmol, JscriptP);
+	}
 }
 
 function update3DProteins(seleProt, OverRideColors) {
+	if($('input[name="jp"][value=off]').is(':checked')){
+		return;
+	}
 	if (arguments.length >= 2) {
 		var colors2 = OverRideColors;
 	} else {
@@ -825,9 +808,9 @@ function colorMapping(targetLayer,ChoiceList, ManualCol, OverRideColors, indexMo
 		var colName = ManualCol;
 	}
 	if (arguments.length >= 4) {
-		colors = OverRideColors;
+		var colors = OverRideColors;
 	} else {
-		colors = RainBowColors;
+		var colors = RainBowColors;
 	}
 	if (indexMode==undefined){
 		var indexMode=[];
@@ -847,7 +830,7 @@ function colorMapping(targetLayer,ChoiceList, ManualCol, OverRideColors, indexMo
 				for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
 					data[j] = rvDataSets[0].Residues[j][colName[0]];
 				}
-				colorProcess(data, indexMode[0],targetLayer);
+				colorProcess(data, indexMode[0],targetLayer,colors);
 			} else {
 				targetLayer.Data = [];
 				targetLayer.dataLayerColors = [];
@@ -867,7 +850,7 @@ function colorMapping(targetLayer,ChoiceList, ManualCol, OverRideColors, indexMo
 				for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
 					data[j] = rvDataSets[0].Residues[j][colName[0]];
 				}
-				colorProcess(data, indexMode[0],targetLayer);
+				colorProcess(data, indexMode[0],targetLayer,colors);
 			} else {
 				//var data = new Array;
 				//targetLayer.clearCanvas();
@@ -1209,12 +1192,12 @@ function mouseMoveFunction(event){
 					rvDataSets[0].HighlightLayer.CanvasContext.lineTo(rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
 					rvDataSets[0].HighlightLayer.CanvasContext.closePath();
 					rvDataSets[0].HighlightLayer.CanvasContext.stroke();
-					//$("#currentDiv").html(rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[j].ChainID)] + ":" + rvDataSets[0].Residues[j].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + " - " + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[k].ChainID)] + ":" + rvDataSets[0].Residues[k].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + " (" + rvDataSets[0].BasePairs[selLine].bp_type + ")");
-					createInfoWindow(seleLine,"lines");
-					$("#InteractionTip").css("bottom",$(window).height() - event.clientY);
-					$("#InteractionTip").css("left",event.clientX);
-					//console.log($(window).height() - event.clientY,event.clientX);
-					$("#InteractionTip").tooltip("open");
+					if($('input[name="rt"][value=on]').is(':checked')){
+						createInfoWindow(seleLine,"lines");
+						$("#InteractionTip").css("bottom",$(window).height() - event.clientY);
+						$("#InteractionTip").css("left",event.clientX);
+						$("#InteractionTip").tooltip("open");
+					}
 				}	
 			} else if (event.ctrlKey == true) {
 				var sel = getSelected(event);
@@ -1251,11 +1234,12 @@ function mouseMoveFunction(event){
 					rvDataSets[0].HighlightLayer.CanvasContext.closePath();
 					rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
 					rvDataSets[0].HighlightLayer.CanvasContext.stroke();
-					
-					createInfoWindow(sel,"residue");
-					$("#ResidueTip").css("bottom",$(window).height() - event.clientY);
-					$("#ResidueTip").css("left",event.clientX);
-					$("#ResidueTip").tooltip("open");
+					if($('input[name="rt"][value=on]').is(':checked')){
+						createInfoWindow(sel,"residue");
+						$("#ResidueTip").css("bottom",$(window).height() - event.clientY);
+						$("#ResidueTip").css("left",event.clientX);
+						$("#ResidueTip").tooltip("open");
+					}
 				}
 			}
 			break;
@@ -1352,6 +1336,9 @@ function createInfoWindow(Index,InfoMode){
 	
 }*/
 function BaseViewCenter(event){
+	if($('input[name="jp"][value=off]').is(':checked')){
+		return;
+	}
 	var sel = getSelected(event);
 	if (sel != -1) {
 		var res = rvDataSets[0].Residues[sel];
@@ -1447,10 +1434,11 @@ function openRvState() {
 						rvSaveState["rvLayers"] = JSON.stringify(rvDataSets[0].Layers);
 						rvSaveState["rvSelections"] = JSON.stringify(rvDataSets[0].Selections);
 						rvSaveState["rvLastSpecies"] = rvDataSets[0].Name;
-						
-						Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
-						var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
-						Jmol.script(myJmol, jscript);
+						if($('input[name="jp"][value=on]').is(':checked')){
+							Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
+							var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
+							Jmol.script(myJmol, jscript);
+						}				
 						processRvState(rvSaveState);
 					}
 					break;
@@ -1545,8 +1533,8 @@ function customDataProcess(ui,targetLayer){
 			rvDataSets[0].refreshResiduesExpanded(targetLayer.LayerName);
 			update3Dcolors();
 		} else if ($.inArray("DataCol", customkeys) >= 0) {
-			colors = RainBowColors;
-			colorProcess(NewData,undefined,targetLayer);
+			var colors = RainBowColors;
+			colorProcess(NewData,undefined,targetLayer,colors);
 		} else {
 			alert("No recognized colomns found. Please check input.");
 		}
@@ -1667,6 +1655,9 @@ function saveNavLine() {
 }
 function saveJmolImg() {
 	AgreeFunction = function () {
+		if($('input[name="jp"][value=off]').is(':checked')){
+			return;
+		}
 		var jmlImgB64 = Jmol.getPropertyAsString(myJmol,'image');
 		//alert(jmlImgB64);
 		//var CS = canvasToSVG();
@@ -1696,10 +1687,11 @@ function retrieveRvState(filename) {
 		rvSaveState["rvLayers"] = JSON.stringify(rvDataSets[0].Layers);
 		rvSaveState["rvSelections"] = JSON.stringify(rvDataSets[0].Selections);
 		rvSaveState["rvLastSpecies"] = rvDataSets[0].Name;
-		
-		Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
-		var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
-		Jmol.script(myJmol, jscript);
+		if($('input[name="jp"][value=on]').is(':checked')){
+			Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
+			var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
+			Jmol.script(myJmol, jscript);
+		}
 		processRvState(rvSaveState);
 	});
 }
@@ -1710,7 +1702,10 @@ function storeRvState(filename){
 		var RvSaveState = {};
 		RvSaveState["RvDS"] = JSON.stringify(rvDataSets[0]);
 		RvSaveState["rvView"] = JSON.stringify(rvViews[0]);
-		RvSaveState["rvJmolOrientation"] = Jmol.evaluate(myJmol,"script('show orientation')");
+		if($('input[name="jp"][value=on]').is(':checked')){
+			RvSaveState["rvJmolOrientation"] = Jmol.evaluate(myJmol,"script('show orientation')");
+		}
+	
 		if($("input[name='PanelSizesCheck']").attr("checked")){
 			var po = {
 				PanelDivide : PanelDivide,
@@ -1741,7 +1736,10 @@ function saveRvState(filename){
 		var RvSaveState = {};
 		RvSaveState["RvDS"] = JSON.stringify(rvDataSets[0]);
 		RvSaveState["rvView"] = JSON.stringify(rvViews[0]);
-		RvSaveState["rvJmolOrientation"] = Jmol.evaluate(myJmol,"script('show orientation')");
+		if($('input[name="jp"][value=on]').is(':checked')){
+			RvSaveState["rvJmolOrientation"] = Jmol.evaluate(myJmol,"script('show orientation')");
+		}
+		
 		if($("input[name='PanelSizesCheck']").attr("checked")){
 			var po = {
 				PanelDivide : PanelDivide,
@@ -2154,6 +2152,9 @@ function canvasToSVG() {
 
 //////////////////////////////// Jmol Functions ////////////////////////////////
 function updateModel() {
+	if($('input[name="jp"][value=off]').is(':checked')){
+		return;
+	}
 	var n;
 	
 	//Come back and support multiple selections?
@@ -2182,6 +2183,9 @@ function updateModel() {
 }
 
 function refreshModel() {
+	if($('input[name="jp"][value=off]').is(':checked')){
+		return;
+	}
 	var script = "set hideNotSelected true;select (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (";
 	for (var ii = 0; ii < rvDataSets[0].SpeciesEntry.PDB_chains.length; ii++) {
 		script += ":" + rvDataSets[0].SpeciesEntry.PDB_chains[ii];
@@ -2194,6 +2198,9 @@ function refreshModel() {
 }
 
 function resetColorState() {
+	if($('input[name="jp"][value=off]').is(':checked')){
+		return;
+	}
 	clearColor(false);
 	Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
 	var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
@@ -2227,10 +2234,10 @@ function populateDomainHelixMenu() {
 		}
 	}
 	
-	DomainList_ANU = $.grep(DomainList_AN, function (v, k) {
+	var DomainList_ANU = $.grep(DomainList_AN, function (v, k) {
 		return $.inArray(v, DomainList_AN) === k;
 	});
-	DomainList_RNU = $.grep(DomainList_RN, function (v, k) {
+	var DomainList_RNU = $.grep(DomainList_RN, function (v, k) {
 			return $.inArray(v, DomainList_RN) === k;
 		});
 	
@@ -2260,7 +2267,7 @@ function populateDomainHelixMenu() {
 		}
 	}
 	
-	HelixListU = $.grep(HelixList, function (v, k) {
+	var HelixListU = $.grep(HelixList, function (v, k) {
 			return $.inArray(v, HelixList) === k;
 		});
 	
@@ -2360,9 +2367,10 @@ function changeLineOpacity(opacity){
 	////////////////Nav Line ///////
 
 function drawNavLine(){
+		if($('input[name="nl"][value=off]').is(':checked')){
+			return;
+		}
 		$('#NavLineDiv').empty(); //clean div before draw new graph
-		
-		
 		var data = [];
 		var selectedData=[];
 		var selectedDataX=[];
@@ -2679,8 +2687,9 @@ function UpdateLocalStorage(SaveStateFileName){
 			rvSaveState["rvView"] = JSON.stringify(rvViews[0]);			
 		}
 		if($("input[name='JmolOrientationCheck']").attr("checked")){
-			//localStorage.setItem("rvJmolOrientation",Jmol.evaluate(myJmol,"script('show orientation')"));
-			rvSaveState["rvJmolOrientation"] = Jmol.evaluate(myJmol,"script('show orientation')");						
+			if($('input[name="jp"][value=on]').is(':checked')){
+				rvSaveState["rvJmolOrientation"] = Jmol.evaluate(myJmol,"script('show orientation')");	
+			}			
 		}
 		localStorage.setItem(SaveStateFileName,JSON.stringify(rvSaveState));
 	}
@@ -2706,9 +2715,11 @@ function RestoreLocalStorage(SaveStateFileName) {
 		updateModel();
 		update3Dcolors();
 		if($("input[name='JmolOrientationCheck']").attr("checked")){
-			//localStorage.setItem("rvJmolOrientation",8);
-			var a = rvSaveState.rvJmolOrientation.match(/reset[^\n]+/);
-			Jmol.script(myJmol, a[0]);
+			if($('input[name="jp"][value=on]').is(':checked')){
+				var a = rvSaveState.rvJmolOrientation.match(/reset[^\n]+/);
+				Jmol.script(myJmol, a[0]);
+			}
+			
 		}
 	});
 }
@@ -2889,8 +2900,10 @@ function processRvState(rvSaveState) {
 	}
 	if($("input[name='JmolOrientationCheck']").attr("checked")){
 		//localStorage.setItem("rvJmolOrientation",8);
-		var a = rvSaveState.rvJmolOrientation.match(/reset[^\n]+/);
-		Jmol.script(myJmol, a[0]);
+		if($('input[name="jp"][value=on]').is(':checked')){
+			var a = rvSaveState.rvJmolOrientation.match(/reset[^\n]+/);
+			Jmol.script(myJmol, a[0]);
+		}
 	}
 	
 	rvDataSets[0].drawResidues("residues");

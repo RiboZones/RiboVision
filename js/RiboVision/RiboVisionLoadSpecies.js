@@ -28,12 +28,7 @@ based on:
 
 
 function loadSpecies(species,DoneLoading,DoneLoading2) {
-	// Get conservation table
-	$.getJSON('getData.php', {
-		FullTable : rvDataSets[0].SpeciesEntry.ConservationTable
-		}, function (ConservationTable) {
-			rvDataSets[0].ConservationTable=ConservationTable;
-	});
+	
 	// get data description table
 	$.getJSON('getData.php', {
 		FullTable : "DataDescriptions"
@@ -69,6 +64,14 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 			}, function (species_entry2) {
 				rvDataSets[0].addSpeciesEntry(species_entry2[0]);
 				initLabels(species);
+				// Get conservation table
+				$.getJSON('getData.php', {
+					FullTable : rvDataSets[0].SpeciesEntry.ConservationTable
+					}, function (ConservationTable) {
+						rvDataSets[0].ConservationTable=ConservationTable;
+				});
+				$("#TemplateLink").attr("href", "./Templates/" + species + "_UserDataTemplate.csv")
+
 				// Set Selection Menu
 				populateDomainHelixMenu();
 				
@@ -154,9 +157,7 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 				}
 				$("#PrimaryInteractionList").multiselect("refresh");
 				
-				Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
-				var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
-				Jmol.script(myJmol, jscript);
+				
 				
 				//Set sortable to imply draggable
 				$("#StructDataDiv").sortable({
@@ -189,14 +190,18 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 					},
 					items : ".dataBubble"
 				});
-				//clearSelection();
-				updateModel();
+				
 				rvDataSets[0].drawResidues("residues");
 				rvDataSets[0].drawLabels("labels");
 				
-				$("#TemplateLink").attr("href", "./Templates/" + species + "_UserDataTemplate.csv")
-				
 				drawNavLine(); //load navLine 
+				if(myJmol!=null){
+					Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
+					var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
+					Jmol.script(myJmol, jscript);
+					updateModel();
+				}
+				
 				if (DoneLoading2){
 				DoneLoading2.resolve();
 				}
@@ -233,8 +238,9 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 		il.options[0] = new Option("None", "clear_lines");
 		
 		rvDataSets[0].SpeciesEntry.Jmol_Script = "blank_state.spt";
-		//jmolScript("script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
-		Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
+		if(myJmol!=null){
+			Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
+		}
 		//clearSelection();
 		//console.log("Nothing to see here, move along now, and 42!");
 		welcomeScreen();
