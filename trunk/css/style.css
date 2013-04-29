@@ -352,6 +352,12 @@ body{
 	float:left;
 	height:80%;
 }
+.SettingsDiv {
+	width:24%;
+	float:left;
+	height:90%;
+}
+
 .layerName {
 	height:1.5em;
 	line-height: 1.2em;

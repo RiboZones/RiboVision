@@ -1370,7 +1370,7 @@ function modeSelect(mode) {
 function ProcessBubble(ui,targetLayer){
 	switch ($(ui).parent().attr("id")) {
 		case "AlnBubbles" :
-			colorMapping(targetLayer,"42",$(ui).attr("name"));
+			colorMapping(targetLayer,"42",[$(ui).attr("name")]);
 			drawNavLine();
 			break;
 		case "StructDataBubbles" :
