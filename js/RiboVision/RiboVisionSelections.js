@@ -183,12 +183,12 @@ $("#selectionColorPicker2").farbtastic("#selectionColor2");
 
 function SelectionMenu(targetSelection, key, RVcolor) {
 	
-	$currentSelectionName = targetSelection.Name;
+	var $currentSelectionName = targetSelection.Name;
 	$('[name=TopSelectionBar]').after(($("<div>").addClass("oneSelectionGroup").attr({
 		'name' : $currentSelectionName
 	})));
 	
-	$currentGroup = $(".oneSelectionGroup[name=" + $currentSelectionName + "]")[0];
+	var $currentGroup = $(".oneSelectionGroup[name=" + $currentSelectionName + "]")[0];
 	
 	//adding color box
 	$($currentGroup)
@@ -202,8 +202,8 @@ function SelectionMenu(targetSelection, key, RVcolor) {
 	}
 		
 	//hide and show icon: eye 
-	$visibleImgPath = "images/visible.png";
-	$invisibleImgPath = "images/invisible.png";
+	var $visibleImgPath = "images/visible.png";
+	var $invisibleImgPath = "images/invisible.png";
 	$($currentGroup)
 	.append($("<div>").addClass("checkBoxDIV-S").css({
 			'float' : 'left',
@@ -215,7 +215,7 @@ function SelectionMenu(targetSelection, key, RVcolor) {
 			'height': 'auto',
 			'margin-top': 3
 		}).click( function() {
-			$type = this.getAttribute('value');
+			var $type = this.getAttribute('value');
 			if($type == 'visible'){
 				this.setAttribute('value','invisible'); 
 				this.setAttribute('src', $invisibleImgPath);
