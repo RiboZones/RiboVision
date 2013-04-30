@@ -687,8 +687,8 @@ function colorProcess(data, indexMode,targetLayer,colors) {
 
 }
 
-function colorMappingLoop(targetLayer, seleProt, OverRideColors) {
-	if (arguments.length >= 3) {
+function colorMappingLoop(targetLayer, seleProt, seleProtNames, OverRideColors) {
+	if (arguments.length >= 4) {
 		var colors2 = OverRideColors;
 	} else {
 		var colors2 = RainBowColors;
@@ -743,7 +743,7 @@ function colorMappingLoop(targetLayer, seleProt, OverRideColors) {
 			for (var jj = 0; jj < rvDataSets[0].Residues.length; jj++) {
 				if (rvDataSets[0].Residues[jj][seleProt[i]] && rvDataSets[0].Residues[jj][seleProt[i]] >0){
 					dataIndices[jj] = rvDataSets[0].Residues[jj][seleProt[i]];
-					targetLayer.Data[jj] = targetLayer.Data[jj] + seleProt[i] + " ";
+					targetLayer.Data[jj] = targetLayer.Data[jj] + seleProtNames[i] + " ";
 				}
 			}
 			rvDataSets[0].drawDataCircles(targetLayer.LayerName, dataIndices, ["#000000", newcolor], true);
@@ -1102,14 +1102,17 @@ function refreshBasePairs(BasePairTable) {
 			});
 		} else {
 			var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
-					return this.value;
-				}).get();
+				return this.value;
+			}).get();
+			var array_of_checked_titles = $("#ProtList").multiselect("getChecked").map(function () {
+					return this.title;
+			}).get();
 			var ims = document.getElementById("SecondaryInteractionList");
 			ims.options.length = 0;
 			ims.options[0] = new Option("NPN", "NPN");
 			ims.options[0].setAttribute("selected", "selected");
 			$("#SecondaryInteractionList").multiselect("refresh");
-			colorMappingLoop(undefined,array_of_checked_values);
+			colorMappingLoop(undefined,array_of_checked_values,array_of_checked_titles);
 			
 		}
 		
@@ -1380,7 +1383,10 @@ function ProcessBubble(ui,targetLayer){
 			var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
 					return this.value;
 				}).get();
-			colorMappingLoop(targetLayer,array_of_checked_values);
+			var array_of_checked_titles = $("#ProtList").multiselect("getChecked").map(function () {
+				return this.title;
+			}).get();
+			colorMappingLoop(targetLayer,array_of_checked_values,array_of_checked_titles);
 			break;
 		case "CustomDataBubbles" :
 			customDataProcess(ui,targetLayer)
@@ -2378,6 +2384,9 @@ function drawNavLine(){
 		var maxdata = 1; //default to 1 for empty sets and selection layers
 	
 		var targetLayer=rvDataSets[0].getSelectedLayer();
+		if (targetLayer===false){
+			return;
+		}
 		var linename = targetLayer.DataLabel;
 		var	w = 1.00 * $('#NavLineDiv').innerWidth();
 		var h = 0.95 * $('#NavLineDiv').innerHeight();
