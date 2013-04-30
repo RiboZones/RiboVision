@@ -1,0 +1,17 @@
+ColName,Description,HelpLink
+Onion,Nucleotides are partitioned into 20 A concentric shells based on distance from the functional center. All nucleotides greater than 80A are in the same shell.,StructuralData
+Shannon_Entropy,The Shannon entropies obtained from a multiple sequence alignment of 122 species. Dark blue corresponds to low entropy (highly conserved). Red represents high entropy (most variable). ,AlignmentData
+map_Index,Nucleotides are colored by Rainbow gradient according to its index in the secondary structure from blue on the 5' end to red on the 3' end. The 5S is placed at the endof 23S rRNA. ,StructuralData
+Domains_Color,Partitioning of nucleotides into Domains which are indicated by color.  Each nucleotide is uniquely contained in one domain.,StructuralData
+Helix_Color,Partitioning of all nucleotides into ‘helicoids’ (a helicoid is a helix plus the most closely associated ss RNA. Each nucleotide is uniquely contained in one helicoid . The collection of all helicoids contain all rRNA),StructuralData
+mean_tempFactor,Mean B-factor per nucleotitide from the crytal structure,StructuralData
+Mg_ions_24,Contacts Mg-ions located within 2.4  A from RNA. ,StructuralData
+Mg_ions_26,Contacts Mg-ions located within 2.6  A from RNA. ,StructuralData
+Mg_ions_60,Conatcts Mg-ions located within 6.0  A from RNA. ,StructuralData
+All_Proteins,This is a coloring of all residues which contact the selected proteins. Each color represents a different protein in your list of selected proteins,ProteinData
+BasePairs,This is a set of base-base interactions as defined in FR3D. ,InteractionData
+BasePhosphate,This is a set of base-phosphate interactions as defined in FR3D. ,InteractionData
+BaseSugar,This is a set of base-sugar interactions as defined in FR3D. ,InteractionData
+Stacking,This is a set of base-base stacking as defined in FR3D. ,InteractionData
+NMN,RNA-RNA interactions mediated by bridging Mg ions. (A bridging Mg ion is located within 2.4 A from each nucleotide).,InteractionData
+NPN,RNA-RNA interactions mediated by bridging aminoacid residues of rProteins. (A bridging amino acid residue is  located within 3.4 A from each nucleotide),InteractionData
