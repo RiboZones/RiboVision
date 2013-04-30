@@ -273,9 +273,9 @@
         </div>
     </div><!--Color Control Dialog Box-->
 
-    <div id="ColorDialog" title="Residue Coloring">
+    <div id="ColorDialog" title="Nucleotide Coloring">
         <div id="ColorDiv">
-            Color Options:<br />
+            Pick Color:<br />
             <input id="MainColor" type="text" name="color" value="#940B06" /><br />
 
             <div id="colorpicker"></div><input id="clearColor" type="button" name="clearColor" onclick="Javascript:clearColor(true)" value="Clear Color" />
@@ -301,48 +301,47 @@
 
     <div id="RiboVisionSettingsPanel" title="Settings Panel">
         <div id="OverAllControlDiv" class="ui-widget-content SettingsDiv">
-            <h3 class="ui-widget-header2">OverAll</h3>
+            <h3 class="ui-widget-header2">General Settings</h3>
 
             <div id="buttonmode">
                 One Button Mode:<br />
-                <input id="moveMode" type="radio" name="mode" value="move" onclick="modeSelect(&#39;move&#39;)" /><label for="moveMode">Move /
-                ResidueInfo</label><br />
+                <input id="moveMode" type="radio" name="mode" value="move" onclick="modeSelect(&#39;move&#39;)" /><label for="moveMode">Move</label><br />
                 <input id="selectMode" type="radio" name="mode" value="select" onclick="modeSelect(&#39;select&#39;)" /><label for="selectMode">Select
-                Residues</label><br />
+                Nucleotides</label><br />
                 <input id="selectModeL" type="radio" name="mode" value="selectL" onclick="modeSelect(&#39;selectL&#39;)" /><label for="selectModeL">Select
                 Lines</label><br />
                 <input id="colorMode" type="radio" name="mode" value="color" onclick="modeSelect(&#39;color&#39;)" /><label for="colorMode">Color
-                Residue</label><br />
+                Nucleotides</label><br />
             </div><br />
 
-            <p>Resize 2D &amp; 3D views</p>
+            <p>Resize 2D &amp; 3D panels</p>
 
             <div id="canvasPorportionSlider" style="width:240px;"></div><br />
 
-            <p>Resize Top Panel</p>
+            <p>Resize 1D Panel</p>
 
             <div id="topPorportionSlider" style="width:13px;"></div>
         </div>
 
         <div id="NLControlDiv" class="ui-widget-content SettingsDiv">
-            <h3 class="ui-widget-header2">NavLine</h3>
+            <h3 class="ui-widget-header2">1D Panel</h3>
 
             <div id="NavLineToggle">
-                NavLine:<br />
+                1D Panel:<br />
                 <input id="nlON" type="radio" name="nl" value="on" /><label for="nlON">On</label> <input id="nlOFF" type="radio" name="nl" value=
                 "off" /><label for="nlOFF">Off</label>
             </div>
         </div>
 
         <div id="SSControlDiv" class="ui-widget-content SettingsDiv">
-            <h3 class="ui-widget-header2">2deg Structure</h3>
+            <h3 class="ui-widget-header2">2D Panel</h3>
 
             <div id="ResidueTipToggle">
                 ResidueTip:<br />
                 <input id="rtON" type="radio" name="rt" value="on" /><label for="rtON">On</label> <input id="rtOFF" type="radio" name="rt" value=
                 "off" /><label for="rtOFF">Off</label>
             </div>
-
+			<br>	
             <div id="ZAset">
                 Zoom-Aware Lines:<br />
                 <input id="zaON" type="radio" name="za" value="on" /><label for="zaON">On</label> <input id="zaOFF" type="radio" name="za" value=
@@ -351,14 +350,13 @@
         </div>
 
         <div id="JmolControlDiv" class="ui-widget-content SettingsDiv">
-            <h3 class="ui-widget-header2">3D</h3>
+            <h3 class="ui-widget-header2">3D Panel</h3>
 
-            <p>Jmol Panel can be turned on and off. The regular Java version of Jmol is reccommened when possible. The HTML5/JavaScript version of Jmol, called
-            JSmol is also available. JSmol will only work for ribosomes on relatively powerful computers. Enabling on your phone or tablet isn&#39;t likely to
-            work.</p>
+            <p>Jmol Panel can be turned on and off. The regular Java version of Jmol is recommened. The HTML5/JavaScript version of Jmol, called
+            JSmol is also available. </p>
 
             <div id="JmolToggle">
-                Jmol Panel:<br />
+                3D Panel:<br />
                 <input id="jpON" type="radio" name="jp" value="on" /><label for="jpON">On</label> <input id="jpOFF" type="radio" name="jp" value=
                 "off" /><label for="jpOFF">Off</label>
             </div>
