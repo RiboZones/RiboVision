@@ -3,7 +3,7 @@
 	position:absolute;
 	top:0%;
 	left:16%;
-	height:28%;
+	height:25%;
 	width:82%;
 	overflow:auto;
 	box-sizing:border-box;
@@ -30,7 +30,7 @@
 	top:0px;
 	left:0px;
 	height:86%;	
-	min-width: 350px;
+	min-width: 300px;
 	overflow: hidden;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
@@ -412,11 +412,12 @@ body{
 
 .toolBarBtn{
 	position:absolute;
-	margin-right:8%;
-	margin-left:6%;
+	margin-right:5%;
+	margin-left:5%;
 	width:86% !important;
 	height:4%;
-	margin-bottom:4px;
+	margin-bottom:5%;
+	margin-top:5%;
 }
 
 
