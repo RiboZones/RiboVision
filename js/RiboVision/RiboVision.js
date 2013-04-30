@@ -43,7 +43,7 @@ var localStorageAvailable = false;
 var onebuttonmode;      //needs restoration
 var CurrPrivacyCookie;
 var PanelDivide = 0.5; //needs restoration
-var TopDivide = 0.28; //needs restoration
+var TopDivide = 0.25; //needs restoration
 var OpenStateOnLoad = false;
 var UserName = "Guest";
 

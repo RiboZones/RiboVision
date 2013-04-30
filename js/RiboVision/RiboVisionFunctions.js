@@ -107,8 +107,11 @@ function resizeElements(noDraw) {
 	var height = $(window).height();
 	var MainMenuFrac = 0.65;
 	//ToolBar
+	$(".toolBarBtn").css("height",0.04*height);
+	$(".toolBarBtn").css("width",0.04*height);
+	$("#toolBar").css("width",1.1*$(".toolBarBtn").first().outerHeight() + 4);
 	var toolBarWidth = $("#toolBar").outerWidth();
-	
+	$("#toolBar").css("left",width-toolBarWidth);
 	//Menu
 	$("#menu").css('height', 0.9 * height);
 	$("#menu").css('width', 0.16 * width);
@@ -174,7 +177,7 @@ function resizeElements(noDraw) {
 	
 	//Jmol Section
 	$("#jmolDiv").css('height', s);
-	$("#jmolDiv").css('width', rp);
+	$("#jmolDiv").css('width', rp + 1);
 	$("#jmolDiv").css('left', xcorr + parseFloat($("#canvasDiv").css('width')) - 1);
 	$("#jmolDiv").css('top', ycorr - 1);
 	

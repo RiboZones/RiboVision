@@ -437,6 +437,7 @@ function RiboVisionReady() {
 		noneSelectedText : 'Select proteins',
 		selectedList : 9
 	});
+	$("#ProtList").multiselect().multiselectfilter();
 	/*
 	$("#StructDataList").multiselect({
 		minWidth : 160,
@@ -938,7 +939,7 @@ function RiboVisionReady() {
 	$( "#topPorportionSlider" ).slider({
 		min : 50,
 		max : 90,
-		value : 72,
+		value : 75,
 		orientation : "vertical",
 		slide : function (event, ui) {
 			TopDivide = (100 - ui.value) / 100;
