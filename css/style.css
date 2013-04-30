@@ -103,7 +103,7 @@
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
 	-webkit-box-sizing:border-box; /* Safari */
-	border-left: ridge OrangeRed;
+	border-left: ridge #B187B9;
 }
 #ExportData{
 	position:absolute;
@@ -230,7 +230,7 @@ canvas{
 .ui-widget-header2 {
 	padding:3px;
 	padding-left:10px;
-	background: OrangeRed;
+	background: #B187B9;
 	/*url(../images/ui-bg_glass_80_d7ebf9_1x400.png),url(../images/ui-bg_glass_50_3baae3_1x400.png)*/
 	color:#FFF;
 	font-size:16px;
@@ -412,12 +412,13 @@ body{
 
 .toolBarBtn{
 	position:absolute;
-	margin-right:10%;
-	margin-left:8%;
-	width:82%;
+	margin-right:8%;
+	margin-left:6%;
+	width:86% !important;
 	height:4%;
 	margin-bottom:4px;
 }
+
 
 .toolBarBtn2{
 	position:absolute;
