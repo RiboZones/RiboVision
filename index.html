@@ -465,8 +465,9 @@
     </div>
 
     <div id="ResidueTip" title="ToolTip" style="position:fixed;width:1px;height:1px;z-index:1000000">
-        <div id="residuetip" style="visibility:hidden">
-            <h3 id="resName"></h3>
+		<div id="residuetip" style="visibility:hidden">
+            <h3 class="ui-widget-header2">ResidueTip</h3>
+			<h3 id="resName"></h3>
 
             <h3 id="activeData"></h3>
 
@@ -475,7 +476,8 @@
     </div>
 
     <div id="InteractionTip" title="ToolTip" style="position:fixed;width:1px;height:1px;z-index:1000000">
-        <div id="interactiontip" style="visibility:hidden">
+		<div id="interactiontip" style="visibility:hidden"> 
+			<h3 class="ui-widget-header2">ResidueTip</h3>
             <h3 id="BasePairType"></h3>
 
             <h3 id="BasePairSubType"></h3>
@@ -502,40 +504,36 @@
     <div id="Privacy-confirm" title="Privacy Policy"></div>
 
     <div id="dialog-saveFigures" title="Save / Export Figures">
-        <p>RiboVision is intended for making high-quality protypes of publication-quality images. For this reason we provide exporting in both draft quality
-        formats and formats intended to be imported into more advanced editors. Each of the three panels are saved separately.</p>
+        <p>RiboVision is intended for making publication-quality images. Each of the three panels are saved separately.</p>
 
         <div id="NavLineExport" class="ui-widget-content ExportDiv">
-            <h3 class="ui-widget-header2">NavLine</h3>
+            <h3 class="ui-widget-header2">1D Panel</h3>
 
-            <p>We support saving of NavLine in SVG only.</p><input name="saveas" type="button" onclick="JavaScript:saveNavLine();" value=
+            <p>RiboVision supports saving of the 1D Panel in SVG only.</p><input name="saveas" type="button" onclick="JavaScript:saveNavLine();" value=
             "Save NavLine" /><br />
         </div>
 
         <div id="CanvasExport" class="ui-widget-content ExportDiv">
-            <h3 class="ui-widget-header2">2deg Structure</h3>
+            <h3 class="ui-widget-header2">2D Panel</h3>
 
             <p>Would you like to export just the visible layers, or all layers?</p><input id="visibleLayers" type="radio" name="savelayers" value="visible"
             checked="checked" /><label for="visibleLayers">Visible Layers</label> <input id="allLayers" type="radio" name="savelayers" value=
             "all" /><label for="allLayers">All Layers</label>
 
-            <p>We reccommend exporting as SVG files.</p><input name="saveas" type="button" onclick="JavaScript:saveSVG();" value="Save as SVG" /><br />
+            <p>SVG files are best for further editing.</p><input name="saveas" type="button" onclick="JavaScript:saveSVG();" value="Save as SVG" /><br />
 
-            <p>For your convenience, you may also save as PDF, PNG, or JPG. The PNGs are set to have a transparent background.</p><input name="saveas" type=
-            "button" onclick="JavaScript:savePDF();" value="Save as PDF" /> <input name="saveas" type="button" onclick="JavaScript:savePNG();" value=
-            "Save as PNG" /> <input name="saveas" type="button" onclick="JavaScript:saveJPG();" value="Save as JPG" />
+            <p>PDF files are best for printing and sharing.</p><input name="saveas" type="button" onclick="JavaScript:savePDF();" value="Save as PDF" /> <br>
+			
+			<p>PNG and JPG files are good for presentations. PNG has the advantage of a transparent background.</p>
+			<input name="saveas" type="button" onclick="JavaScript:savePNG();" value="Save as PNG" />
+			<input name="saveas" type="button" onclick="JavaScript:saveJPG();" value="Save as JPG" />
         </div>
 
         <div id="JmolExport" class="ui-widget-content ExportDiv">
-            <h3 class="ui-widget-header2">3D</h3>
-
-            <p>You may prefer to use Jmol&#39;s built-in image saving capabilities.</p>
-
-            <p>Additionally, you may export a PyMOL Script for further processing in PyMOL.</p><input name="saveas" type="button" onclick=
-            "JavaScript:savePML();" value="PyMOL Script" />
-
-            <p>We support saving to JPG for your convenience.</p><input name="saveas" type="button" onclick="JavaScript:saveJmolImg();" value=
-            "JPG: 3D side" /><br />
+            <h3 class="ui-widget-header2">3D Panel</h3>
+            <p>Jmol has built-in image saving capabilities.</p>
+			<p>RiboVision supports quick-saving the 3D Panel to JPG.</p><input name="saveas" type="button" onclick="JavaScript:saveJmolImg();" value="JPG: 3D side" /><br />
+            <p>Additionally, you may export a PyMOL Script for further processing in PyMOL.</p><input name="saveas" type="button" onclick="JavaScript:savePML();" value="PyMOL Script" />
         </div>
     </div>
 
