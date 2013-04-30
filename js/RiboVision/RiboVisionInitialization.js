@@ -152,6 +152,12 @@ function RiboVisionReady() {
 			my : "left top",
 			at : "left top",
 			of : $("#SiteInfo")
+		},
+		open : function (event) {
+			$("#myJmol_object").css("visibility", "hidden");
+		},
+		close : function () { 
+			$("#myJmol_object").css("visibility", "visible");
 		}
 	});
 	
@@ -979,28 +985,34 @@ function RiboVisionReady() {
 		modal : true,
 		buttons: {
 			Ok: function() {
+				var JmolState;
 				if ($('input[name="jjsmol2"][value=Java]').is(':checked')){
 					$('[name="jjsmol"][value="Java"]').attr("checked", true);
 					$('[name="jp"][value="on"]').attr("checked", true).trigger("change");
 					//.trigger("change");
+					JmolState="Java";
 				} else if ($('input[name="jjsmol2"][value=JS]').is(':checked')) {
 					$('[name="jjsmol"][value="JS"]').attr("checked", true)
 					$('[name="jp"][value="on"]').attr("checked", true).trigger("change");
 					//.trigger("change");
+					JmolState="JS";
 				} else if ($('input[name="jjsmol2"][value=Disabled]').is(':checked')) {
 					$('[name="jp"][value="off"]').attr("checked", true).trigger("change");;
 					$('[name="jjsmol"][value="Java"]').attr("checked", true);
+					JmolState="Disabled";
 				} else {
 					alert("How did this happen?");
 				}
 				$("#JmolTypeToggle").buttonset("refresh");
-
+				if($("#RememberJmol").is(":checked")){
+					set_cookie("JmolState", JmolState, 365);
+				};
 				$( this ).dialog( "close" );
 			}
 		},
 		open : function () {
 			myJmol = Jmol.getApplet("myJmol", JmolInfo,true); 
-			$("#myJmol_object").css("visibility", "hidden");
+			//$("#myJmol_object").css("visibility", "hidden");
 			if (myJmol._isJava){
 				$("#JmolType").text("Jmol (Java)");	
 				$("#JmolJava2").attr("checked","checked");
@@ -1011,20 +1023,14 @@ function RiboVisionReady() {
 			$("#JmolTypeToggle2").buttonset("refresh");
 		},
 		close : function () { 
-			$("#myJmol_object").css("visibility", "visible");
+			//$("#myJmol_object").css("visibility", "visible");
 		}
 	});
 	
-	Jmol.setDocument(0);
-	//Jmol.setAppletCss("jmolapplet", "style='left:40px'");
+	Jmol.setDocument(0);	
 	
-	
-	//$('#jmolDiv').html(Jmol.getAppletHtml(myJmol));	
-	$("#dialog-Jmol-Type").dialog("open");
-		
-
+	$("#JmolTypeToggle").buttonset("refresh");
 	InitRibovision();
-
 };
 
 function InitRibovision(FreshState) {
@@ -1043,6 +1049,22 @@ function InitRibovision(FreshState) {
 	$(".oneLayerGroup").remove();
 	$(".oneSelectionGroup").remove();
 	rvDataSets[0].addSelection("Main");
+	switch (get_cookie("JmolState")) {
+		case "Java" :
+			$('[name="jjsmol"][value="Java"]').attr("checked", true);
+			$('[name="jp"][value="on"]').attr("checked", true).trigger("change");
+			break;
+		case "JS" :
+			$('[name="jjsmol"][value="JS"]').attr("checked", true)
+			$('[name="jp"][value="on"]').attr("checked", true).trigger("change");
+			break;
+		case "Disabled" :
+			$('[name="jp"][value="off"]').attr("checked", true).trigger("change");;
+			$('[name="jjsmol"][value="Java"]').attr("checked", true);
+			break
+		default :
+			$("#dialog-Jmol-Type").dialog("open");
+	}
 	if (canvas2DSupported) {
 		InitRibovision2(false,FreshState);
 	}
