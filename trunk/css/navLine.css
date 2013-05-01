@@ -40,17 +40,6 @@ font-weight:600;
 	-moz-box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.4);
 	box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.4);
 }
-
-#resName{
-	margin-left:8px;
+.NavLineItem {
+	margin-left:6px;
 }
-
-#otherinfo{
-	margin-left:10px;
-}
-
-#conPercentage{
-	margin-left:8px;
-}
-
-

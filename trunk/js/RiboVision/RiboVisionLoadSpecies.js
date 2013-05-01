@@ -47,7 +47,7 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 			$.each(data, function (i, item) {
 				data[i]["color"] = "#000000";
 				data[i]["selected"] = 0;
-				data[i]["CurrentData"] = data[i]["map_Index"];
+				//data[i]["CurrentData"] = data[i]["map_Index"];
 			});
 			var targetLayer = rvDataSets[0].getLayerByType("residues");
 			targetLayer[0].DataLabel = "Rainbow";
