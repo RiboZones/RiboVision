@@ -66,11 +66,8 @@
 <body>
     <div id="menu" class="ui-widget-content">
         <div id="SiteInfo" class="ui-widget-content">
-            <h3 class="ui-widget-header2"><a href="./ChangeLog.txt" target="_blank" style="color:#FFF">RiboVision: Version 0.95</a></h3>
-
-            <div id="MainLogoDiv"><a href="/Documentation/index.html" target="_blank"><img src="images/RiboVisionLogo.png" id="MainLogo" title="RiboVision Logo" alt="Ribovision Logo" /></a></div>
-
-            <!-- <p id="infoP"><a id="ManLink" href="/Documentation/index.html" target="_blank">RiboVision: Ribosome Visualization Suite.</a></p> -->
+            <h3 class="ui-widget-header2"><a href="./ChangeLog.txt" target="_blank" style="color:#FFF">RiboVision: Version 0.96</a></h3>
+            <div id="MainLogoDiv"><a href="/Documentation/index.html" target="_blank"><img src="images/RiboVisionLogo.png" id="MainLogo" title="RiboVision Manual" alt="Ribovision Logo" /></a></div>
         </div>
 
         <div id="MainMenu" class="ui-widget-content">
@@ -189,8 +186,10 @@
         </div>
     </div>
 
-    <div id="LogoDiv" class="ui-widget-content"><img src="images/RiboEvoNASAlogo.png" id="ComboLogo" title="RiboEvo and NASA Logos" alt=
-    "RiboEvo and NASA Logos" /></div>
+    <div id="LogoDiv" class="ui-widget-content">
+		<img src="images/RiboEvoLogo.png" class="ComboLogo" title="Center for Ribosomal Origins and Evolution (Ribo Evo)" alt="RiboEvo Logo" />
+		<img src="images/NASALogo.png" class="ComboLogo" title="NASA Astrobiology Institute (NAI)" alt="NASA Logo" />
+	</div>
 
     <div id="navigator" style="z-index:999; width:65px">
         <div id="compassImgs"><img class="compass" src="images/compass/navigator1_01.png" alt="R" onclick="JavaScript:resetView()" /> <img title="Pan up"
@@ -467,11 +466,11 @@
     <div id="ResidueTip" title="ToolTip" style="position:fixed;width:1px;height:1px;z-index:1000000">
 		<div id="residuetip" style="visibility:hidden">
             <h3 class="ui-widget-header2">ResidueTip</h3>
-			<h3 id="resName"></h3>
+			<h3 id="resName" class="NavLineItem"></h3>
 
-            <h3 id="activeData"></h3>
+            <h3 id="activeData" class="NavLineItem"></h3>
 
-            <h3 id="conPercentage"></h3>
+            <h3 id="conPercentage" class="NavLineItem"></h3>
         </div>
     </div>
 

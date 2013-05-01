@@ -52,7 +52,7 @@
 	position:absolute;
 	margin-left:auto;
 	margin-right:auto;
-	height:80%;
+	height:100%;
 	width : 100%;
 }
 
@@ -63,9 +63,10 @@
 	height:100%;
 }
 
-#ComboLogo {
+.ComboLogo {
 	position:absolute;
 	height:100%;
+	float:left;
 }
 
 #SiteInfo{
@@ -158,15 +159,6 @@
 #saveDiv{
 }
 
-#infoP{
-	position:absolute;
-	top:80%;
-	font-size: .9em;
-	margin: 0px;
-	padding: 0.2em;
-	padding-left: 1em;
-	font-family: Lucida Grande, Lucida Sans, Arial, sans-serif;
-}
 
 #canvasDiv{
 	position:absolute;

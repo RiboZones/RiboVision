@@ -430,7 +430,9 @@ function updateSelectionDiv(SeleName) {
 	var targetSelection = rvDataSets[0].getSelection(SeleName);
 	for (var i = 0; i < targetSelection.Residues.length; i++) {
 		res = targetSelection.Residues[i];
-		text = text + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(res.ChainID)] + ":" + res.resNum.replace(/[^:]*:/g, "") + "( " + res.CurrentData + " ); ";
+		//text = text + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(res.ChainID)] + ":" + res.resNum.replace(/[^:]*:/g, "") + "( " + res.CurrentData + " ); ";
+		text = text + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(res.ChainID)] + ":" + res.resNum.replace(/[^:]*:/g, "") + "; ";
+		
 	}
 	//$("#selectDiv").html(text)
 	$("[name=" + SeleName + "]").find(".selectionContent").find("[name=selectDiv]").text(text);
@@ -537,7 +539,7 @@ function update3Dcolors() {
 	r0 = rvDataSets[0].Residues[0].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
 	curr_chain = rvDataSets[0].Residues[0].ChainID;
 	var targetLayer=rvDataSets[0].getLinkedLayer();
-	rvDataSets[0].Residues[0].CurrentData=targetLayer.Data[0];
+	//rvDataSets[0].Residues[0].CurrentData=targetLayer.Data[0];
 
 	curr_color = colorNameToHex(targetLayer.dataLayerColors[0]);
 	
@@ -548,7 +550,7 @@ function update3Dcolors() {
 		var residue = rvDataSets[0].Residues[i];
 		var residueLast = rvDataSets[0].Residues[i - 1];
 		var residueLastColor = targetLayer.dataLayerColors[i - 1];
-		rvDataSets[0].Residues[i].CurrentData=targetLayer.Data[i];
+		//rvDataSets[0].Residues[i].CurrentData=targetLayer.Data[i];
 		
 		if (!residueLastColor){
 			residueLastColor = '#858585';
@@ -2545,9 +2547,9 @@ function addPopUpWindowResidue(ResIndex){
 		var Hn = "n/a";
 	}
 		
-	
+	var targetLayer=rvDataSets[0].getSelectedLayer();
 	$('#resName').html("Residue: " + rvDataSets[0].Residues[ResIndex].resName + "(" + ConsensusSymbol  + ") " + ResName);
-	$('#activeData').html("Active Data: " + rvDataSets[0].Residues[ResIndex].CurrentData);
+	$('#activeData').html("Selected Data: " + targetLayer.Data[ResIndex]);
 	$("#conPercentage").html("Shannon Entropy: " + Hn);
 	
 	function drawConGraph(){
