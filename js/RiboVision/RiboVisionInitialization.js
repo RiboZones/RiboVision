@@ -939,7 +939,7 @@ function RiboVisionReady() {
 	$( "#topPorportionSlider" ).slider({
 		min : 50,
 		max : 90,
-		value : 75,
+		value : 78.5,
 		orientation : "vertical",
 		slide : function (event, ui) {
 			TopDivide = (100 - ui.value) / 100;
@@ -1037,7 +1037,7 @@ function RiboVisionReady() {
 function InitRibovision(FreshState) {
 	rvDataSets[0] = new rvDataSet("EmptyDataSet");
 	rvDataSets[0].addHighlightLayer("HighlightLayer", "HighlightLayer", [], false, 1.176, 'highlight');
-	rvDataSets[0].addLayer("Interactions1", "InteractionsLayer1", [], true, 1.0, 'lines');
+	rvDataSets[0].addLayer("Interactions", "InteractionsLayer", [], true, 1.0, 'lines');
 	rvDataSets[0].addLayer("Labels", "LabelLayer", [], true, 1.0, 'labels');
 	rvDataSets[0].addLayer("Letters", "NucleotideLayer", [], true, 1.0, 'residues');
 	rvDataSets[0].addLayer("Circles", "CircleLayer1", [], true, 1.0, 'circles');
