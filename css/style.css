@@ -64,8 +64,8 @@
 }
 
 .ComboLogo {
-	position:absolute;
-	height:100%;
+	display:block;
+	height:97%;
 	float:left;
 }
 
