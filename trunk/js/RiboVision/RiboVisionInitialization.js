@@ -777,13 +777,13 @@ function RiboVisionReady() {
 	  //alert("Sorry! No web storage support..");
 	}
 	
-	$("#ProtList").bind("multiselectclick", function (event, ui) {
+	$("#ProtList").on("multiselectclick", function (event, ui) {
 		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
 				return this.value;
 			}).get();
 		colorMappingLoop(undefined,array_of_checked_values);
 	});
-	$("#ProtList").bind("multiselectopen", function (event, ui) {
+	$("#ProtList").on("multiselectopen", function (event, ui) {
 		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
 				return this.value;
 			}).get();
@@ -810,7 +810,7 @@ function RiboVisionReady() {
 		colorMappingLoop(array_of_checked_values);
 		//drawNavLine();*/
 	});
-	$("#ProtList").bind("multiselectcheckall", function (event, ui) {
+	$("#ProtList").on("multiselectcheckall", function (event, ui) {
 		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
 				return this.value;
 			}).get();
@@ -836,7 +836,7 @@ function RiboVisionReady() {
 		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
 		colorMappingLoop(array_of_checked_values);*/
 	});
-	$("#ProtList").bind("multiselectuncheckall", function (event, ui) {
+	$("#ProtList").on("multiselectuncheckall", function (event, ui) {
 		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
 				return this.value;
 			}).get();
@@ -893,23 +893,20 @@ function RiboVisionReady() {
 	
 	modeSelect("move");
 	
-	$("#canvasDiv").bind("mousedown", mouseEventFunction);
-	$("#canvasDiv").bind("mouseup", mouseEventFunction);
-	$(window).bind("mouseup", function (event) {
-		$("#canvasDiv").unbind("mousemove", dragHandle);
-		//$("#canvasDiv").unbind("mousemove", mouseMoveFunction);
-		$("#canvasDiv").unbind("mousemove", dragSelBox);
+	$("#canvasDiv").on('mousewheel',mouseWheelFunction);
+	$("#canvasDiv").on("mousemove", mouseMoveFunction);
+	$("#canvasDiv").on("mousedown", mouseEventFunction);
+	$("#canvasDiv").on("mouseup", mouseEventFunction);
+	$(window).on("resize", resizeElements);
+
+	$(window).on("mouseup", function (event) {
+		$("#canvasDiv").off("mousemove", dragHandle);
+		$("#canvasDiv").off("mousemove", dragSelBox);
 		rvDataSets[0].HighlightLayer.clearCanvas();
-		return false;
 	});
 	
-	$(window).bind("resize", resizeElements);
-	$("#canvasDiv").bind('mousewheel',mouseWheelFunction);
-	$("#canvasDiv").bind("mousemove", mouseMoveFunction);
-	
   /////////////
-	
-	$("#canvasDiv").bind("mouseout", function (event) {
+	$("#canvasDiv").on("mouseout", function (event) {
 		$("#canvasDiv").trigger({
 			type : 'mouseup',
 			which : 1,
@@ -1207,7 +1204,7 @@ function InitRibovision3(FreshState) {
 		.iosMenu()
 		.focus()
 		.menu('focus', {}, firstLI)
-		.bind('menuselect', function (event, ui) {
+		.on('menuselect', function (event, ui) {
 			var species = $(ui.item).find("a").attr('href');
 			loadSpecies(species.substr(1));
 			
