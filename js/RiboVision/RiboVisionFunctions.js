@@ -413,7 +413,7 @@ function selectResidue(event) {
 			drag = false;
 		}
 	}
-	$("#canvasDiv").unbind("mouseup", selectResidue);
+	$("#canvasDiv").off("mouseup", selectResidue);
 	/*
 	if (onebuttonmode === "move") {
 		$("#canvasDiv").bind("mousemove", mouseMoveFunction);
@@ -495,8 +495,8 @@ function clearColor(update3D) {
 	for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
 		rvDataSets[0].Residues[i].color = "#000000";
 		targetLayer[0].dataLayerColors[i]= "#000000";
-		targetLayer[0].Data[i] = rvDataSets[0].Residues[i].map_Index;
-		
+		//targetLayer[0].Data[i] = rvDataSets[0].Residues[i].map_Index;
+		targetLayer[0].Data[i] = undefined;
 	}
 	rvDataSets[0].drawResidues("residues");
 	//drawLabels();
@@ -1148,31 +1148,31 @@ function mouseEventFunction(event) {
 	$("#InteractionTip").tooltip("close");
 	if (event.handleObj.origType == "mousedown" && !BaseViewMode) {
 		if (onebuttonmode == "select" || (event.which == 3 && event.altKey == false) || (event.which == 1 && event.shiftKey == true)) {
-			$("#canvasDiv").unbind("mousemove", dragHandle);
-			$("#canvasDiv").unbind("mousemove", mouseMoveFunction);
+			$("#canvasDiv").off("mousemove", dragHandle);
+			$("#canvasDiv").off("mousemove", mouseMoveFunction);
 			selectionBox(event);
-			$("#canvasDiv").bind("mousemove", dragSelBox);
-			$("#canvasDiv").bind("mouseup", selectResidue);
+			$("#canvasDiv").on("mousemove", dragSelBox);
+			$("#canvasDiv").on("mouseup", selectResidue);
 		} else if (onebuttonmode == "selectL" || (event.which == 3 && event.altKey == true )) {
-			$("#canvasDiv").unbind("mousemove", dragHandle);
-			$("#canvasDiv").unbind("mousemove", mouseMoveFunction);
+			$("#canvasDiv").off("mousemove", dragHandle);
+			$("#canvasDiv").off("mousemove", mouseMoveFunction);
 		} else if (onebuttonmode == "color" || event.which == 2 || (event.which == 1 && event.ctrlKey == true)) {
-			$("#canvasDiv").unbind("mousemove", dragHandle);
+			$("#canvasDiv").off("mousemove", dragHandle);
 			//$("#canvasDiv").unbind("mousemove", mouseMoveFunction);
 			colorResidue(event);
 		} else {
 			rvViews[0].lastX = event.clientX;
 			rvViews[0].lastY = event.clientY;
-			$("#canvasDiv").bind("mousemove", dragHandle);
+			$("#canvasDiv").on("mousemove", dragHandle);
 		}
 	} else if (event.handleObj.origType == "mousedown" && BaseViewMode) {
-		$("#canvasDiv").unbind("mousemove", dragHandle);
+		$("#canvasDiv").off("mousemove", dragHandle);
 		BaseViewCenter(event);
 	}
 	if (event.handleObj.origType == "mouseup") {
-		$("#canvasDiv").unbind("mousemove", dragHandle);
-		$("#canvasDiv").unbind("mousemove", dragSelBox);
-		$("#canvasDiv").bind("mousemove", mouseMoveFunction);
+		$("#canvasDiv").off("mousemove", dragHandle);
+		$("#canvasDiv").off("mousemove", dragSelBox);
+		$("#canvasDiv").on("mousemove", mouseMoveFunction);
 		rvDataSets[0].HighlightLayer.clearCanvas();
 	}
 }
@@ -2386,7 +2386,7 @@ function drawNavLine(){
 		var selectedData=[];
 		var selectedDataX=[];
 		var selectedDataY=[];
-		var maxdata = 1; //default to 1 for empty sets and selection layers
+		var maxdata = undefined; //default to 1 for empty sets and selection layers
 	
 		var targetLayer=rvDataSets[0].getSelectedLayer();
 		if (targetLayer===false){
@@ -2403,6 +2403,9 @@ function drawNavLine(){
 		var maxdata2 = d3.max($.map(targetLayer.Data, function(d) { return parseFloat(d); }));
 		if (maxdata2 !== undefined){
 			maxdata = maxdata2;
+		} 
+		if (targetLayer.Type == "selected"){
+			maxdata=1;
 		}
 		var	xScale = d3.scale.linear().domain([0, targetLayer.Data.length]).range([0 + MarginXL, w - MarginXR]);
 		var	yScale = d3.scale.linear().domain([0, maxdata]).range([h - MarginYB,0 + MarginYT ]);
@@ -2467,7 +2470,7 @@ function drawNavLine(){
 		var yAxis = d3.svg.axis()
 			  .scale(yScale)
 			  .orient("left")
-			  .ticks(10);
+			  .ticks(5);
 		
 		NavLine.append("g")
 			.attr("class", "axis")
