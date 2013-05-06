@@ -155,8 +155,7 @@ function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color) 
 		switch (this.Type){
 			case "circles":
 				this.DataLabel = "None";
-				//$(this).parent().find(".DataDescription").text("");
-				$("[name=" + this.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
+				$("[name=" + this.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(this.DataLabel);
 				this.clearData();
 				drawNavLine();
 				rvDataSets[0].clearCanvas(this.LayerName);
@@ -164,14 +163,15 @@ function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color) 
 				break;
 			case "residues":
 				this.DataLabel = "None";
-				$("[name=" + this.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
+				$("[name=" + this.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(this.DataLabel);
+				this.clearData();
 				clearColor(false);
 				drawNavLine();
 				update3Dcolors();
 				break;
 			case "lines":
 				this.DataLabel = "None";
-				$("[name=" + this.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
+				$("[name=" + this.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(this.DataLabel);
 				//$(this).find(".layerContent").find("span[name=DataLabel]").text("None"));
 				//$(this).parent().parent().find(".DataDescription").text("Empty Data");
 				drawNavLine();
@@ -748,7 +748,7 @@ function rvDataSet(DataSetName) {
 		var zoomEnabled = $('input[name="za"][value=on]').is(':checked');
 		targetLayer.clearCanvas();
 		if (!colorLayer) {
-			colorLayer = targetLayer.ColorLayer;
+			var colorLayer = targetLayer.ColorLayer;
 		} else {
 			targetLayer.ColorLayer = colorLayer;
 		}
@@ -790,7 +790,7 @@ function rvDataSet(DataSetName) {
 							grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + ",.5)");
 							grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + ",.5)");
 						}
-						colorLayer.addLinearGradient(grd);
+						//colorLayer.addLinearGradient(grd);
 						rvDataSets[0].BasePairs[i]["color"] = grd;
 						break;
 					case "circles":
@@ -802,7 +802,7 @@ function rvDataSet(DataSetName) {
 							grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + ",.5)");
 							grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + ",.5)");
 						}
-						colorLayer.addLinearGradient(grd);
+						//colorLayer.addLinearGradient(grd);
 						rvDataSets[0].BasePairs[i]["color"] = grd;
 						break;
 					case "selected":
@@ -815,7 +815,7 @@ function rvDataSet(DataSetName) {
 							grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + ",.5)");
 							grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + ",.5)");
 						}
-						colorLayer.addLinearGradient(grd);
+						//colorLayer.addLinearGradient(grd);
 						rvDataSets[0].BasePairs[i]["color"] = grd;
 						break;
 					default:
@@ -823,12 +823,12 @@ function rvDataSet(DataSetName) {
 					}
 					//Regular Mode
 					
-					targetLayer.CanvasContext.strokeStyle = rvDataSets[0].BasePairs[i]["color"];
 					targetLayer.CanvasContext.beginPath();
 					targetLayer.CanvasContext.moveTo(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y);
 					targetLayer.CanvasContext.lineTo(rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
-					targetLayer.CanvasContext.closePath();
+					targetLayer.CanvasContext.strokeStyle = rvDataSets[0].BasePairs[i]["color"];			
 					targetLayer.CanvasContext.stroke();
+					targetLayer.CanvasContext.closePath();
 					if (zoomEnabled && (rvViews[0].scale > 10)) {
 						//draw the interaction type labels here
 						var x1 = rvDataSets[0].Residues[j].X;

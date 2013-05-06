@@ -47,6 +47,7 @@ var TopDivide = 0.215; //needs restoration
 var OpenStateOnLoad = false;
 var UserName = "Guest";
 
+
 // Color Palettes, need to be consolidated
 var OnionColors = ["#000000", "#ff0000", "#008000", "#0000ff", "#800080", "#ff8c00", "#ff8c00", "#ff8c00", "#ff8c00"];
 var DomainColors = ["#ffd4a2", "#a999fb", "#3aa7ff", "#cc99cc", "#f0ff00", "#ff99cc", "#0ba34a", "#8ec640", "#B27643"];
