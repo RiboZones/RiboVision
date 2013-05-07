@@ -1025,6 +1025,7 @@ function RiboVisionReady() {
 		}
 	});
 	
+	
 	Jmol.setDocument(0);	
 	
 	$("#JmolTypeToggle").buttonset("refresh");

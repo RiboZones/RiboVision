@@ -359,10 +359,21 @@ body{
 .miniLayerName {
 	line-height: 3.0em;
 	font-size: 0.85em;
+	border: 1.0px solid PaleGreen !important;
+	border-width:thin !important;
+	text-align:center !important;
+	color:OrangeRed !important;
+	cursor:url(../images/DragD.gif),s-resize;
+	/*padding:0.2em !important;*/
 }
 
 .dataBubble {
-
+	border: 1.0px solid PaleGreen !important;
+	border-width:thin !important;
+	text-align:center !important;
+	padding:0.2em !important;
+	color:OrangeRed!important;
+	cursor:url(../images/DragR.gif),e-resize;
 }
 .selectionName {
 	height:1.5em;
