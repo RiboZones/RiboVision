@@ -28,7 +28,9 @@ based on:
 
 
 function loadSpecies(species,DoneLoading,DoneLoading2) {
-	
+	$("#LinkBubble").append($('<h3 class="miniLayerName ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom " style="font-size:0.85em;line-height:3em;text-align:center">')
+		.text("rr").attr('name',"rr"));
+		
 	// get data description table
 	$.getJSON('getData.php', {
 		FullTable : "DataDescriptions"
@@ -37,26 +39,34 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 	});
 	rvDataSets[0].Name=species;
 	$.each(rvDataSets[0].Layers, function (i, item){
-		item.clearCanvas();
+		item.clearAll();
 	});
 	$(".dataBubble").remove();
 	if (species != "None") {
 		$.getJSON('getData.php', {
 			Residues : species
 		}, function (data) {
+			var targetLayer = rvDataSets[0].getLayerByType("residues");
+			rvDataSets[0].clearData("residues");
 			$.each(data, function (i, item) {
 				data[i]["color"] = "#000000";
 				data[i]["selected"] = 0;
-				//data[i]["CurrentData"] = data[i]["map_Index"];
+				targetLayer[0].Data[i] = data[i]["Domains_Color"];
 			});
-			var targetLayer = rvDataSets[0].getLayerByType("residues");
-			targetLayer[0].DataLabel = "Rainbow";
 			rvDataSets[0].addResidues(data);
-			rvDataSets[0].clearData("circles");
-			rvDataSets[0].clearData("residues");
-			rvDataSets[0].clearData("lines");
-			rvDataSets[0].clearData("selected");
-			clearColor(false);
+			
+			targetLayer[0].DataLabel = "Domains";
+			$("[name=" + targetLayer[0].LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer[0].DataLabel);
+			var ColName = ["Domains_Color"];
+			var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
+			if (result[0]){
+				var title = "Domains" + ": " + result[0].Description;
+			} else {
+				var title = "Data Description is missing.";
+			}
+			$(".miniLayerName[name=" + targetLayer[0].LayerName + "]").attr("title",title);
+			
+			
 			clearSelection(true);
 			
 			$.getJSON('getData.php', {
@@ -190,8 +200,8 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 					},
 					items : ".dataBubble"
 				});
-				
-				rvDataSets[0].drawResidues("residues");
+				ProcessBubble($("#StructDataBubbles").find(".dataBubble:contains('Domains')"),targetLayer[0])
+				//rvDataSets[0].drawResidues("residues");
 				rvDataSets[0].drawLabels("labels");
 				
 				drawNavLine(); //load navLine 

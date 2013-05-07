@@ -56,7 +56,7 @@ function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color) 
 	this.Linked = false;
 	this.ColorLayer = [];
 	this.ColorGradientMode = "Matched";
-	this.DataLabel = "empty data";
+	this.DataLabel = "None";
 	if (Color) {
 		this.Color = Color;
 	} else {

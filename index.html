@@ -55,7 +55,7 @@
     //]]>
     </script><!--Style Sheets-->
     <link rel="stylesheet" type="text/css" href="css/style.css" />
-    <link rel="stylesheet" type="text/css" href="css/jquery-ui-1.9.0.custom.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery-ui-1.9.0.custom.css" />
     <link rel="stylesheet" type="text/css" href="css/jquery.multiselect.css" />
     <link rel="stylesheet" type="text/css" href="css/jquery.multiselect.filter.css" />
     <link rel="stylesheet" type="text/css" href="css/farbtastic.css" />
@@ -75,15 +75,15 @@
 
             <div id="SideBarAccordian">
                 <h3><a href="#">Species/Subunit</a></h3>
-
+					<!--<div><span class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom">Test</span></div>//-->
                 <div id="SpeciesDiv" style="padding:0.1em">
-                    <ul id="speciesList" style="font-size:0.9em">
+					<ul id="speciesList" style="font-size:0.9em">
                         <li class="ui-menu-item ios-menu-back-link" role="menu">
                             <a href="#None" class="ui-corner-role" tabindex="-1" role="menuitem" aria-haspopup="true">No Molecule</a>
                         </li>
                     </ul>
                 </div>
-
+				
                 <h3><a href="#">Select</a></h3>
 
                 <div id="SelectionDiv" style="padding:0.1em">
@@ -105,7 +105,8 @@
                     <span id="StructDataLabel"><a class="ManualLink" href="/Documentation/StructuralData.html" target="_blank">Help?</a></span><br />
                     <br />
 
-                    <div id="StructDataBubbles"></div>
+                    <div id="StructDataBubbles">
+					</div>
                 </div>
 
                 <h3><a href="#">Phylogeny Data</a></h3>
@@ -171,12 +172,14 @@
             "margin: auto;" /><br />
             <br />
 
-            <p style="color:red;text-align:center;">Drag data, drop it on a layer below.</p><span id="MiniLayerLabel">Layers:</span><br />
+           <span id="MiniLayerLabel">Layers:</span><br />
 
             <div id="LinkSection" class="ui-widget-content">
                 <h3 class="ui-widget-header2">3D Color</h3>
-
-                <p id="JmolColorLayer" style="border:dotted red">Drag Layer Here</p>
+				<div id="LinkBubble"></div>
+				
+				<!--<p id="JmolColorLayer" style="border:dotted red">Drag Layer Here</p>//-->
+				</span>
             </div>
         </div>
 
@@ -192,7 +195,8 @@
 	</div>
 
     <div id="navigator" style="z-index:999; width:65px">
-        <div id="compassImgs"><img class="compass" src="images/compass/navigator1_01.png" alt="R" onclick="JavaScript:resetView()" /> <img title="Pan up"
+        <span>2D Panel</span>
+		<div id="compassImgs"><img class="compass" src="images/compass/navigator1_01.png" alt="R" onclick="JavaScript:resetView()" /> <img title="Pan up"
         class="compass" src="images/compass/navigator1_02.png" alt="U" onclick="JavaScript:pan(0,-20)" /> <img class="compass" src=
         "images/compass/navigator1_03.png" alt="C" onclick="JavaScript:resetView()" /> <img title="Pan left" class="compass" src=
         "images/compass/navigator1_04.png" alt="L" onclick="JavaScript:pan(-20,0)" /> <img title="Return to center" class="compass" src=
@@ -216,9 +220,12 @@
 
     <div id="topMenu" class="ui-widget-content">
         <div id="NavLineDiv"></div>
+		<span>1D Panel</span>
     </div>
 
-    <div id="jmolDiv" class="ui-widget-content"></div>
+    <div id="jmolDiv" class="ui-widget-content">
+	 <span>3D Panel</span>
+	</div>
 
     <div id="toolBar">
         <button id="openLayerBtn" class="toolBarBtn" title="Open Layer Manager"></button><br />
