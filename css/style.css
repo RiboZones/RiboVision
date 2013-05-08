@@ -180,7 +180,7 @@
 
 #navigator{
 	position:absolute;
-	top:28%;
+	top:30%;
 	left:16%;
 	height:auto;
 	width:65px;
@@ -472,4 +472,8 @@ body{
 
 #PanelTabs .ui-tabs-nav {
 	background: transparent !important;
+}
+.PanelLabels{
+	color:red;
+	font-size:1.0em;
 }
