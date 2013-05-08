@@ -233,7 +233,7 @@ body .ui-tooltip { border-width:2px; }
 .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button { font-family: "Myriad Pro", Arial, Helvetica, Tahoma, sans-serif; font-size: 1em; }
 .ui-widget-content { border: 1px solid #dddddd; background: #f2f5f7 url(../images/ui-bg_highlight-hard_100_f2f5f7_1x100.png) 50% top repeat-x; color: #362b36; }
 .ui-widget-content a { color: #362b36; }
-.ui-widget-header { border: 1px solid #aed0ea; margin: 0px;  color: #222222; font-weight: bold; }
+.ui-widget-header { border: 1px solid #aed0ea; margin: 0px;  color: #FFFFFF; font-weight: bold; background: #FF5500 url(../images/ui-bg_highlight-hard_40_FF5500_1x100.png) 50% 50% repeat-x;}
 .ui-widget-header a { color: #222222; }
 /*.ui-widget-header{background: #deedf7 url(../images/ui-bg_highlight-soft_100_deedf7_1x100.png) 50% 50% repeat-x;}*/
 /* Interaction states

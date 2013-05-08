@@ -168,21 +168,15 @@
         </div>
 
         <div id="MiniLayer" class="ui-widget-content">
-            <h3 class="ui-widget-header2">Display</h3><input type="button" id="MiniOpenLayerBtn" title="Open Layer Manager" value="Edit Layers" style=
-            "margin: auto;" /><br />
-            <br />
-
-           <span id="MiniLayerLabel">Layers:</span><br />
-
-            <div id="LinkSection" class="ui-widget-content">
-                <h3 class="ui-widget-header2">3D Color</h3>
-				<div id="LinkBubble"></div>
-				
-				<!--<p id="JmolColorLayer" style="border:dotted red">Drag Layer Here</p>//-->
-				</span>
-            </div>
+            <h3 class="ui-widget-header2">Display</h3>
+			<h3 id="MiniLayerLabel" class="ui-widget-header3">2D Layers</h3>
+			<input type="button" id="MiniOpenLayerBtn" title="Open Layer Manager" value="Edit Layers" style="margin: auto;" /><br />
+			
         </div>
-
+		<div id="LinkSection" class="ui-widget-content">
+			<h3 class="ui-widget-header3">3D Panel</h3>
+			</span>
+		</div>
         <div id="ExportData" class="ui-widget-content">
             <h3 class="ui-widget-header2">Save</h3><input id="SaveFigureBtn" type="button" value="Save Figures" /> <input id="SaveSessionBtn" type="button"
             value="Save Session" />
@@ -307,7 +301,7 @@
 
     <div id="RiboVisionSettingsPanel" title="Settings Panel">
         <div id="OverAllControlDiv" class="ui-widget-content SettingsDiv">
-            <h3 class="ui-widget-header2">General Settings</h3>
+            <h3 class="ui-widget-header3">General Settings</h3>
 
             <div id="buttonmode">
                 One Button Mode:<br />
@@ -330,7 +324,7 @@
         </div>
 
         <div id="NLControlDiv" class="ui-widget-content SettingsDiv">
-            <h3 class="ui-widget-header2">1D Panel</h3>
+            <h3 class="ui-widget-header3">1D Panel</h3>
 
             <div id="NavLineToggle">
                 1D Panel:<br />
@@ -340,7 +334,7 @@
         </div>
 
         <div id="SSControlDiv" class="ui-widget-content SettingsDiv">
-            <h3 class="ui-widget-header2">2D Panel</h3>
+            <h3 class="ui-widget-header3">2D Panel</h3>
 
             <div id="ResidueTipToggle">
                 ResidueTip:<br />
@@ -356,7 +350,7 @@
         </div>
 
         <div id="JmolControlDiv" class="ui-widget-content SettingsDiv">
-            <h3 class="ui-widget-header2">3D Panel</h3>
+            <h3 class="ui-widget-header3">3D Panel</h3>
 
             <p>Jmol Panel can be turned on and off. The regular Java version of Jmol is recommened. The HTML5/JavaScript version of Jmol, called
             JSmol is also available. </p>
@@ -472,7 +466,7 @@
 
     <div id="ResidueTip" title="ToolTip" style="position:fixed;width:1px;height:1px;z-index:1000000">
 		<div id="residuetip" style="visibility:hidden">
-            <h3 class="ui-widget-header2">ResidueTip</h3>
+            <h3 class="ui-widget-header3">ResidueTip</h3>
 			<h3 id="resName" class="NavLineItem"></h3>
 
             <h3 id="activeData" class="NavLineItem"></h3>
@@ -483,7 +477,7 @@
 
     <div id="InteractionTip" title="ToolTip" style="position:fixed;width:1px;height:1px;z-index:1000000">
 		<div id="interactiontip" style="visibility:hidden"> 
-			<h3 class="ui-widget-header2">ResidueTip</h3>
+			<h3 class="ui-widget-header3">ResidueTip</h3>
             <h3 id="BasePairType"></h3>
 
             <h3 id="BasePairSubType"></h3>
@@ -513,14 +507,14 @@
         <p>RiboVision is intended for making publication-quality images. Each of the three panels are saved separately.</p>
 
         <div id="NavLineExport" class="ui-widget-content ExportDiv">
-            <h3 class="ui-widget-header2">1D Panel</h3>
+            <h3 class="ui-widget-header3">1D Panel</h3>
 
             <p>RiboVision supports saving of the 1D Panel in SVG only.</p><input name="saveas" type="button" onclick="JavaScript:saveNavLine();" value=
             "Save NavLine" /><br />
         </div>
 
         <div id="CanvasExport" class="ui-widget-content ExportDiv">
-            <h3 class="ui-widget-header2">2D Panel</h3>
+            <h3 class="ui-widget-header3">2D Panel</h3>
 
             <p>Would you like to export just the visible layers, or all layers?</p><input id="visibleLayers" type="radio" name="savelayers" value="visible"
             checked="checked" /><label for="visibleLayers">Visible Layers</label> <input id="allLayers" type="radio" name="savelayers" value=
@@ -536,7 +530,7 @@
         </div>
 
         <div id="JmolExport" class="ui-widget-content ExportDiv">
-            <h3 class="ui-widget-header2">3D Panel</h3>
+            <h3 class="ui-widget-header3">3D Panel</h3>
             <p>Jmol has built-in image saving capabilities.</p>
 			<p>RiboVision supports quick-saving the 3D Panel to JPG.</p><input name="saveas" type="button" onclick="JavaScript:saveJmolImg();" value="JPG: 3D side" /><br />
             <p>Additionally, you may export a PyMOL Script for further processing in PyMOL.</p><input name="saveas" type="button" onclick="JavaScript:savePML();" value="PyMOL Script" />

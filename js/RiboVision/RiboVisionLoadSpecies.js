@@ -28,8 +28,6 @@ based on:
 
 
 function loadSpecies(species,DoneLoading,DoneLoading2) {
-	$("#LinkBubble").append($('<h3 class="miniLayerName ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom " style="font-size:0.85em;line-height:3em;text-align:center">')
-		.text("rr").attr('name',"rr"));
 		
 	// get data description table
 	$.getJSON('getData.php', {
