@@ -146,13 +146,18 @@ function resizeElements(noDraw) {
 	$("#ExportData").css('width', xcorr);
 
 	//MainMenu
-	$("#MainMenu").css('width', MainMenuFrac * xcorr); //75%, make room for new MiniLayer
+	$("#MainMenu").css('width', MainMenuFrac * xcorr); //65%, make room for new MiniLayer
 	$("#MainMenu").css('height', (0.9 * height) - parseFloat($("#SiteInfo").css('height')) - parseFloat($("#ExportData").css('height')));
 	$("#MainMenu").css('top', parseFloat($("#SiteInfo").css('height')));
 	
+	//LinkSection
+	$("#LinkSection").css('width', (1 - MainMenuFrac) * xcorr);
+	$("#LinkSection").css('height',parseFloat($("#LinkSection .ui-widget-header3").css('height')) + parseFloat($(".miniLayerName").first().css('height')) + 13);
+	$("#LinkSection").css('top', (0.9 * height) - parseFloat($("#ExportData").css('height')) - parseFloat($("#LinkSection").css('height')));
+	
 	//MiniLayer
-	$("#MiniLayer").css('width', (1 - MainMenuFrac) * xcorr); //25%, for new MiniLayer
-	$("#MiniLayer").css('height', (0.9 * height) - parseFloat($("#SiteInfo").css('height')) - parseFloat($("#ExportData").css('height')));
+	$("#MiniLayer").css('width', (1 - MainMenuFrac) * xcorr); //35%, for new MiniLayer
+	$("#MiniLayer").css('height', (0.9 * height) - parseFloat($("#SiteInfo").css('height')) - parseFloat($("#ExportData").css('height')) - parseFloat($("#LinkSection").css('height')));
 	$("#MiniLayer").css('top', parseFloat($("#SiteInfo").css('height')));
 	
 	//SideBarAccordian
