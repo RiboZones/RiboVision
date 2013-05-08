@@ -99,12 +99,14 @@
 	position:absolute;
 	left:65%;
 	top:25%;
-	height:65%;	
+	height:60%;	
 	width: 32%;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
 	-webkit-box-sizing:border-box; /* Safari */
 	border-left: ridge #B187B9;
+	/*overflow:auto;*/
+	
 }
 #ExportData{
 	position:absolute;
@@ -118,12 +120,14 @@
 }
 #LinkSection {
 	position:absolute;
-	top:85%;
-	height:15%;
-	width:100%;
+	left:65%;
+	width: 32%;
+	top:80%;
+	height:10%;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
 	-webkit-box-sizing:border-box; /* Safari */
+	border-left: ridge #B187B9;
 }
 #SideBarAccordian{
 	box-sizing:border-box;
@@ -222,17 +226,32 @@ canvas{
 .ui-widget-header2 {
 	padding:3px;
 	padding-left:10px;
-	background: #B187B9;
-	/*url(../images/ui-bg_glass_80_d7ebf9_1x400.png),url(../images/ui-bg_glass_50_3baae3_1x400.png)*/
-	color:#FFF;
+	background: #FF5500 url(../images/ui-bg_highlight-hard_40_FF5500_1x100.png) 50% 50% repeat-x;
+	color:#FFFFFF;
 	font-size:16px;
 	text-align:center;
 	border: 1px solid #aed0ea;
+	border-radius:6px;
 	margin: 0px;
 	font-weight: bold;
 	word-wrap:break-word;
-	
+	cursor:default;
 }
+.ui-widget-header3 {
+	padding:3px;
+	padding-left:10px;
+	background: #3baae3 url(../images/ui-bg_glass_50_3baae3_1x400.png) 50% 50% repeat-x;
+	color:#FFFFFF;
+	font-size:16px;
+	text-align:center;
+	border: 1px solid #aed0ea;
+	border-radius:6px;
+	margin: 0px;
+	font-weight: bold;
+	word-wrap:break-word;
+	cursor:default;
+}
+
 
 #layerColor2 {
 	background-image: none;	
@@ -263,6 +282,9 @@ body{
 	height: 100%;
 	margin: 0px; 
 	padding: 0px;
+	-webkit-user-select: none;  /* Chrome all / Safari all */
+	-moz-user-select: none;     /* Firefox all */
+	-ms-user-select: none;      /* IE 10+ */
 }
 
 #slider {
@@ -357,14 +379,15 @@ body{
 }
 
 .miniLayerName {
-	line-height: 3.0em;
-	font-size: 0.85em;
+	line-height: 3.0em !important;
+	font-size: 0.85em !important;
 	border: 1.0px solid PaleGreen !important;
 	border-width:thin !important;
 	text-align:center !important;
 	color:OrangeRed !important;
 	cursor:url(../images/DragD.gif),s-resize;
 	/*padding:0.2em !important;*/
+	font-weight: bold !important;
 }
 
 .dataBubble {
@@ -441,4 +464,12 @@ body{
 #nocanvas{
 	position:absolute;
 	top:50%;
+}
+
+.highlightBorder {
+	border: 4px solid LimeGreen !important;;
+}
+
+#PanelTabs .ui-tabs-nav {
+	background: transparent !important;
 }

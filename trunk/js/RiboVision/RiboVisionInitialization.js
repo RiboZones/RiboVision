@@ -34,7 +34,6 @@ function RiboVisionReady() {
 	$("#LinkSection").droppable({
 		drop: function (event,ui) {
 			if ($(ui.draggable[0]).hasClass("miniLayerName")){
-				$("#JmolColorLayer").text($(ui.draggable[0]).attr("name"));
 				var targetLayer = rvDataSets[0].getLayer($(ui.draggable[0]).attr("name"));
 				$(".oneLayerGroup[name='" + targetLayer.LayerName + "']").find(".mappingRadioBtn").prop("checked",true);	
 				$(".oneLayerGroup[name='" + targetLayer.LayerName + "']").find(".mappingRadioBtn").trigger("change");	
@@ -230,9 +229,6 @@ function RiboVisionReady() {
 	$('.ui-slider-handle').height(21).width(21);
 	$("#TemplateLink").button();
 	
-	$("#dialog-addLayer span").html("We currently are only supporting the addition of new circle type layers." + 
-		" Future updates will let you add additional layers of any type." + 
-		"<br>");
 	$( "#dialog-unique-layer-error" ).dialog({
 		resizable : false,
 		autoOpen : false,
@@ -1087,7 +1083,15 @@ function InitRibovision2(noLoad,FreshState) {
 		LayerMenu(value, key);
 	});
 	RefreshLayerMenu();
-	
+	//Refresh Linked MiniLayer
+	var linkedLayer = rvDataSets[0].getLinkedLayer();
+	$("#LinkSection").find(".miniLayerName").remove();
+	$("#LinkSection").append($('<h3 class="miniLayerName ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom ">')
+		.text(linkedLayer.LayerName).attr('name',linkedLayer.LayerName).droppable({
+			drop: function (event,ui) {
+				ProcessBubbleDrop(event,ui);
+			}
+		}));
 	// Put in Selections
 	$(".oneSelectionGroup").remove();
 	$.each(rvDataSets[0].Selections.reverse(), function (key, value){
