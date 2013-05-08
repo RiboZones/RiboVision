@@ -651,6 +651,9 @@ function rvDataSet(DataSetName) {
 						if (ColorArray[dataIndices[i]]) {
 							rvDataSets[0].Residues[i].color = ColorArray[dataIndices[i]];
 							targetLayer.dataLayerColors[i] = ColorArray[dataIndices[i]];
+						} else {
+							rvDataSets[0].Residues[i].color = "#000000";
+							targetLayer.dataLayerColors[i] = "#000000";
 						}
 					}
 				} else {

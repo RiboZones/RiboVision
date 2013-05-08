@@ -189,7 +189,6 @@
 	</div>
 
     <div id="navigator" style="z-index:999; width:65px">
-        <span>2D Panel</span>
 		<div id="compassImgs"><img class="compass" src="images/compass/navigator1_01.png" alt="R" onclick="JavaScript:resetView()" /> <img title="Pan up"
         class="compass" src="images/compass/navigator1_02.png" alt="U" onclick="JavaScript:pan(0,-20)" /> <img class="compass" src=
         "images/compass/navigator1_03.png" alt="C" onclick="JavaScript:resetView()" /> <img title="Pan left" class="compass" src=
@@ -203,18 +202,18 @@
     </div>
 
     <div id="canvasDiv" oncontextmenu="return false" class="ui-widget-content">
-        <canvas id="HighlightLayer" style="z-index:998; width:100%"></canvas>
-
-        <p id="nocanvas"><canvas id="HighlightLayer" style="z-index:998; width:100%">Your browser does not support Canvas and can not use this site. We
-        recommend Firefox. Internet Explorer users need to be at least on version 9, which requires Windows Vista or higher. Internet Explorer 10 (Windows 7 or
-        higher) is needed for all features to work. Check out <a href="http://caniuse.com/#feat=canvas" target="_blank">this nice table of browser
-        support.</a>. Also, in order to use Custom Data Feature, <a href="http://caniuse.com/#feat=filereader" target="_blank">check out this
-        table.</a></canvas></p><canvas id="HighlightLayer" style="z-index:998; width:100%"></canvas>
+		<span id="canvaslabel" class="PanelLabels">2D Panel</span>
+		<canvas id="HighlightLayer" style="z-index:998; width:100%">Your browser does not support Canvas and can not use this site. We
+				recommend Firefox. Internet Explorer users need to be at least on version 9, which requires Windows Vista or higher. Internet Explorer 10 (Windows 7 or
+				higher) is needed for all features to work. Check out <a href="http://caniuse.com/#feat=canvas" target="_blank">this nice table of browser
+				support.</a>. Also, in order to use Custom Data Feature, <a href="http://caniuse.com/#feat=filereader" target="_blank">check out this
+				table.</a></canvas>
+        <p id="nocanvas"></p>
     </div>
 
     <div id="topMenu" class="ui-widget-content">
         <div id="NavLineDiv"></div>
-		<span>1D Panel</span>
+		<span class="PanelLabels">1D Panel</span>
     </div>
 
     <div id="jmolDiv" class="ui-widget-content">

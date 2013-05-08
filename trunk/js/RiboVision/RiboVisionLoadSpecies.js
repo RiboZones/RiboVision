@@ -138,8 +138,10 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 						var NewSDPair = SDList[ii].split(":");
 						var ColName = NewSDPair[1].match(/[^\'\\,]+/);
 						var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
-						if (result[0]){
+						if (ColName[0] && result[0]){
 							var title = NewSDPair[0] + ": " + result[0].Description;
+						} else if (ColName[0]=='""'){
+							var title = "None: This clears circles and makes letters black.";
 						} else {
 							var title = "Data Description is missing.";
 						}
