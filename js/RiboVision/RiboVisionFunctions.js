@@ -178,7 +178,7 @@ function resizeElements(noDraw) {
 	
 	//Navigator Section
 	$("#navigator").css('left', xcorr);
-	$("#navigator").css('top', ycorr);
+	$("#navigator").css('top', ycorr + parseFloat($("#canvaslabel").css("height")));
 	
 	//Jmol Section
 	$("#jmolDiv").css('height', s);
