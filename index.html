@@ -75,7 +75,6 @@
 
             <div id="SideBarAccordian">
                 <h3><a href="#">Species/Subunit</a></h3>
-					<!--<div><span class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom">Test</span></div>//-->
                 <div id="SpeciesDiv" style="padding:0.1em">
 					<ul id="speciesList" style="font-size:0.9em">
                         <li class="ui-menu-item ios-menu-back-link" role="menu">
@@ -224,12 +223,9 @@
         <button id="openLayerBtn" class="toolBarBtn" title="Open Layer Manager"></button><br />
         <button id="openSelectionBtn" class="toolBarBtn" title="Open Selection Manager"></button><br />
         <button id="openColorBtn" class="toolBarBtn" title="Open Color Picker"></button><br />
-        <button id="SelectionMode" class="toolBarBtn" title="No function yet"></button><br />
         <button id="RiboVisionSettings" class="toolBarBtn" title="RiboVision Settings"></button><br />
         <button id="RiboVisionSaveManager" class="toolBarBtn" title="RiboVision Save/Restore Manager"></button><br />
-        <button id="openInteractionSettingBtn" class="toolBarBtn" title="Interaction Setting"></button><br />
-        <button id="openManualBtn" class="toolBarBtn" title="Ribovision Manual" onclick="window.open(&#39;/Documentation/index.html&#39;)">Ribovision
-        Manual</button>
+        <button id="openManualBtn" class="toolBarBtn" title="Ribovision Manual" onclick="window.open(&#39;/Documentation/index.html&#39;)"></button>
     </div><!--Layer Control Dialog Box-->
 
     <div id="LayerDialog" title="Layer / Selection Manager">
@@ -280,21 +276,6 @@
             <div id="colorpicker"></div><input id="clearColor" type="button" name="clearColor" onclick="Javascript:clearColor(true)" value="Clear Color" />
             <input id="colorSelection" type="button" onclick="Javascript:colorSelection()" value="Color Selection" /> <input id="clearselection2" name=
             "selebutton" type="button" onclick="JavaScript:clearSelection();" value="Clear Selection" />
-        </div>
-    </div>
-
-    <div id="InteractionSettingDialog" title="Interaction Setting">
-        <div class="dialogContentArea">
-            <p style="line-height:1.6em">Choose single line or multiple ones:</p>
-
-            <div id="singleMultiChoice">
-                <input type="radio" id="radio1" name="radio" /><label for="radio1">Single</label> <input type="radio" id="radio2" name="radio" checked=
-                "checked" /><label for="radio2">Multiple</label>
-            </div><br />
-
-            <p id="lineOpacity" style="line-height:1.6em">Line Opacity: 100%</p>
-
-            <div id="lineOpacitySlider"></div>
         </div>
     </div>
 
@@ -398,7 +379,7 @@
             <input id="JmolOrientationCheck" name="JmolOrientationCheck" value="JmolOrientationCheck" type="checkbox" checked="checked" /><label for=
             "JmolOrientationCheck">3D Settings</label><br />
             <br />
-            File / Server only:<br />
+            File only:<br />
             <input id="WholeDataSetCheck" name="WholeDataSetCheck" value="WholeDataSetCheck" type="checkbox" checked="checked" /><label for=
             "WholeDataSetCheck">Entire DataSet</label><br />
             <br />
@@ -409,14 +390,12 @@
                 Save To / Restore From:<br />
                 <br />
                 <input id="sscB" type="radio" name="ssc" value="LocalStorage" /><label for="sscB">Browser</label> <input id="sscF" type="radio" name="ssc"
-                value="File" /><label for="sscF">File</label> <input id="sscS" type="radio" name="ssc" value="Server" /><label for="sscS">Server</label><br />
+                value="File" /><label for="sscF">File</label><br />
                 <br />
                 Session Name:<br />
                 <input id="SaveStateFileName" name="SaveStateFileName" type="text" value="RV_DataSet1" />
 
-                <p>Warning! Save to &quot;Server&quot; is currently being provided for testing purposes only. Data can be overwritten and/or deleted at any
-                time. Additionally, other people may be able to see your work. Don&#39;t rely on this feature right now, keep backups in files.</p><input id=
-                "ssSave" type="button" value="Save" /> <input id="ssRestore" type="button" value="Restore" />
+               <input id="ssSave" type="button" value="Save" /> <input id="ssRestore" type="button" value="Restore" />
             </div>
         </div>
     </div>
