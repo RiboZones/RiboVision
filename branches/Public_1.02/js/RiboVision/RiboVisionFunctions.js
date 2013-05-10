@@ -55,14 +55,6 @@ function initLabels(species) {
 				rvDataSets[0].drawLabels("labels");
 			});
 		});
-		
-		$.getJSON('getData.php', {
-			FullTable : "SC_LSU_Struct_Extra"
-				}, function (data) {
-				rvDataSets[0].addLabels(undefined, undefined, data);
-				rvDataSets[0].drawLabels("labels",true);
-		});
-		
 	} else {
 		rvDataSets[0].clearCanvas("labels");
 		rvDataSets[0].addLabels([], []);
