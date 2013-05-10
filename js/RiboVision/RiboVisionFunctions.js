@@ -738,7 +738,7 @@ function colorMappingLoop(targetLayer, seleProt, seleProtNames, OverRideColors) 
 	var Jscript = "display (selected), (" + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and (";
 	var JscriptP = "set hideNotSelected false;";
 	
-	
+	$("#ProtList").multiselect("widget").find(".ui-multiselect-checkboxes").find("span").css("color","black"); // Reset Protein colors to black.
 	//Loop
 	
 	for (var i = 0; i < seleProt.length; i++) {
@@ -746,8 +746,14 @@ function colorMappingLoop(targetLayer, seleProt, seleProtNames, OverRideColors) 
 			var val = Math.round((i / (seleProt.length - 1)) * (colors2.length - 1));
 		} else {
 			var val = 0;
-		}
+		}	
+
 		var newcolor = (val < 0 || val >= colors2.length) ? "#000000" : colors2[val];
+		var ProtName = $.grep($("#ProtList").multiselect("getChecked"), function(e) {
+			return e.value == seleProt[i];
+		});
+		$(ProtName).next().css("color",newcolor);
+		
 		if (targetLayer){
 			var dataIndices = new Array;
 			for (var jj = 0; jj < rvDataSets[0].Residues.length; jj++) {
@@ -1866,112 +1872,46 @@ function savePDF() {
 function savePML() {
 	AgreeFunction = function () {
 		var script = "";
-		var PyMOL_obj = [];
 		var PDB_Obj_Names = [];
-		// Come back and make this loop for all Selections
-		var targetSelection = rvDataSets[0].getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
 		
+		//Default option
+		script += "bg_color white\nunset ignore_case\n";
+		//PDB Files
 		var PDB_files = [rvDataSets[0].SpeciesEntry.PDB_File_rRNA, rvDataSets[0].SpeciesEntry.PDB_File_rProtein];
-		
 		if (PDB_files[1] === PDB_files[0]) {
 			PDB_Obj_Names[0] = rvDataSets[0].SpeciesEntry.Species_Abr + "_" + rvDataSets[0].SpeciesEntry.Subunit + "_Full";
 			PDB_Obj_Names[1] = PDB_Obj_Names[0];
 			script += "load " + PDB_files[0] + ", " + PDB_Obj_Names[0] + "\n";
+			script += "as cartoon, " + PDB_Obj_Names[0] + "\n";
+			script += "disable " + PDB_Obj_Names[0] + "\n";
 		} else {
 			PDB_Obj_Names[0] = rvDataSets[0].SpeciesEntry.Species_Abr + "_" + rvDataSets[0].SpeciesEntry.Subunit + "_rRNA";
 			PDB_Obj_Names[1] = rvDataSets[0].SpeciesEntry.Species_Abr + "_" + rvDataSets[0].SpeciesEntry.Subunit + "_rProtein"
-				script += "load " + PDB_files[0] + ", " + PDB_Obj_Names[0] + "\n";
+			script += "load " + PDB_files[0] + ", " + PDB_Obj_Names[0] + "\n";
 			script += "load " + PDB_files[1] + ", " + PDB_Obj_Names[1] + "\n";
-		}
-		
-		for (var j = 0; j < rvDataSets[0].SpeciesEntry.Molecule_Names.length; j++) {
-			PyMOL_obj[j] = rvDataSets[0].SpeciesEntry.Species_Abr + "_" + rvDataSets[0].SpeciesEntry.Molecule_Names[j];
-			script += "create " + PyMOL_obj[j] + ", " + PDB_Obj_Names[0] + " and chain " + rvDataSets[0].SpeciesEntry.PDB_chains[j] + "\n";
-			script += "enable " + PyMOL_obj[j] + "\n";
+			script += "as cartoon, " + PDB_Obj_Names[0] + "\n";
+			script += "as cartoon, " + PDB_Obj_Names[1] + "\n";
+			script += "disable " + PDB_Obj_Names[0] + "\n";
+			script += "disable " + PDB_Obj_Names[1] + "\n";
 		}
 		script += "\n";
-		var r0,
-		r1,
-		curr_chain,
-		curr_color,
-		n,
-		m;
-		r0 = rvDataSets[0].Residues[0].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-		curr_chain = rvDataSets[0].Residues[0].ChainID;
-		curr_color = rvDataSets[0].Residues[0].color;
+		// Layers to PyMOL
+		var dsLayers = rvDataSets[0].getLayerByType(["residues","circles","selected"]);
+		$.each(dsLayers, function (key, value) {
+			script += layerToPML(PDB_Obj_Names,value);
+		});
 		
-		for (var i = 1; i < rvDataSets[0].Residues.length; i++) {
-			var residue = rvDataSets[0].Residues[i];
-			var residueLast = rvDataSets[0].Residues[i - 1];
-			
-			if (residue.ChainID != "") {
-				if (curr_chain == "") {
-					curr_chain = residue.ChainID;
-					curr_color = residue.color;
-					r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-				} else if (residue.ChainID == null) {
-					curr_chain = residue.ChainID;
-					curr_color = residue.color;
-					r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-				} else {
-					
-					if (((residue.color != residueLast.color) || (curr_chain != residue.ChainID)) || (i == (rvDataSets[0].Residues.length))) {
-						r1 = residueLast.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-						if (residueLast.color.indexOf("#") == -1) {
-							script += "color 0x" + curr_color + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + r1 + "\n";
-						} else {
-							script += "color " + curr_color.replace("#", "0x") + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + r1 + "\n";
-						}
-						r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-						if (residue.ChainID != "") {
-							curr_chain = residue.ChainID;
-						}
-						curr_color = residue.color;
-					}
-				}
-			}
-		}
-		if (residueLast.color.indexOf("#") == -1) {
-			script += "color 0x" + curr_color + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + "\n";
-		} else {
-			script += "color " + curr_color.replace("#", "0x") + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + "\n";
-		}
-		script += "\n";
+		//Proteins to PyMOL
+		script += proteinsToPML(PDB_Obj_Names);
 		
-		// Protein Section
-		for (var jj = 0; jj < rvDataSets[0].SpeciesEntry.SubunitProtChains[0].length; jj++) {
-			script += "create " + rvDataSets[0].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][jj] + "," + PDB_Obj_Names[1] + " and chain " + rvDataSets[0].SpeciesEntry.SubunitProtChains[1][jj] + "\n";
-		}
-		script += "\ndisable *rp*\n";
-		script += "color blue, *rp*\n";
+		//Selection to PyMOL
+		$.each(rvDataSets[0].Selections, function (key, value) {
+			script += selectionToPML(PDB_Obj_Names,value);
+		});
+		script += "\ndisable RV_Sele_*\n";
 		
-		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
-				return this.value;
-			}).get();
-		
-		//var dd = document.getElementById("ProtList");
-		//var colName = dd.options[dd.selectedIndex].value;
-		//var colName = array_of_checked_values[0];
-		for (jjj = 0; jjj < array_of_checked_values.length; jjj++) {
-			var h = rvDataSets[0].SpeciesEntry.SubunitProtChains[0].indexOf(array_of_checked_values[jjj]);
-			if (h >= 0) {
-				script += "enable " + rvDataSets[0].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][h] + "\n";
-			}
-		}
+		//Default zoom
 		script += "\nzoom all\n";
-		if (targetSelection.Residues.length > 0) {
-			var SeleScript = "create RiboVisionSele," + rvDataSets[0].SpeciesEntry.Jmol_Script.substring(0, rvDataSets[0].SpeciesEntry.Jmol_Script.indexOf("_state")) + " and ((resi " + targetSelection.Residues[0].resNum.replace(/[^:]*:/g, "") + " and chain " + targetSelection.Residues[0].ChainID + ")";
-			// Selected Section
-			for (var ii = 1; ii < targetSelection.Residues.length; ii++) {
-				if (targetSelection.Residues[ii].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") != null) {
-					r1 = targetSelection.Residues[ii].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-					SeleScript += " or (resi " + r1 + " and chain " + targetSelection.Residues[ii].ChainID + ")";
-				}
-			}
-			SeleScript += ")\n";
-			
-			script += "\n" + SeleScript;
-		}
 		
 		//Form Submit;
 		var form = document.createElement("form");
@@ -1996,6 +1936,138 @@ function savePML() {
 		form.submit();
 	}
 	checkSavePrivacyStatus();
+}
+
+function layerToPML(PDB_Obj_Names,targetLayer) {
+	var PyMOL_obj = [];
+	var script = "";
+	var r0,r1,curr_chain,curr_color,n,m;
+	if (rvDataSets[0].Residues[0] == undefined){return};
+	
+	for (var j = 0; j < rvDataSets[0].SpeciesEntry.Molecule_Names.length; j++) {
+			PyMOL_obj[j] = rvDataSets[0].SpeciesEntry.Species_Abr + "_" + rvDataSets[0].SpeciesEntry.Molecule_Names[j] + "_" + targetLayer.LayerName;
+			script += "create " + PyMOL_obj[j] + ", " + PDB_Obj_Names[0] + " and chain " + rvDataSets[0].SpeciesEntry.PDB_chains[j] + "\n";
+			if (targetLayer.Linked){
+				script += "enable " + PyMOL_obj[j] + "\n";
+			} else {
+				script += "disable " + PyMOL_obj[j] + "\n";
+			}
+		}
+		script += "\n";
+		
+		r0 = rvDataSets[0].Residues[0].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+		curr_chain = rvDataSets[0].Residues[0].ChainID;
+		curr_color = colorNameToHex(targetLayer.dataLayerColors[0]);
+		if (!curr_color || curr_color === '#000000') {
+			curr_color = '#858585';
+		}
+		for (var i = 1; i < rvDataSets[0].Residues.length; i++) {
+			var residue = rvDataSets[0].Residues[i];
+			var residueLast = rvDataSets[0].Residues[i - 1];
+			var residueLastColor = targetLayer.dataLayerColors[i - 1];
+			if (!residueLastColor){
+				residueLastColor = '#858585';
+			}
+			if (residue.ChainID != "") {
+				if (curr_chain == "") {
+					curr_chain = residue.ChainID;
+					curr_color = colorNameToHex(targetLayer.dataLayerColors[i]);
+					if (!curr_color || curr_color === '#000000') {
+						curr_color = '#858585';
+					}
+					r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+				} else if (residue.ChainID == null) {
+					curr_chain = residue.ChainID;
+					curr_color = colorNameToHex(targetLayer.dataLayerColors[i]);
+					if (!curr_color || curr_color === '#000000') {
+						curr_color = '#858585';
+					}
+					r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+				} else {
+					if (!targetLayer.dataLayerColors[i]){
+						compare_color = '#858585';
+					} else {
+						compare_color = colorNameToHex(targetLayer.dataLayerColors[i]);
+					}
+					if (((compare_color != colorNameToHex(residueLastColor)) || (curr_chain != residue.ChainID)) || (i == (rvDataSets[0].Residues.length - 1))) {
+						r1 = residueLast.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""); ;
+						if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
+							script += "color 0x" + curr_color + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + r1 + "\n";
+						} else {
+							script += "color " + curr_color.replace("#", "0x") + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + r1 + "\n";
+						}
+						r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+						if (residue.ChainID != "") {
+							curr_chain = residue.ChainID;
+						}
+						curr_color = colorNameToHex(targetLayer.dataLayerColors[i]);
+						if (!curr_color || curr_color === '#000000') {
+							curr_color = '#858585';
+						}
+					}
+				}
+			}
+		}
+		if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
+			script += "color 0x" + curr_color + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + "\n";
+		} else {
+			script += "color " + curr_color.replace("#", "0x") + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + "\n";
+		}
+		script += "\n";
+	
+	return script;
+}
+
+function proteinsToPML(PDB_Obj_Names){
+	var script = "";
+	var curr_color;
+	// Protein Section
+	for (var jj = 0; jj < rvDataSets[0].SpeciesEntry.SubunitProtChains[0].length; jj++) {
+		script += "create " + rvDataSets[0].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][jj] + ", " + PDB_Obj_Names[1] + " and chain " + rvDataSets[0].SpeciesEntry.SubunitProtChains[1][jj] + "\n";
+	}
+	script += "\ndisable *rp*\n";
+	script += "color wheat, *rp*\n";
+	
+	var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
+			return this.value;
+		}).get();
+	
+	for (jjj = 0; jjj < array_of_checked_values.length; jjj++) {
+		var h = rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(array_of_checked_values[jjj]);
+		var ProtName = $.grep($("#ProtList").multiselect("getChecked"), function(e) {
+			return e.value == array_of_checked_values[jjj];
+		});
+		if (h >= 0) {
+			curr_color = rgb2hex($(ProtName).next().css("color"));
+			if(curr_color.indexOf("#") == -1) {
+				curr_color = "0x" + curr_color;
+			} else {
+				curr_color = curr_color.replace("#", "0x");
+			}
+			script += "color " + curr_color + ", " + rvDataSets[0].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][h].replace(/\(/g,"_").replace(/\)/g,"") + "\n";
+			script += "enable " + rvDataSets[0].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][h].replace(/\(/g,"_").replace(/\)/g,"") + "\n";
+		}
+	}
+	return script;
+}
+
+function selectionToPML(PDB_Obj_Names,targetSelection){
+	var script = "";
+	
+	if (targetSelection.Residues.length > 0) {
+		var SeleScript = "create RV_Sele_" + targetSelection.Name + ", " + PDB_Obj_Names[0] + " and ((resi " + targetSelection.Residues[0].resNum.replace(/[^:]*:/g, "") + " and chain " + targetSelection.Residues[0].ChainID + ")";
+		// Selected Section
+		for (var ii = 1; ii < targetSelection.Residues.length; ii++) {
+			if (targetSelection.Residues[ii].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") != null) {
+				r1 = targetSelection.Residues[ii].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+				SeleScript += " or (resi " + r1 + " and chain " + targetSelection.Residues[ii].ChainID + ")";
+			}
+		}
+		SeleScript += ")\n";
+		script += "\n" + SeleScript;
+		script += "color " + targetSelection.Color.replace("#", "0x") + ", " + "RV_Sele_" + targetSelection.Name + "\n";
+	}
+	return script;
 }
 
 function canvasToSVG() {
