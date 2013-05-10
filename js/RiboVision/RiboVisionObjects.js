@@ -158,7 +158,7 @@ function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color) 
 				$("[name=" + this.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(this.DataLabel);
 				this.clearData();
 				drawNavLine();
-				rvDataSets[0].clearCanvas(this.LayerName);
+				this.clearCanvas();
 				update3Dcolors();
 				break;
 			case "residues":
