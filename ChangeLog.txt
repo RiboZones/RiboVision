@@ -1,4 +1,6 @@
 Ribovision Change Log File
+1.02 Huge changes, sorry for not writing this logfile much. 
+
 0.59 First Public version. Minor changes since 0.55. 
 
 0.55 Added save 3d. Added alphas of NavLine, interaction zoom, and tooltips. Added Alignment Data. Much more. 
