@@ -55,14 +55,6 @@ function initLabels(species) {
 				rvDataSets[0].drawLabels("labels");
 			});
 		});
-		
-		$.getJSON('getData.php', {
-			FullTable : "SC_LSU_Struct_Extra"
-				}, function (data) {
-				rvDataSets[0].addLabels(undefined, undefined, data);
-				rvDataSets[0].drawLabels("labels",true);
-		});
-		
 	} else {
 		rvDataSets[0].clearCanvas("labels");
 		rvDataSets[0].addLabels([], []);
@@ -1696,60 +1688,7 @@ function saveJmolImg() {
 	}
 	checkSavePrivacyStatus();
 }
-function retrieveRvState(filename) {
-	SaveStateFileName=filename;
-	$.post('retrieveRvState.php', {
-		datasetname : SaveStateFileName,
-		username : UserName
-	}, function (RvSaveState) {
-		//alert(RvSaveState);
-		var rvSaveState = JSON.parse(RvSaveState);
-		rvDataSets[0]=rvDataSets[0].fromJSON(rvSaveState["RvDS"]);
-		// Re stringify a few things for compatibility / symmetry with local storage
-		rvSaveState["rvLayers"] = JSON.stringify(rvDataSets[0].Layers);
-		rvSaveState["rvSelections"] = JSON.stringify(rvDataSets[0].Selections);
-		rvSaveState["rvLastSpecies"] = rvDataSets[0].Name;
-		if($('input[name="jp"][value=on]').is(':checked')){
-			Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
-			var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
-			Jmol.script(myJmol, jscript);
-		}
-		processRvState(rvSaveState);
-	});
-}
 
-function storeRvState(filename){
-	SaveStateFileName=filename;
-	AgreeFunction = function () {
-		var RvSaveState = {};
-		RvSaveState["RvDS"] = JSON.stringify(rvDataSets[0]);
-		RvSaveState["rvView"] = JSON.stringify(rvViews[0]);
-		if($('input[name="jp"][value=on]').is(':checked')){
-			RvSaveState["rvJmolOrientation"] = Jmol.evaluate(myJmol,"script('show orientation')");
-		}
-	
-		if($("input[name='PanelSizesCheck']").attr("checked")){
-			var po = {
-				PanelDivide : PanelDivide,
-				TopDivide : TopDivide
-			}
-			RvSaveState["rvPanelSizes"] = JSON.stringify(po);
-		}
-		if($("input[name='MouseModeCheck']").attr("checked")){
-			RvSaveState["rvMouseMode"] = onebuttonmode;	
-		}
-		
-		$form = $("<form></form>");
-		$('body').append($form);
-		data = {
-			content: JSON.stringify(RvSaveState,null,'\t'),
-			datasetname : SaveStateFileName,
-			username : UserName
-		};
-		$.post("storeRvState.php", data, function(d) {});
-	}
-	checkSavePrivacyStatus();
-}
 function saveRvState(filename){
 	SaveStateFileName=filename;
 	AgreeFunction = function () {
@@ -2904,9 +2843,6 @@ function rvSaveManager(rvAction) {
 				case "File":
 					saveRvState(SaveStateFileName);
 					break;		
-				case "Server":
-					storeRvState(SaveStateFileName);
-					break;
 				default:
 					alert("huh?");
 			}
@@ -2920,9 +2856,6 @@ function rvSaveManager(rvAction) {
 				case "File":
 					$("#dialog-restore-state").dialog("open");
 					break;		
-				case "Server":
-					retrieveRvState(SaveStateFileName);
-					break;
 				default:
 					alert("huh?");
 			}
