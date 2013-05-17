@@ -66,7 +66,7 @@
 <body>
     <div id="menu" class="ui-widget-content">
         <div id="SiteInfo" class="ui-widget-content">
-            <h3 class="ui-widget-header2"><a href="./ChangeLog.txt" target="_blank" style="color:#FFF">RiboVision: Version 1.02</a></h3>
+            <h3 class="ui-widget-header2"><a href="./ChangeLog.txt" target="_blank" style="color:#FFF">RiboVision: Version 1.03</a></h3>
             <div id="MainLogoDiv"><a href="/RiboZonesTest/Documentation/index.html" target="_blank"><img src="images/RiboVisionLogo.png" id="MainLogo" title="RiboVision Manual" alt="Ribovision Logo" /></a></div>
         </div>
 
@@ -178,8 +178,8 @@
 			</span>
 		</div>
         <div id="ExportData" class="ui-widget-content">
-            <h3 class="ui-widget-header2">Save</h3><input id="SaveFigureBtn" type="button" value="Save Figures" /> <input id="SaveSessionBtn" type="button"
-            value="Save Session" />
+            <h3 class="ui-widget-header2">Save</h3><input id="SaveFigureBtn" type="button" value="Figures/Sequence" /> <input id="SaveSessionBtn" type="button"
+            value="Session" />
         </div>
     </div>
 
@@ -509,7 +509,7 @@
             <h3 class="ui-widget-header3">1D Panel</h3>
 
             <p>RiboVision supports saving of the 1D Panel in SVG only.</p><input name="saveas" type="button" onclick="JavaScript:saveNavLine();" value=
-            "Save NavLine" /><br />
+            "Save 1D Figure" /><br />
         </div>
 
         <div id="CanvasExport" class="ui-widget-content ExportDiv">
@@ -534,6 +534,9 @@
 			<p>RiboVision supports quick-saving the 3D Panel to JPG.</p><input name="saveas" type="button" onclick="JavaScript:saveJmolImg();" value="JPG: 3D side" /><br />
             <p>Additionally, you may export a PyMOL Script for further processing in PyMOL.</p><input name="saveas" type="button" onclick="JavaScript:savePML();" value="PyMOL Script" />
         </div>
+		<div id="SequenceExport" class="ui-widget-content ExportDiv2">
+		Food
+		</div>
     </div>
 
     <div id="dialog-addLayer" title="Create a New Layer">
