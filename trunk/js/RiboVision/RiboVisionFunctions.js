@@ -2484,6 +2484,9 @@ function drawNavLine(){
 		if (targetLayer.Type == "selected"){
 			maxdata=1;
 		}
+		if (targetLayer.DataLabel === "Protein Contacts"){
+			maxdata=1;
+		}
 		var	xScale = d3.scale.linear().domain([0, targetLayer.Data.length]).range([0 + MarginXL, w - MarginXR]);
 		var	yScale = d3.scale.linear().domain([0, maxdata]).range([h - MarginYB,0 + MarginYT ]);
 
@@ -2500,7 +2503,7 @@ function drawNavLine(){
 			
 		var line = d3.svg.line()
 			.defined(function(d) { 
-				return ((d!==undefined) ? !isNaN(d) : false) 
+				return (((d!==undefined) && d!=="") ? !isNaN(d) : false) 
 			})			
 			.x(function(d,i) { return xScale(i); })
 			.y(function(d) { return yScale(d); });	
