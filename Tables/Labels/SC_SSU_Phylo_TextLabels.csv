@@ -1,5 +1,5 @@
 LabelText,X,Y,Font,FontSize,Fill
-varchar(500),'real(8,3)','real(8,3)',varchar(100),'real(6,3)',char(7)
+varchar(500),"real(8,3)","real(8,3)",varchar(100),"real(6,3)",char(7)
 3\'M,462.208,225.0298,MyriadPro-Regular,24,#E1675C
 3\'m,372.9727,518.8691,MyriadPro-Regular,24,#9EA037
 5\',119.0752,463.168,MyriadPro-Regular,24,#4F6DB3
