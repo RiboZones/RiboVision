@@ -1,8 +1,8 @@
 LabelText,X,Y,Font,FontSize,Fill
 varchar(500),"real(8,3)","real(8,3)",varchar(100),"real(6,3)",char(7)
-3&apos;M,439.6865,260.7832,MyriadPro-Regular,24,#F499C1
-3&apos;m,347.29,499.0859,MyriadPro-Regular,24,#0BA34A
-5&apos;,141.9219,465.5166,MyriadPro-Regular,24,#5AA0D7
+3\'M,439.6865,260.7832,MyriadPro-Regular,24,#F499C1
+3\'m,347.29,499.0859,MyriadPro-Regular,24,#0BA34A
+5\',141.9219,465.5166,MyriadPro-Regular,24,#5AA0D7
 C,163.7231,224.0537,MyriadPro-Regular,24,#FED4A2
 1,277.2583,386.9004,MyriadPro-Regular,7,#0974BA
 10,165.7729,604.5625,MyriadPro-Regular,7,#0974BA
