@@ -669,7 +669,6 @@ function colorProcess(DataInput, indexMode,targetLayer,colors) {
 	switch (targetLayer.Type) {
 	case "circles":
 		targetLayer.Data = data;
-
 		if (indexMode == "1") {
 			var dataIndices = data;
 		} else {
@@ -682,16 +681,16 @@ function colorProcess(DataInput, indexMode,targetLayer,colors) {
 		update3Dcolors();
 		break;
 	case "residues":
-		var dataIndices = new Array;
 		targetLayer.Data = data;
-		for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
-			var residue = rvDataSets[0].Residues[i];
-			if (indexMode == "1") {
+		if (indexMode == "1") {
 				dataIndices = data;
-			} else {
+		} else {
+			var dataIndices = new Array;
+			for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
 				dataIndices[i] = Math.round((data[i] - min) / range * (colors.length - 1));
 			}
 		}
+		
 		rvDataSets[0].drawResidues(targetLayer.LayerName, dataIndices, colors);
 		update3Dcolors();
 		break;
@@ -819,9 +818,7 @@ function update3DProteins(seleProt, OverRideColors) {
 }
 
 function colorMapping(targetLayer,ChoiceList, ManualCol, OverRideColors, indexMode, rePlaceData) {
-	if (arguments.length == 2 || ManualCol == "42") {
-		//var dd = document.getElementById(ChoiceList);
-		
+	if (arguments.length == 2 || ManualCol == "42") {		
 		var colName = $("#" + ChoiceList).val();
 	}
 	if (arguments.length >= 3 && ManualCol != "42") {
@@ -837,7 +834,6 @@ function colorMapping(targetLayer,ChoiceList, ManualCol, OverRideColors, indexMo
 		indexMode[0]=false;
 	}
 	
-	//var targetLayer = rvDataSets[0].getSelectedLayer()
 		if (!targetLayer) {
 			$("#dialog-selection-warning p").text("Please select a valid layer and try again.");
 			$("#dialog-selection-warning").dialog("open");
@@ -845,41 +841,18 @@ function colorMapping(targetLayer,ChoiceList, ManualCol, OverRideColors, indexMo
 		}
 		switch (targetLayer.Type) {
 		case "circles":
-			if (colName[0] != "clear_data") {
-				var data = new Array;
-				for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
-					data[j] = rvDataSets[0].Residues[j][colName[0]];
-				}
-				colorProcess(data, indexMode[0],targetLayer,colors);
-			} else {
-				targetLayer.Data = [];
-				targetLayer.dataLayerColors = [];
-				targetLayer.clearCanvas();
-				update3Dcolors();
-				/*
-				for(var j = 0; j < rvDataSets[0].Residues.length; j++){
-				rvDataSets[0].Residues[j]["CurrentData"] = rvDataSets[0].Residues[j]["map_Index"];
-				}
-				resetColorState();*/
+			var data = new Array;
+			for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
+				data[j] = rvDataSets[0].Residues[j][colName[0]];
 			}
+			colorProcess(data, indexMode[0],targetLayer,colors);
 			break;
 		case "residues":
-			//alert("how did this happen yet");
-			if (colName[0] != "clear_data") {
-				var data = new Array;
-				for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
-					data[j] = rvDataSets[0].Residues[j][colName[0]];
-				}
-				colorProcess(data, indexMode[0],targetLayer,colors);
-			} else {
-				//var data = new Array;
-				//targetLayer.clearCanvas();
-				
-				for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
-					targetLayer.Data[j] = rvDataSets[0].Residues[j]["map_Index"];
-				}
-				resetColorState();
+			var data = new Array;
+			for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
+				data[j] = rvDataSets[0].Residues[j][colName[0]];
 			}
+			colorProcess(data, indexMode[0],targetLayer,colors);
 			break;
 		default:
 			$( "#dialog-layer-type-error" ).dialog("open")
@@ -2097,11 +2070,7 @@ function canvasToSVG() {
 	var SupportesLayerTypes = ["lines", "labels", "residues", "circles", "selected"];
 	var ChosenSide;
 	var Orientation;
-	//come back and make loop for all selections
-	var targetSelection = rvDataSets[0].getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
-	
 	var AllMode = $('input[name="savelayers"][value=all]').attr("checked");
-	
 	
 	if (rvDataSets[0].SpeciesEntry.Orientation.indexOf("portrait") >= 0) {
 		var mapsize = "612 792";
@@ -2223,16 +2192,18 @@ function canvasToSVG() {
 				case "selected":
 					output = output + '<g id="' + value.LayerName + '">\n';
 					var radius = 1.7 * value.ScaleFactor;
-					$.each(targetSelection.Residues, function (index,residue){
-						output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + 'none' + '" stroke="' + '#940B06' + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(residue.X).toFixed(3) + '" cy="' + parseFloat(residue.Y).toFixed(3) + '" r="' + radius + '"/>\n';
+					
+					var SelectionList =[];
+					$('.checkBoxDIV-S').find(".visibilityCheckImg[value=visible]").parent().parent().each(function (index){SelectionList.push($(this).attr("name"))});
+
+					$.each(SelectionList, function (index,SelectionName) {
+						targetSelection = rvDataSets[0].getSelection(SelectionName);
+						output = output + '<g id="' + targetSelection.Name + '">\n';
+						$.each(targetSelection.Residues, function (index,residue){
+							output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + 'none' + '" stroke="' + targetSelection.Color + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(residue.X).toFixed(3) + '" cy="' + parseFloat(residue.Y).toFixed(3) + '" r="' + radius + '"/>\n';
+						});
+						output = output + '</g>\n';
 					});
-					/*
-					for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
-						var residue = rvDataSets[0].Residues[i];
-						if (residue && residue.selected) {
-							output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + 'none' + '" stroke="' + '#940B06' + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(residue.X).toFixed(3) + '" cy="' + parseFloat(residue.Y).toFixed(3) + '" r="' + radius + '"/>\n';
-						}
-					}*/
 					output = output + '</g>\n';
 					break;
 					
@@ -2242,21 +2213,16 @@ function canvasToSVG() {
 		}
 	});
 	
-	/*
-	output = output + '<g id="LinkedDataLayer">\n';
-	for(var i = 0; i < rvDataSets[0].Residues.length; i++){
-	var residue = rvDataSets[0].Residues[i];
-	if (residue && residue.color != '#000000' && residue.color != '#858585'){
-	output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g,"").replace(/[^:]*:/g,"") + '" fill="' + residue.color + '" stroke="' + residue.color + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(residue.X).toFixed(3) +  '" cy="' + parseFloat(residue.Y).toFixed(3) + '" r="1.7"/>\n';
-	}
-	}
-	
-	output = output + '</g>\n';
-	
-	 */
 	output = output + watermark(true);
 	output = output + '</svg>';
 	return { 'SVG': output, "Orientation" : Orientation };
+}
+
+function saveSeqTable(){
+	
+}
+function saveFasta(){
+	
 }
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -2486,8 +2452,9 @@ function drawNavLine(){
 		var selectedData=[];
 		var selectedDataX=[];
 		var selectedDataY=[];
-		var maxdata = undefined; //default to 1 for empty sets and selection layers
-	
+		var maxdata = undefined; 
+		var mindata = undefined; 
+		
 		var targetLayer=rvDataSets[0].getSelectedLayer();
 		if (targetLayer===false){
 			return;
@@ -2501,17 +2468,24 @@ function drawNavLine(){
 		var MarginYB = 40;
 		
 		var maxdata2 = d3.max($.map(targetLayer.Data, function(d) { return parseFloat(d); }));
+		var mindata2 = d3.min($.map(targetLayer.Data, function(d) { return parseFloat(d); }));
+		
 		if (maxdata2 !== undefined){
 			maxdata = maxdata2;
 		} 
+		if (mindata2 !== undefined){
+			mindata = mindata2;
+		} 
 		if (targetLayer.Type == "selected"){
 			maxdata=1;
+			mindata=0;
 		}
 		if (targetLayer.DataLabel === "Protein Contacts"){
 			maxdata=1;
+			mindata=0;
 		}
 		var	xScale = d3.scale.linear().domain([0, targetLayer.Data.length]).range([0 + MarginXL, w - MarginXR]);
-		var	yScale = d3.scale.linear().domain([0, maxdata]).range([h - MarginYB,0 + MarginYT ]);
+		var	yScale = d3.scale.linear().domain([mindata, maxdata]).range([h - MarginYB,0 + MarginYT ]);
 
 		var NavLine = d3.select("#NavLineDiv")
 			.append("svg:svg")
