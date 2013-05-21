@@ -57,7 +57,7 @@ function initLabels(species) {
 		});
 		
 		$.getJSON('getData.php', {
-			FullTable : "SC_LSU_Struct_Extra"
+			FullTable : "SC_LSU_3D_Extra"
 				}, function (data) {
 				rvDataSets[0].addLabels(undefined, undefined, data);
 				rvDataSets[0].drawLabels("labels",true);
@@ -326,8 +326,10 @@ function expandSelection(command, SelectionName) {
 				//var aloneRes = chainID + "_" + comsplit[1].substring(1,comsplit[1].length-1);
 				var aloneRes = chainID + "_" + comsplit[1];
 				var alone_ind = rvDataSets[0].ResidueList.indexOf(aloneRes);
-				var targetSelection=rvDataSets[0].getSelection(SelectionName);
-				targetSelection.Residues.push(rvDataSets[0].Residues[alone_ind]);
+				if (alone_ind >=0){
+					var targetSelection=rvDataSets[0].getSelection(SelectionName);
+					targetSelection.Residues.push(rvDataSets[0].Residues[alone_ind]);
+				}
 			}
 		} else if (comsplit[0] != "") {
 			var index = comsplit[0].indexOf("-");
@@ -348,8 +350,10 @@ function expandSelection(command, SelectionName) {
 				var chainID = rvDataSets[0].SpeciesEntry.PDB_chains[0];
 				var aloneRes = chainID + "_" + comsplit[0];
 				var alone_ind = rvDataSets[0].ResidueList.indexOf(aloneRes);
-				var targetSelection=rvDataSets[0].getSelection(SelectionName);
-				targetSelection.Residues.push(rvDataSets[0].Residues[alone_ind]);
+				if (alone_ind >=0){
+					var targetSelection=rvDataSets[0].getSelection(SelectionName);
+					targetSelection.Residues.push(rvDataSets[0].Residues[alone_ind]);
+				}
 			}
 		}
 	}
@@ -619,19 +623,35 @@ function update3Dcolors() {
 	Jmol.script(myJmol, script);
 }
 
-function colorProcess(data, indexMode,targetLayer,colors) {
+function colorProcess(DataInput, indexMode,targetLayer,colors) {
 	var color_data = new Array();
+	var color_data_IN = new Array();
+	var data = new Array();
 	var DataPoints = 0;
-	for (var ii = 0; ii < rvDataSets[0].Residues.length; ii++) {
-		
-		//var residue2 = rvDataSets[0].Residues[ii];
-		
-		if (data[ii] != undefined && data[ii] > 0) {
-			color_data[DataPoints] = data[ii];
-			DataPoints++;
+	if (DataInput.IncludeData){
+		color_data_IN = DataInput.IncludeData;
+		if (DataInput.ExtraData){
+			color_data_IN = color_data_IN.concat(DataInput.ExtraData);
 		}
-		
+		data = DataInput.IncludeData;
+	} else {
+		color_data_IN = DataInput;
+		data = DataInput;
 	}
+	$.each(color_data_IN, function (index, value) {
+		var f = parseFloat(value);
+		if (!isNaN(f)){
+			color_data.push(f);
+		}
+	});
+	$.each(data, function (index, value) {
+		var f = parseFloat(value);
+		if (isNaN(f)){
+			data[index]=undefined;
+		} else {
+			data[index]=f;
+		}
+	});
 	
 	var min = Math.min.apply(Math, color_data);
 	var max = Math.max.apply(Math, color_data);
@@ -651,7 +671,6 @@ function colorProcess(data, indexMode,targetLayer,colors) {
 		targetLayer.Data = data;
 
 		if (indexMode == "1") {
-			//data.splice(0, 1);
 			var dataIndices = data;
 		} else {
 			var dataIndices = new Array;
@@ -667,27 +686,12 @@ function colorProcess(data, indexMode,targetLayer,colors) {
 		targetLayer.Data = data;
 		for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
 			var residue = rvDataSets[0].Residues[i];
-			//targetLayer.Data[i] = data[i];
-			//var val = Math.round((residue.CurrentData - min) / range * (colors.length - 1));
 			if (indexMode == "1") {
 				dataIndices = data;
-				/*
-				if (colors[residue.CurrentData]){
-					residue.color = colors[residue.CurrentData];
-				} else {
-					residue.color = "#000000";
-				}*/
 			} else {
 				dataIndices[i] = Math.round((data[i] - min) / range * (colors.length - 1));
-				/*
-				if (residue.CurrentData > 0) {
-					residue.color = (val < 0 || val >= colors.length) ? "#000000" : colors[val];
-				} else {
-					residue.color = "#000000";
-				}*/
 			}
 		}
-		//rvDataSets[0].drawResidues(targetLayer.LayerName);
 		rvDataSets[0].drawResidues(targetLayer.LayerName, dataIndices, colors);
 		update3Dcolors();
 		break;
@@ -1536,14 +1540,14 @@ function handleFileSelect(event) {
 }
 
 function customDataProcess(ui,targetLayer){
-	var NewData = [];
+	var NewData;
 	targetLayer.DataLabel = $(ui[0]).attr("filename");
 	$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text("User File:").append($("<br>")).append(targetLayer.DataLabel);
 	targetLayer.clearData();
 	
 	var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
 	NewData = CustomDataExpand(targetLayer);
-	targetLayer.Data = NewData;
+	targetLayer.Data = NewData.IncludeData;
 	SelectionMenu(targetSelection);
 	RefreshSelectionMenu();
 	
@@ -1575,36 +1579,47 @@ function CustomDataExpand(targetLayer){
 	rvDataSets[0].addSelection();
 	var SeleLen = 0;
 	var NewData = [];
+	var ExtraData = [];
 	var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
 	for (var ii = 0; ii < rvDataSets[0].CustomData.length; ii++) {
 		var command = rvDataSets[0].CustomData[ii][customkeys[0]].split(";");
 		var targetSelection = rvDataSets[0].Selections[0];
 		expandSelection(command, targetSelection.Name);
 		var l = targetSelection.Residues.length;
-		for (var iii = SeleLen; iii < l; iii++) {
-			if (targetSelection.Residues[iii].resNum.indexOf(":") >= 0) {
-				var ressplit = targetSelection.Residues[iii].resNum.split(":");
-				var ResName = rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(ressplit[0])] + "_" + ressplit[1];				
-			} else {
-				var chainID =  targetSelection.Residues[iii].ChainID;
-				var ResName = chainID + "_" + targetSelection.Residues[iii].resNum;
-			}
-			var k = rvDataSets[0].ResidueList.indexOf(ResName);
-			
+		if (l == 0){
 			if ($.inArray("DataCol", customkeys) >= 0) {
 				if (isNaN(parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]))){
-					NewData[k] = rvDataSets[0].CustomData[ii]["DataCol"];
+					ExtraData.push(rvDataSets[0].CustomData[ii]["DataCol"]);
 				} else {
-					NewData[k] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
+					ExtraData.push(parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]));
 				}
 			}
-			if ($.inArray("ColorCol", customkeys) >= 0) {
-				targetLayer.dataLayerColors[k] = rvDataSets[0].CustomData[ii]["ColorCol"];
+		} else {
+			for (var iii = SeleLen; iii < l; iii++) {
+				if (targetSelection.Residues[iii].resNum.indexOf(":") >= 0) {
+					var ressplit = targetSelection.Residues[iii].resNum.split(":");
+					var ResName = rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(ressplit[0])] + "_" + ressplit[1];				
+				} else {
+					var chainID =  targetSelection.Residues[iii].ChainID;
+					var ResName = chainID + "_" + targetSelection.Residues[iii].resNum;
+				}
+				var k = rvDataSets[0].ResidueList.indexOf(ResName);
+				
+				if ($.inArray("DataCol", customkeys) >= 0) {
+					if (isNaN(parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]))){
+						NewData[k] = rvDataSets[0].CustomData[ii]["DataCol"];
+					} else {
+						NewData[k] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
+					}
+				}
+				if ($.inArray("ColorCol", customkeys) >= 0) {
+					targetLayer.dataLayerColors[k] = rvDataSets[0].CustomData[ii]["ColorCol"];
+				}
+				SeleLen = l;
 			}
-			SeleLen = l;
 		}
 	}
-	return NewData;
+	return {IncludeData : NewData,ExtraData : ExtraData}
 }
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1665,6 +1680,7 @@ function saveNavLine() {
 		var form = document.createElement("form");
 		form.setAttribute("method", "post");
 		form.setAttribute("action", "saveNavLine.php");
+		form.setAttribute("target", "_blank");
 		var hiddenField = document.createElement("input");
 		hiddenField.setAttribute("type", "hidden");
 		hiddenField.setAttribute("name", "content");
@@ -1686,6 +1702,7 @@ function saveJmolImg() {
 		var form = document.createElement("form");
 		form.setAttribute("method", "post");
 		form.setAttribute("action", "saveJmolImg.php");
+		form.setAttribute("target", "_blank");
 		var hiddenField = document.createElement("input");
 		hiddenField.setAttribute("type", "hidden");
 		hiddenField.setAttribute("name", "content");
@@ -1776,6 +1793,7 @@ function saveRvState(filename){
 		var form = document.createElement("form");
 		form.setAttribute("method", "post");
 		form.setAttribute("action", "saveRvState.php");
+		form.setAttribute("target", "_blank");
 		var hiddenField = document.createElement("input");
 		hiddenField.setAttribute("type", "hidden");
 		hiddenField.setAttribute("name", "content");
@@ -1797,6 +1815,7 @@ function saveJPG() {
 		var form = document.createElement("form");
 		form.setAttribute("method", "post");
 		form.setAttribute("action", "saveJPG.php");
+		form.setAttribute("target", "_blank");
 		var hiddenField = document.createElement("input");
 		hiddenField.setAttribute("type", "hidden");
 		hiddenField.setAttribute("name", "content");
@@ -1819,6 +1838,7 @@ function savePNG() {
 		var form = document.createElement("form");
 		form.setAttribute("method", "post");
 		form.setAttribute("action", "savePNG.php");
+		form.setAttribute("target", "_blank");
 		var hiddenField = document.createElement("input");
 		hiddenField.setAttribute("type", "hidden");
 		hiddenField.setAttribute("name", "content");
@@ -1841,6 +1861,7 @@ function saveSVG() {
 		var form = document.createElement("form");
 		form.setAttribute("method", "post");
 		form.setAttribute("action", "saveSVG.php");
+		form.setAttribute("target", "_blank");
 		var hiddenField = document.createElement("input");
 		hiddenField.setAttribute("type", "hidden");
 		hiddenField.setAttribute("name", "content");
@@ -1858,6 +1879,7 @@ function savePDF() {
 		var form = document.createElement("form");
 		form.setAttribute("method", "post");
 		form.setAttribute("action", "savePDF.php");
+		form.setAttribute("target", "_blank");
 		var hiddenField = document.createElement("input");
 		hiddenField.setAttribute("type", "hidden");
 		hiddenField.setAttribute("name", "content");
@@ -1917,6 +1939,7 @@ function savePML() {
 		var form = document.createElement("form");
 		form.setAttribute("method", "post");
 		form.setAttribute("action", "savePML.php");
+		form.setAttribute("target", "_blank");
 		var hiddenField = document.createElement("input");
 		hiddenField.setAttribute("type", "hidden");
 		hiddenField.setAttribute("name", "content");
@@ -2331,7 +2354,7 @@ function populateDomainHelixMenu() {
 	
 	$('#selectByDomainHelix').append('<optgroup label="Domains" id="domainsList" />');
 	$.each(DomainList_ANU, function (i, val) {
-		if (DomainList_RNU[i].indexOf("S") >= 0) {
+		if (DomainList_RNU[i] && DomainList_RNU[i].indexOf("S") >= 0) {
 			$('#domainsList').append(new Option(DomainList_RNU[i], DomainSelections[val]));
 		} else {
 			$('#domainsList').append(new Option("Domain " + DomainList_RNU[i], DomainSelections[val]));
