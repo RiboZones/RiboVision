@@ -33,7 +33,7 @@ if(($handle = fopen($filename, "r")) !== FALSE) {
 	
 	$loadquery = 'LOAD DATA LOCAL INFILE \'' . $filename .
     '\' INTO TABLE ' . $tablename . 
-	' FIELDS TERMINATED BY \',\' OPTIONALLY ENCLOSED BY \'"\' LINES TERMINATED BY \'\r\n\' IGNORE 2 LINES;';
+	' FIELDS TERMINATED BY \',\' OPTIONALLY ENCLOSED BY \'"\' LINES TERMINATED BY \'\r\n\' IGNORE 2 LINES' . ' (' . implode(",",$columnNames) . ');';
 
 	$stmt = $pdo->query($loadquery);
 	//echo $loadquery;
