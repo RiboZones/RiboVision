@@ -1,40 +1,44 @@
 <?php
-mysql_connect("localhost", "RVU", "DBcrystal84") or die(mysql_error());
-mysql_select_db("Ribosome_View1") or die(mysql_error());
+$dsn = "mysql:host=localhost;dbname=Ribosome_View1;charset=utf8";
+$username = "RVU";
+$password = "DBcrystal84";
+$pdo = new PDO($dsn, $username, $password);
+
 $filename = $argv[1];
 $start = strrpos($filename, "/");
 if ($start == False) $start = -1;
 $tablename = substr($filename, $start + 1, strlen($filename) - 5 - $start);
 if(($handle = fopen($filename, "r")) !== FALSE) {
 	$dropquery = "DROP TABLE IF EXISTS " . $tablename;
-	mysql_query($dropquery) or die(mysql_error());
+	$stmt = $pdo->query($dropquery);
 	echo "DROPPED TABLE:\n";
 
 	$columnNames = fgetcsv($handle, 1000, ',', '"');
 	$columnTypes = fgetcsv($handle, 1000, ',', '"');
-	$query = "CREATE TABLE IF NOT EXISTS " . $tablename . "(
+	$createquery = "CREATE TABLE IF NOT EXISTS " . $tablename . "(
 	id INT NOT NULL AUTO_INCREMENT,
 	PRIMARY KEY(id),";
 	for($i = 0; $i < count($columnNames); $i++){
 		if($i != 0){
-			$query = $query . ",";
+			$createquery = $createquery . ",";
 		}
-		$query = $query . $columnNames[$i] . " " . $columnTypes[$i];
+		$createquery = $createquery . $columnNames[$i] . " " . $columnTypes[$i];
 	}
-	$query = $query . ");";
+	$createquery = $createquery . ");";
+	$stmt = $pdo->query($createquery);
 	echo "CREATED TABLE: " . $tablename ."\n";
-	echo "LOADING DATA:\n";
-	//echo $query . "\n";
-	mysql_query($query) or die(mysql_error());
-	$baseQuery = "INSERT INTO " . $tablename . "(" . implode(",", $columnNames) . ") VALUES(";
-	while(($data = fgetcsv($handle, 1000, ',', '"')) !== FALSE){
-		$query = $baseQuery . "'" . implode("','", $data) . "');";
-		//echo $query . "\n";
-		mysql_query($query) or die(mysql_error());
-		
-	}
-	echo "COMPLETE!\n";
 }
+	fclose($handle);
+	echo "LOADING DATA:\n";
+	
+	$loadquery = 'LOAD DATA LOCAL INFILE \'' . $filename .
+    '\' INTO TABLE ' . $tablename . 
+	' FIELDS TERMINATED BY \',\' OPTIONALLY ENCLOSED BY \'"\' LINES TERMINATED BY \'\r\n\' IGNORE 2 LINES;';
+
+	$stmt = $pdo->query($loadquery);
+	//echo $loadquery;
+	echo "COMPLETE!\n";
+
 ?>
 
 
