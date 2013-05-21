@@ -760,7 +760,9 @@ function RiboVisionReady() {
 	
 	$("[name=clearColor]").button();
 	$("[name=selebutton]").button();
-	$("[name=saveas]").button();	
+	//$("[name=saveas]").button();	
+	$(":button").button();	
+	$(":radio").button();
 	$("[name=savelayers]").button();
 	$("#colorSelection").button();
 	//$("#layerColorSelection").button();
@@ -772,6 +774,9 @@ function RiboVisionReady() {
 	  localStorageAvailable = false;
 	  //alert("Sorry! No web storage support..");
 	}
+	$("#dialog-saveFigures").find(":button").click(function () { 
+		saveSVG();
+	});
 	
 	$("#ProtList").on("multiselectclick", function (event, ui) {
 		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
