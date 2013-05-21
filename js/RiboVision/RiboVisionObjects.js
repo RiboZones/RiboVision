@@ -651,7 +651,8 @@ function rvDataSet(DataSetName) {
 						if (ColorArray[dataIndices[i]]) {
 							rvDataSets[0].Residues[i].color = ColorArray[dataIndices[i]];
 							targetLayer.dataLayerColors[i] = ColorArray[dataIndices[i]];
-						} else if (dataIndices[i]!=undefined && isNaN(dataIndices[i])){
+						//} else if (dataIndices[i]!=undefined && isNaN(dataIndices[i])){ Do not remember why this was here. Try without.
+						} else if (i in dataIndices){
 							rvDataSets[0].Residues[i].color = "#000000";
 							targetLayer.dataLayerColors[i] = "#000000";
 						}

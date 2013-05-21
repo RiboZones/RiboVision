@@ -774,10 +774,6 @@ function RiboVisionReady() {
 	  localStorageAvailable = false;
 	  //alert("Sorry! No web storage support..");
 	}
-	$("#dialog-saveFigures").find(":button").click(function () { 
-		saveSVG();
-	});
-	
 	$("#ProtList").on("multiselectclick", function (event, ui) {
 		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
 				return this.value;
