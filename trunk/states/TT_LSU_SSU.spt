@@ -280,13 +280,13 @@ select :0 or :9;
   color Cartoon opaque [x8ec640]; 
   
   
-  select (2.1 and :A and (1-561));
+  select (2.1 and :A and (1-561) or (913-920));
   color Cartoon opaque [x3aa7ff];
   
   select (2.1 and :A and (562-912));
-  color Cartoon opaque [xffd4a2];
+  color Cartoon opaque [xb27643];
   
-  select (2.1 and :A and (913-1396));
+  select (2.1 and :A and (921-1396));
   color Cartoon opaque [xff99cc];
   
   select (2.1 and :A and (1397-1542));
