@@ -1,0 +1,2 @@
+pairIndex,resIndex1,resIndex2,bp_type
+int,int,int,varchar(6)
