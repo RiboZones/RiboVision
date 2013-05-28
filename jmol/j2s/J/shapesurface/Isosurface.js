@@ -818,7 +818,7 @@ var params = this.sg.getParams ();
 if (!this.thisMesh.isMerged) this.thisMesh.initialize (this.sg.isFullyLit () ? 1073741964 : 1073741958, null, this.sg.getPlane ());
 if (!params.allowVolumeRender) this.thisMesh.jvxlData.allowVolumeRender = false;
 this.thisMesh.setColorsFromJvxlData (this.sg.getParams ().colorRgb);
-if (this.thisMesh.jvxlData.slabInfo != null) this.viewer.runScriptImmediately ("isosurface " + this.thisMesh.jvxlData.slabInfo);
+if (this.thisMesh.jvxlData.slabInfo != null) this.viewer.runScript ("isosurface " + this.thisMesh.jvxlData.slabInfo);
 if (this.sg.getParams ().psi_monteCarloCount > 0) this.thisMesh.diameter = -1;
 });
 Clazz.overrideMethod (c$, "notifySurfaceMappingCompleted", 

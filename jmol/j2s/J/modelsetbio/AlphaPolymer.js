@@ -15,12 +15,17 @@ function (viewer, ctype, qtype, mStep, derivType, bsAtoms, bsSelected, bothEnds,
 J.modelsetbio.BioPolymer.getPdbData (viewer, this, ctype, qtype, mStep, derivType, bsAtoms, bsSelected, bothEnds, isDraw, addHeader, tokens, pdbATOM, pdbCONECT, bsWritten);
 }, "J.viewer.Viewer,~S,~S,~N,~N,J.util.BS,J.util.BS,~B,~B,~B,~A,J.io.OutputStringBuilder,J.util.SB,J.util.BS");
 Clazz.overrideMethod (c$, "addStructure", 
-function (type, structureID, serialID, strandCount, startChainID, startSeqcode, endChainID, endSeqcode) {
+function (type, structureID, serialID, strandCount, startChainID, startSeqcode, endChainID, endSeqcode, istart, iend, bsAssigned) {
+if (istart >= 0 && (this.monomers[0].firstAtomIndex > iend || this.monomers[this.monomerCount - 1].lastAtomIndex < istart)) return;
 var indexStart;
 var indexEnd;
 if ((indexStart = this.getIndex (startChainID, startSeqcode)) == -1 || (indexEnd = this.getIndex (endChainID, endSeqcode)) == -1) return;
-this.addStructureProtected (type, structureID, serialID, strandCount, indexStart, indexEnd);
-}, "J.constant.EnumStructure,~S,~N,~N,~S,~N,~S,~N");
+if (istart >= 0 && bsAssigned != null) {
+var pt = bsAssigned.nextSetBit (this.monomers[indexStart].firstAtomIndex);
+if (pt >= 0 && pt < this.monomers[indexEnd].lastAtomIndex) return;
+}this.addStructureProtected (type, structureID, serialID, strandCount, indexStart, indexEnd);
+if (istart >= 0) bsAssigned.setBits (istart, iend + 1);
+}, "J.constant.EnumStructure,~S,~N,~N,~S,~N,~S,~N,~N,~N,J.util.BS");
 $_M(c$, "addStructureProtected", 
 function (type, structureID, serialID, strandCount, indexStart, indexEnd) {
 if (indexEnd < indexStart) {
@@ -28,7 +33,6 @@ J.util.Logger.error ("AlphaPolymer:addSecondaryStructure error:  indexStart:" + 
 return;
 }var structureCount = indexEnd - indexStart + 1;
 var proteinstructure = null;
-if (type == null) System.out.println ("alhapoly null type");
 switch (type) {
 case J.constant.EnumStructure.HELIX:
 case J.constant.EnumStructure.HELIXALPHA:
@@ -49,8 +53,9 @@ return;
 proteinstructure.structureID = structureID;
 proteinstructure.serialID = serialID;
 proteinstructure.strandCount = strandCount;
-for (var i = indexStart; i <= indexEnd; ++i) this.monomers[i].setStructure (proteinstructure);
-
+for (var i = indexStart; i <= indexEnd; ++i) {
+this.monomers[i].setStructure (proteinstructure);
+}
 }, "J.constant.EnumStructure,~S,~N,~N,~N,~N");
 Clazz.overrideMethod (c$, "calculateStruts", 
 function (modelSet, bs1, bs2, vCA, thresh, delta, allowMultiple) {

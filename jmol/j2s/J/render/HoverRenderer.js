@@ -1,6 +1,6 @@
 Clazz.declarePackage ("J.render");
-Clazz.load (["J.render.ShapeRenderer"], "J.render.HoverRenderer", ["J.modelset.LabelToken", "J.render.TextRenderer"], function () {
-c$ = Clazz.declareType (J.render, "HoverRenderer", J.render.ShapeRenderer);
+Clazz.load (["J.render.LabelsRenderer"], "J.render.HoverRenderer", ["J.modelset.LabelToken", "J.render.TextRenderer"], function () {
+c$ = Clazz.declareType (J.render, "HoverRenderer", J.render.LabelsRenderer);
 Clazz.overrideMethod (c$, "render", 
 function () {
 if (this.viewer.isNavigating ()) return false;
@@ -12,15 +12,13 @@ var atom = this.modelSet.atoms[hover.atomIndex];
 var label = (hover.specialLabel != null ? hover.specialLabel : hover.atomFormats != null && hover.atomFormats[hover.atomIndex] != null ? J.modelset.LabelToken.formatLabel (this.viewer, atom, hover.atomFormats[hover.atomIndex]) : hover.labelFormat != null ? J.modelset.LabelToken.formatLabel (this.viewer, atom, this.fixLabel (atom, hover.labelFormat)) : null);
 if (label == null) return false;
 text.setText (label);
-text.setMovableX (atom.screenX);
-text.setMovableY (atom.screenY);
+text.setXYZs (atom.screenX, atom.screenY, 1, -2147483648);
 } else if (hover.text != null) {
 text.setText (hover.text);
-text.setMovableX (hover.xy.x);
-text.setMovableY (hover.xy.y);
+text.setXYZs (hover.xy.x, hover.xy.y, 1, -2147483648);
 } else {
 return true;
-}J.render.TextRenderer.render (text, this.g3d, 0, antialias ? 2 : 1, false, null);
+}J.render.TextRenderer.render (text, this.viewer, this.g3d, 0, antialias ? 2 : 1, false, null, this.xy);
 return true;
 });
 $_M(c$, "fixLabel", 

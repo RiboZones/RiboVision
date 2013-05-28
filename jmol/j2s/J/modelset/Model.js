@@ -231,8 +231,8 @@ $_M(c$, "recalculateLeadMidpointsAndWingVectors",
 function () {
 });
 $_M(c$, "addSecondaryStructure", 
-function (type, structureID, serialID, strandCount, startChainID, startSeqcode, endChainID, endSeqcode) {
-}, "J.constant.EnumStructure,~S,~N,~N,~S,~N,~S,~N");
+function (type, structureID, serialID, strandCount, startChainID, startSeqcode, endChainID, endSeqcode, istart, iend, bsAssigned) {
+}, "J.constant.EnumStructure,~S,~N,~N,~S,~N,~S,~N,~N,~N,J.util.BS");
 $_M(c$, "calculateStructures", 
 function (asDSSP, doReport, dsspIgnoreHydrogen, setStructure, includeAlpha) {
 return "";

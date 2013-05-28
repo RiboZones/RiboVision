@@ -3748,7 +3748,7 @@ return this.global.cartoonBaseEdges;
 case 603979819:
 return this.global.cartoonFancy;
 case 603979820:
-return this.global.cartoonLadder;
+return this.global.cartoonLadders;
 case 603979818:
 return this.global.cartoonRockets;
 case 603979822:
@@ -4458,7 +4458,7 @@ $_M(c$, "setBooleanPropertyTok",
 var doRepaint = true;
 switch (tok) {
 case 603979820:
-this.global.cartoonLadder = value;
+this.global.cartoonLadders = value;
 break;
 case 603979968:
 var b = this.global.twistedSheets;
@@ -6740,10 +6740,22 @@ Clazz.overrideMethod (c$, "calcAtomsMinMax",
 function (bs, boxInfo) {
 this.modelSet.calcAtomsMinMax (bs, boxInfo);
 }, "J.util.BS,J.util.BoxInfo");
-Clazz.overrideMethod (c$, "getObjectMap", 
-function (map, withDollar) {
-this.shapeManager.getObjectMap (map, withDollar);
-}, "java.util.Map,~B");
+$_M(c$, "getObjectMap", 
+function (map, c) {
+switch (c) {
+case '{':
+if (this.getScriptManager () != null) {
+var m = map;
+var sets = this.eval.getDefinedAtomSets ();
+if (sets != null) m.putAll (sets);
+J.script.T.getTokensType (m, 3145728);
+}return;
+case '$':
+case '0':
+this.shapeManager.getObjectMap (map, c == '$');
+return;
+}
+}, "java.util.Map,~S");
 $_M(c$, "getPdbBondInfo", 
 function (group3) {
 if (this.htPdbBondInfo == null) this.htPdbBondInfo =  new java.util.Hashtable ();
@@ -6757,19 +6769,20 @@ $_M(c$, "setPicked",
 function (iAtom) {
 this.global.setPicked (iAtom);
 }, "~N");
-$_M(c$, "runScriptImmediately", 
+Clazz.overrideMethod (c$, "runScript", 
 function (script) {
+var outputBuffer =  new J.util.SB ();
 try {
-if (this.getScriptManager () == null) return false;
-this.eval.runScript (script);
+if (this.getScriptManager () == null) return null;
+this.eval.runScriptBuffer (script, outputBuffer);
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
-return false;
+return this.eval.getErrorMessage ();
 } else {
 throw e;
 }
 }
-return true;
+return outputBuffer.toString ();
 }, "~S");
 $_M(c$, "allowSpecAtom", 
 function () {
@@ -6827,6 +6840,10 @@ $_M(c$, "cachePut",
 function (key, data) {
 this.fileManager.cachePut (key, data);
 }, "~S,~O");
+$_M(c$, "cacheGet", 
+function (key) {
+return this.fileManager.cacheGet (key, false);
+}, "~S");
 $_M(c$, "cacheClear", 
 function () {
 this.fileManager.cacheClear ();
@@ -6851,7 +6868,7 @@ this.fileManager.cachePut (fileName, bytes);
 }, "~S,~A");
 $_M(c$, "cacheFileByName", 
 function (fileName, isAdd) {
-return this.fileManager.cacheFileByName (fileName, isAdd);
+return this.fileManager.cacheFileByNameAdd (fileName, isAdd);
 }, "~S,~B");
 $_M(c$, "cacheList", 
 function () {
@@ -7029,6 +7046,11 @@ $_M(c$, "createModels",
 function (n) {
 this.modelSet.createModels (n);
 }, "~N");
+$_M(c$, "setCGO", 
+function (info) {
+this.shapeManager.loadShape (23);
+this.shapeManager.setShapePropertyBs (23, "setCGO", info, null);
+}, "J.util.JmolList");
 Clazz.pu$h ();
 c$ = Clazz.declareType (J.viewer.Viewer, "ACCESS", Enum);
 Clazz.defineEnumConstant (c$, "NONE", 0, []);

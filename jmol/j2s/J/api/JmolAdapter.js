@@ -72,9 +72,6 @@ $_M(c$, "openBufferedReader",
 function (name, type, bufferedReader) {
 return this.getAtomSetCollectionFromReader (name, type, bufferedReader, null);
 }, "~S,~S,java.io.BufferedReader");
-$_M(c$, "finish", 
-function (atomSetCollection, modelSet, baseModelIndex, baseAtomIndex) {
-}, "~O,J.modelset.ModelSet,~N,~N");
 c$.canonizeAlphaDigit = $_M(c$, "canonizeAlphaDigit", 
 function (ch) {
 if ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9')) return ch;

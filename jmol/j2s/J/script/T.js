@@ -151,6 +151,26 @@ function (tok) {
 if (!J.script.T.tokAttr (tok, 536870912)) return 0;
 return tok & 662700032;
 }, "~N");
+c$.getTokensType = $_M(c$, "getTokensType", 
+function (map, attr) {
+for (var e, $e = J.script.T.tokenMap.entrySet ().iterator (); $e.hasNext () && ((e = $e.next ()) || true);) {
+var t = e.getValue ();
+if (J.script.T.tokAttr (t.tok, attr)) map.put (e.getKey (), e.getValue ());
+}
+}, "java.util.Map,~N");
+c$.isIDcmd = $_M(c$, "isIDcmd", 
+function (cmdtok) {
+switch (cmdtok) {
+case 135180:
+case 135176:
+case 135174:
+case 135188:
+case 135402505:
+return true;
+default:
+return false;
+}
+}, "~N");
 Clazz.defineStatics (c$,
 "nada", 0,
 "integer", 2,

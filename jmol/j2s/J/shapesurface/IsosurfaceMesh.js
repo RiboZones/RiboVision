@@ -437,7 +437,7 @@ this.jvxlData.nVertexColors = this.vertexCount;
 var atoms = viewer.getModelSet ().atoms;
 for (var i = this.mergeVertexCount0; i < this.vertexCount; i++) {
 var pt = this.vertexSource[i];
-if (pt < atoms.length) this.jvxlData.vertexColors[i] = J.util.C.getArgb (this.vertexColixes[i] = J.util.C.copyColixTranslucency (this.colix, atoms[pt].getColix ()));
+if (pt < atoms.length) this.jvxlData.vertexColors[i] = viewer.getColorArgbOrGray (this.vertexColixes[i] = J.util.C.copyColixTranslucency (this.colix, atoms[pt].getColix ()));
 }
 return;
 }if (this.jvxlData.isBicolorMap) {

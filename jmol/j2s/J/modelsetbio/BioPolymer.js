@@ -555,8 +555,8 @@ function (bioPolymers, bioPolymerCount, vHBonds, doReport, dsspIgnoreHydrogens, 
 return J.modelsetbio.AminoPolymer.calculateStructuresDssp (bioPolymers, bioPolymerCount, vHBonds, doReport, dsspIgnoreHydrogens, setStructure);
 }, "~A,~N,J.util.JmolList,~B,~B,~B");
 $_M(c$, "addStructure", 
-function (type, structureID, serialID, strandCount, startChainID, startSeqcode, endChainID, endSeqcode) {
-}, "J.constant.EnumStructure,~S,~N,~N,~S,~N,~S,~N");
+function (type, structureID, serialID, strandCount, startChainID, startSeqcode, endChainID, endSeqcode, istart, iend, bsAssigned) {
+}, "J.constant.EnumStructure,~S,~N,~N,~S,~N,~S,~N,~N,~N,J.util.BS");
 $_M(c$, "calculateStructures", 
 function (alphaOnly) {
 }, "~B");

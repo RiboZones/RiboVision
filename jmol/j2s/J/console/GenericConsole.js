@@ -84,7 +84,6 @@ $_M(c$, "displayConsole",
 function () {
 this.layoutWindow (null);
 this.outputMsg (this.defaultMessage);
-System.out.println ("AppConsole displayConsole");
 });
 $_M(c$, "updateLabels", 
 function () {
@@ -95,13 +94,17 @@ function (thisCmd) {
 if (thisCmd.length == 0) return null;
 var strCommand = (this.nTab <= 0 || this.incompleteCmd == null ? thisCmd : this.incompleteCmd);
 this.incompleteCmd = strCommand;
-var splitCmd = J.util.TextFormat.splitCommandLine (thisCmd);
+var splitCmd = J.console.GenericConsole.splitCommandLine (thisCmd);
 if (splitCmd == null) return null;
 var asCommand = splitCmd[2] == null;
+var inBrace = (splitCmd[3] != null);
 var notThis = splitCmd[asCommand ? 1 : 2];
 var s = splitCmd[1];
 if (notThis.length == 0) return null;
-splitCmd = J.util.TextFormat.splitCommandLine (strCommand);
+var token = J.script.T.getTokenFromName (s.trim ());
+var cmdtok = (token == null ? 0 : token.tok);
+var isSelect = J.script.T.tokAttr (cmdtok, 12288);
+splitCmd = J.console.GenericConsole.splitCommandLine (strCommand);
 var cmd = null;
 if (!asCommand && (notThis.charAt (0) == '"' || notThis.charAt (0) == '\'')) {
 var q = notThis.charAt (0);
@@ -113,9 +116,9 @@ if (cmd != null) cmd = splitCmd[0] + splitCmd[1] + q + cmd + q;
 var map = null;
 if (!asCommand) {
 notThis = s;
-if (splitCmd[2].startsWith ("$") || s.equalsIgnoreCase ("isosurface ") || s.equalsIgnoreCase ("contact ") || s.equalsIgnoreCase ("draw ")) {
+if (inBrace || splitCmd[2].startsWith ("$") || J.script.T.isIDcmd (cmdtok) || isSelect) {
 map =  new java.util.Hashtable ();
-this.viewer.getObjectMap (map, splitCmd[2].startsWith ("$"));
+this.viewer.getObjectMap (map, inBrace || isSelect ? '{' : splitCmd[2].startsWith ("$") ? '$' : '0');
 }}cmd = J.script.T.completeCommand (map, s.equalsIgnoreCase ("set "), asCommand, asCommand ? splitCmd[1] : splitCmd[2], this.nTab);
 cmd = splitCmd[0] + (cmd == null ? notThis : asCommand ? cmd : splitCmd[1] + cmd);
 }return (cmd == null || cmd.equals (strCommand) ? null : cmd);
@@ -312,4 +315,60 @@ break;
 }
 return mode | 2;
 }, "~N,~N,~B");
+c$.splitCommandLine = $_M(c$, "splitCommandLine", 
+($fz = function (cmd) {
+var sout =  new Array (4);
+var isEscaped1 = false;
+var isEscaped2 = false;
+var isEscaped = false;
+if (cmd.length == 0) return null;
+var ptQ = -1;
+var ptCmd = 0;
+var ptToken = 0;
+var nBrace = 0;
+var ch;
+for (var i = 0; i < cmd.length; i++) {
+switch (ch = cmd.charAt (i)) {
+case '"':
+if (!isEscaped && !isEscaped1) {
+isEscaped2 = !isEscaped2;
+if (isEscaped2) ptQ = ptToken = i;
+}break;
+case '\'':
+if (!isEscaped && !isEscaped2) {
+isEscaped1 = !isEscaped1;
+if (isEscaped1) ptQ = ptToken = i;
+}break;
+case '\\':
+isEscaped = !isEscaped;
+continue;
+case ' ':
+if (!isEscaped && !isEscaped1 && !isEscaped2) {
+ptToken = i + 1;
+ptQ = -1;
+}break;
+case ';':
+if (!isEscaped1 && !isEscaped2) {
+ptCmd = ptToken = i + 1;
+ptQ = -1;
+nBrace = 0;
+}break;
+case '{':
+case '}':
+if (!isEscaped1 && !isEscaped2) {
+nBrace += (ch == '{' ? 1 : -1);
+ptToken = i + 1;
+ptQ = -1;
+}break;
+default:
+if (!isEscaped1 && !isEscaped2) ptQ = -1;
+}
+isEscaped = false;
+}
+sout[0] = cmd.substring (0, ptCmd);
+sout[1] = (ptToken == ptCmd ? cmd.substring (ptCmd) : cmd.substring (ptCmd, (ptToken > ptQ ? ptToken : ptQ)));
+sout[2] = (ptToken == ptCmd ? null : cmd.substring (ptToken));
+sout[3] = (nBrace > 0 ? "{" : null);
+return sout;
+}, $fz.isPrivate = true, $fz), "~S");
 });

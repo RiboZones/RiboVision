@@ -20,8 +20,9 @@ this.movableYPercent = 2147483647;
 this.movableZPercent = 2147483647;
 this.offsetX = 0;
 this.offsetY = 0;
-this.z = 0;
-this.zSlab = 0;
+this.z = 1;
+this.zSlab = -2147483648;
+this.pymolOffset = null;
 this.windowWidth = 0;
 this.windowHeight = 0;
 this.adjustForWindow = false;
@@ -89,23 +90,17 @@ function (value) {
 this.bgcolix = (value == null ? 0 : J.util.C.getColixO (value));
 }, "~O");
 $_M(c$, "setMovableX", 
-function (x) {
+($fz = function (x) {
 this.valign = (this.valign == 4 ? 4 : 0);
 this.movableX = x;
 this.movableXPercent = 2147483647;
-}, "~N");
+}, $fz.isPrivate = true, $fz), "~N");
 $_M(c$, "setMovableY", 
-function (y) {
+($fz = function (y) {
 this.valign = (this.valign == 4 ? 4 : 0);
 this.movableY = y;
 this.movableYPercent = 2147483647;
-}, "~N");
-$_M(c$, "setMovableZ", 
-function (z) {
-if (this.valign != 4) this.valign = 0;
-this.movableZ = z;
-this.movableZPercent = 2147483647;
-}, "~N");
+}, $fz.isPrivate = true, $fz), "~N");
 $_M(c$, "setMovableXPercent", 
 function (x) {
 this.valign = (this.valign == 4 ? 4 : 0);
@@ -214,7 +209,7 @@ $_M(c$, "setWindow",
 function (width, height, scalePixelsPerMicron) {
 this.windowWidth = width;
 this.windowHeight = height;
-if (this.scalePixelsPerMicron < 0 && scalePixelsPerMicron != 0) this.scalePixelsPerMicron = scalePixelsPerMicron;
+if (this.pymolOffset == null && this.scalePixelsPerMicron < 0 && scalePixelsPerMicron != 0) this.scalePixelsPerMicron = scalePixelsPerMicron;
 }, "~N,~N,~N");
 $_M(c$, "checkObjectClicked", 
 function (x, y, bsVisible) {

@@ -130,8 +130,9 @@ return;
 if (value == null) return;
 this.colix = J.util.C.getColixO (value);
 this.color = (value).intValue ();
-if (this.currentMesh != null) this.currentMesh.color = this.color;
-this.setTokenProperty (1766856708, false, false);
+if (this.currentMesh != null) {
+this.currentMesh.color = this.color;
+}this.setTokenProperty (1766856708, false, false);
 return;
 }if ("translucency" === propertyName) {
 this.setTokenProperty (1073742180, ((value).equals ("translucent")), false);
