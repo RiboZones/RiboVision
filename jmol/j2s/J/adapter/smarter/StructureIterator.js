@@ -74,4 +74,12 @@ Clazz.overrideMethod (c$, "getStructuredModels",
 function () {
 return this.bsModelsDefined;
 });
+Clazz.overrideMethod (c$, "getStartIndex", 
+function () {
+return this.structure.istart;
+});
+Clazz.overrideMethod (c$, "getEndIndex", 
+function () {
+return this.structure.iend;
+});
 });

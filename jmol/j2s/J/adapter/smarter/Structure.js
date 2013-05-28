@@ -12,6 +12,8 @@ this.endChainID = '\0';
 this.endInsertionCode = '\0';
 this.startSequenceNumber = 0;
 this.endSequenceNumber = 0;
+this.istart = -2147483648;
+this.iend = -2147483648;
 Clazz.instantialize (this, arguments);
 }, J.adapter.smarter, "Structure", J.adapter.smarter.AtomSetObject);
 c$.getHelixType = $_M(c$, "getHelixType", 
@@ -38,12 +40,14 @@ this.strandCount = strandCount;
 this.serialID = serialID;
 }, "~N,J.constant.EnumStructure,J.constant.EnumStructure,~S,~N,~N");
 $_M(c$, "set", 
-function (startChainID, startSequenceNumber, startInsertionCode, endChainID, endSequenceNumber, endInsertionCode) {
+function (startChainID, startSequenceNumber, startInsertionCode, endChainID, endSequenceNumber, endInsertionCode, istart, iend) {
 this.startChainID = startChainID;
 this.startSequenceNumber = startSequenceNumber;
 this.startInsertionCode = startInsertionCode;
 this.endChainID = endChainID;
 this.endSequenceNumber = endSequenceNumber;
 this.endInsertionCode = endInsertionCode;
-}, "~S,~N,~S,~S,~N,~S");
+this.istart = istart;
+this.iend = iend;
+}, "~S,~N,~S,~S,~N,~S,~N,~N");
 });

@@ -458,51 +458,6 @@ break;
 }
 return ichT;
 }, "~S,~N,~N");
-c$.splitCommandLine = $_M(c$, "splitCommandLine", 
-function (cmd) {
-var sout =  new Array (3);
-var isEscaped1 = false;
-var isEscaped2 = false;
-var isEscaped = false;
-if (cmd.length == 0) return null;
-var ptQ = -1;
-var ptCmd = 0;
-var ptToken = 0;
-for (var i = 0; i < cmd.length; i++) {
-switch (cmd.charAt (i)) {
-case '"':
-if (!isEscaped && !isEscaped1) {
-isEscaped2 = !isEscaped2;
-if (isEscaped2) ptQ = ptToken = i;
-}break;
-case '\'':
-if (!isEscaped && !isEscaped2) {
-isEscaped1 = !isEscaped1;
-if (isEscaped1) ptQ = ptToken = i;
-}break;
-case '\\':
-isEscaped = !isEscaped;
-continue;
-case ' ':
-if (!isEscaped && !isEscaped1 && !isEscaped2) {
-ptToken = i + 1;
-ptQ = -1;
-}break;
-case ';':
-if (!isEscaped1 && !isEscaped2) {
-ptCmd = ptToken = i + 1;
-ptQ = -1;
-}break;
-default:
-if (!isEscaped1 && !isEscaped2) ptQ = -1;
-}
-isEscaped = false;
-}
-sout[0] = cmd.substring (0, ptCmd);
-sout[1] = (ptToken == ptCmd ? cmd.substring (ptCmd) : cmd.substring (ptCmd, (ptToken > ptQ ? ptToken : ptQ)));
-sout[2] = (ptToken == ptCmd ? null : cmd.substring (ptToken));
-return sout;
-}, "~S");
 Clazz.defineStatics (c$,
 "formattingStrings", ["0", "0.0", "0.00", "0.000", "0.0000", "0.00000", "0.000000", "0.0000000", "0.00000000", "0.000000000"],
 "zeros", "0000000000000000000000000000000000000000",

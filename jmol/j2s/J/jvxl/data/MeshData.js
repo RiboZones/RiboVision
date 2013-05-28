@@ -22,7 +22,7 @@ function () {
 return (this.surfaceSet == null ? this.getSurfaceSetForLevel (0) : this.surfaceSet);
 });
 $_M(c$, "getSurfaceSetForLevel", 
-function (level) {
+($fz = function (level) {
 if (level == 0) {
 this.surfaceSet =  new Array (100);
 this.nSets = 0;
@@ -65,7 +65,7 @@ if (level == 0) {
 this.sortSurfaceSets ();
 this.setVertexSets (false);
 }return this.surfaceSet;
-}, "~N");
+}, $fz.isPrivate = true, $fz), "~N");
 $_M(c$, "sortSurfaceSets", 
 ($fz = function () {
 var sets =  new Array (this.nSets);

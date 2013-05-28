@@ -63,7 +63,7 @@ return J.util.P3.new3 ((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF);
 c$.colorPtToInt = $_M(c$, "colorPtToInt", 
 function (pt) {
 return J.util.ColorUtil.colorTriadToInt (pt.x, pt.y, pt.z);
-}, "J.util.P3");
+}, "J.util.Tuple3f");
 c$.colorPointFromInt = $_M(c$, "colorPointFromInt", 
 function (color, pt) {
 pt.z = color & 0xFF;

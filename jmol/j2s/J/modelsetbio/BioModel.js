@@ -17,10 +17,10 @@ Clazz.superCall (this, J.modelsetbio.BioModel, "freeze", []);
 this.bioPolymers = J.util.ArrayUtil.arrayCopyObject (this.bioPolymers, this.bioPolymerCount);
 });
 Clazz.overrideMethod (c$, "addSecondaryStructure", 
-function (type, structureID, serialID, strandCount, startChainID, startSeqcode, endChainID, endSeqcode) {
-for (var i = this.bioPolymerCount; --i >= 0; ) this.bioPolymers[i].addStructure (type, structureID, serialID, strandCount, startChainID, startSeqcode, endChainID, endSeqcode);
+function (type, structureID, serialID, strandCount, startChainID, startSeqcode, endChainID, endSeqcode, istart, iend, bsAssigned) {
+for (var i = this.bioPolymerCount; --i >= 0; ) this.bioPolymers[i].addStructure (type, structureID, serialID, strandCount, startChainID, startSeqcode, endChainID, endSeqcode, istart, iend, bsAssigned);
 
-}, "J.constant.EnumStructure,~S,~N,~N,~S,~N,~S,~N");
+}, "J.constant.EnumStructure,~S,~N,~N,~S,~N,~S,~N,~N,~N,J.util.BS");
 Clazz.overrideMethod (c$, "calculateStructures", 
 function (asDSSP, doReport, dsspIgnoreHydrogen, setStructure, includeAlpha) {
 if (this.bioPolymerCount == 0 || !setStructure && !asDSSP) return "";

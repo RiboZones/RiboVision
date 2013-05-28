@@ -486,8 +486,8 @@ return (this.modelSetAuxiliaryInfo == null ? null : this.modelSetAuxiliaryInfo.g
 }, "~S");
 $_M(c$, "getModelSetAuxiliaryInfoBoolean", 
 function (keyName) {
-var info = this.modelSetAuxiliaryInfo;
-return (info != null && info.containsKey (keyName) && (info.get (keyName)).booleanValue ());
+var val = this.getModelSetAuxiliaryInfoValue (keyName);
+return (Clazz.instanceOf (val, Boolean) && (val).booleanValue ());
 }, "~S");
 $_M(c$, "mergeTrajectories", 
 function (isTrajectory) {
@@ -1124,7 +1124,7 @@ if (J.util.Logger.debugging) J.util.Logger.debug ("sequential bspt order");
 var bsNew = J.util.BSUtil.newBitSet (this.modelCount);
 for (var i = this.atomCount; --i >= 0; ) {
 var atom = this.atoms[i];
-if (!atom.isDeleted ()) {
+if (!atom.isDeleted () && !this.isTrajectorySubFrame (atom.modelIndex)) {
 bspf.addTuple (this.models[atom.modelIndex].trajectoryBaseIndex, atom);
 bsNew.set (atom.modelIndex);
 }}

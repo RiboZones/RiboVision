@@ -80,7 +80,8 @@ function () {
 return this.iAtomSurface;
 });
 Clazz.overrideMethod (c$, "getValueAtPoint", 
-function (pt) {
+function (pt, getSource) {
+if (this.haveOneProperty && !getSource) return this.theProperty;
 var dmin = 3.4028235E38;
 var dminNearby = 3.4028235E38;
 var value = (this.doSmoothProperty ? 0 : NaN);
@@ -89,10 +90,10 @@ this.atomDataServer.setIteratorForPoint (this.iter, this.modelIndex, pt, this.ma
 this.iAtomSurface = -1;
 while (this.iter.hasNext ()) {
 var ia = this.iter.next ();
-var iAtom = this.myIndex[ia];
-var isNearby = (iAtom >= this.firstNearbyAtom);
-var ptA = this.atomXyz[iAtom];
-var p = this.atomProp[iAtom];
+var myAtom = this.myIndex[ia];
+var isNearby = (myAtom >= this.firstNearbyAtom);
+var ptA = this.atomXyz[myAtom];
+var p = this.atomProp[myAtom];
 if (Float.isNaN (p)) continue;
 var d2 = pt.distanceSquared (ptA);
 if (isNearby) {
@@ -103,7 +104,7 @@ dmin = d2;
 value = NaN;
 }}} else if (d2 < dmin) {
 dmin = d2;
-this.iAtomSurface = iAtom;
+this.iAtomSurface = ia;
 if (!this.doSmoothProperty) value = p;
 }if (this.mepCalc != null) {
 value += this.mepCalc.valueFor (p, d2, this.calcType);
@@ -113,5 +114,5 @@ vdiv += d2;
 value += d2 * p;
 }}
 return (this.mepCalc != null ? value : this.doSmoothProperty ? (vdiv == 0 || dminNearby < dmin ? NaN : value / vdiv) : value);
-}, "J.util.P3");
+}, "J.util.P3,~B");
 });
