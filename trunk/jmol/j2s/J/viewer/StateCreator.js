@@ -699,7 +699,10 @@ break;
 case 5:
 var l = shape;
 for (var i = l.bsSizeSet.nextSetBit (0); i >= 0; i = l.bsSizeSet.nextSetBit (i + 1)) {
-J.util.BSUtil.setMapBitSet (this.temp, i, i, "label " + J.util.Escape.eS (l.formats[i]));
+var t = l.getLabel (i);
+var cmd = (t == null ? null : t.getCommand ());
+if (cmd == null) cmd = "label " + J.util.Escape.eS (l.formats[i]);
+J.util.BSUtil.setMapBitSet (this.temp, i, i, cmd);
 if (l.bsColixSet != null && l.bsColixSet.get (i)) J.util.BSUtil.setMapBitSet (this.temp2, i, i, J.shape.Shape.getColorCommand ("label", l.paletteIDs[i], l.colixes[i], l.translucentAllowed));
 if (l.bsBgColixSet != null && l.bsBgColixSet.get (i)) J.util.BSUtil.setMapBitSet (this.temp2, i, i, "background label " + J.shape.Shape.encodeColor (l.bgcolixes[i]));
 var text = l.getLabel (i);
@@ -775,7 +778,7 @@ J.viewer.StateCreator.appendCmd (str, "set legacyAutoBonding " + g.legacyAutoBon
 J.viewer.StateCreator.appendCmd (str, "set minBondDistance " + g.minBondDistance);
 J.viewer.StateCreator.appendCmd (str, "set minimizationCriterion  " + g.minimizationCriterion);
 J.viewer.StateCreator.appendCmd (str, "set minimizationSteps  " + g.minimizationSteps);
-J.viewer.StateCreator.appendCmd (str, "set pdbAddHydrogens " + (htParams != null && htParams.get ("pdbNoHydrogens") == null ? g.pdbAddHydrogens : false));
+J.viewer.StateCreator.appendCmd (str, "set pdbAddHydrogens " + (htParams != null && htParams.get ("pdbNoHydrogens") !== Boolean.TRUE ? g.pdbAddHydrogens : false));
 J.viewer.StateCreator.appendCmd (str, "set pdbGetHeader " + g.pdbGetHeader);
 J.viewer.StateCreator.appendCmd (str, "set pdbSequential " + g.pdbSequential);
 J.viewer.StateCreator.appendCmd (str, "set percentVdwAtom " + g.percentVdwAtom);

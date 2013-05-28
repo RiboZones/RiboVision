@@ -44,7 +44,7 @@ modelSetName = modelSetName.trim ();
 if (modelSetName.length == 0) modelSetName = null;
 }if (modelSetName == null) modelSetName = J.viewer.ModelManager.reduceFilename (fileName);
 }this.modelSet = ( new J.modelset.ModelLoader (this.viewer, modelSetName, loadScript, atomSetCollection, (isAppend ? this.modelSet : null), bsNew)).getModelSet ();
-}if (this.modelSet.getAtomCount () == 0) this.zap ();
+}if (this.modelSet.getAtomCount () == 0 && !this.modelSet.getModelSetAuxiliaryInfoBoolean ("isPyMOL")) this.zap ();
 return this.modelSet;
 }, "~S,~S,J.util.SB,~O,J.util.BS,~B");
 c$.reduceFilename = $_M(c$, "reduceFilename", 

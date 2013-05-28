@@ -5,18 +5,21 @@ this.viewer = null;
 this.modelSet = null;
 this.mergeModelSet = null;
 this.merging = false;
+this.appendNew = false;
 this.jmolData = null;
 this.group3Lists = null;
 this.group3Counts = null;
 this.specialAtomIndexes = null;
 this.someModelsHaveUnitcells = false;
+this.is2D = false;
+this.isPDB = false;
 this.isTrajectory = false;
+this.isPyMOLsession = false;
 this.doMinimize = false;
 this.doAddHydrogens = false;
 this.doRemoveAddedHydrogens = false;
 this.fileHeader = null;
 this.jbr = null;
-this.isPDB = false;
 this.groups = null;
 this.groupCount = 0;
 this.htAtomMap = null;
@@ -37,13 +40,12 @@ this.baseModelCount = 0;
 this.baseAtomIndex = 0;
 this.baseGroupIndex = 0;
 this.baseTrajectoryCount = 0;
-this.appendNew = false;
 this.adapterModelCount = 0;
 this.adapterTrajectoryCount = 0;
 this.noAutoBond = false;
-this.is2D = false;
 this.$mergeGroups = null;
 this.vStereo = null;
+this.bsAssigned = null;
 this.structuresDefinedInFile = null;
 Clazz.instantialize (this, arguments);
 }, J.modelset, "ModelLoader");
@@ -100,7 +102,8 @@ throw e;
 this.fileHeader = this.modelSet.getModelSetAuxiliaryInfoValue ("fileHeader");
 this.modelSet.trajectorySteps = this.modelSet.getModelSetAuxiliaryInfoValue ("trajectorySteps");
 this.isTrajectory = (this.modelSet.trajectorySteps != null);
-this.doAddHydrogens = (this.jbr != null && !this.isTrajectory && this.modelSet.getModelSetAuxiliaryInfoValue ("pdbNoHydrogens") == null && this.viewer.getBooleanProperty ("pdbAddHydrogens"));
+this.isPyMOLsession = this.modelSet.getModelSetAuxiliaryInfoBoolean ("isPyMOL");
+this.doAddHydrogens = (this.jbr != null && !this.isTrajectory && !this.isPyMOLsession && !this.modelSet.getModelSetAuxiliaryInfoBoolean ("pdbNoHydrogens") && this.viewer.getBooleanProperty ("pdbAddHydrogens"));
 if (info != null) {
 info.remove ("pdbNoHydrogens");
 info.remove ("trajectorySteps");
@@ -219,7 +222,7 @@ this.mergeModelSet.releaseModelSet ();
 }, $fz.isPrivate = true, $fz), "J.api.JmolAdapter,~O,J.util.BS");
 $_M(c$, "setDefaultRendering", 
 ($fz = function (maxAtoms) {
-if (this.modelSet.getModelSetAuxiliaryInfoBoolean ("isPyMOL")) return;
+if (this.isPyMOLsession) return;
 var sb =  new J.util.SB ();
 var modelCount = this.modelSet.modelCount;
 var models = this.modelSet.models;
@@ -599,11 +602,14 @@ var t = iterStructure.getSubstructureType ();
 var id = iterStructure.getStructureID ();
 var serID = iterStructure.getSerialID ();
 var count = iterStructure.getStrandCount ();
+var istart = iterStructure.getStartIndex () + this.baseAtomIndex;
+var iend = iterStructure.getEndIndex () + this.baseAtomIndex;
+if (this.bsAssigned == null) this.bsAssigned =  new J.util.BS ();
 iterStructure.getSerialID ();
-this.defineStructure (i, t, id, serID, count, iterStructure.getStartChainID (), iterStructure.getStartSequenceNumber (), iterStructure.getStartInsertionCode (), iterStructure.getEndChainID (), iterStructure.getEndSequenceNumber (), iterStructure.getEndInsertionCode ());
+this.defineStructure (i, t, id, serID, count, iterStructure.getStartChainID (), iterStructure.getStartSequenceNumber (), iterStructure.getStartInsertionCode (), iterStructure.getEndChainID (), iterStructure.getEndSequenceNumber (), iterStructure.getEndInsertionCode (), istart, iend, this.bsAssigned);
 }, $fz.isPrivate = true, $fz), "J.api.JmolAdapterStructureIterator");
 $_M(c$, "defineStructure", 
-($fz = function (modelIndex, subType, structureID, serialID, strandCount, startChainID, startSequenceNumber, startInsertionCode, endChainID, endSequenceNumber, endInsertionCode) {
+($fz = function (modelIndex, subType, structureID, serialID, strandCount, startChainID, startSequenceNumber, startInsertionCode, endChainID, endSequenceNumber, endInsertionCode, istart, iend, bsAssigned) {
 var type = (subType === J.constant.EnumStructure.NOT ? J.constant.EnumStructure.NONE : subType);
 var startSeqCode = J.modelset.Group.getSeqcodeFor (startSequenceNumber, startInsertionCode);
 var endSeqCode = J.modelset.Group.getSeqcodeFor (endSequenceNumber, endInsertionCode);
@@ -612,13 +618,13 @@ if (modelIndex >= 0 || this.isTrajectory) {
 if (this.isTrajectory) modelIndex = 0;
 modelIndex += this.baseModelIndex;
 this.structuresDefinedInFile.set (modelIndex);
-models[modelIndex].addSecondaryStructure (type, structureID, serialID, strandCount, startChainID, startSeqCode, endChainID, endSeqCode);
+models[modelIndex].addSecondaryStructure (type, structureID, serialID, strandCount, startChainID, startSeqCode, endChainID, endSeqCode, istart, iend, bsAssigned);
 return;
 }for (var i = this.baseModelIndex; i < this.modelSet.modelCount; i++) {
 this.structuresDefinedInFile.set (i);
-models[i].addSecondaryStructure (type, structureID, serialID, strandCount, startChainID, startSeqCode, endChainID, endSeqCode);
+models[i].addSecondaryStructure (type, structureID, serialID, strandCount, startChainID, startSeqCode, endChainID, endSeqCode, istart, iend, bsAssigned);
 }
-}, $fz.isPrivate = true, $fz), "~N,J.constant.EnumStructure,~S,~N,~N,~S,~N,~S,~S,~N,~S");
+}, $fz.isPrivate = true, $fz), "~N,J.constant.EnumStructure,~S,~N,~N,~S,~N,~S,~S,~N,~S,~N,~N,J.util.BS");
 $_M(c$, "initializeUnitCellAndSymmetry", 
 ($fz = function () {
 if (this.someModelsHaveUnitcells) {

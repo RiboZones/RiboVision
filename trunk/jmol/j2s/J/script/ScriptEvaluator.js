@@ -1322,6 +1322,10 @@ list = null;
 fvalues = null;
 }}this.viewer.setAtomProperty (bs, tok, iValue, fValue, sValue, fvalues, list);
 }, $fz.isPrivate = true, $fz), "J.util.BS,~N,~N,~N,J.script.T");
+Clazz.overrideMethod (c$, "getDefinedAtomSets", 
+function () {
+return this.definedAtomSets;
+});
 Clazz.overrideMethod (c$, "getContextVariables", 
 function () {
 return this.contextVariables;
@@ -9814,10 +9818,16 @@ if (scaleAngstromsPerPixel >= 5) scaleAngstromsPerPixel = this.viewer.getZoomSet
 propertyValue = Float.$valueOf (scaleAngstromsPerPixel);
 break;
 }if (str.equals ("offset") || str.equals ("offsetexact")) {
+if (this.isPoint3f (2)) {
+var pt = this.getPoint3f (2, false);
+propertyValue = [1, pt.x, pt.y, pt.z, 0, 0, 0];
+} else if (this.isArrayParameter (2)) {
+propertyValue = this.floatParameterSet (2, 7, 7);
+} else {
 var xOffset = this.intParameterRange (2, -127, 127);
 var yOffset = this.intParameterRange (3, -127, 127);
 propertyValue = Integer.$valueOf (J.shape.Object2d.getOffset (xOffset, yOffset));
-break;
+}break;
 }if (str.equals ("alignment")) {
 switch (this.getToken (2).tok) {
 case 1073741996:
@@ -11186,8 +11196,97 @@ return this.getShapePropertyIndex (27, "showMO", ptMO);
 }, $fz.isPrivate = true, $fz), "~N");
 $_M(c$, "cgo", 
 ($fz = function () {
-System.out.println ("CGO command not implemented");
+this.sm.loadShape (23);
+if (this.tokAt (1) == 1073742001 && this.listIsosurface (23)) return;
+var iptDisplayProperty = 0;
+var thisId = this.initIsosurface (23);
+var idSeen = (thisId != null);
+var isWild = (idSeen && this.getShapeProperty (23, "ID") == null);
+var isTranslucent = false;
+var isInitialized = false;
+var data = null;
+var translucentLevel = 3.4028235E38;
+var colorArgb = -2147483648;
+var intScale = 0;
+for (var i = this.iToken; i < this.slen; ++i) {
+var propertyName = null;
+var propertyValue = null;
+switch (this.getToken (i).tok) {
+case 7:
+case 269484096:
+case 1073742195:
+if (data != null || isWild) this.error (22);
+data = this.floatParameterSet (i, 2, 2147483647);
+i = this.iToken;
+continue;
+case 1073742138:
+if (++i >= this.slen) this.error (34);
+switch (this.getToken (i).tok) {
+case 2:
+intScale = this.intParameter (i);
+continue;
+case 3:
+intScale = Math.round (this.floatParameter (i) * 100);
+continue;
+}
+this.error (34);
+break;
+case 1766856708:
+case 1073742180:
+case 1073742074:
+if (this.theTok != 1766856708) --i;
+if (this.tokAt (i + 1) == 1073742180) {
+i++;
+isTranslucent = true;
+if (this.isFloatParameter (i + 1)) translucentLevel = this.getTranslucentLevel (++i);
+} else if (this.tokAt (i + 1) == 1073742074) {
+i++;
+isTranslucent = true;
+translucentLevel = 0;
+}if (this.isColorParam (i + 1)) {
+colorArgb = this.getArgbParam (++i);
+i = this.iToken;
+} else if (!isTranslucent) {
+this.error (22);
+}idSeen = true;
+continue;
+case 1074790550:
+thisId = this.setShapeId (23, ++i, idSeen);
+isWild = (this.getShapeProperty (23, "ID") == null);
+i = this.iToken;
+break;
+default:
+if (!this.setMeshDisplayProperty (23, 0, this.theTok)) {
+if (this.theTok == 269484209 || J.script.T.tokAttr (this.theTok, 1073741824)) {
+thisId = this.setShapeId (23, i, idSeen);
+i = this.iToken;
+break;
+}this.error (22);
+}if (iptDisplayProperty == 0) iptDisplayProperty = i;
+i = this.iToken;
+continue;
+}
+idSeen = (this.theTok != 12291);
+if (data != null && !isInitialized) {
+propertyName = "points";
+propertyValue = Integer.$valueOf (intScale);
+isInitialized = true;
+intScale = 0;
+}if (propertyName != null) this.setShapeProperty (23, propertyName, propertyValue);
+}
+this.finalizeObject (23, colorArgb, isTranslucent ? translucentLevel : 3.4028235E38, intScale, true, data, iptDisplayProperty);
 }, $fz.isPrivate = true, $fz));
+$_M(c$, "finalizeObject", 
+($fz = function (shapeID, colorArgb, translucentLevel, intScale, havePoints, data, iptDisplayProperty) {
+if (havePoints) {
+this.setShapeProperty (shapeID, "set", data);
+}if (colorArgb != -2147483648) this.setShapeProperty (shapeID, "color", Integer.$valueOf (colorArgb));
+if (translucentLevel != 3.4028235E38) this.setShapeTranslucency (shapeID, "", "translucent", translucentLevel, null);
+if (intScale != 0) {
+this.setShapeProperty (shapeID, "scale", Integer.$valueOf (intScale));
+}if (iptDisplayProperty > 0) {
+if (!this.setMeshDisplayProperty (shapeID, iptDisplayProperty, 0)) this.error (22);
+}}, $fz.isPrivate = true, $fz), "~N,~N,~N,~N,~B,~O,~N");
 $_M(c$, "draw", 
 ($fz = function () {
 this.sm.loadShape (22);
@@ -11596,15 +11695,8 @@ intScale = 0;
 }if (havePoints && isWild) this.error (22);
 if (propertyName != null) this.setShapeProperty (22, propertyName, propertyValue);
 }
-if (havePoints) {
-this.setShapeProperty (22, "set", connections);
-}if (colorArgb != -2147483648) this.setShapeProperty (22, "color", Integer.$valueOf (colorArgb));
-if (isTranslucent) this.setShapeTranslucency (22, "", "translucent", translucentLevel, null);
-if (intScale != 0) {
-this.setShapeProperty (22, "scale", Integer.$valueOf (intScale));
-}if (iptDisplayProperty > 0) {
-if (!this.setMeshDisplayProperty (22, iptDisplayProperty, 0)) this.error (22);
-}}, $fz.isPrivate = true, $fz));
+this.finalizeObject (22, colorArgb, isTranslucent ? translucentLevel : 3.4028235E38, intScale, havePoints, connections, iptDisplayProperty);
+}, $fz.isPrivate = true, $fz));
 $_M(c$, "polyhedra", 
 ($fz = function () {
 var needsGenerating = false;
@@ -12547,7 +12639,7 @@ this.setCursorWait (true);
 var idSeen = (this.initIsosurface (iShape) != null);
 var isWild = (idSeen && this.getShapeProperty (iShape, "ID") == null);
 var isColorSchemeTranslucent = false;
-var isInline;
+var isInline = false;
 var onlyOneModel = null;
 var translucency = null;
 var colorScheme = null;
@@ -12771,10 +12863,11 @@ sbCommand.append (" within " + d);
 this.addShapeProperty (propertyList, "propertyDistanceMax", Float.$valueOf (d));
 }}propertyValue = data;
 break;
+case 1095761933:
 case 1095766028:
 if (surfaceObjectSeen) this.error (22);
-modelIndex = this.modelNumberParameter (++i);
-sbCommand.append (" model " + modelIndex);
+modelIndex = (this.theTok == 1095761933 ? this.intParameter (++i) : this.modelNumberParameter (++i));
+sbCommand.append (" modelIndex " + modelIndex);
 if (modelIndex < 0) {
 propertyName = "fixed";
 propertyValue = Boolean.TRUE;
@@ -13487,24 +13580,20 @@ propertyValue = Boolean.TRUE;
 sbCommand.append (" squared");
 break;
 case 1073741983:
-case 4:
-var filename = this.parameterAsString (i);
-var sType = null;
-isInline = filename.equalsIgnoreCase ("inline");
-if (this.tokAt (i + 1) == 4) {
-sType = this.stringParameter (++i);
-if (!isInline) this.addShapeProperty (propertyList, "calculationType", sType);
-}var firstPass = (!surfaceObjectSeen && !planeSeen);
-propertyName = (firstPass ? "readFile" : "mapColor");
-if (isInline) {
-if (sType == null) this.error (22);
-if (isPmesh) sType = J.util.TextFormat.replaceAllCharacter (sType, "{,}|", ' ');
-if (this.logMessages) J.util.Logger.debug ("pmesh inline data:\n" + sType);
-propertyValue = (this.chk ? null : sType);
+propertyName = (!surfaceObjectSeen && !planeSeen && !isMapped ? "readFile" : "mapColor");
+str = this.stringParameter (++i);
+if (str == null) this.error (22);
+if (isPmesh) str = J.util.TextFormat.replaceAllCharacter (str, "{,}|", ' ');
+if (this.logMessages) J.util.Logger.debug ("pmesh inline data:\n" + str);
+propertyValue = (this.chk ? null : str);
 this.addShapeProperty (propertyList, "fileName", "");
-sbCommand.append (" INLINE");
+sbCommand.append (" INLINE ").append (J.util.Escape.eS (str));
 surfaceObjectSeen = true;
-} else {
+break;
+case 4:
+var firstPass = (!surfaceObjectSeen && !planeSeen);
+propertyName = (firstPass && !isMapped ? "readFile" : "mapColor");
+var filename = this.parameterAsString (i);
 if (filename.startsWith ("=") && filename.length > 1) {
 var info = this.viewer.setLoadFormat (filename, '_', false);
 filename = info[0];
@@ -13528,25 +13617,19 @@ sbCommand.append (" within 2.0 ").append (J.util.Escape.eBS (bs));
 }if (firstPass && this.viewer.getParameter ("_fileType").equals ("Pdb") && Float.isNaN (sigma) && Float.isNaN (cutoff)) {
 this.addShapeProperty (propertyList, "sigma", Float.$valueOf (-1));
 sbCommand.append (" sigma -1.0");
-}if (filename.equals ("TESTDATA") && J.script.ScriptEvaluator.testData != null) {
-propertyValue = J.script.ScriptEvaluator.testData;
-break;
-}if (filename.equals ("TESTDATA2") && J.script.ScriptEvaluator.testData2 != null) {
-propertyValue = J.script.ScriptEvaluator.testData2;
-break;
 }if (filename.length == 0) {
 if (modelIndex < 0) modelIndex = this.viewer.getCurrentModelIndex ();
-if (surfaceObjectSeen || planeSeen) propertyValue = this.viewer.getModelAuxiliaryInfoValue (modelIndex, "jmolMappedDataInfo");
-if (propertyValue == null) propertyValue = this.viewer.getModelAuxiliaryInfoValue (modelIndex, "jmolSurfaceInfo");
-if (propertyValue != null) {
-surfaceObjectSeen = true;
-break;
-}filename = this.getFullPathName ();
+filename = this.getFullPathName ();
+propertyValue = this.viewer.getModelAuxiliaryInfoValue (modelIndex, "jmolSurfaceInfo");
 }var fileIndex = -1;
-if (this.tokAt (i + 1) == 2) this.addShapeProperty (propertyList, "fileIndex", Integer.$valueOf (fileIndex = this.intParameter (++i)));
-if (!this.chk) {
-var fullPathNameOrError;
+if (propertyValue == null && this.tokAt (i + 1) == 2) this.addShapeProperty (propertyList, "fileIndex", Integer.$valueOf (fileIndex = this.intParameter (++i)));
+var stype = (this.tokAt (i + 1) == 4 ? this.stringParameter (++i) : null);
+surfaceObjectSeen = true;
+if (this.chk) {
+break;
+}var fullPathNameOrError;
 var localName = null;
+if (propertyValue == null) {
 if (this.fullCommand.indexOf ("# FILE" + nFiles + "=") >= 0) {
 filename = J.util.Parser.getQuotedAttribute (this.fullCommand, "# FILE" + nFiles);
 if (this.tokAt (i + 1) == 1073741848) i += 2;
@@ -13560,17 +13643,20 @@ localName = null;
 } else {
 this.addShapeProperty (propertyList, "localName", localName);
 this.viewer.setPrivateKeyForShape (iShape);
-}}if (!filename.startsWith ("cache://")) {
+}}}if (!filename.startsWith ("cache://")) {
 fullPathNameOrError = this.viewer.getFullPathNameOrError (filename);
 filename = fullPathNameOrError[0];
 if (fullPathNameOrError[1] != null) this.errorStr (17, filename + ":" + fullPathNameOrError[1]);
 }J.util.Logger.info ("reading isosurface data from " + filename);
+if (stype != null) {
+propertyValue = this.viewer.cacheGet (filename + "#jmolSurfaceInfo");
+this.addShapeProperty (propertyList, "calculationType", stype);
+}if (propertyValue == null) {
 this.addShapeProperty (propertyList, "fileName", filename);
 if (localName != null) filename = localName;
-sbCommand.append (" /*file*/").append (J.util.Escape.eS (filename));
-}if (fileIndex >= 0) sbCommand.append (" ").appendI (fileIndex);
-}if (sType != null) sbCommand.append (" ").append (J.util.Escape.eS (sType));
-surfaceObjectSeen = true;
+if (fileIndex >= 0) sbCommand.append (" ").appendI (fileIndex);
+}sbCommand.append (" /*file*/").append (J.util.Escape.eS (filename));
+if (stype != null) sbCommand.append (" ").append (J.util.Escape.eS (stype));
 break;
 case 4106:
 propertyName = "connections";
@@ -14026,7 +14112,5 @@ Clazz.defineStatics (c$,
 "ERROR_writeWhat", 54,
 "ERROR_multipleModelsNotOK", 55,
 "ERROR_cannotSet", 56,
-"iProcess", 0,
-"testData", null,
-"testData2", null);
+"iProcess", 0);
 });

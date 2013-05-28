@@ -11,6 +11,7 @@ this.vTemp = null;
 this.vTemp2 = null;
 this.pt0f = null;
 this.pt0i = null;
+this.$pt1i = null;
 this.bsHandles = null;
 Clazz.instantialize (this, arguments);
 }, J.renderspecial, "DrawRenderer", J.render.MeshRenderer);
@@ -22,6 +23,7 @@ this.vTemp =  new J.util.V3 ();
 this.vTemp2 =  new J.util.V3 ();
 this.pt0f =  new J.util.P3 ();
 this.pt0i =  new J.util.P3i ();
+this.$pt1i =  new J.util.P3i ();
 this.bsHandles =  new J.util.BS ();
 });
 Clazz.overrideMethod (c$, "render", 
@@ -69,8 +71,8 @@ var n = (this.drawType === J.shapespecial.Draw.EnumDrawType.ARC ? 2 : this.verte
 for (var i = 0; i < n; i++) this.pt1f.add (this.vertices[i]);
 
 this.pt1f.scale (1 / n);
-this.viewer.transformPtScr (this.pt1f, this.pt1i);
-this.diameter = this.viewer.scaleToScreen (this.pt1i.z, Clazz.doubleToInt (Math.floor (this.width * 1000)));
+this.viewer.transformPtScr (this.pt1f, this.$pt1i);
+this.diameter = Clazz.floatToInt (this.viewer.scaleToScreen (this.$pt1i.z, Clazz.doubleToInt (Math.floor (this.width * 1000))));
 if (this.diameter == 0) this.diameter = 1;
 }if ((this.dmesh.isVector) && this.dmesh.haveXyPoints) {
 var ptXY = 0;
@@ -89,11 +91,11 @@ if (this.dmesh.scale > 0) this.width *= this.dmesh.scale;
 this.render2b (false);
 break;
 case J.shapespecial.Draw.EnumDrawType.CIRCLE:
-this.viewer.transformPtScr (this.vertices[0], this.pt1i);
+this.viewer.transformPtScr (this.vertices[0], this.$pt1i);
 if (this.diameter == 0 && this.width == 0) this.width = 1.0;
 if (this.dmesh.scale > 0) this.width *= this.dmesh.scale;
-if (this.width > 0) this.diameter = this.viewer.scaleToScreen (this.pt1i.z, Clazz.doubleToInt (Math.floor (this.width * 1000)));
-if (this.diameter > 0 && (this.mesh.drawTriangles || this.mesh.fillTriangles)) this.g3d.drawFilledCircle (this.colix, this.mesh.fillTriangles ? this.colix : 0, this.diameter, this.pt1i.x, this.pt1i.y, this.pt1i.z);
+if (this.width > 0) this.diameter = Clazz.floatToInt (this.viewer.scaleToScreen (this.$pt1i.z, Clazz.doubleToInt (Math.floor (this.width * 1000))));
+if (this.diameter > 0 && (this.mesh.drawTriangles || this.mesh.fillTriangles)) this.g3d.drawFilledCircle (this.colix, this.mesh.fillTriangles ? this.colix : 0, this.diameter, this.$pt1i.x, this.$pt1i.y, this.$pt1i.z);
 break;
 case J.shapespecial.Draw.EnumDrawType.CURVE:
 case J.shapespecial.Draw.EnumDrawType.LINE_SEGMENT:
@@ -230,9 +232,9 @@ $_M(c$, "drawLineData",
 if (this.diameter == 0) this.diameter = 3;
 for (var i = lineData.size (); --i >= 0; ) {
 var pts = lineData.get (i);
-this.viewer.transformPtScr (pts[0], this.pt1i);
+this.viewer.transformPtScr (pts[0], this.$pt1i);
 this.viewer.transformPtScr (pts[1], this.pt2i);
-this.drawLine (-1, -2, true, pts[0], pts[1], this.pt1i, this.pt2i);
+this.drawLine (-1, -2, true, pts[0], pts[1], this.$pt1i, this.pt2i);
 }
 }, $fz.isPrivate = true, $fz), "J.util.JmolList");
 $_M(c$, "renderXyArrow", 
@@ -248,10 +250,10 @@ var zoomDimension = this.viewer.getScreenDim ();
 var scaleFactor = zoomDimension / 20;
 this.vpt1.scaleAdd2 (this.dmesh.scale * scaleFactor, this.vpt1, this.vpt0);
 if (this.diameter == 0) this.diameter = 1;
-this.pt1i.set (Math.round (this.vpt0.x), Math.round (this.vpt0.y), Math.round (this.vpt0.z));
+this.$pt1i.set (Math.round (this.vpt0.x), Math.round (this.vpt0.y), Math.round (this.vpt0.z));
 this.pt2i.set (Math.round (this.vpt1.x), Math.round (this.vpt1.y), Math.round (this.vpt1.z));
-if (this.diameter < 0) this.g3d.drawDottedLine (this.pt1i, this.pt2i);
- else this.g3d.fillCylinder (2, this.diameter, this.pt1i, this.pt2i);
+if (this.diameter < 0) this.g3d.drawDottedLine (this.$pt1i, this.pt2i);
+ else this.g3d.fillCylinder (2, this.diameter, this.$pt1i, this.pt2i);
 this.renderArrowHead (this.vpt0, this.vpt1, 0, true, false, false);
 }, $fz.isPrivate = true, $fz), "~N");
 $_M(c$, "renderArrowHead", 
@@ -275,23 +277,23 @@ this.vTemp.scale (5);
 this.pt1f.setT (this.pt2f);
 this.pt1f.sub (this.vTemp);
 if (isTransformed) {
-this.pt1i.set (Math.round (this.pt1f.x), Math.round (this.pt1f.y), Math.round (this.pt1f.z));
+this.$pt1i.set (Math.round (this.pt1f.x), Math.round (this.pt1f.y), Math.round (this.pt1f.z));
 this.pt2i.set (Math.round (this.pt2f.x), Math.round (this.pt2f.y), Math.round (this.pt2f.z));
 } else {
 this.viewer.transformPtScr (this.pt2f, this.pt2i);
-this.viewer.transformPtScr (this.pt1f, this.pt1i);
+this.viewer.transformPtScr (this.pt1f, this.$pt1i);
 this.viewer.transformPtScr (this.pt0f, this.pt0i);
-}if (this.pt2i.z == 1 || this.pt1i.z == 1) return;
+}if (this.pt2i.z == 1 || this.$pt1i.z == 1) return;
 var headDiameter;
 if (this.diameter > 0) {
 headDiameter = this.diameter * 3;
 } else {
-this.vTemp.set (this.pt2i.x - this.pt1i.x, this.pt2i.y - this.pt1i.y, this.pt2i.z - this.pt1i.z);
+this.vTemp.set (this.pt2i.x - this.$pt1i.x, this.pt2i.y - this.$pt1i.y, this.pt2i.z - this.$pt1i.z);
 headDiameter = Math.round (this.vTemp.length () * .5);
 this.diameter = Clazz.doubleToInt (headDiameter / 5);
 }if (this.diameter < 1) this.diameter = 1;
-if (headDiameter > 2) this.g3d.fillConeScreen (2, headDiameter, this.pt1i, this.pt2i, isBarb);
-if (withShaft) this.g3d.fillCylinderScreen3I (4, this.diameter, this.pt0i, this.pt1i, null, null, this.mad / 2000);
+if (headDiameter > 2) this.g3d.fillConeScreen (2, headDiameter, this.$pt1i, this.pt2i, isBarb);
+if (withShaft) this.g3d.fillCylinderScreen3I (4, this.diameter, this.pt0i, this.$pt1i, null, null, this.mad / 2000);
 }, $fz.isPrivate = true, $fz), "J.util.P3,J.util.P3,~N,~B,~B,~B");
 $_M(c$, "renderHandles", 
 ($fz = function () {
@@ -329,9 +331,9 @@ pt = this.dmesh.polygonIndexes[i].length - 1;
 s = s.substring (1);
 if (this.drawType === J.shapespecial.Draw.EnumDrawType.ARC) this.pt1f.setT (this.pt2f);
 }if (this.drawType !== J.shapespecial.Draw.EnumDrawType.ARC) this.pt1f.setT (this.vertices[this.dmesh.polygonIndexes[i][pt]]);
-this.viewer.transformPtScr (this.pt1f, this.pt1i);
+this.viewer.transformPtScr (this.pt1f, this.$pt1i);
 var offset = Math.round (5 * this.imageFontScaling);
-this.g3d.drawString (s, null, this.pt1i.x + offset, this.pt1i.y - offset, this.pt1i.z, this.pt1i.z, 0);
+this.g3d.drawString (s, null, this.$pt1i.x + offset, this.$pt1i.y - offset, this.$pt1i.z, this.$pt1i.z, 0);
 break;
 }
 }, $fz.isPrivate = true, $fz));

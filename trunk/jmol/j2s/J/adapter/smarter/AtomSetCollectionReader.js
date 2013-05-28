@@ -165,6 +165,7 @@ return (this.desiredModelNumber > 0 || modelNumber >= this.lastModelNumber);
 $_M(c$, "appendLoadNote", 
 function (info) {
 this.loadNote.append (info).append ("\n");
+J.util.Logger.info (info);
 return info;
 }, "~S");
 $_M(c$, "initializeTrajectoryFile", 
@@ -206,7 +207,7 @@ this.atomSetCollection.setAtomSetAuxiliaryInfoForSet ("fileType", fileType, i);
 }
 this.atomSetCollection.freeze (this.reverseModels);
 if (this.atomSetCollection.errorMessage != null) return this.atomSetCollection.errorMessage + "\nfor file " + this.filePath + "\ntype " + name;
-if ((this.atomSetCollection.bsAtoms == null ? this.atomSetCollection.getAtomCount () : this.atomSetCollection.bsAtoms.cardinality ()) == 0 && fileType.indexOf ("DataOnly") < 0) return "No atoms found\nfor file " + this.filePath + "\ntype " + name;
+if ((this.atomSetCollection.bsAtoms == null ? this.atomSetCollection.getAtomCount () : this.atomSetCollection.bsAtoms.cardinality ()) == 0 && fileType.indexOf ("DataOnly") < 0 && this.atomSetCollection.getAtomSetCollectionAuxiliaryInfo ("dataOnly") == null) return "No atoms found\nfor file " + this.filePath + "\ntype " + name;
 return this.atomSetCollection;
 }, $fz.isPrivate = true, $fz));
 $_M(c$, "setError", 

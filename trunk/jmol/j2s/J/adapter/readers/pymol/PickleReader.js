@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.adapter.readers.pymol");
-Clazz.load (["java.util.Hashtable", "J.util.JmolList"], "J.adapter.readers.pymol.PickleReader", ["java.lang.Double", "J.util.SB"], function () {
+Clazz.load (["java.util.Hashtable", "J.util.JmolList"], "J.adapter.readers.pymol.PickleReader", ["java.lang.Double", "$.Long", "J.util.Logger", "$.SB"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.binaryDoc = null;
 this.stack = null;
@@ -171,8 +171,23 @@ break;
 case 116:
 this.push (this.getObjects (this.getMark ()));
 break;
+case 73:
+s = this.readString ();
+try {
+this.push (Integer.$valueOf (Integer.parseInt (s)));
+} catch (e) {
+if (Clazz.exceptionOf (e, Exception)) {
+var ll = Long.parseLong (s);
+this.push (Integer.$valueOf ((ll & 0xFFFFFFFF)));
+System.out.println ("INT too large: " + s + " @ " + this.binaryDoc.getPosition ());
+this.push (Integer.$valueOf (2147483647));
+} else {
+throw e;
+}
+}
+break;
 default:
-System.out.println ("PyMOL reader error: " + b + " " + this.binaryDoc.getPosition ());
+J.util.Logger.error ("Pickle reader error: " + b + " " + this.binaryDoc.getPosition ());
 }
 }
 if (logging) this.log ("");
@@ -247,5 +262,6 @@ Clazz.defineStatics (c$,
 "STOP", 46,
 "BINGET", 104,
 "LONG_BINGET", 106,
-"TUPLE", 116);
+"TUPLE", 116,
+"INT", 73);
 });

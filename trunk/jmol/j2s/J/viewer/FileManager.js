@@ -846,7 +846,7 @@ $_M(c$, "cacheClear",
 function () {
 this.cache.clear ();
 });
-$_M(c$, "cacheFileByName", 
+$_M(c$, "cacheFileByNameAdd", 
 function (fileName, isAdd) {
 if (fileName == null || !isAdd && fileName.equalsIgnoreCase ("")) {
 this.cacheClear ();
