@@ -1044,7 +1044,7 @@ function InitRibovision(FreshState) {
 	//resizeElements(true);
 	$(".oneLayerGroup").remove();
 	$(".oneSelectionGroup").remove();
-	rvDataSets[0].addSelection("Main");
+	rvDataSets[0].addSelection("Selection_1");
 	switch (get_cookie("JmolState")) {
 		case "Java" :
 			$('[name="jjsmol"][value="Java"]').attr("checked", true);

@@ -2217,12 +2217,86 @@ function canvasToSVG() {
 	output = output + '</svg>';
 	return { 'SVG': output, "Orientation" : Orientation };
 }
-
-function saveSeqTable(){
+function computeSeqTable(){
+	var WholeSet="";
+	var OutputString="";
+	var WholeSet= WholeSet + "WholeSet,WholeSet\n";
+	var WholeSet= WholeSet + "resNum,resName\n";
+	$.each(rvDataSets[0].Residues, function (index,residue) {
+		WholeSet+= rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(residue.ChainID)] + ":" + residue.resNum.replace(/[^:]*:/g, "") + "," + residue.resName + "\n";
+	});
+	var OutputObject = $.csv.toArrays(WholeSet);
+	$.each(rvDataSets[0].Selections, function (index, selection) {
+		if (selection.Residues.length >0){
+			OutputObject[0].push(selection.Name,selection.Name);
+			OutputObject[1].push("resNum","resName");
+			$.each(selection.Residues, function (index, residue) {
+				OutputObject[2+index].push(rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(residue.ChainID)] + ":" + residue.resNum.replace(/[^:]*:/g, ""),residue.resName);
+			});
+		}
+	});
 	
+	$.each(OutputObject, function (index, outputline){
+		OutputString+=outputline.toString() + "\n";
+	});
+	
+	
+	return OutputString;
+}
+function saveSeqTable(){
+	AgreeFunction = function () {
+		var ST = computeSeqTable();
+		var form = document.createElement("form");
+		form.setAttribute("method", "post");
+		form.setAttribute("action", "saveSeqTable.php");
+		form.setAttribute("target", "_blank");
+		var hiddenField = document.createElement("input");
+		hiddenField.setAttribute("type", "hidden");
+		hiddenField.setAttribute("name", "content");
+		hiddenField.setAttribute("value", ST);
+		form.appendChild(hiddenField);
+		document.body.appendChild(form);
+		form.submit();
+	}
+	checkSavePrivacyStatus();
 }
 function saveFasta(){
+	AgreeFunction = function () {
+		var FA = computeFasta();
+		var form = document.createElement("form");
+		form.setAttribute("method", "post");
+		form.setAttribute("action", "saveFasta.php");
+		form.setAttribute("target", "_blank");
+		var hiddenField = document.createElement("input");
+		hiddenField.setAttribute("type", "hidden");
+		hiddenField.setAttribute("name", "content");
+		hiddenField.setAttribute("value", FA);
+		form.appendChild(hiddenField);
+		document.body.appendChild(form);
+		form.submit();
+	}
+	checkSavePrivacyStatus();
+}
+function computeFasta(){
+	var WholeSet="";
+	var OutputString="";
+	OutputString+=">" + rvDataSets[0].Name + "\n";
 	
+	$.each(rvDataSets[0].Residues, function (index,residue) {
+		OutputString+= residue.resName;
+	});
+	OutputString+="\n\n"
+	
+	$.each(rvDataSets[0].Selections, function (index, selection) {
+		if (selection.Residues.length >0){
+			OutputString+=">" + selection.Name + "\n";
+			$.each(selection.Residues, function (index, residue) {
+				OutputString+= residue.resName;
+			});
+			OutputString+="\n\n"
+		}
+	});
+	return OutputString;
 }
 ///////////////////////////////////////////////////////////////////////////////
 
