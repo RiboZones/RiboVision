@@ -354,7 +354,7 @@ $("#SelectionPreferenceDialog").dialog({
 
 function changeSelectionColor(){
 	$($dblClickedSelection).parent().find(".colorBox").css("background",$("#selectionColor").val());
-	targetSelection = rvDataSets[0].getSelection($dblClickedSelectionName);
+	var targetSelection = rvDataSets[0].getSelection($dblClickedSelectionName);
 	targetSelection.Color = $("#selectionColor").val();
 	rvDataSets[0].drawSelection("selected");
 }
@@ -366,7 +366,7 @@ function changeCurrentSelectionName() {
 			if (rvDataSets[0].isUniqueSelection($("#selectionNameInput").val())){
 				$($dblClickedSelection).parent().attr("name",$("#selectionNameInput").val());
 				$($dblClickedSelection).html($("#selectionNameInput").val()).prepend('<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-e"></span>');
-				targetSelection = rvDataSets[0].getSelection($dblClickedSelectionName);
+				var targetSelection = rvDataSets[0].getSelection($dblClickedSelectionName);
 				targetSelection.Name = $("#selectionNameInput").val();
 				RefreshSelectionMenu();
 				$(this).dialog("close");
