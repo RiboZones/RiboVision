@@ -692,7 +692,7 @@ function rvDataSet(DataSetName) {
 				targetLayer.dataLayerColors[i] = "#858585";
 			}
 			for (var k = SelectionList.length - 1 ; k >= 0 ; k--){
-				targetSelection = rvDataSets[0].getSelection(SelectionList[k]);
+				var targetSelection = rvDataSets[0].getSelection(SelectionList[k]);
 				for (var j = targetSelection.Residues.length - 1; j >= 0; j--) {
 					targetLayer.CanvasContext.beginPath();
 					targetLayer.CanvasContext.arc(targetSelection.Residues[j].X, targetSelection.Residues[j].Y, (targetLayer.ScaleFactor * 1.7), 0, 2 * Math.PI, false);
