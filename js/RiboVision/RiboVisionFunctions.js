@@ -1521,6 +1521,7 @@ function customDataProcess(ui,targetLayer){
 	var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
 	NewData = CustomDataExpand(targetLayer);
 	targetLayer.Data = NewData.IncludeData;
+	var targetSelection = rvDataSets[0].Selections[0];
 	SelectionMenu(targetSelection);
 	RefreshSelectionMenu();
 	
@@ -1552,6 +1553,10 @@ function CustomDataExpand(targetLayer){
 	rvDataSets[0].addSelection();
 	var SeleLen = 0;
 	var NewData = [];
+	$.each(rvDataSets[0].Residues, function (index,value){
+		NewData[index]=undefined;
+	});
+
 	var ExtraData = [];
 	var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
 	for (var ii = 0; ii < rvDataSets[0].CustomData.length; ii++) {
@@ -2197,7 +2202,7 @@ function canvasToSVG() {
 					$('.checkBoxDIV-S').find(".visibilityCheckImg[value=visible]").parent().parent().each(function (index){SelectionList.push($(this).attr("name"))});
 
 					$.each(SelectionList, function (index,SelectionName) {
-						targetSelection = rvDataSets[0].getSelection(SelectionName);
+						var targetSelection = rvDataSets[0].getSelection(SelectionName);
 						output = output + '<g id="' + targetSelection.Name + '">\n';
 						$.each(targetSelection.Residues, function (index,residue){
 							output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + 'none' + '" stroke="' + targetSelection.Color + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(residue.X).toFixed(3) + '" cy="' + parseFloat(residue.Y).toFixed(3) + '" r="' + radius + '"/>\n';
@@ -2558,7 +2563,7 @@ function drawNavLine(){
 			maxdata=1;
 			mindata=0;
 		}
-		var	xScale = d3.scale.linear().domain([0, targetLayer.Data.length]).range([0 + MarginXL, w - MarginXR]);
+		var	xScale = d3.scale.linear().domain([0, rvDataSets[0].Residues.length]).range([0 + MarginXL, w - MarginXR]);
 		var	yScale = d3.scale.linear().domain([mindata, maxdata]).range([h - MarginYB,0 + MarginYT ]);
 
 		var NavLine = d3.select("#NavLineDiv")
