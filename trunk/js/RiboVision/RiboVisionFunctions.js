@@ -2565,7 +2565,10 @@ function drawNavLine(){
 		}
 		var	xScale = d3.scale.linear().domain([0, rvDataSets[0].Residues.length]).range([0 + MarginXL, w - MarginXR]);
 		var	yScale = d3.scale.linear().domain([mindata, maxdata]).range([h - MarginYB,0 + MarginYT ]);
-
+		console.log(yScale);
+		console.log(mindata,maxdata);
+		console.log("h");
+		console.log(h,MarginYB,MarginYT);
 		var NavLine = d3.select("#NavLineDiv")
 			.append("svg:svg")
 			.attr("width", w)
@@ -2610,8 +2613,9 @@ function drawNavLine(){
 		} else {
 			GraphData = targetLayer.Data;
 		}
-		g.append("svg:path").attr("d", line(GraphData)).style("stroke", targetLayer.Color);
 		
+		g.append("svg:path").attr("d", line(GraphData)).style("stroke", targetLayer.Color);
+		console.log("yScale",yScale(0));
 		//Axes
 		var xAxis = d3.svg.axis()
 			  .scale(xScale)
@@ -2620,7 +2624,7 @@ function drawNavLine(){
 			  
 		NavLine.append("g")
 			.attr("class", "axis")  //Assign "axis" class
-			.attr("transform", "translate(0," + (yScale(0)) + ")")
+			.attr("transform", "translate(0," + (h - MarginYB) + ")")
 			.call(xAxis);
 			
 		var yAxis = d3.svg.axis()
@@ -2865,6 +2869,19 @@ function UpdateLocalStorage(SaveStateFileName){
 			}			
 		}
 		localStorage.setItem(SaveStateFileName,JSON.stringify(rvSaveState));
+		var RSL = localStorage["RV_Session_List"];
+		if(RSL){
+			var RSLa = JSON.parse(RSL);
+			RSLa.push(SaveStateFileName);
+			var RSLaU;
+			RSLaU = $.grep(RSLa, function (v, k) {
+				return $.inArray(v, RSLa) === k;
+			});
+			localStorage.setItem("RV_Session_List",JSON.stringify(RSLaU));
+		} else {
+			localStorage.setItem("RV_Session_List",JSON.stringify([SaveStateFileName]));
+		}
+		alert(localStorage["RV_Session_List"]);
 	}
 }
 function RestoreLocalStorage(SaveStateFileName) { 
@@ -2971,7 +2988,7 @@ function RestoreLocalStorage2(rvSaveState) {
 }
 
 function rvSaveManager(rvAction) {
-	var SaveStateFileName = $("#SaveStateFileName").attr("value");
+	var SaveStateFileName = $("#SaveStateFileName").val();
 	
 	switch (rvAction) {
 		case "Save":
@@ -3014,6 +3031,7 @@ function rvSaveManager(rvAction) {
 function processRvState(rvSaveState) {
 	if($("input[name='LayersCheck']").attr("checked")){
 		var data = JSON.parse(rvSaveState.rvLayers);
+		rvDataSets[0].Layers=[];
 		$.each(data, function (index, value) {
 			rvDataSets[0].Layers[index] = rvDataSets[0].HighlightLayer.fromJSON(value);
 		});
@@ -3026,6 +3044,8 @@ function processRvState(rvSaveState) {
 		var linkedLayer = rvDataSets[0].getLinkedLayer();
 		resizeElements(true);
 		$(".oneLayerGroup").remove();
+		//remove minilayers
+		$(".miniLayerName").remove();
 		// Put in Layers
 		$.each(rvDataSets[0].Layers, function (key, value){
 			LayerMenu(value, key);
@@ -3036,6 +3056,17 @@ function processRvState(rvSaveState) {
 		rvDataSets[0].selectLayer(selectedLayer.LayerName);
 		$(".oneLayerGroup" + "[name=" + linkedLayer.LayerName + "]").find(".mappingRadioBtn").attr("checked","checked");
 		rvDataSets[0].linkLayer(linkedLayer.LayerName);
+		
+		//Refresh Linked MiniLayer
+		var linkedLayer = rvDataSets[0].getLinkedLayer();
+		$("#LinkSection").find(".miniLayerName").remove();
+		$("#LinkSection").append($('<h3 class="miniLayerName ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom ">')
+		.text(linkedLayer.LayerName).attr('name',linkedLayer.LayerName).droppable({
+			drop: function (event,ui) {
+				ProcessBubbleDrop(event,ui);
+			}
+		}));
+		
 	}
 	if($("input[name='SelectionsCheck']").attr("checked")){
 		rvDataSets[0].Selections = JSON.parse(rvSaveState.rvSelections);
