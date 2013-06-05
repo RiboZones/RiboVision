@@ -1530,6 +1530,10 @@ function customDataProcess(ui,targetLayer){
 	var targetSelection = rvDataSets[0].Selections[0];
 	SelectionMenu(targetSelection);
 	RefreshSelectionMenu();
+	//Make new selection invisible. 
+	$(".oneSelectionGroup[name=" + targetSelection.Name +"]").find(".checkBoxDIV-S").find(".visibilityCheckImg").attr("value","invisible");
+	$(".oneSelectionGroup[name=" + targetSelection.Name +"]").find(".checkBoxDIV-S").find(".visibilityCheckImg").attr("src","images/invisible.png");
+	rvDataSets[0].drawSelection("selected");
 	
 	if (targetLayer.Type === "selected"){
 
