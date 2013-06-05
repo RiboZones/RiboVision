@@ -159,14 +159,20 @@ function RiboVisionReady() {
 			$("#myJmol_object").css("visibility", "visible");
 		}
 	});
-	
+	$("#clearLS").click(function(){
+		if(localStorageAvailable){
+			localStorage.clear();
+			$("#SessionList").text("");			
+		}
+	});
 	$("#RiboVisionSaveManagerPanel").dialog({
+		resizable : false,
 		autoOpen : false,
 		show : {
 			effect : "blind",
 			duration : 300
 		},
-		height : 500,
+		height : 600,
 		width : 600,
 		position : {
 			my : "center",
@@ -344,14 +350,14 @@ function RiboVisionReady() {
 		width : 400,
 		modal : true,
 		buttons: {
-			Ok: function() {
+			"Restore": function() {
 				openRvState();
 				$( this ).dialog( "close" );
-			},
+			}/*,
 			"Fresh State": function () {
 				InitRibovision(true);
 				$( this ).dialog( "close" );
-			}
+			}*/
 		},
 		open : function () {
 			$("#myJmol_object").css("visibility", "hidden");
@@ -600,11 +606,17 @@ function RiboVisionReady() {
 	$("#freshenRvState").button().click(function(){
 		InitRibovision(true);
 	});
-	$("#ssSave").button().click(function(){
-		rvSaveManager("Save");
+	$("#ssSaveB").button().click(function(){
+		rvSaveManager("Save","LocalStorage");
 	});
-	$("#ssRestore").button().click(function(){
-		rvSaveManager("Restore")
+	$("#ssRestoreB").button().click(function(){
+		rvSaveManager("Restore","LocalStorage");
+	});
+	$("#ssSaveF").button().click(function(){
+		rvSaveManager("Save","File");
+	});
+	$("#ssRestoreF").button().click(function(){
+		rvSaveManager("Restore","File");
 	});
 	$("#openLayerBtn").button({
 		text : false,
@@ -750,12 +762,12 @@ function RiboVisionReady() {
 		Jmol.script(myJmol, a[0]);
 	});
 	
-	$("#SaveControl").buttonset();
-	$("#sscB").attr("checked","checked");
-	$("#SaveControl").buttonset("refresh");
-	$("[name=ssc]").button().change(function(event,ui){
-		//rvSaveManager();
-	});
+	//$("#SaveControl").buttonset();
+	//$("#sscB").attr("checked","checked");
+	//$("#SaveControl").buttonset("refresh");
+	//$("[name=ssc]").button().change(function(event,ui){
+	//	//rvSaveManager();
+	//});
 	
 	
 	$("[name=clearColor]").button();
@@ -770,6 +782,12 @@ function RiboVisionReady() {
 	  localStorageAvailable = true;
 	  // Yes! localStorage and sessionStorage support!
 	  // Some code.....
+		var RSL = localStorage["RV_Session_List"];
+		if(RSL){
+			$("#SessionList").text(localStorage["RV_Session_List"].replace(/[\[\]"]/g,"").replace(/,/g,", "));
+			var RSLa = JSON.parse(RSL);
+			$("#SaveStateFileName").val(RSLa[RSLa.length -1]);
+		}
 	}else{
 	  localStorageAvailable = false;
 	  //alert("Sorry! No web storage support..");
@@ -1077,6 +1095,9 @@ function InitRibovision2(noLoad,FreshState) {
 	rvViews[0].height = rvDataSets[0].HighlightLayer.Canvas.height;
 	rvViews[0].clientWidth = rvDataSets[0].HighlightLayer.Canvas.clientWidth;
 	rvViews[0].clientHeight = rvDataSets[0].HighlightLayer.Canvas.clientHeight;
+	
+	//remove minilayers
+	$(".miniLayerName").remove();
 	
 	// Put in Layers
 	$(".oneLayerGroup").remove();

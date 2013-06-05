@@ -1439,7 +1439,13 @@ function openRvState() {
 							Jmol.script(myJmol, jscript);
 						}				
 						processRvState(rvSaveState);
-					}
+						updateModel();
+						update3Dcolors();
+						if($('input[name="jp"][value=on]').is(':checked')){
+							var a = rvSaveState.rvJmolOrientation.match(/reset[^\n]+/);
+							Jmol.script(myJmol, a[0]);
+						}
+				}
 					break;
 			}
 			
@@ -2565,10 +2571,6 @@ function drawNavLine(){
 		}
 		var	xScale = d3.scale.linear().domain([0, rvDataSets[0].Residues.length]).range([0 + MarginXL, w - MarginXR]);
 		var	yScale = d3.scale.linear().domain([mindata, maxdata]).range([h - MarginYB,0 + MarginYT ]);
-		console.log(yScale);
-		console.log(mindata,maxdata);
-		console.log("h");
-		console.log(h,MarginYB,MarginYT);
 		var NavLine = d3.select("#NavLineDiv")
 			.append("svg:svg")
 			.attr("width", w)
@@ -2615,7 +2617,6 @@ function drawNavLine(){
 		}
 		
 		g.append("svg:path").attr("d", line(GraphData)).style("stroke", targetLayer.Color);
-		console.log("yScale",yScale(0));
 		//Axes
 		var xAxis = d3.svg.axis()
 			  .scale(xScale)
@@ -2881,7 +2882,7 @@ function UpdateLocalStorage(SaveStateFileName){
 		} else {
 			localStorage.setItem("RV_Session_List",JSON.stringify([SaveStateFileName]));
 		}
-		alert(localStorage["RV_Session_List"]);
+		$("#SessionList").text(localStorage["RV_Session_List"].replace(/[\[\]"]/g,"").replace(/,/g,", "));
 	}
 }
 function RestoreLocalStorage(SaveStateFileName) { 
@@ -2987,12 +2988,12 @@ function RestoreLocalStorage2(rvSaveState) {
 	}*/
 }
 
-function rvSaveManager(rvAction) {
+function rvSaveManager(rvAction,rvLocation) {
 	var SaveStateFileName = $("#SaveStateFileName").val();
 	
 	switch (rvAction) {
 		case "Save":
-			switch ($("input[name='ssc']:checked").attr("value")) {
+			switch (rvLocation) {
 				case "LocalStorage":
 					//alert(SaveStateFileName);
 					UpdateLocalStorage(SaveStateFileName);
@@ -3004,11 +3005,11 @@ function rvSaveManager(rvAction) {
 					storeRvState(SaveStateFileName);
 					break;
 				default:
-					alert("huh?");
+					alert("shouldn't happen right now");
 			}
 			break;
 		case "Restore":
-			switch ($("input[name='ssc']:checked").attr("value")) {
+			switch (rvLocation) {
 				case "LocalStorage":
 					//alert(SaveStateFileName);
 					RestoreLocalStorage(SaveStateFileName);
@@ -3020,7 +3021,7 @@ function rvSaveManager(rvAction) {
 					retrieveRvState(SaveStateFileName);
 					break;
 				default:
-					alert("huh?");
+					alert("shouldn't happen right now");
 			}
 			break;
 		default: 
@@ -3066,7 +3067,8 @@ function processRvState(rvSaveState) {
 				ProcessBubbleDrop(event,ui);
 			}
 		}));
-		
+		var	targetLayer=rvDataSets[0].getLayerByType("lines");
+		rvDataSets[0].BasePairs=targetLayer[0].Data;
 	}
 	if($("input[name='SelectionsCheck']").attr("checked")){
 		rvDataSets[0].Selections = JSON.parse(rvSaveState.rvSelections);
