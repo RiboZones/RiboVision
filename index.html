@@ -67,7 +67,7 @@
     <div id="menu" class="ui-widget-content">
         <div id="SiteInfo" class="ui-widget-content">
             <h3 class="ui-widget-header2"><a href="./ChangeLog.txt" target="_blank" style="color:#FFF">RiboVision: Version 1.06</a></h3>
-            <div id="MainLogoDiv"><a href="/RiboZonesTest/Documentation/index.html" target="_blank"><img src="images/RiboVisionLogo.png" id="MainLogo" title="RiboVision Manual" alt="Ribovision Logo" /></a></div>
+            <div id="MainLogoDiv"><a href="/Documentation/index.html" target="_blank"><img src="images/RiboVisionLogo.png" id="MainLogo" title="RiboVision Manual" alt="Ribovision Logo" /></a></div>
         </div>
 
         <div id="MainMenu" class="ui-widget-content">
@@ -224,10 +224,8 @@
         <button id="openLayerBtn" class="toolBarBtn" title="Open Layer Manager"></button><br />
         <button id="openSelectionBtn" class="toolBarBtn" title="Open Selection Manager"></button><br />
         <button id="openColorBtn" class="toolBarBtn" title="Open Color Picker"></button><br />
-        <button id="SelectionMode" class="toolBarBtn" title="No function yet"></button><br />
         <button id="RiboVisionSettings" class="toolBarBtn" title="RiboVision Settings"></button><br />
         <button id="RiboVisionSaveManager" class="toolBarBtn" title="RiboVision Save/Restore Manager"></button><br />
-        <button id="openInteractionSettingBtn" class="toolBarBtn" title="Interaction Setting"></button><br />
         <button id="openManualBtn" class="toolBarBtn" title="Ribovision Manual" onclick="window.open(&#39;/Documentation/index.html&#39;)">Ribovision
         Manual</button>
     </div><!--Layer Control Dialog Box-->
@@ -280,21 +278,6 @@
             <div id="colorpicker"></div><input id="clearColor" type="button" name="clearColor" onclick="Javascript:clearColor(true)" value="Clear Color" />
             <input id="colorSelection" type="button" onclick="Javascript:colorSelection()" value="Color Selection" /> <input id="clearselection2" name=
             "selebutton" type="button" onclick="JavaScript:clearSelection();" value="Clear Selection" />
-        </div>
-    </div>
-
-    <div id="InteractionSettingDialog" title="Interaction Setting">
-        <div class="dialogContentArea">
-            <p style="line-height:1.6em">Choose single line or multiple ones:</p>
-
-            <div id="singleMultiChoice">
-                <input type="radio" id="radio1" name="radio" /><label for="radio1">Single</label> <input type="radio" id="radio2" name="radio" checked=
-                "checked" /><label for="radio2">Multiple</label>
-            </div><br />
-
-            <p id="lineOpacity" style="line-height:1.6em">Line Opacity: 100%</p>
-
-            <div id="lineOpacitySlider"></div>
         </div>
     </div>
 
