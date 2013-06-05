@@ -18,8 +18,9 @@ $file2 = tempnam("/var/tmp", "zip");
 $zip = new ZipArchive();
 $zip->open($file2, ZipArchive::OVERWRITE);
 
+$filenamesend = $_POST['datasetname'];
 // Staff with content
-$zip->addFile($file . ".rvs.txt", 'Ribovision_State.rvs.txt');
+$zip->addFile($file . ".rvs.txt", $filenamesend . '.rvs.txt');
 
 // Close and send to users
 $zip->close();
@@ -28,7 +29,7 @@ sleep(4);
 
 $length_file = filesize($file2);
 header('Content-Length: ' . $length_file);
-$filenamesend = $_POST['datasetname'];
+
 header('Content-Disposition: attachment; filename="' . $filenamesend . '.zip"');
 
 readfile($file2);
