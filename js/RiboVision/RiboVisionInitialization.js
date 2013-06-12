@@ -197,11 +197,6 @@ function RiboVisionReady() {
 		$("#ColorDialog").dialog("open");
 		return false;
 	});
-
-	$("#openInteractionSettingBtn").click(function () {
-		$("#InteractionSettingDialog").dialog("open");
-		return false;
-	});
 	
 	$("#RiboVisionSettings").click(function () {
 		$("#RiboVisionSettingsPanel").dialog("open");
@@ -562,10 +557,10 @@ function RiboVisionReady() {
 			var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
 			if (result[0]){
 				$(this).parent().parent().find(".DataDescription").text(result[0].Description);
-				$(this).parent().parent().find(".ManualLink").attr("href","/Documentation/" + result[0].HelpLink + ".html");
+				$(this).parent().parent().find(".ManualLink").attr("href","./Documentation/" + result[0].HelpLink + ".html");
 			} else {
 				$(this).parent().parent().find(".DataDescription").text("Data Description is missing.");
-				$(this).parent().parent().find(".ManualLink").attr("href","/Documentation");				
+				$(this).parent().parent().find(".ManualLink").attr("href","./Documentation");				
 			}
 			refreshBasePairs(interactionchoice);
 		}
@@ -631,20 +626,6 @@ function RiboVisionReady() {
 			primary : "ui-icon-pencil"
 		}
 	});
-	
-	$("#SelectionMode").button({
-		text : false,
-		icons : {
-			primary : "ui-icon-pin-w"
-		}
-	});
-
-	$("#openInteractionSettingBtn").button({
-		text : false,
-		icons : {
-			primary : "ui-icon-transfer-e-w"
-		}
-	});	
 	
 	$("#RiboVisionSettings").button({
 		text : false,
@@ -974,16 +955,6 @@ function RiboVisionReady() {
 	$(window).unload(function() {		
 		//localStorage.setItem("rvDataSets",rvDataSets);
 	});
-	
-	$("#SelectionMode").click(function () {
-	});
-	/*
-	$("#New3DTestButton").button().click(function(){
-		Jmol.script(myJmol, "script states/" + "3OFR_23s_supNone_state8_d6.spt");
-		var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
-		Jmol.script(myJmol, jscript);
-		updateModel();
-	});*/
 	
 	$("#JmolTypeToggle2").buttonset();
 	$("#SetDefaultJmolType").button().click(function() {
