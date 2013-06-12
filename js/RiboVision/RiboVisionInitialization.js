@@ -562,10 +562,10 @@ function RiboVisionReady() {
 			var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
 			if (result[0]){
 				$(this).parent().parent().find(".DataDescription").text(result[0].Description);
-				$(this).parent().parent().find(".ManualLink").attr("href","/Documentation/" + result[0].HelpLink + ".html");
+				$(this).parent().parent().find(".ManualLink").attr("href","./Documentation/" + result[0].HelpLink + ".html");
 			} else {
 				$(this).parent().parent().find(".DataDescription").text("Data Description is missing.");
-				$(this).parent().parent().find(".ManualLink").attr("href","/Documentation");				
+				$(this).parent().parent().find(".ManualLink").attr("href","./Documentation");				
 			}
 			refreshBasePairs(interactionchoice);
 		}
