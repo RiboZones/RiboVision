@@ -658,10 +658,10 @@ function ProcessBubbleDrop(event,ui){
 		if (result[0]){
 			$("#MiniLayer .miniLayerName[name=" + targetLayer.LayerName +"]").attr("title",targetLayer.DataLabel + ": " + result[0].Description);
 			$("#LinkSection .miniLayerName[name=" + targetLayer.LayerName +"]").attr("title",targetLayer.DataLabel + ": " + result[0].Description);
-			$(ui.draggable[0]).parent().parent().find(".ManualLink").attr("href","/Documentation/" + result[0].HelpLink + ".html");
+			$(ui.draggable[0]).parent().parent().find(".ManualLink").attr("href","./Documentation/" + result[0].HelpLink + ".html");
 		} else {
 			$(".miniLayerName[name=" + targetLayer.LayerName +"]").attr("title","Data Description is missing.");
-			$(ui.draggable[0]).parent().parent().find(".ManualLink").attr("href","/Documentation");				
+			$(ui.draggable[0]).parent().parent().find(".ManualLink").attr("href","./Documentation");				
 		}
 		ProcessBubble($(ui.draggable[0]),targetLayer);
 		$(".oneLayerGroup[name='" + targetLayer.LayerName + "']").find(".selectLayerRadioBtn").prop("checked",true);	
