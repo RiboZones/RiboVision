@@ -501,15 +501,14 @@
         </div>
     </div>
 
-    <div id="dialog-Jmol-Type" title="Choose Jmol Setting">
-        <p>We recommend using <span id="JmolType"></span> on this computer/device. Which would you like to try? You can change your decision at any time in the
-        RiboVision Settings Panel (gear icon).</p>
-
+    <div id="dialog-Jmol-Type" title="Choose Viewing Option">
+        <!--<p>We recommend using <span id="JmolType"></span> on this computer/device. Which would you like to try? You can change your decision at any time in the
+        RiboVision Settings Panel (gear icon).</p>//-->
+		<p>RiboVision can be used to view/analyze secondary structures alone or secondary structures in combination with 3D structures.</p>
         <div id="JmolTypeToggle2">
-            Jmol Type:<br />
-            <input id="JmolJava2" type="radio" name="jjsmol2" value="Java" /><label for="JmolJava2">Jmol (Java)</label> <input id="JSmolJS2" type="radio" name=
-            "jjsmol2" value="JS" /><label for="JSmolJS2">JSmol (no Java)</label> <input id="JMolDisabled" type="radio" name="jjsmol2" value=
-            "Disabled" /><label for="JMolDisabled">Disable Jmol</label>
+			<input id="JMolDisabled" type="radio" name="jjsmol2" value="Disabled" /><label for="JMolDisabled">Click here for secondary structures alone</label><br />
+			<input id="JmolJava2" type="radio" name="jjsmol2" value="Java" /><label for="JmolJava2">Click here for secondary structures in combination with 3D structures (requires java)</label><br />
+			<!--<input id="JSmolJS2" type="radio" name="jjsmol2" value="JS" /><label for="JSmolJS2">JSmol (no Java)</label> <br />//-->
         </div><br />
         <input id="RememberJmol" type="checkbox" /><label for="RememberJmol">Remember this preference.</label>
     </div>
