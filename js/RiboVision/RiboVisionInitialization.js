@@ -1026,13 +1026,15 @@ function RiboVisionReady() {
 		open : function () {
 			myJmol = Jmol.getApplet("myJmol", JmolInfo,true); 
 			//$("#myJmol_object").css("visibility", "hidden");
+			$("#JMolDisabled").attr("checked","checked");	
+			/*
 			if (myJmol._isJava){
-				$("#JmolType").text("Jmol (Java)");	
-				$("#JmolJava2").attr("checked","checked");
+				//$("#JmolType").text("Jmol (Java)");	
+				//$("#JmolJava2").attr("checked","checked");
 			} else {
-				$("#JmolType").text("JSmol (no Java)");
-				$("#JSmolJS2").attr("checked","checked");				
-			}
+				//$("#JmolType").text("JSmol (no Java)");
+				//$("#JSmolJS2").attr("checked","checked");				
+			}*/
 			$("#JmolTypeToggle2").buttonset("refresh");
 		},
 		close : function () { 
