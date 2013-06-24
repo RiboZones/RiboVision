@@ -25,6 +25,10 @@ a img {
 	-webkit-box-sizing:border-box; /* Safari */
 	
 }
+#JmolTypeToggle2{
+	width: 96%;
+    margin: 0 auto;
+}
 
 #menu{
 	width: 16%;

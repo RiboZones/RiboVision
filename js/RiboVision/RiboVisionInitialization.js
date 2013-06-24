@@ -965,7 +965,7 @@ function RiboVisionReady() {
 		resizable : false,
 		autoOpen : false,
 		height : "auto",
-		width : 800,
+		width : 900,
 		modal : true,
 		buttons: {
 			Ok: function() {
