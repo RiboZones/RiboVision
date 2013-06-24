@@ -197,11 +197,6 @@ function RiboVisionReady() {
 		$("#ColorDialog").dialog("open");
 		return false;
 	});
-
-	$("#openInteractionSettingBtn").click(function () {
-		$("#InteractionSettingDialog").dialog("open");
-		return false;
-	});
 	
 	$("#RiboVisionSettings").click(function () {
 		$("#RiboVisionSettingsPanel").dialog("open");
@@ -632,20 +627,6 @@ function RiboVisionReady() {
 		}
 	});
 	
-	$("#SelectionMode").button({
-		text : false,
-		icons : {
-			primary : "ui-icon-pin-w"
-		}
-	});
-
-	$("#openInteractionSettingBtn").button({
-		text : false,
-		icons : {
-			primary : "ui-icon-transfer-e-w"
-		}
-	});	
-	
 	$("#RiboVisionSettings").button({
 		text : false,
 		icons : {
@@ -974,16 +955,6 @@ function RiboVisionReady() {
 	$(window).unload(function() {		
 		//localStorage.setItem("rvDataSets",rvDataSets);
 	});
-	
-	$("#SelectionMode").click(function () {
-	});
-	/*
-	$("#New3DTestButton").button().click(function(){
-		Jmol.script(myJmol, "script states/" + "3OFR_23s_supNone_state8_d6.spt");
-		var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
-		Jmol.script(myJmol, jscript);
-		updateModel();
-	});*/
 	
 	$("#JmolTypeToggle2").buttonset();
 	$("#SetDefaultJmolType").button().click(function() {
