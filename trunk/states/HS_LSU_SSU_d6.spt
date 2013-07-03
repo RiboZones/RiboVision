@@ -250,29 +250,29 @@ function _setModelState() {
 
 
   
-  select (1.1 and :1 and (1-430));
+  select (1.1 and :5 and (1-430));
   color Cartoon opaque [xa999fb];
 
     
-  select (1.1 and :1 and (431-2360));
+  select (1.1 and :5 and (431-2360));
   color Cartoon opaque [x3aa7ff];
   
-  select (1.1 and :1 and (2361-2826));
+  select (1.1 and :5 and (2361-2826));
   color Cartoon opaque [xcc99cc];
   
-  select (1.1 and :1 and (2827-3864));
+  select (1.1 and :5 and (2827-3864));
   color Cartoon opaque [xf0ff00];
   
-  select (1.1 and :1 and (3865-4740));
+  select (1.1 and :5 and (3865-4740));
   color Cartoon opaque [xff99cc];
   
-  select (1.1 and :1 and (4741-5070));
+  select (1.1 and :5 and (4741-5070));
   color Cartoon opaque [x0ba34a];
   
-  select (1.1 and :3  and (1-121));
+  select (1.1 and :7  and (1-121));
   color Cartoon opaque [x8ec640]; 
 
-  select (1.1 and :4 and (1-157));
+  select (1.1 and :8 and (1-157));
   color Cartoon opaque [xb27643]; 
   
   
