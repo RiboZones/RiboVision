@@ -1535,6 +1535,25 @@ function customDataProcess(ui,targetLayer){
 	$(".oneSelectionGroup[name=" + targetSelection.Name +"]").find(".checkBoxDIV-S").find(".visibilityCheckImg").attr("src","images/invisible.png");
 	rvDataSets[0].drawSelection("selected");
 	
+	if ($.inArray("ColorPalette", customkeys) >= 0){
+	    var colors=[];
+		//console.log(rvDataSets[0].CustomData[0].ColorPalette);
+		$.each(rvDataSets[0].CustomData, function (index,value){
+			if (value.ColorPalette !="") {
+				colors.push(value.ColorPalette);
+			} else {
+				return;
+			}
+		});
+		//Assume if length one, user mean to name a predefined gradient.
+		if (colors.length == 1){
+			var colors = window[colors[0]];
+		}
+		//console.log(colors);
+	} else {
+		var colors = RainBowColors;
+	}
+	
 	if (targetLayer.Type === "selected"){
 
 	} else {
@@ -1543,7 +1562,6 @@ function customDataProcess(ui,targetLayer){
 			rvDataSets[0].refreshResiduesExpanded(targetLayer.LayerName);
 			update3Dcolors();
 		} else if ($.inArray("DataCol", customkeys) >= 0) {
-			var colors = RainBowColors;
 			colorProcess(NewData,undefined,targetLayer,colors);
 		} else {
 			alert("No recognized colomns found. Please check input.");
