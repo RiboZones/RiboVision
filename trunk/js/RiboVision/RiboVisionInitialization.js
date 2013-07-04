@@ -1166,8 +1166,8 @@ function InitRibovision3(FreshState) {
 		$.each(SpeciesListU, function (i, item) {
 			$("#speciesList").append(
 				$("<li>").append(
-					$("<a>").attr('href', '#').append(
-						SpeciesListU[i])))
+					$("<a>").attr('href', '#').append($('<i>').append(
+						SpeciesListU[i]))))
 			
 			// Subunits
 			var FoundSubUnits = [];
