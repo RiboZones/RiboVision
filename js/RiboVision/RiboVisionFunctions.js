@@ -309,26 +309,42 @@ function expandSelection(command, SelectionName) {
 			var index = comsplit[1].indexOf("-");
 			if (index != -1) {
 				var chainID = rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(comsplit[0])];
-				var start = chainID + "_" + comsplit[1].substring(1, index);
-				var end = chainID + "_" + comsplit[1].substring(index + 1, comsplit[1].length - 1);
-				
-				if (start && end) {
-					var start_ind = rvDataSets[0].ResidueList.indexOf(start);
-					var end_ind = rvDataSets[0].ResidueList.indexOf(end);
+				if (chainID){
+					var start = chainID + "_" + comsplit[1].substring(1, index);
+					var end = chainID + "_" + comsplit[1].substring(index + 1, comsplit[1].length - 1);
 					
-					for (var j = start_ind; j <= end_ind; j++) {
-						var targetSelection=rvDataSets[0].getSelection(SelectionName);
-						targetSelection.Residues.push(rvDataSets[0].Residues[j]);
+					if (start && end) {
+						var start_ind = rvDataSets[0].ResidueList.indexOf(start);
+						var end_ind = rvDataSets[0].ResidueList.indexOf(end);
+						
+						for (var j = start_ind; j <= end_ind; j++) {
+							var targetSelection=rvDataSets[0].getSelection(SelectionName);
+							targetSelection.Residues.push(rvDataSets[0].Residues[j]);
+						}
 					}
+				} else {
+					//rProteins with ranges will need the rProtein residue list to be defined first.
 				}
 			} else {
 				var chainID = rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(comsplit[0])];
-				//var aloneRes = chainID + "_" + comsplit[1].substring(1,comsplit[1].length-1);
-				var aloneRes = chainID + "_" + comsplit[1];
-				var alone_ind = rvDataSets[0].ResidueList.indexOf(aloneRes);
-				if (alone_ind >=0){
-					var targetSelection=rvDataSets[0].getSelection(SelectionName);
-					targetSelection.Residues.push(rvDataSets[0].Residues[alone_ind]);
+				if (chainID){
+					//var aloneRes = chainID + "_" + comsplit[1].substring(1,comsplit[1].length-1);
+					var aloneRes = chainID + "_" + comsplit[1];
+					var alone_ind = rvDataSets[0].ResidueList.indexOf(aloneRes);
+					if (alone_ind >=0){
+						var targetSelection=rvDataSets[0].getSelection(SelectionName);
+						targetSelection.Residues.push(rvDataSets[0].Residues[alone_ind]);
+					}
+				} else {
+					var chainID = rvDataSets[0].SpeciesEntry.PDB_chains_rProtein[rvDataSets[0].SpeciesEntry.Molecule_Names_rProtein.indexOf(comsplit[0])];
+					var aloneRes = chainID + "_" + comsplit[1];
+					// Skip the residue list check for now
+					//var alone_ind = rvDataSets[0].ResidueList_rProtein.indexOf(aloneRes);
+					//if (alone_ind >=0){
+						var targetSelection=rvDataSets[0].getSelection(SelectionName);
+						targetSelection.Residues_rProtein.push(aloneRes);
+						return aloneRes;
+					//}
 				}
 			}
 		} else if (comsplit[0] != "") {
@@ -623,7 +639,7 @@ function update3Dcolors() {
 	Jmol.script(myJmol, script);
 }
 
-function colorProcess(DataInput, indexMode,targetLayer,colors) {
+function colorProcess(DataInput, indexMode,targetLayer,colors,SkipDraw) {
 	var color_data = new Array();
 	var color_data_IN = new Array();
 	var data = new Array();
@@ -657,7 +673,7 @@ function colorProcess(DataInput, indexMode,targetLayer,colors) {
 	var max = Math.max.apply(Math, color_data);
 	var range = max - min;
 	
-	if (arguments.length < 3) {
+	if (arguments.length < 3 || targetLayer==undefined) {
 		var targetLayer = rvDataSets[0].getSelectedLayer();
 	}
 	
@@ -666,38 +682,31 @@ function colorProcess(DataInput, indexMode,targetLayer,colors) {
 		$("#dialog-selection-warning").dialog("open");
 		return;
 	}
-	switch (targetLayer.Type) {
-	case "circles":
-		targetLayer.Data = data;
-		if (indexMode == "1") {
-			var dataIndices = data;
-		} else {
-			var dataIndices = new Array;
-			for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
-				dataIndices[i] = Math.round((data[i] - min) / range * (colors.length - 1));
-			}
+	
+	if (indexMode == "1") {
+		var dataIndices = data;
+	} else {
+		var dataIndices = new Array;
+		for (var i = 0; i < data.length; i++) {
+			dataIndices[i] = Math.round((data[i] - min) / range * (colors.length - 1));
 		}
-		rvDataSets[0].drawDataCircles(targetLayer.LayerName, dataIndices, colors);
-		update3Dcolors();
-		break;
-	case "residues":
-		targetLayer.Data = data;
-		if (indexMode == "1") {
-				dataIndices = data;
-		} else {
-			var dataIndices = new Array;
-			for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
-				dataIndices[i] = Math.round((data[i] - min) / range * (colors.length - 1));
-			}
-		}
-		
-		rvDataSets[0].drawResidues(targetLayer.LayerName, dataIndices, colors);
-		update3Dcolors();
-		break;
-	default:
-		$( "#dialog-layer-type-error" ).dialog("open")
 	}
-
+	
+	if (!SkipDraw){
+		targetLayer.Data = data;
+		switch (targetLayer.Type) {
+			case "circles":
+				rvDataSets[0].drawDataCircles(targetLayer.LayerName, dataIndices, colors);
+				break;
+			case "residues":
+				rvDataSets[0].drawResidues(targetLayer.LayerName, dataIndices, colors);
+				break;
+			default:
+				$( "#dialog-layer-type-error" ).dialog("open")
+		}
+		update3Dcolors();
+	}
+	return dataIndices
 }
 
 function colorMappingLoop(targetLayer, seleProt, seleProtNames, OverRideColors) {
@@ -1570,6 +1579,57 @@ function customDataProcess(ui,targetLayer){
 
 	updateSelectionDiv(targetSelection.Name);
 	drawNavLine();
+	
+	//Finishes doing Nucleotides, move on to rProteins
+	CustomProcessProteins(colors);
+	
+	
+}
+function CustomProcessProteins(colors){
+	var rProtein=undefined;
+	var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
+	var NewData = [];
+	var ColorProteins=new Array;
+	for (var ii = 0; ii < rvDataSets[0].CustomData.length; ii++) {
+		var command = rvDataSets[0].CustomData[ii]["resNum"];
+		var targetSelection = rvDataSets[0].Selections[0];
+		var rProtein = expandSelection([command], targetSelection.Name);
+		if (rProtein){
+			if ($.inArray("DataCol", customkeys) >= 0) {
+				ColorProteins.push({ResNum : rProtein, Color : undefined});
+				if (isNaN(parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]))){
+					NewData.push(rvDataSets[0].CustomData[ii]["DataCol"]);
+				} else {
+					NewData.push(parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]));
+				}
+			} else if ($.inArray("ColorCol", customkeys) >= 0) {
+				ColorProteins.push({ResNum : rProtein, Color : rvDataSets[0].CustomData[ii]["ColorCol"]});
+			}
+		}
+	}
+	var dataIndices = colorProcess(NewData,undefined,undefined,colors,true);
+	$.each(dataIndices, function (index,value){
+		ColorProteins[index]["Color"] = colors[value];
+	});
+	ColorProteinsJmol(ColorProteins);
+}
+function ColorProteinsJmol(ColorProteins){
+	if($('input[name="jp"][value=off]').is(':checked')){
+		return;
+	}
+	if (rvDataSets[0].Residues[0] == undefined){return};
+	
+	var script = "set hideNotSelected false;";
+	$.each(ColorProteins, function (index,value){
+		var ressplit = value.ResNum.split("_");
+		if (colorNameToHex(value.Color).indexOf("#") == -1) {
+			script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + ressplit[0] + " and " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "; color Cartoon opaque [x" + value.Color + "]; ";
+		} else {
+			script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + ressplit[0] + " and " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "; color Cartoon opaque [" + value.Color.replace("#", "x") + "]; ";
+		}
+	});
+	
+	Jmol.script(myJmol, script);
 }
 function resetFileInput($element) {
 	var clone = $element.clone(false, false);
@@ -1588,7 +1648,7 @@ function CustomDataExpand(targetLayer){
 	var ExtraData = [];
 	var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
 	for (var ii = 0; ii < rvDataSets[0].CustomData.length; ii++) {
-		var command = rvDataSets[0].CustomData[ii][customkeys[0]].split(";");
+		var command = rvDataSets[0].CustomData[ii]["resNum"].split(";");
 		var targetSelection = rvDataSets[0].Selections[0];
 		expandSelection(command, targetSelection.Name);
 		var l = targetSelection.Residues.length;
@@ -1624,6 +1684,7 @@ function CustomDataExpand(targetLayer){
 				SeleLen = l;
 			}
 		}
+		
 	}
 	return {IncludeData : NewData,ExtraData : ExtraData}
 }

@@ -183,13 +183,18 @@ function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color) 
 	}
 }
 
-function RvSelection(SelectionName,rvResidues,rvColor){
+function RvSelection(SelectionName,rvResidues,rvColor,rvResidues_rProtein){
 	//Properties
 	this.Name = SelectionName;
 	if (rvResidues) { 
 		this.Residues = rvResidues;
 	} else {
 		this.Residues = [];
+	}
+	if (rvResidues_rProtein) { 
+		this.Residues_rProtein = rvResidues_rProtein;
+	} else {
+		this.Residues_rProtein = [];
 	}
 	if (rvColor) {
 		this.Color = rvColor;
@@ -298,6 +303,7 @@ function rvDataSet(DataSetName) {
 	this.addSpeciesEntry = function (SpeciesEntry) {
 		this.SpeciesEntry = SpeciesEntry;
 		this.SpeciesEntry.Molecule_Names = this.SpeciesEntry.Molecule_Names.split(":");
+		this.SpeciesEntry.Molecule_Names_rProtein = this.SpeciesEntry.Molecule_Names_rProtein.split(":");
 	};
 	this.addSelection = function (Name, rvResidues, rvColor) {
 		if (!Name) {
