@@ -222,6 +222,8 @@ function rvDataSet(DataSetName) {
 	this.LayerTypes = ['circles', 'lines', 'labels', 'residues', 'contour', 'selected'];
 	this.ConservationTable = [];
 	this.DataDescriptions = [];
+	this.ExtraPyMOLScript ='';
+	this.ColorProteins = [];
 	//Methods
 	this.toJSON = function () {
 		return {

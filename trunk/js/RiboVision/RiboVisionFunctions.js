@@ -1612,6 +1612,7 @@ function CustomProcessProteins(colors){
 		ColorProteins[index]["Color"] = colors[value];
 	});
 	ColorProteinsJmol(ColorProteins);
+	rvDataSets[0].ColorProteins = ColorProteins;
 }
 function ColorProteinsJmol(ColorProteins){
 	if($('input[name="jp"][value=off]').is(':checked')){
@@ -1630,6 +1631,54 @@ function ColorProteinsJmol(ColorProteins){
 	});
 	
 	Jmol.script(myJmol, script);
+}
+
+function ColorProteinsPyMOL(PDB_Obj_Names){
+	var ColorProteins = rvDataSets[0].ColorProteins;
+	if (rvDataSets[0].Residues[0] == undefined){return};
+	
+	var script = "";
+	
+	// Protein Section
+	for (var jj = 0; jj < rvDataSets[0].SpeciesEntry.SubunitProtChains[0].length; jj++) {
+		script += "copy " + rvDataSets[0].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][jj] + "_custom, " + rvDataSets[0].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][jj] + "\n";
+	}
+	script += "\ndisable *rp*\n";
+	/*
+	$.each(ColorProteins, function (index,value){
+		var ressplit = value.ResNum.split("_");
+		if (colorNameToHex(value.Color).indexOf("#") == -1) {
+			script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + ressplit[0] + " and " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "; color Cartoon opaque [x" + value.Color + "]; ";
+		} else {
+			script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + ressplit[0] + " and " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "; color Cartoon opaque [" + value.Color.replace("#", "x") + "]; ";
+		}
+	});
+	
+	Jmol.script(myJmol, script);*/
+	return script;
+}
+function proteinsToPML_custom(PDB_Obj_Names){
+	/*
+	var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
+			return this.value;
+		}).get();
+	
+	for (jjj = 0; jjj < array_of_checked_values.length; jjj++) {
+		var h = rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(array_of_checked_values[jjj]);
+		var ProtName = $.grep($("#ProtList").multiselect("getChecked"), function(e) {
+			return e.value == array_of_checked_values[jjj];
+		});
+		if (h >= 0) {
+			curr_color = rgb2hex($(ProtName).next().css("color"));
+			if(curr_color.indexOf("#") == -1) {
+				curr_color = "0x" + curr_color;
+			} else {
+				curr_color = curr_color.replace("#", "0x");
+			}
+			script += "color " + curr_color + ", " + rvDataSets[0].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][h].replace(/\(/g,"_").replace(/\)/g,"") + "\n";
+			script += "enable " + rvDataSets[0].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][h].replace(/\(/g,"_").replace(/\)/g,"") + "\n";
+		}
+	}return script;*/
 }
 function resetFileInput($element) {
 	var clone = $element.clone(false, false);
@@ -1992,6 +2041,9 @@ function savePML() {
 		
 		//Proteins to PyMOL
 		script += proteinsToPML(PDB_Obj_Names);
+		
+		//Proteins to PyMOL (Custom)
+		script += ColorProteinsPyMOL(PDB_Obj_Names);
 		
 		//Selection to PyMOL
 		$.each(rvDataSets[0].Selections, function (key, value) {
