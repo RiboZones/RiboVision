@@ -1612,7 +1612,7 @@ function CustomProcessProteins(colors){
 		ColorProteins[index]["Color"] = colors[value];
 	});
 	ColorProteinsJmol(ColorProteins);
-	rvDataSets[0].ColorProteins = ColorProteins;
+	rvDataSets[0].ColorProteins = rvDataSets[0].ColorProteins.concat(ColorProteins);
 }
 function ColorProteinsJmol(ColorProteins){
 	if($('input[name="jp"][value=off]').is(':checked')){
@@ -1623,10 +1623,12 @@ function ColorProteinsJmol(ColorProteins){
 	var script = "set hideNotSelected false;";
 	$.each(ColorProteins, function (index,value){
 		var ressplit = value.ResNum.split("_");
-		if (colorNameToHex(value.Color).indexOf("#") == -1) {
-			script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + ressplit[0] + " and " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "; color Cartoon opaque [x" + value.Color + "]; ";
-		} else {
-			script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + ressplit[0] + " and " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "; color Cartoon opaque [" + value.Color.replace("#", "x") + "]; ";
+		if (ressplit[0] !== "undefined"){
+			if (colorNameToHex(value.Color).indexOf("#") == -1) {
+				script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + ressplit[0] + " and " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "; color Cartoon opaque [x" + value.Color + "]; ";
+			} else {
+				script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + ressplit[0] + " and " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "; color Cartoon opaque [" + value.Color.replace("#", "x") + "]; ";
+			}
 		}
 	});
 	
@@ -1646,15 +1648,17 @@ function ColorProteinsPyMOL(PDB_Obj_Names){
 	
 	$.each(ColorProteins, function (index,value){
 		var ressplit = value.ResNum.split("_");
-		var curr_color = value.Color;
-		var h = rvDataSets[0].SpeciesEntry.SubunitProtChains[1].indexOf(ressplit[0]);
-		//if (colorNameToHex(curr_color).indexOf("#") == -1) {
-			//script += "color " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + ressplit[0] + " and " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "; color Cartoon opaque [x" + value.Color + "]; ";
-			script += "color " + curr_color.replace("#", "0x") + ", " + rvDataSets[0].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][h].replace(/\(/g,"_").replace(/\)/g,"") + "_custom" +
-				" and resi " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "\n";
-		//} else {
-			//script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + ressplit[0] + " and " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "; color Cartoon opaque [" + value.Color.replace("#", "x") + "]; ";
-		//}
+		if (ressplit[0] !== "undefined"){
+			var curr_color = value.Color;
+				var h = rvDataSets[0].SpeciesEntry.SubunitProtChains[1].indexOf(ressplit[0]);
+				//if (colorNameToHex(curr_color).indexOf("#") == -1) {
+					//script += "color " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + ressplit[0] + " and " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "; color Cartoon opaque [x" + value.Color + "]; ";
+					script += "color " + curr_color.replace("#", "0x") + ", " + rvDataSets[0].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][h].replace(/\(/g,"_").replace(/\)/g,"") + "_custom" +
+						" and resi " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "\n";
+				//} else {
+					//script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + ressplit[0] + " and " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "; color Cartoon opaque [" + value.Color.replace("#", "x") + "]; ";
+				//}
+		}
 	});
 	
 	/*
@@ -1662,29 +1666,7 @@ function ColorProteinsPyMOL(PDB_Obj_Names){
 	script += "\ndisable *rp*\n";
 	return script;
 }
-function proteinsToPML_custom(PDB_Obj_Names){
-	/*
-	var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
-			return this.value;
-		}).get();
-	
-	for (jjj = 0; jjj < array_of_checked_values.length; jjj++) {
-		var h = rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(array_of_checked_values[jjj]);
-		var ProtName = $.grep($("#ProtList").multiselect("getChecked"), function(e) {
-			return e.value == array_of_checked_values[jjj];
-		});
-		if (h >= 0) {
-			curr_color = rgb2hex($(ProtName).next().css("color"));
-			if(curr_color.indexOf("#") == -1) {
-				curr_color = "0x" + curr_color;
-			} else {
-				curr_color = curr_color.replace("#", "0x");
-			}
-			script += "color " + curr_color + ", " + rvDataSets[0].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][h].replace(/\(/g,"_").replace(/\)/g,"") + "\n";
-			script += "enable " + rvDataSets[0].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][h].replace(/\(/g,"_").replace(/\)/g,"") + "\n";
-		}
-	}return script;*/
-}
+
 function resetFileInput($element) {
 	var clone = $element.clone(false, false);
 	$element.replaceWith(clone);
@@ -2141,11 +2123,21 @@ function layerToPML(PDB_Obj_Names,targetLayer) {
 					}
 					if (((compare_color != colorNameToHex(residueLastColor)) || (curr_chain != residue.ChainID)) || (i == (rvDataSets[0].Residues.length - 1))) {
 						r1 = residueLast.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""); ;
-						if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
-							script += "color 0x" + curr_color + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + r1 + "\n";
+						
+						if (r0 === r1){
+							if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
+								script += "color 0x" + curr_color + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "\n";
+							} else {
+								script += "color " + curr_color.replace("#", "0x") + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "\n";
+							}
 						} else {
-							script += "color " + curr_color.replace("#", "0x") + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + r1 + "\n";
+							if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
+								script += "color 0x" + curr_color + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + r1 + "\n";
+							} else {
+								script += "color " + curr_color.replace("#", "0x") + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + r1 + "\n";
+							}
 						}
+												
 						r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
 						if (residue.ChainID != "") {
 							curr_chain = residue.ChainID;
@@ -2202,6 +2194,7 @@ function proteinsToPML(PDB_Obj_Names){
 }
 
 function selectionToPML(PDB_Obj_Names,targetSelection){
+	// This needs work to not crash PyMOL
 	var script = "";
 	
 	if (targetSelection.Residues.length > 0) {
