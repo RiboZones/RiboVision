@@ -1211,7 +1211,7 @@ function mouseMoveFunction(event){
 					switch (targetLayer.Type){
 						case "residues" : 
 							rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#000000";
-							rvDataSets[0].HighlightLayer.CanvasContext.font = "3pt Arial";
+							rvDataSets[0].HighlightLayer.CanvasContext.font = rvDataSets[0].SpeciesEntry.Font_Size_Canvas + 'pt "Myriad Pro", Calibri, Arial';
 							rvDataSets[0].HighlightLayer.CanvasContext.textBaseline = "middle";
 							rvDataSets[0].HighlightLayer.CanvasContext.textAlign = "center";
 							rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = $("#MainColor").val();
@@ -1219,7 +1219,7 @@ function mouseMoveFunction(event){
 							break;
 						case "circles" :
 							rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
-							rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, (targetLayer.ScaleFactor * 1.7), 0, 2 * Math.PI, false);
+							rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, (targetLayer.ScaleFactor * rvDataSets[0].SpeciesEntry.Circle_Radius), 0, 2 * Math.PI, false);
 							rvDataSets[0].HighlightLayer.CanvasContext.closePath();
 							rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = $("#MainColor").val();
 							rvDataSets[0].HighlightLayer.CanvasContext.stroke();
@@ -1235,9 +1235,10 @@ function mouseMoveFunction(event){
 				var sel = getSelected(event);
 				if (sel >=0){
 					rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
-					rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, 2, 0, 2 * Math.PI, false);
+					rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, 1.176 * rvDataSets[0].SpeciesEntry.Circle_Radius, 0, 2 * Math.PI, false);
 					rvDataSets[0].HighlightLayer.CanvasContext.closePath();
 					rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
+					rvDataSets[0].HighlightLayer.CanvasContext.lineWidth=rvDataSets[0].SpeciesEntry.Circle_Radius/1.7;
 					rvDataSets[0].HighlightLayer.CanvasContext.stroke();
 					if($('input[name="rt"][value=on]').is(':checked')){
 						createInfoWindow(sel,"residue");
@@ -1255,7 +1256,7 @@ function mouseMoveFunction(event){
 				switch (targetLayer.Type){
 					case "residues" : 
 						rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#000000";
-						rvDataSets[0].HighlightLayer.CanvasContext.font = "3pt Arial";
+						rvDataSets[0].HighlightLayer.CanvasContext.font = rvDataSets[0].SpeciesEntry.Font_Size_Canvas + 'pt "Myriad Pro", Calibri, Arial';
 						rvDataSets[0].HighlightLayer.CanvasContext.textBaseline = "middle";
 						rvDataSets[0].HighlightLayer.CanvasContext.textAlign = "center";
 						rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = $("#MainColor").val();
@@ -1263,7 +1264,7 @@ function mouseMoveFunction(event){
 						break;
 					case "circles" :
 						rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
-						rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, (targetLayer.ScaleFactor * 1.7), 0, 2 * Math.PI, false);
+						rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, (targetLayer.ScaleFactor * rvDataSets[0].SpeciesEntry.Circle_Radius), 0, 2 * Math.PI, false);
 						rvDataSets[0].HighlightLayer.CanvasContext.closePath();
 						rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = $("#MainColor").val();
 						rvDataSets[0].HighlightLayer.CanvasContext.stroke();
@@ -2315,15 +2316,18 @@ function canvasToSVG() {
 					break;
 				case "residues":
 					output = output + '<g id="' + value.LayerName + '">\n';
+					var xcorr = -0.439 * parseFloat(rvDataSets[0].SpeciesEntry.Font_Size_SVG) + 0.4346; // magic font corrections.
+					var ycorr = 0.2944 * parseFloat(rvDataSets[0].SpeciesEntry.Font_Size_SVG) - 0.0033;
+					//console.log(xcorr,ycorr);
 					for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
 						var residue = rvDataSets[0].Residues[i];
-						output = output + '<text id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" transform="matrix(1 0 0 1 ' + (parseFloat(residue.X) - 1.262).toFixed(3) + ' ' + (parseFloat(residue.Y) + 1.145).toFixed(3) + ')" fill="' + residue.color + '" font-family="Myriad Pro" font-size="' + rvDataSets[0].SpeciesEntry.Font_Size_SVG + '">' + residue.resName + '</text>\n';
+						output = output + '<text id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" transform="matrix(1 0 0 1 ' + (parseFloat(residue.X) + xcorr).toFixed(3) + ' ' + (parseFloat(residue.Y) + ycorr).toFixed(3) + ')" fill="' + residue.color + '" font-family="Myriad Pro" font-size="' + rvDataSets[0].SpeciesEntry.Font_Size_SVG + '">' + residue.resName + '</text>\n';
 					}
 					output = output + '</g>\n';
 					break;
 				case "circles":
 					output = output + '<g id="' + value.LayerName + '">\n';
-					var radius = 1.7 * value.ScaleFactor;
+					var radius = rvDataSets[0].SpeciesEntry.Circle_Radius * value.ScaleFactor;
 					for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
 						var residue = rvDataSets[0].Residues[i];
 						if (residue && value.dataLayerColors[i]) {
@@ -2338,7 +2342,7 @@ function canvasToSVG() {
 					break;
 				case "selected":
 					output = output + '<g id="' + value.LayerName + '">\n';
-					var radius = 1.7 * value.ScaleFactor;
+					var radius = rvDataSets[0].SpeciesEntry.Circle_Radius * value.ScaleFactor;
 					
 					var SelectionList =[];
 					$('.checkBoxDIV-S').find(".visibilityCheckImg[value=visible]").parent().parent().each(function (index){SelectionList.push($(this).attr("name"))});
