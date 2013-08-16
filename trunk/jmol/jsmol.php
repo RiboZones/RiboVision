@@ -36,6 +36,12 @@
 //         ""        no encoding (default)
 //         "base64"  BASE64-encoded binary files for Chrome synchronous AJAX
 //                      prepends ";base64," to encoded output  
+//
+// simple server tests:
+//
+// http://foo.wherever/jsmol.php?call=getRawDataFromDatabase&database=_&query=http://chemapps.stolaf.edu/jmol/data/t.pdb.gz
+// http://goo.wherever/jsmol.php?call=getRawDataFromDatabase&database=_&query=http://chemapps.stolaf.edu/jmol/data/t.pdb.gz&encoding=base64
+
 
 $cmd = '/home/mscs/common/bin32/java -Djava.awt.headless=true -jar JmolData.jar -iRJ ';
 

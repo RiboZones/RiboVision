@@ -9,6 +9,7 @@ this.minAtoms = null;
 this.minBonds = null;
 this.minAngles = null;
 this.minTorsions = null;
+this.minPositions = null;
 this.bsMinFixed = null;
 this.atomCount = 0;
 this.bondCount = 0;

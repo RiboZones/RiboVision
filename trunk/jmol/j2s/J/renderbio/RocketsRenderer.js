@@ -41,7 +41,7 @@ this.pointCorner =  new J.util.P3 ();
 });
 Clazz.overrideMethod (c$, "renderBioShape", 
 function (bioShape) {
-if (!(Clazz.instanceOf (bioShape.bioPolymer, J.modelsetbio.AminoPolymer))) return;
+if (!(Clazz.instanceOf (bioShape.bioPolymer, J.modelsetbio.AlphaPolymer))) return;
 var val = !this.viewer.getBoolean (603979900);
 if (this.renderArrowHeads != val) {
 bioShape.falsifyMesh ();
@@ -124,8 +124,8 @@ this.viewer.transformPt3f (pointStart, this.screenA);
 this.viewer.transformPt3f (pointEnd, this.screenB);
 var zMid = Clazz.doubleToInt (Math.floor ((this.screenA.z + this.screenB.z) / 2));
 var diameter = Clazz.floatToInt (this.viewer.scaleToScreen (zMid, this.mad));
-this.g3d.fillCylinderBits (2, diameter, this.screenA, this.screenB);
 if (this.g3d.setColix (this.colix)) {
+this.g3d.fillCylinderBits (2, diameter, this.screenA, this.screenB);
 if (tEnd && this.renderArrowHeads) {
 this.vtemp.sub2 (pointEnd, pointStart);
 this.vtemp.normalize ();

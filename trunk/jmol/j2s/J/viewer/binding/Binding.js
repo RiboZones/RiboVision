@@ -79,6 +79,7 @@ if (key.startsWith (skey)) this.removeBinding (e, key);
 }, "~N");
 $_M(c$, "isBound", 
 function (mouseAction, action) {
+if (mouseAction == 1040 && action == 2) System.out.println ("left-down-2" + this.bindings.containsKey (mouseAction + "\t" + action));
 return this.bindings.containsKey (mouseAction + "\t" + action);
 }, "~N,~N");
 $_M(c$, "isUserAction", 
@@ -100,9 +101,10 @@ if (desc.indexOf ("MIDDLE") >= 0) action |= 8;
  else if (desc.indexOf ("WHEEL") >= 0) action |= 32;
  else if (desc.indexOf ("LEFT") >= 0) action |= 16;
 var isDefaultButton = (action == 0);
+var isDown = (desc.indexOf ("DOWN") >= 0);
 if (desc.indexOf ("DOUBLE") >= 0) action |= 512;
- else if (action > 0 && (action & 32) == 0 || desc.indexOf ("SINGLE") >= 0) action |= 256;
- else if (desc.indexOf ("DOWN") >= 0) action |= 1024;
+ else if (action > 0 && (action & 32) == 0 && !isDown || desc.indexOf ("SINGLE") >= 0) action |= 256;
+ else if (isDown) action |= 1024;
 if (desc.indexOf ("CTRL") >= 0) action |= 2;
 if (desc.indexOf ("ALT") >= 0) action |= 8;
 if (desc.indexOf ("SHIFT") >= 0) action |= 1;
@@ -207,6 +209,7 @@ Clazz.defineStatics (c$,
 "DOUBLE_CLICK", 512,
 "SINGLE_CLICK", 256,
 "DOWN", 1024,
+"CLICK_MASK", 1792,
 "MOVED", 0,
 "DRAGGED", 1,
 "CLICKED", 2,
