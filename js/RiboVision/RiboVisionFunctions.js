@@ -309,42 +309,26 @@ function expandSelection(command, SelectionName) {
 			var index = comsplit[1].indexOf("-");
 			if (index != -1) {
 				var chainID = rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(comsplit[0])];
-				if (chainID){
-					var start = chainID + "_" + comsplit[1].substring(1, index);
-					var end = chainID + "_" + comsplit[1].substring(index + 1, comsplit[1].length - 1);
+				var start = chainID + "_" + comsplit[1].substring(1, index);
+				var end = chainID + "_" + comsplit[1].substring(index + 1, comsplit[1].length - 1);
+				
+				if (start && end) {
+					var start_ind = rvDataSets[0].ResidueList.indexOf(start);
+					var end_ind = rvDataSets[0].ResidueList.indexOf(end);
 					
-					if (start && end) {
-						var start_ind = rvDataSets[0].ResidueList.indexOf(start);
-						var end_ind = rvDataSets[0].ResidueList.indexOf(end);
-						
-						for (var j = start_ind; j <= end_ind; j++) {
-							var targetSelection=rvDataSets[0].getSelection(SelectionName);
-							targetSelection.Residues.push(rvDataSets[0].Residues[j]);
-						}
+					for (var j = start_ind; j <= end_ind; j++) {
+						var targetSelection=rvDataSets[0].getSelection(SelectionName);
+						targetSelection.Residues.push(rvDataSets[0].Residues[j]);
 					}
-				} else {
-					//rProteins with ranges will need the rProtein residue list to be defined first.
 				}
 			} else {
 				var chainID = rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(comsplit[0])];
-				if (chainID){
-					//var aloneRes = chainID + "_" + comsplit[1].substring(1,comsplit[1].length-1);
-					var aloneRes = chainID + "_" + comsplit[1];
-					var alone_ind = rvDataSets[0].ResidueList.indexOf(aloneRes);
-					if (alone_ind >=0){
-						var targetSelection=rvDataSets[0].getSelection(SelectionName);
-						targetSelection.Residues.push(rvDataSets[0].Residues[alone_ind]);
-					}
-				} else {
-					var chainID = rvDataSets[0].SpeciesEntry.PDB_chains_rProtein[rvDataSets[0].SpeciesEntry.Molecule_Names_rProtein.indexOf(comsplit[0])];
-					var aloneRes = chainID + "_" + comsplit[1];
-					// Skip the residue list check for now
-					//var alone_ind = rvDataSets[0].ResidueList_rProtein.indexOf(aloneRes);
-					//if (alone_ind >=0){
-						var targetSelection=rvDataSets[0].getSelection(SelectionName);
-						targetSelection.Residues_rProtein.push(aloneRes);
-						return aloneRes;
-					//}
+				//var aloneRes = chainID + "_" + comsplit[1].substring(1,comsplit[1].length-1);
+				var aloneRes = chainID + "_" + comsplit[1];
+				var alone_ind = rvDataSets[0].ResidueList.indexOf(aloneRes);
+				if (alone_ind >=0){
+					var targetSelection=rvDataSets[0].getSelection(SelectionName);
+					targetSelection.Residues.push(rvDataSets[0].Residues[alone_ind]);
 				}
 			}
 		} else if (comsplit[0] != "") {
@@ -639,7 +623,7 @@ function update3Dcolors() {
 	Jmol.script(myJmol, script);
 }
 
-function colorProcess(DataInput, indexMode,targetLayer,colors,SkipDraw) {
+function colorProcess(DataInput, indexMode,targetLayer,colors) {
 	var color_data = new Array();
 	var color_data_IN = new Array();
 	var data = new Array();
@@ -673,7 +657,7 @@ function colorProcess(DataInput, indexMode,targetLayer,colors,SkipDraw) {
 	var max = Math.max.apply(Math, color_data);
 	var range = max - min;
 	
-	if (arguments.length < 3 || targetLayer==undefined) {
+	if (arguments.length < 3) {
 		var targetLayer = rvDataSets[0].getSelectedLayer();
 	}
 	
@@ -682,31 +666,38 @@ function colorProcess(DataInput, indexMode,targetLayer,colors,SkipDraw) {
 		$("#dialog-selection-warning").dialog("open");
 		return;
 	}
-	
-	if (indexMode == "1") {
-		var dataIndices = data;
-	} else {
-		var dataIndices = new Array;
-		for (var i = 0; i < data.length; i++) {
-			dataIndices[i] = Math.round((data[i] - min) / range * (colors.length - 1));
-		}
-	}
-	
-	if (!SkipDraw){
+	switch (targetLayer.Type) {
+	case "circles":
 		targetLayer.Data = data;
-		switch (targetLayer.Type) {
-			case "circles":
-				rvDataSets[0].drawDataCircles(targetLayer.LayerName, dataIndices, colors);
-				break;
-			case "residues":
-				rvDataSets[0].drawResidues(targetLayer.LayerName, dataIndices, colors);
-				break;
-			default:
-				$( "#dialog-layer-type-error" ).dialog("open")
+		if (indexMode == "1") {
+			var dataIndices = data;
+		} else {
+			var dataIndices = new Array;
+			for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
+				dataIndices[i] = Math.round((data[i] - min) / range * (colors.length - 1));
+			}
 		}
+		rvDataSets[0].drawDataCircles(targetLayer.LayerName, dataIndices, colors);
 		update3Dcolors();
+		break;
+	case "residues":
+		targetLayer.Data = data;
+		if (indexMode == "1") {
+				dataIndices = data;
+		} else {
+			var dataIndices = new Array;
+			for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
+				dataIndices[i] = Math.round((data[i] - min) / range * (colors.length - 1));
+			}
+		}
+		
+		rvDataSets[0].drawResidues(targetLayer.LayerName, dataIndices, colors);
+		update3Dcolors();
+		break;
+	default:
+		$( "#dialog-layer-type-error" ).dialog("open")
 	}
-	return dataIndices
+
 }
 
 function colorMappingLoop(targetLayer, seleProt, seleProtNames, OverRideColors) {
@@ -1211,7 +1202,7 @@ function mouseMoveFunction(event){
 					switch (targetLayer.Type){
 						case "residues" : 
 							rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#000000";
-							rvDataSets[0].HighlightLayer.CanvasContext.font = rvDataSets[0].SpeciesEntry.Font_Size_Canvas + 'pt "Myriad Pro", Calibri, Arial';
+							rvDataSets[0].HighlightLayer.CanvasContext.font = "3pt Arial";
 							rvDataSets[0].HighlightLayer.CanvasContext.textBaseline = "middle";
 							rvDataSets[0].HighlightLayer.CanvasContext.textAlign = "center";
 							rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = $("#MainColor").val();
@@ -1219,7 +1210,7 @@ function mouseMoveFunction(event){
 							break;
 						case "circles" :
 							rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
-							rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, (targetLayer.ScaleFactor * rvDataSets[0].SpeciesEntry.Circle_Radius), 0, 2 * Math.PI, false);
+							rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, (targetLayer.ScaleFactor * 1.7), 0, 2 * Math.PI, false);
 							rvDataSets[0].HighlightLayer.CanvasContext.closePath();
 							rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = $("#MainColor").val();
 							rvDataSets[0].HighlightLayer.CanvasContext.stroke();
@@ -1235,10 +1226,9 @@ function mouseMoveFunction(event){
 				var sel = getSelected(event);
 				if (sel >=0){
 					rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
-					rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, 1.176 * rvDataSets[0].SpeciesEntry.Circle_Radius, 0, 2 * Math.PI, false);
+					rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, 2, 0, 2 * Math.PI, false);
 					rvDataSets[0].HighlightLayer.CanvasContext.closePath();
 					rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
-					rvDataSets[0].HighlightLayer.CanvasContext.lineWidth=rvDataSets[0].SpeciesEntry.Circle_Radius/1.7;
 					rvDataSets[0].HighlightLayer.CanvasContext.stroke();
 					if($('input[name="rt"][value=on]').is(':checked')){
 						createInfoWindow(sel,"residue");
@@ -1256,7 +1246,7 @@ function mouseMoveFunction(event){
 				switch (targetLayer.Type){
 					case "residues" : 
 						rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#000000";
-						rvDataSets[0].HighlightLayer.CanvasContext.font = rvDataSets[0].SpeciesEntry.Font_Size_Canvas + 'pt "Myriad Pro", Calibri, Arial';
+						rvDataSets[0].HighlightLayer.CanvasContext.font = "3pt Arial";
 						rvDataSets[0].HighlightLayer.CanvasContext.textBaseline = "middle";
 						rvDataSets[0].HighlightLayer.CanvasContext.textAlign = "center";
 						rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = $("#MainColor").val();
@@ -1264,7 +1254,7 @@ function mouseMoveFunction(event){
 						break;
 					case "circles" :
 						rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
-						rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, (targetLayer.ScaleFactor * rvDataSets[0].SpeciesEntry.Circle_Radius), 0, 2 * Math.PI, false);
+						rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, (targetLayer.ScaleFactor * 1.7), 0, 2 * Math.PI, false);
 						rvDataSets[0].HighlightLayer.CanvasContext.closePath();
 						rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = $("#MainColor").val();
 						rvDataSets[0].HighlightLayer.CanvasContext.stroke();
@@ -1545,25 +1535,6 @@ function customDataProcess(ui,targetLayer){
 	$(".oneSelectionGroup[name=" + targetSelection.Name +"]").find(".checkBoxDIV-S").find(".visibilityCheckImg").attr("src","images/invisible.png");
 	rvDataSets[0].drawSelection("selected");
 	
-	if ($.inArray("ColorPalette", customkeys) >= 0){
-	    var colors=[];
-		//console.log(rvDataSets[0].CustomData[0].ColorPalette);
-		$.each(rvDataSets[0].CustomData, function (index,value){
-			if (value.ColorPalette !="") {
-				colors.push(value.ColorPalette);
-			} else {
-				return;
-			}
-		});
-		//Assume if length one, user mean to name a predefined gradient.
-		if (colors.length == 1){
-			var colors = window[colors[0]];
-		}
-		//console.log(colors);
-	} else {
-		var colors = RainBowColors;
-	}
-	
 	if (targetLayer.Type === "selected"){
 
 	} else {
@@ -1572,6 +1543,7 @@ function customDataProcess(ui,targetLayer){
 			rvDataSets[0].refreshResiduesExpanded(targetLayer.LayerName);
 			update3Dcolors();
 		} else if ($.inArray("DataCol", customkeys) >= 0) {
+			var colors = RainBowColors;
 			colorProcess(NewData,undefined,targetLayer,colors);
 		} else {
 			alert("No recognized colomns found. Please check input.");
@@ -1580,94 +1552,7 @@ function customDataProcess(ui,targetLayer){
 
 	updateSelectionDiv(targetSelection.Name);
 	drawNavLine();
-	
-	//Finishes doing Nucleotides, move on to rProteins
-	CustomProcessProteins(colors);
-	
-	
 }
-function CustomProcessProteins(colors){
-	var rProtein=undefined;
-	var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
-	var NewData = [];
-	var ColorProteins=new Array;
-	for (var ii = 0; ii < rvDataSets[0].CustomData.length; ii++) {
-		var command = rvDataSets[0].CustomData[ii]["resNum"];
-		var targetSelection = rvDataSets[0].Selections[0];
-		var rProtein = expandSelection([command], targetSelection.Name);
-		if (rProtein){
-			if ($.inArray("DataCol", customkeys) >= 0) {
-				ColorProteins.push({ResNum : rProtein, Color : undefined});
-				if (isNaN(parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]))){
-					NewData.push(rvDataSets[0].CustomData[ii]["DataCol"]);
-				} else {
-					NewData.push(parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]));
-				}
-			} else if ($.inArray("ColorCol", customkeys) >= 0) {
-				ColorProteins.push({ResNum : rProtein, Color : rvDataSets[0].CustomData[ii]["ColorCol"]});
-			}
-		}
-	}
-	var dataIndices = colorProcess(NewData,undefined,undefined,colors,true);
-	$.each(dataIndices, function (index,value){
-		ColorProteins[index]["Color"] = colors[value];
-	});
-	ColorProteinsJmol(ColorProteins);
-	rvDataSets[0].ColorProteins = rvDataSets[0].ColorProteins.concat(ColorProteins);
-}
-function ColorProteinsJmol(ColorProteins){
-	if($('input[name="jp"][value=off]').is(':checked')){
-		return;
-	}
-	if (rvDataSets[0].Residues[0] == undefined){return};
-	
-	var script = "set hideNotSelected false;";
-	$.each(ColorProteins, function (index,value){
-		var ressplit = value.ResNum.split("_");
-		if (ressplit[0] !== "undefined"){
-			if (colorNameToHex(value.Color).indexOf("#") == -1) {
-				script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + ressplit[0] + " and " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "; color Cartoon opaque [x" + value.Color + "]; ";
-			} else {
-				script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + ressplit[0] + " and " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "; color Cartoon opaque [" + value.Color.replace("#", "x") + "]; ";
-			}
-		}
-	});
-	
-	Jmol.script(myJmol, script);
-}
-
-function ColorProteinsPyMOL(PDB_Obj_Names){
-	var ColorProteins = rvDataSets[0].ColorProteins;
-	if (rvDataSets[0].Residues[0] == undefined){return};
-	
-	var script = "";
-	
-	// Protein Section
-	for (var jj = 0; jj < rvDataSets[0].SpeciesEntry.SubunitProtChains[0].length; jj++) {
-		script += "copy " + rvDataSets[0].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][jj].replace(/\(/g, "_").replace(/\)/g, "") + "_custom, " + rvDataSets[0].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][jj].replace(/\(/g, "_").replace(/\)/g, "") + "\n";
-	}
-	
-	$.each(ColorProteins, function (index,value){
-		var ressplit = value.ResNum.split("_");
-		if (ressplit[0] !== "undefined"){
-			var curr_color = value.Color;
-				var h = rvDataSets[0].SpeciesEntry.SubunitProtChains[1].indexOf(ressplit[0]);
-				//if (colorNameToHex(curr_color).indexOf("#") == -1) {
-					//script += "color " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + ressplit[0] + " and " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "; color Cartoon opaque [x" + value.Color + "]; ";
-					script += "color " + curr_color.replace("#", "0x") + ", " + rvDataSets[0].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][h].replace(/\(/g,"_").replace(/\)/g,"") + "_custom" +
-						" and resi " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "\n";
-				//} else {
-					//script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + ressplit[0] + " and " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "; color Cartoon opaque [" + value.Color.replace("#", "x") + "]; ";
-				//}
-		}
-	});
-	
-	/*
-	Jmol.script(myJmol, script);*/
-	script += "\ndisable *rp*\n";
-	return script;
-}
-
 function resetFileInput($element) {
 	var clone = $element.clone(false, false);
 	$element.replaceWith(clone);
@@ -1685,7 +1570,7 @@ function CustomDataExpand(targetLayer){
 	var ExtraData = [];
 	var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
 	for (var ii = 0; ii < rvDataSets[0].CustomData.length; ii++) {
-		var command = rvDataSets[0].CustomData[ii]["resNum"].split(";");
+		var command = rvDataSets[0].CustomData[ii][customkeys[0]].split(";");
 		var targetSelection = rvDataSets[0].Selections[0];
 		expandSelection(command, targetSelection.Name);
 		var l = targetSelection.Residues.length;
@@ -1721,7 +1606,6 @@ function CustomDataExpand(targetLayer){
 				SeleLen = l;
 			}
 		}
-		
 	}
 	return {IncludeData : NewData,ExtraData : ExtraData}
 }
@@ -2026,15 +1910,9 @@ function savePML() {
 		$.each(dsLayers, function (key, value) {
 			script += layerToPML(PDB_Obj_Names,value);
 		});
-		script += "\n";
 		
 		//Proteins to PyMOL
 		script += proteinsToPML(PDB_Obj_Names);
-		script += "\n";
-		
-		//Proteins to PyMOL (Custom)
-		script += ColorProteinsPyMOL(PDB_Obj_Names);
-		script += "\n";
 		
 		//Selection to PyMOL
 		$.each(rvDataSets[0].Selections, function (key, value) {
@@ -2124,21 +2002,11 @@ function layerToPML(PDB_Obj_Names,targetLayer) {
 					}
 					if (((compare_color != colorNameToHex(residueLastColor)) || (curr_chain != residue.ChainID)) || (i == (rvDataSets[0].Residues.length - 1))) {
 						r1 = residueLast.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""); ;
-						
-						if (r0 === r1){
-							if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
-								script += "color 0x" + curr_color + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "\n";
-							} else {
-								script += "color " + curr_color.replace("#", "0x") + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "\n";
-							}
+						if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
+							script += "color 0x" + curr_color + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + r1 + "\n";
 						} else {
-							if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
-								script += "color 0x" + curr_color + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + r1 + "\n";
-							} else {
-								script += "color " + curr_color.replace("#", "0x") + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + r1 + "\n";
-							}
+							script += "color " + curr_color.replace("#", "0x") + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + r1 + "\n";
 						}
-												
 						r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
 						if (residue.ChainID != "") {
 							curr_chain = residue.ChainID;
@@ -2166,7 +2034,7 @@ function proteinsToPML(PDB_Obj_Names){
 	var curr_color;
 	// Protein Section
 	for (var jj = 0; jj < rvDataSets[0].SpeciesEntry.SubunitProtChains[0].length; jj++) {
-		script += "create " + rvDataSets[0].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][jj].replace(/\(/g, "_").replace(/\)/g, "") + ", " + PDB_Obj_Names[1] + " and chain " + rvDataSets[0].SpeciesEntry.SubunitProtChains[1][jj].replace(/\(/g, "_").replace(/\)/g, "") + "\n";
+		script += "create " + rvDataSets[0].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][jj] + ", " + PDB_Obj_Names[1] + " and chain " + rvDataSets[0].SpeciesEntry.SubunitProtChains[1][jj] + "\n";
 	}
 	script += "\ndisable *rp*\n";
 	script += "color wheat, *rp*\n";
@@ -2195,7 +2063,6 @@ function proteinsToPML(PDB_Obj_Names){
 }
 
 function selectionToPML(PDB_Obj_Names,targetSelection){
-	// This needs work to not crash PyMOL
 	var script = "";
 	
 	if (targetSelection.Residues.length > 0) {
@@ -2316,18 +2183,15 @@ function canvasToSVG() {
 					break;
 				case "residues":
 					output = output + '<g id="' + value.LayerName + '">\n';
-					var xcorr = -0.439 * parseFloat(rvDataSets[0].SpeciesEntry.Font_Size_SVG) + 0.4346; // magic font corrections.
-					var ycorr = 0.2944 * parseFloat(rvDataSets[0].SpeciesEntry.Font_Size_SVG) - 0.0033;
-					//console.log(xcorr,ycorr);
 					for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
 						var residue = rvDataSets[0].Residues[i];
-						output = output + '<text id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" transform="matrix(1 0 0 1 ' + (parseFloat(residue.X) + xcorr).toFixed(3) + ' ' + (parseFloat(residue.Y) + ycorr).toFixed(3) + ')" fill="' + residue.color + '" font-family="Myriad Pro" font-size="' + rvDataSets[0].SpeciesEntry.Font_Size_SVG + '">' + residue.resName + '</text>\n';
+						output = output + '<text id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" transform="matrix(1 0 0 1 ' + (parseFloat(residue.X) - 1.262).toFixed(3) + ' ' + (parseFloat(residue.Y) + 1.145).toFixed(3) + ')" fill="' + residue.color + '" font-family="Myriad Pro" font-size="3.9">' + residue.resName + '</text>\n';
 					}
 					output = output + '</g>\n';
 					break;
 				case "circles":
 					output = output + '<g id="' + value.LayerName + '">\n';
-					var radius = rvDataSets[0].SpeciesEntry.Circle_Radius * value.ScaleFactor;
+					var radius = 1.7 * value.ScaleFactor;
 					for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
 						var residue = rvDataSets[0].Residues[i];
 						if (residue && value.dataLayerColors[i]) {
@@ -2342,7 +2206,7 @@ function canvasToSVG() {
 					break;
 				case "selected":
 					output = output + '<g id="' + value.LayerName + '">\n';
-					var radius = rvDataSets[0].SpeciesEntry.Circle_Radius * value.ScaleFactor;
+					var radius = 1.7 * value.ScaleFactor;
 					
 					var SelectionList =[];
 					$('.checkBoxDIV-S').find(".visibilityCheckImg[value=visible]").parent().parent().each(function (index){SelectionList.push($(this).attr("name"))});

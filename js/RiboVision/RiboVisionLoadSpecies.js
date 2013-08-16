@@ -36,7 +36,6 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 		rvDataSets[0].DataDescriptions=data;
 	});
 	rvDataSets[0].Name=species;
-	rvDataSets[0].ColorProteins=[];
 	$.each(rvDataSets[0].Layers, function (i, item){
 		item.clearAll();
 	});
