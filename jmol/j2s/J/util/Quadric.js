@@ -5,6 +5,7 @@ this.lengths = null;
 this.vectors = null;
 this.isThermalEllipsoid = true;
 this.$scale = 1;
+this.eigenSignMask = 7;
 Clazz.instantialize (this, arguments);
 }, J.util, "Quadric");
 $_M(c$, "scale", 
@@ -17,12 +18,13 @@ function () {
 return (this.vectors == null ? "" + this.lengths[0] : this.vectors[0] + "\t" + this.lengths[0] + "\n" + this.vectors[1] + "\t" + this.lengths[1] + "\n" + this.vectors[2] + "\t" + this.lengths[2] + "\n");
 });
 $_M(c$, "fromVectors", 
-function (vectors, lengths, isThermal) {
+function (vectors, lengths, eigenSignMask, isThermal) {
 this.vectors = vectors;
 this.lengths = lengths;
+this.eigenSignMask = eigenSignMask;
 this.isThermalEllipsoid = isThermal;
 return this;
-}, "~A,~A,~B");
+}, "~A,~A,~N,~B");
 $_M(c$, "fromBCart", 
 function (bcart) {
 this.isThermalEllipsoid = true;

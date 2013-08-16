@@ -398,7 +398,9 @@ return (ich >= 0 && ((ch = str.charAt (ich)) == ' ' || ch == '\t' || ch == '\n')
 }, $fz.isPrivate = true, $fz), "~S,~N");
 c$.isOneOf = $_M(c$, "isOneOf", 
 function (key, semiList) {
-return key.indexOf (";") < 0 && (';' + semiList + ';').indexOf (';' + key + ';') >= 0;
+if (semiList.length == 0) return false;
+if (semiList.charAt (0) != ';') semiList = ";" + semiList + ";";
+return key.indexOf (";") < 0 && semiList.indexOf (';' + key + ';') >= 0;
 }, "~S,~S");
 c$.getQuotedAttribute = $_M(c$, "getQuotedAttribute", 
 function (info, name) {
@@ -434,6 +436,7 @@ function (s) {
 return this.dVal(s);
 }}, "~S");
 Clazz.defineStatics (c$,
+"FLOAT_MIN_SAFE", 2E-45,
 "decimalScale", [0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001, 0.0000001, 0.00000001],
 "tensScale", [10, 100, 1000, 10000, 100000, 1000000]);
 });

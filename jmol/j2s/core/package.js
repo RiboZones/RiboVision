@@ -1,5 +1,8 @@
 // BH 12/15/2012 1:56:28 PM  adds corezip.z.js and corebio.z.js
 // later additions include coresym.z.js, coresurface.z.js, coremenu.z.js
+
+// NOTE: Any changes here must also be reflected in buildtojs.xml
+
 if (!window["java.registered"])
  window["java.registered"] = false;
 
@@ -52,7 +55,6 @@ var	basefile = base + "core.z.js";
     "java.util.regex.Pattern", 
     "$.Matcher", 
     "$.MatchResult",     
-
     "J.api.JmolScriptManager", 
     "$.JmolScriptEvaluator",
     "$.JmolScriptFunction",
@@ -94,6 +96,23 @@ var	basefile = base + "core.z.js";
 		"$.GenericPopup",
 		"$.PopupResource",
 		"$.MainPopupResourceBundle"
+	]);
+
+	ClazzLoader.jarClasspath (base + "corebinary.z.js",	[
+    "java.io.DataInputStream",
+    "J.api.JmolDocument",
+    "J.io2.BinaryDocument"
+	]);
+
+	ClazzLoader.jarClasspath (base + "corepymol.z.js",	[
+    "J.api.JmolSceneGenerator",
+    "J.api.PymolAtomReader", // -- required by J.adapter.readers.pymol.PyMOLReader
+    "J.adapter.readers.pymol.PickleReader",
+    "$.PyMOL",
+    "$.JmolObject",
+    "$.PyMOLGroup",
+    "$.PyMOLScene",
+    "$.PyMOLReader"
 	]);
 
 	ClazzLoader.jarClasspath (base + "coremin.z.js",	[
@@ -202,6 +221,7 @@ var	basefile = base + "core.z.js";
     "$.TraceRenderer"
 	]);
 
+
 	ClazzLoader.jarClasspath (base + "coresurface.z.js",	[
 		"J.api.VolumeDataInterface",
 		"J.jvxl.api.VertexDataServer",
@@ -212,12 +232,16 @@ var	basefile = base + "core.z.js";
 		"$.VolumeData",
 		"$.JvxlData",
 		"$.MeshData",
+    "J.io.XmlReader",
 		"J.jvxl.readers.SurfaceGenerator",
 		"$.Parameters",
 		"$.SurfaceReader",
 		"$.VolumeDataReader",
 		"$.AtomDataReader",
 		"$.IsoSolventReader",
+    "$.SurfaceFileReader",
+    "$.VolumeFileReader",
+    "$.JvxlXmlReader",
 		"J.shapesurface.Isosurface",
 		"$.IsosurfaceMesh",
 		"J.rendersurface.IsosurfaceRenderer"
@@ -229,6 +253,7 @@ var	basefile = base + "core.z.js";
 		"$.PointGroup",
 		"$.SpaceGroup",
 		"$.HallInfo",
+		"$.HallRotationTerm",
 		"$.HallRotation",
 		"$.HallTranslation",
 		"$.SymmetryOperation",
@@ -251,6 +276,3 @@ var	basefile = base + "core.z.js";
 
 }) ();
 window["java.registered"] = true;
-
-
-
