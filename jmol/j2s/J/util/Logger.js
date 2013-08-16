@@ -134,16 +134,22 @@ J.util.Logger._logger.fatalEx (txt, e);
 }, "~S,Throwable");
 c$.startTimer = $_M(c$, "startTimer", 
 function (msg) {
-if (msg == null) return;
-J.util.Logger.htTiming.put (msg, Long.$valueOf (System.currentTimeMillis ()));
+if (msg != null) J.util.Logger.htTiming.put (msg, Long.$valueOf (System.currentTimeMillis ()));
 }, "~S");
+c$.getTimerMsg = $_M(c$, "getTimerMsg", 
+function (msg, time) {
+if (time == 0) time = J.util.Logger.getTimeFrom (msg);
+return "Time for " + msg + ": " + (time) + " ms";
+}, "~S,~N");
+c$.getTimeFrom = $_M(c$, "getTimeFrom", 
+($fz = function (msg) {
+var t;
+return (msg == null || (t = J.util.Logger.htTiming.get (msg)) == null ? -1 : (System.currentTimeMillis () - t.longValue ()));
+}, $fz.isPrivate = true, $fz), "~S");
 c$.checkTimer = $_M(c$, "checkTimer", 
 function (msg, andReset) {
-if (msg == null) return -1;
-var t = J.util.Logger.htTiming.get (msg);
-if (t == null) return -1;
-var time = System.currentTimeMillis () - t.longValue ();
-if (!msg.startsWith ("(")) J.util.Logger.info ("Time for " + msg + ": " + (time) + " ms");
+var time = J.util.Logger.getTimeFrom (msg);
+if (time >= 0 && !msg.startsWith ("(")) J.util.Logger.info (J.util.Logger.getTimerMsg (msg, time));
 if (andReset) J.util.Logger.startTimer (msg);
 return time;
 }, "~S,~B");

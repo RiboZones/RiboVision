@@ -91,7 +91,7 @@ throw e;
 }, $fz.isPrivate = true, $fz), "~N");
 Clazz.overrideMethod (c$, "render", 
 function (gdata, modelSet, isFirstPass, minMax) {
-var logTime = this.viewer.global.showTiming;
+var logTime = this.viewer.getBoolean (603979934);
 try {
 var g3d = gdata;
 g3d.renderBackground (null);
@@ -114,8 +114,8 @@ if (logTime) J.util.Logger.checkTimer (msg, false);
 g3d.renderAllStrings (null);
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
-e.printStackTrace ();
-J.util.Logger.error ("rendering error? ");
+if (!this.viewer.isJS ()) e.printStackTrace ();
+J.util.Logger.error ("rendering error? " + e);
 } else {
 throw e;
 }
@@ -124,7 +124,7 @@ throw e;
 Clazz.overrideMethod (c$, "renderExport", 
 function (type, gdata, modelSet, fileName) {
 var isOK;
-var logTime = this.viewer.global.showTiming;
+var logTime = this.viewer.getBoolean (603979934);
 this.viewer.finalizeTransformParameters ();
 this.shapeManager.finalizeAtoms (null, null);
 this.shapeManager.transformAtoms ();

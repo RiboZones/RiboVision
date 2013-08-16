@@ -1,7 +1,7 @@
 @source http://chemapps.stolaf.edu/jmol/jsmol
 @author hansonr@stolaf.edu project started 8/26/2012
 
-last revision, 3/24/2013 3:39:24 AM 
+last revision, 7/28/3013 
 
 JSmol -- Java(Script) web-based molecular viewer
 
@@ -9,15 +9,14 @@ see http://jmol.sourceforge.net  http://jsmol.sourceforge.net
 
 http://chemapps.stolaf.edu/jmol/jsmol/jsmol.htm
 
-This zip directory contains the work in progress toward
-a complete Java->JavaScript code conversion for Jmol. 
+This zip directory contains a complete Java->JavaScript code conversion for Jmol. 
 
 Note that JSmol is not a <i>different</i> program than Jmol.
 JSmol <i>is</i> Jmol, just compiled into JavaScript as well as Java byte code.
 All development is done working with the trunk Jmol Java source, 
 but compilation of that code creates both Java .class files and equivalent JavaScript .js files 
 
-As such, JSmol has just about all of the features of Jmol: 
+As such, JSmol has all of the features of Jmol: 
 
  full file reading (including binary formats)
  full Jmol scripting (including atom selection and Jmol Math)
@@ -33,11 +32,12 @@ Status:
  complete Jmol code implementation in JavaScript
  Java2Script js compiler adapted successfully
  HTML5: slower rendering; but a full implementation of Jmol
- WebGL: full, fast rendering, including cartoons and isosurfaces (vdw, sasurface)
+ WebGL: partial only; fast rendering, including cartoons and isosurfaces (vdw, sasurface), not text
  
 To do:
 
- WebGL option is limited; still no text, for example
+ WebGL option is limited; still no text, for example, and is not being actively pursued
+ due to graphical limitations and absence on iPad.  
 
 What's here:
 
@@ -50,17 +50,21 @@ j2s/          java/       JavaScript versions of Java classes
               trans/      *.po language localization files from src/org/jmol/translation/JmolApplet
               img/        images used in the HTML5 version of JSmol (cover image "play" button) 
             
-java/       Java JAR files for Jmol
+java/       Java JAR files for JmolApplet and JSpecView
 
 jme/        JME.jar -- Java Molecular Editor (Peter Ertl) -- see jmetest.htm
 jsme/       JSME files -- JavaScript Molecular Editor (Peter Ertl and Bruno Bienfait) -- see jsmetest.htm
 
 ADDITIONAL DIRECTORIES:
 
-js/         JSmolXXXX.js JavaScript files that are included in JSmol.min.js
 data/       all the model and script files used by these test pages
-make/       Windows batch files and closure_comiler.jar used to create this whole package
-test/       some speed-test files 
+flot/       files required by jmol-flot-energy.htm 
+jquery/     original jQuery files adapted to make js/JSmoljQuery.js
+            (modifications primarily allow binary AJAX)
+js/         JSmolXXXX.js JavaScript files that are included in JSmol.min.js 
+            as well as uncompressed coreXXX.js files; useful for debugging
+php/        contains jsmol.php, which is necessary on a server for some browsers
+            to access binary files via AJAX.
 
 FILES:
 
@@ -185,6 +189,7 @@ See development notes in JSmol project ANT task file buildfromjmol.xml
 
 =======================================================
 
+revision 7/28/2013 -- reorganization of directories
 
 revision 12:32 PM 11/2/2012  -- java/jmolcore.z.js
 

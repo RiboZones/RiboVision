@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.adapter.readers.xtal");
-Clazz.load (["J.adapter.smarter.AtomSetCollectionReader", "J.util.P3"], "J.adapter.readers.xtal.CrystalReader", ["java.lang.Character", "$.Double", "$.Float", "java.util.Arrays", "J.util.BS", "$.Eigen", "$.Escape", "$.JmolList", "$.Logger", "$.Matrix3f", "$.Quaternion", "$.SB", "$.TextFormat", "$.V3"], function () {
+Clazz.load (["J.adapter.smarter.AtomSetCollectionReader", "J.util.P3"], "J.adapter.readers.xtal.CrystalReader", ["java.lang.Character", "$.Double", "$.Float", "java.util.Arrays", "J.util.BS", "$.JmolList", "$.Logger", "$.Matrix3f", "$.Quaternion", "$.SB", "$.Tensor", "$.TextFormat", "$.V3"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.isVersion3 = false;
 this.isPrimitive = false;
@@ -118,22 +118,17 @@ this.appendLoadNote ("Multipole Analysis");
 return true;
 }return true;
 });
-$_M(c$, "finalizeReader", 
+Clazz.overrideMethod (c$, "finalizeReader", 
 function () {
 if (this.vInputCoords != null) this.processInputCoords ();
 if (this.energy != null) this.setEnergy ();
-Clazz.superCall (this, J.adapter.readers.xtal.CrystalReader, "finalizeReader", []);
+this.finalizeReaderASCR ();
 });
 $_M(c$, "setDirect", 
 ($fz = function () {
 var isBohr = (this.line.indexOf ("(BOHR") >= 0);
 this.directLatticeVectors = this.read3Vectors (isBohr);
-if (J.util.Logger.debugging) {
-this.addJmolScript ("draw va vector {0 0 0} " + J.util.Escape.eP (this.directLatticeVectors[0]) + " color red");
-if (!this.isPolymer) {
-this.addJmolScript ("draw vb vector {0 0 0} " + J.util.Escape.eP (this.directLatticeVectors[1]) + " color green");
-if (!this.isSlab) this.addJmolScript ("draw vc vector {0 0 0} " + J.util.Escape.eP (this.directLatticeVectors[2]) + " color blue");
-}}var a =  new J.util.V3 ();
+var a =  new J.util.V3 ();
 var b =  new J.util.V3 ();
 if (this.isPrimitive) {
 a = this.directLatticeVectors[0];
@@ -538,7 +533,7 @@ while (this.readLine () != null && this.line.startsWith (" *** ATOM")) {
 var tokens = this.getTokens ();
 var index = this.parseIntStr (tokens[3]) - 1;
 tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.readLines (3));
-atoms[index].setEllipsoid (J.util.Eigen.getEllipsoid (this.directLatticeVectors, [this.parseFloatStr (tokens[1]), this.parseFloatStr (tokens[3]), this.parseFloatStr (tokens[5])], false));
+atoms[index].addTensor (J.util.Tensor.getTensorFromEigenVectors (this.directLatticeVectors, [this.parseFloatStr (tokens[1]), this.parseFloatStr (tokens[3]), this.parseFloatStr (tokens[5])], "unknown"), null);
 this.readLine ();
 }
 return true;
