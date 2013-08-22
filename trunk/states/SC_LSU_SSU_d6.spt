@@ -257,42 +257,42 @@ select :0 or :9;
   
   
 
- select (1.1 and :1 and (1-419));
+ select (1.1 and 1-419:1);
   color Cartoon opaque [xa999fb];
 
     
-  select (1.1 and :1 and (420-1451));
+  select (1.1 and 420-1451:1);
   color Cartoon opaque [x3aa7ff];
   
-  select (1.1 and :1 and (1452-1878));
+  select (1.1 and 1452-1878:1);
   color Cartoon opaque [xcc99cc];
   
-  select (1.1 and :1 and (1879-2360));
+  select (1.1 and 1879-2360:1);
   color Cartoon opaque [xf0ff00];
   
-  select (1.1 and :1 and (2361-2994));
+  select (1.1 and 2361-2994:1);
   color Cartoon opaque [xff99cc];
   
-  select (1.1 and :1 and (2995-3396));
+  select (1.1 and 2995-3396:1);
   color Cartoon opaque [x0ba34a];
   
-  select (1.1 and :3  and (1-121));
+  select (1.1 and 1-121:3);
   color Cartoon opaque [x8ec640]; 
 
-  select (1.1 and :4 and (1-158));
+  select (1.1 and 1-158:4);
   color Cartoon opaque [xb27643]; 
   
   
-  select (2.1 and :2 and (1-609));
+  select (2.1 and 1-609:2);
   color Cartoon opaque [x3aa7ff];
   
-  select (2.1 and :2 and (610-1139));
+  select (2.1 and 610-1139:2);
   color Cartoon opaque [xffd4a2];
   
-  select (2.1 and :2 and (1140-1634));
+  select (2.1 and 1140-1634:2);
   color Cartoon opaque [xff99cc];
   
-  select (2.1 and :2 and (1635-1800));
+  select (2.1 and 1635-1800:2);
   color Cartoon opaque [x0ba34a];
   
   boundBox off;
