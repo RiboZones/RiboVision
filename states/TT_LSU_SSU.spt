@@ -255,41 +255,41 @@ select :0 or :9;
   
   
 
-  select (1.1 and :A and ((562-586) or (1251-1270) or (1648-1678) or (1990-2057) or (2611-2625)));
+  select (1.1 and (562-586:A or 1251-1270:A or 1648-1678:A or 1990-2057:A or 2611-2625:A));
   color Cartoon opaque [xffd4a2];
   
-  select (1.1 and :A and ((1-561) or ( 2895-2905)));
+  select (1.1 and (1-561:A or 2895-2905:A));
   color Cartoon opaque [xa999fb];
   
-  select (1.1 and :A and (587-1250));
+  select (1.1 and 587-1250:A);
   color Cartoon opaque [x3aa7ff];
   
-  select (1.1 and :A and (1271-1647));
+  select (1.1 and 1271-1647:A);
   color Cartoon opaque [xcc99cc];
   
-  select (1.1 and :A and (1679-1989));
+  select (1.1 and 1679-1989:A);
   color Cartoon opaque [xf0ff00];
   
-  select (1.1 and :A and (2058-2610));
+  select (1.1 and 2058-2610:A);
   color Cartoon opaque [xff99cc];
   
-  select (1.1 and :A and (2626-2894));
+  select (1.1 and 2626-2894:A);
   color Cartoon opaque [x0ba34a];
   
-  select (1.1 and :B and (1-124));
+  select (1.1 and 1-124:B);
   color Cartoon opaque [x8ec640]; 
   
   
-  select (2.1 and :A and (1-561) or (913-920));
+  select (2.1 and  (1-561:A or 913-920:A);
   color Cartoon opaque [x3aa7ff];
   
-  select (2.1 and :A and (562-912));
+  select (2.1 and 562-912:A);
   color Cartoon opaque [xb27643];
   
-  select (2.1 and :A and (921-1396));
+  select (2.1 and 921-1396:A);
   color Cartoon opaque [xff99cc];
   
-  select (2.1 and :A and (1397-1542));
+  select (2.1 and 1397-1542:A);
   color Cartoon opaque [x0ba34a];
   
   

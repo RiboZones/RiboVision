@@ -254,26 +254,26 @@ select :0 or :9;
   
   
 
- select :0 and ((1-527) or (2915-2922));
+ select 1-527:0 or 2915-2922:0;
   color Cartoon opaque [xa999fb];
   
   
-  select :0 and (528-1374);
+  select 528-1374:0;
   color Cartoon opaque [x3aa7ff];
   
-  select :0 and (1375-1722);
+  select 1375-1722:0;
   color Cartoon opaque [xcc99cc];
   
-  select :0 and (1723-2058);
+  select 1723-2058:0;
   color Cartoon opaque [xf0ff00];
   
-  select :0 and (2059-2660);
+  select 2059-2660:0;
   color Cartoon opaque [xff99cc];
   
-  select :0 and ( 2661-2914);
+  select 2661-2914:0;
   color Cartoon opaque [x0ba34a];
   
-  select :9 and (1-124);
+  select 1-124:9;
   color Cartoon opaque [x8ec640]; 
   
   
