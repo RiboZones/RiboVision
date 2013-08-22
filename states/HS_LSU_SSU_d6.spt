@@ -1,9 +1,13 @@
-# Jmol state version 12.2.17  2011-12-13 21:20;
+# Jmol state version 13.1.15_dev_2013.04.17a  $Date: 2013-04-17 06:45:16 -0500 (Wed, 17 Apr 2013) $;
+  # fullName = "jmolApplet0_object__4875006806224855__";
+  # documentBase = "file:///C:/Users/Chad/Downloads/jsmol/test4.htm";
+  # codeBase = "file:///C:/Users/Chad/Downloads/jsmol/j2s/";
+
 
 function _setWindowState() {
-# width 1420;
-# height 745;
-  stateVersion = 1202017;
+# width 600;
+# height 600;
+  stateVersion = 1301015;
   background [xffffff];
   axis1Color = "[xff0000]";
   axis2Color = "[x008000]";
@@ -13,6 +17,7 @@ function _setWindowState() {
   set specular true;
   set specularPercent 22;
   set specularPower 40;
+  set celShading false;
   set specularExponent 6;
   set zShadePower 3;
   statusReporting  = true;
@@ -27,21 +32,23 @@ function _setFileState() {
   set autoBond true;
   set bondRadiusMilliAngstroms 150;
   set bondTolerance 0.45;
-  set defaultLattice {0.0 0.0 0.0};
+  set defaultLattice {0 0 0};
   set defaultLoadFilter "";
   set defaultLoadScript "";
   set defaultStructureDssp true;
   set defaultVDW Auto;
-  set forceAutoBond false;  
+  set forceAutoBond false;
+  #set defaultDirectory "";
   #set loadFormat "http://www.rcsb.org/pdb/files/%FILE.pdb.gz";
   #set loadLigandFormat "http://www.rcsb.org/pdb/files/ligand/%FILE.cif";
   #set smilesUrlFormat "http://cactus.nci.nih.gov/chemical/structure/%FILE/file?format=sdf&get3d=True";
   #set nihResolverFormat "http://cactus.nci.nih.gov/chemical/structure/%FILE";
+  #set pubChemFormat "http://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/%FILE/SDF?record_type=3d";
   #set edsUrlFormat "http://eds.bmc.uu.se/eds/dfs/%LC13/%LCFILE/%LCFILE.omap";
   #set edsUrlCutoff "load('http://eds.bmc.uu.se/eds/dfs/%LC13/%LCFILE/%LCFILE.sfdat').lines.find('MAP_SIGMA').split(' ')[2]";
   set legacyAutoBonding false;
   set minBondDistance 0.4;
-  set minimizationCriterion  0.0010;
+  set minimizationCriterion  0.001;
   set minimizationSteps  100;
   set pdbAddHydrogens false;
   set pdbGetHeader false;
@@ -49,14 +56,11 @@ function _setFileState() {
   set percentVdwAtom 23;
   set smallMoleculeMaxAtoms 40000;
   set smartAromatic true;
-  set  chainCaseSensitive true;
   load "./pdb/HS_60S_rRNA.pdb";
   load append "./pdb/HS_40S_rRNA.pdb";
   load append  "./pdb/HS_60S_rProteins.pdb";
   load append  "./pdb/HS_40S_rProteins.pdb";
  
-
-
 }
 
 function _setVariableState() {
@@ -67,7 +71,7 @@ function _setVariableState() {
    set defaultdrawarrowscale 0.5;
    set defaultlabelpdb "%m%r";
    set defaultlabelxyz "%a";
-   set defaultlattice "{0.0 0.0 0.0}";
+   set defaultlattice "{0 0 0}";
    set defaultloadfilter "";
    set defaultloadscript "";
    set defaulttorsionlabel "%VALUE %UNITS";
@@ -84,19 +88,19 @@ function _setVariableState() {
   set autofps false;
   set axes window;
   set axesmode 0;
-  set axesscale 2.0;
+  set axesscale 2;
   set bondmodeor false;
   set bondradiusmilliangstroms 150;
   set bondtolerance 0.45;
   set cartoonbaseedges false;
-  set cartoonrockets false;
-  set chaincasesensitive true;
-  set chainCaseSensitive true;
+  set cartoonfancy true;
 
+  set cartoonrockets false;
+  set chaincasesensitive false;
   set dataseparator "~~~";
   set defaultstructuredssp true;
   set delaymaximumms 0;
-  set dipolescale 1.0;
+  set dipolescale 1;
   set disablepopupmenu false;
   set displaycellparameters true;
   set dotdensity 3;
@@ -115,11 +119,12 @@ function _setVariableState() {
   set ellipsoiddotcount 200;
   set ellipsoiddots false;
   set ellipsoidfill false;
+  set energyunits "kJ";
   set forceautobond false;
   set fractionalrelative false;
-  set gestureswipefactor 1.0;
+  set gestureswipefactor 1;
   set greyscalerendering false;
-  set hbondsangleminimum 90.0;
+  set hbondsangleminimum 90;
   set hbondsbackbone false;
   set hbondsdistancemaximum 3.25;
   set hbondsrasmol true;
@@ -141,19 +146,20 @@ function _setVariableState() {
   set loadatomdatatolerance 0.01;
   set measureallmodels false;
   set measurementlabels true;
+  set meshscale 1;
   set messagestylechime false;
   set minbonddistance 0.4;
-  set minimizationcriterion 0.0010;
+  set minimizationcriterion 0.001;
   set minimizationrefresh true;
   set minimizationsilent false;
   set minimizationsteps 100;
   set minpixelselradius 6;
   set monitorenergy false;
-  set multiplebondradiusfactor 0.0;
-  set multiplebondspacing -1.0;
-  set navigatesurface false;
+  set multiplebondradiusfactor 0;
+  set multiplebondspacing -1;
   set navigationperiodic false;
-  set navigationspeed 5.0;
+  set navigationspeed 5;
+  set nmrurlformat "http://www.nmrdb.org/predictor?smiles=";
   set partialdots false;
   set pdbaddhydrogens false;
   set pdbgetheader false;
@@ -162,7 +168,7 @@ function _setVariableState() {
   set pickingspinrate 10;
   set picklabel "";
   set pointgroupdistancetolerance 0.2;
-  set pointgrouplineartolerance 8.0;
+  set pointgrouplineartolerance 8;
   set propertyatomnumbercolumncount 0;
   set propertyatomnumberfield 0;
   set propertycolorscheme "roygb";
@@ -177,7 +183,7 @@ function _setVariableState() {
   set selectallmodels true;
   set selecthetero true;
   set selecthydrogen true;
-  set sheetsmoothing 1.0;
+  set sheetsmoothing 1;
   set showhiddenselectionhalos false;
   set showhydrogens true;
   set showkeystrokes true;
@@ -191,11 +197,12 @@ function _setVariableState() {
   set solventprobe false;
   set solventproberadius 1.2;
   set ssbondsbackbone false;
-  set stereodegrees -5.0;
+  set starscale 0.05;
+  set stereodegrees -5;
   set strandcountformeshribbon 7;
   set strandcountforstrands 5;
   set strutdefaultradius 0.3;
-  set strutlengthmaximum 7.0;
+  set strutlengthmaximum 7;
   set strutsmultiple false;
   set strutspacing 6;
   set testflag1 false;
@@ -203,11 +210,13 @@ function _setVariableState() {
   set testflag3 false;
   set testflag4 false;
   set tracealpha true;
+  set twistedsheets false;
   set usearcball false;
   set useminimizationthread true;
   set usenumberlocalization true;
-  set vectorscale 1.0;
-  set vibrationscale 0.5;
+  set vectorscale 1;
+  set vectorsymmetry false;
+  set vibrationscale 1;
   set waitformoveto true;
   set wireframerotation false;
   set zdepth 0;
@@ -221,126 +230,124 @@ function _setVariableState() {
   set labelOffset 4 4;
   set labelAlignment left;
   set labelPointer off;
-  font label 13.0 SansSerif Plain;
+  font label 13 SansSerif Plain;
 
 }
 
 function _setModelState() {
 
   select *;
-#  Cartoon off;
+  #  Cartoon off;
 #  Spacefill 2;
-  wireframe off;  
+
+   wireframe off;
+  
   Cartoon on;
   select protein;
   Color Cartoon blue;
- 
- 
+  spacefill off;
+
   measures delete;
   select *; set measures nanometers;
-  
-  font measures 15.0 SansSerif Plain;
-#  select :A or :B;
-#  display (1.1 and (:A or :B));
-#  display (2.1 and :A); 
+  font measures 15 SansSerif Plain;
+#select :0 or :9;
   wireframe off;
   Cartoon on;
+  spacefill off;
   
   
 
-
   
-  select (1.1 and :5 and (1-430));
+  select (1.1 and 1-430:5);
   color Cartoon opaque [xa999fb];
 
     
-  select (1.1 and :5 and (431-2360));
+  select (1.1 and 431-2360:5);
   color Cartoon opaque [x3aa7ff];
   
-  select (1.1 and :5 and (2361-2826));
+  select (1.1 and 2361-2826:5);
   color Cartoon opaque [xcc99cc];
   
-  select (1.1 and :5 and (2827-3864));
+  select (1.1 and 2827-3864:5);
   color Cartoon opaque [xf0ff00];
   
-  select (1.1 and :5 and (3865-4740));
+  select (1.1 and 3865-4740:5);
   color Cartoon opaque [xff99cc];
   
-  select (1.1 and :5 and (4741-5070));
+  select (1.1 and 4741-5070:5);
   color Cartoon opaque [x0ba34a];
   
-  select (1.1 and :7  and (1-121));
+  select (1.1 and 1-121:7);
   color Cartoon opaque [x8ec640]; 
 
-  select (1.1 and :8 and (1-157));
+  select (1.1 and 1-157:8);
   color Cartoon opaque [xb27643]; 
   
   
-  select (2.1 and :2 and (1-657));
+  select (2.1 and 1-657:2);
   color Cartoon opaque [x3aa7ff];
   
-  select (2.1 and :2 and (658-1195));
+  select (2.1 and 658-1195:2);
   color Cartoon opaque [xffd4a2];
   
-  select (2.1 and :2 and (1196-1700));
+  select (2.1 and 1196-1700:2);
   color Cartoon opaque [xff99cc];
   
-  select (2.1 and :2 and (1701-1869));
+  select (2.1 and 1701-1869:2);
   color Cartoon opaque [x0ba34a];
   
-#  display (1.1 and (:A or :B));
-#  display (2.1 and :A);
-   
   
-  
-   
-  
-    
   
   boundBox off;
-  font boundBox 14.0 SansSerif Plain;
+  font boundBox 14 SansSerif Plain;
   boundBox off;
 
   unitcell off;
-  font unitcell 14.0 SansSerif Plain;
+  font unitcell 14 SansSerif Plain;
   unitcell off;
 
   hover "%U";
 
   frank on;
-  font frank 16.0 SansSerif Bold;
+  font frank 16 SansSerif Plain;
   select *;
-  frame 1.1; set unitcell {0.0 0.0 0.0};
-  unitcell OFF;
+  frame 1.1; set unitcell {0 0 0};
+
+  unitcell off;
+  
+ 
+  font unitcell 14 SansSerif Plain;
+  unitcell off;
+  select *;
+
   set fontScaling false;
 
 }
 
 function _setPerspectiveState() {
   set perspectiveModel 11;
-  set scaleAngstromsPerInch 0.0;
+  set scaleAngstromsPerInch 0;
   set perspectiveDepth true;
-  set visualRange 5.0;
-  set cameraDepth 3.0;
+  set visualRange 5;
+  set cameraDepth 3;
   boundbox corners {-144.84799 23.633987 68.34201} {71.63199 248.62102 257.848} # volume = 9229924.0;
   center {2.8253148 187.43567 169.35358};
   moveto -1.0 {0 0 1 0} 100.0 0.0 0.0 {-36.607998 136.1275 163.095} 155.71933 {0.0 0.0 0.0} 0.0 0.0 0.0;
   save orientation "default";
-  moveto 0.0 { 443 509 738 160.7} 105.7 0.0 0.0 {2.8253148 187.43567 169.35358} 182.38565 {0.0 0.0 0.0} -42.880226 8.713927 0.0;;
+  moveto 0.0 { 443 509 738 160.7} 105.7 0.0 0.0 {2.8253148 187.43567 169.35358} 182.38565 {0.0 0.0 0.0} -42.880226 8.713927 0.0;
   slab 100;depth 0;
   set slabRange 0.0;
   set spinX 0; set spinY 30; set spinZ 0; set spinFps 30;  set navX 0; set navY 0; set navZ 0; set navFps 10;
 }
 
 function _setSelectionState() {
-
   set  chainCaseSensitive true;
-  select   *:1 or *:2 or *:3 or *:4;
+  select   *:2 or *:5 or *:7 or *:8 or *:9;
   frame all
-  display (1.1 and (:1 or :3 or :4));
+  display (1.1 and (:5 or :7 or :8 or :9));
   display (2.1 and :2);
   set hideNotSelected true;
-  center selected;;
+  center selected;
   spacefill off;
 }
 

@@ -255,29 +255,29 @@ select :0 or :9;
   
 
 
-  select :0 and ((619-642) or  (1355-1374) or  (1724-1759) or  (2031-2098) or (2646-2660));
+  select 619-642:0 or  355-1374:0 or 1724-1759:0 or 2031-2098:0 or 2646-2660:0;
   color Cartoon opaque [xffd4a2];
   
-  select :0 and ((1-618) or (2915-2922));
+  select 1-618:0 or 2915-2922:0;
   color Cartoon opaque [xa999fb];
   
   
-  select :0 and (643-1354);
+  select 643-1354:0;
   color Cartoon opaque [x3aa7ff];
   
-  select :0 and (1375-1723);
+  select 1375-1723:0;
   color Cartoon opaque [xcc99cc];
   
-  select :0 and (1760-2030);
+  select 1760-2030:0;
   color Cartoon opaque [xf0ff00];
   
-  select :0 and (2099-2645);
+  select 2099-2645:0;
   color Cartoon opaque [xff99cc];
   
-  select :0 and ( 2661-2914);
+  select 2661-2914:0;
   color Cartoon opaque [x0ba34a];
   
-  select :9 and (1-124);
+  select 1-124:9;
   color Cartoon opaque [x8ec640]; 
   
   boundBox off;
