@@ -290,7 +290,7 @@ function _setModelState() {
   color Cartoon opaque [xb27643]; 
 
   
-  select (2.1 and (1-615:2 or 1225-1232:2);
+  select (2.1 and (1-615:2 or 1225-1232:2));
   color Cartoon opaque [x3aa7ff];
   
   select (2.1 and 616-1224:2);
