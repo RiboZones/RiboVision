@@ -56,10 +56,10 @@ function _setFileState() {
   set percentVdwAtom 23;
   set smallMoleculeMaxAtoms 40000;
   set smartAromatic true;
-  load "./pdb/HS_60S_rRNA.pdb";
-  load append "./pdb/HS_40S_rRNA.pdb";
-  load append  "./pdb/HS_60S_rProteins.pdb";
-  load append  "./pdb/HS_40S_rProteins.pdb";
+  load "./pdb/DM_60S_rRNA.pdb";
+  load append "./pdb/DM_40S_rRNA.pdb";
+  load append  "./pdb/DM_60S_rProteins.pdb";
+  load append  "./pdb/DM_40S_rProteins.pdb";
  
 }
 
@@ -255,201 +255,117 @@ function _setModelState() {
   Cartoon on;
   spacefill off;
   
+   
+  select (1.1 and (786-810:5 or 1676-1690:5 or 2196-2229:5 or 2711-2777:5 or 3511-3523:5));
+  color Cartoon opaque [xffd4a2];
   
-
-  
-  select (1.1 and 1-430:5);
+  select (1.1 and 1-8775:5);
   color Cartoon opaque [xa999fb];
 
     
-  select (1.1 and 431-2360:5);
+  select (1.1 and 811-1675:5);
   color Cartoon opaque [x3aa7ff];
   
-  select (1.1 and 2361-2826:5);
+  select (1.1 and 1691-2195:5);
   color Cartoon opaque [xcc99cc];
   
-  select (1.1 and 2827-3864:5);
+  select (1.1 and 2230-2710:5);
   color Cartoon opaque [xf0ff00];
   
-  select (1.1 and 3865-4740:5);
+  select (1.1 and 2778-3510:5);
   color Cartoon opaque [xff99cc];
   
-  select (1.1 and 4741-5070:5);
+  select (1.1 and 3524-3970:5);
   color Cartoon opaque [x0ba34a];
   
-  select (1.1 and 1-121:7);
+  select (1.1 and 1-120:7);
   color Cartoon opaque [x8ec640]; 
 
-  select (1.1 and 1-157:8);
+  select (1.1 and 1-123:8);
   color Cartoon opaque [xb27643]; 
   
   
-  select (2.1 and 1-657:2);
+ 
+  select (1.1 and 1-30:9);
+  color Cartoon opaque [xb27643]; 
+
+  
+  select (2.1 and (1-657:2 or 1194-1201:2);
   color Cartoon opaque [x3aa7ff];
   
-  select (2.1 and 658-1195:2);
+  select (2.1 and 658-1193:2);
   color Cartoon opaque [xffd4a2];
   
-  select (2.1 and 1196-1700:2);
+  select (2.1 and 1202-1700:2);
   color Cartoon opaque [xff99cc];
   
   select (2.1 and 1701-1869:2);
   color Cartoon opaque [x0ba34a];
   
   spacefill on;
+  select 1.1 and 597-612:5.p; 
+  spacefill 80%;
+  color opaque [x3aa7ff];
   
-  select 1.1 and 525-569:5.p;
-	spacefill 80%;
-	color opaque [x3aa7ff];
-
-	select 1.1 and 525-569:5;
-	wireframe 0.50;
-	color opaque [x3aa7ff];
-
-	select 1.1 and 593-634:5.p;
-	spacefill 80%;
-	color opaque [x3aa7ff];
-
-	select 1.1 and 593-634:5;
-	wireframe 0.50;
-	color opaque [x3aa7ff];
-
-	select 1.1 and 760-778:5.p;
-	spacefill 80%;
-	color opaque [x3aa7ff];
-
-	select 1.1 and 760-778:5;
-	wireframe 0.50;
-	color opaque [x3aa7ff];
-
-	select 1.1 and 873-901:5.p;
-	spacefill 80%;
-	color opaque [x3aa7ff];
-
-	select 1.1 and 873-901:5;
-	wireframe 0.50;
-	color opaque [x3aa7ff];
-
-	select 1.1 and 997-1012:5.p;
-	spacefill 80%;
-	color opaque [x3aa7ff];
-
-	select 1.1 and 997-1012:5;
-	wireframe 0.50;
-	color opaque [x3aa7ff];
-
-	select 1.1 and 1031-1045:5.p;
-	spacefill 80%;
-	color opaque [x3aa7ff];
-
-	select 1.1 and 1031-1045:5;
-	wireframe 0.50;
-	color opaque [x3aa7ff];
-
-	select 1.1 and 1053-1063:5.p;
-	spacefill 80%;
-	color opaque [x3aa7ff];
-
-	select 1.1 and 1053-1063:5;
-	wireframe 0.50;
-	color opaque [x3aa7ff];
-
-	select 1.1 and 1110-1126:5.p;
-	spacefill 80%;
-	color opaque [x3aa7ff];
-
-	select 1.1 and 1110-1126:5;
-	wireframe 0.50;
-	color opaque [x3aa7ff];
-
-	select 1.1 and 1142-1160:5.p;
-	spacefill 80%;
-	color opaque [x3aa7ff];
-
-	select 1.1 and 1142-1160:5;
-	wireframe 0.50;
-	color opaque [x3aa7ff];
-
-	select 1.1 and 1223-1230:5.p;
-	spacefill 80%;
-	color opaque [x3aa7ff];
-
-	select 1.1 and 1223-1230:5;
-	wireframe 0.50;
-	color opaque [x3aa7ff];
-
-	select 1.1 and 1701-1717:5.p;
-	spacefill 80%;
-	color opaque [x3aa7ff];
-
-	select 1.1 and 1701-1717:5;
-	wireframe 0.50;
-	color opaque [x3aa7ff];
-
-	select 1.1 and 2133-2156:5.p;
-	spacefill 80%;
-	color opaque [x3aa7ff];
-
-	select 1.1 and 2133-2156:5;
-	wireframe 0.50;
-	color opaque [x3aa7ff];
-
-	select 1.1 and 2218-2241:5.p;
-	spacefill 80%;
-	color opaque [x3aa7ff];
-
-	select 1.1 and 2218-2241:5;
-	wireframe 0.50;
-	color opaque [x3aa7ff];
-
-	select 1.1 and 2911-2952:5.p;
-	spacefill 80%;
-	color opaque [xf0ff00];
-
-	select 1.1 and 2911-2952:5;
-	wireframe 0.50;
-	color opaque [xf0ff00];
-
-	select 1.1 and 3242-3302:5.p;
-	spacefill 80%;
-	color opaque [xf0ff00];
-
-	select 1.1 and 3242-3302:5;
-	wireframe 0.50;
-	color opaque [xf0ff00];
-
-	select 1.1 and 3560-3583:5.p;
-	spacefill 80%;
-	color opaque [xf0ff00];
-
-	select 1.1 and 3560-3583:5;
-	wireframe 0.50;
-	color opaque [xf0ff00];
-
-	select 1.1 and 3978-4033:5.p;
-	spacefill 80%;
-	color opaque [xff99cc];
-
-	select 1.1 and 3978-4033:5;
-	wireframe 0.50;
-	color opaque [xff99cc];
-
-	select 1.1 and 4777-4811:5.p;
-	spacefill 80%;
-	color opaque [x0ba34a];
-
-	select 1.1 and 4777-4811:5;
-	wireframe 0.50;
-	color opaque [x0ba34a];
-
-	select 1.1 and 4827-4858:5.p;
-	spacefill 80%;
-	color opaque [x0ba34a];
-
-	select 1.1 and 4827-4858:5;
-	wireframe 0.50;
-	color opaque [x0ba34a];
-
+  select 1.1 and 597-612:5; 
+  wireframe 0.50;
+  color opaque [x3aa7ff];
+  
+  select 1.1 and 943-958:5.p; 
+  spacefill 80%;
+  color opaque [x3aa7ff];
+  
+  select 1.1 and 943-958:5; 
+  wireframe 0.50;
+  color opaque [x3aa7ff];
+  
+  select 1.1 and 1184-1191:5.p; 
+  spacefill 80%;
+  color opaque [x3aa7ff];
+  
+  select 1.1 and 1184-1191:5; 
+  wireframe 0.50;
+  color opaque [x3aa7ff];
+  
+  select 1.1 and 2278-2296:5.p; 
+  spacefill 80%;
+  color opaque [xf0ff00];
+  
+  select 1.1 and 2278-2296:5; 
+  wireframe 0.50;
+  color opaque [xf0ff00];
+  
+  select 1.1 and 2386-2415:5.p; 
+  spacefill 80%;
+  color opaque [xf0ff00];
+  
+  select 1.1 and 2386-2415:5; 
+  wireframe 0.50;
+  color opaque [xf0ff00];
+  
+  select 1.1 and 2446-2458:5.p; 
+  spacefill 80%;
+  color opaque [xf0ff00];
+  
+  select 1.1 and 2446-2458:5; 
+  wireframe 0.50;
+  color opaque [xf0ff00];
+  
+  select 1.1 and 2934-2984:5.p; 
+  spacefill 80%;
+  color opaque [xff99cc];
+  
+  select 1.1 and 2934-2984:5; 
+  wireframe 0.50;
+  color opaque [xff99cc];
+  
+  select 1.1 and 3018-3100:5.p; 
+  spacefill 80%;
+  color opaque [xff99cc];
+  
+  select 1.1 and 3018-3100:5; 
+  wireframe 0.50;
+  color opaque [xff99cc];
   
   boundBox off;
   font boundBox 14 SansSerif Plain;
