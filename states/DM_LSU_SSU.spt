@@ -283,8 +283,7 @@ function _setModelState() {
 
   select (1.1 and 1-123:8);
   color Cartoon opaque [xb27643]; 
-  
-  
+   
  
   select (1.1 and 1-30:9);
   color Cartoon opaque [xb27643]; 
@@ -302,68 +301,84 @@ function _setModelState() {
   select (2.1 and 1828-1995:2);
   color Cartoon opaque [x0ba34a];
   
-  spacefill on;
+  
   select 1.1 and 597-612:5.p; 
+  spacefill on;
   spacefill 80%;
   color opaque [x3aa7ff];
   
   select 1.1 and 597-612:5; 
+
   wireframe 0.50;
   color opaque [x3aa7ff];
   
   select 1.1 and 943-958:5.p; 
+  spacefill on;
   spacefill 80%;
   color opaque [x3aa7ff];
   
   select 1.1 and 943-958:5; 
+ 
   wireframe 0.50;
   color opaque [x3aa7ff];
   
-  select 1.1 and 1184-1191:5.p; 
+  select 1.1 and 1184-1191:5.p;
+  spacefill on; 
   spacefill 80%;
   color opaque [x3aa7ff];
   
   select 1.1 and 1184-1191:5; 
+
   wireframe 0.50;
   color opaque [x3aa7ff];
   
   select 1.1 and 2278-2296:5.p; 
+  spacefill on;
   spacefill 80%;
   color opaque [xf0ff00];
   
   select 1.1 and 2278-2296:5; 
+
   wireframe 0.50;
   color opaque [xf0ff00];
   
-  select 1.1 and 2386-2415:5.p; 
+  select 1.1 and 2386-2415:5.p;
+  spacefill on; 
   spacefill 80%;
   color opaque [xf0ff00];
   
-  select 1.1 and 2386-2415:5; 
+  select 1.1 and 2386-2415:5;
+
   wireframe 0.50;
   color opaque [xf0ff00];
   
-  select 1.1 and 2446-2458:5.p; 
+  select 1.1 and 2446-2458:5.p;
+  spacefill on; 
   spacefill 80%;
   color opaque [xf0ff00];
   
-  select 1.1 and 2446-2458:5; 
+  select 1.1 and 2446-2458:5;
+
   wireframe 0.50;
   color opaque [xf0ff00];
   
   select 1.1 and 2934-2984:5.p; 
+  spacefill on;
   spacefill 80%;
   color opaque [xff99cc];
   
   select 1.1 and 2934-2984:5; 
+
   wireframe 0.50;
   color opaque [xff99cc];
   
-  select 1.1 and 3018-3100:5.p; 
+  select 1.1 and 3018-3100:5.p;
+  spacefill on; 
   spacefill 80%;
   color opaque [xff99cc];
   
   select 1.1 and 3018-3100:5; 
+
   wireframe 0.50;
   color opaque [xff99cc];
   
