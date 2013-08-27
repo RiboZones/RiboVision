@@ -258,23 +258,26 @@ function _setModelState() {
   
 
   
-  select (1.1 and 1-430:5);
+  select (1.1 and (1313-1338:5 or 2346-2360:5 or 2828-2862:5 or 3837-3903:5 or 4557-4570:5));
+  color Cartoon opaque [xffd4a2];
+  
+  select (1.1 and 1-1312:5);
   color Cartoon opaque [xa999fb];
 
     
-  select (1.1 and 431-2360:5);
+  select (1.1 and 1339-2345:5);
   color Cartoon opaque [x3aa7ff];
   
-  select (1.1 and 2361-2826:5);
+  select (1.1 and 2361-2827:5);
   color Cartoon opaque [xcc99cc];
   
-  select (1.1 and 2827-3864:5);
+  select (1.1 and 2863-3836:5);
   color Cartoon opaque [xf0ff00];
   
-  select (1.1 and 3865-4740:5);
+  select (1.1 and 3904-4556:5);
   color Cartoon opaque [xff99cc];
   
-  select (1.1 and 4741-5070:5);
+  select (1.1 and 4571-5070:5);
   color Cartoon opaque [x0ba34a];
   
   select (1.1 and 1-121:7);
@@ -284,13 +287,13 @@ function _setModelState() {
   color Cartoon opaque [xb27643]; 
   
   
-  select (2.1 and 1-657:2);
+  select (2.1 and (1-657:2 or 1194-1201:2);
   color Cartoon opaque [x3aa7ff];
   
-  select (2.1 and 658-1195:2);
+  select (2.1 and 658-1193:2);
   color Cartoon opaque [xffd4a2];
   
-  select (2.1 and 1196-1700:2);
+  select (2.1 and 1202-1700:2);
   color Cartoon opaque [xff99cc];
   
   select (2.1 and 1701-1869:2);
