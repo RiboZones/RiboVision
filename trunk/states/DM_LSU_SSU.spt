@@ -259,7 +259,7 @@ function _setModelState() {
   select (1.1 and (786-810:5 or 1676-1690:5 or 2196-2229:5 or 2711-2777:5 or 3511-3523:5));
   color Cartoon opaque [xffd4a2];
   
-  select (1.1 and 1-8775:5);
+  select (1.1 and 1-775:5);
   color Cartoon opaque [xa999fb];
 
     
@@ -290,16 +290,16 @@ function _setModelState() {
   color Cartoon opaque [xb27643]; 
 
   
-  select (2.1 and (1-657:2 or 1194-1201:2);
+  select (2.1 and (1-615:2 or 1225-1232:2);
   color Cartoon opaque [x3aa7ff];
   
-  select (2.1 and 658-1193:2);
+  select (2.1 and 616-1224:2);
   color Cartoon opaque [xffd4a2];
   
-  select (2.1 and 1202-1700:2);
+  select (2.1 and 1233-1827:2);
   color Cartoon opaque [xff99cc];
   
-  select (2.1 and 1701-1869:2);
+  select (2.1 and 1828-1995:2);
   color Cartoon opaque [x0ba34a];
   
   spacefill on;
