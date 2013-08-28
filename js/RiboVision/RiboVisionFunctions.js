@@ -2597,7 +2597,7 @@ function populateDomainHelixMenu() {
 ////////////////////////////////// Canvas Functions ///////////////////////////
 function watermark(usetime) {
 	if (rvDataSets[0].SpeciesEntry.MapType && rvDataSets[0].SpeciesEntry.MapType != "None") {
-		var h = (rvDataSets[0].SpeciesEntry.Orientation == "portrait") ? 762 : 612;
+		var h = (rvDataSets[0].SpeciesEntry.Orientation == "portrait") ? 774 : 612;
 		var d = new Date();
 		var df;
 		

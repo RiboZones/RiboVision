@@ -293,7 +293,7 @@ function _setModelState() {
   color Cartoon opaque [x3aa7ff];
   
   select (2.1 and 616-1224:2);
-  color Cartoon opaque [xffd4a2];
+  color Cartoon opaque [xb27643];
   
   select (2.1 and 1233-1827:2);
   color Cartoon opaque [xff99cc];
@@ -308,7 +308,6 @@ function _setModelState() {
   color opaque [x3aa7ff];
   
   select 1.1 and 597-612:5; 
-
   wireframe 0.50;
   color opaque [x3aa7ff];
   
@@ -318,7 +317,6 @@ function _setModelState() {
   color opaque [x3aa7ff];
   
   select 1.1 and 943-958:5; 
- 
   wireframe 0.50;
   color opaque [x3aa7ff];
   
@@ -328,7 +326,6 @@ function _setModelState() {
   color opaque [x3aa7ff];
   
   select 1.1 and 1184-1191:5; 
-
   wireframe 0.50;
   color opaque [x3aa7ff];
   
@@ -338,7 +335,6 @@ function _setModelState() {
   color opaque [xf0ff00];
   
   select 1.1 and 2278-2296:5; 
-
   wireframe 0.50;
   color opaque [xf0ff00];
   
@@ -348,7 +344,6 @@ function _setModelState() {
   color opaque [xf0ff00];
   
   select 1.1 and 2386-2415:5;
-
   wireframe 0.50;
   color opaque [xf0ff00];
   
@@ -358,7 +353,6 @@ function _setModelState() {
   color opaque [xf0ff00];
   
   select 1.1 and 2446-2458:5;
-
   wireframe 0.50;
   color opaque [xf0ff00];
   
@@ -368,7 +362,6 @@ function _setModelState() {
   color opaque [xff99cc];
   
   select 1.1 and 2934-2984:5; 
-
   wireframe 0.50;
   color opaque [xff99cc];
   
@@ -378,9 +371,71 @@ function _setModelState() {
   color opaque [xff99cc];
   
   select 1.1 and 3018-3100:5; 
-
   wireframe 0.50;
   color opaque [xff99cc];
+  
+  	select 2.1 and 128-134:2.p;
+	spacefill on;
+	spacefill 80%;
+	color opaque [x3aa7ff];
+
+	select 2.1 and 128-134:2;
+	wireframe 0.50;
+	color opaque [x3aa7ff];
+
+	select 2.1 and 659-666:2.p;
+	spacefill on;
+	spacefill 80%;
+	color opaque [xb27643];
+
+	select 2.1 and 659-666:2;
+	wireframe 0.50;
+	color opaque [xb27643];
+
+	select 2.1 and 687-700:2.p;
+	spacefill on;
+	spacefill 80%;
+	color opaque [xb27643];
+
+	select 2.1 and 687-700:2;
+	wireframe 0.50;
+	color opaque [xb27643];
+
+	select 2.1 and 721-738:2.p;
+	spacefill on;
+	spacefill 80%;
+	color opaque [xb27643];
+
+	select 2.1 and 721-738:2;
+	wireframe 0.50;
+	color opaque [xb27643];
+
+	select 2.1 and 757-816:2.p;
+	spacefill on;
+	spacefill 80%;
+	color opaque [xb27643];
+
+	select 2.1 and 757-816:2;
+	wireframe 0.50;
+	color opaque [xb27643];
+
+	select 2.1 and 1471-1518:2.p;
+	spacefill on;
+	spacefill 80%;
+	color opaque [xff99cc];
+
+	select 2.1 and 1471-1518:2;
+	wireframe 0.50;
+	color opaque [xff99cc];
+
+	select 2.1 and 1890-1896:2.p;
+	spacefill on;
+	spacefill 80%;
+	color opaque [x0ba34a];
+
+	select 2.1 and 1890-1896:2;
+	wireframe 0.50;
+	color opaque [x0ba34a];
   
   boundBox off;
   font boundBox 14 SansSerif Plain;
