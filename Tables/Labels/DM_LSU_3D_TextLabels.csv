@@ -1,4 +1,4 @@
-LabelText,X,Y,Font,FontSize,Fill
+﻿LabelText,X,Y,Font,FontSize,Fill
 varchar(500),"real(8,3)","real(8,3)",varchar(100),"real(6,3)",char(7)
 5S,86.4189,438.9922,MyriadPro-Regular,21,#8EC642
 VI,470.4746,472.4316,MyriadPro-Regular,21,#0EA44A
@@ -227,7 +227,7 @@ I,391.5625,704.6172,MyriadPro-Regular,21,#A097CA
 120,503.6563,574.1748,MyriadPro-Regular,3.5,#7F141D
 a,406.583,646.2949,MyriadPro-Bold,6,#221F1F
 a,552.9707,732.9893,MyriadPro-Bold,6,#221F1F
-?,119.957,253.7607,MyriadPro-Bold,6,#221F1F
-�,138.3882,253.7607,MyriadPro-Bold,6,#221F1F
+α,119.957,253.7607,MyriadPro-Bold,6,#221F1F
+ß,138.3882,253.7607,MyriadPro-Bold,6,#221F1F
 large subunit ribosomal RNA,432.1182,784.2617,MyriadPro-Regular,12,#221F1F
 Drosophila melanogaster,424.0527,766.9277,MyriadPro-It,18,#221F1F
