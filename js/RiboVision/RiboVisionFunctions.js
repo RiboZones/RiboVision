@@ -56,12 +56,13 @@ function initLabels(species) {
 			});
 		});
 		
+		/*
 		$.getJSON('getData.php', {
 			FullTable : "SC_LSU_3D_Extra"
 				}, function (data) {
 				rvDataSets[0].addLabels(undefined, undefined, data);
 				rvDataSets[0].drawLabels("labels",true);
-		});
+		});*/
 		
 	} else {
 		rvDataSets[0].clearCanvas("labels");
@@ -2238,13 +2239,20 @@ function canvasToSVG() {
 	output = "<?xml version='1.0' encoding='UTF-8'?>\n" +
 		'<svg version="1.1" baseProfile="basic" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" ' +
 		mapsize2 + 'viewBox="0 0 ' + mapsize + '" xml:space="preserve">\n';
-	if(rvDataSets[0].Name === 'SC_LSU_3D'){;
-		var stringData = $.ajax({
-						url: "images/SC_28S_Struct_Dash_Lines_g.svg",
-						async: false
-					 }).responseText;
-		output = output + stringData;
-	}
+	//if(rvDataSets[0].Name === 'SC_LSU_3D'){;
+	$.ajax({
+		url: "images/" + rvDataSets[0].Name + "_ExtraLabels.svg",
+		async: false,
+		success: function () {
+			output = output + stringData;
+			console.log("success");
+		},
+		fail: function () {
+			console.log("fail");
+		}
+	 })
+		
+	//}
 	$.each(rvDataSets[0].Layers, function (index, value) {
 		if (AllMode || value.Visible){
 			switch (value.Type) {
@@ -2597,7 +2605,7 @@ function populateDomainHelixMenu() {
 ////////////////////////////////// Canvas Functions ///////////////////////////
 function watermark(usetime) {
 	if (rvDataSets[0].SpeciesEntry.MapType && rvDataSets[0].SpeciesEntry.MapType != "None") {
-		var h = (rvDataSets[0].SpeciesEntry.Orientation == "portrait") ? 774 : 612;
+		var h = (rvDataSets[0].SpeciesEntry.Orientation == "portrait") ? 779 : 612;
 		var d = new Date();
 		var df;
 		
@@ -2608,7 +2616,7 @@ function watermark(usetime) {
 		var LabelLayers = rvDataSets[0].getLayerByType("labels");
 		var targetLayer = LabelLayers[0];
 		targetLayer.CanvasContext.textAlign = 'left';
-		targetLayer.CanvasContext.font = "10pt Calibri";
+		targetLayer.CanvasContext.font = '10pt "Myriad Pro", Calibri, Arial';
 		targetLayer.CanvasContext.fillStyle = "#FF5500";
 		targetLayer.CanvasContext.fillText(Message, x, y);
 		
