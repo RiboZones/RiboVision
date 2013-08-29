@@ -2243,6 +2243,7 @@ function canvasToSVG() {
 	var elReq = $.ajax({
 		url: "images/" + rvDataSets[0].Name + "_ExtraLabels.svg",
 		dataType: "text", 
+		cache: false,
 		async: false
 	 });
 	 
