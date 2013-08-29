@@ -616,7 +616,7 @@ function rvDataSet(DataSetName) {
 		if (rvDataSets[0].rvTextLabels != undefined) {
 			var n = watermark(false);
 			for (var i = 0; i < rvDataSets[0].rvTextLabels.length; i++) {
-				targetLayer.CanvasContext.font = (0.75 * rvDataSets[0].rvTextLabels[i].FontSize) + 'pt "Myriad Pro", Calibri, Arial';
+				targetLayer.CanvasContext.font = (0.70 * rvDataSets[0].rvTextLabels[i].FontSize) + 'pt "Myriad Pro", Calibri, Arial';
 				targetLayer.CanvasContext.fillStyle = rvDataSets[0].rvTextLabels[i].Fill;
 				targetLayer.CanvasContext.fillText(rvDataSets[0].rvTextLabels[i].LabelText, rvDataSets[0].rvTextLabels[i].X, rvDataSets[0].rvTextLabels[i].Y);
 			}
