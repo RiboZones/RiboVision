@@ -2240,17 +2240,15 @@ function canvasToSVG() {
 		'<svg version="1.1" baseProfile="basic" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" ' +
 		mapsize2 + 'viewBox="0 0 ' + mapsize + '" xml:space="preserve">\n';
 	//if(rvDataSets[0].Name === 'SC_LSU_3D'){;
-	$.ajax({
+	var elReq = $.ajax({
 		url: "images/" + rvDataSets[0].Name + "_ExtraLabels.svg",
-		async: false,
-		success: function () {
-			output = output + stringData;
-			console.log("success");
-		},
-		fail: function () {
-			console.log("fail");
-		}
-	 })
+		dataType: "text", 
+		async: false
+	 });
+	 
+	elReq.done(function (data) {
+		output = output + data;
+	});
 		
 	//}
 	$.each(rvDataSets[0].Layers, function (index, value) {
