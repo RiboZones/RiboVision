@@ -84,6 +84,25 @@ function RiboVisionReady() {
 			$("#myJmol_object").css("visibility", "visible");
 		}
 	});
+	$("#dialog-saveSeqData").dialog({
+		resizable : false,
+		autoOpen : false,
+		height : 600,
+		width : 1000,
+		modal : true,
+		/*
+		buttons: {
+			Ok: function() {
+				$( this ).dialog( "close" );
+			}
+		},*/
+		open : function () {
+			$("#myJmol_object").css("visibility", "hidden");
+		},
+		close : function () { 
+			$("#myJmol_object").css("visibility", "visible");
+		}
+	});
 	$("#LayerDialog").dialog({
 		autoOpen : false,
 		show : {
@@ -597,6 +616,10 @@ function RiboVisionReady() {
 	});
 	$("#SaveFigureBtn").button().click(function(){
 		$("#dialog-saveFigures").dialog("open");
+		return false;
+	});
+	$("#SaveDataBtn").button().click(function(){
+		$("#dialog-saveSeqData").dialog("open");
 		return false;
 	});
 	$("#SaveSessionBtn").button().click(function(){
