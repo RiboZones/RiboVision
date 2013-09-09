@@ -2417,13 +2417,62 @@ function saveSeqTable(){
 		var hiddenField = document.createElement("input");
 		hiddenField.setAttribute("type", "hidden");
 		hiddenField.setAttribute("name", "content");
-		hiddenField.setAttribute("value", ST);
+		hiddenField.setAttribute("value", "\ufeff" + ST);
 		form.appendChild(hiddenField);
 		document.body.appendChild(form);
 		form.submit();
 	}
 	checkSavePrivacyStatus();
 }
+function computeSeqDataTable(){
+	var WholeSet="";
+	var OutputString="";
+	var WholeSet= WholeSet + "WholeSet,WholeSet\n";
+	var WholeSet= WholeSet + "resNum,resName\n";
+	$.each(rvDataSets[0].Residues, function (index,residue) {
+		WholeSet+= rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(residue.ChainID)] + ":" + residue.resNum.replace(/[^:]*:/g, "") + "," + residue.resName + "\n";
+	});
+	var OutputObject = $.csv.toArrays(WholeSet);
+	$.each(rvDataSets[0].Layers, function (index, targetLayer) {
+		if (targetLayer.Data.length >0){
+			if (targetLayer.Type == "lines"){
+				/*$.each(targetLayer.Data, function (index, data) {
+					OutputObject[2+index].push(data);
+				});*/
+			} else {
+				OutputObject[0].push(targetLayer.LayerName);
+				OutputObject[1].push('"' + targetLayer.DataLabel.replace(/,/g,'\\comma\\') + '"'); // Come back and solve this comma,tab nonsense.
+				$.each(targetLayer.Data, function (index, data) {
+					OutputObject[2+index].push(data);
+				});
+			}
+		}
+	});
+	
+	$.each(OutputObject, function (index, outputline){
+		OutputString+=outputline.toString() + "\n";
+	});
+	
+	return OutputString.replace(/,/g,'\t').replace(/\\comma\\/g,',');
+}
+function saveSeqDataTable(){
+	AgreeFunction = function () {
+		var SDT = computeSeqDataTable();
+		var form = document.createElement("form");
+		form.setAttribute("method", "post");
+		form.setAttribute("action", "saveSeqDataTable.php");
+		form.setAttribute("target", "_blank");
+		var hiddenField = document.createElement("input");
+		hiddenField.setAttribute("type", "hidden");
+		hiddenField.setAttribute("name", "content");
+		hiddenField.setAttribute("value", "\ufeff" + SDT);
+		form.appendChild(hiddenField);
+		document.body.appendChild(form);
+		form.submit();
+	}
+	checkSavePrivacyStatus();
+}
+
 function saveFasta(){
 	AgreeFunction = function () {
 		var FA = computeFasta();
