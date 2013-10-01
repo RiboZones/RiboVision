@@ -2455,6 +2455,50 @@ function computeSeqDataTable(){
 	
 	return OutputString.replace(/,/g,'\t').replace(/\\comma\\/g,',');
 }
+function computeInteractionDataTable(){
+	var WholeSet="";
+	var WholeSet= WholeSet + "Nucleotide1,Nucleotide1,Nucleotide2,Nucleotide2,BasePairType\n";
+	var WholeSet= WholeSet + "resNum,resName,resNum,resName,bp_type\n";
+	
+	$.each(rvDataSets[0].BasePairs, function (index,basepair) {
+		var j = basepair.resIndex1;
+		var k = basepair.resIndex2;
+		
+		if (rvDataSets[0].Residues[j].resNum.indexOf(":") >= 0 ){
+			var ResName1 = rvDataSets[0].Residues[j].resNum;
+		} else {
+			var ResName1 = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[j].ChainID)] +
+			":" + rvDataSets[0].Residues[j].resNum;
+		}
+		if (rvDataSets[0].Residues[k].resNum.indexOf(":") >= 0 ){
+			var ResName2 = rvDataSets[0].Residues[k].resNum;
+		} else {
+			var ResName2 = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[k].ChainID)] +
+			":" + rvDataSets[0].Residues[k].resNum;
+		}
+	
+		WholeSet+= ResName1 + "," + rvDataSets[0].Residues[j].resName + "," + ResName2 + "," + rvDataSets[0].Residues[k].resName + "," + basepair.bp_type + "\n";
+	});
+	
+	return WholeSet.replace(/,/g,'\t');
+}
+function saveInteractionDataTable(){
+	AgreeFunction = function () {
+		var SDT = computeInteractionDataTable();
+		var form = document.createElement("form");
+		form.setAttribute("method", "post");
+		form.setAttribute("action", "saveInteractionDataTable.php");
+		form.setAttribute("target", "_blank");
+		var hiddenField = document.createElement("input");
+		hiddenField.setAttribute("type", "hidden");
+		hiddenField.setAttribute("name", "content");
+		hiddenField.setAttribute("value", "\ufeff" + SDT);
+		form.appendChild(hiddenField);
+		document.body.appendChild(form);
+		form.submit();
+	}
+	checkSavePrivacyStatus();
+}
 function saveSeqDataTable(){
 	AgreeFunction = function () {
 		var SDT = computeSeqDataTable();
