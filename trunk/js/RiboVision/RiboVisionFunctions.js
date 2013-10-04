@@ -349,28 +349,41 @@ function expandSelection(command, SelectionName) {
 				}
 			}
 		} else if (comsplit[0] != "") {
-			var index = comsplit[0].indexOf("-");
-			if (index != -1) {
-				var chainID = rvDataSets[0].SpeciesEntry.PDB_chains[0];
-				var start = chainID + "_" + comsplit[0].substring(0, index);
-				var end = chainID + "_" + comsplit[0].substring(index + 1, comsplit[0].length);
-				
-				if (start && end) {
-					var start_ind = rvDataSets[0].ResidueList.indexOf(start);
-					var end_ind = rvDataSets[0].ResidueList.indexOf(end);
+			//It is either a basic range selection or a regular expression search. Go by first number/letter for now.
+			if (comsplit[0].search(/\d/) > -1){
+				var index = comsplit[0].indexOf("-");
+				if (index != -1) {
+					var chainID = rvDataSets[0].SpeciesEntry.PDB_chains[0];
+					var start = chainID + "_" + comsplit[0].substring(0, index);
+					var end = chainID + "_" + comsplit[0].substring(index + 1, comsplit[0].length);
+					
+					if (start && end) {
+						var start_ind = rvDataSets[0].ResidueList.indexOf(start);
+						var end_ind = rvDataSets[0].ResidueList.indexOf(end);
+						for (var j = start_ind; j <= end_ind; j++) {
+							var targetSelection=rvDataSets[0].getSelection(SelectionName);
+							targetSelection.Residues.push(rvDataSets[0].Residues[j]);
+						}
+					}
+				} else {
+					var chainID = rvDataSets[0].SpeciesEntry.PDB_chains[0];
+					var aloneRes = chainID + "_" + comsplit[0];
+					var alone_ind = rvDataSets[0].ResidueList.indexOf(aloneRes);
+					if (alone_ind >=0){
+						var targetSelection=rvDataSets[0].getSelection(SelectionName);
+						targetSelection.Residues.push(rvDataSets[0].Residues[alone_ind]);
+					}
+				}
+			} else {
+                var re = new RegExp(comsplit[0],"g");
+                while ((match = re.exec(rvDataSets[0].SequenceList)) != null) {
+					var start_ind = match.index;
+					var end_ind = match.index + match[0].length - 1;
 					for (var j = start_ind; j <= end_ind; j++) {
 						var targetSelection=rvDataSets[0].getSelection(SelectionName);
 						targetSelection.Residues.push(rvDataSets[0].Residues[j]);
 					}
-				}
-			} else {
-				var chainID = rvDataSets[0].SpeciesEntry.PDB_chains[0];
-				var aloneRes = chainID + "_" + comsplit[0];
-				var alone_ind = rvDataSets[0].ResidueList.indexOf(aloneRes);
-				if (alone_ind >=0){
-					var targetSelection=rvDataSets[0].getSelection(SelectionName);
-					targetSelection.Residues.push(rvDataSets[0].Residues[alone_ind]);
-				}
+                }
 			}
 		}
 	}
@@ -386,10 +399,10 @@ function commandSelect(command,SeleName) {
 	command = command.split(";");
 	expandSelection(command,SeleName);
 	updateSelectionDiv(SeleName);
-	drawNavLine();
 	rvDataSets[0].drawResidues("residues");
 	rvDataSets[0].drawSelection("selected");
 	rvDataSets[0].drawBasePairs("lines");
+	drawNavLine();
 	//console.log('selected Residue by command input');
 }
 
