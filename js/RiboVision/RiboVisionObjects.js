@@ -212,6 +212,7 @@ function rvDataSet(DataSetName) {
 	this.HighlightLayer = [];
 	this.Residues = [];
 	this.ResidueList = [];
+	this.SequenceList = "";
 	this.rvTextLabels = [];
 	this.rvLineLabels = [];
 	this.BasePairs = [];
@@ -280,6 +281,7 @@ function rvDataSet(DataSetName) {
 	this.addResidues = function (rvResidues) {
 		this.Residues = rvResidues;
 		this.ResidueList = makeResidueList(rvResidues);
+		this.SequenceList = makeSequenceList(rvResidues);
 	};
 	this.addLabels = function (rvTextLabels, rvLineLabels, rvExtraLabels) {
 		if (rvTextLabels !== undefined){
@@ -581,12 +583,18 @@ function rvDataSet(DataSetName) {
 	
 	// Private functions, kinda
 	function makeResidueList(rvResidues) {
-		var ResidueListLocal = [],
-		j;
+		var ResidueListLocal = [],j;
 		for (j = 0; j < rvResidues.length; j++) {
 			ResidueListLocal[j] = rvResidues[j].ChainID + "_" + rvResidues[j].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
 		}
 		return ResidueListLocal;
+	}
+	function makeSequenceList(rvResidues) {
+		var SequenceListLocal = "",j;
+		for (j = 0; j < rvResidues.length; j++) {
+			SequenceListLocal = SequenceListLocal.concat(rvResidues[j].resName);
+		}
+		return SequenceListLocal;
 	}
 	function refreshLayer(targetLayer) {
 		if (rvDataSets[0].Residues !== undefined && targetLayer.Type === "circles") {
