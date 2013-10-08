@@ -18,7 +18,8 @@
 	M288.313,426.479"/>
 <line fill="none" stroke="#010101" stroke-width="0.5" stroke-linecap="round" stroke-miterlimit="10" stroke-dasharray="1" x1="288.134" y1="522.734" x2="288.131" y2="622.337"/>
 <line opacity="0.2" fill="none" stroke="#010101" stroke-width="0.5" stroke-linecap="round" stroke-miterlimit="10" stroke-dasharray="1" x1="288.137" y1="486.732" x2="288.134" y2="522.734"/>
-<line fill="none" stroke="#010101" stroke-width="0.5" stroke-linecap="round" stroke-miterlimit="10" stroke-dasharray="1" x1="288.149" y1="460.993" x2="288.137" y2="488.759"/>
+<line opacity="0.2" fill="none" stroke="#010101" stroke-width="0.5" stroke-linecap="round" stroke-miterlimit="10" stroke-dasharray="1" x1="288.149" y1="460.993" x2="288.137" y2="488.759"/>
 <line opacity="0.2" fill="none" stroke="#010101" stroke-width="0.5" stroke-linecap="round" stroke-miterlimit="10" stroke-dasharray="1" x1="288.153" y1="456.184" x2="288.149" y2="462.833"/>
 <line fill="none" stroke="#010101" stroke-width="0.5" stroke-linecap="round" stroke-miterlimit="10" stroke-dasharray="1" x1="288.157" y1="426.358" x2="288.153" y2="456.184"/>
 </g>
+
