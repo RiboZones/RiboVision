@@ -65,13 +65,12 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 			}
 			$(".miniLayerName[name=" + targetLayer[0].LayerName + "]").attr("title",title);
 			
-			
-			clearSelection(true);
-			
+
 			$.getJSON('getData.php', {
 				SpeciesTable : species
 			}, function (species_entry2) {
 				rvDataSets[0].addSpeciesEntry(species_entry2[0]);
+				clearSelection(true);
 				initLabels(species);
 				// Get conservation table
 				$.getJSON('getData.php', {
