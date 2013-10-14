@@ -1,6 +1,6 @@
 ColName,Description,HelpLink
 Onion,Nucleotides are partitioned into 20 Å concentric shells based on distance from the functional center. All nucleotides greater than 80 Å are in the same shell.,StructuralData
-Shannon_Entropy,The Shannon entropies obtained from a multiple sequence alignment of 122 species. Dark blue corresponds to low entropy (highly conserved). Red represents high entropy (most variable). ,AlignmentData
+Shannon_Entropy,The Shannon entropies obtained from a multiple sequence alignment of 129 species. Dark blue corresponds to low entropy (highly conserved). Red represents high entropy (most variable). ,AlignmentData
 map_Index,Nucleotides are colored by Rainbow gradient according to its index in the secondary structure from blue on the 5' end to red on the 3' end. The 5S is placed at the endof 23S rRNA. ,StructuralData
 Domains_Color,Partitioning of nucleotides into Domains which are indicated by color.  Each nucleotide is uniquely contained in one domain.,StructuralData
 Helix_Color,Partitioning of all nucleotides into “helicoids” (a helicoid is a helix plus the most closely associated ss RNA. Each nucleotide is uniquely contained in one helicoid . The collection of all helicoids contain all rRNA),StructuralData
