@@ -40,6 +40,7 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 	$.each(rvDataSets[0].Layers, function (i, item){
 		item.clearAll();
 	});
+	rvDataSets[0].ConservationTable=[];
 	$(".dataBubble").remove();
 	if (species != "None") {
 		$.getJSON('getData.php', {
