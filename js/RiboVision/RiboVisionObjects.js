@@ -601,7 +601,7 @@ function rvDataSet(DataSetName) {
 			targetLayer.clearCanvas();
 			var CircleSize = rvDataSets[0].SpeciesEntry.Circle_Radius;
 			for (var i = rvDataSets[0].Residues.length - 1; i >= 0; i--) {
-				if (targetLayer.dataLayerColors[i] != '#000000' && targetLayer.dataLayerColors[i] != undefined && targetLayer.dataLayerColors[i] != '#858585') {
+				if (targetLayer.dataLayerColors[i] != undefined && targetLayer.dataLayerColors[i] != '#858585') {
 					targetLayer.CanvasContext.beginPath();
 					targetLayer.CanvasContext.arc(rvDataSets[0].Residues[i].X, rvDataSets[0].Residues[i].Y, (targetLayer.ScaleFactor * CircleSize), 0, 2 * Math.PI, false);
 					targetLayer.CanvasContext.closePath();
@@ -737,7 +737,7 @@ function rvDataSet(DataSetName) {
 			var CircleSize = rvDataSets[0].SpeciesEntry.Circle_Radius;
 			if (rvDataSets[0].Residues != undefined) {
 				for (var i = rvDataSets[0].Residues.length - 1; i >= 0; i--) {
-					if (dataIndices && ColorArray && ColorArray[dataIndices[i]] != '#000000' && ColorArray[dataIndices[i]] != undefined && ColorArray[dataIndices[i]] != '#858585') {
+					if (dataIndices && ColorArray && ColorArray[dataIndices[i]] != undefined && ColorArray[dataIndices[i]] != '#858585') {
 						targetLayer.CanvasContext.beginPath();
 						targetLayer.CanvasContext.arc(rvDataSets[0].Residues[i].X, rvDataSets[0].Residues[i].Y, (targetLayer.ScaleFactor * CircleSize), 0, 2 * Math.PI, false);
 						targetLayer.CanvasContext.closePath();
@@ -748,7 +748,7 @@ function rvDataSet(DataSetName) {
 							targetLayer.CanvasContext.fill();
 						}
 						targetLayer.dataLayerColors[i] = ColorArray[dataIndices[i]];
-					} else if (!dataIndices && !ColorArray && targetLayer.dataLayerColors[i] && targetLayer.dataLayerColors[i] != '#000000' && targetLayer.dataLayerColors[i] != '#858585') {
+					} else if (!dataIndices && !ColorArray && targetLayer.dataLayerColors[i] && targetLayer.dataLayerColors[i] != '#858585') {
 						targetLayer.CanvasContext.beginPath();
 						targetLayer.CanvasContext.arc(rvDataSets[0].Residues[i].X, rvDataSets[0].Residues[i].Y, (targetLayer.ScaleFactor * CircleSize), 0, 2 * Math.PI, false);
 						targetLayer.CanvasContext.closePath();
