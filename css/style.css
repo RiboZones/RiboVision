@@ -508,3 +508,29 @@ body{
 	color:red;
 	font-size:1.0em;
 }
+
+#iResidueTipA{
+	float: left;
+    width: 185px;
+    /*height: 20px;*/
+    margin-right: 8px;
+}
+#iResidueTipB{
+	float: right;
+	width: 185px;
+    margin-left: 8px;
+}
+.NavLineItem{
+	display:block;
+	font-weight:500;
+	margin: 0 auto;
+}
+.NavLineItem2{
+	display:block;
+	font-weight:900;
+	margin: 0 auto;
+	text-align:center;
+}
+#ResidueTipContent{
+	margin:.3em .1em .1em .1em;
+}
