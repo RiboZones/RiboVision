@@ -3089,10 +3089,10 @@ function handleFileSelect(event) {
 				rvDataSets[0].addCustomData($.csv.toObjects(reader.result));
 				var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
 				if ($.inArray("DataDescription", customkeys) >= 0) {
-					$("#FileDiv").find(".DataDescription").text(rvDataSets[0].CustomData[0]["DataDescription"]);
-					$("#CustomDataBubbles").find(".dataBubble").attr("title",rvDataSets[0].CustomData[0]["DataDescription"]);
+					$("#FileDiv").find(".DataDescription").html(rvDataSets[0].CustomData[0]["DataDescription"]);
+					$("#CustomDataBubbles").find(".dataBubble").attr("title",rvDataSets[0].CustomData[0]["DataDescription"].replace(/(<([^>]+)>)/ig,""));
 				} else {
-					$("#FileDiv").find(".DataDescription").text("Data Description is missing.");
+					$("#FileDiv").find(".DataDescription").html("Data Description is missing.");
 				}
 				$("#CustomDataBubbles").find(".dataBubble").attr("FileName",FileReaderFile[0].name);
 			
@@ -4486,8 +4486,8 @@ function addPopUpWindowResidue(ResIndex){
 	//var w = barWidth + Xoffset;
 	//var h = barHeight + Yoffset;
 	
-	var w = 240;
-	var h = 160;
+	var w = 192;
+	var h = 128;
 	
 	//var barPadding = 10;
 	var barPaddingPer = 20;
@@ -4497,7 +4497,7 @@ function addPopUpWindowResidue(ResIndex){
 	var barColors = ["green","blue","black","red","orange"];
 	
 	//Remove old SVG
-	d3.select("#residuetip svg").remove();
+	d3.select("#ResidueTipContent svg").remove();
 	
 	if (rvDataSets[0].Residues[ResIndex].resNum.indexOf(":") >= 0 ){
 		var ResName = rvDataSets[0].Residues[ResIndex].resNum;
@@ -4533,14 +4533,16 @@ function addPopUpWindowResidue(ResIndex){
 	}
 		
 	var targetLayer=rvDataSets[0].getSelectedLayer();
-	$('#resName').html("Residue: " + rvDataSets[0].Residues[ResIndex].resName + "(" + ConsensusSymbol  + ") " + ResName);
+	$('#resName').html(rvDataSets[0].Residues[ResIndex].resName + rvDataSets[0].Residues[ResIndex].resNum +
+	" (" + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[ResIndex].ChainID)] + " rRNA)");
+	$('#conSeqLetter').html("Consensus: " + ConsensusSymbol);
 	$('#activeData').html("Selected Data: " + targetLayer.Data[ResIndex]);
 	$("#conPercentage").html("Shannon Entropy: " + Hn);
 	
 	function drawConGraph(){
 		
 		//Create SVG element
-		var svg = d3.select("#residuetip")
+		var svg = d3.select("#ResidueTipContent")
 			.append("svg")
 			.attr("width", w)
 			.attr("height", h);
@@ -4648,9 +4650,10 @@ function addPopUpWindowLine(SeleLine){
 		$('#BasePairSubType').html("Interaction Subtype: " + rvDataSets[0].BasePairs[SeleLine].bp_type);
 	}
 	
-	$("#BasePairRes1").html("Residue1: " + ResName1);
-	$("#BasePairRes2").html("Residue2: " + ResName2);
-	
+	addPopUpWindowResidue(j);
+	$("#iResidueTipA").html($("#residuetip").find("#ResidueTipContent").html());
+	addPopUpWindowResidue(k);
+	$("#iResidueTipB").html($("#residuetip").find("#ResidueTipContent").html());
 }
 //////////End of navline functions////
 
