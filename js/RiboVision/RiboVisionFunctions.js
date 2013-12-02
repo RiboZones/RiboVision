@@ -3583,7 +3583,7 @@ function savePML() {
 		var PDB_Obj_Names = [];
 		
 		//Default option
-		script += "bg_color white\nunset ignore_case\n";
+		script += "set bg_rgb, white\nset seq_view_label_color, hydrogen\nunset ignore_case\n";
 		//PDB Files
 		var PDB_files = [rvDataSets[0].SpeciesEntry.PDB_File_rRNA, rvDataSets[0].SpeciesEntry.PDB_File_rProtein];
 		if (PDB_files[1] === PDB_files[0]) {
@@ -3656,89 +3656,89 @@ function savePML() {
 function layerToPML(PDB_Obj_Names,targetLayer) {
 	var PyMOL_obj = [];
 	var script = "";
-	var r0,r1,curr_chain,curr_color,n,m;
+	var r0,r1,curr_chain,curr_color;
 	if (rvDataSets[0].Residues[0] == undefined){return};
 	
 	for (var j = 0; j < rvDataSets[0].SpeciesEntry.Molecule_Names.length; j++) {
-			PyMOL_obj[j] = rvDataSets[0].SpeciesEntry.Species_Abr + "_" + rvDataSets[0].SpeciesEntry.Molecule_Names[j] + "_" + targetLayer.LayerName;
-			script += "create " + PyMOL_obj[j] + ", " + PDB_Obj_Names[0] + " and chain " + rvDataSets[0].SpeciesEntry.PDB_chains[j] + "\n";
-			if (targetLayer.Linked){
-				script += "enable " + PyMOL_obj[j] + "\n";
+		PyMOL_obj[j] = rvDataSets[0].SpeciesEntry.Species_Abr + "_" + rvDataSets[0].SpeciesEntry.Molecule_Names[j] + "_" + targetLayer.LayerName;
+		script += "create " + PyMOL_obj[j] + ", " + PDB_Obj_Names[0] + " and chain " + rvDataSets[0].SpeciesEntry.PDB_chains[j] + "\n";
+		if (targetLayer.Linked){
+			script += "enable " + PyMOL_obj[j] + "\n";
+		} else {
+			script += "disable " + PyMOL_obj[j] + "\n";
+		}
+	}
+	script += "\n";
+	
+	r0 = rvDataSets[0].Residues[0].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+	curr_chain = rvDataSets[0].Residues[0].ChainID;
+	curr_color = colorNameToHex(targetLayer.dataLayerColors[0]);
+	if (!curr_color || curr_color === '#000000') {
+		curr_color = '#858585';
+	}
+	for (var i = 1; i < rvDataSets[0].Residues.length; i++) {
+		var residue = rvDataSets[0].Residues[i];
+		var residueLast = rvDataSets[0].Residues[i - 1];
+		var residueLastColor = targetLayer.dataLayerColors[i - 1];
+		if (!residueLastColor){
+			residueLastColor = '#858585';
+		}
+		if (residue.ChainID != "") {
+			if (curr_chain == "") {
+				curr_chain = residue.ChainID;
+				curr_color = colorNameToHex(targetLayer.dataLayerColors[i]);
+				if (!curr_color || curr_color === '#000000') {
+					curr_color = '#858585';
+				}
+				r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+			} else if (residue.ChainID == null) {
+				curr_chain = residue.ChainID;
+				curr_color = colorNameToHex(targetLayer.dataLayerColors[i]);
+				if (!curr_color || curr_color === '#000000') {
+					curr_color = '#858585';
+				}
+				r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
 			} else {
-				script += "disable " + PyMOL_obj[j] + "\n";
-			}
-		}
-		script += "\n";
-		
-		r0 = rvDataSets[0].Residues[0].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-		curr_chain = rvDataSets[0].Residues[0].ChainID;
-		curr_color = colorNameToHex(targetLayer.dataLayerColors[0]);
-		if (!curr_color || curr_color === '#000000') {
-			curr_color = '#858585';
-		}
-		for (var i = 1; i < rvDataSets[0].Residues.length; i++) {
-			var residue = rvDataSets[0].Residues[i];
-			var residueLast = rvDataSets[0].Residues[i - 1];
-			var residueLastColor = targetLayer.dataLayerColors[i - 1];
-			if (!residueLastColor){
-				residueLastColor = '#858585';
-			}
-			if (residue.ChainID != "") {
-				if (curr_chain == "") {
-					curr_chain = residue.ChainID;
-					curr_color = colorNameToHex(targetLayer.dataLayerColors[i]);
-					if (!curr_color || curr_color === '#000000') {
-						curr_color = '#858585';
-					}
-					r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-				} else if (residue.ChainID == null) {
-					curr_chain = residue.ChainID;
-					curr_color = colorNameToHex(targetLayer.dataLayerColors[i]);
-					if (!curr_color || curr_color === '#000000') {
-						curr_color = '#858585';
-					}
-					r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+				if (!targetLayer.dataLayerColors[i]){
+					compare_color = '#858585';
 				} else {
-					if (!targetLayer.dataLayerColors[i]){
-						compare_color = '#858585';
-					} else {
-						compare_color = colorNameToHex(targetLayer.dataLayerColors[i]);
-					}
-					if (((compare_color != colorNameToHex(residueLastColor)) || (curr_chain != residue.ChainID)) || (i == (rvDataSets[0].Residues.length - 1))) {
-						r1 = residueLast.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""); ;
-						
-						if (r0 === r1){
-							if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
-								script += "color 0x" + curr_color + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "\n";
-							} else {
-								script += "color " + curr_color.replace("#", "0x") + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "\n";
-							}
+					compare_color = colorNameToHex(targetLayer.dataLayerColors[i]);
+				}
+				if (((compare_color != colorNameToHex(residueLastColor)) || (curr_chain != residue.ChainID)) || (i == (rvDataSets[0].Residues.length - 1))) {
+					r1 = residueLast.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""); ;
+					
+					if (r0 === r1){
+						if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
+							script += "color 0x" + curr_color + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "\n";
 						} else {
-							if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
-								script += "color 0x" + curr_color + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + r1 + "\n";
-							} else {
-								script += "color " + curr_color.replace("#", "0x") + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + r1 + "\n";
-							}
+							script += "color " + curr_color.replace("#", "0x") + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "\n";
 						}
-												
-						r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-						if (residue.ChainID != "") {
-							curr_chain = residue.ChainID;
+					} else {
+						if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
+							script += "color 0x" + curr_color + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + r1 + "\n";
+						} else {
+							script += "color " + curr_color.replace("#", "0x") + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + r1 + "\n";
 						}
-						curr_color = colorNameToHex(targetLayer.dataLayerColors[i]);
-						if (!curr_color || curr_color === '#000000') {
-							curr_color = '#858585';
-						}
+					}
+											
+					r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+					if (residue.ChainID != "") {
+						curr_chain = residue.ChainID;
+					}
+					curr_color = colorNameToHex(targetLayer.dataLayerColors[i]);
+					if (!curr_color || curr_color === '#000000') {
+						curr_color = '#858585';
 					}
 				}
 			}
 		}
-		if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
-			script += "color 0x" + curr_color + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + "\n";
-		} else {
-			script += "color " + curr_color.replace("#", "0x") + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + "\n";
-		}
-		script += "\n";
+	}
+	if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
+		script += "color 0x" + curr_color + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + "\n";
+	} else {
+		script += "color " + curr_color.replace("#", "0x") + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + "\n";
+	}
+	script += "\n";
 	
 	return script;
 }
@@ -3777,22 +3777,47 @@ function proteinsToPML(PDB_Obj_Names){
 }
 
 function selectionToPML(PDB_Obj_Names,targetSelection){
-	// This needs work to not crash PyMOL
 	var script = "";
+	var PyMOL_obj = "RV_Sele_" + targetSelection.Name;
+	var r0,r1,curr_chain;
+	if (rvDataSets[0].Residues[0] == undefined){return};
 	
-	if (targetSelection.Residues.length > 0) {
-		var SeleScript = "create RV_Sele_" + targetSelection.Name + ", " + PDB_Obj_Names[0] + " and ((resi " + targetSelection.Residues[0].resNum.replace(/[^:]*:/g, "") + " and chain " + targetSelection.Residues[0].ChainID + ")";
-		// Selected Section
-		for (var ii = 1; ii < targetSelection.Residues.length; ii++) {
-			if (targetSelection.Residues[ii].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") != null) {
-				r1 = targetSelection.Residues[ii].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-				SeleScript += " or (resi " + r1 + " and chain " + targetSelection.Residues[ii].ChainID + ")";
+	script += "create " + PyMOL_obj + ", " + "resi 0\n";
+	
+	r0 = targetSelection.Residues[0].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+	curr_chain = targetSelection.Residues[0].ChainID;
+	for (var i = 1; i < targetSelection.Residues.length; i++) {
+		var residue = targetSelection.Residues[i];
+		var residueLast = targetSelection.Residues[i - 1];
+		
+		if (residue.ChainID != "") {
+			if (curr_chain == "") {
+				curr_chain = residue.ChainID;
+				r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+			} else if (residue.ChainID == null) {
+				curr_chain = residue.ChainID;
+				r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+			} else {
+				if ((residue.map_Index - residueLast.map_Index > 1 ) || (curr_chain != residue.ChainID) || (i == (targetSelection.Residues.length - 1))) {
+					r1 = residueLast.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""); ;
+					
+					if (r0 === r1){
+						script += "create " + PyMOL_obj + ", " + PyMOL_obj + " or (" + PDB_Obj_Names[0] + " and chain " + curr_chain + " and resi " + r0 + ")\n";
+					} else {
+						script += "create " + PyMOL_obj + ", " + PyMOL_obj + " or (" + PDB_Obj_Names[0] + " and chain " + curr_chain + " and resi " + r0 + "-" + r1 + ")\n";
+					}
+											
+					r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+					if (residue.ChainID != "") {
+						curr_chain = residue.ChainID;
+					}
+				}
 			}
 		}
-		SeleScript += ")\n";
-		script += "\n" + SeleScript;
-		script += "color " + targetSelection.Color.replace("#", "0x") + ", " + "RV_Sele_" + targetSelection.Name + "\n";
 	}
+	script += "create " + PyMOL_obj + ", " + PyMOL_obj + " or (" + PDB_Obj_Names[0] + " and chain " + curr_chain + " and resi " + r0 + "-" + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + ")\n";
+	script += "\n";
+	script += "color " + targetSelection.Color.replace("#", "0x") + ", " + PyMOL_obj + "\n";
 	return script;
 }
 
@@ -4533,8 +4558,14 @@ function addPopUpWindowResidue(ResIndex){
 	}
 		
 	var targetLayer=rvDataSets[0].getSelectedLayer();
-	$('#resName').html(rvDataSets[0].Residues[ResIndex].resName + rvDataSets[0].Residues[ResIndex].resNum +
-	" (" + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[ResIndex].ChainID)] + " rRNA)");
+	var rn = rvDataSets[0].Residues[ResIndex].resNum.split(":");
+	if (rn.length < 2 ){
+		$('#resName').html(rvDataSets[0].Residues[ResIndex].resName + rvDataSets[0].Residues[ResIndex].resNum +
+			" (" + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[ResIndex].ChainID)] + " rRNA)");
+	} else {
+		$('#resName').html(rvDataSets[0].Residues[ResIndex].resName + rn[1] +
+			" (" + rn[0] + " rRNA)");
+	}
 	$('#conSeqLetter').html("Consensus: " + ConsensusSymbol);
 	$('#activeData').html("Selected Data: " + targetLayer.Data[ResIndex]);
 	$("#conPercentage").html("Shannon Entropy: " + Hn);

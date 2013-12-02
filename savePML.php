@@ -1,7 +1,7 @@
 <?php
 header('Content-Description: File Transfer');
 header('Content-type: application/zip');
-header('Content-Disposition: attachment; filename="Ribovision.zip"');
+header('Content-Disposition: attachment; filename="RiboVision_PyMOL.zip"');
 header('Content-Transfer-Encoding: binary');
 header("Pragma: public");
 
