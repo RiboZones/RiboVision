@@ -4090,8 +4090,8 @@ function computeSeqDataTable(){
 }
 function computeInteractionDataTable(){
 	var WholeSet="";
-	var WholeSet= WholeSet + "Nucleotide1,Nucleotide1,Nucleotide2,Nucleotide2,BasePairType\n";
-	var WholeSet= WholeSet + "resNum,resName,resNum,resName,bp_type\n";
+	var WholeSet= WholeSet + "Residue_i,ResidueName_i,Residue_j,ResidueName_j,Int_Type\n";
+	//var WholeSet= WholeSet + "resNum,resName,resNum,resName,bp_type\n";
 	
 	$.each(rvDataSets[0].BasePairs, function (index,basepair) {
 		var j = basepair.resIndex1;
