@@ -3131,7 +3131,6 @@ function handleFileSelect(event) {
 	} else {
 		AgreeFunction(event);
 	}
-	
 }
 
 function resNumToIndex(FullResNum){
@@ -4807,76 +4806,6 @@ function RestoreLocalStorage(SaveStateFileName) {
 }
 function RestoreLocalStorage2(rvSaveState) {
 	processRvState(rvSaveState);
-	/*
-	if($("input[name='LayersCheck']").attr("checked")){
-		var data = JSON.parse(rvSSobj.rvLayers);
-		$.each(data, function (index, value) {
-			rvDataSets[0].Layers[index] = rvDataSets[0].HighlightLayer.fromJSON(value);
-		});
-		// Sort rvLayers by zIndex for convience
-		//rvDataSets[0].sort();
-		
-		$.each(rvDataSets[0].Layers,function (index, value) {
-			$("#" + this.CanvasName).css('zIndex', index);
-		});
-		// Restore Selected and Linked
-		var selectedLayer = rvDataSets[0].getSelectedLayer();
-		var linkedLayer = rvDataSets[0].getLinkedLayer();
-		resizeElements(true);
-		$(".oneLayerGroup").remove();
-		// Put in Layers
-		$.each(rvDataSets[0].Layers, function (key, value){
-			LayerMenu(value, key);
-		});
-		RefreshLayerMenu();
-		
-		$(".oneLayerGroup" + "[name=" + selectedLayer.LayerName + "]").find(".selectLayerRadioBtn").attr("checked","checked");
-		rvDataSets[0].selectLayer(selectedLayer.LayerName);
-		$(".oneLayerGroup" + "[name=" + linkedLayer.LayerName + "]").find(".mappingRadioBtn").attr("checked","checked");
-		rvDataSets[0].linkLayer(linkedLayer.LayerName);
-	}
-	if($("input[name='SelectionsCheck']").attr("checked")){
-		rvDataSets[0].Selections = JSON.parse(rvSSobj.rvSelections);
-		$(".oneSelectionGroup").remove();
-		// Put in Selections
-		$.each(rvDataSets[0].Selections.reverse(), function (key, value){
-			SelectionMenu(value, key);
-		});
-		//Default check first selection. Come back to these to restore saved state
-		$("#SelectionPanel div").first().next().find(".selectSelectionRadioBtn").attr("checked", "checked");
-		RefreshSelectionMenu();
-	}
-	
-	if($("input[name='PanelSizesCheck']").attr("checked")){
-		var po = JSON.parse(rvSSobj.rvPanelSizes);
-		PanelDivide = po.PanelDivide;
-		TopDivide = po.TopDivide;
-		$( "#canvasPorportionSlider" ).slider("value",PanelDivide);
-		$( "#topPorportionSlider" ).slider("value",TopDivide);
-		resizeElements();
-	}
-	if($("input[name='MouseModeCheck']").attr("checked")){
-		$("#buttonmode").find("input[value='" + rvSSobj.rvMouseMode + "']").trigger("click");
-	}
-	if($("input[name='CanvasOrientationCheck']").attr("checked")){
-		//localStorage.setItem("rvView",7);
-		rvViews[0] = rvViews[0].fromJSON(rvSSobj.rvView);
-		rvViews[0].restore();
-	}
-	if($("input[name='JmolOrientationCheck']").attr("checked")){
-		//localStorage.setItem("rvJmolOrientation",8);
-		var a = rvSSobj.rvJmolOrientation.match(/reset[^\n]+/);
-		Jmol.script(myJmol, a[0]);
-	}
-	rvDataSets[0].drawResidues("residues");
-	rvDataSets[0].drawSelection("selected");
-	rvDataSets[0].refreshResiduesExpanded("circles");
-	rvDataSets[0].drawLabels("labels");
-	rvDataSets[0].drawBasePairs("lines");
-	if(!$("input[name='LastSpeciesCheck']").attr("checked")){
-		updateModel();
-		update3Dcolors();
-	}*/
 }
 
 function rvSaveManager(rvAction,rvLocation) {
