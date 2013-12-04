@@ -65,37 +65,14 @@ function RiboVisionReady() {
 	// New Stuff Section, Layers, Selections Panels
 	$.fx.speeds._default = 1000;
 	$("#PanelTabs").tabs();
-	$("#dialog-saveFigures").dialog({
+	$("#SaveTabs").tabs();
+	
+	$("#dialog-saveEverything").dialog({
 		resizable : false,
 		autoOpen : false,
 		height : 600,
 		width : 1000,
 		modal : true,
-		/*
-		buttons: {
-			Ok: function() {
-				$( this ).dialog( "close" );
-			}
-		},*/
-		open : function () {
-			$("#myJmol_object").css("visibility", "hidden");
-		},
-		close : function () { 
-			$("#myJmol_object").css("visibility", "visible");
-		}
-	});
-	$("#dialog-saveSeqData").dialog({
-		resizable : false,
-		autoOpen : false,
-		height : 600,
-		width : 1000,
-		modal : true,
-		/*
-		buttons: {
-			Ok: function() {
-				$( this ).dialog( "close" );
-			}
-		},*/
 		open : function () {
 			$("#myJmol_object").css("visibility", "hidden");
 		},
@@ -184,27 +161,6 @@ function RiboVisionReady() {
 			$("#SessionList").text("");			
 		}
 	});
-	$("#RiboVisionSaveManagerPanel").dialog({
-		resizable : false,
-		autoOpen : false,
-		show : {
-			effect : "blind",
-			duration : 300
-		},
-		height : 600,
-		width : 600,
-		position : {
-			my : "center",
-			at : "center",
-			of : $("#canvasDiv")
-		},
-		open : function () {
-			//$("#myJmol_object").css("visibility", "hidden");
-		},
-		close : function () { 
-			//$("#myJmol_object").css("visibility", "visible");
-		}
-	});
 	
 	$("#openLayerBtn").click(function () {
 		$("#PanelTabs").tabs( "option", "active", 0 );
@@ -228,7 +184,8 @@ function RiboVisionReady() {
 	});
 	
 	$("#RiboVisionSaveManager").click(function () {
-		$("#RiboVisionSaveManagerPanel").dialog("open");
+		$("#SaveTabs").tabs( "option", "active", 2 );
+		$("#dialog-saveEverything").dialog("open");
 		return false;
 	});
 	
@@ -614,18 +571,11 @@ function RiboVisionReady() {
 			filterBasePairs(FullBasePairSet,array_of_checked_values);
 		}
 	});
-	$("#SaveFigureBtn").button().click(function(){
-		$("#dialog-saveFigures").dialog("open");
+	$("#SaveEverythingBtn").button().click(function(){
+		$("#dialog-saveEverything").dialog("open");
 		return false;
 	});
-	$("#SaveDataBtn").button().click(function(){
-		$("#dialog-saveSeqData").dialog("open");
-		return false;
-	});
-	$("#SaveSessionBtn").button().click(function(){
-		$("#RiboVisionSaveManagerPanel").dialog("open");
-		return false;
-	});
+
 	$("#freshenRvState").button().click(function(){
 		InitRibovision(true);
 	});
@@ -1110,7 +1060,8 @@ function InitRibovision(FreshState) {
 	resizeElements();
 	if (!canvas2DSupported) {return};
 	if (OpenStateOnLoad && !FreshState) {
-		$("#RiboVisionSaveManagerPanel").dialog("open");
+		$("#SaveTabs").tabs( "option", "active", 2 );
+		$("#dialog-saveEverything").dialog("open");
 	}
 }
 

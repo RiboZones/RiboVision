@@ -323,7 +323,7 @@ body{
 
 #FreshDiv {
 	position: absolute;
-	top:76%;
+	top:78%;
 	right: 4%;
 	width: 92%;
 	height: 20%;
@@ -346,7 +346,6 @@ body{
 
 #SaveControlDivB {
 	position: absolute;
-	top:4%;
 	left: 4%;
 	width: 44%;
 	height: 68%;
@@ -356,7 +355,6 @@ body{
 }
 #SaveControlDivF {
 	position: absolute;
-	top:4%;
 	left: 52%;
 	width: 44%;
 	height: 68%;
@@ -386,16 +384,19 @@ body{
 	margin-bottom: 6px;
 }
 
-.ExportDiv {
-	width:33%;
+.ExportDiv3 {
+	width:31%;
 	float:left;
 	height:80%;
+	padding:0%;
+	margin:1%;
 }
 .ExportDiv2 {
-	
-	width:99%;
+	width:47%;
 	float:left;
-	height:9%;
+	height:80%;
+	padding:0%;
+	margin:1%;
 }
 .SettingsDiv {
 	width:24%;
@@ -533,4 +534,20 @@ body{
 }
 #ResidueTipContent{
 	margin:.3em .1em .1em .1em;
+}
+
+#SaveTabs .ui-tabs-nav {
+	background: transparent !important;
+	
+}
+
+#SaveTabs  {
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+	padding: 0px !important;
+	height: 100%;
+}
+#dialog-saveEverything {
+	padding: 0px !important;
 }
