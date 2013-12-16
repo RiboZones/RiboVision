@@ -3813,15 +3813,20 @@ function selectionToPML(PDB_Obj_Names,targetSelection){
 	var script = "";
 	var PyMOL_obj = "RV_Sele_" + targetSelection.Name;
 	var r0,r1,curr_chain;
+	var DoneNow=false;
 	if (rvDataSets[0].Residues[0] == undefined){return};
 	
 	script += "create " + PyMOL_obj + ", " + "resi 0\n";
 	
-	r0 = targetSelection.Residues[0].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-	curr_chain = targetSelection.Residues[0].ChainID;
-	for (var i = 1; i < targetSelection.Residues.length; i++) {
-		var residue = targetSelection.Residues[i];
-		var residueLast = targetSelection.Residues[i - 1];
+	var SeleResidues=targetSelection.Residues.sort(function (a, b) {;
+		return (Number(a.map_Index) - Number(b.map_Index));
+	});
+		
+	r0 = SeleResidues[0].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+	curr_chain = SeleResidues[0].ChainID;
+	for (var i = 1; i < SeleResidues.length; i++) {
+		var residue = SeleResidues[i];
+		var residueLast = SeleResidues[i - 1];
 		
 		if (residue.ChainID != "") {
 			if (curr_chain == "") {
@@ -3831,8 +3836,13 @@ function selectionToPML(PDB_Obj_Names,targetSelection){
 				curr_chain = residue.ChainID;
 				r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
 			} else {
-				if ((residue.map_Index - residueLast.map_Index > 1 ) || (curr_chain != residue.ChainID) || (i == (targetSelection.Residues.length - 1))) {
-					r1 = residueLast.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""); ;
+				if ((residue.map_Index - residueLast.map_Index > 1 ) || (curr_chain != residue.ChainID) || (i == (SeleResidues.length - 1))) {
+					if ((i == (SeleResidues.length - 1)) && (curr_chain == residue.ChainID) && (residue.map_Index - residueLast.map_Index == 1 )){
+						r1 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+						DoneNow=true;
+					} else {
+						r1 = residueLast.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+					}
 					
 					if (r0 === r1){
 						script += "create " + PyMOL_obj + ", " + PyMOL_obj + " or (" + PDB_Obj_Names[0] + " and chain " + curr_chain + " and resi " + r0 + ")\n";
@@ -3848,9 +3858,10 @@ function selectionToPML(PDB_Obj_Names,targetSelection){
 			}
 		}
 	}
-	script += "create " + PyMOL_obj + ", " + PyMOL_obj + " or (" + PDB_Obj_Names[0] + " and chain " + curr_chain + " and resi " + r0 + "-" + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + ")\n";
-	script += "\n";
-	script += "color " + targetSelection.Color.replace("#", "0x") + ", " + PyMOL_obj + "\n";
+	if(!DoneNow){
+		script += "create " + PyMOL_obj + ", " + PyMOL_obj + " or (" + PDB_Obj_Names[0] + " and chain " + curr_chain + " and resi " + r0 + ")\n";
+	}
+	script += "color " + targetSelection.Color.replace("#", "0x") + ", " + PyMOL_obj + "\n\n";
 	return script;
 }
 
