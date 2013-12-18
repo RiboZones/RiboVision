@@ -4803,7 +4803,10 @@ function RestoreLocalStorage(SaveStateFileName) {
 		//RestoreLocalStorage2();
 	});
 	DoneLoading2.done(function() {
-		//updateSelectionDiv();
+		$.each(rvDataSets[0].Selections, function (key, value){
+			updateSelectionDiv(value.Name);
+		});
+		rvDataSets[0].drawSelection("selected");
 		updateModel();
 		update3Dcolors();
 		if($("input[name='JmolOrientationCheck']").attr("checked")){
