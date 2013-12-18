@@ -4803,10 +4803,7 @@ function RestoreLocalStorage(SaveStateFileName) {
 		//RestoreLocalStorage2();
 	});
 	DoneLoading2.done(function() {
-		$.each(rvDataSets[0].Selections, function (key, value){
-			updateSelectionDiv(value.Name);
-		});
-		rvDataSets[0].drawSelection("selected");
+		//updateSelectionDiv();
 		updateModel();
 		update3Dcolors();
 		if($("input[name='JmolOrientationCheck']").attr("checked")){
@@ -4908,7 +4905,7 @@ function processRvState(rvSaveState) {
 		rvDataSets[0].Selections = JSON.parse(rvSaveState.rvSelections);
 		$(".oneSelectionGroup").remove();
 		// Put in Selections
-		$.each(rvDataSets[0].Selections, function (key, value){
+		$.each(rvDataSets[0].Selections.reverse(), function (key, value){
 			SelectionMenu(value, key);
 		});
 		//Default check first selection. Come back to these to restore saved state
