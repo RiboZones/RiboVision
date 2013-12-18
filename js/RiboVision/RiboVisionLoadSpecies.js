@@ -23,7 +23,7 @@ based on:
  *  02111-1307  USA.
  */
 
-// for documentation see apollo.chemistry.gatech.edu/Ribovision/documentation
+// for documentation see apollo.chemistry.gatech.edu/RiboVision/Documentation
 //This doesn't exist and this probably won't be the final license.
 
 
@@ -71,7 +71,9 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 				SpeciesTable : species
 			}, function (species_entry2) {
 				rvDataSets[0].addSpeciesEntry(species_entry2[0]);
-				clearSelection(true);
+				if (!DoneLoading2) {
+					clearSelection(true);
+				}
 				initLabels(species);
 				// Get conservation table
 				$.getJSON('getData.php', {
@@ -214,8 +216,8 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 				}
 				
 				if (DoneLoading2){
-				DoneLoading2.resolve();
-				}
+					DoneLoading2.resolve();
+				} 
 			}
 			);
 			if (DoneLoading){
