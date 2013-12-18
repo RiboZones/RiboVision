@@ -186,6 +186,7 @@ function RvLayer(LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color) 
 function RvSelection(SelectionName,rvResidues,rvColor,rvResidues_rProtein){
 	//Properties
 	this.Name = SelectionName;
+	this.zIndex = rvDataSets[0].Selections.length;
 	if (rvResidues) { 
 		this.Residues = rvResidues;
 	} else {
@@ -329,6 +330,14 @@ function rvDataSet(DataSetName) {
 		});
 		$.each(this.Layers, function (key, value) {
 			this.updateZIndex(key);
+		});
+	};
+	this.SelectionsSort = function () {
+		this.Selections.sort(function (a, b) {
+			return (Number(a.zIndex) - Number(b.zIndex));
+		});
+		$.each(this.Selections, function (key, value) {
+			this.zIndex=key;
 		});
 	};
 	this.clearCanvas = function (layer) {

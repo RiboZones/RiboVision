@@ -4908,7 +4908,7 @@ function processRvState(rvSaveState) {
 		rvDataSets[0].Selections = JSON.parse(rvSaveState.rvSelections);
 		$(".oneSelectionGroup").remove();
 		// Put in Selections
-		$.each(rvDataSets[0].Selections.reverse(), function (key, value){
+		$.each(rvDataSets[0].Selections, function (key, value){
 			SelectionMenu(value, key);
 		});
 		//Default check first selection. Come back to these to restore saved state
