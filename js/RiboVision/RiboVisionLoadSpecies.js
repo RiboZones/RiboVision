@@ -71,7 +71,9 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 				SpeciesTable : species
 			}, function (species_entry2) {
 				rvDataSets[0].addSpeciesEntry(species_entry2[0]);
-				clearSelection(true);
+				if (!DoneLoading2) {
+					clearSelection(true);
+				}
 				initLabels(species);
 				// Get conservation table
 				$.getJSON('getData.php', {
