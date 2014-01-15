@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.modelset");
-Clazz.load (["java.lang.Short", "java.util.Hashtable", "J.viewer.JC"], "J.modelset.Group", ["java.lang.Float", "J.constant.EnumStructure", "J.util.ArrayUtil", "$.BS", "$.BSUtil", "$.Logger", "$.P3", "$.Quaternion", "$.V3"], function () {
+Clazz.load (["java.lang.Short", "java.util.Hashtable", "J.viewer.JC"], "J.modelset.Group", ["java.lang.Float", "JU.AU", "$.BS", "$.P3", "$.V3", "J.constant.EnumStructure", "J.util.BSUtil", "$.Logger", "$.Quaternion"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.groupIndex = 0;
 this.chain = null;
@@ -185,19 +185,19 @@ function () {
 return false;
 });
 c$.addGroup3Name = $_M(c$, "addGroup3Name", 
-function (group3) {
-if (J.modelset.Group.group3NameCount == J.modelset.Group.group3Names.length) ($t$ = J.modelset.Group.group3Names = J.util.ArrayUtil.doubleLengthS (J.modelset.Group.group3Names), J.modelset.Group.prototype.group3Names = J.modelset.Group.group3Names, $t$);
-var groupID = ($t$ = J.modelset.Group.group3NameCount ++, J.modelset.Group.prototype.group3NameCount = J.modelset.Group.group3NameCount, $t$);
+($fz = function (group3) {
+if (J.modelset.Group.group3NameCount == J.modelset.Group.group3Names.length) J.modelset.Group.group3Names = JU.AU.doubleLengthS (J.modelset.Group.group3Names);
+var groupID = J.modelset.Group.group3NameCount++;
 J.modelset.Group.group3Names[groupID] = group3;
 J.modelset.Group.htGroup.put (group3, Short.$valueOf (groupID));
 return groupID;
-}, "~S");
+}, $fz.isPrivate = true, $fz), "~S");
 c$.getGroupIdFor = $_M(c$, "getGroupIdFor", 
-function (group3) {
+($fz = function (group3) {
 if (group3 == null) return -1;
 var groupID = J.modelset.Group.lookupGroupID (group3);
 return (groupID != -1) ? groupID : J.modelset.Group.addGroup3Name (group3);
-}, "~S");
+}, $fz.isPrivate = true, $fz), "~S");
 c$.lookupGroupID = $_M(c$, "lookupGroupID", 
 function (group3) {
 if (group3 != null) {
@@ -253,7 +253,7 @@ return this.bsAdded != null && this.bsAdded.get (atomIndex);
 }, "~N");
 $_M(c$, "addAtoms", 
 function (atomIndex) {
-if (this.bsAdded == null) this.bsAdded =  new J.util.BS ();
+if (this.bsAdded == null) this.bsAdded =  new JU.BS ();
 this.bsAdded.set (atomIndex);
 }, "~N");
 $_M(c$, "selectAtoms", 
@@ -261,17 +261,17 @@ function (bs) {
 bs.setBits (this.firstAtomIndex, this.lastAtomIndex + 1);
 if (this.bsAdded != null) bs.or (this.bsAdded);
 return this.lastAtomIndex;
-}, "J.util.BS");
+}, "JU.BS");
 $_M(c$, "isSelected", 
 function (bs) {
 var pt = bs.nextSetBit (this.firstAtomIndex);
 return (pt >= 0 && pt <= this.lastAtomIndex || this.bsAdded != null && this.bsAdded.intersects (bs));
-}, "J.util.BS");
+}, "JU.BS");
 $_M(c$, "isHetero", 
 function () {
 return this.chain.getAtom (this.firstAtomIndex).isHetero ();
 });
-Clazz.overrideMethod (c$, "toString", 
+$_V(c$, "toString", 
 function () {
 return "[" + this.getGroup3 () + "-" + this.getSeqcodeString () + "]";
 });
@@ -337,10 +337,10 @@ $_M(c$, "getHelixData",
 function (tokType, qType, mStep) {
 switch (tokType) {
 case 135266320:
-return  new J.util.P3 ();
+return  new JU.P3 ();
 case 1073741854:
 case 1666189314:
-return  new J.util.V3 ();
+return  new JU.V3 ();
 case 135266305:
 return Float.$valueOf (NaN);
 case 135266306:
@@ -372,7 +372,7 @@ return false;
 $_M(c$, "getCrossLinkLead", 
 function (vReturn) {
 return false;
-}, "J.util.JmolList");
+}, "JU.List");
 $_M(c$, "isConnectedPrevious", 
 function () {
 return false;
@@ -391,7 +391,7 @@ this.firstAtomIndex -= atomsDeleted;
 this.leadAtomIndex -= atomsDeleted;
 this.lastAtomIndex -= atomsDeleted;
 if (this.bsAdded != null) J.util.BSUtil.deleteBits (this.bsAdded, bsDeleted);
-}, "~N,J.util.BS");
+}, "~N,JU.BS");
 $_M(c$, "getGroupInfo", 
 function (igroup) {
 var infoGroup =  new java.util.Hashtable ();
@@ -417,7 +417,7 @@ if (this.bsAdded != null) for (var i = this.bsAdded.nextSetBit (0); i >= 0; i = 
 }, "~A,~A");
 $_M(c$, "checkMinZ", 
 ($fz = function (atom, minZ) {
-var z = atom.screenZ - Clazz.doubleToInt (atom.screenDiameter / 2) - 2;
+var z = atom.sZ - Clazz.doubleToInt (atom.sD / 2) - 2;
 if (z < minZ[0]) minZ[0] = Math.max (1, z);
 }, $fz.isPrivate = true, $fz), "J.modelset.Atom,~A");
 Clazz.defineStatics (c$,
