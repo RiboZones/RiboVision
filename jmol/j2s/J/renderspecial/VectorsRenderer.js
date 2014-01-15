@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.renderspecial");
-Clazz.load (["J.render.ShapeRenderer", "J.util.P3", "$.P3i", "$.V3"], "J.renderspecial.VectorsRenderer", ["J.shape.Shape", "J.util.Vibration"], function () {
+Clazz.load (["J.render.ShapeRenderer", "JU.P3", "$.P3i", "$.V3"], "J.renderspecial.VectorsRenderer", ["J.shape.Shape", "J.util.Vibration"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.pointVectorEnd = null;
 this.pointArrowHead = null;
@@ -16,13 +16,13 @@ this.vibTemp = null;
 Clazz.instantialize (this, arguments);
 }, J.renderspecial, "VectorsRenderer", J.render.ShapeRenderer);
 Clazz.prepareFields (c$, function () {
-this.pointVectorEnd =  new J.util.P3 ();
-this.pointArrowHead =  new J.util.P3 ();
-this.screenVectorEnd =  new J.util.P3i ();
-this.screenArrowHead =  new J.util.P3i ();
-this.headOffsetVector =  new J.util.V3 ();
+this.pointVectorEnd =  new JU.P3 ();
+this.pointArrowHead =  new JU.P3 ();
+this.screenVectorEnd =  new JU.P3i ();
+this.screenArrowHead =  new JU.P3i ();
+this.headOffsetVector =  new JU.V3 ();
 });
-Clazz.overrideMethod (c$, "render", 
+$_V(c$, "render", 
 function () {
 var vectors = this.shape;
 if (!vectors.isActive) return false;
@@ -62,8 +62,7 @@ this.doShaft = (0.1 + Math.abs (this.headScale / len) < Math.abs (this.vectorSca
 this.headOffsetVector.setT (vibrationVector);
 this.headOffsetVector.scale (this.headScale / len);
 this.pointVectorEnd.scaleAdd2 (this.vectorScale, vibrationVector, atom);
-this.pointArrowHead.setT (this.pointVectorEnd);
-this.pointArrowHead.add (this.headOffsetVector);
+this.pointArrowHead.add2 (this.pointVectorEnd, this.headOffsetVector);
 this.screenArrowHead.setT (this.viewer.transformPtVib (this.pointArrowHead, vibrationVector));
 this.screenVectorEnd.setT (this.viewer.transformPtVib (this.pointVectorEnd, vibrationVector));
 this.diameter = Clazz.floatToInt (mad < 1 ? 1 : mad <= 20 ? mad : this.viewer.scaleToScreen (this.screenVectorEnd.z, mad));
@@ -73,7 +72,7 @@ return true;
 }, $fz.isPrivate = true, $fz), "~N,J.modelset.Atom,J.util.Vibration");
 $_M(c$, "renderVector", 
 ($fz = function (atom) {
-if (this.doShaft) this.g3d.fillCylinderScreen (1, this.diameter, atom.screenX, atom.screenY, atom.screenZ, this.screenArrowHead.x, this.screenArrowHead.y, this.screenArrowHead.z);
+if (this.doShaft) this.g3d.fillCylinderScreen (1, this.diameter, atom.sX, atom.sY, atom.sZ, this.screenArrowHead.x, this.screenArrowHead.y, this.screenArrowHead.z);
 this.g3d.fillConeScreen (2, this.headWidthPixels, this.screenArrowHead, this.screenVectorEnd, false);
 }, $fz.isPrivate = true, $fz), "J.modelset.Atom");
 Clazz.defineStatics (c$,
