@@ -311,12 +311,11 @@ $("#SelectionPanel").multiAccordion();
 $("#SelectionPanel").sortable({
 	update : function (event, ui) {
 		$("#SelectionPanel .selectionContent").each(function (e, f) {
-			var ts = rvDataSets[0].getSelection($(this).parent().attr("name"));
-			ts.ZIndex=rvDataSets[0].Selections.length - e;
 			rvDataSets[0].drawSelection("selected");
-			console.log($(this).parent().attr("name") + ": " + ts.ZIndex);
+			//$(this).find('p').text(rvDataSets[0].LastLayer - e - 1);
+			//$("#" + rvDataSets[0].getLayer($(this).parent().attr("name")).CanvasName).css('zIndex', rvDataSets[0].LastLayer - e - 1)
 		});
-		rvDataSets[0].SelectionsSort();
+		//rvDataSets[0].sort();
 	},
 	items : ".oneSelectionGroup",
 	axis: "y"
