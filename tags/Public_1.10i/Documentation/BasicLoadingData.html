@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta name="generator" content="HTML Tidy for HTML5 (experimental) for Windows https://github.com/w3c/tidy-html5/tree/c63cc39" />
+    <title>RiboVision: Ribosome Visualization Suite.</title>
+	<link rel="stylesheet" type="text/css" href="css/style.css" />
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script type="text/javascript" src="js/template.js"></script>
+</head>
+
+<body lang="EN-US" xml:lang="EN-US">
+	<div id="HeaderDiv"></div>
+	<div id="MenuDiv"></div>
+	
+	<div id = "ContentDiv">
+		<h1>Video Documentation</h1>
+		<a class="VideoLink" href="https://www.youtube.com/watch?v=WZXKjjjlufA&list=PL_GdpsMS9WGxOyfsvPoWIeO7OszBUEZo9" target="_blank">RiboVision Basic Tutorial (Old Version)</a></br>
+		<span class="VideoLink">New version coming soon.</span>	
+		
+		  <h1>Load Data:</h1>
+		<h2>General:</h2>
+		<p>
+		You can display data in the 1D, 2D, and 3D panels by selecting data from one of the data sections in the Main menu. 
+		We have &ldquo;Nucleotide Data&rdquo;, &ldquo;Phylogeny Data&rdquo;, &ldquo;Protein Contacts&rdquo;, and &ldquo;Inter-Nucleotide Contacts&rdquo; sections. 
+		Each of these sections contains one or more datasets represented by draggable objects (green outline). 
+		To simultaneously display a dataset in the 1D, 2D, and 3D panels, you drag the data object from the Select section to the Display section of the Main Menu, 
+		and drop the object onto one of the two pre-created layers: &ldquo;Circles&rdquo; or &ldquo;Letters&rdquo;. Dropping the object onto the Letters layer will display the dataset by
+		varying the color of nucleotide letters in the secondary structure, whereas dropping the object on top of the Circles layer will display the dataset as a solid colored
+		circle that can be positioned in front of, or behind, the nucleotide letters. Any additional layers you create will behave like the Circles layer. 
+		See descriptions of the data in the &ldquo;Our Data&rdquo; section of this manual.
+		</p>
+		 <p>
+		 In the Data and Display sections of the main menu you can see a brief description of each type of data by hovering the mouse over the data object or over the Layer. 
+		 You also can find a link to the relevant help section of the written manual, with a much more detailed description of the data, and relevant scientific citations. 
+		 </p>
+		 
+		 <p>Here, we are dragging the Rainbow (red outline) data object to the letters layer object.</p>
+		 
+		<img src="images/DataDragging.png" class="ManualImagesThin" title="RiboVision Displaying Data" alt="RiboVision Displaying Data" />
+		
+		<h2>Protein Contacts:</h2>
+		<p>
+		In the Protein Contacts section, you can chose to visualize the entire set of the proteins for a ribosomal subunit, 
+		or you can select a desired protein or subset of proteins from the list in the Protein Contacts menu by checking the boxes. 
+		The set of proteins are automatically displayed in the 3D Panel. The protein contacts can be displayed on the 2D panel by dragging the data object onto a layer. 
+		The nucleotides will then become colored to match the color of the proteins that they are in contact with in the crystal structure, as shown in the 3D panel.
+		The proteins names will be colored to correspond to their current color.
+		</p>
+		<img src="images/ProteinMenu.png" class="ManualImagesThin" title="RiboVision ProteinMenu" alt="RiboVision ProteinMenu" />
+		
+		<h2>Inter-Nucleotide Contacts:</h2>
+		<p>
+		You can also graph &ldquo;Inter-Nucleotide Contacts&rdquo; in the 2D panel, which are shown as lines between nucleotides that are close together in 3D space according to various criteria.
+		Select something from the Interaction Type menu. Then, you may be able to furthur filter by Interaction sub-types. You will see that lines appear between some nucleotides. 
+		Note that the &ldquo;Inter-Nucleotide Contacts&rdquo; data are independent and cannot be dragged to the &ldquo;Circles&rdquo; or &ldquo;Letters&rdquo; layers. They are 
+		automatically drawn to the Interactions layer, not visible in the Display Section. 
+		<p>
+			<img src="images/InteractionsMenu.png" class="ManualImagesThin" title="RiboVision InteractionsMenu" alt="RiboVision InteractionsMenu" />
+			
+
+	</div>
+	<div id="FooterDiv"></div>
+	</body>
+</html>
