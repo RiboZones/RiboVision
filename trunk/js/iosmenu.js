@@ -34,8 +34,8 @@ $.widget( "ui.iosMenu", {
 					}
 				});
 
-		var menu = iosMenu.element.data( 'uiMenu' );
-
+		//var menu = iosMenu.element.data( 'uiMenu' );
+		var menu = $(iosMenu.element).data('ui-menu');
 		// Override menu#select to account for nesting and back buttons:
 		menu.select = function( event ) {
 			//menu.active = menu.active || $( event.target ).closest( ".ui-menu-item" ); //new random line
