@@ -23,7 +23,7 @@ based on:
  *  02111-1307  USA.
  */
 
-// for documentation see apollo.chemistry.gatech.edu/RiboVision/Documentation
+// for documentation see apollo.chemistry.gatech.edu/Ribovision/documentation
 //This doesn't exist and this probably won't be the final license.
 
 
@@ -216,8 +216,8 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 				}
 				
 				if (DoneLoading2){
-					DoneLoading2.resolve();
-				} 
+				DoneLoading2.resolve();
+				}
 			}
 			);
 			if (DoneLoading){
