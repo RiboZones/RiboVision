@@ -688,6 +688,7 @@ function RiboVisionReady() {
 			}
 			myJmol = Jmol.getApplet("myJmol", JmolInfo); 
 			$('#jmolDiv').html(Jmol.getAppletHtml(myJmol));
+			$('#myJmol_appletdiv').css("z-index",-9000);
 			if(rvDataSets[0].SpeciesEntry.Jmol_Script){
 				Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
 				var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
