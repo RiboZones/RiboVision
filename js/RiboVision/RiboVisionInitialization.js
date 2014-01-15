@@ -117,24 +117,6 @@ function RiboVisionReady() {
 		}
 	});
 
-	$("#InteractionSettingDialog").dialog({
-		autoOpen : false,
-		show : {
-			effect : "blind",
-			duration : 500
-		}, //change blindin animation attributes
-		hide : {
-			effect : "blind",
-			duration : 500
-		},
-		height : 500,
-		position : {
-			my : "right top",
-			at : "right top",
-			of : $("#canvasDiv")
-		}
-	});
-
 	$("#RiboVisionSettingsPanel").dialog({
 		autoOpen : false,
 		show : {
@@ -170,11 +152,6 @@ function RiboVisionReady() {
 	
 	$("#openColorBtn").click(function () {
 		$("#ColorDialog").dialog("open");
-		return false;
-	});
-
-	$("#openInteractionSettingBtn").click(function () {
-		$("#InteractionSettingDialog").dialog("open");
 		return false;
 	});
 	
@@ -604,21 +581,7 @@ function RiboVisionReady() {
 			primary : "ui-icon-pencil"
 		}
 	});
-	
-	$("#SelectionMode").button({
-		text : false,
-		icons : {
-			primary : "ui-icon-pin-w"
-		}
-	});
 
-	$("#openInteractionSettingBtn").button({
-		text : false,
-		icons : {
-			primary : "ui-icon-transfer-e-w"
-		}
-	});	
-	
 	$("#RiboVisionSettings").button({
 		text : false,
 		icons : {
@@ -688,7 +651,6 @@ function RiboVisionReady() {
 			}
 			myJmol = Jmol.getApplet("myJmol", JmolInfo); 
 			$('#jmolDiv').html(Jmol.getAppletHtml(myJmol));
-			$('#myJmol_appletdiv').css("z-index",-9000);
 			if(rvDataSets[0].SpeciesEntry.Jmol_Script){
 				Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
 				var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
@@ -723,6 +685,7 @@ function RiboVisionReady() {
 		var O = Jmol.evaluate(myJmol,"script('show orientation')");
 		myJmol = Jmol.getApplet("myJmol", JmolInfo); 
 		$('#jmolDiv').html(Jmol.getAppletHtml(myJmol));
+		$('#myJmol_appletdiv').css("z-index",-9000);
 		Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
 		var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
 		Jmol.script(myJmol, jscript);
@@ -948,16 +911,6 @@ function RiboVisionReady() {
 	$(window).unload(function() {		
 		//localStorage.setItem("rvDataSets",rvDataSets);
 	});
-	
-	$("#SelectionMode").click(function () {
-	});
-	/*
-	$("#New3DTestButton").button().click(function(){
-		Jmol.script(myJmol, "script states/" + "3OFR_23s_supNone_state8_d6.spt");
-		var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
-		Jmol.script(myJmol, jscript);
-		updateModel();
-	});*/
 	
 	$("#JmolTypeToggle2").buttonset();
 	$("#SetDefaultJmolType").button().click(function() {
