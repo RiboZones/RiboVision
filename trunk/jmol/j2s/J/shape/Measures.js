@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.shape");
-Clazz.load (["J.api.JmolMeasurementClient", "J.shape.AtomShape", "J.util.JmolList"], "J.shape.Measures", ["java.lang.Float", "java.util.Hashtable", "J.modelset.Measurement", "$.MeasurementData", "J.util.BS", "$.BSUtil", "$.C", "$.Escape", "$.TextFormat"], function () {
+Clazz.load (["J.api.JmolMeasurementClient", "J.shape.AtomShape", "JU.List"], "J.shape.Measures", ["java.lang.Float", "java.util.Hashtable", "JU.BS", "$.PT", "J.modelset.Measurement", "$.MeasurementData", "J.util.BSUtil", "$.C", "$.Escape", "$.Txt"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.bsSelected = null;
 this.strFormat = null;
@@ -20,9 +20,9 @@ this.tokAction = 0;
 Clazz.instantialize (this, arguments);
 }, J.shape, "Measures", J.shape.AtomShape, J.api.JmolMeasurementClient);
 Clazz.prepareFields (c$, function () {
-this.measurements =  new J.util.JmolList ();
+this.measurements =  new JU.List ();
 });
-Clazz.overrideMethod (c$, "initModelSet", 
+$_V(c$, "initModelSet", 
 function () {
 for (var i = this.measurements.size (); --i >= 0; ) {
 var m = this.measurements.get (i);
@@ -30,15 +30,15 @@ if (m != null) m.modelSet = this.modelSet;
 }
 this.atoms = this.modelSet.atoms;
 });
-Clazz.overrideMethod (c$, "initShape", 
+$_V(c$, "initShape", 
 function () {
 this.font3d = this.gdata.getFont3D (15);
 });
-Clazz.overrideMethod (c$, "setSize", 
+$_V(c$, "setSize", 
 function (size, bsSelected) {
 this.mad = size;
-}, "~N,J.util.BS");
-Clazz.overrideMethod (c$, "setProperty", 
+}, "~N,JU.BS");
+$_V(c$, "setProperty", 
 function (propertyName, value, bsIgnored) {
 var mt;
 if ("clearModelIndex" === propertyName) {
@@ -57,11 +57,11 @@ return;
 }if ("pending" === propertyName) {
 this.measurementPending = value;
 if (this.measurementPending == null) return;
-if (this.measurementPending.getCount () > 1) this.viewer.setStatusMeasuring ("measurePending", this.measurementPending.getCount (), this.measurementPending.toVector (false).toString (), this.measurementPending.getValue ());
+if (this.measurementPending.count > 1) this.viewer.setStatusMeasuring ("measurePending", this.measurementPending.count, this.measurementPending.toVector (false).toString (), this.measurementPending.value);
 return;
 }var isRefresh;
 if ((isRefresh = ("refresh" === propertyName)) || "refreshTrajectories" === propertyName) {
-for (var i = this.measurements.size (); --i >= 0; ) if ((mt = this.measurements.get (i)) != null && (isRefresh || mt.isTrajectory)) mt.refresh ();
+for (var i = this.measurements.size (); --i >= 0; ) if ((mt = this.measurements.get (i)) != null && (isRefresh || mt.isTrajectory)) mt.refresh (null);
 
 return;
 }if ("select" === propertyName) {
@@ -69,7 +69,7 @@ var bs = value;
 if (bs == null || J.util.BSUtil.cardinalityOf (bs) == 0) {
 this.bsSelected = null;
 } else {
-this.bsSelected =  new J.util.BS ();
+this.bsSelected =  new JU.BS ();
 this.bsSelected.or (bs);
 }return;
 }if ("setFormats" === propertyName) {
@@ -97,7 +97,7 @@ this.tickInfo = md.tickInfo;
 if (md.tickInfo != null && md.tickInfo.id.equals ("default")) {
 this.defaultTickInfo = md.tickInfo;
 return;
-}if (md.isAll && md.points.size () == 2 && Clazz.instanceOf (md.points.get (0), J.util.BS)) {
+}if (md.isAll && md.points.size () == 2 && Clazz.instanceOf (md.points.get (0), JU.BS)) {
 var type = J.modelset.Measurement.nmrType (this.viewer.getDistanceUnits (md.strFormat));
 switch (type) {
 case 2:
@@ -159,7 +159,7 @@ var nAtomsDeleted = ((value)[2])[2];
 var atomMax = firstAtomDeleted + nAtomsDeleted;
 for (var i = this.measurementCount; --i >= 0; ) {
 mt = this.measurements.get (i);
-var indices = mt.getCountPlusIndices ();
+var indices = mt.countPlusIndices;
 for (var j = 1; j <= indices[0]; j++) {
 var iAtom = indices[j];
 if (iAtom >= firstAtomDeleted) {
@@ -204,7 +204,7 @@ this.doAction (null, value, 1048589);
 } else {
 this.toggleOn (value);
 }return;
-}}, "~S,~O,J.util.BS");
+}}, "~S,~O,JU.BS");
 $_M(c$, "setSingleItem", 
 ($fz = function (vector) {
 var points =  new Array (4);
@@ -212,7 +212,7 @@ var indices =  Clazz.newIntArray (5, 0);
 indices[0] = vector.size ();
 for (var i = vector.size (); --i >= 0; ) {
 var value = vector.get (i);
-if (Clazz.instanceOf (value, J.util.BS)) {
+if (Clazz.instanceOf (value, JU.BS)) {
 var atomIndex = (value).nextSetBit (0);
 if (atomIndex < 0) return null;
 indices[i + 1] = atomIndex;
@@ -221,12 +221,12 @@ points[i] = value;
 indices[i + 1] = -2 - i;
 }}
 return  new J.modelset.Measurement ().setPoints (this.modelSet, indices, points, this.tickInfo == null ? this.defaultTickInfo : this.tickInfo);
-}, $fz.isPrivate = true, $fz), "J.util.JmolList");
-Clazz.overrideMethod (c$, "getProperty", 
+}, $fz.isPrivate = true, $fz), "JU.List");
+$_V(c$, "getProperty", 
 function (property, index) {
 if ("pending".equals (property)) return this.measurementPending;
 if ("count".equals (property)) return Integer.$valueOf (this.measurementCount);
-if ("countPlusIndices".equals (property)) return (index < this.measurementCount ? this.measurements.get (index).getCountPlusIndices () : null);
+if ("countPlusIndices".equals (property)) return (index < this.measurementCount ? this.measurements.get (index).countPlusIndices : null);
 if ("stringValue".equals (property)) return (index < this.measurementCount ? this.measurements.get (index).getString () : null);
 if ("pointInfo".equals (property)) return this.measurements.get (Clazz.doubleToInt (index / 10)).getLabel (index % 10, false, false);
 if ("info".equals (property)) return this.getAllInfo ();
@@ -242,7 +242,7 @@ this.viewer.setStatusMeasuring ("measureDeleted", -1, "all", 0);
 }, $fz.isPrivate = true, $fz));
 $_M(c$, "setColor", 
 ($fz = function (colix) {
-if (this.bsColixSet == null) this.bsColixSet =  new J.util.BS ();
+if (this.bsColixSet == null) this.bsColixSet =  new JU.BS ();
 if (this.bsSelected == null) this.colix = colix;
 var mt;
 for (var i = this.measurements.size (); --i >= 0; ) if ((mt = this.measurements.get (i)) != null && (this.bsSelected != null && this.bsSelected.get (i) || this.bsSelected == null && (colix == 0 || mt.colix == 0))) {
@@ -280,7 +280,7 @@ $_M(c$, "toggleOn",
 ($fz = function (indices) {
 this.radiusData = null;
 this.htMin = null;
-this.bsSelected =  new J.util.BS ();
+this.bsSelected =  new JU.BS ();
 this.defineAll (-2147483648,  new J.modelset.Measurement ().setPoints (this.modelSet, indices, null, this.defaultTickInfo), false, true, true);
 this.setIndices ();
 this.reformatDistances ();
@@ -299,7 +299,7 @@ if (Clazz.instanceOf (value, Integer)) {
 this.deleteI ((value).intValue ());
 } else if (Clazz.instanceOf (value, String)) {
 this.doAction (null, value, 12291);
-} else if (J.util.Escape.isAI (value)) {
+} else if (JU.PT.isAI (value)) {
 this.defineAll (-2147483648,  new J.modelset.Measurement ().setPoints (this.modelSet, value, null, null), true, false, false);
 }}, $fz.isPrivate = true, $fz), "~O");
 $_M(c$, "defineAll", 
@@ -314,13 +314,13 @@ return;
 }if (isShow) {
 this.defineAll (iPt, m, true, false, false);
 if (isDelete) return;
-}var points =  new J.util.JmolList ();
-var nPoints = m.getCount ();
+}var points =  new JU.List ();
+var nPoints = m.count;
 for (var i = 1; i <= nPoints; i++) {
 var atomIndex = m.getAtomIndex (i);
 points.addLast (atomIndex >= 0 ? this.viewer.getAtomBits (1095763969, Integer.$valueOf (this.atoms[atomIndex].getAtomNumber ())) : m.getAtom (i));
 }
-this.define (( new J.modelset.MeasurementData (null, this.viewer, points)).set (this.tokAction, this.htMin, this.radiusData, this.strFormat, null, this.tickInfo, this.mustBeConnected, this.mustNotBeConnected, this.intramolecular, true, 0, 0, null), (isDelete ? 12291 : 1060866));
+this.define (( new J.modelset.MeasurementData ().init (null, this.viewer, points)).set (this.tokAction, this.htMin, this.radiusData, this.strFormat, null, this.tickInfo, this.mustBeConnected, this.mustNotBeConnected, this.intramolecular, true, 0, 0, null), (isDelete ? 12291 : 1060866));
 }, $fz.isPrivate = true, $fz), "~N,J.modelset.Measurement,~B,~B,~B");
 $_M(c$, "find", 
 ($fz = function (m) {
@@ -336,7 +336,7 @@ $_M(c$, "define",
 this.tokAction = tokAction;
 md.define (this, this.modelSet);
 }, $fz.isPrivate = true, $fz), "J.modelset.MeasurementData,~N");
-Clazz.overrideMethod (c$, "processNextMeasure", 
+$_V(c$, "processNextMeasure", 
 function (m) {
 var iThis = this.find (m);
 if (iThis >= 0) {
@@ -352,7 +352,7 @@ this.defineMeasurement (-1, m, true);
 }}, "J.modelset.Measurement");
 $_M(c$, "defineMeasurement", 
 ($fz = function (i, m, doSelect) {
-var value = m.getMeasurement ();
+var value = m.getMeasurement (null);
 if (this.htMin != null && !m.isMin (this.htMin) || this.radiusData != null && !m.isInRange (this.radiusData, value)) return;
 if (i == -2147483648) i = this.find (m);
 if (i >= 0) {
@@ -362,7 +362,7 @@ return;
 }var measureNew =  new J.modelset.Measurement ().setM (this.modelSet, m, value, (m.colix == 0 ? this.colix : m.colix), this.strFormat, this.measurementCount);
 if (!measureNew.$isValid) return;
 this.measurements.addLast (measureNew);
-this.viewer.setStatusMeasuring ("measureCompleted", this.measurementCount++, measureNew.toVector (false).toString (), measureNew.getValue ());
+this.viewer.setStatusMeasuring ("measureCompleted", this.measurementCount++, measureNew.toVector (false).toString (), measureNew.value);
 }, $fz.isPrivate = true, $fz), "~N,J.modelset.Measurement,~B");
 $_M(c$, "deleteI", 
 ($fz = function (i) {
@@ -375,10 +375,10 @@ this.viewer.setStatusMeasuring ("measureDeleted", i, msg, 0);
 $_M(c$, "doAction", 
 ($fz = function (md, s, tok) {
 s = s.toUpperCase ().$replace ('?', '*');
-var isWild = J.util.TextFormat.isWild (s);
+var isWild = J.util.Txt.isWild (s);
 for (var i = this.measurements.size (); --i >= 0; ) {
 var m = this.measurements.get (i);
-if (m.thisID != null && (m.thisID.equalsIgnoreCase (s) || isWild && J.util.TextFormat.isMatch (m.thisID.toUpperCase (), s, true, true))) switch (tok) {
+if (m.thisID != null && (m.thisID.equalsIgnoreCase (s) || isWild && J.util.Txt.isMatch (m.thisID.toUpperCase (), s, true, true))) switch (tok) {
 case 1666189314:
 m.mad = md.mad;
 break;
@@ -410,7 +410,7 @@ for (var i = this.measurementCount; --i >= 0; ) this.measurements.get (i).reform
 }, $fz.isPrivate = true, $fz));
 $_M(c$, "getAllInfo", 
 ($fz = function () {
-var info =  new J.util.JmolList ();
+var info =  new JU.List ();
 for (var i = 0; i < this.measurementCount; i++) {
 info.addLast (this.getInfo (i));
 }
@@ -427,20 +427,20 @@ return info;
 $_M(c$, "getInfo", 
 ($fz = function (index) {
 var m = this.measurements.get (index);
-var count = m.getCount ();
+var count = m.count;
 var info =  new java.util.Hashtable ();
 info.put ("index", Integer.$valueOf (index));
 info.put ("type", (count == 2 ? "distance" : count == 3 ? "angle" : "dihedral"));
 info.put ("strMeasurement", m.getString ());
 info.put ("count", Integer.$valueOf (count));
-info.put ("value", Float.$valueOf (m.getValue ()));
+info.put ("value", Float.$valueOf (m.value));
 var tickInfo = m.tickInfo;
 if (tickInfo != null) {
 info.put ("ticks", tickInfo.ticks);
 if (tickInfo.scale != null) info.put ("tickScale", tickInfo.scale);
 if (tickInfo.tickLabelFormats != null) info.put ("tickLabelFormats", tickInfo.tickLabelFormats);
 if (!Float.isNaN (tickInfo.first)) info.put ("tickStart", Float.$valueOf (tickInfo.first));
-}var atomsInfo =  new J.util.JmolList ();
+}var atomsInfo =  new JU.List ();
 for (var i = 1; i <= count; i++) {
 var atomInfo =  new java.util.Hashtable ();
 var atomIndex = m.getAtomIndex (i);
@@ -453,7 +453,7 @@ atomsInfo.addLast (atomInfo);
 info.put ("atoms", atomsInfo);
 return info;
 }, $fz.isPrivate = true, $fz), "~N");
-Clazz.overrideMethod (c$, "getInfoAsString", 
+$_V(c$, "getInfoAsString", 
 function (index) {
 return this.measurements.get (index).getInfoAsString (null);
 }, "~N");
@@ -464,7 +464,7 @@ out : for (var i = this.measurementCount; --i >= 0; ) {
 var m = this.measurements.get (i);
 m.isVisible = false;
 if (this.mad == 0 || m.isHidden) continue;
-for (var iAtom = m.getCount (); iAtom > 0; iAtom--) {
+for (var iAtom = m.count; iAtom > 0; iAtom--) {
 var atomIndex = m.getAtomIndex (iAtom);
 if (atomIndex >= 0) {
 if (!this.modelSet.atoms[atomIndex].isClickable ()) continue out;
@@ -475,7 +475,7 @@ if (modelIndex >= 0 && !bsModels.get (modelIndex)) continue out;
 m.isVisible = true;
 }
 });
-Clazz.overrideMethod (c$, "getShapeState", 
+$_V(c$, "getShapeState", 
 function () {
 return this.viewer.getMeasurementState (this, this.measurements, this.measurementCount, this.font3d, this.defaultTickInfo);
 });
