@@ -1,7 +1,22 @@
 <?php
 
+// from http://us3.php.net/file_get_contents 
+
+// Tip
+//
+// A URL can be used as a filename with this function if the fopen wrappers 
+// have been enabled. See fopen() for more details on how to specify the 
+// filename. See the Supported Protocols and Wrappers for links to information 
+// about what abilities the various wrappers have, notes on their usage, and 
+// information on any predefined variables they may provide.
+
 // jsmol.php
 // Bob Hanson hansonr@stolaf.edu 1/11/2013
+//
+// last modified: 30 Oct 2013 -- saveFile should not convert " to _
+//
+// 30 Sep 2013 -- adjusted error handling to only report E_ERROR not E_WARNING
+// 7 Sep 2013 -- adding PHP error handling
 //
 // Server-side Jmol delivers:
 //   simple relay for cross-domain files
@@ -42,6 +57,20 @@
 // http://foo.wherever/jsmol.php?call=getRawDataFromDatabase&database=_&query=http://chemapps.stolaf.edu/jmol/data/t.pdb.gz
 // http://goo.wherever/jsmol.php?call=getRawDataFromDatabase&database=_&query=http://chemapps.stolaf.edu/jmol/data/t.pdb.gz&encoding=base64
 
+
+$myerror = "";
+
+function handleError($severity, $msg, $filename, $linenum) {
+  global $myerror;
+  switch($severity) {
+  case E_ERROR:
+    $myerror = "PHP error:$severity $msg $filename $linenum";
+    break;
+  }
+  return true;
+}
+
+set_error_handler("handleError");
 
 $cmd = '/home/mscs/common/bin32/java -Djava.awt.headless=true -jar JmolData.jar -iRJ ';
 
@@ -175,7 +204,7 @@ if ($call == "getInfoFromDatabase") {
 		}
 	}
 } else if ($call == "saveFile") {
-	$imagedata = getValueSimple($values, "data", "");
+	$imagedata = $_REQUEST["data"];//getValueSimple($values, "data", ""); don't want to convert " to _ here
 	$filename = getValueSimple($values, "filename", "");
 	$contentType = getValueSimple($values, "mimetype", "application/octet-stream");
 	if ($encoding == "base64") {
@@ -191,28 +220,33 @@ if ($call == "getInfoFromDatabase") {
 
 }
 
-ob_start(); 
- if ($imagedata != "") {
-	$output = $imagedata;
-	header('Content-Type: '.$contentType);
-	if ($filename != "") {
-	  header('Content-Description: File Transfer');
-		header("Content-Disposition: attachment; filename=\"$filename\"");
-    header('Content-Transfer-Encoding: binary');
-    header('Expires: 0');
-    header('Cache-Control: must-revalidate');
-    header('Pragma: public');
-	}
- } else {
-	header('Access-Control-Allow-Origin: *');
-	if ($isBinary) {
-		header('Content-Type: text/plain; charset=x-user-defined');
-	} else {
-		header('Content-Type: application/json');
-	}
- }
- if ($encoding == "base64") {
-	 $output = ";base64,".base64_encode($output);
+ob_start();
+
+ if ($myerror != "") {
+   $output = $myerror;
+ } else { 
+   if ($imagedata != "") {
+  	$output = $imagedata;
+  	header('Content-Type: '.$contentType);
+  	if ($filename != "") {
+  	  header('Content-Description: File Transfer');
+  		header("Content-Disposition: attachment; filename=\"$filename\"");
+      header('Content-Transfer-Encoding: binary');
+      header('Expires: 0');
+      header('Cache-Control: must-revalidate');
+      header('Pragma: public');
+  	}
+   } else {
+  	header('Access-Control-Allow-Origin: *');
+  	if ($isBinary) {
+  		header('Content-Type: text/plain; charset=x-user-defined');
+  	} else {
+  		header('Content-Type: application/json');
+  	}
+   }
+   if ($encoding == "base64") {
+  	 $output = ";base64,".base64_encode($output);
+   }
  } 
  header('Last-Modified: '.date('r'));
  header('Accept-Ranges: bytes');

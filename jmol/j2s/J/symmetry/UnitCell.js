@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.symmetry");
-Clazz.load (["J.util.SimpleUnitCell", "$.P3", "J.viewer.JC"], "J.symmetry.UnitCell", ["J.util.BoxInfo", "$.Matrix4f", "$.Tensor"], function () {
+Clazz.load (["J.util.SimpleUnitCell", "JU.P3", "J.viewer.JC"], "J.symmetry.UnitCell", ["java.lang.Float", "JU.M4", "$.V3", "J.api.Interface", "J.util.BoxInfo", "$.Escape"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.vertices = null;
 this.cartesianOffset = null;
@@ -9,24 +9,23 @@ this.unitCellMultiplier = null;
 Clazz.instantialize (this, arguments);
 }, J.symmetry, "UnitCell", J.util.SimpleUnitCell);
 Clazz.prepareFields (c$, function () {
-this.cartesianOffset =  new J.util.P3 ();
-this.fractionalOffset =  new J.util.P3 ();
+this.cartesianOffset =  new JU.P3 ();
 });
 Clazz.makeConstructor (c$, 
 function () {
 Clazz.superConstructor (this, J.symmetry.UnitCell, []);
 });
 c$.newP = $_M(c$, "newP", 
-function (points) {
+function (points, setRelative) {
 var c =  new J.symmetry.UnitCell ();
 var parameters = [-1, 0, 0, 0, 0, 0, points[1].x, points[1].y, points[1].z, points[2].x, points[2].y, points[2].z, points[3].x, points[3].y, points[3].z];
 c.set (parameters);
-c.allFractionalRelative = true;
+c.allFractionalRelative = setRelative;
 c.calcUnitcellVertices ();
 c.setCartesianOffset (points[0]);
 return c;
-}, "~A");
-c$.newA = Clazz.overrideMethod (c$, "newA", 
+}, "~A,~B");
+c$.newA = $_V(c$, "newA", 
 function (notionalUnitcell) {
 var c =  new J.symmetry.UnitCell ();
 c.set (notionalUnitcell);
@@ -36,28 +35,27 @@ return c;
 $_M(c$, "setOrientation", 
 function (mat) {
 if (mat == null) return;
-var m =  new J.util.Matrix4f ();
+var m =  new JU.M4 ();
 m.setM3 (mat);
 this.matrixFractionalToCartesian.mul2 (m, this.matrixFractionalToCartesian);
 this.matrixCartesianToFractional.invertM (this.matrixFractionalToCartesian);
 this.calcUnitcellVertices ();
-}, "J.util.Matrix3f");
+}, "JU.M3");
 $_M(c$, "toUnitCell", 
 function (pt, offset) {
 if (this.matrixCartesianToFractional == null) return;
 if (offset == null) {
 this.matrixCartesianToFractional.transform (pt);
-switch (this.dimension) {
-case 3:
-pt.z = J.symmetry.UnitCell.toFractionalX (pt.z);
-case 2:
-pt.y = J.symmetry.UnitCell.toFractionalX (pt.y);
-case 1:
-pt.x = J.symmetry.UnitCell.toFractionalX (pt.x);
-}
+this.unitize (pt);
 this.matrixFractionalToCartesian.transform (pt);
 } else {
 this.matrixCtoFAbsolute.transform (pt);
+this.unitize (pt);
+pt.add (offset);
+this.matrixFtoCAbsolute.transform (pt);
+}}, "JU.P3,JU.P3");
+$_M(c$, "unitize", 
+function (pt) {
 switch (this.dimension) {
 case 3:
 pt.z = J.symmetry.UnitCell.toFractionalX (pt.z);
@@ -66,9 +64,7 @@ pt.y = J.symmetry.UnitCell.toFractionalX (pt.y);
 case 1:
 pt.x = J.symmetry.UnitCell.toFractionalX (pt.x);
 }
-pt.add (offset);
-this.matrixFtoCAbsolute.transform (pt);
-}}, "J.util.P3,J.util.P3");
+}, "JU.P3");
 $_M(c$, "setAllFractionalRelative", 
 function (TF) {
 this.allFractionalRelative = TF;
@@ -77,9 +73,9 @@ $_M(c$, "setOffset",
 function (pt) {
 if (pt == null) return;
 if (pt.x >= 100 || pt.y >= 100) {
-this.unitCellMultiplier = J.util.P3.newP (pt);
+this.unitCellMultiplier = (pt.z == 0 ? null : JU.P3.newP (pt));
 return;
-}if (pt.x == 0 && pt.y == 0 && pt.z == 0) this.unitCellMultiplier = null;
+}this.fractionalOffset =  new JU.P3 ();
 this.fractionalOffset.setT (pt);
 this.matrixCartesianToFractional.m03 = -pt.x;
 this.matrixCartesianToFractional.m13 = -pt.y;
@@ -95,13 +91,14 @@ this.matrixFractionalToCartesian.m23 = this.cartesianOffset.z;
 if (this.allFractionalRelative) {
 this.matrixCtoFAbsolute.setM (this.matrixCartesianToFractional);
 this.matrixFtoCAbsolute.setM (this.matrixFractionalToCartesian);
-}}, "J.util.P3");
+}}, "JU.P3");
 $_M(c$, "setCartesianOffset", 
 function (origin) {
 this.cartesianOffset.setT (origin);
 this.matrixFractionalToCartesian.m03 = this.cartesianOffset.x;
 this.matrixFractionalToCartesian.m13 = this.cartesianOffset.y;
 this.matrixFractionalToCartesian.m23 = this.cartesianOffset.z;
+this.fractionalOffset =  new JU.P3 ();
 this.fractionalOffset.setT (this.cartesianOffset);
 this.matrixCartesianToFractional.m03 = 0;
 this.matrixCartesianToFractional.m13 = 0;
@@ -113,11 +110,11 @@ this.matrixCartesianToFractional.m23 = -this.fractionalOffset.z;
 if (this.allFractionalRelative) {
 this.matrixCtoFAbsolute.setM (this.matrixCartesianToFractional);
 this.matrixFtoCAbsolute.setM (this.matrixFractionalToCartesian);
-}}, "J.util.Tuple3f");
+}}, "JU.T3");
 $_M(c$, "setMinMaxLatticeParameters", 
 function (minXYZ, maxXYZ) {
-if (maxXYZ.x <= 555 && maxXYZ.y >= 555) {
-var pt =  new J.util.P3 ();
+if (maxXYZ.x <= maxXYZ.y && maxXYZ.y >= 555) {
+var pt =  new JU.P3 ();
 J.util.SimpleUnitCell.ijkToPoint3f (maxXYZ.x, pt, 0);
 minXYZ.x = Clazz.floatToInt (pt.x);
 minXYZ.y = Clazz.floatToInt (pt.y);
@@ -134,7 +131,7 @@ case 2:
 minXYZ.z = 0;
 maxXYZ.z = 1;
 }
-}, "J.util.P3i,J.util.P3i");
+}, "JU.P3i,JU.P3i");
 $_M(c$, "dumpInfo", 
 function (isFull) {
 return "a=" + this.a + ", b=" + this.b + ", c=" + this.c + ", alpha=" + this.alpha + ", beta=" + this.beta + ", gamma=" + this.gamma + (isFull ? "\nfractional to cartesian: " + this.matrixFractionalToCartesian + "\ncartesian to fractional: " + this.matrixCartesianToFractional : "");
@@ -154,10 +151,11 @@ return this.fractionalOffset;
 $_M(c$, "getTensor", 
 function (parBorU) {
 if (parBorU == null) return null;
+var t = (J.api.Interface.getOptionInterface ("util.Tensor"));
 if (parBorU[0] == 0) {
 var f = parBorU[7];
 var eigenValues = [f, f, f];
-return J.util.Tensor.getTensorFromEigenVectors (J.symmetry.UnitCell.unitVectors, eigenValues, "iso");
+return t.setFromEigenVectors (J.symmetry.UnitCell.unitVectors, eigenValues, "iso", "Uiso=" + f);
 }var Bcart =  Clazz.newDoubleArray (6, 0);
 var ortepType = Clazz.floatToInt (parBorU[6]);
 if (ortepType == 12) {
@@ -185,17 +183,31 @@ Bcart[2] = this.c * this.c * this.cB_ * this.cB_ * B33;
 Bcart[3] = 2 * this.b * this.b * this.cosGamma * this.sinGamma * B22 + 2 * this.c * this.c * this.cA_ * this.cosBeta * B33 + this.a * this.b * this.sinGamma * B12 + this.b * this.c * (this.cA_ * this.cosGamma + this.sinGamma * this.cosBeta) * B23 + this.a * this.c * this.cA_ * B13;
 Bcart[4] = 2 * this.c * this.c * this.cB_ * this.cosBeta * B33 + this.b * this.c * this.cosGamma * B23 + this.a * this.c * this.cB_ * B13;
 Bcart[5] = 2 * this.c * this.c * this.cA_ * this.cB_ * B33 + this.b * this.c * this.cB_ * this.sinGamma * B23;
-}return J.util.Tensor.getTensorFromThermalEquation (Bcart);
+}return t.setFromThermalEquation (Bcart, J.util.Escape.eAF (parBorU));
 }, "~A");
 $_M(c$, "getCanonicalCopy", 
-function (scale) {
+function (scale, withOffset) {
 var pts =  new Array (8);
-for (var i = 0; i < 8; i++) {
-pts[i] = J.util.P3.newP (J.util.BoxInfo.unitCubePoints[i]);
-this.matrixFractionalToCartesian.transform (pts[i]);
+var cell0 = null;
+var cell1 = null;
+if (withOffset && this.unitCellMultiplier != null) {
+cell0 =  new JU.P3 ();
+cell1 =  new JU.P3 ();
+J.util.SimpleUnitCell.ijkToPoint3f (Clazz.floatToInt (this.unitCellMultiplier.x), cell0, 0);
+J.util.SimpleUnitCell.ijkToPoint3f (Clazz.floatToInt (this.unitCellMultiplier.y), cell1, 0);
+cell1.sub (cell0);
+}for (var i = 0; i < 8; i++) {
+pts[i] = JU.P3.newP (J.util.BoxInfo.unitCubePoints[i]);
+if (cell0 != null) {
+scale *= this.unitCellMultiplier.z;
+pts[i].x += cell0.x + cell1.x * pts[i].x;
+pts[i].y += cell0.y + cell1.y * pts[i].y;
+pts[i].z += cell0.z + cell1.z * pts[i].z;
+}this.matrixFractionalToCartesian.transform (pts[i]);
+if (withOffset) pts[i].add (this.cartesianOffset);
 }
 return J.util.BoxInfo.getCanonicalCopy (pts, scale);
-}, "~N");
+}, "~N,~B");
 c$.toFractionalX = $_M(c$, "toFractionalX", 
 ($fz = function (x) {
 x = (x - Math.floor (x));
@@ -205,17 +217,17 @@ return x;
 $_M(c$, "calcUnitcellVertices", 
 ($fz = function () {
 if (this.matrixFractionalToCartesian == null) return;
-this.matrixCtoFAbsolute = J.util.Matrix4f.newM (this.matrixCartesianToFractional);
-this.matrixFtoCAbsolute = J.util.Matrix4f.newM (this.matrixFractionalToCartesian);
+this.matrixCtoFAbsolute = JU.M4.newM (this.matrixCartesianToFractional);
+this.matrixFtoCAbsolute = JU.M4.newM (this.matrixFractionalToCartesian);
 this.vertices =  new Array (8);
 for (var i = 8; --i >= 0; ) {
-this.vertices[i] =  new J.util.P3 ();
+this.vertices[i] =  new JU.P3 ();
 this.matrixFractionalToCartesian.transform2 (J.util.BoxInfo.unitCubePoints[i], this.vertices[i]);
 }
 }, $fz.isPrivate = true, $fz));
 $_M(c$, "checkDistance", 
 function (f1, f2, distance, dx, iRange, jRange, kRange, ptOffset) {
-var p1 = J.util.P3.newP (f1);
+var p1 = JU.P3.newP (f1);
 this.toCartesian (p1, true);
 for (var i = -iRange; i <= iRange; i++) for (var j = -jRange; j <= jRange; j++) for (var k = -kRange; k <= kRange; k++) {
 ptOffset.set (f2.x + i, f2.y + j, f2.z + k);
@@ -228,7 +240,7 @@ return true;
 
 
 return false;
-}, "J.util.P3,J.util.P3,~N,~N,~N,~N,~N,J.util.P3");
+}, "JU.P3,JU.P3,~N,~N,~N,~N,~N,JU.P3");
 $_M(c$, "getUnitCellMultiplier", 
 function () {
 return this.unitCellMultiplier;
@@ -236,7 +248,24 @@ return this.unitCellMultiplier;
 $_M(c$, "getUnitCellVectors", 
 function () {
 var m = this.matrixFractionalToCartesian;
-return [J.util.P3.newP (this.cartesianOffset), J.util.P3.new3 (m.m00, m.m10, m.m20), J.util.P3.new3 (m.m01, m.m11, m.m21), J.util.P3.new3 (m.m02, m.m12, m.m22)];
+return [JU.V3.newV (this.cartesianOffset), JU.V3.new3 (m.m00, m.m10, m.m20), JU.V3.new3 (m.m01, m.m11, m.m21), JU.V3.new3 (m.m02, m.m12, m.m22)];
+});
+$_M(c$, "isSameAs", 
+function (uc) {
+if (uc.notionalUnitcell.length != this.notionalUnitcell.length) return false;
+for (var i = this.notionalUnitcell.length; --i >= 0; ) if (this.notionalUnitcell[i] != uc.notionalUnitcell[i] && !(Float.isNaN (this.notionalUnitcell[i]) && Float.isNaN (uc.notionalUnitcell[i]))) return false;
+
+if (this.fractionalOffset == null) return (uc.fractionalOffset == null);
+if (uc.fractionalOffset == null) return false;
+if (this.fractionalOffset.distanceSquared (uc.fractionalOffset) != 0) return false;
+return true;
+}, "J.symmetry.UnitCell");
+$_M(c$, "getState", 
+function () {
+var s = "";
+if (this.fractionalOffset != null) s += "  unitcell " + J.util.Escape.eP (this.fractionalOffset) + ";\n";
+if (this.unitCellMultiplier != null) s += "  unitcell " + J.util.Escape.eP (this.unitCellMultiplier) + ";\n";
+return s;
 });
 Clazz.defineStatics (c$,
 "twoP2", 19.739208802178716);
