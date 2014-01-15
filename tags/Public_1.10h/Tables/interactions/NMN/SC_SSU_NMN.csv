@@ -1,0 +1,6 @@
+pairIndex,resIndex1,resIndex2,bp_type
+int,int,int,varchar(6)
+1,1762,1770,NMN
+2,99,100,NMN
+3,99,360,NMN
+4,100,360,NMN
