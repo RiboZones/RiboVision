@@ -49,7 +49,7 @@ var JmolInfo = {
 	defaultModel: "",
 	height: "100%",
 	j2sPath: "./jmol/j2s", 
-	isSigned: false,
+	isSigned: true,
 	jarFile: "JmolAppletSigned0.jar",
 	jarPath: "./jmol/java",
 	//j2sPath: "jmol/jsmol/j2s",
