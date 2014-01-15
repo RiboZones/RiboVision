@@ -50,7 +50,7 @@ var JmolInfo = {
 	height: "100%",
 	j2sPath: "./jmol/j2s", 
 	isSigned: false,
-	jarFile: "JmolApplet0.jar",
+	jarFile: "JmolAppletSigned0.jar",
 	jarPath: "./jmol/java",
 	//j2sPath: "jmol/jsmol/j2s",
 	memoryLimit: 1024,
