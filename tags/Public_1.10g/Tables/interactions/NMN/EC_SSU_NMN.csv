@@ -1,0 +1,11 @@
+pairIndex,resIndex1,resIndex2,bp_type
+int,int,int,varchar(6)
+1,508,509,NMN
+2,1499,1504,NMN
+3,857,868,NMN
+4,979,980,NMN
+5,979,1221,NMN
+6,980,1221,NMN
+7,115,116,NMN
+8,115,288,NMN
+9,116,288,NMN
