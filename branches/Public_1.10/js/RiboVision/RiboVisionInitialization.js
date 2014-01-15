@@ -685,6 +685,7 @@ function RiboVisionReady() {
 		var O = Jmol.evaluate(myJmol,"script('show orientation')");
 		myJmol = Jmol.getApplet("myJmol", JmolInfo); 
 		$('#jmolDiv').html(Jmol.getAppletHtml(myJmol));
+		$('#myJmol_appletdiv').css("z-index",-9000);
 		Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
 		var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
 		Jmol.script(myJmol, jscript);
