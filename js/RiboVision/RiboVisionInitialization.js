@@ -378,11 +378,8 @@ function RiboVisionReady() {
 	$("#SideBarAccordian").accordion({
 		heightStyle: "fill",
 		activate : function (event, ui) {
-			/*resetFileInput($('#files'));
-			$('#files').on('change', function (event) {
-				handleFileSelect(event);
-			});*/
-		}
+		},
+		animate: 300
 	});
 	
 	//$("#tabs").tabs();
