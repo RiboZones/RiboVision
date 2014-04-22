@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta name="generator" content="HTML Tidy for HTML5 (experimental) for Windows https://github.com/w3c/tidy-html5/tree/c63cc39" />
+    <title>RiboVision: Ribosome Visualization Suite.</title>
+	<link rel="stylesheet" type="text/css" href="css/style.css" />
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script type="text/javascript" src="js/template.js"></script>
+</head>
+
+<body lang="EN-US" xml:lang="EN-US">
+	<div id="HeaderDiv"></div>
+	<div id="MenuDiv"></div>
+	
+	<div id = "ContentDiv">
+
+		<h1>Manual Coloring</h1>
+		<p>What we call "manual coloring" is that the user <b>(you)</b> have already decided exactly which color you would like each nucleotide to be. 
+		You may have decided this "by hand", or you may have adapted your computer programs to output to our input format. Using the colors "#000000" or "#858585" 
+		may result in unintended effects. All other of the 16+ million colors should work well. 
+		<b>Note:</b> We haven't yet provided an easy way to change the background. So you probably want to choose colors that show up well against a white background. 
+		</p>
+		
+		<p>For this example, we have decided to color every nucleotide according to its name. G's are colored almost black (#020202), C's are colored blue, A's are colored green, and U's are
+		colored red. To do this, we put these colors in the ColorCol. We will also put the nucleotide letter itself into DataCol, so we can see where that information goes. In addition,
+		we will set a coloumn called "DataDescription". In the first row, we write a description of the data. It can be as detailed as you like.
+		</p>
+		<h2>Example</h2>
+			<p><span style="word-spacing:100px;"><b>resNum, DataCol, ColorCol, DataDescription</b></span></p>
+		<p><span style="word-spacing:100px;">23S:1,	G, #020202, <span style="word-spacing:5px;">"Nucleotides colored by letter:..."</span> </span></p>
+			<p><span style="word-spacing:100px;">23S:3,	U, red </span></p>
+			<p><span style="word-spacing:100px;">23S:5,	A, green</span></p>
+			<p><span style="word-spacing:100px;">23S:8, C, blue</span></p>
+			
+			<p><a href="examples/example1.csv" target="_blank">Here</a> is the csv file for this example. Below, is this file mapped onto <i>E. coli</i> LSU 3D-based Structure.
+				<img src="examples/Example1.png" class="ManualImages" title="RiboVision Import Data Example 1" alt="RiboVision Import Data Example 1" />
+			</p>
+			<p>You can see our DataDescription in the "Main Menu" and see that example1.csv has been loaded into the Circles layer as filled and regular circles. 
+			NavLine has no data, because we didn't put numerical data into DataCol. 
+			<p/>
+	</div>
+	<div id="FooterDiv"></div>
+	</body>
+</html> 

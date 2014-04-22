@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta name="generator" content="HTML Tidy for HTML5 (experimental) for Windows https://github.com/w3c/tidy-html5/tree/c63cc39" />
+    <title>RiboVision: Ribosome Visualization Suite.</title>
+	<link rel="stylesheet" type="text/css" href="css/style.css" />
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script type="text/javascript" src="js/template.js"></script>
+</head>
+
+<body lang="EN-US" xml:lang="EN-US">
+	<div id="HeaderDiv"></div>
+	<div id="MenuDiv"></div>
+	
+	<div id = "ContentDiv">
+		<h1>Video Documentation</h1>
+		<a class="VideoLink" href="https://www.youtube.com/watch?v=WZXKjjjlufA&list=PL_GdpsMS9WGxOyfsvPoWIeO7OszBUEZo9" target="_blank">RiboVision Basic Tutorial (Old Version)</a></br>
+		<span class="VideoLink">New version coming soon.</span>	
+		
+		<h1>Load a Molecule:</h1>
+		
+		<p>The first thing you need to do is &ldquo;Select&rdquo; a species and a ribosomal subunit from the Species and Subunit menu.
+		For this example, we will use <i>E. coli</i>.Further in this menu you may choose either the large subunit or small subunit. 
+		We will choose the large subunit. We select &ldquo;Phylogeny Structure&rdquo; variation to continue.
+		</p>
+		
+		<img src="images/SpeciesMenu.png" id="ScreenShot2" title="RiboVision SpeciesMenu" alt="RiboVision SpeciesMenu" />
+
+		<p>
+		Upon selecting the map, the 2D panel will immediately load. We have different default views for each panel. 
+		You will see the secondary structure with black letters. Up on the NavLine is what we call the Rainbow. 
+		You can see residue sequence indices from 0 to about 3000 for each residue. 
+		The 3D view of the Ribosome loads in the Jmol panel on the right. Please be aware that the Jmol panel may take a minute or two to load. 
+		You can see that the default color scheme illustrates the six different domains of ribosomal RNA. 
+		</p>
+		  <h1>Load Data:</h1>
+		<p>From here we can load data. To do this, click on one of the Data Sections in the Main menu. 
+		We have the &ldquo;Structure Data&rdquo;, &ldquo;Alignment data&rdquo;, &ldquo;Protein Data&rdquo;, and &ldquo;Interaction data&rdquo; sections. See descriptions of the data in the &ldquo;Our Data&rdquo; seciton of this manual. 
+		Also, check out this YouTube video.
+		</p>
+		<p>Loading data from the Structure Data and Alignment Data sections is easy. Just select a dataset from the relevant menu. 
+		From here, the data shown in the 1D, 2D, and 3D panels are synchronized, unless you use advanced techniques. </p>
+		<p>In the Protein data section, you can chose to visualize the entire set of the proteins for a ribosomal subunit,
+		or you can select a desired protein or subset of proteins from the list in the Protein data menu by checking the boxes. 
+		Upon selection of a set or subset of proteins, you can see that on the 2D panel, the colors of the residue letters have changed. 
+		Colored residues are residues that are in contact with a protein in the 3D structure; each residue color in the 2D structure corresponds
+		to a protein of the same color now seen in the Jmol panel.</p>
+		<p>You can also graph 3D interaction data in the 2D panel, which are shown as lines between residues that are close
+		in 3D space according to various criteria. We will demonstrate this feature by selecting &ldquo;Base Pair interactions&rdquo; 
+		from the &ldquo;Interaction Type&rdquo; menu. Some interaction types can be further characterized into subtypes, so we clear out the &ldquo;Interaction Sub-Type&rdquo; menu,
+		and choose, for example, &ldquo;cis Watson Crick&rdquo; base pairs, abbreviated as &ldquo;cWW&rdquo;. You will see that lines appear between some residues. 
+		Each line connects two residues forming a Watson Crick base pair.</p>	
+	
+	
+
+	</div>
+	<div id="FooterDiv"></div>
+	</body>
+</html>
