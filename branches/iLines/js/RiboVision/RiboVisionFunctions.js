@@ -2781,7 +2781,7 @@ function mouseMoveFunction(event){
 			return;
 			break;
 		case "move":
-			if (event.altKey == true){
+			if (event.altKey == true && event.ctrlKey == false){
 				var seleLine = getSelectedLine(event);
 				if(seleLine >=0 ){
 					var j = rvDataSets[0].BasePairs[seleLine].resIndex1;
@@ -2799,9 +2799,9 @@ function mouseMoveFunction(event){
 						$("#InteractionTip").tooltip("open");
 					}
 				}	
-			} else if (event.ctrlKey == true) {
+			} else if (event.ctrlKey == true && event.altKey == false) {
 				var sel = getSelected(event);
-				if (sel != -1) {
+				if (sel >=0) {
 					var targetLayer=rvDataSets[0].getSelectedLayer();
 					switch (targetLayer.Type){
 						case "residues" : 
@@ -2826,6 +2826,24 @@ function mouseMoveFunction(event){
 						default :
 					}
 				}
+			} else if ( event.ctrlKey == true && event.altKey == true) {
+				var seleLine = getSelectedLine(event);
+				if(seleLine >=0 ){
+					var j = rvDataSets[0].BasePairs[seleLine].resIndex1;
+					var k = rvDataSets[0].BasePairs[seleLine].resIndex2;
+					rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#LineColor").val());
+					rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
+					rvDataSets[0].HighlightLayer.CanvasContext.moveTo(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y);
+					rvDataSets[0].HighlightLayer.CanvasContext.lineTo(rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
+					rvDataSets[0].HighlightLayer.CanvasContext.closePath();
+					rvDataSets[0].HighlightLayer.CanvasContext.stroke();
+					if($('input[name="rt"][value=on]').is(':checked')){
+						createInfoWindow(seleLine,"lines");
+						$("#InteractionTip").css("bottom",$(window).height() - event.clientY);
+						$("#InteractionTip").css("left",event.clientX);
+						$("#InteractionTip").tooltip("open");
+					}
+				}	
 			} else {
 				var sel = getSelected(event);
 				if (sel >=0){
