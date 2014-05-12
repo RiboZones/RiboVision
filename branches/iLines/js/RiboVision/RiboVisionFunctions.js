@@ -511,7 +511,7 @@ function clearLineSelection(event) {
 ///////////////////////// Color Functions /////////////////////////////////////
 function colorResidue(event) {
 	var sel = getSelected(event);
-	if (sel != -1) {
+	if (sel >=0) {
 		var targetLayer=rvDataSets[0].getSelectedLayer();
 		var color = colorNameToHex($("#MainColor").val());
 		targetLayer.dataLayerColors[sel]=color;	
@@ -528,6 +528,22 @@ function colorResidue(event) {
 		}
 		//drawLabels();
 		update3Dcolors();
+	}
+}
+
+function colorLine(event) {
+	var seleLine = getSelectedLine(event);
+	if(seleLine >=0 ){
+		var	targetLayer=rvDataSets[0].getLayerByType("lines");
+		var color = colorNameToHex($("#LineColor").val());
+		var j = targetLayer[0].Data[seleLine].resIndex1;
+		var k = targetLayer[0].Data[seleLine].resIndex2;
+		var grd = rvDataSets[0].HighlightLayer.CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
+		grd.addColorStop(0, "rgba(" + h2d(color.slice(1, 3)) + "," + h2d(color.slice(3, 5)) + "," + h2d(color.slice(5)) + "," + targetLayer[0].Data[seleLine].opacity + ")");
+		grd.addColorStop(1, "rgba(" + h2d(color.slice(1, 3)) + "," + h2d(color.slice(3, 5)) + "," + h2d(color.slice(5)) + "," + targetLayer[0].Data[seleLine].opacity + ")");
+		targetLayer[0].Data[seleLine]["color"] = grd;		
+		rvDataSets[0].BasePairs[seleLine]["color"]=grd;
+		rvDataSets[0].drawBasePairs("lines");
 	}
 }
 
@@ -2748,10 +2764,13 @@ function mouseEventFunction(event) {
 		} else if (onebuttonmode == "selectL" || (event.which == 3 && event.altKey == true )) {
 			$("#canvasDiv").off("mousemove", dragHandle);
 			$("#canvasDiv").off("mousemove", mouseMoveFunction);
-		} else if (onebuttonmode == "color" || event.which == 2 || (event.which == 1 && event.ctrlKey == true)) {
+		} else if (onebuttonmode == "color" || (event.which == 2 && event.altKey == false) || (event.which == 1 && event.ctrlKey == true && event.altKey == false)) {
 			$("#canvasDiv").off("mousemove", dragHandle);
 			//$("#canvasDiv").unbind("mousemove", mouseMoveFunction);
 			colorResidue(event);
+		} else if (onebuttonmode == "colorL" || (event.which == 2 && event.altKey == true) || (event.which == 1 && event.ctrlKey == true && event.altKey == false)) {
+			$("#canvasDiv").off("mousemove", dragHandle);
+			colorLine(event);
 		} else {
 			rvViews[0].lastX = event.clientX;
 			rvViews[0].lastY = event.clientY;
@@ -2775,6 +2794,9 @@ function mouseMoveFunction(event){
 	$("#InteractionTip").tooltip("close");
 	switch (onebuttonmode){
 		case "selectL":
+			return;
+			break;
+		case "colorL":
 			return;
 			break;
 		case "select":
@@ -4446,9 +4468,13 @@ function rgb2hex(rgb) {
 ///////////////////////////////////////////////////////////////////////////////
 
 function changeLineOpacity(opacity){
-	document.getElementById('lineOpacity').innerHTML = "Line Opacity: " + opacity + "%";
+	document.getElementById('lineOpacity').innerHTML = "Line Opacity: " + Math.round(opacity * 100) + "%";
+	$.each(rvDataSets[0].BasePairs, function (ind, item) {
+		item.opacity = opacity;
+	});
+	rvDataSets[0].drawBasePairs("lines");
 }
-	////////////////Nav Line ///////
+////////////////Nav Line ///////
 
 function drawNavLine(){
 		if($('input[name="nl"][value=off]').is(':checked')){

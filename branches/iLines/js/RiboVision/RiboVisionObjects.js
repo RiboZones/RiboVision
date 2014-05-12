@@ -812,7 +812,13 @@ function rvDataSet(DataSetName) {
 				if (j >= 0 && k >= 0) {
 					switch (colorLayer.Type) {
 					case undefined:
-						targetLayer.Data[i]["color"] = "rgba(35,31,32," + targetLayer.Data[i].opacity + ")";
+						if (colorLayer == "gray_lines") {
+							targetLayer.Data[i]["color"] = "rgba(35,31,32," + targetLayer.Data[i].opacity + ")";
+						} else if (colorLayer == "manual_coloring") {
+							// do nothing
+						} else {
+							alert("Invalid color mode");
+						}
 						break;
 					case "residues":
 						var grd = colorLayer.CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);

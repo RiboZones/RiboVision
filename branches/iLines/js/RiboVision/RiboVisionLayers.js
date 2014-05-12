@@ -346,6 +346,9 @@ function LayerMenu(Layer, key, RVcolor) {
 				if (array_of_checked_values[0] === "gray_lines") {
 					rvDataSets[0].drawBasePairs("lines", "gray_lines");
 					$(event.currentTarget).parent().parent().find(':radio').attr('disabled','disabled');
+				} else if (array_of_checked_values[0] === "manual_coloring") {
+					rvDataSets[0].drawBasePairs("lines", "manual_coloring");
+					$(event.currentTarget).parent().parent().find(':radio').attr('disabled','disabled');
 				} else {
 					rvDataSets[0].drawBasePairs("lines", rvDataSets[0].getLayer(array_of_checked_values[0]));
 					$(event.currentTarget).parent().parent().find(':radio').removeAttr('disabled');
@@ -405,6 +408,7 @@ function RefreshLayerMenu(){
 		$selectbox.options.length = 0;
 		$selectbox.options[0] = new Option("All Gray", "gray_lines");
 		$selectbox.options[0].setAttribute("selected", "selected");
+		$selectbox.options[1] = new Option("Manual Coloring", "manual_coloring");
 		
 		var dsLayers = rvDataSets[0].getLayerByType(["residues","circles","selected"]);
 		$.each(dsLayers.reverse(), function (key, value) {
