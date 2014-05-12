@@ -2663,7 +2663,15 @@ function refreshBasePairs(BasePairTable) {
 			$.getJSON('getData.php', {
 				BasePairs : BasePairTable
 			}, function (basePairs2) {
+				//rvDataSets[0].BasePairs = new BasePairs;
+				//rvDataSets[0].BasePairs.addBasePairs(basePairs2);
+				
 				rvDataSets[0].BasePairs = basePairs2;
+				$.each(rvDataSets[0].BasePairs, function (ind, item) {
+					item.lineWidth = 1;
+					item.opacity = 0.5;
+				});
+				
 				rvDataSets[0].drawBasePairs("lines");
 				// Set interaction submenu to allow for subsets of these basepairs to be displayed. 
 				// For now, let's set a global variable to store the whole table, so that it doesn't have to be refetched everytime a subset is chosen. 
@@ -2677,7 +2685,7 @@ function refreshBasePairs(BasePairTable) {
 				BP_TypeU = $.grep(BP_Type, function (v, k) {
 					return $.inArray(v, BP_Type) === k;
 				});
-							
+				
 				var ims = document.getElementById("SecondaryInteractionList");
 				ims.options.length = 0;
 				$.each(BP_TypeU, function (ind, item) {

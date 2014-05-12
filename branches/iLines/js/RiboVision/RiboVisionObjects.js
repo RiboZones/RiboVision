@@ -800,19 +800,19 @@ function rvDataSet(DataSetName) {
 					var jkdist = Math.sqrt(((rvDataSets[0].Residues[j].X - rvDataSets[0].Residues[k].X) * (rvDataSets[0].Residues[j].X - rvDataSets[0].Residues[k].X) + (rvDataSets[0].Residues[j].Y - rvDataSets[0].Residues[k].Y) * (rvDataSets[0].Residues[j].Y - rvDataSets[0].Residues[k].Y)));
 					
 					if ((150 - rvViews[0].scale * 23) > jkdist) {
-						targetLayer.Data[i]["color"] = "rgba(35,31,32,0)";
+						targetLayer.Data[i]["color"] = "rgba(35,31,32," + targetLayer.Data[i].opacity + ")";
 						continue;
 					}
 					if (((rvDataSets[0].Residues[j].X * rvViews[0].scale + rvViews[0].x < 0) || (rvDataSets[0].Residues[j].X * rvViews[0].scale + rvViews[0].x > rvViews[0].clientWidth) || (rvDataSets[0].Residues[j].Y * rvViews[0].scale + rvViews[0].y < 0) || (rvDataSets[0].Residues[j].Y * rvViews[0].scale + rvViews[0].y > rvViews[0].clientHeight))
 						 && ((rvDataSets[0].Residues[k].X * rvViews[0].scale + rvViews[0].x < 0) || (rvDataSets[0].Residues[k].X * rvViews[0].scale + rvViews[0].x > rvViews[0].clientWidth) || (rvDataSets[0].Residues[k].Y * rvViews[0].scale + rvViews[0].y < 0) || (rvDataSets[0].Residues[k].Y * rvViews[0].scale + rvViews[0].y > rvViews[0].clientHeight))) {
-						targetLayer.Data[i]["color"] = "rgba(35,31,32,0)";
+						targetLayer.Data[i]["color"] = "rgba(35,31,32," + targetLayer.Data[i].opacity + ")";
 						continue;
 					}
 				}
 				if (j >= 0 && k >= 0) {
 					switch (colorLayer.Type) {
 					case undefined:
-						targetLayer.Data[i]["color"] = "rgba(35,31,32,.5)";
+						targetLayer.Data[i]["color"] = "rgba(35,31,32," + targetLayer.Data[i].opacity + ")";
 						break;
 					case "residues":
 						var grd = colorLayer.CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
@@ -820,8 +820,8 @@ function rvDataSet(DataSetName) {
 							color1 = colorNameToHex(rvDataSets[0].Residues[j].color);
 							color2 = colorNameToHex(rvDataSets[0].Residues[k].color);
 							
-							grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + ",.5)");
-							grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + ",.5)");
+							grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + "," + targetLayer.Data[i].opacity + ")");
+							grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + "," + targetLayer.Data[i].opacity + ")");
 						}
 						//colorLayer.addLinearGradient(grd);
 						targetLayer.Data[i]["color"] = grd;
@@ -832,8 +832,8 @@ function rvDataSet(DataSetName) {
 							color1 = colorNameToHex(colorLayer.dataLayerColors[j]);
 							color2 = colorNameToHex(colorLayer.dataLayerColors[k]);
 							
-							grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + ",.5)");
-							grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + ",.5)");
+							grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + "," + targetLayer.Data[i].opacity + ")");
+							grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + "," + targetLayer.Data[i].opacity + ")");
 						}
 						//colorLayer.addLinearGradient(grd);
 						targetLayer.Data[i]["color"] = grd;
@@ -845,8 +845,8 @@ function rvDataSet(DataSetName) {
 							//color2 = colorNameToHex(colorLayer.dataLayerColors[k]);
 							color1 = colorNameToHex("#231F20");
 							color2 = colorNameToHex("#231F20");
-							grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + ",.5)");
-							grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + ",.5)");
+							grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + "," + targetLayer.Data[i].opacity + ")");
+							grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + "," + targetLayer.Data[i].opacity + ")");
 						}
 						//colorLayer.addLinearGradient(grd);
 						targetLayer.Data[i]["color"] = grd;
@@ -859,7 +859,8 @@ function rvDataSet(DataSetName) {
 					targetLayer.CanvasContext.beginPath();
 					targetLayer.CanvasContext.moveTo(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y);
 					targetLayer.CanvasContext.lineTo(rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
-					targetLayer.CanvasContext.strokeStyle = targetLayer.Data[i]["color"];			
+					targetLayer.CanvasContext.strokeStyle = targetLayer.Data[i]["color"];	
+					targetLayer.CanvasContext.lineWidth = targetLayer.Data[i].lineWidth;					
 					targetLayer.CanvasContext.stroke();
 					targetLayer.CanvasContext.closePath();
 					if (zoomEnabled && (rvViews[0].scale > 10)) {
@@ -870,7 +871,7 @@ function rvDataSet(DataSetName) {
 						var xmid = rvDataSets[0].Residues[j].X - (rvDataSets[0].Residues[j].X - rvDataSets[0].Residues[k].X) / 2;
 						var ymid = rvDataSets[0].Residues[j].Y - (rvDataSets[0].Residues[j].Y - rvDataSets[0].Residues[k].Y) / 2;
 						targetLayer.CanvasContext.save();
-						targetLayer.CanvasContext.lineWidth = .2;
+						targetLayer.CanvasContext.lineWidth = 0.5;
 						targetLayer.CanvasContext.fillStyle = "white";
 						targetLayer.CanvasContext.fillRect(xmid - 2.4, ymid - .8, 4.7, 1.7);
 						targetLayer.CanvasContext.strokeRect(xmid - 2.3, ymid - .7, 4.5, 1.5);
