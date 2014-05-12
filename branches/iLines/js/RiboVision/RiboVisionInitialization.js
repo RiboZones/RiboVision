@@ -393,6 +393,13 @@ function RiboVisionReady() {
 			farbobj.setColor(colorNameToHex($("#MainColor").val()));
 		}
 	});
+	$("#colorpicker3").farbtastic("#LineColor");
+	$("#LineColor").button().addClass('ui-textfield').keydown(function (event) {
+		if (event.keyCode == 13) {
+			var farbobj = $.farbtastic("#colorpicker3");
+			farbobj.setColor(colorNameToHex($("#LineColor").val()));
+		}
+	});
 	//$("#layerColor").change(changeLayerColor);
 	
 	$("#layerColorPicker").farbtastic("#layerColor");

@@ -502,6 +502,9 @@ function selectionBox(event) {
 	rvViews[0].startY = (event.clientY - rvViews[0].y - $("#topMenu").height()) / rvViews[0].scale;
 	drag = true;
 }
+
+function clearLineSelection(event) {
+}
 ///////////////////////////////////////////////////////////////////////////////
 
 
@@ -2904,6 +2907,9 @@ function mouseWheelFunction(event,delta){
 	return false;
 
 
+}
+
+function colorLineSelection(event) {
 }
 
 ///////For popup window////
