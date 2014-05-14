@@ -814,6 +814,7 @@ function rvDataSet(DataSetName) {
 					case undefined:
 						if (colorLayer == "gray_lines") {
 							targetLayer.Data[i]["color"] = "rgba(35,31,32," + targetLayer.Data[i].opacity + ")";
+							targetLayer.Data[i]["color_hex"] = "#231F20";
 						} else if (colorLayer == "manual_coloring") {
 							// do nothing
 						} else {
@@ -831,6 +832,7 @@ function rvDataSet(DataSetName) {
 						}
 						//colorLayer.addLinearGradient(grd);
 						targetLayer.Data[i]["color"] = grd;
+						targetLayer.Data[i]["color_hex"] = color1;
 						break;
 					case "circles":
 						var grd = colorLayer.CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
@@ -843,6 +845,7 @@ function rvDataSet(DataSetName) {
 						}
 						//colorLayer.addLinearGradient(grd);
 						targetLayer.Data[i]["color"] = grd;
+						targetLayer.Data[i]["color_hex"] = color1;
 						break;
 					case "selected":
 						var grd = colorLayer.CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
@@ -856,6 +859,7 @@ function rvDataSet(DataSetName) {
 						}
 						//colorLayer.addLinearGradient(grd);
 						targetLayer.Data[i]["color"] = grd;
+						targetLayer.Data[i]["color_hex"] = color1;
 						break;
 					default:
 						alert("this shouldn't be happening right now.");

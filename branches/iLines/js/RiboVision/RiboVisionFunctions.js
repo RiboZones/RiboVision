@@ -542,7 +542,8 @@ function colorLine(event) {
 		grd.addColorStop(0, "rgba(" + h2d(color.slice(1, 3)) + "," + h2d(color.slice(3, 5)) + "," + h2d(color.slice(5)) + "," + targetLayer[0].Data[seleLine].opacity + ")");
 		grd.addColorStop(1, "rgba(" + h2d(color.slice(1, 3)) + "," + h2d(color.slice(3, 5)) + "," + h2d(color.slice(5)) + "," + targetLayer[0].Data[seleLine].opacity + ")");
 		targetLayer[0].Data[seleLine]["color"] = grd;		
-		rvDataSets[0].BasePairs[seleLine]["color"]=grd;
+		rvDataSets[0].BasePairs[seleLine]["color"]=color;
+		rvDataSets[0].BasePairs[seleLine]["color_hex"]=color;
 		rvDataSets[0].drawBasePairs("lines");
 	}
 }
@@ -3959,6 +3960,11 @@ function canvasToSVG() {
 						for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
 							var BasePair = rvDataSets[0].BasePairs[j];
 							output = output + '<line fill="none" stroke="' + '#231F20' + '" stroke-opacity="' + rvDataSets[0].BasePairs[j].color.match(/,[\.\d]+\)/g)[0].slice(1,-1) + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
+						}
+					} else if (value.ColorLayer === "manual_coloring") {
+						for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
+							var BasePair = rvDataSets[0].BasePairs[j];
+							output = output + '<line fill="none" stroke="' + BasePair.color_hex + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
 						}
 					} else {
 						if (value.ColorLayer.ColorGradientMode == "Matched") {
