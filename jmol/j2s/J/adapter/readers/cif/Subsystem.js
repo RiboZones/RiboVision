@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.adapter.readers.cif");
-Clazz.load (null, "J.adapter.readers.cif.Subsystem", ["JU.List", "$.M3", "$.Matrix", "$.V3", "J.util.Logger"], function () {
+Clazz.load (null, "J.adapter.readers.cif.Subsystem", ["JU.Lst", "$.Matrix", "$.V3", "J.api.Interface", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.msReader = null;
 this.code = null;
@@ -7,6 +7,7 @@ this.d = 0;
 this.w = null;
 this.symmetry = null;
 this.modMatrices = null;
+this.isFinalized = false;
 Clazz.instantialize (this, arguments);
 }, J.adapter.readers.cif, "Subsystem");
 Clazz.makeConstructor (c$, 
@@ -16,23 +17,23 @@ this.code = code;
 this.w = w;
 this.d = w.getArray ().length - 3;
 }, "J.adapter.readers.cif.MSReader,~S,JU.Matrix");
-$_M(c$, "getSymmetry", 
+Clazz.defineMethod (c$, "getSymmetry", 
 function () {
-if (this.modMatrices == null) this.setSymmetry (true);
+if (!this.isFinalized) this.setSymmetry (true);
 return this.symmetry;
 });
-$_M(c$, "getModMatrices", 
+Clazz.defineMethod (c$, "getModMatrices", 
 function () {
-if (this.modMatrices == null) this.setSymmetry (true);
+if (!this.isFinalized) this.setSymmetry (true);
 return this.modMatrices;
 });
-$_M(c$, "setSymmetry", 
-($fz = function (setOperators) {
+Clazz.defineMethod (c$, "setSymmetry", 
+ function (setOperators) {
 var a;
-J.util.Logger.info ("[subsystem " + this.code + "]");
+JU.Logger.info ("[subsystem " + this.code + "]");
 var winv = this.w.inverse ();
-J.util.Logger.info ("w=" + this.w);
-J.util.Logger.info ("w_inv=" + winv);
+JU.Logger.info ("w=" + this.w);
+JU.Logger.info ("w_inv=" + winv);
 var w33 = this.w.getSubmatrix (0, 0, 3, 3);
 var wd3 = this.w.getSubmatrix (3, 0, this.d, 3);
 var w3d = this.w.getSubmatrix (0, 3, 3, this.d);
@@ -40,8 +41,8 @@ var wdd = this.w.getSubmatrix (3, 3, this.d, this.d);
 var sigma = this.msReader.getSigma ();
 var sigma_nu = wdd.mul (sigma).add (wd3).mul (w3d.mul (sigma).add (w33).inverse ());
 var tFactor = wdd.sub (sigma_nu.mul (w3d));
-J.util.Logger.info ("sigma_nu = " + sigma_nu);
-var s0 = this.msReader.cr.atomSetCollection.symmetry;
+JU.Logger.info ("sigma_nu = " + sigma_nu);
+var s0 = this.msReader.cr.asc.getSymmetry ();
 var vu43 = s0.getUnitCellVectors ();
 var vr43 = this.reciprocalsOf (vu43);
 var mard3 =  new JU.Matrix (null, 3 + this.d, 3);
@@ -60,11 +61,12 @@ uc_nu[0] = vu43[0];
 for (var i = 0; i < 3; i++) uc_nu[i + 1] = JU.V3.new3 (a[i][0], a[i][1], a[i][2]);
 
 uc_nu = this.reciprocalsOf (uc_nu);
-this.symmetry = this.msReader.cr.symmetry.getUnitCell (uc_nu, false);
-if (!setOperators) return;
+this.symmetry = J.api.Interface.getSymmetry ().getUnitCell (uc_nu, false);
 this.modMatrices = [sigma_nu, tFactor];
-J.util.Logger.info ("unit cell parameters: " + this.symmetry.getUnitCellInfo ());
-this.symmetry.createSpaceGroup (-1, "[subsystem " + this.code + "]",  new JU.List ());
+if (!setOperators) return;
+this.isFinalized = true;
+JU.Logger.info ("unit cell parameters: " + this.symmetry.getUnitCellInfo ());
+this.symmetry.createSpaceGroup (-1, "[subsystem " + this.code + "]",  new JU.Lst ());
 var nOps = s0.getSpaceGroupOperationCount ();
 for (var iop = 0; iop < nOps; iop++) {
 var rv = s0.getOperationRsVs (iop);
@@ -72,35 +74,32 @@ var r0 = rv.getRotation ();
 var v0 = rv.getTranslation ();
 var r = this.w.mul (r0).mul (winv);
 var v = this.w.mul (v0);
-var jToi = null;
-if (this.isComplex (r)) {
+var code = this.code;
+if (this.isMixed (r)) {
 for (var e, $e = this.msReader.htSubsystems.entrySet ().iterator (); $e.hasNext () && ((e = $e.next ()) || true);) {
 var ss = e.getValue ();
 if (ss === this) continue;
 var rj = ss.w.mul (r0).mul (winv);
-if (!this.isComplex (rj)) {
-jToi = JU.M3.newM (this.symmetry.getMatrix ("toFractional"));
-if (ss.symmetry == null) ss.setSymmetry (false);
-jToi.mul (ss.symmetry.getMatrix ("toCartesian"));
+if (!this.isMixed (rj)) {
 r = rj;
 v = ss.w.mul (v0);
+code = ss.code;
 break;
 }}
-}var jf = this.symmetry.addOp (this.code, r, v, sigma_nu, jToi);
-J.util.Logger.info (jf);
+}var jf = this.symmetry.addOp (code, r, v, sigma_nu);
+JU.Logger.info (this.code + "." + (iop + 1) + (this.code.equals (code) ? "   " : ">" + code + " ") + jf);
 }
-System.out.println ("====");
-}, $fz.isPrivate = true, $fz), "~B");
-$_M(c$, "isComplex", 
-($fz = function (r) {
+}, "~B");
+Clazz.defineMethod (c$, "isMixed", 
+ function (r) {
 var a = r.getArray ();
 for (var i = 3; --i >= 0; ) for (var j = 3 + this.d; --j >= 3; ) if (a[i][j] != 0) return true;
 
 
 return false;
-}, $fz.isPrivate = true, $fz), "JU.Matrix");
-$_M(c$, "reciprocalsOf", 
-($fz = function (abc) {
+}, "JU.Matrix");
+Clazz.defineMethod (c$, "reciprocalsOf", 
+ function (abc) {
 var rabc =  new Array (4);
 rabc[0] = abc[0];
 for (var i = 0; i < 3; i++) {
@@ -109,8 +108,8 @@ rabc[i + 1].cross (abc[((i + 1) % 3) + 1], abc[((i + 2) % 3) + 1]);
 rabc[i + 1].scale (1 / abc[i + 1].dot (rabc[i + 1]));
 }
 return rabc;
-}, $fz.isPrivate = true, $fz), "~A");
-$_V(c$, "toString", 
+}, "~A");
+Clazz.overrideMethod (c$, "toString", 
 function () {
 return "Subsystem " + this.code + "\n" + this.w;
 });

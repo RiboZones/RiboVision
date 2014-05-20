@@ -5,7 +5,7 @@ this.name = null;
 this.fullName = null;
 Clazz.instantialize (this, arguments);
 }, JSV.js2d, "JsFile", null, javajs.api.GenericFileInterface);
-c$.newFile = $_M(c$, "newFile", 
+c$.newFile = Clazz.defineMethod (c$, "newFile", 
 function (name) {
 return  new JSV.js2d.JsFile (name);
 }, "~S");
@@ -14,31 +14,31 @@ function (name) {
 this.name = name.$replace ('\\', '/');
 this.fullName = name;
 if (!this.fullName.startsWith ("/") && JSV.common.JSVFileManager.urlTypeIndex (name) < 0) this.fullName = JSV.common.JSVFileManager.jsDocumentBase + "/" + this.fullName;
-this.fullName = JU.PT.simpleReplace (this.fullName, "/./", "/");
+this.fullName = JU.PT.rep (this.fullName, "/./", "/");
 name = name.substring (name.lastIndexOf ("/") + 1);
 }, "~S");
-$_V(c$, "getParentAsFile", 
+Clazz.overrideMethod (c$, "getParentAsFile", 
 function () {
 var pt = this.fullName.lastIndexOf ("/");
 return (pt < 0 ? null :  new JSV.js2d.JsFile (this.fullName.substring (0, pt)));
 });
-$_V(c$, "getFullPath", 
+Clazz.overrideMethod (c$, "getFullPath", 
 function () {
 return this.fullName;
 });
-$_V(c$, "getName", 
+Clazz.overrideMethod (c$, "getName", 
 function () {
 return this.name;
 });
-$_V(c$, "isDirectory", 
+Clazz.overrideMethod (c$, "isDirectory", 
 function () {
 return this.fullName.endsWith ("/");
 });
-$_V(c$, "length", 
+Clazz.overrideMethod (c$, "length", 
 function () {
 return 0;
 });
-c$.getBufferedURLInputStream = $_M(c$, "getBufferedURLInputStream", 
+c$.getBufferedURLInputStream = Clazz.defineMethod (c$, "getBufferedURLInputStream", 
 function (url, outputBytes, post) {
 try {
 var conn = url.openConnection ();
