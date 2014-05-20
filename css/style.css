@@ -274,6 +274,10 @@ canvas{
 	background-image: none;	
 }
 
+#LineColor {
+	background-image: none;	
+}
+
 html{
 	overflow: hidden;
 	width: 100%;

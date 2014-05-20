@@ -393,6 +393,13 @@ function RiboVisionReady() {
 			farbobj.setColor(colorNameToHex($("#MainColor").val()));
 		}
 	});
+	$("#colorpicker3").farbtastic("#LineColor");
+	$("#LineColor").button().addClass('ui-textfield').keydown(function (event) {
+		if (event.keyCode == 13) {
+			var farbobj = $.farbtastic("#colorpicker3");
+			farbobj.setColor(colorNameToHex($("#LineColor").val()));
+		}
+	});
 	//$("#layerColor").change(changeLayerColor);
 	
 	$("#layerColorPicker").farbtastic("#layerColor");
@@ -932,11 +939,12 @@ function RiboVisionReady() {
 	$('.ui-slider-handle').height(21).width(21);  
 	$( "#lineOpacitySlider" ).slider({
     	min : 0,
-		max : 100,
-		value : 100,
+		max : 1,
+		value : 0.5,
+		step : 0.05,
 		orientation : "horizontal",
 		slide : function (event, ui) {
-			//changeLineOpacity($(this).slider("value"));
+			changeLineOpacity(ui.value);
 		}
     });  
 	$('.ui-slider-handle').height(21).width(21);  
