@@ -502,13 +502,16 @@ function selectionBox(event) {
 	rvViews[0].startY = (event.clientY - rvViews[0].y - $("#topMenu").height()) / rvViews[0].scale;
 	drag = true;
 }
+
+function clearLineSelection(event) {
+}
 ///////////////////////////////////////////////////////////////////////////////
 
 
 ///////////////////////// Color Functions /////////////////////////////////////
 function colorResidue(event) {
 	var sel = getSelected(event);
-	if (sel != -1) {
+	if (sel >=0) {
 		var targetLayer=rvDataSets[0].getSelectedLayer();
 		var color = colorNameToHex($("#MainColor").val());
 		targetLayer.dataLayerColors[sel]=color;	
@@ -525,6 +528,23 @@ function colorResidue(event) {
 		}
 		//drawLabels();
 		update3Dcolors();
+	}
+}
+
+function colorLine(event) {
+	var seleLine = getSelectedLine(event);
+	if(seleLine >=0 ){
+		var	targetLayer=rvDataSets[0].getLayerByType("lines");
+		var color = colorNameToHex($("#LineColor").val());
+		var j = targetLayer[0].Data[seleLine].resIndex1;
+		var k = targetLayer[0].Data[seleLine].resIndex2;
+		var grd = rvDataSets[0].HighlightLayer.CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
+		grd.addColorStop(0, "rgba(" + h2d(color.slice(1, 3)) + "," + h2d(color.slice(3, 5)) + "," + h2d(color.slice(5)) + "," + targetLayer[0].Data[seleLine].opacity + ")");
+		grd.addColorStop(1, "rgba(" + h2d(color.slice(1, 3)) + "," + h2d(color.slice(3, 5)) + "," + h2d(color.slice(5)) + "," + targetLayer[0].Data[seleLine].opacity + ")");
+		targetLayer[0].Data[seleLine]["color"] = grd;		
+		rvDataSets[0].BasePairs[seleLine]["color"]=color;
+		rvDataSets[0].BasePairs[seleLine]["color_hex"]=color;
+		rvDataSets[0].drawBasePairs("lines");
 	}
 }
 
@@ -955,7 +975,15 @@ function refreshBasePairs(BasePairTable) {
 			$.getJSON('getData.php', {
 				BasePairs : BasePairTable
 			}, function (basePairs2) {
+				//rvDataSets[0].BasePairs = new BasePairs;
+				//rvDataSets[0].BasePairs.addBasePairs(basePairs2);
+				
 				rvDataSets[0].BasePairs = basePairs2;
+				$.each(rvDataSets[0].BasePairs, function (ind, item) {
+					item.lineWidth = 1;
+					item.opacity = 0.5;
+				});
+				
 				rvDataSets[0].drawBasePairs("lines");
 				// Set interaction submenu to allow for subsets of these basepairs to be displayed. 
 				// For now, let's set a global variable to store the whole table, so that it doesn't have to be refetched everytime a subset is chosen. 
@@ -969,7 +997,7 @@ function refreshBasePairs(BasePairTable) {
 				BP_TypeU = $.grep(BP_Type, function (v, k) {
 					return $.inArray(v, BP_Type) === k;
 				});
-							
+				
 				var ims = document.getElementById("SecondaryInteractionList");
 				ims.options.length = 0;
 				$.each(BP_TypeU, function (ind, item) {
@@ -1029,10 +1057,13 @@ function mouseEventFunction(event) {
 		} else if (onebuttonmode == "selectL" || (event.which == 3 && event.altKey == true )) {
 			$("#canvasDiv").off("mousemove", dragHandle);
 			$("#canvasDiv").off("mousemove", mouseMoveFunction);
-		} else if (onebuttonmode == "color" || event.which == 2 || (event.which == 1 && event.ctrlKey == true)) {
+		} else if (onebuttonmode == "color" || (event.which == 2 && event.altKey == false) || (event.which == 1 && event.ctrlKey == true && event.altKey == false)) {
 			$("#canvasDiv").off("mousemove", dragHandle);
 			//$("#canvasDiv").unbind("mousemove", mouseMoveFunction);
 			colorResidue(event);
+		} else if (onebuttonmode == "colorL" || (event.which == 2 && event.altKey == true) || (event.which == 1 && event.ctrlKey == true && event.altKey == false)) {
+			$("#canvasDiv").off("mousemove", dragHandle);
+			colorLine(event);
 		} else {
 			rvViews[0].lastX = event.clientX;
 			rvViews[0].lastY = event.clientY;
@@ -1058,11 +1089,14 @@ function mouseMoveFunction(event){
 		case "selectL":
 			return;
 			break;
+		case "colorL":
+			return;
+			break;
 		case "select":
 			return;
 			break;
 		case "move":
-			if (event.altKey == true){
+			if (event.altKey == true && event.ctrlKey == false){
 				var seleLine = getSelectedLine(event);
 				if(seleLine >=0 ){
 					var j = rvDataSets[0].BasePairs[seleLine].resIndex1;
@@ -1080,9 +1114,9 @@ function mouseMoveFunction(event){
 						$("#InteractionTip").tooltip("open");
 					}
 				}	
-			} else if (event.ctrlKey == true) {
+			} else if (event.ctrlKey == true && event.altKey == false) {
 				var sel = getSelected(event);
-				if (sel != -1) {
+				if (sel >=0) {
 					var targetLayer=rvDataSets[0].getSelectedLayer();
 					switch (targetLayer.Type){
 						case "residues" : 
@@ -1107,6 +1141,24 @@ function mouseMoveFunction(event){
 						default :
 					}
 				}
+			} else if ( event.ctrlKey == true && event.altKey == true) {
+				var seleLine = getSelectedLine(event);
+				if(seleLine >=0 ){
+					var j = rvDataSets[0].BasePairs[seleLine].resIndex1;
+					var k = rvDataSets[0].BasePairs[seleLine].resIndex2;
+					rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#LineColor").val());
+					rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
+					rvDataSets[0].HighlightLayer.CanvasContext.moveTo(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y);
+					rvDataSets[0].HighlightLayer.CanvasContext.lineTo(rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
+					rvDataSets[0].HighlightLayer.CanvasContext.closePath();
+					rvDataSets[0].HighlightLayer.CanvasContext.stroke();
+					if($('input[name="rt"][value=on]').is(':checked')){
+						createInfoWindow(seleLine,"lines");
+						$("#InteractionTip").css("bottom",$(window).height() - event.clientY);
+						$("#InteractionTip").css("left",event.clientX);
+						$("#InteractionTip").tooltip("open");
+					}
+				}	
 			} else {
 				var sel = getSelected(event);
 				if (sel >=0){
@@ -1188,6 +1240,9 @@ function mouseWheelFunction(event,delta){
 	return false;
 
 
+}
+
+function colorLineSelection(event) {
 }
 
 ///////For popup window////
@@ -2198,6 +2253,11 @@ function canvasToSVG() {
 							var BasePair = rvDataSets[0].BasePairs[j];
 							output = output + '<line fill="none" stroke="' + '#231F20' + '" stroke-opacity="' + rvDataSets[0].BasePairs[j].color.match(/,[\.\d]+\)/g)[0].slice(1,-1) + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
 						}
+					} else if (value.ColorLayer === "manual_coloring") {
+						for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
+							var BasePair = rvDataSets[0].BasePairs[j];
+							output = output + '<line fill="none" stroke="' + BasePair.color_hex + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
+						}
 					} else {
 						if (value.ColorLayer.ColorGradientMode == "Matched") {
 							//var grd_order = [0, 1];
@@ -2706,9 +2766,13 @@ function rgb2hex(rgb) {
 ///////////////////////////////////////////////////////////////////////////////
 
 function changeLineOpacity(opacity){
-	document.getElementById('lineOpacity').innerHTML = "Line Opacity: " + opacity + "%";
+	document.getElementById('lineOpacity').innerHTML = "Line Opacity: " + Math.round(opacity * 100) + "%";
+	$.each(rvDataSets[0].BasePairs, function (ind, item) {
+		item.opacity = opacity;
+	});
+	rvDataSets[0].drawBasePairs("lines");
 }
-	////////////////Nav Line ///////
+////////////////Nav Line ///////
 
 function drawNavLine(){
 		if($('input[name="nl"][value=off]').is(':checked')){
