@@ -24,10 +24,10 @@ Clazz.makeConstructor (c$,
 function () {
 Clazz.superConstructor (this, J.thread.MoveThread, []);
 });
-$_V(c$, "setManager", 
-function (manager, viewer, params) {
+Clazz.overrideMethod (c$, "setManager", 
+function (manager, vwr, params) {
 var options = params;
-this.setViewer (viewer, "MoveThread");
+this.setViewer (vwr, "MoveThread");
 this.transformManager = manager;
 this.dRot = options[0];
 this.dTrans = options[1];
@@ -47,15 +47,15 @@ var radiansPerDegreePerStep = (1 / 57.29577951308232 / this.totalSteps);
 this.radiansXStep = radiansPerDegreePerStep * this.dRot.x;
 this.radiansYStep = radiansPerDegreePerStep * this.dRot.y;
 this.radiansZStep = radiansPerDegreePerStep * this.dRot.z;
-this.zoomPercent0 = this.transformManager.zoomPercent;
+this.zoomPercent0 = this.transformManager.zmPct;
 this.iStep = 0;
 return this.totalSteps;
-}, "~O,J.viewer.Viewer,~O");
-$_V(c$, "run1", 
+}, "~O,JV.Viewer,~O");
+Clazz.overrideMethod (c$, "run1", 
 function (mode) {
 while (true) switch (mode) {
 case -1:
-if (this.floatSecondsTotal > 0) this.viewer.setInMotion (true);
+if (this.floatSecondsTotal > 0) this.vwr.setInMotion (true);
 mode = 0;
 break;
 case 0:
@@ -73,8 +73,8 @@ if (this.dSlab != 0) this.transformManager.slabToPercent (Clazz.doubleToInt (Mat
 var timeSpent = (System.currentTimeMillis () - this.startTime);
 var timeAllowed = this.iStep * this.timePerStep;
 if (timeSpent < timeAllowed) {
-this.viewer.requestRepaintAndWait ("moveThread");
-if (!this.isJS && !this.viewer.isScriptExecuting ()) {
+this.vwr.requestRepaintAndWait ("moveThread");
+if (!this.isJS && !this.vwr.isScriptExecuting ()) {
 mode = -2;
 break;
 }timeSpent = (System.currentTimeMillis () - this.startTime);
@@ -82,7 +82,7 @@ this.sleepTime = timeAllowed - timeSpent;
 if (!this.runSleep (this.sleepTime, 0)) return;
 }break;
 case -2:
-if (this.floatSecondsTotal > 0) this.viewer.setInMotion (false);
+if (this.floatSecondsTotal > 0) this.vwr.setInMotion (false);
 this.resumeEval ();
 return;
 }

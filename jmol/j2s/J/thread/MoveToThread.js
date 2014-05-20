@@ -50,20 +50,20 @@ Clazz.makeConstructor (c$,
 function () {
 Clazz.superConstructor (this, J.thread.MoveToThread, []);
 });
-$_V(c$, "setManager", 
-function (manager, viewer, params) {
+Clazz.overrideMethod (c$, "setManager", 
+function (manager, vwr, params) {
 var options = params;
-this.setViewer (viewer, "MoveToThread");
+this.setViewer (vwr, "MoveToThread");
 this.transformManager = manager;
 this.center = options[0];
-this.matrixEnd.setM (options[1]);
+this.matrixEnd.setM3 (options[1]);
 var f = options[3];
 this.ptMoveToCenter = (this.center == null ? this.transformManager.fixedRotationCenter : this.center);
 this.floatSecondsTotal = f[0];
-this.zoom = this.newSlider (this.transformManager.zoomPercent, f[1]);
+this.zoom = this.newSlider (this.transformManager.zmPct, f[1]);
 this.xTrans = this.newSlider (this.transformManager.getTranslationXPercent (), f[2]);
 this.yTrans = this.newSlider (this.transformManager.getTranslationYPercent (), f[3]);
-this.rotationRadius = this.newSlider (this.transformManager.modelRadius, (this.center == null || Float.isNaN (f[4]) ? this.transformManager.modelRadius : f[4] <= 0 ? viewer.calcRotationRadius (this.center) : f[4]));
+this.rotationRadius = this.newSlider (this.transformManager.modelRadius, (this.center == null || Float.isNaN (f[4]) ? this.transformManager.modelRadius : f[4] <= 0 ? vwr.calcRotationRadius (this.center) : f[4]));
 this.pixelScale = this.newSlider (this.transformManager.scaleDefaultPixelsPerAngstrom, f[5]);
 if (f[6] != 0) {
 this.navCenter = options[2];
@@ -87,16 +87,16 @@ if (this.navCenter != null && this.transformManager.mode == 1) {
 this.aaStepNavCenter.sub2 (this.navCenter, this.transformManager.navigationCenter);
 this.aaStepNavCenter.scale (1 / this.totalSteps);
 }return this.totalSteps;
-}, "~O,J.viewer.Viewer,~O");
-$_M(c$, "newSlider", 
-($fz = function (start, value) {
+}, "~O,JV.Viewer,~O");
+Clazz.defineMethod (c$, "newSlider", 
+ function (start, value) {
 return (Float.isNaN (value) || value == 3.4028235E38 ? null : Clazz.innerTypeInstance (J.thread.MoveToThread.Slider, this, null, start, value));
-}, $fz.isPrivate = true, $fz), "~N,~N");
-$_V(c$, "run1", 
+}, "~N,~N");
+Clazz.overrideMethod (c$, "run1", 
 function (mode) {
 while (true) switch (mode) {
 case -1:
-if (this.totalSteps > 0) this.viewer.setInMotion (true);
+if (this.totalSteps > 0) this.vwr.setInMotion (true);
 mode = 0;
 break;
 case 0:
@@ -111,8 +111,8 @@ var doRender = (this.currentTime < this.targetTime);
 if (!doRender && this.isJS) {
 this.targetTime = this.currentTime;
 doRender = true;
-}if (doRender) this.viewer.requestRepaintAndWait ("movetoThread");
-if (this.transformManager.motion == null || !this.isJS && this.eval != null && !this.viewer.isScriptExecuting ()) {
+}if (doRender) this.vwr.requestRepaintAndWait ("movetoThread");
+if (this.transformManager.movetoThread == null || !this.transformManager.movetoThread.$name.equals (this.$name) || !this.isJS && this.eval != null && !this.vwr.isScriptExecuting ()) {
 this.stopped = true;
 break;
 }this.currentTime = System.currentTimeMillis ();
@@ -122,18 +122,18 @@ mode = 0;
 break;
 case -2:
 if (this.totalSteps <= 0 || this.doEndMove && !this.stopped) this.doFinalTransform ();
-if (this.totalSteps > 0) this.viewer.setInMotion (false);
-this.viewer.moveUpdate (this.floatSecondsTotal);
-if (this.transformManager.motion != null && !this.stopped) {
-this.transformManager.motion = null;
-this.viewer.finalizeTransformParameters ();
+if (this.totalSteps > 0) this.vwr.setInMotion (false);
+this.vwr.moveUpdate (this.floatSecondsTotal);
+if (this.transformManager.movetoThread != null && !this.stopped) {
+this.transformManager.movetoThread = null;
+this.vwr.finalizeTransformParameters ();
 }this.resumeEval ();
 return;
 }
 
 }, "~N");
-$_M(c$, "doStepTransform", 
-($fz = function () {
+Clazz.defineMethod (c$, "doStepTransform", 
+ function () {
 if (!Float.isNaN (this.matrixEnd.m00)) {
 this.transformManager.getRotation (this.matrixStart);
 this.matrixStartInv.invertM (this.matrixStart);
@@ -141,7 +141,7 @@ this.matrixStep.mul2 (this.matrixEnd, this.matrixStartInv);
 this.aaTotal.setM (this.matrixStep);
 this.aaStep.setAA (this.aaTotal);
 this.aaStep.angle /= (this.totalSteps - this.iStep);
-if (this.aaStep.angle == 0) this.matrixStep.setIdentity ();
+if (this.aaStep.angle == 0) this.matrixStep.setScale (1);
  else this.matrixStep.setAA (this.aaStep);
 this.matrixStep.mul (this.matrixStart);
 }this.fStep = this.iStep / (this.totalSteps - 1);
@@ -151,27 +151,27 @@ var pt = JU.P3.newP (this.transformManager.navigationCenter);
 pt.add (this.aaStepNavCenter);
 this.transformManager.setNavigatePt (pt);
 }this.setValues (this.matrixStep, null, null);
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "doFinalTransform", 
-($fz = function () {
+});
+Clazz.defineMethod (c$, "doFinalTransform", 
+ function () {
 this.fStep = -1;
 this.setValues (this.matrixEnd, this.center, this.navCenter);
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "setValues", 
-($fz = function (m, center, navCenter) {
+});
+Clazz.defineMethod (c$, "setValues", 
+ function (m, center, navCenter) {
 this.transformManager.setAll (center, m, navCenter, this.getVal (this.zoom), this.getVal (this.xTrans), this.getVal (this.yTrans), this.getVal (this.rotationRadius), this.getVal (this.pixelScale), this.getVal (this.navDepth), this.getVal (this.xNav), this.getVal (this.yNav), this.getVal (this.cameraDepth), this.getVal (this.cameraX), this.getVal (this.cameraY));
-}, $fz.isPrivate = true, $fz), "JU.M3,JU.P3,JU.P3");
-$_M(c$, "getVal", 
-($fz = function (s) {
+}, "JU.M3,JU.P3,JU.P3");
+Clazz.defineMethod (c$, "getVal", 
+ function (s) {
 return (s == null ? NaN : s.getVal (this.fStep));
-}, $fz.isPrivate = true, $fz), "J.thread.MoveToThread.Slider");
-$_M(c$, "interrupt", 
+}, "J.thread.MoveToThread.Slider");
+Clazz.defineMethod (c$, "interrupt", 
 function () {
 this.doEndMove = false;
 Clazz.superCall (this, J.thread.MoveToThread, "interrupt", []);
 });
 c$.$MoveToThread$Slider$ = function () {
-Clazz.pu$h ();
+Clazz.pu$h(self.c$);
 c$ = Clazz.decorateAsClass (function () {
 Clazz.prepareCallback (this, arguments);
 this.start = 0;
@@ -185,7 +185,7 @@ this.start = a;
 this.value = b;
 this.delta = b - a;
 }, "~N,~N");
-$_M(c$, "getVal", 
+Clazz.defineMethod (c$, "getVal", 
 function (a) {
 return (a < 0 ? this.value : this.start + a * this.delta);
 }, "~N");

@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.shapespecial");
-Clazz.load (null, "J.shapespecial.Dipole", ["JU.P3", "$.SB", "$.V3", "J.util.C", "$.Escape"], function () {
+Clazz.load (null, "J.shapespecial.Dipole", ["JU.P3", "$.SB", "$.V3", "JU.C", "$.Escape"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.thisID = "";
 this.mad = 0;
@@ -42,11 +42,11 @@ this.mad = mad;
 this.visible = visible;
 this.type = 0;
 }, "~N,~S,~S,~N,~N,~B");
-$_M(c$, "setTranslucent", 
+Clazz.defineMethod (c$, "setTranslucent", 
 function (isTranslucent, translucentLevel) {
-this.colix = J.util.C.getColixTranslucent3 (this.colix, isTranslucent, translucentLevel);
+this.colix = JU.C.getColixTranslucent3 (this.colix, isTranslucent, translucentLevel);
 }, "~B,~N");
-$_M(c$, "set", 
+Clazz.defineMethod (c$, "set", 
 function (thisID, dipoleInfo, atoms, dipoleValue, mad, offsetAngstroms, offsetPercent, offsetSide, origin, vector) {
 this.thisID = thisID;
 this.dipoleInfo = dipoleInfo;
@@ -65,8 +65,8 @@ this.centerDipole ();
 } else {
 this.center = null;
 }}, "~S,~S,~A,~N,~N,~N,~N,~N,JU.P3,JU.V3");
-$_M(c$, "set", 
-($fz = function (pt1, pt2) {
+Clazz.defineMethod (c$, "set", 
+ function (pt1, pt2) {
 this.coords[0] = JU.P3.newP (pt1);
 this.coords[1] = JU.P3.newP (pt2);
 this.isValid = (this.coords[0].distance (this.coords[1]) > 0.1);
@@ -82,8 +82,8 @@ this.vector.sub (this.origin);
 if (this.dipoleValue == 0) this.dipoleValue = this.vector.length ();
  else this.vector.scale (this.dipoleValue / this.vector.length ());
 this.type = 1;
-}, $fz.isPrivate = true, $fz), "JU.P3,JU.P3");
-$_M(c$, "set", 
+}, "JU.P3,JU.P3");
+Clazz.defineMethod (c$, "set", 
 function (value) {
 var d = this.dipoleValue;
 this.dipoleValue = value;
@@ -92,13 +92,13 @@ if (this.vector == null) return;
 this.vector.scale (this.dipoleValue / this.vector.length ());
 if (d * this.dipoleValue < 0) this.origin.sub (this.vector);
 }, "~N");
-$_M(c$, "set", 
+Clazz.defineMethod (c$, "set", 
 function (pt1, pt2, value) {
 this.dipoleValue = value;
 this.atoms[0] = null;
 this.set (pt1, pt2);
 }, "JU.P3,JU.P3,~N");
-$_M(c$, "set", 
+Clazz.defineMethod (c$, "set", 
 function (pt1, dipole) {
 this.set (dipole.length ());
 var pt2 = JU.P3.newP (pt1);
@@ -106,7 +106,7 @@ pt2.add (dipole);
 this.set (pt1, pt2);
 this.type = 5;
 }, "JU.P3,JU.V3");
-$_M(c$, "set", 
+Clazz.defineMethod (c$, "set", 
 function (atom1, atom2, value) {
 this.set (value);
 this.set (atom1, atom2);
@@ -116,8 +116,8 @@ this.atoms[0] = atom1;
 this.atoms[1] = atom2;
 this.haveAtoms = true;
 this.centerDipole ();
-}, "J.modelset.Atom,J.modelset.Atom,~N");
-$_M(c$, "centerDipole", 
+}, "JM.Atom,JM.Atom,~N");
+Clazz.defineMethod (c$, "centerDipole", 
 function () {
 this.isValid = (this.atoms[0] !== this.atoms[1] && this.dipoleValue != 0);
 if (!this.isValid) return;
@@ -128,18 +128,18 @@ this.center.scaleAdd2 (0.5, this.vector, this.origin);
 this.bond = this.atoms[0].getBond (this.atoms[1]);
 this.type = (this.bond == null ? 2 : 3);
 });
-$_M(c$, "isBondType", 
+Clazz.defineMethod (c$, "isBondType", 
 function () {
 return (this.type == 2 || this.type == 3);
 });
-$_M(c$, "getShapeState", 
+Clazz.defineMethod (c$, "getShapeState", 
 function () {
 if (!this.isValid) return "";
 var s =  new JU.SB ();
 s.append ("dipole ID ").append (this.thisID);
-if (this.haveAtoms) s.append (" ({").appendI (this.atoms[0].getIndex ()).append (" ").appendI (this.atoms[1].getIndex ()).append ("})");
+if (this.haveAtoms) s.append (" ({").appendI (this.atoms[0].i).append (" ").appendI (this.atoms[1].i).append ("})");
  else if (this.coords[0] == null) return "";
- else s.append (" ").append (J.util.Escape.eP (this.coords[0])).append (" ").append (J.util.Escape.eP (this.coords[1]));
+ else s.append (" ").append (JU.Escape.eP (this.coords[0])).append (" ").append (JU.Escape.eP (this.coords[1]));
 if (this.isUserValue) s.append (" value ").appendF (this.dipoleValue);
 if (this.mad != 5) s.append (" width ").appendF (this.mad / 1000);
 if (this.offsetAngstroms != 0) s.append (" offset ").appendF (this.offsetAngstroms);
