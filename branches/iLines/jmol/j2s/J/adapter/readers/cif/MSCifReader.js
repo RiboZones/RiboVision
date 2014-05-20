@@ -1,21 +1,31 @@
 Clazz.declarePackage ("J.adapter.readers.cif");
-Clazz.load (["J.adapter.readers.cif.MSReader", "J.adapter.smarter.MSCifInterface"], "J.adapter.readers.cif.MSCifReader", ["java.lang.Character", "$.Double", "JU.Matrix", "$.PT"], function () {
+Clazz.load (["J.adapter.readers.cif.MSCifInterface", "$.MSReader"], "J.adapter.readers.cif.MSCifReader", ["java.lang.Character", "$.Double", "JU.Matrix", "$.PT"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.field = null;
 Clazz.instantialize (this, arguments);
-}, J.adapter.readers.cif, "MSCifReader", J.adapter.readers.cif.MSReader, J.adapter.smarter.MSCifInterface);
+}, J.adapter.readers.cif, "MSCifReader", J.adapter.readers.cif.MSReader, J.adapter.readers.cif.MSCifInterface);
 Clazz.makeConstructor (c$, 
 function () {
 Clazz.superConstructor (this, J.adapter.readers.cif.MSCifReader, []);
 });
-$_V(c$, "processModulationLoopBlock", 
+Clazz.overrideMethod (c$, "processEntry", 
 function () {
-if (this.modAverage) return false;
 var cr = this.cr;
-if (cr.atomSetCollection.getCurrentAtomSetIndex () < 0) cr.atomSetCollection.newAtomSet ();
+if (cr.key.equals ("_jana_cell_commen_t_section_1")) {
+this.isCommensurate = true;
+this.commensurateSection1 = cr.parseIntStr (cr.data);
+}});
+Clazz.overrideMethod (c$, "processLoopBlock", 
+function () {
+var cr = this.cr;
+if (cr.key.equals ("_cell_subsystem_code")) {
+this.processSubsystemLoopBlock ();
+return 1;
+}if (!cr.key.startsWith ("_cell_wave") && !cr.key.contains ("fourier") && !cr.key.contains ("_special_func")) return 0;
+if (cr.asc.iSet < 0) cr.asc.newAtomSet ();
 cr.parseLoopParameters (J.adapter.readers.cif.MSCifReader.modulationFields);
 var tok;
-while (cr.tokenizer.getData ()) {
+while (cr.parser.getData ()) {
 var ignore = false;
 var id = null;
 var atomLabel = null;
@@ -24,7 +34,8 @@ var pt = [NaN, NaN, NaN];
 var c = NaN;
 var w = NaN;
 var fid = null;
-for (var i = 0; i < cr.tokenizer.fieldCount; ++i) {
+var n = cr.parser.getFieldCount ();
+for (var i = 0; i < n; ++i) {
 switch (tok = this.fieldProperty (cr, i)) {
 case 40:
 case 41:
@@ -77,19 +88,19 @@ case 33:
 atomLabel = this.field;
 break;
 case 12:
-if (this.modAxes != null && this.modAxes.indexOf (axis.toUpperCase ()) < 0) ignore = true;
 axis = this.field;
+if (this.modAxes != null && this.modAxes.indexOf (axis.toUpperCase ()) < 0) ignore = true;
 break;
 case 34:
 axis = this.field.toUpperCase ();
 break;
-case 50:
-case 48:
-case 52:
-case 20:
-case 14:
-case 36:
+case 21:
 case 31:
+case 15:
+case 37:
+case 53:
+case 49:
+case 51:
 pt[2] = 0;
 case 1:
 case 5:
@@ -107,22 +118,22 @@ case 38:
 pt[0] = cr.parseFloatStr (this.field);
 pt[2] = 1;
 break;
-case 51:
-case 21:
+case 50:
+case 20:
 axis = "0";
 case 2:
 case 6:
 case 9:
-case 15:
 case 17:
 case 23:
-case 37:
 case 39:
 case 32:
 case 26:
 case 47:
-case 53:
-case 49:
+case 14:
+case 36:
+case 48:
+case 52:
 pt[1] = cr.parseFloatStr (this.field);
 break;
 case 3:
@@ -164,42 +175,43 @@ break;
 this.addMod (id, fid, pt);
 }
 }
-return true;
+return 1;
 });
-$_M(c$, "addMod", 
-($fz = function (id, fid, params) {
+Clazz.defineMethod (c$, "addMod", 
+ function (id, fid, params) {
 if (fid != null) id += fid;
 this.addModulation (null, id, params, -1);
-}, $fz.isPrivate = true, $fz), "~S,~S,~A");
-$_V(c$, "processSubsystemLoopBlock", 
-function () {
+}, "~S,~S,~A");
+Clazz.defineMethod (c$, "processSubsystemLoopBlock", 
+ function () {
 var cr = this.cr;
 cr.parseLoopParameters (null);
-while (cr.tokenizer.getData ()) {
+while (cr.parser.getData ()) {
 this.fieldProperty (cr, 0);
 var id = this.field;
 this.addSubsystem (id, this.getSubSystemMatrix (cr, 1));
 }
 });
-$_M(c$, "getSubSystemMatrix", 
-($fz = function (cr, i) {
+Clazz.defineMethod (c$, "getSubSystemMatrix", 
+ function (cr, i) {
 var m =  new JU.Matrix (null, 3 + this.modDim, 3 + this.modDim);
 var a = m.getArray ();
 var key;
 var p;
-for (; i < cr.tokenizer.fieldCount; ++i) {
-if ((p = this.fieldProperty (cr, i)) < 0 || !(key = cr.fields[p]).contains ("_w_")) continue;
+var n = cr.parser.getFieldCount ();
+for (; i < n; ++i) {
+if ((p = this.fieldProperty (cr, i)) < 0 || !(key = cr.parser.getField (p)).contains ("_w_")) continue;
 var tokens = JU.PT.split (key, "_");
 var r = cr.parseIntStr (tokens[tokens.length - 2]) - 1;
 var c = cr.parseIntStr (tokens[tokens.length - 1]) - 1;
 a[r][c] = cr.parseFloatStr (this.field);
 }
 return m;
-}, $fz.isPrivate = true, $fz), "J.adapter.readers.cif.CifReader,~N");
-$_M(c$, "fieldProperty", 
-($fz = function (cr, i) {
-return ((this.field = cr.tokenizer.loopData[i]).length > 0 && this.field.charAt (0) != '\0' ? cr.propertyOf[i] : -1);
-}, $fz.isPrivate = true, $fz), "J.adapter.readers.cif.CifReader,~N");
+}, "J.adapter.readers.cif.CifReader,~N");
+Clazz.defineMethod (c$, "fieldProperty", 
+ function (cr, i) {
+return ((this.field = cr.parser.getLoopData (i)).length > 0 && this.field.charAt (0) != '\0' ? cr.propertyOf[i] : -1);
+}, "J.adapter.readers.cif.CifReader,~N");
 Clazz.defineStatics (c$,
 "WV_ID", 0,
 "WV_X", 1,
