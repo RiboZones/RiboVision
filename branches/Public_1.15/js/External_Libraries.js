@@ -15019,12 +15019,7 @@ $.widget( "ui.tooltip", {
 
 }( jQuery ) );
 
-
-
 //jquery.csv-0.71.min.js
-
-
-
 RegExp.escape=function(s){return s.replace(/[-\/\\^$*+?.()|[\]{}]/g,'\\$&');};(function($){'use strict'
 $.csv={defaults:{separator:',',delimiter:'"',headers:true},hooks:{castToScalar:function(value,state){var hasDot=/\./;if(isNaN(value)){return value;}else{if(hasDot.test(value)){return parseFloat(value);}else{var integer=parseInt(value);if(isNaN(integer)){return null;}else{return integer;}}}}},parsers:{parse:function(csv,options){var separator=options.separator;var delimiter=options.delimiter;if(!options.state.rowNum){options.state.rowNum=1;}
 if(!options.state.colNum){options.state.colNum=1;}
@@ -15100,8 +15095,6 @@ if(!config.callback){return output;}else{config.callback('',output);}}};$.csvEnt
 
 
 //jquery.mousewheel.min.js
-
-
 /*! Copyright (c) 2011 Brandon Aaron (http://brandonaaron.net)
  * Licensed under the MIT License (LICENSE.txt).
  *
@@ -15115,20 +15108,7 @@ if(!config.callback){return output;}else{config.callback('',output);}}};$.csvEnt
  */
 (function(a){function d(b){var c=b||window.event,d=[].slice.call(arguments,1),e=0,f=!0,g=0,h=0;return b=a.event.fix(c),b.type="mousewheel",c.wheelDelta&&(e=c.wheelDelta/120),c.detail&&(e=-c.detail/3),h=e,c.axis!==undefined&&c.axis===c.HORIZONTAL_AXIS&&(h=0,g=-1*e),c.wheelDeltaY!==undefined&&(h=c.wheelDeltaY/120),c.wheelDeltaX!==undefined&&(g=-1*c.wheelDeltaX/120),d.unshift(b,e,g,h),(a.event.dispatch||a.event.handle).apply(this,d)}var b=["DOMMouseScroll","mousewheel"];if(a.event.fixHooks)for(var c=b.length;c;)a.event.fixHooks[b[--c]]=a.event.mouseHooks;a.event.special.mousewheel={setup:function(){if(this.addEventListener)for(var a=b.length;a;)this.addEventListener(b[--a],d,!1);else this.onmousewheel=d},teardown:function(){if(this.removeEventListener)for(var a=b.length;a;)this.removeEventListener(b[--a],d,!1);else this.onmousewheel=null}},a.fn.extend({mousewheel:function(a){return a?this.bind("mousewheel",a):this.trigger("mousewheel")},unmousewheel:function(a){return this.unbind("mousewheel",a)}})})(jQuery)
 
-
-
-//jquery.multiselect.filter.min.js
-
-
-(function($){var rEscape=/[\-\[\]{}()*+?.,\\\^$|#\s]/g;$.widget('ech.multiselectfilter',{options:{label:'Filter:',width:null,placeholder:'Enter keywords',autoReset:false},_create:function(){var opts=this.options;var elem=$(this.element);var instance=(this.instance=(elem.data('ech-multiselect')||elem.data("multiselect")));var header=(this.header=instance.menu.find('.ui-multiselect-header').addClass('ui-multiselect-hasfilter'));var wrapper=(this.wrapper=$('<div class="ui-multiselect-filter">'+(opts.label.length?opts.label:'')+'<input placeholder="'+opts.placeholder+'" type="search"'+(/\d/.test(opts.width)?'style="width:'+opts.width+'px"':'')+' /></div>').prependTo(this.header));this.inputs=instance.menu.find('input[type="checkbox"], input[type="radio"]');this.input=wrapper.find('input').bind({keydown:function(e){if(e.which===13){e.preventDefault();}},keyup:$.proxy(this._handler,this),click:$.proxy(this._handler,this)});this.updateCache();instance._toggleChecked=function(flag,group){var $inputs=(group&&group.length)?group:this.labels.find('input');var _self=this;var selector=instance._isOpen?':disabled, :hidden':':disabled';$inputs=$inputs.not(selector).each(this._toggleState('checked',flag));this.update();var values=$inputs.map(function(){return this.value;}).get();this.element.find('option').filter(function(){if(!this.disabled&&$.inArray(this.value,values)>-1){_self._toggleState('selected',flag).call(this);}});if($inputs.length){this.element.trigger('change');}};var doc=$(document).bind('multiselectrefresh',$.proxy(function(){this.updateCache();this._handler();},this));if(this.options.autoReset){doc.bind('multiselectclose',$.proxy(this._reset,this));}},_handler:function(e){var term=$.trim(this.input[0].value.toLowerCase()),rows=this.rows,inputs=this.inputs,cache=this.cache;if(!term){rows.show();}else{rows.hide();var regex=new RegExp(term.replace(rEscape,"\\$&"),'gi');this._trigger("filter",e,$.map(cache,function(v,i){if(v.search(regex)!==-1){rows.eq(i).show();return inputs.get(i);}
-return null;}));}
-this.instance.menu.find(".ui-multiselect-optgroup-label").each(function(){var $this=$(this);var isVisible=$this.nextUntil('.ui-multiselect-optgroup-label').filter(function(){return $.css(this,"display")!=='none';}).length;$this[isVisible?'show':'hide']();});},_reset:function(){this.input.val('').trigger('keyup');},updateCache:function(){this.rows=this.instance.menu.find(".ui-multiselect-checkboxes li:not(.ui-multiselect-optgroup-label)");this.cache=this.element.children().map(function(){var elem=$(this);if(this.tagName.toLowerCase()==="optgroup"){elem=elem.children();}
-return elem.map(function(){return this.innerHTML.toLowerCase();}).get();}).get();},widget:function(){return this.wrapper;},destroy:function(){$.Widget.prototype.destroy.call(this);this.input.val('').trigger("keyup");this.wrapper.remove();}});})(jQuery);
-
-
 //jquery.multiselect.min.js
-
-
 (function($,undefined){var multiselectID=0;var $doc=$(document);$.widget("ech.multiselect",{options:{header:true,height:175,minWidth:225,classes:'',checkAllText:'Check all',uncheckAllText:'Uncheck all',noneSelectedText:'Select options',selectedText:'# selected',selectedList:0,show:null,hide:null,autoOpen:false,multiple:true,position:{}},_create:function(){var el=this.element.hide();var o=this.options;this.speed=$.fx.speeds._default;this._isOpen=false;this._namespaceID=this.eventNamespace||('multiselect'+multiselectID);var button=(this.button=$('<button type="button"><span class="ui-icon ui-icon-triangle-1-s"></span></button>')).addClass('ui-multiselect ui-widget ui-state-default ui-corner-all').addClass(o.classes).attr({'title':el.attr('title'),'aria-haspopup':true,'tabIndex':el.attr('tabIndex')}).insertAfter(el),buttonlabel=(this.buttonlabel=$('<span />')).html(o.noneSelectedText).appendTo(button),menu=(this.menu=$('<div />')).addClass('ui-multiselect-menu ui-widget ui-widget-content ui-corner-all').addClass(o.classes).appendTo(document.body),header=(this.header=$('<div />')).addClass('ui-widget-header ui-corner-all ui-multiselect-header ui-helper-clearfix').appendTo(menu),headerLinkContainer=(this.headerLinkContainer=$('<ul />')).addClass('ui-helper-reset').html(function(){if(o.header===true){return'<li><a class="ui-multiselect-all" href="#"><span class="ui-icon ui-icon-check"></span><span>'+o.checkAllText+'</span></a></li><li><a class="ui-multiselect-none" href="#"><span class="ui-icon ui-icon-closethick"></span><span>'+o.uncheckAllText+'</span></a></li>';}else if(typeof o.header==="string"){return'<li>'+o.header+'</li>';}else{return'';}}).append('<li class="ui-multiselect-close"><a href="#" class="ui-multiselect-close"><span class="ui-icon ui-icon-circle-close"></span></a></li>').appendTo(header),checkboxContainer=(this.checkboxContainer=$('<ul />')).addClass('ui-multiselect-checkboxes ui-helper-reset').appendTo(menu);this._bindEvents();this.refresh(true);if(!o.multiple){menu.addClass('ui-multiselect-single');}
 multiselectID++;},_init:function(){if(this.options.header===false){this.header.hide();}
 if(!this.options.multiple){this.headerLinkContainer.find('.ui-multiselect-all, .ui-multiselect-none').hide();}
@@ -15157,6 +15137,11 @@ if(effect){args=[effect,speed];}
 $.fn.hide.apply(this.menu,args);this.button.removeClass('ui-state-active').trigger('blur').trigger('mouseleave');this._isOpen=false;this._trigger('close');},enable:function(){this._toggleDisabled(false);},disable:function(){this._toggleDisabled(true);},checkAll:function(e){this._toggleChecked(true);this._trigger('checkAll');},uncheckAll:function(){this._toggleChecked(false);this._trigger('uncheckAll');},getChecked:function(){return this.menu.find('input').filter(':checked');},destroy:function(){$.Widget.prototype.destroy.call(this);$doc.unbind(this._namespaceID);this.button.remove();this.menu.remove();this.element.show();return this;},isOpen:function(){return this._isOpen;},widget:function(){return this.menu;},getButton:function(){return this.button;},position:function(){var o=this.options;if($.ui.position&&!$.isEmptyObject(o.position)){o.position.of=o.position.of||this.button;this.menu.show().position(o.position).hide();}else{var pos=this.button.offset();this.menu.css({top:pos.top+this.button.outerHeight(),left:pos.left});}},_setOption:function(key,value){var menu=this.menu;switch(key){case'header':menu.find('div.ui-multiselect-header')[value?'show':'hide']();break;case'checkAllText':menu.find('a.ui-multiselect-all span').eq(-1).text(value);break;case'uncheckAllText':menu.find('a.ui-multiselect-none span').eq(-1).text(value);break;case'height':menu.find('ul').last().height(parseInt(value,10));break;case'minWidth':this.options[key]=parseInt(value,10);this._setButtonWidth();this._setMenuWidth();break;case'selectedText':case'selectedList':case'noneSelectedText':this.options[key]=value;this.update();break;case'classes':menu.add(this.button).removeClass(this.options.classes).addClass(value);break;case'multiple':menu.toggleClass('ui-multiselect-single',!value);this.options.multiple=value;this.element[0].multiple=value;this.refresh();break;case'position':this.position();}
 $.Widget.prototype._setOption.apply(this,arguments);}});})(jQuery);
 
+//jquery.multiselect.filter.min.js
+(function($){var rEscape=/[\-\[\]{}()*+?.,\\\^$|#\s]/g;$.widget('ech.multiselectfilter',{options:{label:'Filter:',width:null,placeholder:'Enter keywords',autoReset:false},_create:function(){var opts=this.options;var elem=$(this.element);var instance=(this.instance=(elem.data('ech-multiselect')||elem.data("multiselect")));var header=(this.header=instance.menu.find('.ui-multiselect-header').addClass('ui-multiselect-hasfilter'));var wrapper=(this.wrapper=$('<div class="ui-multiselect-filter">'+(opts.label.length?opts.label:'')+'<input placeholder="'+opts.placeholder+'" type="search"'+(/\d/.test(opts.width)?'style="width:'+opts.width+'px"':'')+' /></div>').prependTo(this.header));this.inputs=instance.menu.find('input[type="checkbox"], input[type="radio"]');this.input=wrapper.find('input').bind({keydown:function(e){if(e.which===13){e.preventDefault();}},keyup:$.proxy(this._handler,this),click:$.proxy(this._handler,this)});this.updateCache();instance._toggleChecked=function(flag,group){var $inputs=(group&&group.length)?group:this.labels.find('input');var _self=this;var selector=instance._isOpen?':disabled, :hidden':':disabled';$inputs=$inputs.not(selector).each(this._toggleState('checked',flag));this.update();var values=$inputs.map(function(){return this.value;}).get();this.element.find('option').filter(function(){if(!this.disabled&&$.inArray(this.value,values)>-1){_self._toggleState('selected',flag).call(this);}});if($inputs.length){this.element.trigger('change');}};var doc=$(document).bind('multiselectrefresh',$.proxy(function(){this.updateCache();this._handler();},this));if(this.options.autoReset){doc.bind('multiselectclose',$.proxy(this._reset,this));}},_handler:function(e){var term=$.trim(this.input[0].value.toLowerCase()),rows=this.rows,inputs=this.inputs,cache=this.cache;if(!term){rows.show();}else{rows.hide();var regex=new RegExp(term.replace(rEscape,"\\$&"),'gi');this._trigger("filter",e,$.map(cache,function(v,i){if(v.search(regex)!==-1){rows.eq(i).show();return inputs.get(i);}
+return null;}));}
+this.instance.menu.find(".ui-multiselect-optgroup-label").each(function(){var $this=$(this);var isVisible=$this.nextUntil('.ui-multiselect-optgroup-label').filter(function(){return $.css(this,"display")!=='none';}).length;$this[isVisible?'show':'hide']();});},_reset:function(){this.input.val('').trigger('keyup');},updateCache:function(){this.rows=this.instance.menu.find(".ui-multiselect-checkboxes li:not(.ui-multiselect-optgroup-label)");this.cache=this.element.children().map(function(){var elem=$(this);if(this.tagName.toLowerCase()==="optgroup"){elem=elem.children();}
+return elem.map(function(){return this.innerHTML.toLowerCase();}).get();}).get();},widget:function(){return this.wrapper;},destroy:function(){$.Widget.prototype.destroy.call(this);this.input.val('').trigger("keyup");this.wrapper.remove();}});})(jQuery);
 
 //jquery.ui.touch-punch.min.js
 
@@ -17252,8 +17237,6 @@ function colorHexToName(color) {
 
 
 //multiAccordion.js
-
-
 //Multi Accordion
 (function($){
 
@@ -17291,8 +17274,6 @@ function colorHexToName(color) {
 
 
 //iosmenu.js
-
-
 $.widget( "ui.iosMenu", {
 	options: {
 		backText:      'Back',
@@ -17434,13 +17415,7 @@ $.widget( "ui.iosMenu", {
 	}
 });
 
-
-
-
-
 //archive.js
-
-
 var Endian = {BIG : 0,LITTLE : 1};
 
 var ZipConstants = {
