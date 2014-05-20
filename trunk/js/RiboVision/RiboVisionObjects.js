@@ -796,6 +796,7 @@ function rvDataSet(DataSetName) {
 			for (var i = 0; i < targetLayer.Data.length; i++) {
 				var j = targetLayer.Data[i].resIndex1;
 				var k = targetLayer.Data[i].resIndex2;
+				//Come back and make zoom aware work correctly, with the same color and opacity as would be in other modes. 
 				if (zoomEnabled) {
 					var jkdist = Math.sqrt(((rvDataSets[0].Residues[j].X - rvDataSets[0].Residues[k].X) * (rvDataSets[0].Residues[j].X - rvDataSets[0].Residues[k].X) + (rvDataSets[0].Residues[j].Y - rvDataSets[0].Residues[k].Y) * (rvDataSets[0].Residues[j].Y - rvDataSets[0].Residues[k].Y)));
 					
@@ -813,10 +814,25 @@ function rvDataSet(DataSetName) {
 					switch (colorLayer.Type) {
 					case undefined:
 						if (colorLayer == "gray_lines") {
-							targetLayer.Data[i]["color"] = "rgba(35,31,32," + targetLayer.Data[i].opacity + ")";
-							targetLayer.Data[i]["color_hex"] = "#231F20";
+							var grd = rvDataSets[0].HighlightLayer.CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
+							color1 = colorNameToHex("#231F20");
+							color2 = colorNameToHex("#231F20");
+							
+							grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + "," + targetLayer.Data[i].opacity + ")");
+							grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + "," + targetLayer.Data[i].opacity + ")");
+							
+							targetLayer.Data[i]["color"] = grd;
+							targetLayer.Data[i]["color_hex"] = color1;
 						} else if (colorLayer == "manual_coloring") {
-							// do nothing
+							var grd = rvDataSets[0].HighlightLayer.CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
+							color1 = targetLayer.Data[i]["color_hex"];
+							color2 = targetLayer.Data[i]["color_hex"];
+							
+							grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + "," + targetLayer.Data[i].opacity + ")");
+							grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + "," + targetLayer.Data[i].opacity + ")");
+							
+							targetLayer.Data[i]["color"] = grd;
+							targetLayer.Data[i]["color_hex"] = color1;
 						} else {
 							alert("Invalid color mode");
 						}
@@ -850,10 +866,10 @@ function rvDataSet(DataSetName) {
 					case "selected":
 						var grd = colorLayer.CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
 						if (colorLayer.Data[j] || colorLayer.Data[k]) {
-							//color1 = colorNameToHex(colorLayer.dataLayerColors[j]);
-							//color2 = colorNameToHex(colorLayer.dataLayerColors[k]);
-							color1 = colorNameToHex("#231F20");
-							color2 = colorNameToHex("#231F20");
+							color1 = colorNameToHex(colorLayer.dataLayerColors[j]);
+							color2 = colorNameToHex(colorLayer.dataLayerColors[k]);
+							//color1 = colorNameToHex("#231F20");
+							//color2 = colorNameToHex("#231F20");
 							grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + "," + targetLayer.Data[i].opacity + ")");
 							grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + "," + targetLayer.Data[i].opacity + ")");
 						}

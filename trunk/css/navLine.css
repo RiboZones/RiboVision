@@ -5,22 +5,9 @@ path{
 }
 
 
-line {
-  fill: none;
-  stroke: #000;
-  stroke-width: 1.5px;
-}
-
 text {
     font-family: Arial;
     font-size: 9pt;
-}
-
-#NavLine_label {
-margin-top: 0px;	
-font-family: Arial;
-font-size: 11pt;
-font-weight:600;
 }
 
 #residuetip{
