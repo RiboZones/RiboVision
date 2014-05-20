@@ -10,7 +10,6 @@ a img {
 	overflow:auto;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
-	-webkit-box-sizing:border-box; /* Safari */
 }
 
 #NavLineDiv{
@@ -22,7 +21,6 @@ a img {
 	overflow:auto;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
-	-webkit-box-sizing:border-box; /* Safari */
 	
 }
 #JmolTypeToggle2{
@@ -40,7 +38,6 @@ a img {
 	overflow: hidden;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
-	-webkit-box-sizing:border-box; /* Safari */
 }
 
 #LogoDiv{
@@ -51,7 +48,6 @@ a img {
 	bottom : 0px;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
-	-webkit-box-sizing:border-box; /* Safari */
 }
 
 #MainLogoDiv {
@@ -83,7 +79,6 @@ a img {
 	left:0px;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
-	-webkit-box-sizing:border-box; /* Safari */
 	overflow: hidden;
 }
 
@@ -99,7 +94,6 @@ a img {
 	width: 65%;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
-	-webkit-box-sizing:border-box; /* Safari */
 }
 #MiniLayer{
 	position:absolute;
@@ -109,7 +103,6 @@ a img {
 	width: 32%;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
-	-webkit-box-sizing:border-box; /* Safari */
 	border-left: ridge #FF5500;
 	/*overflow:auto;*/
 	
@@ -122,7 +115,6 @@ a img {
 	width: 100%;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
-	-webkit-box-sizing:border-box; /* Safari */
 }
 #LinkSection {
 	position:absolute;
@@ -132,43 +124,12 @@ a img {
 	height:10%;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
-	-webkit-box-sizing:border-box; /* Safari */
 	border-left: ridge #FF5500;
 }
 #SideBarAccordian{
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
-	-webkit-box-sizing:border-box; /* Safari */
 }
-
-#SpeciesDiv{
-}
-
-#SelectionDiv{
-	
-}
-
-#ColorDiv{
-}
-
-#StructDataDiv{
-} 
-
-#ProtDiv{
-} 
-
-#AlnDiv{
-}
-
-#InteractDataDiv{
-}
-
-#FileDiv{
-}
-
-#saveDiv{
-}
-
 
 #canvasDiv{
 	position:absolute;
@@ -181,7 +142,6 @@ a img {
 	border-width:1px;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
-	-webkit-box-sizing:border-box; /* Safari */
 }
 
 #navigator{
@@ -199,10 +159,6 @@ canvas{
 	background:transparent;
 }
 
-#jmolApplet0{
-	position:absolute;
-}
-
 #jmolDiv{
 	position:absolute;
 	top:28%;
@@ -211,16 +167,9 @@ canvas{
 	height:72%;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
-	-webkit-box-sizing:border-box; /* Safari */
 	border-style:solid;
 	border-width:1px;
 	background:transparent;
-}
-
-#sideBar {
-	height: 100%;
-	width: 15%;
-	min-width: 140px;
 }
 
 .ui-textfield {
@@ -333,7 +282,6 @@ body{
 	height: 20%;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
-	-webkit-box-sizing:border-box; /* Safari */
 }
 
 #SaveOptionsDiv {
@@ -345,7 +293,6 @@ body{
 	height: 68%;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
-	-webkit-box-sizing:border-box; /* Safari */
 }
 
 #SaveControlDivB {
@@ -355,7 +302,6 @@ body{
 	height: 68%;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
-	-webkit-box-sizing:border-box; /* Safari */
 }
 #SaveControlDivF {
 	position: absolute;
@@ -364,7 +310,6 @@ body{
 	height: 68%;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
-	-webkit-box-sizing:border-box; /* Safari */
 }
 #SaveControlDivF  p {
 	font-size: 1.0em;
@@ -466,7 +411,6 @@ body{
 	padding-top:4px;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
-	-webkit-box-sizing:border-box; /* Safari */
 	border-style:solid;
 	border-color:#DDDDDD;
 	border-width:1px;
@@ -548,7 +492,6 @@ body{
 #SaveTabs  {
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
-	-webkit-box-sizing:border-box; /* Safari */
 	padding: 0px !important;
 	height: 100%;
 }
