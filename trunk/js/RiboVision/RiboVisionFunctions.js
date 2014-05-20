@@ -4699,7 +4699,7 @@ function addPopUpWindowResidue(ResIndex){
 				.attr("class", "axis")
 				.attr("transform", "translate(" + 0.8* Xoffset + "," + Yoffset + ")")
 				.call(yAxis);	
-	}			
+	}	
 }
 function addPopUpWindowLine(SeleLine){
 	
