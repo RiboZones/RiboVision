@@ -522,16 +522,16 @@ body{font-family:Arial, Helvetica, sans-serif;width:100%;height:100%;margin:0px;
 .ExportDiv3{width:31%;float:left;height:80%;padding:0%;margin:1%;}
 .ExportDiv2{width:47%;float:left;height:80%;padding:0%;margin:1%;}
 .SettingsDiv{width:24%;float:left;height:90%;}
-.layerName{height:1.5em;line-height:1.2em;font-size:1.2em;}
+.layerName{height:1.5em;}
 .miniLayerName{line-height:3.0em !important;font-size:0.85em !important;border:1.0px solid PaleGreen !important;border-width:thin !important;text-align:center !important;color:OrangeRed !important;cursor:url(../images/DragD.gif),s-resize;font-weight:bold !important;}
 .dataBubble{border:1.0px solid PaleGreen !important;border-width:thin !important;text-align:center !important;padding:0.2em !important;color:OrangeRed!important;cursor:url(../images/DragR.gif),e-resize;}
-.selectionName{height:1.5em;line-height:1.2em;font-size:1.2em;}
+.selectionName{height:1.5em;}
 .colorBox{width:3px;height:28px;float:left;position:relative;margin-top:3px;}
 .layerContent{padding:0em 0.8em;}
 .selectionContent{padding:0em 0.8em;}
 #toolBar{position:absolute;left:98%;top:0%;width:2%;height:100%;padding-top:4px;box-sizing:border-box;-moz-box-sizing:border-box;border-style:solid;border-color:#DDDDDD;border-width:1px;}
 .toolBarBtn{margin-right:5%;margin-left:5%;width:86% !important;height:4%;margin-bottom:5%;margin-top:5%;}
-.toolBarBtn2{position:absolute;padding:0em;margin:0em;width:82%;height:50%;}
+.toolBarBtn2{padding:0em;margin:0em;width:82%;height:50%;}
 .dialogContentArea{width:100%;height:100%;background:#F2F5F7;}
 #nocanvas{position:absolute;top:50%;}
 .highlightBorder{border:4px solid LimeGreen !important;;}
