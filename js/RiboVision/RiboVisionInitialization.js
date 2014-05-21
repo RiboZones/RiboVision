@@ -739,14 +739,6 @@ function RiboVisionReady() {
 		Jmol.script(myJmol, a[0]);
 	});
 	
-	//$("#SaveControl").buttonset();
-	//$("#sscB").attr("checked","checked");
-	//$("#SaveControl").buttonset("refresh");
-	//$("[name=ssc]").button().change(function(event,ui){
-	//	//rvSaveManager();
-	//});
-	
-	
 	$("[name=clearColor]").button();
 	$("[name=selebutton]").button();
 	//$("[name=saveas]").button();	
@@ -1024,6 +1016,10 @@ function RiboVisionReady() {
 	Jmol.setDocument(0);	
 	
 	$("#JmolTypeToggle").buttonset("refresh");
+	InitLayers();
+	InitSelections();
+	
+	
 	InitRibovision();
 };
 
