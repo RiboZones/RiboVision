@@ -689,11 +689,11 @@ function rvDataSet(DataSetName) {
 					}
 				}
 				targetLayer.CanvasContext.strokeStyle = "#000000";
-				targetLayer.CanvasContext.font = rvDataSets[0].SpeciesEntry.Font_Size_Canvas + 'pt "Myriad Pro", Calibri, Arial';
 				targetLayer.CanvasContext.textBaseline = "middle";
 				targetLayer.CanvasContext.textAlign = "center";
 				for (var i = rvDataSets[0].Residues.length - 1; i >= 0; i--) {
 					targetLayer.CanvasContext.fillStyle = (targetLayer.dataLayerColors[i] || "#000000");
+					targetLayer.CanvasContext.font = rvDataSets[0].Residues[i]["font-weight"] + " " + rvDataSets[0].SpeciesEntry.Font_Size_Canvas + 'pt "Myriad Pro", Calibri, Arial';
 					targetLayer.CanvasContext.fillText(rvDataSets[0].Residues[i].resName, rvDataSets[0].Residues[i].X, rvDataSets[0].Residues[i].Y);
 				}
 			} else {
