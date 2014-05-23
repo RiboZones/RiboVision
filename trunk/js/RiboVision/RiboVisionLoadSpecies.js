@@ -51,6 +51,7 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 			$.each(data, function (i, item) {
 				data[i]["color"] = "#000000";
 				data[i]["selected"] = 0;
+				data[i]["font-weight"] = "normal";
 				targetLayer[0].Data[i] = data[i]["Domains_Color"];
 			});
 			rvDataSets[0].addResidues(data);
