@@ -1448,18 +1448,50 @@ function handleFileSelect(event) {
 				if($.inArray("Residue_i", customkeys) >= 0) {
 					if ($.inArray("Residue_j", customkeys) >= 0){
 						var FullBasePairSet =[];
+						var targetLayer = rvDataSets[0].getLayerByType("lines");
+						if ($.inArray("ColorCol", customkeys) >= 0) {
+							$(".oneLayerGroup[name=" + targetLayer[0].LayerName + "]").find(".layerContent").find("div[name=llm]").find("select").multiselect("widget").find(":radio:eq(1)").each(function(){
+								this.click();
+							});
+							var processColor=true;
+						} else {
+							var processColor=false;
+						}
+						if ($.inArray("Opacity", customkeys) >= 0) {
+							var processOpacity=true;
+						} else {
+							var processOpacity=false;
+						}
 						$.each(rvDataSets[0].CustomData, function (index,value){
+							var j = resNumToIndex(value.Residue_i).toString();
+							var k = resNumToIndex(value.Residue_j).toString();
+							if (processColor){
+								var color = colorNameToHex(value.ColorCol);
+							} else {
+								var color = colorNameToHex("#231F20");
+							}
+							if (processOpacity){
+								var Opacity = value.Opacity;
+							} else {
+								var Opacity = 0.5;
+							}
+							var grd = targetLayer[0].CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
+							grd.addColorStop(0, "rgba(" + h2d(color.slice(1, 3)) + "," + h2d(color.slice(3, 5)) + "," + h2d(color.slice(5)) + "," + Opacity + ")");
+							grd.addColorStop(1, "rgba(" + h2d(color.slice(1, 3)) + "," + h2d(color.slice(3, 5)) + "," + h2d(color.slice(5)) + "," + Opacity + ")");
+							
 							FullBasePairSet.push({
 								bp_type: value.Int_Type,
-								color: "rgba(35,31,32,.5)",
+								color: grd,
+								color_hex: color,
+								opacity: Opacity,
 								id: (index + 1).toString(),
 								pairIndex: (index + 1).toString(),
-								resIndex1 : resNumToIndex(value.Residue_i).toString(),
-								resIndex2 : resNumToIndex(value.Residue_j).toString()
+								resIndex1 : j,
+								resIndex2 : k
 							});
 						});
 						rvDataSets[0].BasePairs=FullBasePairSet;
-						var targetLayer = rvDataSets[0].getLayerByType("lines");
+						
 						targetLayer[0].DataLabel = FileReaderFile[0].name;
 						$("[name=" + targetLayer[0].LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer[0].DataLabel);
 						rvDataSets[0].drawBasePairs("lines");
@@ -1527,12 +1559,23 @@ function customDataProcess(ui,targetLayer){
 	if (targetLayer.Type === "selected"){
 
 	} else {
+		if ($.inArray("FontWeight", customkeys) >= 0) {
+			$.each(NewData.Weight, function (index,value){
+				if (value != undefined) {
+					rvDataSets[0].Residues[index]["font-weight"]=value
+				} else {
+					rvDataSets[0].Residues[index]["font-weight"]="normal";
+				}
+			});
+		}
 		if ($.inArray("ColorCol", customkeys) >= 0) {
 			rvDataSets[0].drawResidues("residues");
 			rvDataSets[0].refreshResiduesExpanded(targetLayer.LayerName);
 			update3Dcolors();
 		} else if ($.inArray("DataCol", customkeys) >= 0) {
 			colorProcess(NewData,undefined,targetLayer,colors);
+		} else if ($.inArray("FontWeight", customkeys) >= 0){
+			//Do nothing, maybe need more here later;
 		} else {
 			alert("No recognized columns found. Please check input.");
 		}
@@ -1638,8 +1681,10 @@ function CustomDataExpand(targetLayer){
 	rvDataSets[0].addSelection();
 	var SeleLen = 0;
 	var NewData = [];
+	var FontWeight = [];
 	$.each(rvDataSets[0].Residues, function (index,value){
 		NewData[index]=undefined;
+		FontWeight[index]=undefined;
 	});
 
 	var ExtraData = [];
@@ -1679,13 +1724,16 @@ function CustomDataExpand(targetLayer){
 					if ($.inArray("ColorCol", customkeys) >= 0) {
 						targetLayer.dataLayerColors[k] = colorNameToHex(rvDataSets[0].CustomData[ii]["ColorCol"]);
 					}
+					if ($.inArray("FontWeight", customkeys) >= 0) {
+						FontWeight[k] = rvDataSets[0].CustomData[ii]["FontWeight"];
+					}
 					SeleLen = l;
 				}
 			}
 			
 		}
 	}
-	return {IncludeData : NewData,ExtraData : ExtraData}
+	return {IncludeData : NewData,ExtraData : ExtraData, Weight : FontWeight}
 }
 ///////////////////////////////////////////////////////////////////////////////
 
