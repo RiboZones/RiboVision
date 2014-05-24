@@ -2378,7 +2378,7 @@ function canvasToSVG() {
 					//console.log(xcorr,ycorr);
 					for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
 						var residue = rvDataSets[0].Residues[i];
-						output = output + '<text id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" transform="matrix(1 0 0 1 ' + (parseFloat(residue.X) + xcorr).toFixed(3) + ' ' + (parseFloat(residue.Y) + ycorr).toFixed(3) + ')" fill="' + residue.color + '" font-family="Myriad Pro" font-size="' + rvDataSets[0].SpeciesEntry.Font_Size_SVG + '">' + residue.resName + '</text>\n';
+						output = output + '<text id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" transform="matrix(1 0 0 1 ' + (parseFloat(residue.X) + xcorr).toFixed(3) + ' ' + (parseFloat(residue.Y) + ycorr).toFixed(3) + ')" fill="' + residue.color + '" font-family="Myriad Pro" ' + 'font-weight="' + residue["font-weight"] + '" font-size="' + rvDataSets[0].SpeciesEntry.Font_Size_SVG + '">' + residue.resName + '</text>\n';
 					}
 					output = output + '</g>\n';
 					break;
