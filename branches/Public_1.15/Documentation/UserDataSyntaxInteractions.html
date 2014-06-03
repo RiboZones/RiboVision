@@ -21,10 +21,19 @@
 		be real physical interactions. For our purposes here, interaction just means a line drawn between two residues. The Inter-Nucleotide Contacts section represents real physical interactions
 		but your data doesn't need to be of this kind.</p>
 		
-		<p>We currently support one set of data, to make one layer, per file. 
-		RiboVision looks for four columns,	ResNum, DataCol, ColorCol, and DataDescription. You can have any other columns in the file that you like,
+		<h1>Import Data Files (Nucleotide Data)</h1>
+		<p>We currently support one set of data, to make one layer, per file. We support three use cases for now: manual coloring, color by data, and manual bolding. Data can either be mapped to the "letters" layer or
+		a circle type layer.
+		</p>
+		<h2>Manual Coloring</h2>
+		<p>Manual coloring means you have determined which colors you want the nucleotides to be. This is ideal for qualitative or categorical data. It can also be used for quantitative data, if you have your own
+		data to color algorithm. Manual coloring mode is triggered by the presence of the column "ColorCol" in your CSV data file. RiboVision supports a wide variety of colors. See RiboVision Colors.</p>
+		
+		<h2>Color by Data</h2>
+		
+		 RiboVision looks for four columns,	ResNum, DataCol, ColorCol, and DataDescription. You can have any other columns in the file that you like,
 		 but RiboVision will currently ignore them. Import Data mode is currently limited to mapping residue related information.
-		 It can not yet draw lines, or turn on proteins, or anything like that. We support two use cases for now: manual coloring, and color by data. 
+		 It can not yet draw lines, or turn on proteins, or anything like that. 
 		 Color by data is currently limited to the Rainbow gradient. It converts your numbers into a linear gradient. If you need a log-based gradient or something,
 		 please transform your numbers first. See these tutorials for further information: <a href="UserDataTutorial1.html">Manual Coloring</a> and <a href="UserDataTutorial2.html">Color by Data</a>.
 		</p>
