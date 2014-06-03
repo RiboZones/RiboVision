@@ -21,62 +21,38 @@
 		be real physical interactions. For our purposes here, interaction just means a line drawn between two residues. The Inter-Nucleotide Contacts section represents real physical interactions
 		but your data doesn't need to be of this kind.</p>
 		
-		<h1>Import Data Files (Nucleotide Data)</h1>
-		<p>We currently support one set of data, to make one layer, per file. We support three use cases for now: manual coloring, color by data, and manual bolding. Data can either be mapped to the "letters" layer or
-		a circle type layer.
+		<h1>Import Data Files (Interaction Data)</h1>
+		<p>We currently support one set of data, to make one layer, per file. Since we only support one interactions layer, all data automatically goes there. Lines can be drawn between any two nucleotides.
+		It is possible to color each line individually, if desired. See <a href="RiboVisionColoring.html">RiboVision Coloring</a> for details on colors. Additionally, you can vary line thickness and opacity.
 		</p>
-		<h2>Manual Coloring</h2>
-		<p>Manual coloring means you have determined which colors you want the nucleotides to be. This is ideal for qualitative or categorical data. It can also be used for quantitative data, if you have your own
-		data to color algorithm. Manual coloring mode is triggered by the presence of the column "ColorCol" in your CSV data file. RiboVision supports a wide variety of colors. See RiboVision Colors.</p>
-		
-		<h2>Color by Data</h2>
-		
-		 RiboVision looks for four columns,	ResNum, DataCol, ColorCol, and DataDescription. You can have any other columns in the file that you like,
-		 but RiboVision will currently ignore them. Import Data mode is currently limited to mapping residue related information.
-		 It can not yet draw lines, or turn on proteins, or anything like that. 
-		 Color by data is currently limited to the Rainbow gradient. It converts your numbers into a linear gradient. If you need a log-based gradient or something,
-		 please transform your numbers first. See these tutorials for further information: <a href="UserDataTutorial1.html">Manual Coloring</a> and <a href="UserDataTutorial2.html">Color by Data</a>.
-		</p>
-		<p>We are providing basic data templates for each molecule. Please be sure to exactly match the template to your map of interest.
-		 These templates contain every nucleotide listed individually. Using the templates is not required, as long as you name your nucleotides correctly. </p>
-		
+
 		<h1>Import Data Syntax</h1>
 		<p>
-		Import data feature uses the same syntax as <a href="BasicSelection.html">selections</a>. We reccommend you always use the prefixed syntax, because it is clearer. 
-		You may put multiple selection commands in the same line, separated by semicolons as usual, if they share the same data or color. Alternatively, you can have these on 
-		separate lines. Use whatever is most convenient for you. You don't need to include all nucleotides in the file. If you put in the same nucleotide more than once, 
-		it will obtain the color/data from the last occurance. Make sure that the nulceotides you explicitly include exist in the secondary structure you are using. 
-		For example, <i>T. thermophilus </i> does not have a 23S:655. The selection 23S:(600-700) is fine,
-		but the selection 23S:(600-655) is not fine. You would need to use 23S:(600-652B) if you wanted to stop right before 23S:656. 
+		Import data feature uses the same syntax as <a href="BasicSelection.html">selections</a>. We recommend you always use the prefixed syntax, because it is clearer. 
+		However, each interactions needs to be on its own line. The first nucleotide goes into column Residue_i, the second into column Residue_j. Data about the type of the line can optionally
+		be included in the column Int_Type. The Int_Type can be plain text or HTML if you want that effect. This data will show up in the ResidueTip. Opacity and LineWidth can also be included if desired. Otherwise, 
+		the default opacity is 0.5, and the default line width is 0.75. 
 		</p>
 			<h2>Example</h2>
-			<p><span style="word-spacing:100px;"><b>resNum, DataCol, ColorCol</b></span></p>
-			<p><span style="word-spacing:100px;">23S:(1-1000), p1, DarkBlue</span></p>
-			<p><span style="word-spacing:100px;">23S:(1001-2000), p2, Coral</span></p>
-			<p><span style="word-spacing:100px;">5S:(56-104), p3, #1D4E56</span></p>
-			<p><span style="word-spacing:100px;">23S:2500, p4, #232323</span></p>
+			<table class="docTable" align="center";>
+			<tr><th>Residue_i</th><th>Residue_j</th><th>Int_Type</th><th>ColorCol</th><th>Opacity</th><th>LineWidth</th></tr>
+			<tr><td>23S:1</td><td>23S:1000</td><td>Class A</td><td>Red</td><td>0.2</td><td>.5</td></tr>
+			<tr><td>23S:2</td><td>23S:1001</td><td>Type B</td><td>Green</td><td>0.4</td><td>.7</td></tr>
+			<tr><td>23S:3</td><td>23S:1002</td><td>Long Range</td><td>Blue</td><td>0.6</td><td>1.2</td></tr>
+			<tr><td>23S:4</td><td>23S:1003</td><td><pre>&lt;b>Bold&lt;/b></pre></td><td>Brown</td><td>0.8</td><td>1.5</td></tr>
+			<tr><td>23S:5</td><td>23S:1004</td><td><pre>&lt;span style="color:red">Red&lt;/span></pre></td><td>Black</td><td>1</td><td>2</td></tr>
+			</table>
 			
-			<p><a href="examples/example0.csv" target="_blank">Here</a> is the csv file for this example. Below, is this file mapped onto <i>E. coli</i> LSU Phylogeny Structure.
-			<img src="examples/example0.jpg" class="ManualImages" title="RiboVision Import Data Example 0" alt="RiboVision Import Data Example 0" />
-			</p>
-			
-			<h2>Colors</h2>
-			<p>Colors can either be HTML5 color names or RGB hexidecimal codes. <a href="http://www.w3schools.com/cssref/css_colornames.asp" target="_blank">Here</a> is a good list of color names. 
-			<a href="http://www.colorhexa.com/" target="_blank">Here</a> is a good converter between different color models.
-			</p>
-			<p>We have reserved two colors for special use. We interpret perfect black, "#000000", to mean "no color". Assigning this color to nucleotides will make the letters black,
-			as expected. However, applying #000000 to circles will make the circles not be drawn at all. If you would like black circles, use any other shade of black. For example, the colors "#000001", and 
-			"#010101", look indistinguishable from perfect black. We have also applied a special meaning to the color "#858585". It means "no color" in the same way as "#000000". It is a nice medium gray shade. Letters will show up in gray as expected. 
-			Circles won't show up at all. In addition to this, any nucleotide (letter or circle) in the "Linked" layer with either of these colors, will show up as gray in Jmol. 
+			<p><a href="examples/example5.csv" target="_blank">Here</a> is the csv file for this example. Below, is this file mapped onto <i>E. coli</i> LSU 3D-based Structure.
+			<img src="examples/example5.png" class="ManualImages" title="RiboVision Import Data Example 5" alt="RiboVision Import Data Example 5" />
 			</p>
 		
 		<h1>Import Data Mapping:</h1>
 		<p>
-		Mapping your data onto ribosomal strucures works just like displaying our precomputed data. After loading your data file, a dataset called "User Data" will appear. Drag this to your layer of choice. 
-		There is an additional feature right now. Every nucleotide included in your file will be put into a new selection, found in the Selection Manager. The selection will be invisible by default.
+		For interactions, data is instantly mapped onto the Interactions layer. It is recommended for now to keep interaction data and nucleotide data in separate CSV files, but please load both to the same molecule
+		in RiboVision if you like. 
 		</p>
 		<img src="images/ImportMenu.png" class="ManualImagesThinMultiple" title="RiboVision Import Menu" alt="RiboVision Import Menu" />
-		<img src="images/NewSelectionImport.png" class="ManualImagesThinMultiple" title="RiboVision New Selection Import" alt="RiboVision New Selection Import" />
 	</div>
 	<div id="FooterDiv"></div>
 	</body>
