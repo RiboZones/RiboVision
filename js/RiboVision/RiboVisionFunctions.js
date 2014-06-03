@@ -980,8 +980,9 @@ function refreshBasePairs(BasePairTable) {
 				
 				rvDataSets[0].BasePairs = basePairs2;
 				$.each(rvDataSets[0].BasePairs, function (ind, item) {
-					item.lineWidth = 1;
+					item.lineWidth = 0.75;
 					item.opacity = 0.5;
+					item.color_hex = '#231F20';
 				});
 				
 				rvDataSets[0].drawBasePairs("lines");
@@ -1462,6 +1463,11 @@ function handleFileSelect(event) {
 						} else {
 							var processOpacity=false;
 						}
+						if ($.inArray("LineWidth", customkeys) >= 0) {
+							var processLineWidth=true;
+						} else {
+							var processLineWidth=false;
+						}
 						$.each(rvDataSets[0].CustomData, function (index,value){
 							var j = resNumToIndex(value.Residue_i).toString();
 							var k = resNumToIndex(value.Residue_j).toString();
@@ -1475,6 +1481,11 @@ function handleFileSelect(event) {
 							} else {
 								var Opacity = 0.5;
 							}
+							if (processLineWidth){
+								var LineWidth = value.LineWidth;
+							} else {
+								var LineWidth = 1.0;
+							}
 							var grd = targetLayer[0].CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
 							grd.addColorStop(0, "rgba(" + h2d(color.slice(1, 3)) + "," + h2d(color.slice(3, 5)) + "," + h2d(color.slice(5)) + "," + Opacity + ")");
 							grd.addColorStop(1, "rgba(" + h2d(color.slice(1, 3)) + "," + h2d(color.slice(3, 5)) + "," + h2d(color.slice(5)) + "," + Opacity + ")");
@@ -1484,6 +1495,7 @@ function handleFileSelect(event) {
 								color: grd,
 								color_hex: color,
 								opacity: Opacity,
+								lineWidth: LineWidth,
 								id: (index + 1).toString(),
 								pairIndex: (index + 1).toString(),
 								resIndex1 : j,
@@ -2299,12 +2311,12 @@ function canvasToSVG() {
 					if (value.ColorLayer === "gray_lines"){
 						for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
 							var BasePair = rvDataSets[0].BasePairs[j];
-							output = output + '<line fill="none" stroke="' + BasePair.color_hex + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
+							output = output + '<line fill="none" stroke="' + BasePair.color_hex + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
 						}
 					} else if (value.ColorLayer === "manual_coloring") {
 						for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
 							var BasePair = rvDataSets[0].BasePairs[j];
-							output = output + '<line fill="none" stroke="' + BasePair.color_hex + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
+							output = output + '<line fill="none" stroke="' + BasePair.color_hex + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
 						}
 					} else {
 						if (value.ColorLayer.ColorGradientMode == "Matched") {
@@ -2332,20 +2344,20 @@ function canvasToSVG() {
 								*/
 								for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
 									var BasePair = rvDataSets[0].BasePairs[j];
-									output = output + '<line fill="none" stroke="' + rvDataSets[0].Residues[BasePair[ChosenSide]].color + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
+									output = output + '<line fill="none" stroke="' + rvDataSets[0].Residues[BasePair[ChosenSide]].color + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
 								}
 								break;
 							case "circles" : 
 								for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
 									var BasePair = rvDataSets[0].BasePairs[j];
-									output = output + '<line fill="none" stroke="' + value.ColorLayer.dataLayerColors[BasePair[ChosenSide]] + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
+									output = output + '<line fill="none" stroke="' + value.ColorLayer.dataLayerColors[BasePair[ChosenSide]] + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
 								}
 								break;
 							case "selected" : 
 								for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
 									var BasePair = rvDataSets[0].BasePairs[j];
 									if (value.ColorLayer.Data[BasePair.resIndex1] || value.ColorLayer.Data[BasePair.resIndex2]) {
-										output = output + '<line fill="none" stroke="' + BasePair.color_hex + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
+										output = output + '<line fill="none" stroke="' + BasePair.color_hex + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
 									}		
 								}
 								break;
