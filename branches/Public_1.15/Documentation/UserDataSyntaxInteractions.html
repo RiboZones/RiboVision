@@ -17,11 +17,12 @@
 		<h1>Import Data Files</h1>
 		<p>
 		Importing data currently works by reading in a CSV (comma separated value) text file. You can make the CSV files with anything.
-		 Most people would probably use Excel or another spreadsheet program to make them. Make sure to save them with windows/dos or unix formatted lines. 
-		 The CSV library does not work with mac formatted lines right now. 
-		</p>
+		Most people would probably use Excel or another spreadsheet program to make them. RiboVision has two primary data types, nucleotide level data, and "interactions", which don't have to
+		be real physical interactions. For our purposes here, interaction just means a line drawn between two residues. The Inter-Nucleotide Contacts section represents real physical interactions
+		but your data doesn't need to be of this kind.</p>
+		
 		<p>We currently support one set of data, to make one layer, per file. 
-		RiboVision looks for four coloums,	ResNum, DataCol, ColorCol, and DataDescription. You can have any other coloumns in the file that you like,
+		RiboVision looks for four columns,	ResNum, DataCol, ColorCol, and DataDescription. You can have any other columns in the file that you like,
 		 but RiboVision will currently ignore them. Import Data mode is currently limited to mapping residue related information.
 		 It can not yet draw lines, or turn on proteins, or anything like that. We support two use cases for now: manual coloring, and color by data. 
 		 Color by data is currently limited to the Rainbow gradient. It converts your numbers into a linear gradient. If you need a log-based gradient or something,
