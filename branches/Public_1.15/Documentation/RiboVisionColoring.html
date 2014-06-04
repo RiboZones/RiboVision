@@ -24,14 +24,16 @@
 			is interpreted as "no color". It is a nice medium gray shade. Letters will show up in gray as expected. Circles won't show up at all. These special color interpretations are likely
 			to disappear in a future version of RiboVision. In the meantime, you may find these special rules to be useful.
 			</p>
-		<h1>Color Gradients</h1>
-			<p>What we call "Color by Data" is that the user <b>(you)</b> have some data which you have converted into a <b>numerical</b> format. 
-			You may have decided this "by hand", or you may have adapted your computer programs to output to our input format. RiboVision will determine the minimum and maximum
-			of your data, and map everything to one of 64 colors in our Rainbow gradient. A future update will let you decide the gradient yourself. Small values are mapped to blue, 
-			and large values are mapped to red.
+		<h2>Color Gradients</h2>
+			<p>What we call "Color Gradients" or "Color Palettes" is just a list of colors. They can be organized light to dark, red to blue, or even arbitrarily.  The default palette 
+			is a <a href="examples/Rainbow_Gradient.csv" target="_blank">64 color rainbow</a> (blue to red) color scheme which would be familiar to MATLAB users. Small values are mapped to blue, 
+			and large values are mapped to red. The next version of RiboVision should have more color palettes built in. 
 			</p>
-		
-		
+		<h2>Custom Color Palettes</h2>
+		<p>
+		When you use the important data feature, you may optionally specify your own color palette. Just add a column to your CSV file called "ColorPalette". Then, put one color in each row until 
+		all your colors are in the file. There is no requirement to the number of colors you provide, but you need at least two to be useful. 
+		</p>
 	</div>
 	<div id="FooterDiv"></div>
 	</body>
