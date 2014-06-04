@@ -34817,12 +34817,14 @@ function rvDataSet(a) {
 					for (e = 0; e < rvDataSets[0].Residues.length; e++)
 						rvDataSets[0].Residues[e].color = a.dataLayerColors[e];
 				a.CanvasContext.strokeStyle = "#000000";
-				a.CanvasContext.font = rvDataSets[0].SpeciesEntry.Font_Size_Canvas + 'pt "Myriad Pro", Calibri, Arial';
 				a.CanvasContext.textBaseline =
 					"middle";
 				a.CanvasContext.textAlign = "center";
-				for (e = rvDataSets[0].Residues.length - 1; 0 <= e; e--)
-					a.CanvasContext.fillStyle = a.dataLayerColors[e] || "#000000", a.CanvasContext.fillText(rvDataSets[0].Residues[e].resName, rvDataSets[0].Residues[e].X, rvDataSets[0].Residues[e].Y)
+				for (e = rvDataSets[0].Residues.length - 1; 0 <= e; e--){
+					a.CanvasContext.fillStyle = a.dataLayerColors[e] || "#000000";
+					a.CanvasContext.font = rvDataSets[0].Residues[e]["font-weight"] + " " + rvDataSets[0].SpeciesEntry.Font_Size_Canvas + 'pt "Myriad Pro", Calibri, Arial';
+					a.CanvasContext.fillText(rvDataSets[0].Residues[e].resName, rvDataSets[0].Residues[e].X, rvDataSets[0].Residues[e].Y);
+					}
 			} else
 				welcomeScreen()
 	}
@@ -35306,8 +35308,8 @@ function loadSpecies(a, k, e) {
 			rvDataSets[0].clearData("residues");
 			$.each(d, function (a, b) {
 				d[a].color = "#000000";
-				d[a].selected =
-					0;
+				d[a].selected =	0;
+				d[a]['font-weight'] = "normal";
 				f[0].Data[a] = d[a].Domains_Color
 			});
 			rvDataSets[0].addResidues(d);
@@ -35430,62 +35432,77 @@ function loadSpecies(a, k, e) {
 	document.getElementById("PrimaryInteractionList").selectedIndex = 0;
 	rvDataSets[0].BasePairs = []
 }
+
 function InitLayers() {
+	// Build Layer Menu
+
+	// Put in Top Labels and ToolBar
 	$("#LayerPanel").prepend($("<div id='tipBar'>").attr({
-			name : "TopLayerBar"
-		}).html("C&nbspV&nbsp&nbsp&nbspS&nbsp&nbsp&nbsp&nbspL&nbsp&nbsp&nbsp&nbspLayerName&nbsp&nbsp"));
-	$("[name=TopLayerBar]").append($('<button id="newLayer" class="toolBarBtn2" title="Create a new layer"></button>'));
-	$("[name=TopLayerBar]").append($('<button id="clearLayer" class="toolBarBtn2" title="Clear the selected layer"></button>'));
-	$("[name=TopLayerBar]").append($('<button id="deleteLayer" class="toolBarBtn2" title="Delete the selected layer"></button>'));
+			'name' : 'TopLayerBar'
+		}).html("C&nbspV&nbsp&nbsp&nbspS&nbsp&nbsp&nbsp&nbspL&nbsp&nbsp&nbsp&nbspLayerName&nbsp&nbsp")); // where to add letters
+	$('[name=TopLayerBar]').append($('<button id="newLayer" class="toolBarBtn2" title="Create a new layer"></button>'));
+	$('[name=TopLayerBar]').append($('<button id="clearLayer" class="toolBarBtn2" title="Clear the selected layer"></button>'));
+	$('[name=TopLayerBar]').append($('<button id="deleteLayer" class="toolBarBtn2" title="Delete the selected layer"></button>'));
 	$("#newLayer").button({
-		text : !1,
+		text : false,
 		icons : {
 			primary : "ui-icon-document"
 		}
 	});
 	$("#newLayer").click(function () {
-		$("#dialog-addLayer").dialog("open")
+		$("#dialog-addLayer").dialog("open");
 	});
+
 	$("#clearLayer").button({
-		text : !1,
+		text : false,
 		icons : {
 			primary : "ui-icon-cancel"
 		}
 	});
+
 	$("#clearLayer").click(function () {
-		rvDataSets[0].getSelectedLayer().clearAll();
-		drawNavLine()
+		var targetLayer = rvDataSets[0].getSelectedLayer();
+		targetLayer.clearAll();
+		drawNavLine();
+		//$("#dialog-addSelection").dialog("open");
 	});
+
 	$("#deleteLayer").button({
-		text : !1,
+		text : false,
 		icons : {
 			primary : "ui-icon-trash"
 		}
 	});
-	$("#deleteLayer").click(function (a) {
+
+	$("#deleteLayer").click(function (event) {
 		$("#dialog-confirm-delete p").text("The " + rvDataSets[0].getSelectedLayer().LayerName + " layer will be permanently deleted and cannot be recovered.");
-		$("#dialog-confirm-delete").dialog("open")
+		$("#dialog-confirm-delete").dialog('open');
 	});
-	$(".toolBarBtn2").css("height", $("#openLayerBtn").css("height"));
+
+	$(".toolBarBtn2").css('height', $("#openLayerBtn").css('height'));
+
 	$("#LayerPanel").sortable({
-		update : function (a, k) {
-			$("#LayerPanel .layerContent").each(function (a, f) {
-				rvDataSets[0].getLayer($(this).parent().attr("name")).updateZIndex(rvDataSets[0].LastLayer - a)
+		update : function (event, ui) {
+			$("#LayerPanel .layerContent").each(function (e, f) {
+				var tl = rvDataSets[0].getLayer($(this).parent().attr("name"));
+				tl.updateZIndex(rvDataSets[0].LastLayer - e);
 			});
 			rvDataSets[0].sort();
-			RefreshLayerMenu()
+			RefreshLayerMenu();
 		},
 		items : ".oneLayerGroup",
 		axis : "y"
+
 	});
 	$("#LayerPanel").disableSelection();
+
 	$("#LayerPreferenceDialog").dialog({
-		autoOpen : !1,
+		autoOpen : false,
 		show : {
 			effect : "blind",
 			duration : 300
 		},
-		modal : !0,
+		modal : true,
 		height : 600,
 		width : 400,
 		position : {
@@ -35494,472 +35511,755 @@ function InitLayers() {
 			of : $("#canvasDiv")
 		},
 		buttons : {
-			Save : function () {
-				var a = changeCurrentLayerName(),
-				k = changeLayerColor();
-				a && k && $("#LayerPreferenceDialog").dialog("close")
+			"Save" : function () {
+				var ret = changeCurrentLayerName();
+				var ret2 = changeLayerColor();
+				if (ret && ret2) {
+					$("#LayerPreferenceDialog").dialog("close");
+				}
 			},
 			Cancel : function () {
-				$(this).dialog("close")
+				$(this).dialog("close");
 			}
 		},
-		open : function (a) {
-			$("#myJmol_object").css("visibility", "hidden")
+		open : function (event) {
+			$("#myJmol_object").css("visibility", "hidden");
 		},
 		close : function () {
-			$("#myJmol_object").css("visibility", "visible")
+			$("#myJmol_object").css("visibility", "visible");
 		}
 	});
+
 	$("#dialog-addLayer").dialog({
-		resizable : !1,
-		autoOpen : !1,
+		resizable : false,
+		autoOpen : false,
 		height : "auto",
 		width : 400,
-		modal : !0,
+		modal : true,
 		buttons : {
 			"Create New Layer" : function () {
-				var a =
-					$("#newLayerName").val().match(/[A-z][\w-_:\.]*/);
-				null !== a && a[0].length === $("#newLayerName").val().length && 16 >= $("#newLayerName").val().length ? rvDataSets[0].isUniqueLayer($("#newLayerName").val()) ? (rvDataSets[0].addLayer($("#newLayerName").val(), $("#newLayerName").val(), [], !0, 1, "circles", $("#layerColor2").val()), resizeElements(), LayerMenu(rvDataSets[0].getLayer($("#newLayerName").val()), 1E3 + (rvDataSets[0].LastLayer + 1)), $(".oneLayerGroup[name=" + $("#newLayerName").val() + "]").find(".selectLayerRadioBtn").prop("checked",
-						!0), $(".oneLayerGroup[name=" + $("#newLayerName").val() + "]").find(".selectLayerRadioBtn").trigger("change"), RefreshLayerMenu(), $.farbtastic("#layerColorPicker2").setColor(colorNameToHex($("#layerColor2").val())), $(this).dialog("close")) : $("#dialog-unique-layer-error").dialog("open") : $("#dialog-name-error").dialog("open")
+				var namecheck = $("#newLayerName").val().match(/[A-z][\w-_:\.]*/);
+				if (namecheck !== null && namecheck[0].length === $("#newLayerName").val().length && $("#newLayerName").val().length <= 16) {
+					if (rvDataSets[0].isUniqueLayer($("#newLayerName").val())) {
+						//$("#canvasDiv").append($('<canvas id="' + $("#newLayerName").val() + '" style="z-index:' + ( rvDataSets[0].LastLayer + 1 ) + ';"></canvas>'));
+						rvDataSets[0].addLayer($("#newLayerName").val(), $("#newLayerName").val(), [], true, 1.0, 'circles', $("#layerColor2").val());
+						resizeElements();
+						LayerMenu(rvDataSets[0].getLayer($("#newLayerName").val()), (1000 + (rvDataSets[0].LastLayer + 1)));
+						$(".oneLayerGroup[name=" + $("#newLayerName").val() + "]").find(".selectLayerRadioBtn").prop("checked", true);
+						$(".oneLayerGroup[name=" + $("#newLayerName").val() + "]").find(".selectLayerRadioBtn").trigger("change");
+						RefreshLayerMenu();
+						var farbobj = $.farbtastic("#layerColorPicker2");
+						farbobj.setColor(colorNameToHex($("#layerColor2").val()));
+						$(this).dialog("close");
+					} else {
+						$("#dialog-unique-layer-error").dialog("open");
+					}
+				} else {
+					$("#dialog-name-error").dialog("open");
+				}
 			},
 			Cancel : function () {
-				$(this).dialog("close")
+				$(this).dialog("close");
 			}
 		},
 		open : function () {
 			$("#newLayerName").val("Layer_" + (rvDataSets[0].Layers.length + 1));
-			$("#myJmol_object").css("visibility", "hidden")
+			$("#myJmol_object").css("visibility", "hidden");
 		},
 		close : function () {
-			$("#myJmol_object").css("visibility",
-				"visible")
+			$("#myJmol_object").css("visibility", "visible");
 		}
 	});
-	$("#newLayerName").button().addClass("ui-textfield").keydown(function (a) {
-		13 == a.keyCode && $("#dialog-addLayer").dialog("option", "buttons")["Create New Layer"].apply($("#dialog-addLayer"))
+	$("#newLayerName").button().addClass('ui-textfield').keydown(function (event) {
+		if (event.keyCode == 13) {
+			$("#dialog-addLayer").dialog("option", "buttons")['Create New Layer'].apply($("#dialog-addLayer"));
+		}
 	});
-	$("#layerColor2").button().addClass("ui-textfield").keydown(function (a) {
-		13 == a.keyCode && $("#dialog-addLayer").dialog("option", "buttons")["Create New Layer"].apply($("#dialog-addLayer"))
+	$("#layerColor2").button().addClass('ui-textfield').keydown(function (event) {
+		if (event.keyCode == 13) {
+			$("#dialog-addLayer").dialog("option", "buttons")['Create New Layer'].apply($("#dialog-addLayer"));
+		}
 	});
-	$("#layerColor").button().addClass("ui-textfield").keydown(function (a) {
-		13 == a.keyCode && changeLayerColor()
+	$("#layerColor").button().addClass('ui-textfield').keydown(function (event) {
+		if (event.keyCode == 13) {
+			//$("#LayerPreferenceDialog").dialog("option", "buttons")['Save'].apply($("#LayerPreferenceDialog"));
+			var ret2 = changeLayerColor();
+		}
 	});
-	$("#layerNameInput").button().addClass("ui-textfield").keydown(function (a) {
-		13 ==
-		a.keyCode && changeCurrentLayerName()
+
+	$("#layerNameInput").button().addClass('ui-textfield').keydown(function (event) {
+		if (event.keyCode == 13) {
+			//$("#LayerPreferenceDialog").dialog("option", "buttons")['Save'].apply($("#LayerPreferenceDialog"));
+			var ret = changeCurrentLayerName();
+		}
 	});
+
+	//MiniLayer
 	$("#MiniLayer").sortable({
-		update : function (a, k) {
-			var e = $(k.item[0]).attr("name");
-			if (e === $(".miniLayerName:first").attr("name")) {
-				var f = $(".miniLayerName[name=" + $(k.item[0]).attr("name") + "]").next().attr("name");
-				$("#LayerPanel").find("[name=" + e + "]").insertBefore($("#LayerPanel").find("[name=" + f + "]"))
-			} else
-				f = $(".miniLayerName[name=" + $(k.item[0]).attr("name") + "]").prev().attr("name"), $("#LayerPanel").find("[name=" + e + "]").insertAfter($("#LayerPanel").find("[name=" + f +
-						"]"));
-			$("#LayerPanel .layerContent").each(function (a, e) {
-				rvDataSets[0].getLayer($(this).parent().attr("name")).updateZIndex(rvDataSets[0].LastLayer - a)
+		update : function (event, ui) {
+			//Determine Layer to move
+			var target = $(ui.item[0]).attr("name");
+			if (target === $(".miniLayerName:first").attr("name")) {
+				var Pos = $(".miniLayerName[name=" + $(ui.item[0]).attr("name") + "]").next().attr("name");
+				//Move Layer
+				$("#LayerPanel").find("[name=" + target + "]").insertBefore($("#LayerPanel").find("[name=" + Pos + "]"));
+			} else {
+				var Pos = $(".miniLayerName[name=" + $(ui.item[0]).attr("name") + "]").prev().attr("name");
+				//Move Layer
+				$("#LayerPanel").find("[name=" + target + "]").insertAfter($("#LayerPanel").find("[name=" + Pos + "]"));
+			}
+
+			//Update ZIndex
+			$("#LayerPanel .layerContent").each(function (e, f) {
+				var tl = rvDataSets[0].getLayer($(this).parent().attr("name"));
+				tl.updateZIndex(rvDataSets[0].LastLayer - e);
 			});
 			rvDataSets[0].sort();
-			RefreshLayerMenu()
+			RefreshLayerMenu();
 		},
-		start : function (a, k) {
-			$("#LinkSection").addClass("highlightBorder")
+		start : function (event, ui) {
+			$("#LinkSection").addClass("highlightBorder");
 		},
-		stop : function (a, k) {
-			$("#LinkSection").removeClass("highlightBorder")
+		stop : function (event, ui) {
+			$("#LinkSection").removeClass("highlightBorder");
 		},
 		items : ".miniLayerName",
 		axis : "y"
 	});
 	$("#MiniLayer").disableSelection();
+
 	$("#dialog-confirm-delete").dialog({
-		resizable : !1,
-		autoOpen : !1,
+		resizable : false,
+		autoOpen : false,
 		height : "auto",
 		width : 400,
-		modal : !0,
+		modal : true,
 		buttons : {
-			"Delete the Layer" : function (a) {
-				a =
-					rvDataSets[0].getSelectedLayer();
-				if ("residues" !== a.Type) {
-					rvDataSets[0].deleteLayer(a.LayerName);
-					$("[name=" + a.LayerName + "]").remove();
+			"Delete the Layer" : function (event) {
+				var targetLayer = rvDataSets[0].getSelectedLayer();
+				if (targetLayer.Type !== "residues") {
+					rvDataSets[0].deleteLayer(targetLayer.LayerName);
+					$("[name=" + targetLayer.LayerName + "]").remove();
 					rvDataSets[0].sort();
-					var k = rvDataSets[0].getLayerByType("residues"),
-					e = rvDataSets[0].getLayerByType("circles"),
-					f = rvDataSets[0].getLayerByType("selected");
-					1 <= k.length ? ($(".oneLayerGroup[name='" + k[0].LayerName + "']").find(".selectLayerRadioBtn").prop("checked", !0), $(".oneLayerGroup[name='" + k[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("change")) : 1 <= e.length ?
-					($(".oneLayerGroup[name='" + e[0].LayerName + "']").find(".selectLayerRadioBtn").prop("checked", !0), $(".oneLayerGroup[name='" + e[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("change")) : 1 <= f.length ? ($(".oneLayerGroup[name='" + f[0].LayerName + "']").find(".selectLayerRadioBtn").prop("checked", !0), $(".oneLayerGroup[name='" + f[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("change")) : ($(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".selectLayerRadioBtn").prop("checked",
-							!0), $(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("change"));
-					a.Linked && (1 <= k.length ? ($(".oneLayerGroup[name='" + k[0].LayerName + "']").find(".mappingRadioBtn").prop("checked", !0), $(".oneLayerGroup[name='" + k[0].LayerName + "']").find(".mappingRadioBtn").trigger("change")) : 1 <= e.length ? ($(".oneLayerGroup[name='" + e[0].LayerName + "']").find(".mappingRadioBtn").prop("checked", !0), $(".oneLayerGroup[name='" + e[0].LayerName + "']").find(".mappingRadioBtn").trigger("change")) :
-						1 <= f.length ? ($(".oneLayerGroup[name='" + f[0].LayerName + "']").find(".mappingRadioBtn").prop("checked", !0), $(".oneLayerGroup[name='" + f[0].LayerName + "']").find(".mappingRadioBtn").trigger("change")) : !1 == $(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".mappingRadioBtn").prop("disabled") && ($(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".mappingRadioBtn").prop("checked", !0), $(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".mappingRadioBtn").trigger("change")));
-					RefreshLayerMenu()
-				} else
+
+					//check selected layer and linked layer
+					var rLayers = rvDataSets[0].getLayerByType("residues");
+					var cLayers = rvDataSets[0].getLayerByType("circles");
+					var sLayers = rvDataSets[0].getLayerByType("selected");
+					if (rLayers.length >= 1) {
+						$(".oneLayerGroup[name='" + rLayers[0].LayerName + "']").find(".selectLayerRadioBtn").prop("checked", true);
+						$(".oneLayerGroup[name='" + rLayers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("change");
+					} else if (cLayers.length >= 1) {
+						$(".oneLayerGroup[name='" + cLayers[0].LayerName + "']").find(".selectLayerRadioBtn").prop("checked", true);
+						$(".oneLayerGroup[name='" + cLayers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("change");
+					} else if (sLayers.length >= 1) {
+						$(".oneLayerGroup[name='" + sLayers[0].LayerName + "']").find(".selectLayerRadioBtn").prop("checked", true);
+						$(".oneLayerGroup[name='" + sLayers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("change");
+					} else {
+						$(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".selectLayerRadioBtn").prop("checked", true);
+						$(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("change");
+					}
+					if (targetLayer.Linked) {
+						if (rLayers.length >= 1) {
+							$(".oneLayerGroup[name='" + rLayers[0].LayerName + "']").find(".mappingRadioBtn").prop("checked", true);
+							$(".oneLayerGroup[name='" + rLayers[0].LayerName + "']").find(".mappingRadioBtn").trigger("change");
+						} else if (cLayers.length >= 1) {
+							$(".oneLayerGroup[name='" + cLayers[0].LayerName + "']").find(".mappingRadioBtn").prop("checked", true);
+							$(".oneLayerGroup[name='" + cLayers[0].LayerName + "']").find(".mappingRadioBtn").trigger("change");
+						} else if (sLayers.length >= 1) {
+							$(".oneLayerGroup[name='" + sLayers[0].LayerName + "']").find(".mappingRadioBtn").prop("checked", true);
+							$(".oneLayerGroup[name='" + sLayers[0].LayerName + "']").find(".mappingRadioBtn").trigger("change");
+						} else {
+							if ($(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".mappingRadioBtn").prop("disabled") == false) {
+								$(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".mappingRadioBtn").prop("checked", true);
+								$(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".mappingRadioBtn").trigger("change");
+							}
+						}
+					}
+					RefreshLayerMenu();
+				} else {
 					alert("You are not allowed to delete the residues layer");
-				$(this).dialog("close")
+				}
+				$(this).dialog("close");
 			},
 			Cancel : function () {
-				$(this).dialog("close")
+				$(this).dialog("close");
 			}
 		},
-		open : function (a) {
-			$("#myJmol_object").css("visibility", "hidden")
+		open : function (event) {
+			$("#myJmol_object").css("visibility", "hidden");
 		},
 		close : function () {
-			$("#myJmol_object").css("visibility", "visible")
+			$("#myJmol_object").css("visibility", "visible");
 		}
-	})
+	});
+
 }
+
 function changeLayerColor() {
-	var a,
-	k,
-	e;
-	if ((a = $("#layerColor").val().match(/#[\dABCDEFabcdef]{6,6}$/)) && 7 === a[0].length)
-		a = a[0];
-	else {
-		k = colorNameToHex($("#layerColor").val());
-		if (!1 === k)
-			return $("#dialog-invalid-color-error").dialog("open"), !1;
-		a = $("#layerColor").val();
-		e = $.farbtastic("#layerColorPicker");
-		e.setColor(k)
-	}
-	$($dblClickedLayer).parent().find(".colorBox").css("background", a);
-	rvDataSets[0].getLayer($dblClickedLayerName).Color = a;
-	drawNavLine();
-	return !0
-}
-function changeCurrentLayerName() {
-	if ("" != $("#layerNameInput").val() && $("#layerNameInput").val() !== $($dblClickedLayer).parent().attr("name")) {
-		var a = $("#layerNameInput").val().match(/[A-z][\w-_:\.]*/);
-		if (null !== a && a[0].length === $("#layerNameInput").val().length && 16 >= $("#layerNameInput").val().length) {
-			if (rvDataSets[0].isUniqueLayer($("#layerNameInput").val()))
-				return $("#MiniLayer").find("[name=" + $($dblClickedLayer).parent().attr("name") + "]").attr("name", $("#layerNameInput").val()).text($("#layerNameInput").val()),
-				$($dblClickedLayer).parent().attr("name", $("#layerNameInput").val()), $($dblClickedLayer).html($("#layerNameInput").val()).prepend('<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-e"></span>'), a = rvDataSets[0].getLayer($dblClickedLayerName), a.LayerName = $("#layerNameInput").val(), a.Linked && $("#LinkSection").find(".miniLayerName").attr("name", $("#layerNameInput").val()).text($("#layerNameInput").val()), RefreshLayerMenu(), !0;
-			$("#dialog-unique-layer-error").dialog("open");
-			return !1
+	var newcolor,
+	newcolorH,
+	farbobj;
+	var colorcheck = $("#layerColor").val().match(/#[\dABCDEFabcdef]{6,6}$/);
+	if (colorcheck && (colorcheck[0].length === 7)) {
+		newcolor = colorcheck[0];
+	} else {
+		newcolorH = colorNameToHex($("#layerColor").val());
+		if (newcolorH === false) {
+			$("#dialog-invalid-color-error").dialog("open");
+			return false;
+		} else {
+			newcolor = $("#layerColor").val();
+			farbobj = $.farbtastic("#layerColorPicker");
+			farbobj.setColor(newcolorH);
 		}
-		$("#dialog-name-error").dialog("open");
-		return !1
 	}
-	return !0
+	$($dblClickedLayer).parent().find(".colorBox").css("background", newcolor);
+	var targetLayer = rvDataSets[0].getLayer($dblClickedLayerName);
+	targetLayer.Color = newcolor;
+	drawNavLine();
+	return true;
 }
-function LayerMenu(a, k, e) {
-	var f = a.LayerName;
-	$("[name=TopLayerBar]").after($("<div>").addClass("oneLayerGroup").attr({
-			name : f
+
+//in "Layer Preferfence"
+function changeCurrentLayerName() {
+	if ($("#layerNameInput").val() != "" && ($("#layerNameInput").val() !== $($dblClickedLayer).parent().attr("name"))) {
+		var namecheck = $("#layerNameInput").val().match(/[A-z][\w-_:\.]*/);
+		if (namecheck !== null && namecheck[0].length === $("#layerNameInput").val().length && $("#layerNameInput").val().length <= 16) {
+			if (rvDataSets[0].isUniqueLayer($("#layerNameInput").val())) {
+				$("#MiniLayer").find("[name=" + $($dblClickedLayer).parent().attr("name") + "]").attr("name", $("#layerNameInput").val()).text($("#layerNameInput").val());
+				$($dblClickedLayer).parent().attr("name", $("#layerNameInput").val());
+				$($dblClickedLayer).html($("#layerNameInput").val()).prepend('<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-e"></span>');
+				var targetLayer = rvDataSets[0].getLayer($dblClickedLayerName);
+				targetLayer.LayerName = $("#layerNameInput").val();
+				if (targetLayer.Linked) {
+					$("#LinkSection").find(".miniLayerName").attr("name", $("#layerNameInput").val()).text($("#layerNameInput").val());
+				}
+				RefreshLayerMenu();
+				return true;
+			} else {
+				$("#dialog-unique-layer-error").dialog("open");
+				return false;
+			}
+		} else {
+			$("#dialog-name-error").dialog("open");
+			return false;
+		}
+	} else {
+		return true;
+	}
+}
+
+function LayerMenu(Layer, key, RVcolor) {
+	//console.log($count);
+	var $currentLayerName = Layer.LayerName;
+	//console.log($currentLayerName);
+	$('[name=TopLayerBar]').after($("<div>").addClass("oneLayerGroup").attr({
+			'name' : $currentLayerName
 		}));
-	var d = $(".oneLayerGroup[name=" + f + "]")[0];
-	$(d).append($("<div>").addClass("colorBox"));
-	var h = rvDataSets[0].getLayer(f);
-	e ? ($(d).find(".colorBox").css("background", e), h.Color = e) : $(d).find(".colorBox").css("background", h.Color);
-	$(d).append($("<div>").addClass("checkBoxDIV").css({
-			"float" : "left",
-			"padding-top" : 5,
-			"margin-left" : 5,
-			width : 20
-		}).append($("<img class='visibilityCheckImg' value='visible' title='visibility' width='24px' height='auto' src='./images/visible.png'/>").css({
-				"margin-top" : 3
+	//console.log($("<div>").addClass("oneLayerGroup").attr({'name' : $currentLayerName}).html());
+	//$('.oneLayerGroup').append(("<div>").addClass("visibilityCheckbox"));
+	//$('.visibilityCheckbox').append($("<input />").attr({type:'checkbox'}).addClass("layerVisiblity"))
+
+	var $currentGroup = $(".oneLayerGroup[name=" + $currentLayerName + "]")[0];
+
+	//adding color box
+	$($currentGroup)
+	.append($("<div>").addClass("colorBox"));
+	var targetLayer = rvDataSets[0].getLayer($currentLayerName);
+	if (RVcolor) {
+		$($currentGroup).find(".colorBox").css("background", RVcolor);
+		targetLayer.Color = RVcolor;
+	} else {
+		$($currentGroup).find(".colorBox").css("background", targetLayer.Color);
+	}
+
+	//targetLayer.Color = $($currentGroup).find(".colorBox").css("background");
+
+	//hide and show icon: eye
+	var $visibleImgPath = "images/visible.png";
+	var $invisibleImgPath = "images/invisible.png";
+	$($currentGroup)
+	.append($("<div>").addClass("checkBoxDIV").css({
+			'float' : 'left',
+			'padding-top' : 5,
+			'margin-left' : 5,
+			'width' : 20
+		}).append($("<img class='visibilityCheckImg' value='visible' title='visibility' src='./images/visible.png'/>").css({
+				'width' : '24px',
+				'height' : 'auto',
+				'margin-top' : 3
 			}).click(function () {
-				var a = this.getAttribute("value");
-				"visible" == a ? (this.setAttribute("value", "invisible"), this.setAttribute("src", "images/invisible.png"), a = rvDataSets[0].getLayer(this.parentNode.parentNode.getAttribute("name")), a.setVisibility("hidden")) : "invisible" == a && (this.setAttribute("value", "visible"), this.setAttribute("src", "images/visible.png"), a = rvDataSets[0].getLayer(this.parentNode.parentNode.getAttribute("name")), a.setVisibility("visible"))
+				var $type = this.getAttribute('value');
+				if ($type == 'visible') {
+					this.setAttribute('value', 'invisible');
+					this.setAttribute('src', $invisibleImgPath);
+					var targetLayer = rvDataSets[0].getLayer(this.parentNode.parentNode.getAttribute("name"));
+					targetLayer.setVisibility("hidden");
+				} else if ($type == 'invisible') {
+					this.setAttribute('value', 'visible');
+					this.setAttribute('src', $visibleImgPath);
+					var targetLayer = rvDataSets[0].getLayer(this.parentNode.parentNode.getAttribute("name"));
+					targetLayer.setVisibility("visible");
+				}
 			})));
-	$(d).append($("<div>").addClass("radioDIV").css({
-			"float" : "left",
-			"padding-top" : 5,
-			"padding-left" : 5,
-			width : 20
+
+	//adding raido button for selection
+	$($currentGroup)
+	.append($("<div>").addClass("radioDIV").css({
+			'float' : 'left',
+			'padding-top' : 5,
+			'padding-left' : 5,
+			'width' : 20
 		}).append($("<input />").attr({
-				type : "radio",
-				name : "selectedRadioL",
-				title : "select layer"
-			}).addClass("selectLayerRadioBtn").change(function (a) {
-				rvDataSets[0].selectLayer($(a.currentTarget).parent().parent().attr("name"));
-				drawNavLine()
+				type : 'radio',
+				name : 'selectedRadioL',
+				title : 'select layer'
+			}).addClass("selectLayerRadioBtn").change(function (event) {
+				rvDataSets[0].selectLayer($(event.currentTarget).parent().parent().attr("name"));
+				drawNavLine();
 			})));
-	$(d).append($("<div>").addClass("radioDIV2").css({
-			"float" : "left",
-			"padding-top" : 5,
-			"padding-left" : 5,
-			width : 20
+
+	//raido button for telling 2D-3D mapping
+	$($currentGroup)
+	.append($("<div>").addClass("radioDIV2").css({
+			'float' : 'left',
+			'padding-top' : 5,
+			'padding-left' : 5,
+			'width' : 20
 		}).append($("<input />").attr({
-				type : "radio",
-				name : "mappingRadioL",
-				title : "select which layer to map into 3D",
-				disabled : "disabled"
-			}).addClass("mappingRadioBtn").change(function (a) {
-				rvDataSets[0].linkLayer($(a.currentTarget).parent().parent().attr("name"));
-				a = rvDataSets[0].getLinkedLayer();
-				$("#LinkSection").find(".miniLayerName").attr("name", a.LayerName);
-				$("#LinkSection").find(".miniLayerName").text(a.LayerName);
-				$("#LinkSection").find(".miniLayerName").attr("title", $("#MiniLayer .miniLayerName[name=" + a.LayerName + "]").attr("title"));
-				update3Dcolors()
+				type : 'radio',
+				name : 'mappingRadioL',
+				title : 'select which layer to map into 3D',
+				disabled : 'disabled'
+			}).addClass("mappingRadioBtn").change(function (event) {
+				rvDataSets[0].linkLayer($(event.currentTarget).parent().parent().attr("name"));
+				var linkedLayer = rvDataSets[0].getLinkedLayer();
+				$("#LinkSection").find(".miniLayerName").attr("name", linkedLayer.LayerName);
+				$("#LinkSection").find(".miniLayerName").text(linkedLayer.LayerName);
+				$("#LinkSection").find(".miniLayerName").attr("title", $("#MiniLayer .miniLayerName[name=" + linkedLayer.LayerName + "]").attr("title"));
+				update3Dcolors();
 			})));
-	$(d).append($("<h3>").addClass("layerName").css({
-			"margin-left" : 83
-		}).append(f).dblclick(function () {
+
+	//adding accordion
+	$($currentGroup)
+	.append($("<h3>").addClass("layerName").css({
+			'margin-left' : 83
+		}).append($currentLayerName)
+		.dblclick(function () { //double click to open dialog to change layer name and set color
+			//watch out! $currentLayerName != the layer you are clicking right now!
+			//open a dialog window for changing layer names
+
+			//get the name of the layer that just got double clicked
 			$dblClickedLayerName = this.innerHTML.substring(this.innerHTML.lastIndexOf("</span>") + 7);
-			$dblClickedLayer =
-				this;
+			$dblClickedLayer = this;
 			document.getElementById("layerNameInput").value = "";
 			document.getElementById("layerNameInput").placeholder = $dblClickedLayerName;
-			$.farbtastic("#layerColor").setColor(rgb2hex($($dblClickedLayer).parent().find(".colorBox").css("background-color")));
-			$("#LayerPreferenceDialog").dialog("open")
-		})).append($("<div>").addClass("layerContent").css({
-			"margin-left" : 83
+			var flc = $.farbtastic("#layerColor");
+			flc.setColor(rgb2hex($($dblClickedLayer).parent().find(".colorBox").css("background-color")));
+
+			$("#LayerPreferenceDialog").dialog("open");
+		}))
+	.append($("<div>").addClass("layerContent").css({
+			'margin-left' : 83
 		}));
-	$("#LayerPanel div").first().next().find(".layerContent").first().append($("<div>").html("<b>Layer Type:</b> " + a.Type).append($("<br>")));
-	switch (a.Type) {
+
+	//$count++;
+	$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div>').html("<b>Layer Type:</b> " + Layer.Type).append($("<br>")));
+	switch (Layer.Type) {
 	case "circles":
-		$("#LayerPanel div").first().next().find(".layerContent").first().append($("<div>").html("<b>Loaded Data: </b><span name='DataLabel'>" + a.DataLabel + "</span>").append($("<br>")).append($("<br>")));
-		$("#LayerPanel div").first().next().find(".layerContent").append($('<div id="pr-' + k + '">').text("Draw Circles as:").append($("<br>")));
-		$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="filled' + k + '" id="pr-' +
-				k + '-1" value="filled" checked="checked"> <label for="pr-' + k + '-1 ">filled</label>'));
-		$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="filled' + k + '" id="pr-' + k + '-2" value="unfilled"> <label for="pr-' + k + '-2">unfilled</label>'));
-		a.Filled ? $('input[name="filled' + k + '"][value=filled]').prop("checked", !0) : $('input[name="filled' + k + '"][value=unfilled]').prop("checked", !0);
-		$('input[name="filled' + k + '"]').change(function (b) {
-			"filled" === $(this).attr("value") ?
-			a.Filled = !0 : a.Filled = !1;
-			rvDataSets[0].refreshResiduesExpanded($(b.currentTarget).parent().parent().parent().attr("name"))
+		//Data Label Section
+		$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div>').html("<b>Loaded Data: </b><span name='DataLabel'>" + Layer.DataLabel + "</span>").append($("<br>")).append($("<br>")));
+
+		//Circle buttons
+		$("#LayerPanel div").first().next().find(".layerContent").append($('<div id="' + 'pr-' + key + '">').text("Draw Circles as:").append($("<br>")));
+		$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="filled' + key + '" id="' + 'pr-' + key + '-1' + '" value="filled" checked="checked"> <label for="' + 'pr-' + key + '-1' + ' ">filled</label>'));
+		$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="filled' + key + '" id="' + 'pr-' + key + '-2' + '" value="unfilled"> <label for="' + 'pr-' + key + '-2' + '">unfilled</label>'));
+		//$('#' + 'pr-' + key).buttonset();
+		if (Layer.Filled) {
+			$('input[name="filled' + key + '"][value=filled]').prop("checked", true);
+		} else {
+			$('input[name="filled' + key + '"][value=unfilled]').prop("checked", true);
+		}
+		$('input[name="filled' + key + '"]').change(function (event) {
+			if ($(this).attr("value") === "filled") {
+				Layer.Filled = true;
+			} else {
+				Layer.Filled = false;
+			}
+			rvDataSets[0].refreshResiduesExpanded($(event.currentTarget).parent().parent().parent().attr("name"));
 		});
-		$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="prs-' + k + '">').text("Circle Size:").append($("<br>")));
-		$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="size' + k + '" id="prs-' + k + '-1" value="regular" checked="checked"> <label for="prs-' + k + '-1 ">regular</label>'));
-		$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="size' +
-				k + '" id="prs-' + k + '-2" value="large"> <label for="prs-' + k + '-2">large</label>'));
-		1 >= a.ScaleFactor ? $('input[name="size' + k + '"][value=regular]').prop("checked", !0) : $('input[name="size' + k + '"][value=large]').prop("checked", !0);
-		$("#LayerPanel div").first().next().find(".radioDIV2").find("input").prop("disabled", !1);
-		$('input[name="size' + k + '"]').change(function (b) {
-			"regular" === $(this).attr("value") ? a.ScaleFactor = 1 : a.ScaleFactor = 1.2;
-			rvDataSets[0].refreshResiduesExpanded($(b.currentTarget).parent().parent().parent().attr("name"))
+
+		$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="' + 'prs-' + key + '">').text("Circle Size:").append($("<br>")));
+		$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="size' + key + '" id="' + 'prs-' + key + '-1' + '" value="regular" checked="checked"> <label for="' + 'prs-' + key + '-1' + ' ">regular</label>'));
+		$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="size' + key + '" id="' + 'prs-' + key + '-2' + '" value="large"> <label for="' + 'prs-' + key + '-2' + '">large</label>'));
+		//$('#' + 'pr-' + key).buttonset();
+		if (Layer.ScaleFactor <= 1.0) {
+			$('input[name="size' + key + '"][value=regular]').prop("checked", true);
+		} else {
+			$('input[name="size' + key + '"][value=large]').prop("checked", true);
+		}
+
+		$("#LayerPanel div").first().next().find(".radioDIV2").find('input').prop("disabled", false);
+
+		$('input[name="size' + key + '"]').change(function (event) {
+			if ($(this).attr("value") === "regular") {
+				Layer.ScaleFactor = 1.0;
+			} else {
+				Layer.ScaleFactor = 1.2;
+			}
+			rvDataSets[0].refreshResiduesExpanded($(event.currentTarget).parent().parent().parent().attr("name"));
 		});
-		$("#MiniOpenLayerBtn").after($('<h3 class="miniLayerName ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom ">').text(f).attr("name", f).droppable({
-				drop : function (a, b) {
-					ProcessBubbleDrop(a, b)
+		$("#MiniOpenLayerBtn").after($('<h3 class="miniLayerName ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom ">')
+			.text($currentLayerName).attr('name', $currentLayerName).droppable({
+				drop : function (event, ui) {
+					ProcessBubbleDrop(event, ui);
 				}
 			}));
+
 		break;
 	case "lines":
-		$("#LayerPanel div").first().next().find(".layerContent").first().append($("<div>").html("<b>Loaded Data: </b><span name='DataLabel'>" + a.DataLabel + "</span>").append($("<br>")).append($("<br>")));
+		//Data Label Section
+		$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div>').html("<b>Loaded Data: </b><span name='DataLabel'>" + Layer.DataLabel + "</span>").append($("<br>")).append($("<br>")));
 		$("#LayerPanel div").first().next().find(".layerContent").append($('<div name="llm">').text("Color lines like:").append($("<br>")));
+		//$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<select id="' + 'llm-' + key + 'lineselect' + '" name="' + 'llm-' + key + 'lineselect' + '" multiple="multiple"></select>'));
 		$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<select multiple="multiple"></select>'));
+
+		//console.log($("#LayerPanel div").first().next().html());
+
 		$("#LayerPanel div").first().next().find(".layerContent").find("[name='llm']").find("select").multiselect({
 			minWidth : 160,
-			multiple : !1,
+			multiple : false,
 			header : "Select a layer",
 			noneSelectedText : "Select an Option",
 			selectedList : 1
 		});
 		$("#LayerPanel div").first().next().find(".layerContent").find("[name='llm']").find("select").multiselect().multiselectfilter();
-		var b = $("#LayerPanel div").first().next().find(".layerContent").find("[name='llm']").find("select")[0];
-		b.options[0] = new Option("All Gray", "gray_lines");
-		b.options[0].setAttribute("selected", "selected");
-		e = rvDataSets[0].getLayerByType("residues");
-		f = rvDataSets[0].getLayerByType("circles");
-		d = rvDataSets[0].getLayerByType("selected");
-		$.each(e, function (a, d) {
-			b.options[b.options.length] = new Option(d.LayerName, d.LayerName)
+
+		//Fill Menu
+		var llm = $("#LayerPanel div").first().next().find(".layerContent").find("[name='llm']").find("select")[0];
+		//var SDList=rvDataSets[0].SpeciesEntry.StructDataMenu.split(";");
+		//llm.options.length = 0;
+		llm.options[0] = new Option("All Gray", "gray_lines");
+		llm.options[0].setAttribute("selected", "selected");
+
+		var rLayers = rvDataSets[0].getLayerByType("residues");
+		var cLayers = rvDataSets[0].getLayerByType("circles");
+		var sLayers = rvDataSets[0].getLayerByType("selected");
+		$.each(rLayers, function (key, value) {
+			llm.options[llm.options.length] = new Option(value.LayerName, value.LayerName);
 		});
-		$.each(f, function (a, d) {
-			b.options[b.options.length] = new Option(d.LayerName, d.LayerName)
+		$.each(cLayers, function (key, value) {
+			llm.options[llm.options.length] = new Option(value.LayerName, value.LayerName);
 		});
-		$.each(d, function (a, d) {
-			b.options[b.options.length] = new Option(d.LayerName, d.LayerName)
+		$.each(sLayers, function (key, value) {
+			llm.options[llm.options.length] = new Option(value.LayerName, value.LayerName);
 		});
 		$("#LayerPanel div").first().next().find(".layerContent").find("[name='llm']").find("select").multiselect("refresh");
-		$("#LayerPanel div").first().next().find(".layerContent").find("[name='llm']").find("select").change(function (a) {
-			var b = $(a.currentTarget).parent().find("select").multiselect("getChecked").map(function () {
-					return this.value
+
+		$("#LayerPanel div").first().next().find(".layerContent").find("[name='llm']").find("select").change(function (event) {
+			var array_of_checked_values = $(event.currentTarget).parent().find("select").multiselect("getChecked").map(function () {
+					return this.value;
 				});
-			"gray_lines" === b[0] ? (rvDataSets[0].drawBasePairs("lines", "gray_lines"), $(a.currentTarget).parent().parent().find(":radio").attr("disabled", "disabled")) : "manual_coloring" === b[0] ? (rvDataSets[0].drawBasePairs("lines", "manual_coloring"), $(a.currentTarget).parent().parent().find(":radio").attr("disabled",
-					"disabled")) : (rvDataSets[0].drawBasePairs("lines", rvDataSets[0].getLayer(b[0])), $(a.currentTarget).parent().parent().find(":radio").removeAttr("disabled"))
+			if (array_of_checked_values[0] === "gray_lines") {
+				rvDataSets[0].drawBasePairs("lines", "gray_lines");
+				$(event.currentTarget).parent().parent().find(':radio').attr('disabled', 'disabled');
+			} else if (array_of_checked_values[0] === "manual_coloring") {
+				rvDataSets[0].drawBasePairs("lines", "manual_coloring");
+				$(event.currentTarget).parent().parent().find(':radio').attr('disabled', 'disabled');
+			} else {
+				rvDataSets[0].drawBasePairs("lines", rvDataSets[0].getLayer(array_of_checked_values[0]));
+				$(event.currentTarget).parent().parent().find(':radio').removeAttr('disabled');
+			}
 		});
-		$("#LayerPanel div").first().next().find(".layerContent").first().append($("<br>"));
-		$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="llmg-' + k + '">').text("Line Gradient Direction:").append($("<br>")));
-		$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="color_lines_gradient' +
-				k + '" id="llmg-' + k + '-1" value="Matched" checked="checked"> <label for="llmg-' + k + '-1 ">Matched</label>'));
-		$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="color_lines_gradient' + k + '" id="llmg-' + k + '-2" value="Opposite"> <label for="llmg-' + k + '-2">Opposite</label>'));
-		$('[name="color_lines_gradient' + k + '"]').attr("disabled", "disabled");
-		$('input[name="color_lines_gradient' + k + '"]').change(function (a) {
-			rvDataSets[0].getLayer($('input[name="color_lines_gradient' +
-					k + '"]:checked').parent().parent().parent().find("h3").text()).ColorGradientMode = $(a.currentTarget).parent().parent().find("input:checked").val();
-			rvDataSets[0].drawBasePairs("lines")
+
+		$("#LayerPanel div").first().next().find(".layerContent").first().append($('<br>'));
+		$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="' + 'llmg-' + key + '">').text("Line Gradient Direction:").append($("<br>")));
+		$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="color_lines_gradient' + key + '" id="' + 'llmg-' + key + '-1' + '" value="Matched" checked="checked"> <label for="' + 'llmg-' + key + '-1' + ' ">Matched</label>'));
+		$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="color_lines_gradient' + key + '" id="' + 'llmg-' + key + '-2' + '" value="Opposite"> <label for="' + 'llmg-' + key + '-2' + '">Opposite</label>'));
+		$('[name="color_lines_gradient' + key + '"]').attr('disabled', 'disabled');
+		$('input[name="color_lines_gradient' + key + '"]').change(function (event) {
+			var targetLayer = rvDataSets[0].getLayer($('input[name="color_lines_gradient' + key + '"]' + ':checked').parent().parent().parent().find('h3').text());
+			targetLayer.ColorGradientMode = $(event.currentTarget).parent().parent().find('input:checked').val();
+			rvDataSets[0].drawBasePairs("lines");
 		});
+
 		break;
 	case "residues":
-		$("#LayerPanel div").first().next().find(".layerContent").first().append($("<div>").html("<b>Loaded Data: </b><span name='DataLabel'>" + a.DataLabel + "</span>").append($("<br>")).append($("<br>")));
+		//Data Label Section
+		$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div>').html("<b>Loaded Data: </b><span name='DataLabel'>" + Layer.DataLabel + "</span>").append($("<br>")).append($("<br>")));
+
 		$("#LayerPanel div").first().next().find(".selectLayerRadioBtn").attr("checked", "checked");
 		rvDataSets[0].selectLayer($("#LayerPanel div").first().next().attr("name"));
 		rvDataSets[0].linkLayer($("#LayerPanel div").first().next().attr("name"));
-		$("#LayerPanel div").first().next().find(".radioDIV2").find("input").prop("disabled", !1);
-		$("#LayerPanel div").first().next().find(".radioDIV2").find("input").prop("checked", !0);
-		$("#MiniOpenLayerBtn").after($('<h3 class="miniLayerName ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom ">').text(f).attr("name", f).droppable({
-				drop : function (a, b) {
-					ProcessBubbleDrop(a, b)
+		$("#LayerPanel div").first().next().find(".radioDIV2").find('input').prop("disabled", false);
+		$("#LayerPanel div").first().next().find(".radioDIV2").find('input').prop("checked", true);
+		$("#MiniOpenLayerBtn").after($('<h3 class="miniLayerName ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom ">')
+			.text($currentLayerName).attr('name', $currentLayerName).droppable({
+				drop : function (event, ui) {
+					ProcessBubbleDrop(event, ui);
 				}
 			}));
+
 		break;
 	case "selected":
-		$("#LayerPanel div").first().next().find(".radioDIV2").find("input").prop("disabled",
-			!1)
+		//$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="selectDiv">'))
+		$("#LayerPanel div").first().next().find(".radioDIV2").find('input').prop("disabled", false);
+		//$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="' + 'sele-' + key + '">'))
+		//$("#selectDiv").html(text)
+		break;
+	default:
+		break;
 	}
-	$("#LayerPanel div").first().next().find(".visibilityCheckImg").attr("value", "visible")
+	$("#LayerPanel div").first().next().find(".visibilityCheckImg").attr("value", "visible");
 }
+// Refresh Menu
 function RefreshLayerMenu() {
+	//Accordion that support multiple sections open
 	$("#LayerPanel").multiAccordion();
-	var a = rvDataSets[0].getLayerByType("lines");
-	$.each(a, function (k, e) {
-		var f = $(".oneLayerGroup[name=" + a[0].LayerName + "]").find(".layerContent").find("div[name=llm]").find("select")[0];
-		f.options.length = 0;
-		f.options[0] = new Option("All Gray", "gray_lines");
-		f.options[0].setAttribute("selected", "selected");
-		f.options[1] = new Option("Manual Coloring", "manual_coloring");
-		var d = rvDataSets[0].getLayerByType(["residues", "circles", "selected"]);
-		$.each(d.reverse(),
-			function (a, b) {
-			f.options[f.options.length] = new Option(b.LayerName, b.LayerName)
+	var targetLayers = rvDataSets[0].getLayerByType("lines");
+	$.each(targetLayers, function (index, value) {
+		var $selectbox = $(".oneLayerGroup[name=" + targetLayers[0].LayerName + "]").find(".layerContent").find("div[name=llm]").find("select")[0];
+		//Fill Menu
+		//var llm = $("#LayerPanel div").first().next().find(".layerContent").find("[name='llm']").find("select")[0];
+		//var SDList=rvDataSets[0].SpeciesEntry.StructDataMenu.split(";");
+		$selectbox.options.length = 0;
+		$selectbox.options[0] = new Option("All Gray", "gray_lines");
+		$selectbox.options[0].setAttribute("selected", "selected");
+		$selectbox.options[1] = new Option("Manual Coloring", "manual_coloring");
+
+		var dsLayers = rvDataSets[0].getLayerByType(["residues", "circles", "selected"]);
+		$.each(dsLayers.reverse(), function (key, value) {
+			$selectbox.options[$selectbox.options.length] = new Option(value.LayerName, value.LayerName);
 		});
-		$(".oneLayerGroup[name=" + a[0].LayerName + "]").find(".layerContent").find("div[name=llm]").find("select").multiselect("refresh")
-	})
+		$(".oneLayerGroup[name=" + targetLayers[0].LayerName + "]").find(".layerContent").find("div[name=llm]").find("select").multiselect("refresh");
+		/*
+		// Refresh MiniLayers
+		$(".miniLayerName").remove();
+		var dLayers = rvDataSets[0].getLayerByType(["residues","circles"]);
+		$.each(dLayers, function (key, value) {
+		$("#MiniLayerLabel").after($('<h3 class="miniLayerName ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom ">')
+		.text(value.LayerName).attr('name',value.LayerName).droppable({
+		drop: function (event,ui) {
+		ProcessBubbleDrop(event,ui);
+		}
+		}));
+		});
+		//Refresh Linked MiniLayer
+		var linkedLayer = rvDataSets[0].getLinkedLayer();
+		$("#LinkSection").append($('<h3 class="miniLayerName ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom ">')
+		.text(linkedLayer.LayerName).attr('name',linkedLayer.LayerName).droppable({
+		drop: function (event,ui) {
+		ProcessBubbleDrop(event,ui);
+		}
+		}));*/
+	});
 }
-function ProcessBubbleDrop(a, k) {
-	if ($(k.draggable[0]).hasClass("dataBubble")) {
-		var e = rvDataSets[0].getLayer($(a.target).attr("name"));
-		e.DataLabel = $(k.draggable[0]).text();
-		$("[name=" + e.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(e.DataLabel);
-		var f = $(k.draggable[0]).attr("name").match(/[^\'\\,]+/),
-		d = $.grep(rvDataSets[0].DataDescriptions, function (a) {
-				return a.ColName === f[0]
+
+function ProcessBubbleDrop(event, ui) {
+	if ($(ui.draggable[0]).hasClass("dataBubble")) {
+		var targetLayer = rvDataSets[0].getLayer($(event.target).attr("name"));
+		targetLayer.DataLabel = $(ui.draggable[0]).text();
+		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
+		var ColName = $(ui.draggable[0]).attr("name").match(/[^\'\\,]+/);
+		var result = $.grep(rvDataSets[0].DataDescriptions, function (e) {
+				return e.ColName === ColName[0];
 			});
-		d[0] ? ($("#MiniLayer .miniLayerName[name=" + e.LayerName + "]").attr("title", e.DataLabel + ": " + d[0].Description),
-			$("#LinkSection .miniLayerName[name=" + e.LayerName + "]").attr("title", e.DataLabel + ": " + d[0].Description), $(k.draggable[0]).parent().parent().find(".ManualLink").attr("href", "./Documentation/" + d[0].HelpLink + ".html")) : ($(".miniLayerName[name=" + e.LayerName + "]").attr("title", "Data Description is missing."), $(k.draggable[0]).parent().parent().find(".ManualLink").attr("href", "./Documentation"));
-		ProcessBubble($(k.draggable[0]), e);
-		$(".oneLayerGroup[name='" + e.LayerName + "']").find(".selectLayerRadioBtn").prop("checked",
-			!0);
-		$(".oneLayerGroup[name='" + e.LayerName + "']").find(".selectLayerRadioBtn").trigger("change");
-		$(".oneLayerGroup[name='" + e.LayerName + "']").find(".mappingRadioBtn").prop("checked", !0);
-		$(".oneLayerGroup[name='" + e.LayerName + "']").find(".mappingRadioBtn").trigger("change")
+		if (result[0]) {
+			$("#MiniLayer .miniLayerName[name=" + targetLayer.LayerName + "]").attr("title", targetLayer.DataLabel + ": " + result[0].Description);
+			$("#LinkSection .miniLayerName[name=" + targetLayer.LayerName + "]").attr("title", targetLayer.DataLabel + ": " + result[0].Description);
+			$(ui.draggable[0]).parent().parent().find(".ManualLink").attr("href", "./Documentation/" + result[0].HelpLink + ".html");
+		} else {
+			$(".miniLayerName[name=" + targetLayer.LayerName + "]").attr("title", "Data Description is missing.");
+			$(ui.draggable[0]).parent().parent().find(".ManualLink").attr("href", "./Documentation");
+		}
+		ProcessBubble($(ui.draggable[0]), targetLayer);
+		$(".oneLayerGroup[name='" + targetLayer.LayerName + "']").find(".selectLayerRadioBtn").prop("checked", true);
+		$(".oneLayerGroup[name='" + targetLayer.LayerName + "']").find(".selectLayerRadioBtn").trigger("change");
+		$(".oneLayerGroup[name='" + targetLayer.LayerName + "']").find(".mappingRadioBtn").prop("checked", true);
+		$(".oneLayerGroup[name='" + targetLayer.LayerName + "']").find(".mappingRadioBtn").trigger("change");
 	}
 }
+
+
 function InitSelections() {
+	// Build Selection Menu
+
+	// Put in Top Labels and ToolBar
 	$("#SelectionPanel").prepend($("<div id='topBarS'>").attr({
-			name : "TopSelectionBar"
-		}).html("C&nbspV&nbsp&nbsp&nbspS&nbsp&nbsp&nbsp&nbspL&nbsp&nbspSelectionName&nbsp"));
-	$("[name=TopSelectionBar]").append($('<button id="newSelection" class="toolBarBtn2" title="Create a new selection"></button>'));
-	$("[name=TopSelectionBar]").append($('<button id="clearSelection" class="toolBarBtn2" title="Clear the selected selection"></button>'));
-	$("[name=TopSelectionBar]").append($('<button id="deleteSelection" class="toolBarBtn2" title="Delete the selected selection"></button>'));
+			'name' : 'TopSelectionBar'
+		}).html("C&nbspV&nbsp&nbsp&nbspS&nbsp&nbsp&nbsp&nbspL&nbsp&nbspSelectionName&nbsp")); // where to add letters
+	$('[name=TopSelectionBar]').append($('<button id="newSelection" class="toolBarBtn2" title="Create a new selection"></button>'));
+	$('[name=TopSelectionBar]').append($('<button id="clearSelection" class="toolBarBtn2" title="Clear the selected selection"></button>'));
+	$('[name=TopSelectionBar]').append($('<button id="deleteSelection" class="toolBarBtn2" title="Delete the selected selection"></button>'));
 	$("#newSelection").button({
-		text : !1,
+		text : false,
 		icons : {
 			primary : "ui-icon-document"
 		}
 	});
+
 	$("#newSelection").click(function () {
-		$("#dialog-addSelection").dialog("open")
+		$("#dialog-addSelection").dialog("open");
 	});
+
 	$("#clearSelection").button({
-		text : !1,
+		text : false,
 		icons : {
 			primary : "ui-icon-cancel"
 		}
 	});
+
 	$("#clearSelection").click(function () {
-		clearSelection()
+		clearSelection();
 	});
+
 	$("#deleteSelection").button({
-		text : !1,
+		text : false,
 		icons : {
 			primary : "ui-icon-trash"
 		}
 	});
-	$("#deleteSelection").click(function (a) {
-		$("#dialog-confirm-delete-S p").text("The " + $("input:radio[name=selectedRadioS]").filter(":checked").parent().parent().attr("name") +
-			" selection will be permanently deleted and cannot be recovered.");
-		$("#dialog-confirm-delete-S").dialog("open")
+
+	$("#deleteSelection").click(function (event) {
+		$("#dialog-confirm-delete-S p").text("The " + $('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name') + " selection will be permanently deleted and cannot be recovered.");
+		$("#dialog-confirm-delete-S").dialog('open');
 	});
+
+	/*
+	// Put in Layers
+	$.each(rvDataSets[0].Layers, function (key, value){
+	LayerMenu(value, key);
+	});
+
+	//Accordion that support multiple sections open
+	$("#LayerPanel").multiAccordion();
+	$("#LayerPanel").sortable({
+	update : function (event, ui) {
+	$("#LayerPanel .layerContent").each(function (e, f) {
+	//$(this).find('p').text(rvDataSets[0].LastLayer - e - 1);
+	$("#" + $(this).parent().find('h3').text()).css('zIndex', rvDataSets[0].LastLayer - e - 1)
+
+	});
+	rvDataSets[0].sort();
+	},
+	items : ".oneLayerGroup"
+
+	});
+	$("#LayerPanel").disableSelection();
+
+	//RefreshLayerMenu();
+	 */
+	///////////////////////// Add Selection Dialog ////////////////////////////////
 	$("#dialog-addSelection").dialog({
-		resizable : !1,
-		autoOpen : !1,
+		resizable : false,
+		autoOpen : false,
 		height : "auto",
 		width : 400,
-		modal : !0,
+		modal : true,
 		buttons : {
 			"Create New Selection" : function () {
-				$("#newSelectionName").val().match(/[A-z][\w-_:\.]*/)[0].length === $("#newSelectionName").val().length && 16 >= $("#newSelectionName").val().length ? rvDataSets[0].isUniqueSelection($("#newSelectionName").val()) ? (rvDataSets[0].addSelection($("#newSelectionName").val(),
-						[], $("#selectionColor2").val()), SelectionMenu(rvDataSets[0].getSelection($("#newSelectionName").val())), RefreshSelectionMenu(), $(".oneSelectionGroup[name=" + $("#newSelectionName").val() + "]").find(".selectSelectionRadioBtn").prop("checked", !0), $(".oneSelectionGroup[name=" + $("#newSelectionName").val() + "]").find(".selectSelectionRadioBtn").trigger("change"), $(this).dialog("close")) : $("#dialog-unique-selection-error").dialog("open") : $("#dialog-name-error").dialog("open")
+				var namecheck = $("#newSelectionName").val().match(/[A-z][\w-_:\.]*/);
+				if (namecheck[0].length === $("#newSelectionName").val().length && $("#newSelectionName").val().length <= 16) {
+					if (rvDataSets[0].isUniqueSelection($("#newSelectionName").val())) {
+						//$("#canvasDiv").append($('<canvas id="' + $("#newLayerName").val() + '" style="z-index:' + ( rvDataSets[0].LastLayer + 1 ) + ';"></canvas>'));
+						//resizeElements();
+						rvDataSets[0].addSelection($("#newSelectionName").val(), [], $("#selectionColor2").val());
+						SelectionMenu(rvDataSets[0].getSelection($("#newSelectionName").val()));
+						RefreshSelectionMenu();
+						$(".oneSelectionGroup[name=" + $("#newSelectionName").val() + "]").find(".selectSelectionRadioBtn").prop("checked", true);
+						$(".oneSelectionGroup[name=" + $("#newSelectionName").val() + "]").find(".selectSelectionRadioBtn").trigger("change");
+						$(this).dialog("close");
+					} else {
+						$("#dialog-unique-selection-error").dialog("open");
+					}
+				} else {
+					$("#dialog-name-error").dialog("open");
+				}
 			},
 			Cancel : function () {
-				$(this).dialog("close")
+				$(this).dialog("close");
 			}
 		},
 		open : function () {
 			$("#myJmol_object").css("visibility", "hidden");
-			$("#newSelectionName").val("Selection_" + (rvDataSets[0].Selections.length + 1))
+			$("#newSelectionName").val("Selection_" + (rvDataSets[0].Selections.length + 1));
 		},
 		close : function () {
-			$("#myJmol_object").css("visibility", "visible")
+			$("#myJmol_object").css("visibility", "visible");
 		}
 	});
-	$("#dialog-addSelection p").append("Not done yet.<br><br>Please enter a name for the new Selection.");
+	$("#dialog-addSelection p").append("Not done yet." +
+		"<br><br>Please enter a name for the new Selection.");
+
+	///////////////////////// Delete Selection Dialog ////////////////////////////////
 	$("#dialog-confirm-delete-S").dialog({
-		resizable : !1,
-		autoOpen : !1,
+		resizable : false,
+		autoOpen : false,
 		height : "auto",
 		width : 400,
-		modal : !0,
+		modal : true,
 		buttons : {
-			"Delete the Selection" : function (a) {
-				rvDataSets[0].deleteSelection($("input:radio[name=selectedRadioS]").filter(":checked").parent().parent().attr("name"));
-				$("[name=" + $("input:radio[name=selectedRadioS]").filter(":checked").parent().parent().attr("name") + "]").remove();
-				$(".oneSelectionGroup[name='" + rvDataSets[0].Selections[0].Name + "']").find(".selectSelectionRadioBtn").prop("checked", !0);
+			"Delete the Selection" : function (event) {
+				rvDataSets[0].deleteSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
+				$("[name=" + $('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name') + "]").remove();
+				$(".oneSelectionGroup[name='" + rvDataSets[0].Selections[0].Name + "']").find(".selectSelectionRadioBtn").prop("checked", true);
 				$(".oneSelectionGroup[name='" + rvDataSets[0].Selections[0].Name + "']").find(".selectSelectionRadioBtn").trigger("change");
 				rvDataSets[0].drawSelection("selected");
-				$(this).dialog("close")
+				$(this).dialog("close");
 			},
 			Cancel : function () {
-				$(this).dialog("close")
+				$(this).dialog("close");
 			}
 		},
-		open : function (a) {
-			$("#myJmol_object").css("visibility",
-				"hidden")
+		open : function (event) {
+			$("#myJmol_object").css("visibility", "hidden");
 		},
 		close : function () {
-			$("#myJmol_object").css("visibility", "visible")
+			$("#myJmol_object").css("visibility", "visible");
 		}
 	});
-	$("#newSelectionName").button().addClass("ui-textfield").keydown(function (a) {
-		13 == a.keyCode && $("#dialog-addSelection").dialog("option", "buttons")["Create New Selection"].apply($("#dialog-addSelection"))
+
+	$("#newSelectionName").button().addClass('ui-textfield').keydown(function (event) {
+		if (event.keyCode == 13) {
+			$("#dialog-addSelection").dialog("option", "buttons")['Create New Selection'].apply($("#dialog-addSelection"));
+		}
 	});
-	$("#selectionNameInput").button().addClass("ui-textfield").keydown(function (a) {
-		13 == a.keyCode && changeCurrentSelectionName()
+
+	$("#selectionNameInput").button().addClass('ui-textfield').keydown(function (event) {
+		if (event.keyCode == 13) {
+			changeCurrentSelectionName();
+		}
 	});
+
 	$("#selectionColorPicker").farbtastic("#selectionColor");
 	$("#selectionColorPicker2").farbtastic("#selectionColor2");
+
+	//Accordion that support multiple sections open
 	$("#SelectionPanel").multiAccordion();
 	$("#SelectionPanel").sortable({
-		update : function (a, k) {
-			$("#SelectionPanel .selectionContent").each(function (a, f) {
-				var d = rvDataSets[0].getSelection($(this).parent().attr("name"));
-				d.ZIndex = rvDataSets[0].Selections.length - a;
+		update : function (event, ui) {
+			$("#SelectionPanel .selectionContent").each(function (e, f) {
+				var ts = rvDataSets[0].getSelection($(this).parent().attr("name"));
+				ts.ZIndex = rvDataSets[0].Selections.length - e;
 				rvDataSets[0].drawSelection("selected");
-				console.log($(this).parent().attr("name") + ": " + d.ZIndex)
+				console.log($(this).parent().attr("name") + ": " + ts.ZIndex);
 			});
-			rvDataSets[0].SelectionsSort()
+			rvDataSets[0].SelectionsSort();
 		},
 		items : ".oneSelectionGroup",
 		axis : "y"
+
 	});
 	$("#SelectionPanel").disableSelection();
+
 	$("#SelectionPreferenceDialog").dialog({
-		autoOpen : !1,
+		autoOpen : false,
 		show : {
 			effect : "blind",
 			duration : 300
 		},
-		modal : !0,
+		modal : true,
 		height : 600,
 		width : 400,
 		position : {
@@ -35967,216 +36267,417 @@ function InitSelections() {
 			at : "center",
 			of : $("#canvasDiv")
 		},
-		open : function (a) {
-			$("#myJmol_object").css("visibility", "hidden")
+		open : function (event) {
+			$("#myJmol_object").css("visibility", "hidden");
 		},
 		close : function () {
-			$("#myJmol_object").css("visibility", "visible")
+			$("#myJmol_object").css("visibility", "visible");
 		}
 	});
+
 	$("#openSelectionBtn").click(function () {
 		$("#PanelTabs").tabs("option", "active", 1);
 		$("#LayerDialog").dialog("open");
-		return !1
+		return false;
 	});
+
 	$("#openSelectionBtn").button({
-		text : !1,
+		text : false,
 		icons : {
 			primary : "ui-icon-tag"
 		}
 	});
-	$(".toolBarBtn2").css("height", $("#openLayerBtn").css("height"))
+
+	$(".toolBarBtn2").css('height', $("#openLayerBtn").css('height'));
+
 }
-function SelectionMenu(a, k, e) {
-	k = a.Name;
-	$("[name=TopSelectionBar]").after($("<div>").addClass("oneSelectionGroup").attr({
-			name : k
-		}));
-	var f = $(".oneSelectionGroup[name=" + k + "]")[0];
-	$(f).append($("<div>").addClass("colorBox"));
-	e ? ($(f).find(".colorBox").css("background", e), a.Color = e) : $(f).find(".colorBox").css("background", a.Color);
-	$(f).append($("<div>").addClass("checkBoxDIV-S").css({
-			"float" : "left",
-			"padding-top" : 5,
-			"margin-left" : 5,
-			width : 20
+
+function SelectionMenu(targetSelection, key, RVcolor) {
+
+	var $currentSelectionName = targetSelection.Name;
+	$('[name=TopSelectionBar]').after(($("<div>").addClass("oneSelectionGroup").attr({
+				'name' : $currentSelectionName
+			})));
+
+	var $currentGroup = $(".oneSelectionGroup[name=" + $currentSelectionName + "]")[0];
+
+	//adding color box
+	$($currentGroup)
+	.append($("<div>").addClass("colorBox"));
+	//targetSelection = rvDataSets[0].getSelection($currentSelectionName);
+	if (RVcolor) {
+		$($currentGroup).find(".colorBox").css("background", RVcolor);
+		targetSelection.Color = RVcolor;
+	} else {
+		$($currentGroup).find(".colorBox").css("background", targetSelection.Color);
+	}
+
+	//hide and show icon: eye
+	var $visibleImgPath = "images/visible.png";
+	var $invisibleImgPath = "images/invisible.png";
+	$($currentGroup)
+	.append($("<div>").addClass("checkBoxDIV-S").css({
+			'float' : 'left',
+			'padding-top' : 5,
+			'margin-left' : 5,
+			'width' : 20
 		}).append($("<img class='visibilityCheckImg' value='visible' title='visibility' src='./images/visible.png'/>").css({
-				width : "24px",
-				height : "auto",
-				"margin-top" : 3
+				'width' : '24px',
+				'height' : 'auto',
+				'margin-top' : 3
 			}).click(function () {
-				var a = this.getAttribute("value");
-				"visible" == a ? (this.setAttribute("value", "invisible"), this.setAttribute("src", "images/invisible.png"), rvDataSets[0].drawSelection("selected")) : "invisible" == a && (this.setAttribute("value", "visible"), this.setAttribute("src", "images/visible.png"), rvDataSets[0].drawSelection("selected"))
+				var $type = this.getAttribute('value');
+				if ($type == 'visible') {
+					this.setAttribute('value', 'invisible');
+					this.setAttribute('src', $invisibleImgPath);
+					rvDataSets[0].drawSelection("selected");
+					//targetLayer=rvDataSets[0].getLayer(this.parentNode.parentNode.getAttribute("name"));
+					//targetLayer.setVisibility("hidden");
+				} else if ($type == 'invisible') {
+					this.setAttribute('value', 'visible');
+					this.setAttribute('src', $visibleImgPath);
+					rvDataSets[0].drawSelection("selected");
+					//targetLayer=rvDataSets[0].getLayer(this.parentNode.parentNode.getAttribute("name"));
+					//targetLayer.setVisibility("visible");
+				}
 			})));
-	$(f).append($("<div>").addClass("radioDIV").css({
-			"float" : "left",
-			"padding-top" : 5,
-			"padding-left" : 5,
-			width : 20
+
+	//adding raido button for selection
+	$($currentGroup)
+	.append($("<div>").addClass("radioDIV").css({
+			'float' : 'left',
+			'padding-top' : 5,
+			'padding-left' : 5,
+			'width' : 20
 		}).append($("<input />").attr({
-				type : "radio",
-				name : "selectedRadioS",
-				title : "select Selection"
-			}).addClass("selectSelectionRadioBtn").change(function (a) {
-				var e = $(a.currentTarget).parent().parent().attr("name");
-				$.each(rvDataSets[0].Selections, function (a, c) {
-					c.Selected = c.Name === e ? !0 : !1
-				})
+				type : 'radio',
+				name : 'selectedRadioS',
+				title : 'select Selection'
+			}).addClass("selectSelectionRadioBtn").change(function (event) {
+				var selectionname = $(event.currentTarget).parent().parent().attr("name");
+				$.each(rvDataSets[0].Selections, function (key, value) {
+					if (value.Name === selectionname) {
+						value.Selected = true;
+					} else {
+						value.Selected = false;
+					}
+				});
 			})));
-	$(f).append($("<div>").addClass("radioDIV2").css({
-			"float" : "left",
-			"padding-top" : 5,
-			"padding-left" : 5,
-			width : 20
+
+	//raido button for telling 2D-3D mapping
+	$($currentGroup)
+	.append($("<div>").addClass("radioDIV2").css({
+			'float' : 'left',
+			'padding-top' : 5,
+			'padding-left' : 5,
+			'width' : 20
 		}).append($("<input />").attr({
-				type : "radio",
-				name : "mappingRadioS",
-				title : "select which selection to map into 3D",
-				disabled : "disabled"
-			}).addClass("mappingRadioBtn").change(function (a) {})));
-	$(f).append($("<h3>").addClass("selectionName").css({
-			"margin-left" : 83
-		}).append(k).dblclick(function () {
+				type : 'radio',
+				name : 'mappingRadioS',
+				title : 'select which selection to map into 3D',
+				disabled : 'disabled'
+			}).addClass("mappingRadioBtn").change(function (event) {
+				//rvDataSets[0].linkLayer($(event.currentTarget).parent().parent().attr("name"));
+				//update3Dcolors();
+			})));
+
+	//adding accordion
+	$($currentGroup)
+	.append($("<h3>").addClass("selectionName").css({
+			'margin-left' : 83
+		}).append($currentSelectionName)
+		.dblclick(function () { //double click to open dialog to change layer name and set color
+			//watch out! $currentLayerName != the layer you are clicking right now!
+			//open a dialog window for changing layer names
 			$("#SelectionPreferenceDialog").dialog("open");
+
+			//get the name of the layer that just got double clicked
 			$dblClickedSelectionName = this.innerHTML.substring(this.innerHTML.lastIndexOf("</span>") + 7);
 			$dblClickedSelection = this;
 			document.getElementById("selectionNameInput").value = "";
 			document.getElementById("selectionNameInput").placeholder = $dblClickedSelectionName;
-			$.farbtastic("#selectionColor").setColor(rgb2hex($($dblClickedSelection).parent().find(".colorBox").css("background-color")))
-		})).append($("<div>").addClass("selectionContent").css({
-			"margin-left" : 83
+			var flc = $.farbtastic("#selectionColor");
+			flc.setColor(rgb2hex($($dblClickedSelection).parent().find(".colorBox").css("background-color")));
+			//console.log(this.innerHTML);
+		}))
+	.append($("<div>").addClass("selectionContent").css({
+			'margin-left' : 83
 		}));
-	$("#SelectionPanel div").first().next().find(".selectionContent").first().append($('<div name="selectDiv">'));
-	$("#SelectionPanel div").first().next().find(".selectionContent").append($("<div>").text("Auto Draw Circles:").append($("<br>")));
-	$("#SelectionPanel div").first().next().find(".selectionContent").first().find("div").last().append($('<label><input type="radio" name="autodraw" value="on" checked="checked">On</label>'));
-	$("#SelectionPanel div").first().next().find(".selectionContent").first().find("div").last().append($('<label><input type="radio" name="autodraw" value="off">Off</label>'));
-	$("#SelectionPanel div").first().next().find(".visibilityCheckImg").attr("value", "visible")
+
+	$("#SelectionPanel div").first().next().find(".selectionContent").first().append($('<div name="' + 'selectDiv' + '">'));
+	//Circle buttons
+	$("#SelectionPanel div").first().next().find(".selectionContent").append($('<div>').text("Auto Draw Circles:").append($("<br>")));
+	$("#SelectionPanel div").first().next().find(".selectionContent").first().find("div").last().append($('<label><input type="radio" name="autodraw' + '" value="on" checked="checked">On</label>'));
+	$("#SelectionPanel div").first().next().find(".selectionContent").first().find("div").last().append($('<label><input type="radio" name="autodraw' + '" value="off">Off</label>'));
+	//$('input[name="filled' + key + '"][value=filled]').attr("checked", true);
+
+	$("#SelectionPanel div").first().next().find(".visibilityCheckImg").attr("value", "visible");
+
 }
+
+//RefreshLayerMenu();
+
+// Refresh Menu
 function RefreshSelectionMenu() {
-	$("#SelectionPanel").multiAccordion()
+	$("#SelectionPanel").multiAccordion();
 }
+
 function changeSelectionColor() {
 	$($dblClickedSelection).parent().find(".colorBox").css("background", $("#selectionColor").val());
-	rvDataSets[0].getSelection($dblClickedSelectionName).Color = $("#selectionColor").val();
-	rvDataSets[0].drawSelection("selected")
+	var targetSelection = rvDataSets[0].getSelection($dblClickedSelectionName);
+	targetSelection.Color = $("#selectionColor").val();
+	rvDataSets[0].drawSelection("selected");
 }
+
 function changeCurrentSelectionName() {
-	$("#selectionNameInput").val() !== $($dblClickedSelection).parent().attr("name") && ($("#selectionNameInput").val().match(/[A-z][\w-_:\.]*/)[0].length === $("#selectionNameInput").val().length && 16 >= $("#selectionNameInput").val().length ? rvDataSets[0].isUniqueSelection($("#selectionNameInput").val()) ? ($($dblClickedSelection).parent().attr("name", $("#selectionNameInput").val()), $($dblClickedSelection).html($("#selectionNameInput").val()).prepend('<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-e"></span>'),
-			rvDataSets[0].getSelection($dblClickedSelectionName).Name = $("#selectionNameInput").val(), RefreshSelectionMenu(), $(this).dialog("close")) : $("#dialog-unique-selection-error").dialog("open") : $("#dialog-name-error").dialog("open"))
+	if ($("#selectionNameInput").val() !== $($dblClickedSelection).parent().attr("name")) {
+		var namecheck = $("#selectionNameInput").val().match(/[A-z][\w-_:\.]*/);
+		if (namecheck[0].length === $("#selectionNameInput").val().length && $("#selectionNameInput").val().length <= 16) {
+			if (rvDataSets[0].isUniqueSelection($("#selectionNameInput").val())) {
+				$($dblClickedSelection).parent().attr("name", $("#selectionNameInput").val());
+				$($dblClickedSelection).html($("#selectionNameInput").val()).prepend('<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-e"></span>');
+				var targetSelection = rvDataSets[0].getSelection($dblClickedSelectionName);
+				targetSelection.Name = $("#selectionNameInput").val();
+				RefreshSelectionMenu();
+				$(this).dialog("close");
+			} else {
+				$("#dialog-unique-selection-error").dialog("open");
+			}
+		} else {
+			$("#dialog-name-error").dialog("open");
+		}
+	}
 }
-function initLabels(a) {
+/* Ribovision 0.6 script library Ribovision.js 7:34 PM 01/07/2013 Chad R. Bernier
+
+
+based on:
+ *
+ * Copyright (C) 2012,2013  RiboEvo, Georgia Institute of Technology, apollo.chemistry.gatech.edu
+ *
+ * Contact: Bernier.C.R@gatech.edu
+ *
+ *  This library is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Lesser General Public
+ *  License as published by the Free Software Foundation; either
+ *  version 2.1 of the License, or (at your option) any later version.
+ *
+ *  This library is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this library; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+ *  02111-1307  USA.
+ */
+
+// for documentation see apollo.chemistry.gatech.edu/Ribovision/documentation
+//This doesn't exist and this probably won't be the final license.
+
+
+
+///////////////////////// New Experimental Section  ???? //////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////// Label Functions ///////////////////////////////////
+function initLabels(species) {
+	/*
+	var array_of_checked_values = $("#speciesList").multiselect("getChecked").map(function(){
+	return this.value;
+	}).get();
+	var species=array_of_checked_values[0];
+	 */
 	rvDataSets[0].addLabels([], []);
-	"None" != a ? $.getJSON("getData.php", {
-		TextLabels : rvDataSets[0].SpeciesEntry.TextLabels
-	}, function (a) {
-		$.getJSON("getData.php", {
-			LineLabels : rvDataSets[0].SpeciesEntry.LineLabels
-		}, function (e) {
-			rvDataSets[0].clearCanvas("labels");
-			rvDataSets[0].addLabels(a, e);
-			rvDataSets[0].drawLabels("labels")
-		})
-	}) : (rvDataSets[0].clearCanvas("labels"), rvDataSets[0].addLabels([], []))
+	
+	if (species != "None") {
+		$.getJSON('getData.php', {
+			TextLabels : rvDataSets[0].SpeciesEntry.TextLabels
+		}, function (labelData2) {
+			var TextLabels = labelData2;
+			$.getJSON('getData.php', {
+				LineLabels : rvDataSets[0].SpeciesEntry.LineLabels
+			}, function (labelLines2) {
+				var LineLabels = labelLines2;
+				rvDataSets[0].clearCanvas("labels");
+				rvDataSets[0].addLabels(TextLabels, LineLabels);
+				rvDataSets[0].drawLabels("labels");
+			});
+		});
+		
+		/*
+		$.getJSON('getData.php', {
+			FullTable : "SC_LSU_3D_Extra"
+				}, function (data) {
+				rvDataSets[0].addLabels(undefined, undefined, data);
+				rvDataSets[0].drawLabels("labels",true);
+		});*/
+		
+	} else {
+		rvDataSets[0].clearCanvas("labels");
+		rvDataSets[0].addLabels([], []);
+	}
 }
-function zoom(a, k, e, f) {
-	void 0 == f && (f = rvViews[0]);
-	f.x = (f.x - a) * e + a;
-	f.y = (f.y - k) * e + k;
-	f.scale *= e;
+
+//function drawLabels(){}
+///////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////// Window Functions ///////////////////////////////////
+function zoom(px, py, factor, rvViewObj) {
+	if (rvViewObj == undefined) {
+		rvViewObj = rvViews[0];
+	}
+	
+	rvViewObj.x = (rvViewObj.x - px) * factor + px;
+	rvViewObj.y = (rvViewObj.y - py) * factor + py;
+	rvViewObj.scale *= factor;
 	rvDataSets[0].drawResidues("residues");
 	rvDataSets[0].drawSelection("selected");
 	rvDataSets[0].refreshResiduesExpanded("circles");
 	rvDataSets[0].drawLabels("labels");
-	rvDataSets[0].drawBasePairs("lines")
+	rvDataSets[0].drawBasePairs("lines");
+	
 }
-function pan(a, k) {
-	rvViews[0].x += a;
-	rvViews[0].y += k;
+
+function pan(dx, dy) {
+	rvViews[0].x += dx;
+	rvViews[0].y += dy;
 	rvDataSets[0].drawResidues("residues");
 	rvDataSets[0].drawSelection("selected");
 	rvDataSets[0].refreshResiduesExpanded("circles");
 	rvDataSets[0].drawLabels("labels");
-	rvDataSets[0].drawBasePairs("lines")
+	rvDataSets[0].drawBasePairs("lines");
+	
 }
-function resizeElements(a) {
-	var k = $(window).width(),
-	e = $(window).height();
-	$(".toolBarBtn").css("height", .04 * e);
-	$(".toolBarBtn").css("width", .04 * e);
-	$("#toolBar").css("width", 1.1 * $(".toolBarBtn").first().outerHeight() + 4);
-	var f = $("#toolBar").outerWidth();
-	$("#toolBar").css("left", k - f);
-	$("#menu").css("height", .9 * e);
-	$("#menu").css("width", .16 * k);
-	var d = $("#menu").outerWidth();
-	$("#topMenu").css("left", d);
-	$("#topMenu").css("top", 0);
-	if ($('input[name="nl"][value=on]').is(":checked")) {
+
+function resizeElements(noDraw) {
+	var MajorBorderSize = 1;
+	var width = $(window).width();
+	var height = $(window).height();
+	var MainMenuFrac = 0.65;
+	//ToolBar
+	$(".toolBarBtn").css("height",0.04*height);
+	$(".toolBarBtn").css("width",0.04*height);
+	$("#toolBar").css("width",1.1*$(".toolBarBtn").first().outerHeight() + 4);
+	var toolBarWidth = $("#toolBar").outerWidth();
+	$("#toolBar").css("left",width-toolBarWidth);
+	//Menu
+	$("#menu").css('height', 0.9 * height);
+	$("#menu").css('width', 0.16 * width);
+	var xcorr = $("#menu").outerWidth();
+	
+	//Top Menu Section
+	$("#topMenu").css('left', xcorr );
+	$("#topMenu").css('top', 0);
+	if($('input[name="nl"][value=on]').is(':checked')){
 		$("#topMenu").show();
-		$("#topMenu").outerHeight(TopDivide *
-			e);
-		$("#topMenu").css("width", k - d - f);
-		var h = $("#topMenu").outerHeight()
-	} else
-		$("#topMenu").hide(), $("#topMenu").outerHeight(0), $("#topMenu").css("width", 0);
-	var h = $("#topMenu").outerHeight(),
-	b = $('input[name="jp"][value=on]').is(":checked") ? (k - d - f) * PanelDivide : k - d - f,
-	k = k - d - f - b,
-	f = e - h;
-	$("#SiteInfo").css("width", d);
-	$("#ExportData").css("width", d);
-	$("#MainMenu").css("width", .65 * d);
-	$("#MainMenu").css("height", .9 * e - parseFloat($("#SiteInfo").css("height")) - parseFloat($("#ExportData").css("height")));
-	$("#MainMenu").css("top",
-		parseFloat($("#SiteInfo").css("height")));
-	$("#LinkSection").css("width", .35 * d);
-	$("#LinkSection").css("height", parseFloat($("#LinkSection .ui-widget-header3").css("height")) + parseFloat($(".miniLayerName").first().css("height")) + 13);
-	$("#LinkSection").css("top", .9 * e - parseFloat($("#ExportData").css("height")) - parseFloat($("#LinkSection").css("height")));
-	$("#MiniLayer").css("width", .35 * d);
-	$("#MiniLayer").css("height", .9 * e - parseFloat($("#SiteInfo").css("height")) - parseFloat($("#ExportData").css("height")) -
-		parseFloat($("#LinkSection").css("height")));
-	$("#MiniLayer").css("top", parseFloat($("#SiteInfo").css("height")));
+		$("#topMenu").outerHeight(TopDivide * height);
+		$("#topMenu").css('width', width - xcorr - toolBarWidth);
+		var ycorr = $("#topMenu").outerHeight();
+	} else {
+		$("#topMenu").hide();
+		$("#topMenu").outerHeight(0);
+		$("#topMenu").css('width', 0);
+	}
+	var ycorr = $("#topMenu").outerHeight();
+	if($('input[name="jp"][value=on]').is(':checked')){
+		var lp = (width - xcorr - toolBarWidth) * PanelDivide;
+	} else {
+		var lp = (width - xcorr - toolBarWidth);
+	}
+	var rp = (width - xcorr - toolBarWidth) - lp;
+	var s = (height - ycorr);
+	
+	//SiteInfo
+	$("#SiteInfo").css('width', xcorr);
+	
+	//ExportData
+	$("#ExportData").css('width', xcorr);
+
+	//MainMenu
+	$("#MainMenu").css('width', MainMenuFrac * xcorr); //65%, make room for new MiniLayer
+	$("#MainMenu").css('height', (0.9 * height) - parseFloat($("#SiteInfo").css('height')) - parseFloat($("#ExportData").css('height')));
+	$("#MainMenu").css('top', parseFloat($("#SiteInfo").css('height')));
+	
+	//LinkSection
+	$("#LinkSection").css('width', (1 - MainMenuFrac) * xcorr);
+	$("#LinkSection").css('height',parseFloat($("#LinkSection .ui-widget-header3").css('height')) + parseFloat($(".miniLayerName").first().css('height')) + 13);
+	$("#LinkSection").css('top', (0.9 * height) - parseFloat($("#ExportData").css('height')) - parseFloat($("#LinkSection").css('height')));
+	
+	//MiniLayer
+	$("#MiniLayer").css('width', (1 - MainMenuFrac) * xcorr); //35%, for new MiniLayer
+	$("#MiniLayer").css('height', (0.9 * height) - parseFloat($("#SiteInfo").css('height')) - parseFloat($("#ExportData").css('height')) - parseFloat($("#LinkSection").css('height')));
+	$("#MiniLayer").css('top', parseFloat($("#SiteInfo").css('height')));
+	
+	//SideBarAccordian
 	$("#SideBarAccordian").accordion("refresh");
-	$("#canvasDiv").css("height", f);
-	$("#canvasDiv").css("width", b);
-	$("#canvasDiv").css("left", d - 1);
-	$("#canvasDiv").css("top", h - 1);
+	
+	//Canvas Section
+	$("#canvasDiv").css('height', s);
+	$("#canvasDiv").css('width', lp);
+	$("#canvasDiv").css('left', xcorr - 1);
+	$("#canvasDiv").css('top', ycorr - 1);
+	
 	$("canvas").attr({
-		width : b - 2,
-		height : f - 2
+		width : lp - 2 * MajorBorderSize,
+		height : s - 2 * MajorBorderSize
 	});
-	$("canvas").css("top", 0);
-	$("canvas").css("left", 0);
-	$("#navigator").css("left", d);
-	$("#navigator").css("top", h + parseFloat($("#canvaslabel").css("height")));
-	$("#jmolDiv").css("height",
-		f);
-	$("#jmolDiv").css("width", k + 1);
-	$("#jmolDiv").css("left", d + parseFloat($("#canvasDiv").css("width")) - 1);
-	$("#jmolDiv").css("top", h - 1);
-	$("#LayerDialog").dialog("option", "height", f - 2);
-	$("#LayerDialog").dialog("widget").position({
-		my : "right top",
-		at : "right top",
-		of : $("#canvasDiv")
+	$("canvas").css('top', 0);
+	$("canvas").css('left', 0);
+	
+	//Navigator Section
+	$("#navigator").css('left', xcorr);
+	$("#navigator").css('top', ycorr + parseFloat($("#canvaslabel").css("height")));
+	
+	//Jmol Section
+	$("#jmolDiv").css('height', s);
+	$("#jmolDiv").css('width', rp + 1);
+	$("#jmolDiv").css('left', xcorr + parseFloat($("#canvasDiv").css('width')) - 1);
+	$("#jmolDiv").css('top', ycorr - 1);
+	
+	//Jmol.resizeApplet(myJmol,[(rp - 2 * MajorBorderSize),(s - 2 * MajorBorderSize)]);
+	//$("#myJmol_object").css('height', );
+	//$("#myJmol_object").css('width', );
+	//$("#myJmol_object").css('top', 0);
+	//$("#myJmol_object").css('left', 0);
+	
+	// Layer Panel
+	$( "#LayerDialog" ).dialog( "option", "height", s - 2 * MajorBorderSize );	
+	$( "#LayerDialog" ).dialog("widget").position({
+		my: "right top",
+		at: "right top",
+		of: $( "#canvasDiv" )
 	});
-	$("#ColorDialog").dialog("option", "height", .75 * f - 2);
-	$("#ColorDialog").dialog("widget").position({
-		my : "right top",
-		at : "right top",
-		of : $("#canvasDiv")
+	// Color Panel
+	$( "#ColorDialog" ).dialog( "option", "height", 0.75 * s - 2 * MajorBorderSize );	
+	$( "#ColorDialog" ).dialog("widget").position({
+		my: "right top",
+		at: "right top",
+		of: $( "#canvasDiv" )
 	});
-	$("#LogoDiv").css("width", d);
-	$("#LogoDiv").css("height", .1 * e);
-	$("#LogoDiv").css("top",
-		$("#menu").css("height"));
+	
+	//LogoDiv
+	$("#LogoDiv").css('width', xcorr);
+	$("#LogoDiv").css('height', 0.1 * height);
+	$("#LogoDiv").css('top', $("#menu").css('height'));
+	
 	rvViews[0].width = rvDataSets[0].HighlightLayer.Canvas.width;
 	rvViews[0].height = rvDataSets[0].HighlightLayer.Canvas.height;
 	rvViews[0].clientWidth = rvDataSets[0].HighlightLayer.Canvas.clientWidth;
 	rvViews[0].clientHeight = rvDataSets[0].HighlightLayer.Canvas.clientHeight;
-	!0 !== a && (rvDataSets[0].drawResidues("residues"), rvDataSets[0].drawSelection("selected"), rvDataSets[0].refreshResiduesExpanded("circles"), rvDataSets[0].drawLabels("labels"), rvDataSets[0].drawBasePairs("lines"));
-	drawNavLine()
+	
+	if (noDraw!==true){
+		rvDataSets[0].drawResidues("residues");
+		rvDataSets[0].drawSelection("selected");
+		rvDataSets[0].refreshResiduesExpanded("circles");
+		rvDataSets[0].drawLabels("labels");
+		rvDataSets[0].drawBasePairs("lines");
+	}
+	drawNavLine();
 }
+
 function resetView() {
 	rvViews[0].x = 20;
 	rvViews[0].y = 20;
@@ -36186,1709 +36687,3139 @@ function resetView() {
 	rvDataSets[0].refreshResiduesExpanded("circles");
 	rvDataSets[0].drawLabels("labels");
 	rvDataSets[0].drawBasePairs("lines");
-	$("#slider").slider("value", 20)
+	
+	$("#slider").slider("value", 20);
 }
-function dragHandle(a) {
-	pan(a.clientX - rvViews[0].lastX, a.clientY - rvViews[0].lastY);
-	rvViews[0].lastX = a.clientX;
-	rvViews[0].lastY = a.clientY
+///////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////// Selection Functions ///////////////////////////////
+function dragHandle(event) {
+	pan(event.clientX - rvViews[0].lastX, event.clientY - rvViews[0].lastY);
+	rvViews[0].lastX = event.clientX;
+	rvViews[0].lastY = event.clientY;
 }
-function getSelectedLine(a) {
-	var k = (a.clientX - rvViews[0].x - $("#menu").width()) / rvViews[0].scale;
-	a = (a.clientY - rvViews[0].y - $("#topMenu").height()) / rvViews[0].scale;
-	var e = $('input[name="za"][value=on]').is(":checked");
-	if (void 0 != rvDataSets[0].BasePairs)
-		for (var f = 0; f < rvDataSets[0].BasePairs.length; f++) {
-			var d = rvDataSets[0].BasePairs[f].resIndex1,
-			h = rvDataSets[0].BasePairs[f].resIndex2,
-			b = Math.sqrt((k - rvDataSets[0].Residues[d].X) * (k - rvDataSets[0].Residues[d].X) + (a - rvDataSets[0].Residues[d].Y) * (a - rvDataSets[0].Residues[d].Y)),
-			c = Math.sqrt((k - rvDataSets[0].Residues[h].X) * (k - rvDataSets[0].Residues[h].X) + (a - rvDataSets[0].Residues[h].Y) * (a - rvDataSets[0].Residues[h].Y)),
-			g = Math.sqrt((rvDataSets[0].Residues[d].X - rvDataSets[0].Residues[h].X) * (rvDataSets[0].Residues[d].X - rvDataSets[0].Residues[h].X) + (rvDataSets[0].Residues[d].Y - rvDataSets[0].Residues[h].Y) * (rvDataSets[0].Residues[d].Y - rvDataSets[0].Residues[h].Y));
-			if (e) {
-				g = Math.sqrt((rvDataSets[0].Residues[d].X - rvDataSets[0].Residues[h].X) * (rvDataSets[0].Residues[d].X - rvDataSets[0].Residues[h].X) +
-						(rvDataSets[0].Residues[d].Y - rvDataSets[0].Residues[h].Y) * (rvDataSets[0].Residues[d].Y - rvDataSets[0].Residues[h].Y));
-				if (150 - 23 * rvViews[0].scale > g)
+
+function getSelectedLine(event){
+	var nx = (event.clientX - rvViews[0].x - $("#menu").width()) / rvViews[0].scale; //subtract 250 for the menu width
+	var ny = (event.clientY - rvViews[0].y - $("#topMenu").height()) / rvViews[0].scale; //subtract 80 for the info height
+	var zoomEnabled = $('input[name="za"][value=on]').is(':checked');
+	if(rvDataSets[0].BasePairs != undefined){
+		for (var i = 0; i < rvDataSets[0].BasePairs.length; i++) {
+			var j = rvDataSets[0].BasePairs[i].resIndex1;
+			var k = rvDataSets[0].BasePairs[i].resIndex2;
+			var jdist = Math.sqrt(((nx - rvDataSets[0].Residues[j].X)*(nx - rvDataSets[0].Residues[j].X) + (ny - rvDataSets[0].Residues[j].Y)*(ny - rvDataSets[0].Residues[j].Y)));
+			var kdist = Math.sqrt(((nx - rvDataSets[0].Residues[k].X)*(nx - rvDataSets[0].Residues[k].X) + (ny - rvDataSets[0].Residues[k].Y)*(ny - rvDataSets[0].Residues[k].Y)));
+			var jkdist = Math.sqrt(((rvDataSets[0].Residues[j].X - rvDataSets[0].Residues[k].X)*(rvDataSets[0].Residues[j].X - rvDataSets[0].Residues[k].X) + (rvDataSets[0].Residues[j].Y - rvDataSets[0].Residues[k].Y)*(rvDataSets[0].Residues[j].Y - rvDataSets[0].Residues[k].Y)));
+						
+			
+			if(zoomEnabled){
+					var jkdist = Math.sqrt(((rvDataSets[0].Residues[j].X - rvDataSets[0].Residues[k].X)*(rvDataSets[0].Residues[j].X - rvDataSets[0].Residues[k].X) + (rvDataSets[0].Residues[j].Y - rvDataSets[0].Residues[k].Y)*(rvDataSets[0].Residues[j].Y - rvDataSets[0].Residues[k].Y)));
+					if((150 - rvViews[0].scale*23) > jkdist){
+						continue;
+					}
+					if(( (rvDataSets[0].Residues[j].X*rvViews[0].scale+rvViews[0].x < 0) || (rvDataSets[0].Residues[j].X*rvViews[0].scale+rvViews[0].x > rvViews[0].clientWidth) || (rvDataSets[0].Residues[j].Y*rvViews[0].scale+rvViews[0].y < 0) ||  (rvDataSets[0].Residues[j].Y*rvViews[0].scale+rvViews[0].y > rvViews[0].clientHeight))
+					&& ( (rvDataSets[0].Residues[k].X*rvViews[0].scale+rvViews[0].x < 0) || (rvDataSets[0].Residues[k].X*rvViews[0].scale+rvViews[0].x > rvViews[0].clientWidth) || (rvDataSets[0].Residues[k].Y*rvViews[0].scale+rvViews[0].y < 0) ||  (rvDataSets[0].Residues[k].Y*rvViews[0].scale+rvViews[0].y > rvViews[0].clientHeight)) )  {
 					continue;
-				if ((0 > rvDataSets[0].Residues[d].X * rvViews[0].scale + rvViews[0].x || rvDataSets[0].Residues[d].X * rvViews[0].scale + rvViews[0].x > rvViews[0].clientWidth || 0 > rvDataSets[0].Residues[d].Y * rvViews[0].scale + rvViews[0].y || rvDataSets[0].Residues[d].Y * rvViews[0].scale + rvViews[0].y > rvViews[0].clientHeight) && (0 > rvDataSets[0].Residues[h].X * rvViews[0].scale + rvViews[0].x ||
-						rvDataSets[0].Residues[h].X * rvViews[0].scale + rvViews[0].x > rvViews[0].clientWidth || 0 > rvDataSets[0].Residues[h].Y * rvViews[0].scale + rvViews[0].y || rvDataSets[0].Residues[h].Y * rvViews[0].scale + rvViews[0].y > rvViews[0].clientHeight))
-					continue
+						}
+						}
+			if( (jdist+kdist - jkdist) < .03){
+					return i;
+				}
+			
 			}
-			if (.03 > b + c - g)
-				return f
-		}
-	return -1
+	
+	}
+	return -1;
 }
-function getSelected(a) {
-	var k = (a.clientX - rvViews[0].x - $("#menu").width()) / rvViews[0].scale;
-	a = (a.clientY - rvViews[0].y - $("#topMenu").height()) / rvViews[0].scale;
-	if (void 0 != rvDataSets[0].Residues)
-		for (var e = 0; e < rvDataSets[0].Residues.length; e++) {
-			var f = rvDataSets[0].Residues[e];
-			if (2 > (k > f.X ? k - f.X : f.X - k) + (a > f.Y ? a - f.Y : f.Y - a))
-				return e
+
+function getSelected(event) {
+	var nx = (event.clientX - rvViews[0].x - $("#menu").width()) / rvViews[0].scale; //subtract 250 for the menu width
+	var ny = (event.clientY - rvViews[0].y - $("#topMenu").height()) / rvViews[0].scale; //subtract 80 for the info height
+	if (rvDataSets[0].Residues != undefined) {
+		for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
+			var res = rvDataSets[0].Residues[i];
+			if (((nx > res.X) ? nx - res.X : res.X - nx) + ((ny > res.Y) ? ny - res.Y : res.Y - ny) < 2) {
+				return i;
+			}
 		}
-	return -1
-}
-function expandSelection(a, k) {
-	k || (k = "Main");
-	for (var e = rvDataSets[0].getSelection(k), f = 0; f < a.length; f++) {
-		var d = a[f];
-		if (!d)
-			break;
-		var h = d.split(":");
-		if (1 < h.length) {
-			var b = h[1].indexOf("-");
-			if (-1 != b) {
-				var c = rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(h[0])];
-				if (c && (d = c + "_" + h[1].substring(1, b), h = c + "_" + h[1].substring(b + 1, h[1].length - 1), d && h))
-					for (d = rvDataSets[0].ResidueList.indexOf(d), h = rvDataSets[0].ResidueList.indexOf(h); d <= h; d++)
-						e.Residues.push(rvDataSets[0].Residues[d])
-			} else if (c =
-					rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(h[0])])
-				d = c + "_" + h[1], d = rvDataSets[0].ResidueList.indexOf(d), 0 <= d && e.Residues.push(rvDataSets[0].Residues[d]);
-			else
-				return c = rvDataSets[0].SpeciesEntry.PDB_chains_rProtein[rvDataSets[0].SpeciesEntry.Molecule_Names_rProtein.indexOf(h[0])], d = c + "_" + h[1], e.Residues_rProtein.push(d), d
-		} else if ("" != h[0])
-			if (-1 < h[0].search(/\d/))
-				if (b = h[0].indexOf("-"), -1 != b) {
-					if (c = rvDataSets[0].SpeciesEntry.PDB_chains[0], d = c + "_" + h[0].substring(0,
-								b), h = c + "_" + h[0].substring(b + 1, h[0].length), d && h)
-						for (d = rvDataSets[0].ResidueList.indexOf(d), h = rvDataSets[0].ResidueList.indexOf(h); d <= h; d++)
-							e = rvDataSets[0].getSelection(k), e.Residues.push(rvDataSets[0].Residues[d])
-				} else
-					c = rvDataSets[0].SpeciesEntry.PDB_chains[0], d = c + "_" + h[0], d = rvDataSets[0].ResidueList.indexOf(d), 0 <= d && (e = rvDataSets[0].getSelection(k), e.Residues.push(rvDataSets[0].Residues[d]));
-			else
-				for (b = new RegExp(h[0], "g"); null != (match = b.exec(rvDataSets[0].SequenceList)); )
-					for (d = match.index, h = match.index +
-							match[0].length - 1; d <= h; d++)
-						e = rvDataSets[0].getSelection(k), e.Residues.push(rvDataSets[0].Residues[d])
+		return -1;
+	} else {
+		return -1;
 	}
 }
-function commandSelect(a, k) {
-	a || (a = document.getElementById("commandline").value);
-	k || (k = $("input:radio[name=selectedRadioS]").filter(":checked").parent().parent().attr("name"));
-	a = a.split(";");
-	expandSelection(a, k);
-	updateSelectionDiv(k);
+
+function expandSelection(command, SelectionName) {
+	if (!SelectionName){
+		SelectionName = "Main";
+	}
+	var targetSelection=rvDataSets[0].getSelection(SelectionName);
+	for (var i = 0; i < command.length; i++) {
+		var com = command[i];
+		if (!com){return;};
+		var comsplit = com.split(":");
+		if (comsplit.length > 1) {
+			var index = comsplit[1].indexOf("-");
+			if (index != -1) {
+				var chainID = rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(comsplit[0])];
+				if (chainID){
+					var start = chainID + "_" + comsplit[1].substring(1, index);
+					var end = chainID + "_" + comsplit[1].substring(index + 1, comsplit[1].length - 1);
+					
+					if (start && end) {
+						var start_ind = rvDataSets[0].ResidueList.indexOf(start);
+						var end_ind = rvDataSets[0].ResidueList.indexOf(end);
+						
+						for (var j = start_ind; j <= end_ind; j++) {
+							
+							targetSelection.Residues.push(rvDataSets[0].Residues[j]);
+						}
+					}
+				} else {
+					//rProteins with ranges will need the rProtein residue list to be defined first.
+				}
+			} else {
+				var chainID = rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(comsplit[0])];
+				if (chainID){
+					//var aloneRes = chainID + "_" + comsplit[1].substring(1,comsplit[1].length-1);
+					var aloneRes = chainID + "_" + comsplit[1];
+					var alone_ind = rvDataSets[0].ResidueList.indexOf(aloneRes);
+					if (alone_ind >=0){
+						//var targetSelection=rvDataSets[0].getSelection(SelectionName);
+						targetSelection.Residues.push(rvDataSets[0].Residues[alone_ind]);
+					}
+				} else {
+					var chainID = rvDataSets[0].SpeciesEntry.PDB_chains_rProtein[rvDataSets[0].SpeciesEntry.Molecule_Names_rProtein.indexOf(comsplit[0])];
+					var aloneRes = chainID + "_" + comsplit[1];
+					// Skip the residue list check for now
+					//var alone_ind = rvDataSets[0].ResidueList_rProtein.indexOf(aloneRes);
+					//if (alone_ind >=0){
+						//var targetSelection=rvDataSets[0].getSelection(SelectionName);
+						targetSelection.Residues_rProtein.push(aloneRes);
+						return aloneRes;
+					//}
+				}
+			}
+		} else if (comsplit[0] != "") {
+			//It is either a basic range selection or a regular expression search. Go by first number/letter for now.
+			if (comsplit[0].search(/\d/) > -1){
+				var index = comsplit[0].indexOf("-");
+				if (index != -1) {
+					var chainID = rvDataSets[0].SpeciesEntry.PDB_chains[0];
+					var start = chainID + "_" + comsplit[0].substring(0, index);
+					var end = chainID + "_" + comsplit[0].substring(index + 1, comsplit[0].length);
+					
+					if (start && end) {
+						var start_ind = rvDataSets[0].ResidueList.indexOf(start);
+						var end_ind = rvDataSets[0].ResidueList.indexOf(end);
+						for (var j = start_ind; j <= end_ind; j++) {
+							var targetSelection=rvDataSets[0].getSelection(SelectionName);
+							targetSelection.Residues.push(rvDataSets[0].Residues[j]);
+						}
+					}
+				} else {
+					var chainID = rvDataSets[0].SpeciesEntry.PDB_chains[0];
+					var aloneRes = chainID + "_" + comsplit[0];
+					var alone_ind = rvDataSets[0].ResidueList.indexOf(aloneRes);
+					if (alone_ind >=0){
+						var targetSelection=rvDataSets[0].getSelection(SelectionName);
+						targetSelection.Residues.push(rvDataSets[0].Residues[alone_ind]);
+					}
+				}
+			} else {
+                var re = new RegExp(comsplit[0],"g");
+                while ((match = re.exec(rvDataSets[0].SequenceList)) != null) {
+					var start_ind = match.index;
+					var end_ind = match.index + match[0].length - 1;
+					for (var j = start_ind; j <= end_ind; j++) {
+						var targetSelection=rvDataSets[0].getSelection(SelectionName);
+						targetSelection.Residues.push(rvDataSets[0].Residues[j]);
+					}
+                }
+			}
+		}
+	}
+}
+
+function commandSelect(command,SeleName) {
+	if (!command) {
+		var command = document.getElementById("commandline").value;
+	}
+	if (!SeleName) {
+		var SeleName = $('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name');
+	}
+	command = command.split(";");
+	expandSelection(command,SeleName);
+	updateSelectionDiv(SeleName);
 	rvDataSets[0].drawResidues("residues");
 	rvDataSets[0].drawSelection("selected");
 	rvDataSets[0].drawBasePairs("lines");
-	drawNavLine()
+	drawNavLine();
+	//console.log('selected Residue by command input');
 }
-function selectResidue(a) {
-	var k = rvDataSets[0].getSelection($("input:radio[name=selectedRadioS]").filter(":checked").parent().parent().attr("name"));
+
+function selectResidue(event) {
+	var targetSelection = rvDataSets[0].getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
 	if (drag) {
-		var e = (a.clientX - $("#menu").width() - rvViews[0].x) / rvViews[0].scale,
-		f = (a.clientY - $("#topMenu").height() - rvViews[0].y) / rvViews[0].scale;
-		if (void 0 != rvDataSets[0].Residues) {
-			for (var d = 0; d < rvDataSets[0].Residues.length; d++)
-				rvViews[0].startX <= rvDataSets[0].Residues[d].X && rvDataSets[0].Residues[d].X <= e && rvViews[0].startY <= rvDataSets[0].Residues[d].Y &&
-				rvDataSets[0].Residues[d].Y <= f && k.Residues.push(rvDataSets[0].Residues[d]), rvViews[0].startX >= rvDataSets[0].Residues[d].X && rvDataSets[0].Residues[d].X >= e && rvViews[0].startY <= rvDataSets[0].Residues[d].Y && rvDataSets[0].Residues[d].Y <= f && k.Residues.push(rvDataSets[0].Residues[d]), rvViews[0].startX <= rvDataSets[0].Residues[d].X && rvDataSets[0].Residues[d].X <= e && rvViews[0].startY >= rvDataSets[0].Residues[d].Y && rvDataSets[0].Residues[d].Y >= f && k.Residues.push(rvDataSets[0].Residues[d]), rvViews[0].startX >= rvDataSets[0].Residues[d].X &&
-				rvDataSets[0].Residues[d].X >= e && rvViews[0].startY >= rvDataSets[0].Residues[d].Y && rvDataSets[0].Residues[d].Y >= f && k.Residues.push(rvDataSets[0].Residues[d]);
-			a = getSelected(a);
-			if (-1 != a) {
-				var h = rvDataSets[0].Residues[a],
-				b = $.grep(k.Residues, function (a) {
-						return a.map_Index == h.map_Index
-					});
-				b[0] ? k.Residues = $.grep(k.Residues, function (a) {
-						return a.map_Index !== b[0].map_Index
-					}) : k.Residues.push(h)
+		var curX = (event.clientX - $("#menu").width() - rvViews[0].x) / rvViews[0].scale;
+		var curY = (event.clientY - $("#topMenu").height() - rvViews[0].y) / rvViews[0].scale;
+		if (rvDataSets[0].Residues != undefined) {
+			for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
+				if (rvViews[0].startX <= rvDataSets[0].Residues[i].X && rvDataSets[0].Residues[i].X <= curX && rvViews[0].startY <= rvDataSets[0].Residues[i].Y && rvDataSets[0].Residues[i].Y <= curY) {
+					targetSelection.Residues.push(rvDataSets[0].Residues[i]);
+				}
+				if (rvViews[0].startX >= rvDataSets[0].Residues[i].X && rvDataSets[0].Residues[i].X >= curX && rvViews[0].startY <= rvDataSets[0].Residues[i].Y && rvDataSets[0].Residues[i].Y <= curY) {
+					targetSelection.Residues.push(rvDataSets[0].Residues[i]);
+				}
+				if (rvViews[0].startX <= rvDataSets[0].Residues[i].X && rvDataSets[0].Residues[i].X <= curX && rvViews[0].startY >= rvDataSets[0].Residues[i].Y && rvDataSets[0].Residues[i].Y >= curY) {
+					targetSelection.Residues.push(rvDataSets[0].Residues[i]);
+				}
+				if (rvViews[0].startX >= rvDataSets[0].Residues[i].X && rvDataSets[0].Residues[i].X >= curX && rvViews[0].startY >= rvDataSets[0].Residues[i].Y && rvDataSets[0].Residues[i].Y >= curY) {
+					targetSelection.Residues.push(rvDataSets[0].Residues[i]);
+				}
+			}
+			var sel = getSelected(event);
+			//Unselect code
+			if (sel != -1) {
+				var res = rvDataSets[0].Residues[sel];
+				var result = $.grep(targetSelection.Residues, function(e){ return e.map_Index == res.map_Index; });
+				//alert(result[0].resNum);
+				
+				if (result[0]) {
+					targetSelection.Residues = $.grep(targetSelection.Residues, function(e){ return e.map_Index !== result[0].map_Index; });
+				} else {
+					targetSelection.Residues.push(res);
+				}
 			}
 			rvDataSets[0].drawResidues("residues");
 			rvDataSets[0].drawSelection("selected");
 			rvDataSets[0].drawBasePairs("lines");
-			updateSelectionDiv(k.Name);
-			drawNavLine()
+			
+			//drawLabels();
+			updateSelectionDiv(targetSelection.Name);
+			drawNavLine();
+			drag = false;
+			//updateModel();
+		} else {
+			drag = false;
 		}
-		drag = !1
 	}
-	$("#canvasDiv").off("mouseup", selectResidue)
+	$("#canvasDiv").off("mouseup", selectResidue);
+	/*
+	if (onebuttonmode === "move") {
+		$("#canvasDiv").bind("mousemove", mouseMoveFunction);
+	}*/
+	//console.log('selected Residue by mouse' );
+	//drawNavLine(1);
 }
-function updateSelectionDiv(a) {
-	a || (a = "Main");
-	for (var k = "", e = rvDataSets[0].getSelection(a), f = 0; f < e.Residues.length; f++)
-		res = e.Residues[f], k = k + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(res.ChainID)] + ":" + res.resNum.replace(/[^:]*:/g, "") + "; ";
-	$("[name=" + a + "]").find(".selectionContent").find("[name=selectDiv]").text(k)
+
+function updateSelectionDiv(SeleName) {
+	if (!SeleName){
+		SeleName = "Main";
+	}
+	var text = "";
+	var targetSelection = rvDataSets[0].getSelection(SeleName);
+	for (var i = 0; i < targetSelection.Residues.length; i++) {
+		res = targetSelection.Residues[i];
+		//text = text + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(res.ChainID)] + ":" + res.resNum.replace(/[^:]*:/g, "") + "( " + res.CurrentData + " ); ";
+		text = text + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(res.ChainID)] + ":" + res.resNum.replace(/[^:]*:/g, "") + "; ";
+		
+	}
+	//$("#selectDiv").html(text)
+	$("[name=" + SeleName + "]").find(".selectionContent").find("[name=selectDiv]").text(text);
 }
-function clearSelection(a) {
-	a ? $.each(rvDataSets[0].Selections, function (a, e) {
-		e.Residues = [];
-		updateSelectionDiv(e.Name)
-	}) : (a = rvDataSets[0].getSelection($("input:radio[name=selectedRadioS]").filter(":checked").parent().parent().attr("name")), a.Residues = [], updateSelectionDiv(a.Name), updateModel());
+
+function clearSelection(AllFlag) {
+	if (AllFlag){
+		$.each(rvDataSets[0].Selections, function(index,value){
+			value.Residues = [];
+			updateSelectionDiv(value.Name);
+		});
+	} else {
+		var targetSelection = rvDataSets[0].getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
+		targetSelection.Residues = []
+		updateSelectionDiv(targetSelection.Name);
+		updateModel();
+	}
 	rvDataSets[0].drawResidues("residues");
 	rvDataSets[0].drawSelection("selected");
 	rvDataSets[0].drawBasePairs("lines");
-	drawNavLine()
+	drawNavLine();
 }
-function selectionBox(a) {
-	rvViews[0].startX = (a.clientX - rvViews[0].x - $("#menu").width()) / rvViews[0].scale;
-	rvViews[0].startY = (a.clientY - rvViews[0].y - $("#topMenu").height()) / rvViews[0].scale;
-	drag = !0
+
+function selectionBox(event) {
+	rvViews[0].startX = (event.clientX - rvViews[0].x - $("#menu").width()) / rvViews[0].scale;
+	rvViews[0].startY = (event.clientY - rvViews[0].y - $("#topMenu").height()) / rvViews[0].scale;
+	drag = true;
 }
-function clearLineSelection(a) {}
-function colorResidue(a) {
-	a = getSelected(a);
-	if (0 <= a) {
-		var k = rvDataSets[0].getSelectedLayer(),
-		e = colorNameToHex($("#MainColor").val());
-		k.dataLayerColors[a] = e;
-		switch (k.Type) {
-		case "residues":
-			rvDataSets[0].Residues[a].color = e;
-			rvDataSets[0].drawResidues("residues");
-			break;
-		case "circles":
-			rvDataSets[0].refreshResiduesExpanded(k.LayerName)
-		}
-		update3Dcolors()
-	}
+
+function clearLineSelection(event) {
 }
-function colorLine(a) {
-	a = getSelectedLine(a);
-	if (0 <= a) {
-		var k = rvDataSets[0].getLayerByType("lines"),
-		e = colorNameToHex($("#LineColor").val()),
-		f = k[0].Data[a].resIndex1,
-		d = k[0].Data[a].resIndex2,
-		f = rvDataSets[0].HighlightLayer.CanvasContext.createLinearGradient(rvDataSets[0].Residues[f].X, rvDataSets[0].Residues[f].Y, rvDataSets[0].Residues[d].X, rvDataSets[0].Residues[d].Y);
-		f.addColorStop(0, "rgba(" + h2d(e.slice(1, 3)) + "," + h2d(e.slice(3, 5)) + "," + h2d(e.slice(5)) + "," + k[0].Data[a].opacity + ")");
-		f.addColorStop(1, "rgba(" +
-			h2d(e.slice(1, 3)) + "," + h2d(e.slice(3, 5)) + "," + h2d(e.slice(5)) + "," + k[0].Data[a].opacity + ")");
-		k[0].Data[a].color = f;
-		rvDataSets[0].BasePairs[a].color = e;
-		rvDataSets[0].BasePairs[a].color_hex = e;
-		rvDataSets[0].drawBasePairs("lines")
-	}
-}
-function clearColor(a) {
-	var k = rvDataSets[0].getLayerByType("residues");
-	1 > arguments.length && (a = !0);
-	for (var e = 0; e < rvDataSets[0].Residues.length; e++)
-		rvDataSets[0].Residues[e].color = "#000000", k[0].dataLayerColors[e] = void 0, k[0].Data[e] = void 0;
-	rvDataSets[0].drawResidues("residues");
-	a && (update3Dcolors(), updateModel())
-}
-function colorSelection() {
-	for (var a = rvDataSets[0].getSelectedLayer(), k = colorNameToHex($("#MainColor").val()), e = rvDataSets[0].getSelection($("input:radio[name=selectedRadioS]").filter(":checked").parent().parent().attr("name")), f = 0; f < e.Residues.length; f++)
-		a.dataLayerColors[e.Residues[f].map_Index - 1] = k;
-	rvDataSets[0].drawDataCircles(a.LayerName, void 0, void 0, !0);
-	rvDataSets[0].drawResidues(a.LayerName, void 0, void 0, !0);
-	update3Dcolors()
-}
-function update3Dcolors() {
-	if (!$('input[name="jp"][value=off]').is(":checked")) {
-		var a = "set hideNotSelected false;",
-		k,
-		e,
-		f,
-		d,
-		h;
-		if (void 0 != rvDataSets[0].Residues[0]) {
-			k = rvDataSets[0].Residues[0].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-			f = rvDataSets[0].Residues[0].ChainID;
-			var b = rvDataSets[0].getLinkedLayer();
-			(d = colorNameToHex(b.dataLayerColors[0])) && "#000000" !== d || (d = "#858585");
-			for (var c = 1; c < rvDataSets[0].Residues.length; c++) {
-				var g = rvDataSets[0].Residues[c];
-				h = rvDataSets[0].Residues[c - 1];
-				var l =
-					b.dataLayerColors[c - 1];
-				l || (l = "#858585");
-				if ("" != g.ChainID)
-					if ("" == f)
-						f = g.ChainID, (d = colorNameToHex(b.dataLayerColors[c])) && "#000000" !== d || (d = "#858585"), k = g.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-					else if (null == g.ChainID)
-						f = g.ChainID, (d = colorNameToHex(b.dataLayerColors[c])) && "#000000" !== d || (d = "#858585"), k = g.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-					else if (e = b.dataLayerColors[c] ? colorNameToHex(b.dataLayerColors[c]) : "#858585", e != colorNameToHex(l) || f != g.ChainID || c == rvDataSets[0].Residues.length -
-						1)
-						e = h.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""), h = e.match(/[A-z]/g), void 0 != h && (e = e.replace(h, "^" + h)), -1 == colorNameToHex(l).indexOf("#") ? (a += "select " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and " + k + " - " + e + ":" + f + "; color Cartoon opaque [x" + d + "]; ", a += "select " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and " + k + " - " + e + ":" + f + "; color opaque [x" + d + "]; ") : (a += "select " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and " + k + " - " + e + ":" + f + "; color Cartoon opaque [" + d.replace("#",
-								"x") + "]; ", a += "select " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and " + k + " - " + e + ":" + f + "; color opaque [" + d.replace("#", "x") + "]; "), k = g.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""), d = k.match(/[A-z]/g), void 0 != d && (k = k.replace(d, "^" + d)), "" != g.ChainID && (f = g.ChainID), (d = colorNameToHex(b.dataLayerColors[c])) && "#000000" !== d || (d = "#858585")
-			}
-			-1 == colorNameToHex(l).indexOf("#") ? (a += "select " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and " + k + " - " + g.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g,
-					"") + ":" + f + "; color Cartoon opaque [x" + d + "]; ", a += "select " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and " + k + " - " + g.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + ":" + f + "; color opaque [x" + d + "]; ") : (a += "select " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and " + k + " - " + g.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + ":" + f + "; color Cartoon opaque [" + d.replace("#", "x") + "]; ", a += "select " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and " + k + " - " + g.resNum.replace(/[^:]*:/g,
-					"").replace(/[^:]*:/g, "") + ":" + f + "; color opaque [" + d.replace("#", "x") + "]; ");
-			Jmol.script(myJmol, a)
-		}
-	}
-}
-function colorProcess(a, k, e, f, d) {
-	var h = [],
-	b = [],
-	c = [];
-	a.IncludeData ? (b = a.IncludeData, a.ExtraData && (b = b.concat(a.ExtraData)), c = a.IncludeData) : c = b = a;
-	$.each(b, function (a, b) {
-		var c = parseFloat(b);
-		isNaN(c) || h.push(c)
-	});
-	$.each(c, function (a, b) {
-		var d = parseFloat(b);
-		isNaN(d) ? c[a] = void 0 : c[a] = d
-	});
-	var b = Math.min.apply(Math, h),
-	g = Math.max.apply(Math, h) - b;
-	if (3 > arguments.length || void 0 == e)
-		e = rvDataSets[0].getSelectedLayer();
-	if (e) {
-		if ("1" == k)
-			var l = c;
-		else
-			for (var l = [], p = 0; p < c.length; p++)
-				l[p] = Math.round((c[p] - b) / g * (f.length -
-							1));
-		if (!d) {
-			e.Data = c;
-			switch (e.Type) {
-			case "circles":
-				rvDataSets[0].drawDataCircles(e.LayerName, l, f);
+///////////////////////////////////////////////////////////////////////////////
+
+
+///////////////////////// Color Functions /////////////////////////////////////
+function colorResidue(event) {
+	var sel = getSelected(event);
+	if (sel >=0) {
+		var targetLayer=rvDataSets[0].getSelectedLayer();
+		var color = colorNameToHex($("#MainColor").val());
+		targetLayer.dataLayerColors[sel]=color;	
+		switch (targetLayer.Type){
+			case "residues" : 
+				var res = rvDataSets[0].Residues[sel];
+				res.color = color;
+				rvDataSets[0].drawResidues("residues");
 				break;
-			case "residues":
-				rvDataSets[0].drawResidues(e.LayerName, l, f);
+			case "circles" :
+				rvDataSets[0].refreshResiduesExpanded(targetLayer.LayerName);
 				break;
 			default:
-				$("#dialog-layer-type-error").dialog("open")
+		}
+		//drawLabels();
+		update3Dcolors();
+	}
+}
+
+function colorLine(event) {
+	var seleLine = getSelectedLine(event);
+	if(seleLine >=0 ){
+		var	targetLayer=rvDataSets[0].getLayerByType("lines");
+		var color = colorNameToHex($("#LineColor").val());
+		var j = targetLayer[0].Data[seleLine].resIndex1;
+		var k = targetLayer[0].Data[seleLine].resIndex2;
+		var grd = rvDataSets[0].HighlightLayer.CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
+		grd.addColorStop(0, "rgba(" + h2d(color.slice(1, 3)) + "," + h2d(color.slice(3, 5)) + "," + h2d(color.slice(5)) + "," + targetLayer[0].Data[seleLine].opacity + ")");
+		grd.addColorStop(1, "rgba(" + h2d(color.slice(1, 3)) + "," + h2d(color.slice(3, 5)) + "," + h2d(color.slice(5)) + "," + targetLayer[0].Data[seleLine].opacity + ")");
+		targetLayer[0].Data[seleLine]["color"] = grd;		
+		rvDataSets[0].BasePairs[seleLine]["color"]=color;
+		rvDataSets[0].BasePairs[seleLine]["color_hex"]=color;
+		rvDataSets[0].drawBasePairs("lines");
+	}
+}
+
+function clearColor(update3D) {
+	var	targetLayer=rvDataSets[0].getLayerByType("residues");
+	if (arguments.length < 1) {
+		var update3D = true;
+	}
+	for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
+		rvDataSets[0].Residues[i].color = "#000000";
+		targetLayer[0].dataLayerColors[i]= undefined;
+		//targetLayer[0].Data[i] = rvDataSets[0].Residues[i].map_Index;
+		targetLayer[0].Data[i] = undefined;
+	}
+	rvDataSets[0].drawResidues("residues");
+	//drawLabels();
+	
+	if (update3D) {
+		update3Dcolors();
+		updateModel();
+	}
+	
+}
+
+function colorSelection() {
+	var targetLayer=rvDataSets[0].getSelectedLayer();
+	var color = colorNameToHex($("#MainColor").val());
+	var targetSelection = rvDataSets[0].getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
+	for (var i = 0; i < targetSelection.Residues.length; i++) {
+		targetLayer.dataLayerColors[targetSelection.Residues[i].map_Index - 1] = color;
+	}
+	//rvDataSets[0].drawResidues("residues");
+	rvDataSets[0].drawDataCircles(targetLayer.LayerName,undefined,undefined,true);
+	rvDataSets[0].drawResidues(targetLayer.LayerName,undefined,undefined,true);
+	//drawLabels();
+	update3Dcolors();
+}
+
+function update3Dcolors() {
+	if($('input[name="jp"][value=off]').is(':checked')){
+		return;
+	}
+	var script = "set hideNotSelected false;";
+	var r0,
+	r1,
+	curr_chain,
+	curr_color,
+	compare_color,
+	n,
+	m;
+	if (rvDataSets[0].Residues[0] == undefined){return};
+	//r0=rvDataSets[0].Residues[0].resNum.replace(/[^:]*:/g,"");
+	r0 = rvDataSets[0].Residues[0].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+	curr_chain = rvDataSets[0].Residues[0].ChainID;
+	var targetLayer=rvDataSets[0].getLinkedLayer();
+	//rvDataSets[0].Residues[0].CurrentData=targetLayer.Data[0];
+
+	curr_color = colorNameToHex(targetLayer.dataLayerColors[0]);
+	
+	if (!curr_color || curr_color === '#000000') {
+		curr_color = '#858585';
+	}
+	for (var i = 1; i < rvDataSets[0].Residues.length; i++) {
+		var residue = rvDataSets[0].Residues[i];
+		var residueLast = rvDataSets[0].Residues[i - 1];
+		var residueLastColor = targetLayer.dataLayerColors[i - 1];
+		//rvDataSets[0].Residues[i].CurrentData=targetLayer.Data[i];
+		
+		if (!residueLastColor){
+			residueLastColor = '#858585';
+		}
+		if (residue.ChainID != "") {
+			if (curr_chain == "") {
+				curr_chain = residue.ChainID;
+				curr_color = colorNameToHex(targetLayer.dataLayerColors[i]);
+				if (!curr_color || curr_color === '#000000') {
+					curr_color = '#858585';
+				}
+				r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""); ;
+			} else if (residue.ChainID == null) {
+				curr_chain = residue.ChainID;
+				curr_color = colorNameToHex(targetLayer.dataLayerColors[i]);
+				if (!curr_color || curr_color === '#000000') {
+					curr_color = '#858585';
+				}
+				r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""); ;
+			} else {
+				if (!targetLayer.dataLayerColors[i]){
+					compare_color = '#858585';
+				} else {
+					compare_color = colorNameToHex(targetLayer.dataLayerColors[i]);
+				}
+				if (((compare_color != colorNameToHex(residueLastColor)) || (curr_chain != residue.ChainID)) || (i == (rvDataSets[0].Residues.length - 1))) {
+					r1 = residueLast.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""); ;
+					n = r1.match(/[A-z]/g);
+					if (n != undefined) {
+						r1 = r1.replace(n, "^" + n);
+					}
+					if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
+						//script += "select " + (SubunitNames.indexOf(rvDataSets[0].SpeciesEntry.Subunit) + 1) + ".1 and :" + curr_chain + " and (" + r0 + " - " + r1 + "); color Cartoon opaque [x" + curr_color + "]; ";
+						script += "select " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and " + r0 + " - " + r1 + ":" + curr_chain + "; color Cartoon opaque [x" + curr_color + "]; ";
+						script += "select " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and " + r0 + " - " + r1 + ":" + curr_chain + "; color opaque [x" + curr_color + "]; ";
+
+					} else {
+						script += "select " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and " + r0 + " - " + r1 + ":" + curr_chain + "; color Cartoon opaque [" + curr_color.replace("#", "x") + "]; ";
+						script += "select " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and " + r0 + " - " + r1 + ":" + curr_chain + "; color opaque [" + curr_color.replace("#", "x") + "]; ";
+
+					}
+					r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""); ;
+					m = r0.match(/[A-z]/g);
+					if (m != undefined) {
+						r0 = r0.replace(m, "^" + m);
+					}
+					if (residue.ChainID != "") {
+						curr_chain = residue.ChainID;
+					}
+					curr_color = colorNameToHex(targetLayer.dataLayerColors[i]);
+					if (!curr_color || curr_color === '#000000') {
+						curr_color = '#858585';
+					}
+				}
 			}
-			update3Dcolors()
 		}
-		return l
 	}
-	$("#dialog-selection-warning p").text("Please select a valid layer and try again.");
-	$("#dialog-selection-warning").dialog("open")
+	if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
+		script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and "  + r0 + " - " + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + ":" + curr_chain + "; color Cartoon opaque [x" + curr_color + "]; ";
+		script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and "  + r0 + " - " + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + ":" + curr_chain + "; color opaque [x" + curr_color + "]; ";
+	} else {
+		script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and "  + r0 + " - " + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + ":" + curr_chain + "; color Cartoon opaque [" + curr_color.replace("#", "x") + "]; ";
+		script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and "  + r0 + " - " + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + ":" + curr_chain + "; color opaque [" + curr_color.replace("#", "x") + "]; ";
+	}
+	//updateSelectionDiv();
+	//jmolScript(script);
+	Jmol.script(myJmol, script);
 }
-function colorMappingLoop(a, k, e, f) {
-	var d = 4 <= arguments.length ? f : RainBowColors;
-	if (a) {
-		"circles" === a.Type && (a.clearCanvas(), a.clearData());
-		"residues" === a.Type && (clearColor(!1), a.clearData());
-		a.Data = [];
-		for (var h = 0; h < rvDataSets[0].Residues.length; h++)
-			a.Data[h] = " "
-	}
-	var h = $("#PrimaryInteractionList").multiselect("getChecked").map(function () {
-			return this.value
-		}).get()[0],
-	b = h.indexOf("_NPN");
-	0 <= b && (rvDataSets[0].BasePairs = [], rvDataSets[0].clearCanvas("lines"));
-	var c = "display (selected), (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein +
-		".1 and (",
-	g = "set hideNotSelected false;";
-	$("#ProtList").multiselect("widget").find(".ui-multiselect-checkboxes").find("span").css("color", "black");
-	for (var l = 0; l < k.length; l++) {
-		var p = 1 < k.length ? Math.round(l / (k.length - 1) * (d.length - 1)) : 0,
-		p = 0 > p || p >= d.length ? "#000000" : d[p],
-		v = $.grep($("#ProtList").multiselect("getChecked"), function (a) {
-				return a.value == k[l]
-			});
-		$(v).next().css("color", p);
-		if (a) {
-			for (var v = [], q = 0; q < rvDataSets[0].Residues.length; q++)
-				rvDataSets[0].Residues[q][k[l]] && 0 < rvDataSets[0].Residues[q][k[l]] &&
-				(v[q] = rvDataSets[0].Residues[q][k[l]], a.Data[q] = a.Data[q] + e[l] + " ");
-			rvDataSets[0].drawDataCircles(a.LayerName, v, ["#000000", p], !0);
-			rvDataSets[0].drawResidues(a.LayerName, v, ["#000000", p], !0)
+
+function colorProcess(DataInput, indexMode,targetLayer,colors,SkipDraw) {
+	var color_data = new Array();
+	var color_data_IN = new Array();
+	var data = new Array();
+	var DataPoints = 0;
+	if (DataInput.IncludeData){
+		color_data_IN = DataInput.IncludeData;
+		if (DataInput.ExtraData){
+			color_data_IN = color_data_IN.concat(DataInput.ExtraData);
 		}
-		c = 0 === l ? c + (":" + rvDataSets[0].SpeciesEntry.SubunitProtChains[1][rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(k[l])]) : c + (" or :" + rvDataSets[0].SpeciesEntry.SubunitProtChains[1][rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(k[l])]);
-		g += "select (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein +
-		".1 and :" + rvDataSets[0].SpeciesEntry.SubunitProtChains[1][rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(k[l])] + "); color Cartoon opaque [" + p.replace("#", "x") + "];spacefill off;";
-		0 < b && appendBasePairs(h, k[l])
+		data = DataInput.IncludeData;
+	} else {
+		color_data_IN = DataInput;
+		data = DataInput;
 	}
+	$.each(color_data_IN, function (index, value) {
+		var f = parseFloat(value);
+		if (!isNaN(f)){
+			color_data.push(f);
+		}
+	});
+	$.each(data, function (index, value) {
+		var f = parseFloat(value);
+		if (isNaN(f)){
+			data[index]=undefined;
+		} else {
+			data[index]=f;
+		}
+	});
+	
+	var min = Math.min.apply(Math, color_data);
+	var max = Math.max.apply(Math, color_data);
+	var range = max - min;
+	
+	if (arguments.length < 3 || targetLayer==undefined) {
+		var targetLayer = rvDataSets[0].getSelectedLayer();
+	}
+	
+	if (!targetLayer) {
+		$("#dialog-selection-warning p").text("Please select a valid layer and try again.");
+		$("#dialog-selection-warning").dialog("open");
+		return;
+	}
+	
+	if (indexMode == "1") {
+		var dataIndices = data;
+	} else {
+		var dataIndices = new Array;
+		for (var i = 0; i < data.length; i++) {
+			dataIndices[i] = Math.round((data[i] - min) / range * (colors.length - 1));
+		}
+	}
+	
+	if (!SkipDraw){
+		targetLayer.Data = data;
+		switch (targetLayer.Type) {
+			case "circles":
+				rvDataSets[0].drawDataCircles(targetLayer.LayerName, dataIndices, colors);
+				break;
+			case "residues":
+				rvDataSets[0].drawResidues(targetLayer.LayerName, dataIndices, colors);
+				break;
+			default:
+				$( "#dialog-layer-type-error" ).dialog("open")
+		}
+		update3Dcolors();
+	}
+	return dataIndices
+}
+
+function colorMappingLoop(targetLayer, seleProt, seleProtNames, OverRideColors) {
+	if (arguments.length >= 4) {
+		var colors2 = OverRideColors;
+	} else {
+		var colors2 = RainBowColors;
+	}
+	//Residue Part
+	if (targetLayer){
+		//var targetLayer = rvDataSets[0].getSelectedLayer();
+		if (targetLayer.Type === "circles"){
+			targetLayer.clearCanvas();
+			targetLayer.clearData();
+		}
+		if (targetLayer.Type === "residues"){
+			//targetLayer.clearCanvas();
+			clearColor(false);
+			targetLayer.clearData();
+		}
+		targetLayer.Data = new Array;
+		for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
+			targetLayer.Data[j] = " ";
+		}
+		
+	}
+	
+	//Interaction Part
+	var array_of_checked_values = $("#PrimaryInteractionList").multiselect("getChecked").map(function(){
+	   return this.value;	
+	}).get();
+	var interactionchoice = array_of_checked_values[0];
+	//var interactionchoice = $('#PrimaryInteractionList').val();
+	var p = interactionchoice.indexOf("_NPN");
+	if ( p >=0 ){
+		rvDataSets[0].BasePairs = [];
+		rvDataSets[0].clearCanvas("lines");
+	}
+	
+	//Jmol Part
+	var Jscript = "display (selected), (" + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and (";
+	var JscriptP = "set hideNotSelected false;";
+	
+	$("#ProtList").multiselect("widget").find(".ui-multiselect-checkboxes").find("span").css("color","black"); // Reset Protein colors to black.
+	//Loop
+	
+	for (var i = 0; i < seleProt.length; i++) {
+		if (seleProt.length > 1) {
+			var val = Math.round((i / (seleProt.length - 1)) * (colors2.length - 1));
+		} else {
+			var val = 0;
+		}	
+
+		var newcolor = (val < 0 || val >= colors2.length) ? "#000000" : colors2[val];
+		var ProtName = $.grep($("#ProtList").multiselect("getChecked"), function(e) {
+			return e.value == seleProt[i];
+		});
+		$(ProtName).next().css("color",newcolor);
+		
+		if (targetLayer){
+			var dataIndices = new Array;
+			for (var jj = 0; jj < rvDataSets[0].Residues.length; jj++) {
+				if (rvDataSets[0].Residues[jj][seleProt[i]] && rvDataSets[0].Residues[jj][seleProt[i]] >0){
+					dataIndices[jj] = rvDataSets[0].Residues[jj][seleProt[i]];
+					targetLayer.Data[jj] = targetLayer.Data[jj] + seleProtNames[i] + " ";
+				}
+			}
+			rvDataSets[0].drawDataCircles(targetLayer.LayerName, dataIndices, ["#000000", newcolor], true);
+			rvDataSets[0].drawResidues(targetLayer.LayerName, dataIndices, ["#000000", newcolor], true);
+		}
+		if (i === 0) {
+			Jscript += ":" + rvDataSets[0].SpeciesEntry.SubunitProtChains[1][rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(seleProt[i])];
+		} else {
+			Jscript += " or :" + rvDataSets[0].SpeciesEntry.SubunitProtChains[1][rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(seleProt[i])];
+		}
+		JscriptP += "select (" + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + rvDataSets[0].SpeciesEntry.SubunitProtChains[1][rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(seleProt[i])] + "); color Cartoon opaque [" + newcolor.replace("#", "x") + "];spacefill off;";
+		if (p > 0) {
+			appendBasePairs(interactionchoice, seleProt[i]);
+		}
+	}
+	
 	drawNavLine();
-	c += "));";
-	$('input[name="jp"][value=on]').is(":checked") && (update3Dcolors(), refreshModel(), Jmol.script(myJmol, c), Jmol.script(myJmol, g))
-}
-function update3DProteins(a, k) {
-	if (!$('input[name="jp"][value=off]').is(":checked")) {
-		for (var e = 2 <= arguments.length ? k : RainBowColors, f = "set hideNotSelected false;", d = 0; d < a.length; d++)
-			var h = 1 < a.length ? Math.round(d / (a.length - 1) * (e.length - 1)) : 0, h = 0 > h || h >= e.length ? "#000000" : e[h], f = f + ("select (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein + ".1 and :" + rvDataSets[0].SpeciesEntry.SubunitProtChains[1][rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(a[d])] + "); color Cartoon opaque [" + h.replace("#",
-						"x") + "];");
-		Jmol.script(myJmol, f)
+	Jscript += "));";
+	//JscriptP+="display " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA ) + ".1, " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein ) + ".1;" ;
+	if($('input[name="jp"][value=on]').is(':checked')){
+		update3Dcolors();
+		refreshModel();
+		Jmol.script(myJmol, Jscript);
+		Jmol.script(myJmol, JscriptP);
 	}
 }
-function colorMapping(a, k, e, f, d, h) {
-	if (2 == arguments.length || "42" == e)
-		var b = $("#" + k).val();
-	3 <= arguments.length && "42" != e && (b = e);
-	var c = 4 <= arguments.length ? f : RainBowColors;
-	void 0 == d && (d = [!1]);
-	if (a)
-		switch (a.Type) {
+
+function update3DProteins(seleProt, OverRideColors) {
+	if($('input[name="jp"][value=off]').is(':checked')){
+		return;
+	}
+	if (arguments.length >= 2) {
+		var colors2 = OverRideColors;
+	} else {
+		var colors2 = RainBowColors;
+	}
+	
+	var JscriptP = "set hideNotSelected false;";
+	
+	for (var i = 0; i < seleProt.length; i++) {
+		if (seleProt.length > 1) {
+			var val = Math.round((i / (seleProt.length - 1)) * (colors2.length - 1));
+		} else {
+			var val = 0;
+		}
+		var newcolor = (val < 0 || val >= colors2.length) ? "#000000" : colors2[val];
+		
+		JscriptP += "select (" + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + rvDataSets[0].SpeciesEntry.SubunitProtChains[1][rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(seleProt[i])] + "); color Cartoon opaque [" + newcolor.replace("#", "x") + "];";
+	}
+	//JscriptP+="display " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA ) + ".1, " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein ) + ".1;";
+	//jmolScript(JscriptP);
+	Jmol.script(myJmol, JscriptP);
+}
+
+function colorMapping(targetLayer,ChoiceList, ManualCol, OverRideColors, indexMode, rePlaceData) {
+	if (arguments.length == 2 || ManualCol == "42") {		
+		var colName = $("#" + ChoiceList).val();
+	}
+	if (arguments.length >= 3 && ManualCol != "42") {
+		var colName = ManualCol;
+	}
+	if (arguments.length >= 4) {
+		var colors = OverRideColors;
+	} else {
+		var colors = RainBowColors;
+	}
+	if (indexMode==undefined){
+		var indexMode=[];
+		indexMode[0]=false;
+	}
+	
+		if (!targetLayer) {
+			$("#dialog-selection-warning p").text("Please select a valid layer and try again.");
+			$("#dialog-selection-warning").dialog("open");
+			return;
+		}
+		switch (targetLayer.Type) {
 		case "circles":
-			for (var g = [], l = 0; l < rvDataSets[0].Residues.length; l++)
-				g[l] = rvDataSets[0].Residues[l][b[0]];
-			colorProcess(g, d[0], a, c);
+			var data = new Array;
+			for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
+				data[j] = rvDataSets[0].Residues[j][colName[0]];
+			}
+			colorProcess(data, indexMode[0],targetLayer,colors);
 			break;
 		case "residues":
-			g = [];
-			for (l = 0; l < rvDataSets[0].Residues.length; l++)
-				g[l] = rvDataSets[0].Residues[l][b[0]];
-			colorProcess(g, d[0], a, c);
+			var data = new Array;
+			for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
+				data[j] = rvDataSets[0].Residues[j][colName[0]];
+			}
+			colorProcess(data, indexMode[0],targetLayer,colors);
 			break;
 		default:
-			$("#dialog-layer-type-error").dialog("open")
+			$( "#dialog-layer-type-error" ).dialog("open")
 		}
-	else
-		$("#dialog-selection-warning p").text("Please select a valid layer and try again."),
-		$("#dialog-selection-warning").dialog("open")
+		
 }
-function colorNameToHex(a) {
-	var k = SupportedColors;
-	if (a) {
-		var e = a.match(/#[\dABCDEFabcdef]{6,6}$/);
-		if (null != e && 7 === e[0].length)
-			return e[0];
-		if ("undefined" != typeof k[a.toLowerCase().replace(/\s+/g, "")])
-			return k[a.toLowerCase().replace(/\s+/g, "")];
-		console.log('Unrecognized color "' + a + '"');
-		return "#868686"
-	}
-	return !1
-}
-function appendBasePairs(a, k) {
-	0 > a.indexOf("_NPN") ? $.getJSON("getData.php", {
-		BasePairs : a
-	}, function (a) {
-		rvDataSets[0].BasePairs = rvDataSets[0].BasePairs.concat(a);
-		FullBasePairSet = rvDataSets[0].BasePairs;
-		rvDataSets[0].drawBasePairs("lines")
-	}) : $.getJSON("getData.php", {
-		ProtBasePairs : a,
-		ProtChain : k
-	}, function (a) {
-		rvDataSets[0].BasePairs = rvDataSets[0].BasePairs.concat(a);
-		FullBasePairSet = rvDataSets[0].BasePairs;
-		rvDataSets[0].drawBasePairs("lines")
-	})
-}
-function refreshBasePairs(a) {
-	if ("clear_lines" != a)
-		if (0 > a.indexOf("_NPN"))
-			$.getJSON("getData.php", {
-				BasePairs : a
-			}, function (a) {
-				rvDataSets[0].BasePairs = a;
-				$.each(rvDataSets[0].BasePairs, function (a, c) {
-					c.lineWidth = 1;
-					c.opacity = .5
-				});
-				rvDataSets[0].drawBasePairs("lines");
-				FullBasePairSet = rvDataSets[0].BasePairs;
-				var d = [];
-				$.each(rvDataSets[0].BasePairs, function (a, c) {
-					d.push(c.bp_type)
-				});
-				BP_TypeU = $.grep(d, function (a, c) {
-						return $.inArray(a, d) === c
-					});
-				var e = document.getElementById("SecondaryInteractionList");
-				e.options.length =
-					0;
-				$.each(BP_TypeU, function (a, c) {
-					e.options[a] = new Option(c, c);
-					e.options[a].setAttribute("selected", "selected")
-				});
-				$("#SecondaryInteractionList").multiselect("refresh")
-			});
-		else {
-			a = $("#ProtList").multiselect("getChecked").map(function () {
-					return this.value
-				}).get();
-			var k = $("#ProtList").multiselect("getChecked").map(function () {
-					return this.title
-				}).get(),
-			e = document.getElementById("SecondaryInteractionList");
-			e.options.length = 0;
-			e.options[0] = new Option("NPN", "NPN");
-			e.options[0].setAttribute("selected", "selected");
-			$("#SecondaryInteractionList").multiselect("refresh");
-			colorMappingLoop(void 0, a, k)
-		}
-	else
-		rvDataSets[0].BasePairs = [], rvDataSets[0].clearCanvas("lines")
-}
-function filterBasePairs(a, k) {
-	rvDataSets[0].BasePairs = [];
-	$.each(a, function (a, f) {
-		0 <= $.inArray(f.bp_type, k) && rvDataSets[0].BasePairs.push(f)
-	});
-	rvDataSets[0].drawBasePairs("lines")
-}
-function mouseEventFunction(a) {
-	var k = $('input[name="bv"][value=on]').is(":checked");
-	$("#ResidueTip").tooltip("close");
-	$("#InteractionTip").tooltip("close");
-	"mousedown" != a.handleObj.origType || k ? "mousedown" == a.handleObj.origType && k && ($("#canvasDiv").off("mousemove", dragHandle), BaseViewCenter(a)) : "select" == onebuttonmode || 3 == a.which && !1 == a.altKey || 1 == a.which && !0 == a.shiftKey ? ($("#canvasDiv").off("mousemove", dragHandle), $("#canvasDiv").off("mousemove", mouseMoveFunction), selectionBox(a), $("#canvasDiv").on("mousemove",
-			dragSelBox), $("#canvasDiv").on("mouseup", selectResidue)) : "selectL" == onebuttonmode || 3 == a.which && !0 == a.altKey ? ($("#canvasDiv").off("mousemove", dragHandle), $("#canvasDiv").off("mousemove", mouseMoveFunction)) : "color" == onebuttonmode || 2 == a.which && !1 == a.altKey || 1 == a.which && !0 == a.ctrlKey && !1 == a.altKey ? ($("#canvasDiv").off("mousemove", dragHandle), colorResidue(a)) : "colorL" == onebuttonmode || 2 == a.which && !0 == a.altKey || 1 == a.which && !0 == a.ctrlKey && !0 == a.altKey ? ($("#canvasDiv").off("mousemove", dragHandle), colorLine(a)) :
-	(rvViews[0].lastX = a.clientX, rvViews[0].lastY = a.clientY, $("#canvasDiv").on("mousemove", dragHandle));
-	"mouseup" == a.handleObj.origType && ($("#canvasDiv").off("mousemove", dragHandle), $("#canvasDiv").off("mousemove", dragSelBox), $("#canvasDiv").on("mousemove", mouseMoveFunction), rvDataSets[0].HighlightLayer.clearCanvas())
-}
-function mouseMoveFunction(a) {
-	rvDataSets[0].HighlightLayer.clearCanvas();
-	$("#ResidueTip").tooltip("close");
-	$("#InteractionTip").tooltip("close");
-	switch (onebuttonmode) {
-	case "move":
-		if (!0 == a.altKey && !1 == a.ctrlKey) {
-			var k = getSelectedLine(a);
-			if (0 <= k) {
-				var e = rvDataSets[0].BasePairs[k].resIndex1,
-				f = rvDataSets[0].BasePairs[k].resIndex2;
-				rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
-				rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
-				rvDataSets[0].HighlightLayer.CanvasContext.moveTo(rvDataSets[0].Residues[e].X,
-					rvDataSets[0].Residues[e].Y);
-				rvDataSets[0].HighlightLayer.CanvasContext.lineTo(rvDataSets[0].Residues[f].X, rvDataSets[0].Residues[f].Y);
-				rvDataSets[0].HighlightLayer.CanvasContext.closePath();
-				rvDataSets[0].HighlightLayer.CanvasContext.stroke();
-				$('input[name="rt"][value=on]').is(":checked") && (createInfoWindow(k, "lines"), $("#InteractionTip").css("bottom", $(window).height() - a.clientY), $("#InteractionTip").css("left", a.clientX), $("#InteractionTip").tooltip("open"))
-			}
-		} else if (!0 == a.ctrlKey && !1 == a.altKey) {
-			if (k =
-					getSelected(a), 0 <= k)
-				switch (a = rvDataSets[0].getSelectedLayer(), a.Type) {
-				case "residues":
-					rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#000000";
-					rvDataSets[0].HighlightLayer.CanvasContext.font = rvDataSets[0].SpeciesEntry.Font_Size_Canvas + 'pt "Myriad Pro", Calibri, Arial';
-					rvDataSets[0].HighlightLayer.CanvasContext.textBaseline = "middle";
-					rvDataSets[0].HighlightLayer.CanvasContext.textAlign = "center";
-					rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = colorNameToHex($("#MainColor").val());
-					rvDataSets[0].HighlightLayer.CanvasContext.fillText(rvDataSets[0].Residues[k].resName,
-						rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
-					break;
-				case "circles":
-					rvDataSets[0].HighlightLayer.CanvasContext.beginPath(),
-					rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y, a.ScaleFactor * rvDataSets[0].SpeciesEntry.Circle_Radius, 0, 2 * Math.PI, !1),
-					rvDataSets[0].HighlightLayer.CanvasContext.closePath(),
-					rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#MainColor").val()),
-					rvDataSets[0].HighlightLayer.CanvasContext.stroke(),
-					a.Filled && (rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = colorNameToHex($("#MainColor").val()), rvDataSets[0].HighlightLayer.CanvasContext.fill())
-				}
-		} else !0 == a.ctrlKey && !0 == a.altKey ? (k = getSelectedLine(a), 0 <= k && (e = rvDataSets[0].BasePairs[k].resIndex1, f = rvDataSets[0].BasePairs[k].resIndex2, rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#LineColor").val()), rvDataSets[0].HighlightLayer.CanvasContext.beginPath(), rvDataSets[0].HighlightLayer.CanvasContext.moveTo(rvDataSets[0].Residues[e].X,
-						rvDataSets[0].Residues[e].Y), rvDataSets[0].HighlightLayer.CanvasContext.lineTo(rvDataSets[0].Residues[f].X, rvDataSets[0].Residues[f].Y), rvDataSets[0].HighlightLayer.CanvasContext.closePath(), rvDataSets[0].HighlightLayer.CanvasContext.stroke(), $('input[name="rt"][value=on]').is(":checked") && (createInfoWindow(k, "lines"), $("#InteractionTip").css("bottom", $(window).height() - a.clientY), $("#InteractionTip").css("left", a.clientX), $("#InteractionTip").tooltip("open")))) : (k = getSelected(a), 0 <= k && (rvDataSets[0].HighlightLayer.CanvasContext.beginPath(),
-					rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y, 1.176 * rvDataSets[0].SpeciesEntry.Circle_Radius, 0, 2 * Math.PI, !1), rvDataSets[0].HighlightLayer.CanvasContext.closePath(), rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff", rvDataSets[0].HighlightLayer.CanvasContext.lineWidth = rvDataSets[0].SpeciesEntry.Circle_Radius / 1.7, rvDataSets[0].HighlightLayer.CanvasContext.stroke(), $('input[name="rt"][value=on]').is(":checked") && (createInfoWindow(k,
-							"residue"), $("#ResidueTip").css("bottom", $(window).height() - a.clientY), $("#ResidueTip").css("left", a.clientX), $("#ResidueTip").tooltip("open"))));
-		break;
-	case "color":
-		if (k = getSelected(a), -1 != k)
-			switch (a = rvDataSets[0].getSelectedLayer(), a.Type) {
-			case "residues":
-				rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#000000";
-				rvDataSets[0].HighlightLayer.CanvasContext.font = rvDataSets[0].SpeciesEntry.Font_Size_Canvas + 'pt "Myriad Pro", Calibri, Arial';
-				rvDataSets[0].HighlightLayer.CanvasContext.textBaseline =
-					"middle";
-				rvDataSets[0].HighlightLayer.CanvasContext.textAlign = "center";
-				rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = colorNameToHex($("#MainColor").val());
-				rvDataSets[0].HighlightLayer.CanvasContext.fillText(rvDataSets[0].Residues[k].resName, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
-				break;
-			case "circles":
-				rvDataSets[0].HighlightLayer.CanvasContext.beginPath(),
-				rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y, a.ScaleFactor * rvDataSets[0].SpeciesEntry.Circle_Radius,
-					0, 2 * Math.PI, !1),
-				rvDataSets[0].HighlightLayer.CanvasContext.closePath(),
-				rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#MainColor").val()),
-				rvDataSets[0].HighlightLayer.CanvasContext.stroke(),
-				a.Filled && (rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = colorNameToHex($("#MainColor").val()), rvDataSets[0].HighlightLayer.CanvasContext.fill())
-			}
-	}
-}
-function dragSelBox(a) {
-	rvDataSets[0].HighlightLayer.clearCanvas();
-	rvViews[0].drag(a)
-}
-function mouseWheelFunction(a, k) {
-	rvViews[0].zoom(a, k);
-	var e = getSelected(a);
-	rvDataSets[0].HighlightLayer.clearCanvas();
-	-1 != e && (rvDataSets[0].HighlightLayer.CanvasContext.beginPath(), rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[e].X, rvDataSets[0].Residues[e].Y, 2, 0, 2 * Math.PI, !1), rvDataSets[0].HighlightLayer.CanvasContext.closePath(), rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff", rvDataSets[0].HighlightLayer.CanvasContext.stroke());
-	drag && rvViews[0].drag(a);
-	return !1
-}
-function colorLineSelection(a) {}
 
-function createInfoWindow(a, k) {
-	"residue" === k ? (addPopUpWindowResidue(a), $("#ResidueTip").tooltip("option", "content", $("#residuetip").html())) : (addPopUpWindowLine(a), $("#InteractionTip").tooltip("option", "content", $("#interactiontip").html()))
-}
-function BaseViewCenter(a) {
-	$('input[name="jp"][value=off]').is(":checked") || (a = getSelected(a), -1 != a && (a = rvDataSets[0].Residues[a], a = "center " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and " + a.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + ":" + a.ChainID, Jmol.script(myJmol, a)))
-}
-function modeSelect(a) {
-	onebuttonmode = a
-}
-function ProcessBubble(a, k) {
-	switch ($(a).parent().attr("id")) {
-	case "AlnBubbles":
-		colorMapping(k, "42", [$(a).attr("name")]);
-		drawNavLine();
-		break;
-	case "StructDataBubbles":
-		updateStructData(a, k);
-		break;
-	case "ProteinBubbles":
-		var e = $("#ProtList").multiselect("getChecked").map(function () {
-				return this.value
-			}).get(),
-		f = $("#ProtList").multiselect("getChecked").map(function () {
-				return this.title
-			}).get();
-		colorMappingLoop(k, e, f);
-		break;
-	case "CustomDataBubbles":
-		customDataProcess(a, k);
-		break;
-	default:
-		alert("other")
+function colorNameToHex(color) {
+	var colors = SupportedColors //Global Variable to save time.
+	if (color) {
+		var newcolorH = color.match(/#[\dABCDEFabcdef]{6,6}$/);
+		if ((newcolorH  !=null) && newcolorH[0].length === 7){
+			return newcolorH[0];
+		} else if (typeof colors[color.toLowerCase().replace(/\s+/g, '')] != 'undefined'){
+			return colors[color.toLowerCase().replace(/\s+/g, '')];
+		} else {
+			console.log('Unrecognized color "' + color + '"');
+			//return false;
+			return '#868686';
+		}
+	} else {
+		return false;
 	}
 }
-function updateStructData(a, k) {
-	for (var e = $(a).attr("name").split(","), f = 0; f < e.length; f++)
-		 - 1 < e[f].indexOf("'") ? e[f] = e[f].match(/[^\\']+/) : e[f] = window[e[f]];
-	e.unshift("42");
-	e.unshift(k);
-	colorMapping.apply(this, e);
-	drawNavLine()
+///////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////// Residue Functions /////////////////////////////////////
+//function refreshResiduesExpanded(targetLayer){}
+
+//function drawResiduesExpanded(targetLayer,dataIndices,ColorArray){}
+
+//function drawResidues(){}
+///////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////// Interaction Functions ////////////////////////////////
+//function drawBasePairs(){}
+
+function appendBasePairs(BasePairTable, colName) {
+	var p = BasePairTable.indexOf("_NPN");
+	if (p < 0) {
+		$.getJSON('getData.php', {
+			BasePairs : BasePairTable
+		}, function (basePairs2) {
+			rvDataSets[0].BasePairs = rvDataSets[0].BasePairs.concat(basePairs2);
+			FullBasePairSet = rvDataSets[0].BasePairs;
+			rvDataSets[0].drawBasePairs("lines");
+		});
+	} else {
+		//var dd = document.getElementById("ProtList");
+		//var colName = dd.options[dd.selectedIndex].value;
+		$.getJSON('getData.php', {
+			ProtBasePairs : BasePairTable,
+			ProtChain : colName
+		}, function (basePairs2) {
+			rvDataSets[0].BasePairs = rvDataSets[0].BasePairs.concat(basePairs2);
+			FullBasePairSet = rvDataSets[0].BasePairs;
+			rvDataSets[0].drawBasePairs("lines");
+		});
+	}
+}
+
+function refreshBasePairs(BasePairTable) {
+	
+	if (BasePairTable != "clear_lines") {
+		var p = BasePairTable.indexOf("_NPN");
+		if (p < 0) {
+			$.getJSON('getData.php', {
+				BasePairs : BasePairTable
+			}, function (basePairs2) {
+				//rvDataSets[0].BasePairs = new BasePairs;
+				//rvDataSets[0].BasePairs.addBasePairs(basePairs2);
+				
+				rvDataSets[0].BasePairs = basePairs2;
+				$.each(rvDataSets[0].BasePairs, function (ind, item) {
+					item.lineWidth = 0.75;
+					item.opacity = 0.5;
+					item.color_hex = '#231F20';
+				});
+				
+				rvDataSets[0].drawBasePairs("lines");
+				// Set interaction submenu to allow for subsets of these basepairs to be displayed. 
+				// For now, let's set a global variable to store the whole table, so that it doesn't have to be refetched everytime a subset is chosen. 
+				// This will get better when I revamp who BasePair interactions work
+	
+				FullBasePairSet = rvDataSets[0].BasePairs;
+				var BP_Type = [];	
+				$.each(rvDataSets[0].BasePairs, function (ind, item) {
+					BP_Type.push(item.bp_type);
+				});
+				BP_TypeU = $.grep(BP_Type, function (v, k) {
+					return $.inArray(v, BP_Type) === k;
+				});
+				
+				var ims = document.getElementById("SecondaryInteractionList");
+				ims.options.length = 0;
+				$.each(BP_TypeU, function (ind, item) {
+					ims.options[ind] = new Option(item, item);
+					ims.options[ind].setAttribute("selected", "selected");
+				});	
+				$("#SecondaryInteractionList").multiselect("refresh");
+			});
+		} else {
+			var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
+				return this.value;
+			}).get();
+			var array_of_checked_titles = $("#ProtList").multiselect("getChecked").map(function () {
+					return this.title;
+			}).get();
+			var ims = document.getElementById("SecondaryInteractionList");
+			ims.options.length = 0;
+			ims.options[0] = new Option("NPN", "NPN");
+			ims.options[0].setAttribute("selected", "selected");
+			$("#SecondaryInteractionList").multiselect("refresh");
+			colorMappingLoop(undefined,array_of_checked_values,array_of_checked_titles);
+			
+		}
+		
+	} else {
+		rvDataSets[0].BasePairs = [];
+		rvDataSets[0].clearCanvas("lines");
+	}
+	
+	
+}
+
+function filterBasePairs(FullBasePairSet,IncludeTypes){
+	rvDataSets[0].BasePairs=[];
+	$.each(FullBasePairSet, function (index, value){
+		if ($.inArray(value.bp_type,IncludeTypes) >= 0){
+			rvDataSets[0].BasePairs.push(value);
+		}
+	});
+	rvDataSets[0].drawBasePairs("lines");
+}
+///////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////// Mouse Functions //////////////////////////////////
+function mouseEventFunction(event) {
+	var BaseViewMode = $('input[name="bv"][value=on]').is(':checked');
+	$("#ResidueTip").tooltip("close");
+	$("#InteractionTip").tooltip("close");
+	if (event.handleObj.origType == "mousedown" && !BaseViewMode) {
+		if (onebuttonmode == "select" || (event.which == 3 && event.altKey == false) || (event.which == 1 && event.shiftKey == true)) {
+			$("#canvasDiv").off("mousemove", dragHandle);
+			$("#canvasDiv").off("mousemove", mouseMoveFunction);
+			selectionBox(event);
+			$("#canvasDiv").on("mousemove", dragSelBox);
+			$("#canvasDiv").on("mouseup", selectResidue);
+		} else if (onebuttonmode == "selectL" || (event.which == 3 && event.altKey == true )) {
+			$("#canvasDiv").off("mousemove", dragHandle);
+			$("#canvasDiv").off("mousemove", mouseMoveFunction);
+		} else if (onebuttonmode == "color" || (event.which == 2 && event.altKey == false) || (event.which == 1 && event.ctrlKey == true && event.altKey == false)) {
+			$("#canvasDiv").off("mousemove", dragHandle);
+			//$("#canvasDiv").unbind("mousemove", mouseMoveFunction);
+			colorResidue(event);
+		} else if (onebuttonmode == "colorL" || (event.which == 2 && event.altKey == true) || (event.which == 1 && event.ctrlKey == true && event.altKey == true)) {
+			$("#canvasDiv").off("mousemove", dragHandle);
+			colorLine(event);
+		} else {
+			rvViews[0].lastX = event.clientX;
+			rvViews[0].lastY = event.clientY;
+			$("#canvasDiv").on("mousemove", dragHandle);
+		}
+	} else if (event.handleObj.origType == "mousedown" && BaseViewMode) {
+		$("#canvasDiv").off("mousemove", dragHandle);
+		BaseViewCenter(event);
+	}
+	if (event.handleObj.origType == "mouseup") {
+		$("#canvasDiv").off("mousemove", dragHandle);
+		$("#canvasDiv").off("mousemove", dragSelBox);
+		$("#canvasDiv").on("mousemove", mouseMoveFunction);
+		rvDataSets[0].HighlightLayer.clearCanvas();
+	}
+}
+
+function mouseMoveFunction(event){
+	rvDataSets[0].HighlightLayer.clearCanvas();
+	$("#ResidueTip").tooltip("close");
+	$("#InteractionTip").tooltip("close");
+	switch (onebuttonmode){
+		case "selectL":
+			return;
+			break;
+		case "colorL":
+			return;
+			break;
+		case "select":
+			return;
+			break;
+		case "move":
+			if (event.altKey == true && event.ctrlKey == false){
+				var seleLine = getSelectedLine(event);
+				if(seleLine >=0 ){
+					var j = rvDataSets[0].BasePairs[seleLine].resIndex1;
+					var k = rvDataSets[0].BasePairs[seleLine].resIndex2;
+					rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
+					rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
+					rvDataSets[0].HighlightLayer.CanvasContext.moveTo(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y);
+					rvDataSets[0].HighlightLayer.CanvasContext.lineTo(rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
+					rvDataSets[0].HighlightLayer.CanvasContext.closePath();
+					rvDataSets[0].HighlightLayer.CanvasContext.stroke();
+					if($('input[name="rt"][value=on]').is(':checked')){
+						createInfoWindow(seleLine,"lines");
+						$("#InteractionTip").css("bottom",$(window).height() - event.clientY);
+						$("#InteractionTip").css("left",event.clientX);
+						$("#InteractionTip").tooltip("open");
+					}
+				}	
+			} else if (event.ctrlKey == true && event.altKey == false) {
+				var sel = getSelected(event);
+				if (sel >=0) {
+					var targetLayer=rvDataSets[0].getSelectedLayer();
+					switch (targetLayer.Type){
+						case "residues" : 
+							rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#000000";
+							rvDataSets[0].HighlightLayer.CanvasContext.font = rvDataSets[0].SpeciesEntry.Font_Size_Canvas + 'pt "Myriad Pro", Calibri, Arial';
+							rvDataSets[0].HighlightLayer.CanvasContext.textBaseline = "middle";
+							rvDataSets[0].HighlightLayer.CanvasContext.textAlign = "center";
+							rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = colorNameToHex($("#MainColor").val());
+							rvDataSets[0].HighlightLayer.CanvasContext.fillText(rvDataSets[0].Residues[sel].resName, rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y);
+							break;
+						case "circles" :
+							rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
+							rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, (targetLayer.ScaleFactor * rvDataSets[0].SpeciesEntry.Circle_Radius), 0, 2 * Math.PI, false);
+							rvDataSets[0].HighlightLayer.CanvasContext.closePath();
+							rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#MainColor").val());
+							rvDataSets[0].HighlightLayer.CanvasContext.stroke();
+							if (targetLayer.Filled) {
+								rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = colorNameToHex($("#MainColor").val());
+								rvDataSets[0].HighlightLayer.CanvasContext.fill();
+							}
+							break;
+						default :
+					}
+				}
+			} else if ( event.ctrlKey == true && event.altKey == true) {
+				var seleLine = getSelectedLine(event);
+				if(seleLine >=0 ){
+					var j = rvDataSets[0].BasePairs[seleLine].resIndex1;
+					var k = rvDataSets[0].BasePairs[seleLine].resIndex2;
+					rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#LineColor").val());
+					rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
+					rvDataSets[0].HighlightLayer.CanvasContext.moveTo(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y);
+					rvDataSets[0].HighlightLayer.CanvasContext.lineTo(rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
+					rvDataSets[0].HighlightLayer.CanvasContext.closePath();
+					rvDataSets[0].HighlightLayer.CanvasContext.stroke();
+					if($('input[name="rt"][value=on]').is(':checked')){
+						createInfoWindow(seleLine,"lines");
+						$("#InteractionTip").css("bottom",$(window).height() - event.clientY);
+						$("#InteractionTip").css("left",event.clientX);
+						$("#InteractionTip").tooltip("open");
+					}
+				}	
+			} else {
+				var sel = getSelected(event);
+				if (sel >=0){
+					rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
+					rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, 1.176 * rvDataSets[0].SpeciesEntry.Circle_Radius, 0, 2 * Math.PI, false);
+					rvDataSets[0].HighlightLayer.CanvasContext.closePath();
+					rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
+					rvDataSets[0].HighlightLayer.CanvasContext.lineWidth=rvDataSets[0].SpeciesEntry.Circle_Radius/1.7;
+					rvDataSets[0].HighlightLayer.CanvasContext.stroke();
+					if($('input[name="rt"][value=on]').is(':checked')){
+						createInfoWindow(sel,"residue");
+						$("#ResidueTip").css("bottom",$(window).height() - event.clientY);
+						$("#ResidueTip").css("left",event.clientX);
+						$("#ResidueTip").tooltip("open");
+					}
+				}
+			}
+			break;
+		case "color":
+			var sel = getSelected(event);
+			if (sel != -1) {
+				var targetLayer=rvDataSets[0].getSelectedLayer();
+				switch (targetLayer.Type){
+					case "residues" : 
+						rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#000000";
+						rvDataSets[0].HighlightLayer.CanvasContext.font = rvDataSets[0].SpeciesEntry.Font_Size_Canvas + 'pt "Myriad Pro", Calibri, Arial';
+						rvDataSets[0].HighlightLayer.CanvasContext.textBaseline = "middle";
+						rvDataSets[0].HighlightLayer.CanvasContext.textAlign = "center";
+						rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = colorNameToHex($("#MainColor").val());
+						rvDataSets[0].HighlightLayer.CanvasContext.fillText(rvDataSets[0].Residues[sel].resName, rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y);
+						break;
+					case "circles" :
+						rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
+						rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, (targetLayer.ScaleFactor * rvDataSets[0].SpeciesEntry.Circle_Radius), 0, 2 * Math.PI, false);
+						rvDataSets[0].HighlightLayer.CanvasContext.closePath();
+						rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#MainColor").val());
+						rvDataSets[0].HighlightLayer.CanvasContext.stroke();
+						if (targetLayer.Filled) {
+							rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = colorNameToHex($("#MainColor").val());
+							rvDataSets[0].HighlightLayer.CanvasContext.fill();
+						}
+						break;
+					default :
+				}
+			}
+			
+			
+			break;
+		default: 
+	}
+}
+
+function dragSelBox(event){
+	rvDataSets[0].HighlightLayer.clearCanvas();
+	rvViews[0].drag(event);
+}
+
+function mouseWheelFunction(event,delta){
+	rvViews[0].zoom(event, delta);
+	
+	var sel = getSelected(event);
+	rvDataSets[0].HighlightLayer.clearCanvas();
+	
+	if (sel == -1) {
+		//document.getElementById("currentDiv").innerHTML = "<br/>";
+	} else {
+		//document.getElementById("currentDiv").innerHTML = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[sel].ChainID)] + ":" + rvDataSets[0].Residues[sel].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+		
+		rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
+		rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, 2, 0, 2 * Math.PI, false);
+		rvDataSets[0].HighlightLayer.CanvasContext.closePath();
+		rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
+		rvDataSets[0].HighlightLayer.CanvasContext.stroke();
+		
+	}
+	if (drag) {
+		rvViews[0].drag(event);
+	}
+	return false;
+
+
+}
+
+function colorLineSelection(event) {
+}
+
+///////For popup window////
+function createInfoWindow(Index,InfoMode){
+	if (InfoMode === "residue"){
+		addPopUpWindowResidue(Index);
+		$("#ResidueTip").tooltip("option","content",$("#residuetip").html());
+	} else {
+		addPopUpWindowLine(Index);
+		$("#InteractionTip").tooltip("option","content",$("#interactiontip").html());
+	}
+}
+///////////////////////////////////////////////////////////////////////////////
+
+
+// Misc Functions
+/*function secretBox(event) {
+	if (event == "nasa") {
+		alert("Hey, don't click me there!");
+		clickedNASA = clickedNASA + 1;
+	}
+	
+	if (event == "riboevo") {
+		if (clickedNASA > 0) {
+			alert("Hey, you clicked on NASA. Don't you love me too?");
+		}
+	}
+	
+}*/
+function BaseViewCenter(event){
+	if($('input[name="jp"][value=off]').is(':checked')){
+		return;
+	}
+	var sel = getSelected(event);
+	if (sel != -1) {
+		var res = rvDataSets[0].Residues[sel];
+		var script = "center " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and " + res.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') +":" + res.ChainID;
+		Jmol.script(myJmol, script);
+	}
+}
+function modeSelect(mode) {
+	onebuttonmode = mode;
+	/*
+	switch (mode){
+		case "selectL":
+			$("#canvasDiv").unbind("mousemove", mouseMoveFunction);
+			break;
+		case "select":
+			$("#canvasDiv").unbind("mousemove", mouseMoveFunction);
+			break;
+		case "move":
+			$("#canvasDiv").bind("mousemove", mouseMoveFunction);
+			break;
+		case "color":
+			$("#canvasDiv").unbind("mousemove", mouseMoveFunction);
+			$("#canvasDiv").bind("mousemove", mouseMoveFunction);
+			break;
+		default: 
+			//seleLineMode = false;
+	}*/
+}
+function ProcessBubble(ui,targetLayer){
+	switch ($(ui).parent().attr("id")) {
+		case "AlnBubbles" :
+			colorMapping(targetLayer,"42",[$(ui).attr("name")]);
+			drawNavLine();
+			break;
+		case "StructDataBubbles" :
+			updateStructData(ui,targetLayer);
+			break;
+		case "ProteinBubbles" : 
+			var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
+					return this.value;
+				}).get();
+			var array_of_checked_titles = $("#ProtList").multiselect("getChecked").map(function () {
+				return this.title;
+			}).get();
+			colorMappingLoop(targetLayer,array_of_checked_values,array_of_checked_titles);
+			break;
+		case "CustomDataBubbles" :
+			customDataProcess(ui,targetLayer)
+			break;
+		default :
+			alert("other");
+	}
+	
+}
+function updateStructData(ui,targetLayer) {
+	var newargs = $(ui).attr("name").split(",");
+	for (var i = 0; i < newargs.length; i++) {
+		if (newargs[i].indexOf("'") > -1) {
+			newargs[i] = newargs[i].match(/[^\\']+/);
+		} else {
+			newargs[i] = window[newargs[i]];
+		}
+	}
+	newargs.unshift('42');
+	newargs.unshift(targetLayer);
+	colorMapping.apply(this, newargs);
+	drawNavLine();
 }
 function openRvState() {
-	var a = get_cookie("privacy_status_data"),
-	k = $("#files2")[0].files;
-	AgreeFunction = function () {
-		for (var a = 0; a < k.length; a++)
-			switch (reader = new FileReader, k[a].name.split(".").pop().toLowerCase()) {
-			case "zip":
-				reader.readAsBinaryString(k[a]);
-				reader.onload = function () {
-					new ZipLoader(reader.result);
-					alert("Unfinished zip support. Please unzip your file.")
-				};
-				break;
-			default:
-				reader.readAsText(k[a]),
-				reader.onload = function () {
-					var a = JSON.parse(reader.result);
-					rvDataSets[0] = rvDataSets[0].fromJSON(a.RvDS);
-					a.rvLayers = JSON.stringify(rvDataSets[0].Layers);
-					a.rvSelections = JSON.stringify(rvDataSets[0].Selections);
-					a.rvLastSpecies = rvDataSets[0].Name;
-					$('input[name="jp"][value=on]').is(":checked") && (Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script), Jmol.script(myJmol, "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1"));
-					processRvState(a);
-					updateModel();
-					update3Dcolors();
-					$('input[name="jp"][value=on]').is(":checked") && (a = a.rvJmolOrientation.match(/reset[^\n]+/), Jmol.script(myJmol,
-							a[0]))
+	var PrivacyStatus = get_cookie("privacy_status_data");
+	var PrivacyString = "This feature does not currently upload any data to our server. We don't have a privacy policy at this time"
+		 + " because one isn't needed. We can not see these data you are about to graph. Click \"I agree\" to acknowledge acceptance of our policy.";
+	 
+	 var FileReaderFile = $("#files2")[0].files; // FileList object
+	 
+	 AgreeFunction = function () {
+		for (var i = 0; i < FileReaderFile.length; i++) {
+			reader = new FileReader();
+			switch (FileReaderFile[i].name.split('.').pop().toLowerCase()){
+				case "zip":
+					//alert("zip");
+					reader.readAsBinaryString(FileReaderFile[i]);
+					reader.onload = function (){
+						//var loader = new ZipLoader(reader.result);
+						var loader = new ZipLoader(reader.result);
+						//var data = loader.load('localfile.zip://Ribovision_State.rvs.txt');
+						alert("Unfinished zip support. Please unzip your file.");
+					}
+					break;	
+				default:
+					reader.readAsText(FileReaderFile[i]);
+					reader.onload = function () {
+						var rvSaveState = JSON.parse(reader.result);
+						rvDataSets[0]=rvDataSets[0].fromJSON(rvSaveState["RvDS"]);
+						// Re stringify a few things for compatibility / symmetry with local storage
+						rvSaveState["rvLayers"] = JSON.stringify(rvDataSets[0].Layers);
+						rvSaveState["rvSelections"] = JSON.stringify(rvDataSets[0].Selections);
+						rvSaveState["rvLastSpecies"] = rvDataSets[0].Name;
+						if($('input[name="jp"][value=on]').is(':checked')){
+							Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
+							var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
+							Jmol.script(myJmol, jscript);
+						}				
+						processRvState(rvSaveState);
+						updateModel();
+						update3Dcolors();
+						if($('input[name="jp"][value=on]').is(':checked')){
+							var a = rvSaveState.rvJmolOrientation.match(/reset[^\n]+/);
+							Jmol.script(myJmol, a[0]);
+						}
+				}
+					break;
+			}
+			
+		}
+		/*welcomeScreen();
+		rvDataSets[0].drawResidues("residues");
+		rvDataSets[0].drawSelection("selected");
+		rvDataSets[0].refreshResiduesExpanded("circles");
+		rvDataSets[0].drawLabels("labels");
+		rvDataSets[0].drawBasePairs("lines");*/
+	 };
+	 
+	 if (PrivacyStatus != "Agreed") {
+		$("#Privacy-confirm").text(PrivacyString);
+		CurrPrivacyCookie = "privacy_status_data";
+		$("#Privacy-confirm").dialog('open');
+	} else {
+		AgreeFunction();
+	}
+}
+
+function handleFileSelect(event) {
+	var PrivacyStatus = get_cookie("privacy_status_data");
+	var PrivacyString = "This feature does not currently upload any data to our server. We don't have a privacy policy at this time"
+		 + " because one isn't needed. We can not see these data you are about to graph. Click \"I agree\" to acknowledge acceptance of our policy.";
+	var NewData;
+	var command;
+	var ColorList=[];
+	var ColorListU;
+	var DataList=[];
+	var DataListU;
+	var ColorGrad=[];
+	
+	FileReaderFile = event.target.files; // FileList object
+	$("#CustomDataBubbles").find(".dataBubble").remove();
+	AgreeFunction = function (event) {
+		for (var i = 0; i < FileReaderFile.length; i++) {
+			reader = new FileReader();
+			reader.readAsText(FileReaderFile[i]);
+			$("#CustomDataBubbles").append($('<h3 class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom" style="text-align:center;padding:0.2em">')
+				.text("User Data").attr('name',"CustomData").attr('title',"Custom"));
+			$("#CustomDataBubbles").sortable({
+				update : function (event, ui) {
+				},
+				items : ".dataBubble"
+			});
+			reader.onload = function () {
+				//Process File
+				rvDataSets[0].addCustomData($.csv.toObjects(reader.result));
+				var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
+				if ($.inArray("DataDescription", customkeys) >= 0) {
+					$("#FileDiv").find(".DataDescription").html(rvDataSets[0].CustomData[0]["DataDescription"]);
+					$("#CustomDataBubbles").find(".dataBubble").attr("title",rvDataSets[0].CustomData[0]["DataDescription"].replace(/(<([^>]+)>)/ig,""));
+				} else {
+					$("#FileDiv").find(".DataDescription").html("Data Description is missing.");
+				}
+				$("#CustomDataBubbles").find(".dataBubble").attr("FileName",FileReaderFile[0].name);
+				//Add Custom Lines support here. 
+				if($.inArray("Residue_i", customkeys) >= 0) {
+					if ($.inArray("Residue_j", customkeys) >= 0){
+						var FullBasePairSet =[];
+						var targetLayer = rvDataSets[0].getLayerByType("lines");
+						if ($.inArray("ColorCol", customkeys) >= 0) {
+							$(".oneLayerGroup[name=" + targetLayer[0].LayerName + "]").find(".layerContent").find("div[name=llm]").find("select").multiselect("widget").find(":radio:eq(1)").each(function(){
+								this.click();
+							});
+							var processColor=true;
+						} else {
+							var processColor=false;
+						}
+						if ($.inArray("Opacity", customkeys) >= 0) {
+							var processOpacity=true;
+						} else {
+							var processOpacity=false;
+						}
+						if ($.inArray("LineWidth", customkeys) >= 0) {
+							var processLineWidth=true;
+						} else {
+							var processLineWidth=false;
+						}
+						$.each(rvDataSets[0].CustomData, function (index,value){
+							var j = resNumToIndex(value.Residue_i).toString();
+							var k = resNumToIndex(value.Residue_j).toString();
+							if (processColor){
+								var color = colorNameToHex(value.ColorCol);
+							} else {
+								var color = colorNameToHex("#231F20");
+							}
+							if (processOpacity){
+								var Opacity = value.Opacity;
+							} else {
+								var Opacity = 0.5;
+							}
+							if (processLineWidth){
+								var LineWidth = value.LineWidth;
+							} else {
+								var LineWidth = 1.0;
+							}
+							var grd = targetLayer[0].CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
+							grd.addColorStop(0, "rgba(" + h2d(color.slice(1, 3)) + "," + h2d(color.slice(3, 5)) + "," + h2d(color.slice(5)) + "," + Opacity + ")");
+							grd.addColorStop(1, "rgba(" + h2d(color.slice(1, 3)) + "," + h2d(color.slice(3, 5)) + "," + h2d(color.slice(5)) + "," + Opacity + ")");
+							
+							FullBasePairSet.push({
+								bp_type: value.Int_Type,
+								color: grd,
+								color_hex: color,
+								opacity: Opacity,
+								lineWidth: LineWidth,
+								id: (index + 1).toString(),
+								pairIndex: (index + 1).toString(),
+								resIndex1 : j,
+								resIndex2 : k
+							});
+						});
+						rvDataSets[0].BasePairs=FullBasePairSet;
+						
+						targetLayer[0].DataLabel = FileReaderFile[0].name;
+						$("[name=" + targetLayer[0].LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer[0].DataLabel);
+						rvDataSets[0].drawBasePairs("lines");
+					} else {
+						alert("Expected Residue_j column. Please check input.");
+					}
+				}
+			};
+		}
+	};
+	
+	if (PrivacyStatus != "Agreed") {
+		$("#Privacy-confirm").text(PrivacyString);
+		CurrPrivacyCookie = "privacy_status_data";
+		$("#Privacy-confirm").dialog('open');
+	} else {
+		AgreeFunction(event);
+	}
+}
+
+function resNumToIndex(FullResNum){
+	var comsplit = FullResNum.split(":");
+	var chainID = rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(comsplit[0])];
+	var aloneRes = chainID + "_" + comsplit[1];
+	var alone_ind = rvDataSets[0].ResidueList.indexOf(aloneRes);
+	return alone_ind;
+}
+
+function customDataProcess(ui,targetLayer){
+	var NewData;
+	targetLayer.DataLabel = $(ui[0]).attr("filename");
+	$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text("User File:").append($("<br>")).append(targetLayer.DataLabel);
+	targetLayer.clearData();
+	
+	var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
+	NewData = CustomDataExpand(targetLayer);
+	targetLayer.Data = NewData.IncludeData;
+	var targetSelection = rvDataSets[0].Selections[0];
+	SelectionMenu(targetSelection);
+	RefreshSelectionMenu();
+	//Make new selection invisible. 
+	$(".oneSelectionGroup[name=" + targetSelection.Name +"]").find(".checkBoxDIV-S").find(".visibilityCheckImg").attr("value","invisible");
+	$(".oneSelectionGroup[name=" + targetSelection.Name +"]").find(".checkBoxDIV-S").find(".visibilityCheckImg").attr("src","images/invisible.png");
+	rvDataSets[0].drawSelection("selected");
+	
+	if ($.inArray("ColorPalette", customkeys) >= 0){
+	    var colors=[];
+		//console.log(rvDataSets[0].CustomData[0].ColorPalette);
+		$.each(rvDataSets[0].CustomData, function (index,value){
+			if (value.ColorPalette !="") {
+				colors.push(value.ColorPalette);
+			} else {
+				return;
+			}
+		});
+		//Assume if length one, user mean to name a predefined gradient.
+		if (colors.length == 1){
+			var colors = window[colors[0]];
+		}
+		//console.log(colors);
+	} else {
+		var colors = RainBowColors;
+	}
+	
+	if (targetLayer.Type === "selected"){
+
+	} else {
+		if ($.inArray("FontWeight", customkeys) >= 0) {
+			$.each(NewData.Weight, function (index,value){
+				if (value != undefined) {
+					rvDataSets[0].Residues[index]["font-weight"]=value
+				} else {
+					rvDataSets[0].Residues[index]["font-weight"]="normal";
+				}
+			});
+			rvDataSets[0].drawResidues("residues");
+			rvDataSets[0].refreshResiduesExpanded(targetLayer.LayerName);
+			update3Dcolors();
+		}
+		if ($.inArray("ColorCol", customkeys) >= 0) {
+			rvDataSets[0].drawResidues("residues");
+			rvDataSets[0].refreshResiduesExpanded(targetLayer.LayerName);
+			update3Dcolors();
+		} else if ($.inArray("DataCol", customkeys) >= 0) {
+			colorProcess(NewData,undefined,targetLayer,colors);
+		} else if ($.inArray("FontWeight", customkeys) >= 0){
+			//Do nothing, maybe need more here later;
+		} else {
+			alert("No recognized columns found. Please check input.");
+		}
+	}
+
+	updateSelectionDiv(targetSelection.Name);
+	drawNavLine();
+	
+	//Finishes doing Nucleotides, move on to rProteins
+	CustomProcessProteins(colors);
+	
+	
+}
+function CustomProcessProteins(colors){
+	var rProtein=undefined;
+	var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
+	var NewData = [];
+	var ColorProteins=new Array;
+	for (var ii = 0; ii < rvDataSets[0].CustomData.length; ii++) {
+		var command = rvDataSets[0].CustomData[ii]["resNum"];
+		var targetSelection = rvDataSets[0].Selections[0];
+		var rProtein = expandSelection([command], targetSelection.Name);
+		if (rProtein){
+			if ($.inArray("DataCol", customkeys) >= 0) {
+				ColorProteins.push({ResNum : rProtein, Color : undefined});
+				if (isNaN(parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]))){
+					NewData.push(rvDataSets[0].CustomData[ii]["DataCol"]);
+				} else {
+					NewData.push(parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]));
+				}
+			} else if ($.inArray("ColorCol", customkeys) >= 0) {
+				ColorProteins.push({ResNum : rProtein, Color : rvDataSets[0].CustomData[ii]["ColorCol"]});
+			}
+		}
+	}
+	var dataIndices = colorProcess(NewData,undefined,undefined,colors,true);
+	$.each(dataIndices, function (index,value){
+		ColorProteins[index]["Color"] = colors[value];
+	});
+	ColorProteinsJmol(ColorProteins);
+	rvDataSets[0].ColorProteins = rvDataSets[0].ColorProteins.concat(ColorProteins);
+}
+function ColorProteinsJmol(ColorProteins){
+	if($('input[name="jp"][value=off]').is(':checked')){
+		return;
+	}
+	if (rvDataSets[0].Residues[0] == undefined){return};
+	
+	var script = "set hideNotSelected false;";
+	$.each(ColorProteins, function (index,value){
+		var ressplit = value.ResNum.split("_");
+		if (ressplit[0] !== "undefined"){
+			if (colorNameToHex(value.Color).indexOf("#") == -1) {
+				script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + ressplit[0] + " and " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "; color Cartoon opaque [x" + value.Color + "]; ";
+			} else {
+				script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + ressplit[0] + " and " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "; color Cartoon opaque [" + value.Color.replace("#", "x") + "]; ";
+			}
+		}
+	});
+	
+	Jmol.script(myJmol, script);
+}
+
+function ColorProteinsPyMOL(PDB_Obj_Names){
+	var ColorProteins = rvDataSets[0].ColorProteins;
+	if (rvDataSets[0].Residues[0] == undefined){return};
+	
+	var script = "";
+	
+	// Protein Section
+	for (var jj = 0; jj < rvDataSets[0].SpeciesEntry.SubunitProtChains[0].length; jj++) {
+		script += "copy " + rvDataSets[0].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][jj].replace(/\(/g, "_").replace(/\)/g, "") + "_custom, " + rvDataSets[0].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][jj].replace(/\(/g, "_").replace(/\)/g, "") + "\n";
+	}
+	
+	$.each(ColorProteins, function (index,value){
+		var ressplit = value.ResNum.split("_");
+		if (ressplit[0] !== "undefined"){
+			var curr_color = value.Color;
+				var h = rvDataSets[0].SpeciesEntry.SubunitProtChains[1].indexOf(ressplit[0]);
+					script += "color " + curr_color.replace("#", "0x") + ", " + rvDataSets[0].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][h].replace(/\(/g,"_").replace(/\)/g,"") + "_custom" +
+						" and resi " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "\n";
+		}
+	});
+	
+	script += "\ndisable *rp*\n";
+	return script;
+}
+
+function resetFileInput($element) {
+	var clone = $element.clone(false, false);
+	$element.replaceWith(clone);
+	alert(42);
+}
+
+function CustomDataExpand(targetLayer){
+	rvDataSets[0].addSelection();
+	var SeleLen = 0;
+	var NewData = [];
+	var FontWeight = [];
+	$.each(rvDataSets[0].Residues, function (index,value){
+		NewData[index]=undefined;
+		FontWeight[index]=undefined;
+	});
+
+	var ExtraData = [];
+	var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
+	if($.inArray("resNum", customkeys) >= 0){
+		for (var ii = 0; ii < rvDataSets[0].CustomData.length; ii++) {
+			var command = rvDataSets[0].CustomData[ii]["resNum"].split(";");
+			var targetSelection = rvDataSets[0].Selections[0];
+			expandSelection(command, targetSelection.Name);
+			var l = targetSelection.Residues.length;
+			if (l == 0){
+				if ($.inArray("DataCol", customkeys) >= 0) {
+					if (isNaN(parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]))){
+						ExtraData.push(rvDataSets[0].CustomData[ii]["DataCol"]);
+					} else {
+						ExtraData.push(parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]));
+					}
+				}
+			} else {
+				for (var iii = SeleLen; iii < l; iii++) {
+					if (targetSelection.Residues[iii].resNum.indexOf(":") >= 0) {
+						var ressplit = targetSelection.Residues[iii].resNum.split(":");
+						var ResName = rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(ressplit[0])] + "_" + ressplit[1];				
+					} else {
+						var chainID =  targetSelection.Residues[iii].ChainID;
+						var ResName = chainID + "_" + targetSelection.Residues[iii].resNum;
+					}
+					var k = rvDataSets[0].ResidueList.indexOf(ResName);
+					
+					if ($.inArray("DataCol", customkeys) >= 0) {
+						if (isNaN(parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]))){
+							NewData[k] = rvDataSets[0].CustomData[ii]["DataCol"];
+						} else {
+							NewData[k] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
+						}
+					}
+					if ($.inArray("ColorCol", customkeys) >= 0) {
+						targetLayer.dataLayerColors[k] = colorNameToHex(rvDataSets[0].CustomData[ii]["ColorCol"]);
+					}
+					if ($.inArray("FontWeight", customkeys) >= 0) {
+						FontWeight[k] = rvDataSets[0].CustomData[ii]["FontWeight"];
+					}
+					SeleLen = l;
 				}
 			}
-	};
-	"Agreed" != a ? ($("#Privacy-confirm").text("This feature does not currently upload any data to our server. We don't have a privacy policy at this time because one isn't needed. We can not see these data you are about to graph. Click \"I agree\" to acknowledge acceptance of our policy."), CurrPrivacyCookie = "privacy_status_data", $("#Privacy-confirm").dialog("open")) : AgreeFunction()
-}
-function handleFileSelect(a) {
-	var k = get_cookie("privacy_status_data");
-	FileReaderFile = a.target.files;
-	$("#CustomDataBubbles").find(".dataBubble").remove();
-	AgreeFunction = function (a) {
-		for (a = 0; a < FileReaderFile.length; a++)
-			reader = new FileReader, reader.readAsText(FileReaderFile[a]), $("#CustomDataBubbles").append($('<h3 class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom" style="text-align:center;padding:0.2em">').text("User Data").attr("name", "CustomData").attr("title", "Custom")),
-			$("#CustomDataBubbles").sortable({
-				update : function (a, d) {},
-				items : ".dataBubble"
-			}), reader.onload = function () {
-				rvDataSets[0].addCustomData($.csv.toObjects(reader.result));
-				var a = Object.keys(rvDataSets[0].CustomData[0]);
-				0 <= $.inArray("DataDescription", a) ? ($("#FileDiv").find(".DataDescription").html(rvDataSets[0].CustomData[0].DataDescription), $("#CustomDataBubbles").find(".dataBubble").attr("title", rvDataSets[0].CustomData[0].DataDescription.replace(/(<([^>]+)>)/ig, ""))) : $("#FileDiv").find(".DataDescription").html("Data Description is missing.");
-				$("#CustomDataBubbles").find(".dataBubble").attr("FileName", FileReaderFile[0].name);
-				if (0 <= $.inArray("Residue_i", a))
-					if (0 <= $.inArray("Residue_j", a)) {
-						var d = [];
-						$.each(rvDataSets[0].CustomData, function (a, b) {
-							d.push({
-								bp_type : b.Int_Type,
-								color : "rgba(35,31,32,.5)",
-								id : (a + 1).toString(),
-								pairIndex : (a + 1).toString(),
-								resIndex1 : resNumToIndex(b.Residue_i).toString(),
-								resIndex2 : resNumToIndex(b.Residue_j).toString()
-							})
-						});
-						rvDataSets[0].BasePairs = d;
-						a = rvDataSets[0].getLayerByType("lines");
-						a[0].DataLabel = FileReaderFile[0].name;
-						$("[name=" + a[0].LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(a[0].DataLabel);
-						rvDataSets[0].drawBasePairs("lines")
-					} else
-						alert("Expected Residue_j column. Please check input.")
-			}
-	};
-	"Agreed" != k ? ($("#Privacy-confirm").text("This feature does not currently upload any data to our server. We don't have a privacy policy at this time because one isn't needed. We can not see these data you are about to graph. Click \"I agree\" to acknowledge acceptance of our policy."), CurrPrivacyCookie =
-			"privacy_status_data", $("#Privacy-confirm").dialog("open")) : AgreeFunction(a)
-}
-function resNumToIndex(a) {
-	a = a.split(":");
-	a = rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(a[0])] + "_" + a[1];
-	return rvDataSets[0].ResidueList.indexOf(a)
-}
-function customDataProcess(a, k) {
-	var e;
-	k.DataLabel = $(a[0]).attr("filename");
-	$("[name=" + k.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text("User File:").append($("<br>")).append(k.DataLabel);
-	k.clearData();
-	var f = Object.keys(rvDataSets[0].CustomData[0]);
-	e = CustomDataExpand(k);
-	k.Data = e.IncludeData;
-	var d = rvDataSets[0].Selections[0];
-	SelectionMenu(d);
-	RefreshSelectionMenu();
-	$(".oneSelectionGroup[name=" + d.Name + "]").find(".checkBoxDIV-S").find(".visibilityCheckImg").attr("value", "invisible");
-	$(".oneSelectionGroup[name=" + d.Name + "]").find(".checkBoxDIV-S").find(".visibilityCheckImg").attr("src", "images/invisible.png");
-	rvDataSets[0].drawSelection("selected");
-	if (0 <= $.inArray("ColorPalette", f)) {
-		var h = [];
-		$.each(rvDataSets[0].CustomData, function (a, c) {
-			"" != c.ColorPalette && h.push(c.ColorPalette)
-		});
-		1 == h.length && (h = window[h[0]])
-	} else
-		h = RainBowColors;
-	"selected" !== k.Type && (0 <= $.inArray("ColorCol", f) ? (rvDataSets[0].drawResidues("residues"), rvDataSets[0].refreshResiduesExpanded(k.LayerName), update3Dcolors()) :
-		0 <= $.inArray("DataCol", f) ? colorProcess(e, void 0, k, h) : alert("No recognized columns found. Please check input."));
-	updateSelectionDiv(d.Name);
-	drawNavLine();
-	CustomProcessProteins(h)
-}
-function CustomProcessProteins(a) {
-	for (var k = void 0, e = Object.keys(rvDataSets[0].CustomData[0]), f = [], d = [], h = 0; h < rvDataSets[0].CustomData.length; h++)
-		if (k = expandSelection([rvDataSets[0].CustomData[h].resNum], rvDataSets[0].Selections[0].Name))
-			0 <= $.inArray("DataCol", e) ? (d.push({
-					ResNum : k,
-					Color : void 0
-				}), isNaN(parseFloat(rvDataSets[0].CustomData[h].DataCol)) ? f.push(rvDataSets[0].CustomData[h].DataCol) : f.push(parseFloat(rvDataSets[0].CustomData[h].DataCol))) : 0 <= $.inArray("ColorCol", e) && d.push({
-				ResNum : k,
-				Color : rvDataSets[0].CustomData[h].ColorCol
-			});
-	k = colorProcess(f, void 0, void 0, a, !0);
-	$.each(k, function (b, c) {
-		d[b].Color = a[c]
-	});
-	ColorProteinsJmol(d);
-	rvDataSets[0].ColorProteins = rvDataSets[0].ColorProteins.concat(d)
-}
-function ColorProteinsJmol(a) {
-	if (!$('input[name="jp"][value=off]').is(":checked") && void 0 != rvDataSets[0].Residues[0]) {
-		var k = "set hideNotSelected false;";
-		$.each(a, function (a, f) {
-			var d = f.ResNum.split("_");
-			"undefined" !== d[0] && (k = -1 == colorNameToHex(f.Color).indexOf("#") ? k + ("select " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein + ".1 and :" + d[0] + " and " + d[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + "; color Cartoon opaque [x" + f.Color + "]; ") : k + ("select " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein +
-						".1 and :" + d[0] + " and " + d[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + "; color Cartoon opaque [" + f.Color.replace("#", "x") + "]; "))
-		});
-		Jmol.script(myJmol, k)
-	}
-}
-function ColorProteinsPyMOL(a) {
-	a = rvDataSets[0].ColorProteins;
-	if (void 0 != rvDataSets[0].Residues[0]) {
-		for (var k = "", e = 0; e < rvDataSets[0].SpeciesEntry.SubunitProtChains[0].length; e++)
-			k += "copy " + rvDataSets[0].SpeciesEntry.Species_Abr + "_rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][e].replace(/\(/g, "_").replace(/\)/g, "") + "_custom, " + rvDataSets[0].SpeciesEntry.Species_Abr + "_rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][e].replace(/\(/g, "_").replace(/\)/g, "") + "\n";
-		$.each(a, function (a, d) {
-			var e = d.ResNum.split("_");
-			if ("undefined" !== e[0]) {
-				var b = d.Color,
-				c = rvDataSets[0].SpeciesEntry.SubunitProtChains[1].indexOf(e[0]);
-				k += "color " + b.replace("#", "0x") + ", " + rvDataSets[0].SpeciesEntry.Species_Abr + "_rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][c].replace(/\(/g, "_").replace(/\)/g, "") + "_custom and resi " + e[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + "\n"
-			}
-		});
-		return k += "\ndisable *rp*\n"
-	}
-}
-function resetFileInput(a) {
-	var k = a.clone(!1, !1);
-	a.replaceWith(k);
-	alert(42)
-}
-function CustomDataExpand(a) {
-	rvDataSets[0].addSelection();
-	var k = 0,
-	e = [];
-	$.each(rvDataSets[0].Residues, function (a, b) {
-		e[a] = void 0
-	});
-	var f = [],
-	d = Object.keys(rvDataSets[0].CustomData[0]);
-	if (0 <= $.inArray("resNum", d))
-		for (var h = 0; h < rvDataSets[0].CustomData.length; h++) {
-			var b = rvDataSets[0].CustomData[h].resNum.split(";"),
-			c = rvDataSets[0].Selections[0];
-			expandSelection(b, c.Name);
-			b = c.Residues.length;
-			if (0 == b)
-				0 <= $.inArray("DataCol", d) && (isNaN(parseFloat(rvDataSets[0].CustomData[h].DataCol)) ? f.push(rvDataSets[0].CustomData[h].DataCol) :
-					f.push(parseFloat(rvDataSets[0].CustomData[h].DataCol)));
-			else
-				for (var g = k; g < b; g++)
-					0 <= c.Residues[g].resNum.indexOf(":") ? (k = c.Residues[g].resNum.split(":"), k = rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(k[0])] + "_" + k[1]) : k = c.Residues[g].ChainID + "_" + c.Residues[g].resNum, k = rvDataSets[0].ResidueList.indexOf(k), 0 <= $.inArray("DataCol", d) && (isNaN(parseFloat(rvDataSets[0].CustomData[h].DataCol)) ? e[k] = rvDataSets[0].CustomData[h].DataCol : e[k] = parseFloat(rvDataSets[0].CustomData[h].DataCol)),
-					0 <= $.inArray("ColorCol", d) && (a.dataLayerColors[k] = colorNameToHex(rvDataSets[0].CustomData[h].ColorCol)), k = b
+			
 		}
-	return {
-		IncludeData : e,
-		ExtraData : f
 	}
+	return {IncludeData : NewData,ExtraData : ExtraData, Weight : FontWeight}
 }
-function set_cookie(a, k, e, f) {
-	f = f ? "; domain=" + f : "";
-	document.cookie = a + "=" + encodeURIComponent(k) + "; max-age=" + 86400 * e + "; path=/" + f
+///////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////// Cookie Functions ///////////////////////////////
+function set_cookie(cookie_name, cookie_value, lifespan_in_days, valid_domain) {
+	// http://www.thesitewizard.com/javascripts/cookies.shtml
+	var domain_string = valid_domain ? ("; domain=" + valid_domain) : '';
+	document.cookie = cookie_name +
+		"=" + encodeURIComponent(cookie_value) +
+		"; max-age=" + 60 * 60 *
+		24 * lifespan_in_days +
+		"; path=/" + domain_string;
 }
-function get_cookie(a) {
-	var k = document.cookie;
-	if (0 != k.length) {
-		a = k.match(new RegExp(a + "=[^;]*", "g"));
-		if (null == a)
+
+function get_cookie(cookie_name) {
+	// http://www.thesitewizard.com/javascripts/cookies.shtml
+	var cookie_string = document.cookie;
+	if (cookie_string.length != 0) {
+		var pattern = cookie_name + "=[^;]*";
+		var patt = new RegExp(pattern, "g");
+		var cookie_value = cookie_string.match(patt);
+		if (cookie_value == null) {
 			return "";
-		a = a[0].split("=");
-		return decodeURIComponent(a[1])
+		} else {
+			var p = cookie_value[0].split("=");
+			return decodeURIComponent(p[1]);
+		}
 	}
 }
+
 function checkSavePrivacyStatus() {
-	"Agreed" != get_cookie("privacy_status_text") ? ($("#Privacy-confirm").text('This feature requires uploading data to our server. Our privacy policy at this time is to not look at these files without permission. We will set up autodelete for these files soon. Click "I agree" to acknowledge acceptance of our policy.'), CurrPrivacyCookie = "privacy_status_text", $("#Privacy-confirm").dialog("open")) : AgreeFunction()
+	var PrivacyStatus = get_cookie("privacy_status_text");
+	var PrivacyString = "This feature requires uploading data to our server. Our privacy policy at this time is to not look at these files without permission."
+		 + " We will set up autodelete for these files soon. Click \"I agree\" to acknowledge acceptance of our policy.";
+	
+	if (PrivacyStatus != "Agreed") {
+		$("#Privacy-confirm").text(PrivacyString);
+		CurrPrivacyCookie = "privacy_status_text";
+		$("#Privacy-confirm").dialog('open');
+	} else {
+		AgreeFunction();
+	}
 }
+///////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////// Save Functions ///////////////////////////////
 function saveNavLine() {
 	AgreeFunction = function () {
-		var a = document.getElementById("NavLineDiv").getElementsByTagName("svg")[0],
-		a = (new XMLSerializer).serializeToString(a),
-		k = document.createElement("form");
-		k.setAttribute("method", "post");
-		k.setAttribute("action", "saveNavLine.php");
-		k.setAttribute("target", "_blank");
-		var e = document.createElement("input");
-		e.setAttribute("type", "hidden");
-		e.setAttribute("name", "content");
-		e.setAttribute("value", a);
-		k.appendChild(e);
-		document.body.appendChild(k);
-		k.submit()
-	};
-	checkSavePrivacyStatus()
+		var tmp  = document.getElementById("NavLineDiv");
+		var svg = tmp.getElementsByTagName("svg")[0];
+		// Extract the data as SVG text string
+		var svg_xml = (new XMLSerializer).serializeToString(svg);
+		
+		//alert(jmlImgB64);
+		//var CS = canvasToSVG();
+		var form = document.createElement("form");
+		form.setAttribute("method", "post");
+		form.setAttribute("action", "saveNavLine.php");
+		form.setAttribute("target", "_blank");
+		var hiddenField = document.createElement("input");
+		hiddenField.setAttribute("type", "hidden");
+		hiddenField.setAttribute("name", "content");
+		hiddenField.setAttribute("value", svg_xml);
+		form.appendChild(hiddenField);
+		document.body.appendChild(form);
+		form.submit();
+	}
+	checkSavePrivacyStatus();
 }
 function saveJmolImg() {
 	AgreeFunction = function () {
-		if (!$('input[name="jp"][value=off]').is(":checked")) {
-			var a = Jmol.getPropertyAsString(myJmol, "image"),
-			k = document.createElement("form");
-			k.setAttribute("method", "post");
-			k.setAttribute("action", "saveJmolImg.php");
-			k.setAttribute("target", "_blank");
-			var e = document.createElement("input");
-			e.setAttribute("type", "hidden");
-			e.setAttribute("name", "content");
-			e.setAttribute("value", a);
-			k.appendChild(e);
-			document.body.appendChild(k);
-			k.submit()
+		if($('input[name="jp"][value=off]').is(':checked')){
+			return;
 		}
-	};
-	checkSavePrivacyStatus()
+		var jmlImgB64 = Jmol.getPropertyAsString(myJmol,'image');
+		//alert(jmlImgB64);
+		//var CS = canvasToSVG();
+		var form = document.createElement("form");
+		form.setAttribute("method", "post");
+		form.setAttribute("action", "saveJmolImg.php");
+		form.setAttribute("target", "_blank");
+		var hiddenField = document.createElement("input");
+		hiddenField.setAttribute("type", "hidden");
+		hiddenField.setAttribute("name", "content");
+		hiddenField.setAttribute("value", jmlImgB64);
+		form.appendChild(hiddenField);
+		document.body.appendChild(form);
+		form.submit();
+	}
+	checkSavePrivacyStatus();
 }
-function retrieveRvState(a) {
-	SaveStateFileName = a;
-	$.post("retrieveRvState.php", {
+function retrieveRvState(filename) {
+	SaveStateFileName=filename;
+	$.post('retrieveRvState.php', {
 		datasetname : SaveStateFileName,
 		username : UserName
-	}, function (a) {
-		a = JSON.parse(a);
-		rvDataSets[0] = rvDataSets[0].fromJSON(a.RvDS);
-		a.rvLayers = JSON.stringify(rvDataSets[0].Layers);
-		a.rvSelections = JSON.stringify(rvDataSets[0].Selections);
-		a.rvLastSpecies = rvDataSets[0].Name;
-		$('input[name="jp"][value=on]').is(":checked") && (Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script), Jmol.script(myJmol, "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA +
-				".1"));
-		processRvState(a)
-	})
+	}, function (RvSaveState) {
+		//alert(RvSaveState);
+		var rvSaveState = JSON.parse(RvSaveState);
+		rvDataSets[0]=rvDataSets[0].fromJSON(rvSaveState["RvDS"]);
+		// Re stringify a few things for compatibility / symmetry with local storage
+		rvSaveState["rvLayers"] = JSON.stringify(rvDataSets[0].Layers);
+		rvSaveState["rvSelections"] = JSON.stringify(rvDataSets[0].Selections);
+		rvSaveState["rvLastSpecies"] = rvDataSets[0].Name;
+		if($('input[name="jp"][value=on]').is(':checked')){
+			Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
+			var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
+			Jmol.script(myJmol, jscript);
+		}
+		processRvState(rvSaveState);
+	});
 }
-function storeRvState(a) {
-	SaveStateFileName = a;
+
+function storeRvState(filename){
+	SaveStateFileName=filename;
 	AgreeFunction = function () {
-		var a = {};
-		a.RvDS = JSON.stringify(rvDataSets[0]);
-		a.rvView = JSON.stringify(rvViews[0]);
-		$('input[name="jp"][value=on]').is(":checked") && (a.rvJmolOrientation = Jmol.evaluate(myJmol, "script('show orientation')"));
-		$("input[name='PanelSizesCheck']").attr("checked") && (a.rvPanelSizes = JSON.stringify({
-					PanelDivide : PanelDivide,
-					TopDivide : TopDivide
-				}));
-		$("input[name='MouseModeCheck']").attr("checked") && (a.rvMouseMode = onebuttonmode);
+		var RvSaveState = {};
+		RvSaveState["RvDS"] = JSON.stringify(rvDataSets[0]);
+		RvSaveState["rvView"] = JSON.stringify(rvViews[0]);
+		if($('input[name="jp"][value=on]').is(':checked')){
+			RvSaveState["rvJmolOrientation"] = Jmol.evaluate(myJmol,"script('show orientation')");
+		}
+	
+		if($("input[name='PanelSizesCheck']").attr("checked")){
+			var po = {
+				PanelDivide : PanelDivide,
+				TopDivide : TopDivide
+			}
+			RvSaveState["rvPanelSizes"] = JSON.stringify(po);
+		}
+		if($("input[name='MouseModeCheck']").attr("checked")){
+			RvSaveState["rvMouseMode"] = onebuttonmode;	
+		}
+		
 		$form = $("<form></form>");
-		$("body").append($form);
+		$('body').append($form);
 		data = {
-			content : JSON.stringify(a, null, "\t"),
+			content: JSON.stringify(RvSaveState,null,'\t'),
 			datasetname : SaveStateFileName,
 			username : UserName
 		};
-		$.post("storeRvState.php", data, function (a) {})
-	};
-	checkSavePrivacyStatus()
+		$.post("storeRvState.php", data, function(d) {});
+	}
+	checkSavePrivacyStatus();
 }
-function saveRvState(a) {
-	SaveStateFileName = a;
+function saveRvState(filename){
+	SaveStateFileName=filename;
 	AgreeFunction = function () {
-		var a = {};
-		a.RvDS = JSON.stringify(rvDataSets[0]);
-		a.rvView = JSON.stringify(rvViews[0]);
-		$('input[name="jp"][value=on]').is(":checked") && (a.rvJmolOrientation = Jmol.evaluate(myJmol, "script('show orientation')"));
-		$("input[name='PanelSizesCheck']").attr("checked") && (a.rvPanelSizes = JSON.stringify({
-					PanelDivide : PanelDivide,
-					TopDivide : TopDivide
-				}));
-		$("input[name='MouseModeCheck']").attr("checked") && (a.rvMouseMode = onebuttonmode);
-		var e = document.createElement("form");
-		e.setAttribute("method", "post");
-		e.setAttribute("action", "saveRvState.php");
-		e.setAttribute("target", "_blank");
-		var f = document.createElement("input");
-		f.setAttribute("type", "hidden");
-		f.setAttribute("name", "content");
-		f.setAttribute("value", JSON.stringify(a, null, "\t"));
-		a = document.createElement("input");
-		a.setAttribute("type", "hidden");
-		a.setAttribute("name", "datasetname");
-		a.setAttribute("value", SaveStateFileName);
-		e.appendChild(f);
-		e.appendChild(a);
-		document.body.appendChild(e);
-		e.submit()
-	};
-	checkSavePrivacyStatus()
+		//var CS = canvasToSVG();
+		
+		var RvSaveState = {};
+		RvSaveState["RvDS"] = JSON.stringify(rvDataSets[0]);
+		RvSaveState["rvView"] = JSON.stringify(rvViews[0]);
+		if($('input[name="jp"][value=on]').is(':checked')){
+			RvSaveState["rvJmolOrientation"] = Jmol.evaluate(myJmol,"script('show orientation')");
+		}
+		
+		if($("input[name='PanelSizesCheck']").attr("checked")){
+			var po = {
+				PanelDivide : PanelDivide,
+				TopDivide : TopDivide
+			}
+			RvSaveState["rvPanelSizes"] = JSON.stringify(po);
+		}
+		if($("input[name='MouseModeCheck']").attr("checked")){
+			RvSaveState["rvMouseMode"] = onebuttonmode;	
+		}
+		
+		var form = document.createElement("form");
+		form.setAttribute("method", "post");
+		form.setAttribute("action", "saveRvState.php");
+		form.setAttribute("target", "_blank");
+		var hiddenField = document.createElement("input");
+		hiddenField.setAttribute("type", "hidden");
+		hiddenField.setAttribute("name", "content");
+		hiddenField.setAttribute("value", JSON.stringify(RvSaveState,null,'\t'));
+		var hiddenField2 = document.createElement("input");
+		hiddenField2.setAttribute("type", "hidden");
+		hiddenField2.setAttribute("name", "datasetname");
+		hiddenField2.setAttribute("value", SaveStateFileName);
+		form.appendChild(hiddenField);
+		form.appendChild(hiddenField2);
+		document.body.appendChild(form);
+		form.submit();
+	}
+	checkSavePrivacyStatus();
 }
 function saveJPG() {
 	AgreeFunction = function () {
-		var a = canvasToSVG(),
-		k = document.createElement("form");
-		k.setAttribute("method", "post");
-		k.setAttribute("action", "saveJPG.php");
-		k.setAttribute("target", "_blank");
-		var e = document.createElement("input");
-		e.setAttribute("type", "hidden");
-		e.setAttribute("name", "content");
-		e.setAttribute("value", a.SVG);
-		var f = document.createElement("input");
-		f.setAttribute("type", "hidden");
-		f.setAttribute("name", "orientation");
-		f.setAttribute("value", a.Orientation);
-		k.appendChild(e);
-		k.appendChild(f);
-		document.body.appendChild(k);
-		k.submit()
-	};
-	checkSavePrivacyStatus()
+		var CS = canvasToSVG();
+		var form = document.createElement("form");
+		form.setAttribute("method", "post");
+		form.setAttribute("action", "saveJPG.php");
+		form.setAttribute("target", "_blank");
+		var hiddenField = document.createElement("input");
+		hiddenField.setAttribute("type", "hidden");
+		hiddenField.setAttribute("name", "content");
+		hiddenField.setAttribute("value", CS.SVG);
+		var hiddenField2 = document.createElement("input");
+		hiddenField2.setAttribute("type", "hidden");
+		hiddenField2.setAttribute("name", "orientation");
+		hiddenField2.setAttribute("value", CS.Orientation);
+		form.appendChild(hiddenField);
+		form.appendChild(hiddenField2);
+		document.body.appendChild(form);
+		form.submit();
+	}
+	checkSavePrivacyStatus();
 }
+
 function savePNG() {
 	AgreeFunction = function () {
-		var a = canvasToSVG(),
-		k = document.createElement("form");
-		k.setAttribute("method", "post");
-		k.setAttribute("action", "savePNG.php");
-		k.setAttribute("target", "_blank");
-		var e = document.createElement("input");
-		e.setAttribute("type", "hidden");
-		e.setAttribute("name", "content");
-		e.setAttribute("value", a.SVG);
-		var f = document.createElement("input");
-		f.setAttribute("type", "hidden");
-		f.setAttribute("name", "orientation");
-		f.setAttribute("value", a.Orientation);
-		k.appendChild(e);
-		k.appendChild(f);
-		document.body.appendChild(k);
-		k.submit()
-	};
-	checkSavePrivacyStatus()
+		var CS = canvasToSVG();
+		var form = document.createElement("form");
+		form.setAttribute("method", "post");
+		form.setAttribute("action", "savePNG.php");
+		form.setAttribute("target", "_blank");
+		var hiddenField = document.createElement("input");
+		hiddenField.setAttribute("type", "hidden");
+		hiddenField.setAttribute("name", "content");
+		hiddenField.setAttribute("value", CS.SVG);
+		var hiddenField2 = document.createElement("input");
+		hiddenField2.setAttribute("type", "hidden");
+		hiddenField2.setAttribute("name", "orientation");
+		hiddenField2.setAttribute("value", CS.Orientation);
+		form.appendChild(hiddenField);
+		form.appendChild(hiddenField2);
+		document.body.appendChild(form);
+		form.submit();
+	}
+	checkSavePrivacyStatus();
 }
+
 function saveSVG() {
 	AgreeFunction = function () {
-		var a = canvasToSVG(),
-		k = document.createElement("form");
-		k.setAttribute("method", "post");
-		k.setAttribute("action", "saveSVG.php");
-		k.setAttribute("target", "_blank");
-		var e = document.createElement("input");
-		e.setAttribute("type", "hidden");
-		e.setAttribute("name", "content");
-		e.setAttribute("value", a.SVG);
-		k.appendChild(e);
-		document.body.appendChild(k);
-		k.submit()
-	};
-	checkSavePrivacyStatus()
+		var CS = canvasToSVG();
+		var form = document.createElement("form");
+		form.setAttribute("method", "post");
+		form.setAttribute("action", "saveSVG.php");
+		form.setAttribute("target", "_blank");
+		var hiddenField = document.createElement("input");
+		hiddenField.setAttribute("type", "hidden");
+		hiddenField.setAttribute("name", "content");
+		hiddenField.setAttribute("value", CS.SVG);
+		form.appendChild(hiddenField);
+		document.body.appendChild(form);
+		form.submit();
+	}
+	checkSavePrivacyStatus();
 }
+
 function savePDF() {
 	AgreeFunction = function () {
-		var a = canvasToSVG(),
-		k = document.createElement("form");
-		k.setAttribute("method", "post");
-		k.setAttribute("action", "savePDF.php");
-		k.setAttribute("target", "_blank");
-		var e = document.createElement("input");
-		e.setAttribute("type", "hidden");
-		e.setAttribute("name", "content");
-		e.setAttribute("value", a.SVG);
-		k.appendChild(e);
-		document.body.appendChild(k);
-		k.submit()
-	};
-	checkSavePrivacyStatus()
+		var CS = canvasToSVG();
+		var form = document.createElement("form");
+		form.setAttribute("method", "post");
+		form.setAttribute("action", "savePDF.php");
+		form.setAttribute("target", "_blank");
+		var hiddenField = document.createElement("input");
+		hiddenField.setAttribute("type", "hidden");
+		hiddenField.setAttribute("name", "content");
+		hiddenField.setAttribute("value", CS.SVG);
+		form.appendChild(hiddenField);
+		document.body.appendChild(form);
+		form.submit();
+	}
+	checkSavePrivacyStatus();
 }
+
 function savePML() {
 	AgreeFunction = function () {
-		var a = "",
-		k = [],
-		a = a + "set bg_rgb, white\nset seq_view_label_color, hydrogen\nunset ignore_case\n",
-		e = [rvDataSets[0].SpeciesEntry.PDB_File_rRNA, rvDataSets[0].SpeciesEntry.PDB_File_rProtein];
-		e[1] === e[0] ? (k[0] = rvDataSets[0].SpeciesEntry.Species_Abr + "_" + rvDataSets[0].SpeciesEntry.Subunit + "_Full", k[1] = k[0], a += "load " + e[0] + ", " + k[0] + "\n", a += "as cartoon, " + k[0] + "\n", a += "disable " + k[0] + "\n") : (k[0] = rvDataSets[0].SpeciesEntry.Species_Abr + "_" + rvDataSets[0].SpeciesEntry.Subunit +
-				"_rRNA", k[1] = rvDataSets[0].SpeciesEntry.Species_Abr + "_" + rvDataSets[0].SpeciesEntry.Subunit + "_rProtein", a += "load " + e[0] + ", " + k[0] + "\n", a += "load " + e[1] + ", " + k[1] + "\n", a += "as cartoon, " + k[0] + "\n", a += "as cartoon, " + k[1] + "\n", a += "disable " + k[0] + "\n", a += "disable " + k[1] + "\n");
-		var a = a + "\n",
-		f = rvDataSets[0].getLayerByType(["residues", "circles", "selected"]);
-		$.each(f, function (d, b) {
-			a += layerToPML(k, b)
-		});
-		a += "\n";
-		a += proteinsToPML(k);
-		a += "\n";
-		a += ColorProteinsPyMOL(k);
-		a += "\n";
-		$.each(rvDataSets[0].Selections, function (d,
-				b) {
-			a += selectionToPML(k, b)
-		});
-		a += "\ndisable RV_Sele_*\n";
-		a += "\nzoom all\n";
-		f = document.createElement("form");
-		f.setAttribute("method", "post");
-		f.setAttribute("action", "savePML.php");
-		f.setAttribute("target", "_blank");
-		var d = document.createElement("input");
-		d.setAttribute("type", "hidden");
-		d.setAttribute("name", "content");
-		d.setAttribute("value", a);
-		f.appendChild(d);
-		PDB_filesU = $.grep(e, function (a, b) {
-				return $.inArray(a, e) === b
-			});
-		d = document.createElement("input");
-		d.setAttribute("type", "hidden");
-		d.setAttribute("name",
-			"pdbfiles");
-		d.setAttribute("value", PDB_filesU);
-		f.appendChild(d);
-		document.body.appendChild(f);
-		f.submit()
-	};
-	checkSavePrivacyStatus()
-}
-function layerToPML(a, k) {
-	var e = [],
-	f = "",
-	d,
-	h,
-	b,
-	c;
-	if (void 0 != rvDataSets[0].Residues[0]) {
-		for (d = 0; d < rvDataSets[0].SpeciesEntry.Molecule_Names.length; d++)
-			e[d] = rvDataSets[0].SpeciesEntry.Species_Abr + "_" + rvDataSets[0].SpeciesEntry.Molecule_Names[d] + "_" + k.LayerName, f += "create " + e[d] + ", " + a[0] + " and chain " + rvDataSets[0].SpeciesEntry.PDB_chains[d] + "\n", f = k.Linked ? f + ("enable " + e[d] + "\n") : f + ("disable " + e[d] + "\n");
-		f += "\n";
-		d = rvDataSets[0].Residues[0].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-		b = rvDataSets[0].Residues[0].ChainID;
-		(c = colorNameToHex(k.dataLayerColors[0])) && "#000000" !== c || (c = "#858585");
-		for (var g = 1; g < rvDataSets[0].Residues.length; g++) {
-			var l = rvDataSets[0].Residues[g];
-			h = rvDataSets[0].Residues[g - 1];
-			var p = k.dataLayerColors[g - 1];
-			p || (p = "#858585");
-			if ("" != l.ChainID)
-				if ("" == b)
-					b = l.ChainID, (c = colorNameToHex(k.dataLayerColors[g])) && "#000000" !== c || (c = "#858585"), d = l.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-				else if (null == l.ChainID)
-					b = l.ChainID, (c = colorNameToHex(k.dataLayerColors[g])) && "#000000" !== c || (c = "#858585"), d =
-						l.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-				else if (compare_color = k.dataLayerColors[g] ? colorNameToHex(k.dataLayerColors[g]) : "#858585", compare_color != colorNameToHex(p) || b != l.ChainID || g == rvDataSets[0].Residues.length - 1)
-					h = h.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""), f = d === h ? -1 == colorNameToHex(p).indexOf("#") ? f + ("color 0x" + c + ", " + e[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(b)] + " and resi " + d + "\n") : f + ("color " + c.replace("#", "0x") + ", " + e[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(b)] +
-							" and resi " + d + "\n") : -1 == colorNameToHex(p).indexOf("#") ? f + ("color 0x" + c + ", " + e[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(b)] + " and resi " + d + "-" + h + "\n") : f + ("color " + c.replace("#", "0x") + ", " + e[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(b)] + " and resi " + d + "-" + h + "\n"), d = l.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""), "" != l.ChainID && (b = l.ChainID), (c = colorNameToHex(k.dataLayerColors[g])) && "#000000" !== c || (c = "#858585")
+		var script = "";
+		var PDB_Obj_Names = [];
+		
+		//Default option
+		script += "set bg_rgb, white\nset seq_view_label_color, hydrogen\nunset ignore_case\n";
+		//PDB Files
+		var PDB_files = [rvDataSets[0].SpeciesEntry.PDB_File_rRNA, rvDataSets[0].SpeciesEntry.PDB_File_rProtein];
+		if (PDB_files[1] === PDB_files[0]) {
+			PDB_Obj_Names[0] = rvDataSets[0].SpeciesEntry.Species_Abr + "_" + rvDataSets[0].SpeciesEntry.Subunit + "_Full";
+			PDB_Obj_Names[1] = PDB_Obj_Names[0];
+			script += "load " + PDB_files[0] + ", " + PDB_Obj_Names[0] + "\n";
+			script += "as cartoon, " + PDB_Obj_Names[0] + "\n";
+			script += "disable " + PDB_Obj_Names[0] + "\n";
+		} else {
+			PDB_Obj_Names[0] = rvDataSets[0].SpeciesEntry.Species_Abr + "_" + rvDataSets[0].SpeciesEntry.Subunit + "_rRNA";
+			PDB_Obj_Names[1] = rvDataSets[0].SpeciesEntry.Species_Abr + "_" + rvDataSets[0].SpeciesEntry.Subunit + "_rProtein"
+			script += "load " + PDB_files[0] + ", " + PDB_Obj_Names[0] + "\n";
+			script += "load " + PDB_files[1] + ", " + PDB_Obj_Names[1] + "\n";
+			script += "as cartoon, " + PDB_Obj_Names[0] + "\n";
+			script += "as cartoon, " + PDB_Obj_Names[1] + "\n";
+			script += "disable " + PDB_Obj_Names[0] + "\n";
+			script += "disable " + PDB_Obj_Names[1] + "\n";
 		}
-		f = -1 == colorNameToHex(p).indexOf("#") ? f + ("color 0x" + c + ", " + e[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(b)] +
-				" and resi " + d + "-" + l.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + "\n") : f + ("color " + c.replace("#", "0x") + ", " + e[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(b)] + " and resi " + d + "-" + l.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + "\n");
-		return f + "\n"
+		script += "\n";
+		// Layers to PyMOL
+		var dsLayers = rvDataSets[0].getLayerByType(["residues","circles","selected"]);
+		$.each(dsLayers, function (key, value) {
+			script += layerToPML(PDB_Obj_Names,value);
+		});
+		script += "\n";
+		
+		//Proteins to PyMOL
+		script += proteinsToPML(PDB_Obj_Names);
+		script += "\n";
+		
+		//Proteins to PyMOL (Custom)
+		script += ColorProteinsPyMOL(PDB_Obj_Names);
+		script += "\n";
+		
+		//Selection to PyMOL
+		$.each(rvDataSets[0].Selections, function (key, value) {
+			script += selectionToPML(PDB_Obj_Names,value);
+		});
+		script += "\ndisable RV_Sele_*\n";
+		
+		//Default zoom
+		script += "\nzoom all\n";
+		
+		//Form Submit;
+		var form = document.createElement("form");
+		form.setAttribute("method", "post");
+		form.setAttribute("action", "savePML.php");
+		form.setAttribute("target", "_blank");
+		var hiddenField = document.createElement("input");
+		hiddenField.setAttribute("type", "hidden");
+		hiddenField.setAttribute("name", "content");
+		hiddenField.setAttribute("value", script);
+		form.appendChild(hiddenField);
+		
+		PDB_filesU = $.grep(PDB_files, function (v, k) {
+			return $.inArray(v, PDB_files) === k;
+		});
+		var hiddenField2 = document.createElement("input");
+		hiddenField2.setAttribute("type", "hidden");
+		hiddenField2.setAttribute("name", "pdbfiles");
+		hiddenField2.setAttribute("value", PDB_filesU);
+		form.appendChild(hiddenField2);
+		
+		document.body.appendChild(form);
+		form.submit();
 	}
+	checkSavePrivacyStatus();
 }
-function proteinsToPML(a) {
-	var k = "",
-	e;
-	for (e = 0; e < rvDataSets[0].SpeciesEntry.SubunitProtChains[0].length; e++)
-		k += "create " + rvDataSets[0].SpeciesEntry.Species_Abr + "_rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][e].replace(/\(/g, "_").replace(/\)/g, "") + ", " + a[1] + " and chain " + rvDataSets[0].SpeciesEntry.SubunitProtChains[1][e].replace(/\(/g, "_").replace(/\)/g, "") + "\n";
-	var k = k + "\ndisable *rp*\ncolor wheat, *rp*\n",
-	f = $("#ProtList").multiselect("getChecked").map(function () {
-			return this.value
-		}).get();
-	for (jjj =
-			0; jjj < f.length; jjj++)
-		a = rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(f[jjj]), e = $.grep($("#ProtList").multiselect("getChecked"), function (a) {
-				return a.value == f[jjj]
-			}), 0 <= a && (e = rgb2hex($(e).next().css("color")), e = -1 == e.indexOf("#") ? "0x" + e : e.replace("#", "0x"), k += "color " + e + ", " + rvDataSets[0].SpeciesEntry.Species_Abr + "_rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][a].replace(/\(/g, "_").replace(/\)/g, "") + "\n", k += "enable " + rvDataSets[0].SpeciesEntry.Species_Abr + "_rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][a].replace(/\(/g,
-				"_").replace(/\)/g, "") + "\n");
-	return k
-}
-function selectionToPML(a, k) {
-	var e,
-	f = "RV_Sele_" + k.Name,
-	d,
-	h,
-	b,
-	c = !1;
-	if (void 0 != rvDataSets[0].Residues[0]) {
-		e = "" + ("create " + f + ", resi 0\n");
-		var g = k.Residues.sort(function (a, b) {
-				return Number(a.map_Index) - Number(b.map_Index)
-			});
-		d = g[0].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-		b = g[0].ChainID;
-		for (var l = 1; l < g.length; l++) {
-			var p = g[l];
-			h = g[l - 1];
-			if ("" != p.ChainID)
-				if ("" == b)
-					b = p.ChainID, d = p.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-				else if (null == p.ChainID)
-					b = p.ChainID, d = p.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g,
-							"");
-				else if (1 < p.map_Index - h.map_Index || b != p.ChainID || l == g.length - 1)
-					l == g.length - 1 && b == p.ChainID && 1 == p.map_Index - h.map_Index ? (h = p.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""), c = !0) : h = h.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""), e = d === h ? e + ("create " + f + ", " + f + " or (" + a[0] + " and chain " + b + " and resi " + d + ")\n") : e + ("create " + f + ", " + f + " or (" + a[0] + " and chain " + b + " and resi " + d + "-" + h + ")\n"), d = p.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""), "" != p.ChainID && (b = p.ChainID)
+
+function layerToPML(PDB_Obj_Names,targetLayer) {
+	var PyMOL_obj = [];
+	var script = "";
+	var r0,r1,curr_chain,curr_color;
+	if (rvDataSets[0].Residues[0] == undefined){return};
+	
+	for (var j = 0; j < rvDataSets[0].SpeciesEntry.Molecule_Names.length; j++) {
+		PyMOL_obj[j] = rvDataSets[0].SpeciesEntry.Species_Abr + "_" + rvDataSets[0].SpeciesEntry.Molecule_Names[j] + "_" + targetLayer.LayerName;
+		script += "create " + PyMOL_obj[j] + ", " + PDB_Obj_Names[0] + " and chain " + rvDataSets[0].SpeciesEntry.PDB_chains[j] + "\n";
+		if (targetLayer.Linked){
+			script += "enable " + PyMOL_obj[j] + "\n";
+		} else {
+			script += "disable " + PyMOL_obj[j] + "\n";
 		}
-		c || (e += "create " +
-			f + ", " + f + " or (" + a[0] + " and chain " + b + " and resi " + d + ")\n");
-		return e += "color " + k.Color.replace("#", "0x") + ", " + f + "\n\n"
 	}
-}
-function canvasToSVG() {
-	var a,
-	k,
-	e = $('input[name="savelayers"][value=all]').attr("checked");
-	if (0 <= rvDataSets[0].SpeciesEntry.Orientation.indexOf("portrait")) {
-		var f = "612 792",
-		d = 'width="612px" height="792px" ';
-		k = "portrait"
-	} else
-		f = "792 612", d = 'width="792px" height="612px" ', k = "landscape";
-	output = '<?xml version=\'1.0\' encoding=\'UTF-8\'?>\n<svg version="1.1" baseProfile="basic" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" ' + d + 'viewBox="0 0 ' + f + '" xml:space="preserve">\n';
-	$.ajax({
-		url : "images/" + rvDataSets[0].Name + "_ExtraLabels.svg",
-		dataType : "text",
-		cache : !1,
-		async : !1
-	}).done(function (a) {
-		output += a
-	});
-	$.each(rvDataSets[0].Layers, function (d, b) {
-		if (e || b.Visible)
-			switch (b.Type) {
-			case "lines":
-				output = output + '<g id="' + b.LayerName + '">\n';
-				if ("gray_lines" === b.ColorLayer)
-					for (var c = 0; c < rvDataSets[0].BasePairs.length; c++) {
-						var f = rvDataSets[0].BasePairs[c];
-						output = output + '<line fill="none" stroke="' + f.color_hex + '" stroke-opacity="' + f.opacity + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' +
-							parseFloat(rvDataSets[0].Residues[f.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[f.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[f.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[f.resIndex2].Y).toFixed(3) + '"/>\n'
-					}
-				else if ("manual_coloring" === b.ColorLayer)
-					for (c = 0; c < rvDataSets[0].BasePairs.length; c++)
-						f = rvDataSets[0].BasePairs[c], output = output + '<line fill="none" stroke="' + f.color_hex + '" stroke-opacity="' + f.opacity + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' +
-							parseFloat(rvDataSets[0].Residues[f.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[f.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[f.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[f.resIndex2].Y).toFixed(3) + '"/>\n';
-				else
-					switch ("Matched" == b.ColorLayer.ColorGradientMode ? a = "resIndex1" : "Opposite" == b.ColorLayer.ColorGradientMode ? a = "resIndex2" : alert("how did we get here? 34"), b.ColorLayer.Type) {
-					case "residues":
-						for (c = 0; c < rvDataSets[0].BasePairs.length; c++)
-							f =
-								rvDataSets[0].BasePairs[c], output = output + '<line fill="none" stroke="' + rvDataSets[0].Residues[f[a]].color + '" stroke-opacity="' + f.opacity + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[f.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[f.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[f.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[f.resIndex2].Y).toFixed(3) + '"/>\n';
-						break;
-					case "circles":
-						for (c =
-								0; c < rvDataSets[0].BasePairs.length; c++)
-							f = rvDataSets[0].BasePairs[c], output = output + '<line fill="none" stroke="' + b.ColorLayer.dataLayerColors[f[a]] + '" stroke-opacity="' + f.opacity + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[f.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[f.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[f.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[f.resIndex2].Y).toFixed(3) +
-								'"/>\n';
-						break;
-					case "selected":
-						for (c = 0; c < rvDataSets[0].BasePairs.length; c++)
-							if (f = rvDataSets[0].BasePairs[c], b.ColorLayer.Data[f.resIndex1] || b.ColorLayer.Data[f.resIndex2])
-								output = output + '<line fill="none" stroke="' + f.color_hex + '" stroke-opacity="' + f.opacity + '" stroke-width="0.5" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[f.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[f.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[f.resIndex2].X).toFixed(3) +
-									'" y2="' + parseFloat(rvDataSets[0].Residues[f.resIndex2].Y).toFixed(3) + '"/>\n';
-						break;
-					default:
-						alert("this shouldn't be happening right now 54.")
-					}
-				output += "</g>\n";
-				break;
-			case "labels":
-				output = output + '<g id="' + b.LayerName + '_Lines">\n';
-				for (c = 0; c < rvDataSets[0].rvLineLabels.length; c++)
-					f = rvDataSets[0].rvLineLabels[c], output = output + '<line fill="none" stroke="#211E1F" stroke-width="0.25" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(f.X1).toFixed(3) + '" y1="' + parseFloat(f.Y1).toFixed(3) + '" x2="' +
-						parseFloat(f.X2).toFixed(3) + '" y2="' + parseFloat(f.Y2).toFixed(3) + '"/>\n';
-				output += "</g>\n";
-				output = output + '<g id="' + b.LayerName + '_Text">\n';
-				for (c = 0; c < rvDataSets[0].rvTextLabels.length; c++)
-					f = rvDataSets[0].rvTextLabels[c], output = output + '<text transform="matrix(1 0 0 1 ' + parseFloat(f.X).toFixed(3) + " " + parseFloat(f.Y).toFixed(3) + ')" fill="' + f.Fill + '" font-family="Myriad Pro" font-size="' + f.FontSize + '">' + f.LabelText + "</text>\n";
-				output += "</g>\n";
-				break;
-			case "residues":
-				output = output + '<g id="' + b.LayerName + '">\n';
-				for (var c =  - .439 * parseFloat(rvDataSets[0].SpeciesEntry.Font_Size_SVG) + .4346, f = .2944 * parseFloat(rvDataSets[0].SpeciesEntry.Font_Size_SVG) - .0033, k = 0; k < rvDataSets[0].Residues.length; k++) {
-					var p = rvDataSets[0].Residues[k];
-					output = output + '<text id="' + p.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" transform="matrix(1 0 0 1 ' + (parseFloat(p.X) + c).toFixed(3) + " " + (parseFloat(p.Y) + f).toFixed(3) + ')" fill="' + p.color + '" font-family="Myriad Pro" font-size="' + rvDataSets[0].SpeciesEntry.Font_Size_SVG + '">' + p.resName +
-						"</text>\n"
+	script += "\n";
+	
+	r0 = rvDataSets[0].Residues[0].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+	curr_chain = rvDataSets[0].Residues[0].ChainID;
+	curr_color = colorNameToHex(targetLayer.dataLayerColors[0]);
+	if (!curr_color || curr_color === '#000000') {
+		curr_color = '#858585';
+	}
+	for (var i = 1; i < rvDataSets[0].Residues.length; i++) {
+		var residue = rvDataSets[0].Residues[i];
+		var residueLast = rvDataSets[0].Residues[i - 1];
+		var residueLastColor = targetLayer.dataLayerColors[i - 1];
+		if (!residueLastColor){
+			residueLastColor = '#858585';
+		}
+		if (residue.ChainID != "") {
+			if (curr_chain == "") {
+				curr_chain = residue.ChainID;
+				curr_color = colorNameToHex(targetLayer.dataLayerColors[i]);
+				if (!curr_color || curr_color === '#000000') {
+					curr_color = '#858585';
 				}
-				output += "</g>\n";
-				break;
-			case "circles":
-				output = output + '<g id="' + b.LayerName + '">\n';
-				for (var v = rvDataSets[0].SpeciesEntry.Circle_Radius * b.ScaleFactor, k = 0; k < rvDataSets[0].Residues.length; k++)
-					(p = rvDataSets[0].Residues[k]) && b.dataLayerColors[k] && (output = b.Filled ? output + '<circle id="' + p.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + b.dataLayerColors[k] + '" stroke="' + b.dataLayerColors[k] + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(p.X).toFixed(3) + '" cy="' + parseFloat(p.Y).toFixed(3) +
-							'" r="' + v + '"/>\n' : output + '<circle id="' + p.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="none" stroke="' + b.dataLayerColors[k] + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(p.X).toFixed(3) + '" cy="' + parseFloat(p.Y).toFixed(3) + '" r="' + v + '"/>\n');
-				output += "</g>\n";
-				break;
-			case "selected":
-				output = output + '<g id="' + b.LayerName + '">\n';
-				var v = rvDataSets[0].SpeciesEntry.Circle_Radius * b.ScaleFactor,
-				q = [];
-				$(".checkBoxDIV-S").find(".visibilityCheckImg[value=visible]").parent().parent().each(function (a) {
-					q.push($(this).attr("name"))
-				});
-				$.each(q, function (a, b) {
-					var c = rvDataSets[0].getSelection(b);
-					output = output + '<g id="' + c.Name + '">\n';
-					$.each(c.Residues, function (a, b) {
-						output = output + '<circle id="' + b.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="none" stroke="' + c.Color + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(b.X).toFixed(3) + '" cy="' + parseFloat(b.Y).toFixed(3) + '" r="' + v + '"/>\n'
-					});
-					output += "</g>\n"
-				});
-				output += "</g>\n"
+				r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+			} else if (residue.ChainID == null) {
+				curr_chain = residue.ChainID;
+				curr_color = colorNameToHex(targetLayer.dataLayerColors[i]);
+				if (!curr_color || curr_color === '#000000') {
+					curr_color = '#858585';
+				}
+				r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+			} else {
+				if (!targetLayer.dataLayerColors[i]){
+					compare_color = '#858585';
+				} else {
+					compare_color = colorNameToHex(targetLayer.dataLayerColors[i]);
+				}
+				if (((compare_color != colorNameToHex(residueLastColor)) || (curr_chain != residue.ChainID)) || (i == (rvDataSets[0].Residues.length - 1))) {
+					r1 = residueLast.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""); ;
+					
+					if (r0 === r1){
+						if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
+							script += "color 0x" + curr_color + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "\n";
+						} else {
+							script += "color " + curr_color.replace("#", "0x") + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "\n";
+						}
+					} else {
+						if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
+							script += "color 0x" + curr_color + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + r1 + "\n";
+						} else {
+							script += "color " + curr_color.replace("#", "0x") + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + r1 + "\n";
+						}
+					}
+											
+					r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+					if (residue.ChainID != "") {
+						curr_chain = residue.ChainID;
+					}
+					curr_color = colorNameToHex(targetLayer.dataLayerColors[i]);
+					if (!curr_color || curr_color === '#000000') {
+						curr_color = '#858585';
+					}
+				}
 			}
-	});
-	output += watermark(!0);
-	output += "</svg>";
-	return {
-		SVG : output,
-		Orientation : k
-	}
-}
-function computeSeqTable() {
-	var a = "",
-	k = "",
-	a = a + "WholeSet,WholeSet\n",
-	a = a + "resNum,resName\n";
-	$.each(rvDataSets[0].Residues, function (e, d) {
-		a += rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(d.ChainID)] + ":" + d.resNum.replace(/[^:]*:/g, "") + "," + d.resName + "\n"
-	});
-	var e = $.csv.toArrays(a);
-	$.each(rvDataSets[0].Selections, function (a, d) {
-		0 < d.Residues.length && (e[0].push(d.Name, d.Name), e[1].push("resNum", "resName"), $.each(d.Residues, function (a, b) {
-				e[2 + a].push(rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(b.ChainID)] +
-					":" + b.resNum.replace(/[^:]*:/g, ""), b.resName)
-			}))
-	});
-	$.each(e, function (a, d) {
-		k += d.toString() + "\n"
-	});
-	return k
-}
-function saveSeqTable() {
-	AgreeFunction = function () {
-		var a = computeSeqTable(),
-		k = document.createElement("form");
-		k.setAttribute("method", "post");
-		k.setAttribute("action", "saveSeqTable.php");
-		k.setAttribute("target", "_blank");
-		var e = document.createElement("input");
-		e.setAttribute("type", "hidden");
-		e.setAttribute("name", "content");
-		e.setAttribute("value", "\ufeff" + a);
-		k.appendChild(e);
-		document.body.appendChild(k);
-		k.submit()
-	};
-	checkSavePrivacyStatus()
-}
-function computeSeqDataTable() {
-	var a = "",
-	k = "",
-	a = a + "WholeSet,WholeSet\n",
-	a = a + "resNum,resName\n";
-	$.each(rvDataSets[0].Residues, function (e, d) {
-		a += rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(d.ChainID)] + ":" + d.resNum.replace(/[^:]*:/g, "") + "," + d.resName + "\n"
-	});
-	var e = $.csv.toArrays(a);
-	$.each(rvDataSets[0].Layers, function (a, d) {
-		0 < d.Data.length && "lines" != d.Type && (e[0].push(d.LayerName), e[1].push('"' + d.DataLabel.replace(/,/g, "\\comma\\") + '"'), $.each(d.Data, function (a,
-					b) {
-				e[2 + a].push(b)
-			}))
-	});
-	$.each(e, function (a, d) {
-		k += d.toString() + "\n"
-	});
-	return k.replace(/,/g, "\t").replace(/\\comma\\/g, ",")
-}
-function computeInteractionDataTable() {
-	var a = "",
-	a = a + "Residue_i,ResidueName_i,Residue_j,ResidueName_j,Int_Type\n";
-	$.each(rvDataSets[0].BasePairs, function (k, e) {
-		var f = e.resIndex1,
-		d = e.resIndex2,
-		h = 0 <= rvDataSets[0].Residues[f].resNum.indexOf(":") ? rvDataSets[0].Residues[f].resNum : rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[f].ChainID)] + ":" + rvDataSets[0].Residues[f].resNum,
-		b = 0 <= rvDataSets[0].Residues[d].resNum.indexOf(":") ? rvDataSets[0].Residues[d].resNum :
-			rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[d].ChainID)] + ":" + rvDataSets[0].Residues[d].resNum;
-		a += h + "," + rvDataSets[0].Residues[f].resName + "," + b + "," + rvDataSets[0].Residues[d].resName + "," + e.bp_type + "\n"
-	});
-	return a.replace(/,/g, "\t")
-}
-function saveInteractionDataTable() {
-	AgreeFunction = function () {
-		var a = computeInteractionDataTable(),
-		k = document.createElement("form");
-		k.setAttribute("method", "post");
-		k.setAttribute("action", "saveInteractionDataTable.php");
-		k.setAttribute("target", "_blank");
-		var e = document.createElement("input");
-		e.setAttribute("type", "hidden");
-		e.setAttribute("name", "content");
-		e.setAttribute("value", "\ufeff" + a);
-		k.appendChild(e);
-		document.body.appendChild(k);
-		k.submit()
-	};
-	checkSavePrivacyStatus()
-}
-function saveSeqDataTable() {
-	AgreeFunction = function () {
-		var a = computeSeqDataTable(),
-		k = document.createElement("form");
-		k.setAttribute("method", "post");
-		k.setAttribute("action", "saveSeqDataTable.php");
-		k.setAttribute("target", "_blank");
-		var e = document.createElement("input");
-		e.setAttribute("type", "hidden");
-		e.setAttribute("name", "content");
-		e.setAttribute("value", "\ufeff" + a);
-		k.appendChild(e);
-		document.body.appendChild(k);
-		k.submit()
-	};
-	checkSavePrivacyStatus()
-}
-function saveFasta() {
-	AgreeFunction = function () {
-		var a = computeFasta(),
-		k = document.createElement("form");
-		k.setAttribute("method", "post");
-		k.setAttribute("action", "saveFasta.php");
-		k.setAttribute("target", "_blank");
-		var e = document.createElement("input");
-		e.setAttribute("type", "hidden");
-		e.setAttribute("name", "content");
-		e.setAttribute("value", a);
-		k.appendChild(e);
-		document.body.appendChild(k);
-		k.submit()
-	};
-	checkSavePrivacyStatus()
-}
-function computeFasta() {
-	var a = "",
-	a = a + (">" + rvDataSets[0].Name + "\n");
-	$.each(rvDataSets[0].Residues, function (k, e) {
-		a += e.resName
-	});
-	a += "\n\n";
-	$.each(rvDataSets[0].Selections, function (k, e) {
-		0 < e.Residues.length && (a += ">" + e.Name + "\n", $.each(e.Residues, function (e, d) {
-				a += d.resName
-			}), a += "\n\n")
-	});
-	return a
-}
-function updateModel() {
-	if (!$('input[name="jp"][value=off]').is(":checked")) {
-		var a,
-		k = rvDataSets[0].getSelection($("input:radio[name=selectedRadioS]").filter(":checked").parent().parent().attr("name"));
-		if (0 < k.Residues.length) {
-			for (var e = "set hideNotSelected true;select (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (", f = 0; f < k.Residues.length; f++)
-				null != k.Residues[f].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") && (e != "set hideNotSelected true;select (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA +
-					".1 and (" && (e += " or "), a = k.Residues[f].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "").match(/[A-z]/g), r1 = null != a ? k.Residues[f].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "").replace(a, "^" + a) : k.Residues[f].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""), e += r1 + ":" + k.Residues[f].ChainID);
-			Jmol.script(myJmol, e + ")); center selected;")
-		} else
-			refreshModel()
-	}
-}
-function refreshModel() {
-	if (!$('input[name="jp"][value=off]').is(":checked")) {
-		for (var a = "set hideNotSelected true;select (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (", k = 0; k < rvDataSets[0].SpeciesEntry.PDB_chains.length; k++)
-			a += ":" + rvDataSets[0].SpeciesEntry.PDB_chains[k], k < rvDataSets[0].SpeciesEntry.PDB_chains.length - 1 && (a += " or ");
-		Jmol.script(myJmol, a + ")); center selected;")
-	}
-}
-function resetColorState() {
-	$('input[name="jp"][value=off]').is(":checked") || (clearColor(!1), Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script), Jmol.script(myJmol, "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1"), updateModel())
-}
-function populateDomainHelixMenu() {
-	$("#selectByDomainHelix").find("option").remove().end();
-	for (var a = [], k = [], e = [], f = 0; f < rvDataSets[0].Residues.length; f++)
-		a[f] = rvDataSets[0].Residues[f].Domain_AN, k[f] = rvDataSets[0].Residues[f].Domain_RN, e[a[f]] || (e[a[f]] = []), 0 <= rvDataSets[0].Residues[f].resNum.indexOf(":") ? e[a[f]].push(rvDataSets[0].Residues[f].resNum) : e[a[f]].push(rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[f].ChainID)] + ":" + rvDataSets[0].Residues[f].resNum);
-	var f = $.grep(a, function (b, d) {
-			return $.inArray(b, a) === d
-		}),
-	d = $.grep(k, function (a, b) {
-			return $.inArray(a, k) === b
-		});
-	$("#selectByDomainHelix").append('<optgroup label="Domains" id="domainsList" />');
-	$.each(f, function (a, b) {
-		d[a] && 0 <= d[a].indexOf("S") ? $("#domainsList").append(new Option(d[a], e[b])) : $("#domainsList").append(new Option("Domain " + d[a], e[b]))
-	});
-	for (var h = [], b = [], f = 0; f < rvDataSets[0].Residues.length; f++)
-		h[f] = rvDataSets[0].Residues[f].Helix_Num, b[h[f]] || (b[h[f]] = []), 0 <= rvDataSets[0].Residues[f].resNum.indexOf(":") ?
-		b[h[f]].push(rvDataSets[0].Residues[f].resNum) : b[h[f]].push(rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[f].ChainID)] + ":" + rvDataSets[0].Residues[f].resNum);
-	f = $.grep(h, function (a, b) {
-			return $.inArray(a, h) === b
-		});
-	$("#selectByDomainHelix").append('<optgroup label="Helices" id="helciesList" />');
-	$.each(f, function (a, d) {
-		$("#helciesList").append(new Option("Helix " + d, b[d]))
-	});
-	$("#selectByDomainHelix").multiselect("refresh")
-}
-function watermark(a) {
-	if (rvDataSets[0].SpeciesEntry.MapType && "None" != rvDataSets[0].SpeciesEntry.MapType) {
-		var k = new Date,
-		e,
-		f = ("portrait" == rvDataSets[0].SpeciesEntry.Orientation ? 779 : 612) - 20,
-		d = "A " + rvDataSets[0].SpeciesEntry.MapType + " secondary structure, generated by RiboVision.";
-		e = k.toLocaleString().indexOf("G");
-		var h = rvDataSets[0].getLayerByType("labels")[0];
-		h.CanvasContext.textAlign = "left";
-		h.CanvasContext.font = '10pt "Myriad Pro", Calibri, Arial';
-		h.CanvasContext.fillStyle = "#FF5500";
-		h.CanvasContext.fillText(d,
-			10, f);
-		d = '<g id="WaterMark">\n<text id="WaterMark" transform="matrix(1 0 0 1 ' + (8.738).toFixed(3) + " " + (parseFloat(f) + 1.145).toFixed(3) + ')" fill="#f6a828" font-family="Myriad Pro" font-size="10">' + d + "</text>\n";
-		a && (h.CanvasContext.fillText("Saved on " + k.toLocaleString().slice(0, e - 1), 85, f + 15), d = d + '<text id="Date" transform="matrix(1 0 0 1 ' + (83.738).toFixed(3) + " " + (parseFloat(f) + 15 + 1.145).toFixed(3) + ')" fill="#f6a828" font-family="Myriad Pro" font-size="8">Saved on ' + k.toLocaleString().slice(0, e - 1) +
-				"</text>\n");
-		return d + "</g>\n"
-	}
-}
-function canvas_arrow(a, k, e, f) {
-	var d = Math.atan2(f - k, e - a);
-	rvDataSets[0].Layers[0].CanvasContext.moveTo(a, k);
-	rvDataSets[0].Layers[0].CanvasContext.lineTo(e, f);
-	rvDataSets[0].Layers[0].CanvasContext.lineTo(e - 10 * Math.cos(d - Math.PI / 6), f - 10 * Math.sin(d - Math.PI / 6));
-	rvDataSets[0].Layers[0].CanvasContext.moveTo(e, f);
-	rvDataSets[0].Layers[0].CanvasContext.lineTo(e - 10 * Math.cos(d + Math.PI / 6), f - 10 * Math.sin(d + Math.PI / 6))
-}
-function welcomeScreen() {
-	var a = parseFloat($("#canvasDiv").css("width")) / 733,
-	k = new Image;
-	k.onload = function () {
-		canvas2DSupported && (rvDataSets[0].Layers[0].clearCanvas(), rvDataSets[0].Layers[0].CanvasContext.drawImage(k, rvViews[0].x - 80, rvViews[0].y - 30, 733 * a, 550 * a))
-	};
-	k.src = "images/RiboVisionLogoHigh.png"
-}
-function d2h(a) {
-	return a.toString(16)
-}
-function h2d(a) {
-	return parseInt(a, 16)
-}
-function rgb2hex(a) {
-	function k(a) {
-		return ("0" + parseInt(a).toString(16)).slice(-2)
-	}
-	a = a.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+))?\)$/);
-	return "#" + k(a[1]) + k(a[2]) + k(a[3])
-}
-function changeLineOpacity(a) {
-	document.getElementById("lineOpacity").innerHTML = "Line Opacity: " + Math.round(100 * a) + "%";
-	$.each(rvDataSets[0].BasePairs, function (k, e) {
-		e.opacity = a
-	});
-	rvDataSets[0].drawBasePairs("lines")
-}
-function drawNavLine() {
-	if (!$('input[name="nl"][value=off]').is(":checked")) {
-		$("#NavLineDiv").empty();
-		var a = void 0,
-		k = void 0,
-		e = rvDataSets[0].getSelectedLayer();
-		if (!1 !== e) {
-			var f = e.DataLabel,
-			d = 1 * $("#NavLineDiv").innerWidth(),
-			h = .95 * $("#NavLineDiv").innerHeight(),
-			b = d3.max($.map(e.Data, function (a) {
-						return parseFloat(a)
-					})),
-			c = d3.min($.map(e.Data, function (a) {
-						return parseFloat(a)
-					}));
-			void 0 !== b && (a = b);
-			void 0 !== c && (k = c);
-			"selected" == e.Type && (a = 1, k = 0);
-			"Protein Contacts" === e.DataLabel && (a = 1, k = 0);
-			var g = d3.scale.linear().domain([0,
-						rvDataSets[0].Residues.length]).range([60, d - 120]),
-			l = d3.scale.linear().domain([k, a]).range([h - 40, 40]),
-			a = d3.select("#NavLineDiv").append("svg:svg").attr("width", d).attr("height", h),
-			k = a.append("svg:g").attr("width", d).attr("height", h),
-			b = d3.svg.line().defined(function (a) {
-					return void 0 !== a && "" !== a ? !isNaN(a) : !1
-				}).x(function (a, b) {
-					return g(b)
-				}).y(function (a) {
-					return l(a)
-				}),
-			p = [];
-			"selected" === e.Type ? ($.each(e.Data, function (a, b) {
-					p[a] = !1 === b ? 0 : 1
-				}), f = "Selected Residues") : "empty data" === e.DataLabel || "None" === e.DataLabel ?
-			$.each(e.Data, function (a, b) {
-				p[a] = 0
-			}) : "Protein Contacts" === e.DataLabel ? ($.each(e.Data, function (a, b) {
-					p[a] = " " === b ? 0 : 1
-				}), f = "Protein Contacts") : p = e.Data;
-			k.append("svg:path").attr("d", b(p)).style("stroke", e.Color);
-			e = d3.svg.axis().scale(g).orient("bottom").ticks(20);
-			a.append("g").attr("class", "axis").attr("transform", "translate(0," + (h - 40) + ")").call(e);
-			e = d3.svg.axis().scale(l).orient("left").ticks(5);
-			a.append("g").attr("class", "axis").attr("transform", "translate(60,0)").call(e);
-			k.append("text").attr("x",
-				(d - 120 - 60) / 2 + 60).attr("y", h - 10).attr("text-anchor", "middle").text("Nucleotide Number");
-			k.append("text").attr("x", 15).attr("y", h / 2).attr("text-anchor", "middle").attr("transform", "rotate(-90 ,15," + h / 2 + ")").text(f)
 		}
 	}
-}
-function addPopUpWindowResidue(a) {
-	function k() {
-		var a = d3.select("#ResidueTipContent").append("svg").attr("width", d).attr("height", h),
-		g = (d - e) / (y + b / 100 * (y - 1)),
-		k = d3.scale.linear().domain([0, y - 1]).range([e, d - g]),
-		l = d3.scale.linear().domain([0, 100]).range([h - 2 * f, 0]);
-		a.selectAll("rect").data(w).enter().append("rect").attr("x", function (a, b) {
-			return k(b)
-		}).attr("y", function (a) {
-			return f + l(a)
-		}).attr("width", g).attr("height", function (a) {
-			return h - 2 * f - l(a)
-		}).attr("fill", function (a, b) {
-			return c[b]
-		});
-		a.selectAll("text.number").data(w).enter().append("text").text(function (a) {
-			return a
-		}).attr("text-anchor",
-			"middle").attr("x", function (a, b) {
-			return k(b) + g / 2
-		}).attr("y", function (a) {
-			return f + l(a) - 5
-		}).attr("font-family", "sans-serif").attr("font-size", "10px").attr("fill", "black").attr("class", "number").text(String);
-		var p = d3.svg.axis().scale(k).orient("bottom").ticks(5),
-		q = d3.svg.axis().scale(l).orient("left").ticks(5);
-		p.tickFormat(function (a, b) {
-			return x[b]
-		});
-		a.append("g").attr("class", "axis").attr("transform", "translate(" + g / 2 + "," + (h - f) + ")").call(p);
-		a.append("g").attr("class", "axis").attr("transform", "translate(" +
-			.8 * e + "," + f + ")").call(q)
+	if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
+		script += "color 0x" + curr_color + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + "\n";
+	} else {
+		script += "color " + curr_color.replace("#", "0x") + ", " + PyMOL_obj[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + "\n";
 	}
-	var e = 40,
-	f = 20,
-	d = 192,
-	h = 128,
-	b = 20,
-	c = ["green", "blue", "black", "red", "orange"];
-	d3.select("#ResidueTipContent svg").remove();
-	var g = 0 <= rvDataSets[0].Residues[a].resNum.indexOf(":") ? rvDataSets[0].Residues[a].resNum : rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[a].ChainID)] + ":" + rvDataSets[0].Residues[a].resNum,
-	l = $.grep(rvDataSets[0].ConservationTable, function (a) {
-			return a.resNum == g
-		})[0];
-	if (l) {
-		var p = (100 * l.A).toFixed(1),
-		v = (100 * l.C).toFixed(1),
-		q = (100 * l.G).toFixed(1),
-		r = (100 * l.U).toFixed(1),
-		s = (1 * l.Shannon).toFixed(2),
-		u = (100 * l.Gaps).toFixed(1),
-		w = [p, v, q, r, u],
-		x = ["A", "C", "G", "U", "gaps"],
-		y = w.length,
-		l = l.Consensus;
-		k()
-	} else
-		s = l = "n/a";
-	p = rvDataSets[0].getSelectedLayer();
-	v = rvDataSets[0].Residues[a].resNum.split(":");
-	2 > v.length ? $("#resName").html(rvDataSets[0].Residues[a].resName + rvDataSets[0].Residues[a].resNum + " (" + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[a].ChainID)] +
-		" rRNA)") : $("#resName").html(rvDataSets[0].Residues[a].resName + v[1] + " (" + v[0] + " rRNA)");
-	$("#conSeqLetter").html("Consensus: " + l);
-	$("#activeData").html("Selected Data: " + p.Data[a]);
-	$("#conPercentage").html("Shannon Entropy: " + s)
+	script += "\n";
+	
+	return script;
 }
-function addPopUpWindowLine(a) {
-	var k = rvDataSets[0].BasePairs[a].resIndex1,
-	e = rvDataSets[0].BasePairs[a].resIndex2,
-	f = rvDataSets[0].getLayerByType("lines");
-	0 <= rvDataSets[0].Residues[k].resNum.indexOf(":") || rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[k].ChainID);
-	0 <= rvDataSets[0].Residues[e].resNum.indexOf(":") || rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[e].ChainID);
-	$("#BasePairType").html("Interaction Type: " + f[0].DataLabel);
-	rvDataSets[0].BasePairs[a].ProteinName ?
-	$("#BasePairSubType").html("Interaction Subtype: " + rvDataSets[0].BasePairs[a].ProteinName + " " + rvDataSets[0].BasePairs[a].bp_type) : $("#BasePairSubType").html("Interaction Subtype: " + rvDataSets[0].BasePairs[a].bp_type);
-	addPopUpWindowResidue(k);
-	$("#iResidueTipA").html($("#residuetip").find("#ResidueTipContent").html());
-	addPopUpWindowResidue(e);
-	$("#iResidueTipB").html($("#residuetip").find("#ResidueTipContent").html())
-}
-function UpdateLocalStorage(a) {
-	var k = {};
-	if (localStorageAvailable) {
-		$("input[name='LayersCheck']").attr("checked") && (k.rvLayers = JSON.stringify(rvDataSets[0].Layers));
-		$("input[name='SelectionsCheck']").attr("checked") && (k.rvSelections = JSON.stringify(rvDataSets[0].Selections));
-		$("input[name='LastSpeciesCheck']").attr("checked") && (k.rvLastSpecies = rvDataSets[0].Name);
-		$("input[name='PanelSizesCheck']").attr("checked") && (k.rvPanelSizes = JSON.stringify({
-					PanelDivide : PanelDivide,
-					TopDivide : TopDivide
-				}));
-		$("input[name='MouseModeCheck']").attr("checked") &&
-		(k.rvMouseMode = onebuttonmode);
-		$("input[name='CanvasOrientationCheck']").attr("checked") && (k.rvView = JSON.stringify(rvViews[0]));
-		$("input[name='JmolOrientationCheck']").attr("checked") && $('input[name="jp"][value=on]').is(":checked") && (k.rvJmolOrientation = Jmol.evaluate(myJmol, "script('show orientation')"));
-		localStorage.setItem(a, JSON.stringify(k));
-		if (k = localStorage.RV_Session_List) {
-			var e = JSON.parse(k);
-			e.push(a);
-			a = $.grep(e, function (a, d) {
-					return $.inArray(a, e) === d
-				});
-			localStorage.setItem("RV_Session_List",
-				JSON.stringify(a))
-		} else
-			localStorage.setItem("RV_Session_List", JSON.stringify([a]));
-		$("#SessionList").text(localStorage.RV_Session_List.replace(/[\[\]"]/g, "").replace(/,/g, ", "))
+
+function proteinsToPML(PDB_Obj_Names){
+	var script = "";
+	var curr_color;
+	// Protein Section
+	for (var jj = 0; jj < rvDataSets[0].SpeciesEntry.SubunitProtChains[0].length; jj++) {
+		script += "create " + rvDataSets[0].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][jj].replace(/\(/g, "_").replace(/\)/g, "") + ", " + PDB_Obj_Names[1] + " and chain " + rvDataSets[0].SpeciesEntry.SubunitProtChains[1][jj].replace(/\(/g, "_").replace(/\)/g, "") + "\n";
 	}
+	script += "\ndisable *rp*\n";
+	script += "color wheat, *rp*\n";
+	
+	var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
+			return this.value;
+		}).get();
+	
+	for (jjj = 0; jjj < array_of_checked_values.length; jjj++) {
+		var h = rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(array_of_checked_values[jjj]);
+		var ProtName = $.grep($("#ProtList").multiselect("getChecked"), function(e) {
+			return e.value == array_of_checked_values[jjj];
+		});
+		if (h >= 0) {
+			curr_color = rgb2hex($(ProtName).next().css("color"));
+			if(curr_color.indexOf("#") == -1) {
+				curr_color = "0x" + curr_color;
+			} else {
+				curr_color = curr_color.replace("#", "0x");
+			}
+			script += "color " + curr_color + ", " + rvDataSets[0].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][h].replace(/\(/g,"_").replace(/\)/g,"") + "\n";
+			script += "enable " + rvDataSets[0].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][h].replace(/\(/g,"_").replace(/\)/g,"") + "\n";
+		}
+	}
+	return script;
 }
-function RestoreLocalStorage(a) {
-	var k = $.Deferred(),
-	e = $.Deferred();
-	localStorageAvailable && (rvSaveState = JSON.parse(localStorage[a]), $("input[name='LastSpeciesCheck']").attr("checked") ? loadSpecies(rvSaveState.rvLastSpecies, k, e) : k.resolve());
-	k.done(function () {
-		processRvState(rvSaveState)
+
+function selectionToPML(PDB_Obj_Names,targetSelection){
+	var script = "";
+	var PyMOL_obj = "RV_Sele_" + targetSelection.Name;
+	var r0,r1,curr_chain;
+	var DoneNow=false;
+	if (rvDataSets[0].Residues[0] == undefined){return};
+	
+	script += "create " + PyMOL_obj + ", " + "resi 0\n";
+	
+	var SeleResidues=targetSelection.Residues.sort(function (a, b) {;
+		return (Number(a.map_Index) - Number(b.map_Index));
 	});
-	e.done(function () {
-		$.each(rvDataSets[0].Selections, function (a, e) {
-			updateSelectionDiv(e.Name)
+		
+	r0 = SeleResidues[0].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+	curr_chain = SeleResidues[0].ChainID;
+	for (var i = 1; i < SeleResidues.length; i++) {
+		var residue = SeleResidues[i];
+		var residueLast = SeleResidues[i - 1];
+		
+		if (residue.ChainID != "") {
+			if (curr_chain == "") {
+				curr_chain = residue.ChainID;
+				r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+			} else if (residue.ChainID == null) {
+				curr_chain = residue.ChainID;
+				r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+			} else {
+				if ((residue.map_Index - residueLast.map_Index > 1 ) || (curr_chain != residue.ChainID) || (i == (SeleResidues.length - 1))) {
+					if ((i == (SeleResidues.length - 1)) && (curr_chain == residue.ChainID) && (residue.map_Index - residueLast.map_Index == 1 )){
+						r1 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+						DoneNow=true;
+					} else {
+						r1 = residueLast.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+					}
+					
+					if (r0 === r1){
+						script += "create " + PyMOL_obj + ", " + PyMOL_obj + " or (" + PDB_Obj_Names[0] + " and chain " + curr_chain + " and resi " + r0 + ")\n";
+					} else {
+						script += "create " + PyMOL_obj + ", " + PyMOL_obj + " or (" + PDB_Obj_Names[0] + " and chain " + curr_chain + " and resi " + r0 + "-" + r1 + ")\n";
+					}
+											
+					r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+					if (residue.ChainID != "") {
+						curr_chain = residue.ChainID;
+					}
+				}
+			}
+		}
+	}
+	if(!DoneNow){
+		script += "create " + PyMOL_obj + ", " + PyMOL_obj + " or (" + PDB_Obj_Names[0] + " and chain " + curr_chain + " and resi " + r0 + ")\n";
+	}
+	script += "color " + targetSelection.Color.replace("#", "0x") + ", " + PyMOL_obj + "\n\n";
+	return script;
+}
+
+function canvasToSVG() {
+	var SupportesLayerTypes = ["lines", "labels", "residues", "circles", "selected"];
+	var ChosenSide;
+	var Orientation;
+	var AllMode = $('input[name="savelayers"][value=all]').attr("checked");
+	
+	if (rvDataSets[0].SpeciesEntry.Orientation.indexOf("portrait") >= 0) {
+		var mapsize = "612 792";
+		var mapsize2 = 'width="612px" height="792px" ';
+		Orientation = "portrait";
+	} else {
+		var mapsize = "792 612";
+		var mapsize2 = 'width="792px" height="612px" ';
+		Orientation = "landscape";
+	}
+	output = "<?xml version='1.0' encoding='UTF-8'?>\n" +
+		'<svg version="1.1" baseProfile="basic" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" ' +
+		mapsize2 + 'viewBox="0 0 ' + mapsize + '" xml:space="preserve">\n';
+	//if(rvDataSets[0].Name === 'SC_LSU_3D'){;
+	var elReq = $.ajax({
+		url: "images/" + rvDataSets[0].Name + "_ExtraLabels.svg",
+		dataType: "text", 
+		cache: false,
+		async: false
+	 });
+	 
+	elReq.done(function (data) {
+		output = output + data;
+	});
+		
+	//}
+	$.each(rvDataSets[0].Layers, function (index, value) {
+		if (AllMode || value.Visible){
+			switch (value.Type) {
+				case "lines":
+					output = output + '<g id="' + value.LayerName + '">\n';
+					if (value.ColorLayer === "gray_lines"){
+						for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
+							var BasePair = rvDataSets[0].BasePairs[j];
+							output = output + '<line fill="none" stroke="' + BasePair.color_hex + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
+						}
+					} else if (value.ColorLayer === "manual_coloring") {
+						for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
+							var BasePair = rvDataSets[0].BasePairs[j];
+							output = output + '<line fill="none" stroke="' + BasePair.color_hex + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
+						}
+					} else {
+						if (value.ColorLayer.ColorGradientMode == "Matched") {
+							//var grd_order = [0, 1];
+							ChosenSide="resIndex1";
+						} else if (value.ColorLayer.ColorGradientMode == "Opposite") {
+							//var grd_order = [1, 0];
+							ChosenSide="resIndex2";
+						} else {
+							alert("how did we get here? 34");
+						}
+						switch  (value.ColorLayer.Type){
+							case "residues" : 
+								//var grd = value.ColorLayer.CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
+								/*
+								if (rvDataSets[0].Residues[j].color && rvDataSets[0].Residues[k].color){
+									color1 = colorNameToHex(rvDataSets[0].Residues[j].color);
+									color2 = colorNameToHex(rvDataSets[0].Residues[k].color);
+									
+									grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + ",.5)");
+									grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + ",.5)");
+								}
+								value.ColorLayer.addLinearGradient(grd);
+								rvDataSets[0].BasePairs[i]["color"] = grd;
+								*/
+								for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
+									var BasePair = rvDataSets[0].BasePairs[j];
+									output = output + '<line fill="none" stroke="' + rvDataSets[0].Residues[BasePair[ChosenSide]].color + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
+								}
+								break;
+							case "circles" : 
+								for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
+									var BasePair = rvDataSets[0].BasePairs[j];
+									output = output + '<line fill="none" stroke="' + value.ColorLayer.dataLayerColors[BasePair[ChosenSide]] + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
+								}
+								break;
+							case "selected" : 
+								for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
+									var BasePair = rvDataSets[0].BasePairs[j];
+									if (value.ColorLayer.Data[BasePair.resIndex1] || value.ColorLayer.Data[BasePair.resIndex2]) {
+										output = output + '<line fill="none" stroke="' + BasePair.color_hex + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
+									}		
+								}
+								break;
+							default :
+								alert("this shouldn't be happening right now 54.");
+							
+						}
+					}
+					output = output + '</g>\n';
+					break;
+				case "labels":
+					output = output + '<g id="' + value.LayerName + '_Lines">\n';
+					for (var iii = 0; iii < rvDataSets[0].rvLineLabels.length; iii++) {
+						var LabelLine = rvDataSets[0].rvLineLabels[iii];
+						output = output + '<line fill="none" stroke="#211E1F" stroke-width="0.25" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(LabelLine.X1).toFixed(3) + '" y1="' + parseFloat(LabelLine.Y1).toFixed(3) + '" x2="' + parseFloat(LabelLine.X2).toFixed(3) + '" y2="' + parseFloat(LabelLine.Y2).toFixed(3) + '"/>\n';
+					}
+					output = output + '</g>\n';
+					
+					output = output + '<g id="' + value.LayerName + '_Text">\n';
+					for (var ii = 0; ii < rvDataSets[0].rvTextLabels.length; ii++) {
+						var LabelData = rvDataSets[0].rvTextLabels[ii];
+						output = output + '<text transform="matrix(1 0 0 1 ' + parseFloat(LabelData.X).toFixed(3) + ' ' + parseFloat(LabelData.Y).toFixed(3) + ')" fill="' + LabelData.Fill + '" font-family="Myriad Pro" font-size="' + LabelData.FontSize + '">' + LabelData.LabelText + '</text>\n';
+					}
+					output = output + '</g>\n';
+					break;
+				case "residues":
+					output = output + '<g id="' + value.LayerName + '">\n';
+					var xcorr = -0.439 * parseFloat(rvDataSets[0].SpeciesEntry.Font_Size_SVG) + 0.4346; // magic font corrections.
+					var ycorr = 0.2944 * parseFloat(rvDataSets[0].SpeciesEntry.Font_Size_SVG) - 0.0033;
+					//console.log(xcorr,ycorr);
+					for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
+						var residue = rvDataSets[0].Residues[i];
+						output = output + '<text id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" transform="matrix(1 0 0 1 ' + (parseFloat(residue.X) + xcorr).toFixed(3) + ' ' + (parseFloat(residue.Y) + ycorr).toFixed(3) + ')" fill="' + residue.color + '" font-family="Myriad Pro" ' + 'font-weight="' + residue["font-weight"] + '" font-size="' + rvDataSets[0].SpeciesEntry.Font_Size_SVG + '">' + residue.resName + '</text>\n';
+					}
+					output = output + '</g>\n';
+					break;
+				case "circles":
+					output = output + '<g id="' + value.LayerName + '">\n';
+					var radius = rvDataSets[0].SpeciesEntry.Circle_Radius * value.ScaleFactor;
+					for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
+						var residue = rvDataSets[0].Residues[i];
+						if (residue && value.dataLayerColors[i]) {
+							if (value.Filled) {
+								output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + value.dataLayerColors[i] + '" stroke="' + value.dataLayerColors[i] + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(residue.X).toFixed(3) + '" cy="' + parseFloat(residue.Y).toFixed(3) + '" r="' + radius + '"/>\n';
+							} else {
+								output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + 'none' + '" stroke="' + value.dataLayerColors[i] + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(residue.X).toFixed(3) + '" cy="' + parseFloat(residue.Y).toFixed(3) + '" r="' + radius + '"/>\n';
+							}
+						}
+					}
+					output = output + '</g>\n';
+					break;
+				case "selected":
+					output = output + '<g id="' + value.LayerName + '">\n';
+					var radius = rvDataSets[0].SpeciesEntry.Circle_Radius * value.ScaleFactor;
+					
+					var SelectionList =[];
+					$('.checkBoxDIV-S').find(".visibilityCheckImg[value=visible]").parent().parent().each(function (index){SelectionList.push($(this).attr("name"))});
+
+					$.each(SelectionList, function (index,SelectionName) {
+						var targetSelection = rvDataSets[0].getSelection(SelectionName);
+						output = output + '<g id="' + targetSelection.Name + '">\n';
+						$.each(targetSelection.Residues, function (index,residue){
+							output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + 'none' + '" stroke="' + targetSelection.Color + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(residue.X).toFixed(3) + '" cy="' + parseFloat(residue.Y).toFixed(3) + '" r="' + radius + '"/>\n';
+						});
+						output = output + '</g>\n';
+					});
+					output = output + '</g>\n';
+					break;
+					
+				default:
+					break;
+			}
+		}
+	});
+	
+	output = output + watermark(true);
+	output = output + '</svg>';
+	return { 'SVG': output, "Orientation" : Orientation };
+}
+function computeSeqTable(){
+	var WholeSet="";
+	var OutputString="";
+	var WholeSet= WholeSet + "WholeSet,WholeSet\n";
+	var WholeSet= WholeSet + "resNum,resName\n";
+	$.each(rvDataSets[0].Residues, function (index,residue) {
+		WholeSet+= rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(residue.ChainID)] + ":" + residue.resNum.replace(/[^:]*:/g, "") + "," + residue.resName + "\n";
+	});
+	var OutputObject = $.csv.toArrays(WholeSet);
+	$.each(rvDataSets[0].Selections, function (index, selection) {
+		if (selection.Residues.length >0){
+			OutputObject[0].push(selection.Name,selection.Name);
+			OutputObject[1].push("resNum","resName");
+			$.each(selection.Residues, function (index, residue) {
+				OutputObject[2+index].push(rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(residue.ChainID)] + ":" + residue.resNum.replace(/[^:]*:/g, ""),residue.resName);
+			});
+		}
+	});
+	
+	$.each(OutputObject, function (index, outputline){
+		OutputString+=outputline.toString() + "\n";
+	});
+	
+	
+	return OutputString;
+}
+function saveSeqTable(){
+	AgreeFunction = function () {
+		var ST = computeSeqTable();
+		var form = document.createElement("form");
+		form.setAttribute("method", "post");
+		form.setAttribute("action", "saveSeqTable.php");
+		form.setAttribute("target", "_blank");
+		var hiddenField = document.createElement("input");
+		hiddenField.setAttribute("type", "hidden");
+		hiddenField.setAttribute("name", "content");
+		hiddenField.setAttribute("value", "\ufeff" + ST);
+		form.appendChild(hiddenField);
+		document.body.appendChild(form);
+		form.submit();
+	}
+	checkSavePrivacyStatus();
+}
+function computeSeqDataTable(){
+	var WholeSet="";
+	var OutputString="";
+	var WholeSet= WholeSet + "WholeSet,WholeSet\n";
+	var WholeSet= WholeSet + "resNum,resName\n";
+	$.each(rvDataSets[0].Residues, function (index,residue) {
+		WholeSet+= rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(residue.ChainID)] + ":" + residue.resNum.replace(/[^:]*:/g, "") + "," + residue.resName + "\n";
+	});
+	var OutputObject = $.csv.toArrays(WholeSet);
+	$.each(rvDataSets[0].Layers, function (index, targetLayer) {
+		if (targetLayer.Data.length >0){
+			if (targetLayer.Type == "lines"){
+				/*$.each(targetLayer.Data, function (index, data) {
+					OutputObject[2+index].push(data);
+				});*/
+			} else {
+				OutputObject[0].push(targetLayer.LayerName);
+				OutputObject[1].push('"' + targetLayer.DataLabel.replace(/,/g,'\\comma\\') + '"'); // Come back and solve this comma,tab nonsense.
+				$.each(targetLayer.Data, function (index, data) {
+					OutputObject[2+index].push(data);
+				});
+			}
+		}
+	});
+	
+	$.each(OutputObject, function (index, outputline){
+		OutputString+=outputline.toString() + "\n";
+	});
+	
+	return OutputString.replace(/,/g,'\t').replace(/\\comma\\/g,',');
+}
+function computeInteractionDataTable(){
+	var WholeSet="";
+	var WholeSet= WholeSet + "Residue_i,ResidueName_i,Residue_j,ResidueName_j,Int_Type\n";
+	//var WholeSet= WholeSet + "resNum,resName,resNum,resName,bp_type\n";
+	
+	$.each(rvDataSets[0].BasePairs, function (index,basepair) {
+		var j = basepair.resIndex1;
+		var k = basepair.resIndex2;
+		
+		if (rvDataSets[0].Residues[j].resNum.indexOf(":") >= 0 ){
+			var ResName1 = rvDataSets[0].Residues[j].resNum;
+		} else {
+			var ResName1 = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[j].ChainID)] +
+			":" + rvDataSets[0].Residues[j].resNum;
+		}
+		if (rvDataSets[0].Residues[k].resNum.indexOf(":") >= 0 ){
+			var ResName2 = rvDataSets[0].Residues[k].resNum;
+		} else {
+			var ResName2 = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[k].ChainID)] +
+			":" + rvDataSets[0].Residues[k].resNum;
+		}
+	
+		WholeSet+= ResName1 + "," + rvDataSets[0].Residues[j].resName + "," + ResName2 + "," + rvDataSets[0].Residues[k].resName + "," + basepair.bp_type + "\n";
+	});
+	
+	return WholeSet.replace(/,/g,'\t');
+}
+function saveInteractionDataTable(){
+	AgreeFunction = function () {
+		var SDT = computeInteractionDataTable();
+		var form = document.createElement("form");
+		form.setAttribute("method", "post");
+		form.setAttribute("action", "saveInteractionDataTable.php");
+		form.setAttribute("target", "_blank");
+		var hiddenField = document.createElement("input");
+		hiddenField.setAttribute("type", "hidden");
+		hiddenField.setAttribute("name", "content");
+		hiddenField.setAttribute("value", "\ufeff" + SDT);
+		form.appendChild(hiddenField);
+		document.body.appendChild(form);
+		form.submit();
+	}
+	checkSavePrivacyStatus();
+}
+function saveSeqDataTable(){
+	AgreeFunction = function () {
+		var SDT = computeSeqDataTable();
+		var form = document.createElement("form");
+		form.setAttribute("method", "post");
+		form.setAttribute("action", "saveSeqDataTable.php");
+		form.setAttribute("target", "_blank");
+		var hiddenField = document.createElement("input");
+		hiddenField.setAttribute("type", "hidden");
+		hiddenField.setAttribute("name", "content");
+		hiddenField.setAttribute("value", "\ufeff" + SDT);
+		form.appendChild(hiddenField);
+		document.body.appendChild(form);
+		form.submit();
+	}
+	checkSavePrivacyStatus();
+}
+
+function saveFasta(){
+	AgreeFunction = function () {
+		var FA = computeFasta();
+		var form = document.createElement("form");
+		form.setAttribute("method", "post");
+		form.setAttribute("action", "saveFasta.php");
+		form.setAttribute("target", "_blank");
+		var hiddenField = document.createElement("input");
+		hiddenField.setAttribute("type", "hidden");
+		hiddenField.setAttribute("name", "content");
+		hiddenField.setAttribute("value", FA);
+		form.appendChild(hiddenField);
+		document.body.appendChild(form);
+		form.submit();
+	}
+	checkSavePrivacyStatus();
+}
+function computeFasta(){
+	var WholeSet="";
+	var OutputString="";
+	OutputString+=">" + rvDataSets[0].Name + "\n";
+	
+	$.each(rvDataSets[0].Residues, function (index,residue) {
+		OutputString+= residue.resName;
+	});
+	OutputString+="\n\n"
+	
+	$.each(rvDataSets[0].Selections, function (index, selection) {
+		if (selection.Residues.length >0){
+			OutputString+=">" + selection.Name + "\n";
+			$.each(selection.Residues, function (index, residue) {
+				OutputString+= residue.resName;
+			});
+			OutputString+="\n\n"
+		}
+	});
+	return OutputString;
+}
+///////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////// Jmol Functions ////////////////////////////////
+function updateModel() {
+	if($('input[name="jp"][value=off]').is(':checked')){
+		return;
+	}
+	var n;
+	
+	//Come back and support multiple selections?
+	var targetSelection = rvDataSets[0].getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
+	if (targetSelection.Residues.length > 0){
+		var script = "set hideNotSelected true;select (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (";
+		for (var i = 0; i < targetSelection.Residues.length; i++) {
+			if (targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") != null) {
+				if (script != "set hideNotSelected true;select (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (") {
+					script += " or ";
+				};
+				n = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "").match(/[A-z]/g);
+				if (n != null) {
+					r1 = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "").replace(n, "^" + n);
+				} else {
+					r1 = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+				}
+				script += r1 + ":" + targetSelection.Residues[i].ChainID;
+			}
+		}
+		script += ")); center selected;";
+		Jmol.script(myJmol, script);
+	} else {
+		refreshModel();
+	}
+}
+
+function refreshModel() {
+	if($('input[name="jp"][value=off]').is(':checked')){
+		return;
+	}
+	var script = "set hideNotSelected true;select (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (";
+	for (var ii = 0; ii < rvDataSets[0].SpeciesEntry.PDB_chains.length; ii++) {
+		script += ":" + rvDataSets[0].SpeciesEntry.PDB_chains[ii];
+		if (ii < (rvDataSets[0].SpeciesEntry.PDB_chains.length - 1)) {
+			script += " or ";
+		}
+	}
+	script += ")); center selected;";
+	Jmol.script(myJmol, script);
+}
+
+function resetColorState() {
+	if($('input[name="jp"][value=off]').is(':checked')){
+		return;
+	}
+	clearColor(false);
+	Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
+	var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
+	
+	Jmol.script(myJmol, jscript);
+	//commandSelect();
+	updateModel();
+}
+///////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////// Load Data Functions ///////////////////////////
+function populateDomainHelixMenu() {
+	$("#selectByDomainHelix").find('option').remove().end();
+	
+	// Do the Domains
+	var DomainList_AN = new Array;
+	var DomainList_RN = new Array;
+	var DomainSelections = new Array;
+	
+	for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
+		DomainList_AN[i] = rvDataSets[0].Residues[i].Domain_AN;
+		DomainList_RN[i] = rvDataSets[0].Residues[i].Domain_RN;
+		if (!DomainSelections[DomainList_AN[i]]) {
+			DomainSelections[DomainList_AN[i]] = new Array;
+		}
+		if (rvDataSets[0].Residues[i].resNum.indexOf(":") >= 0) {
+			DomainSelections[DomainList_AN[i]].push(rvDataSets[0].Residues[i].resNum);
+		} else {
+			DomainSelections[DomainList_AN[i]].push(rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[i].ChainID)] + ":" + rvDataSets[0].Residues[i].resNum);
+		}
+	}
+	
+	var DomainList_ANU = $.grep(DomainList_AN, function (v, k) {
+		return $.inArray(v, DomainList_AN) === k;
+	});
+	var DomainList_RNU = $.grep(DomainList_RN, function (v, k) {
+			return $.inArray(v, DomainList_RN) === k;
+		});
+	
+	$('#selectByDomainHelix').append('<optgroup label="Domains" id="domainsList" />');
+	$.each(DomainList_ANU, function (i, val) {
+		if (DomainList_RNU[i] && DomainList_RNU[i].indexOf("S") >= 0) {
+			$('#domainsList').append(new Option(DomainList_RNU[i], DomainSelections[val]));
+		} else {
+			$('#domainsList').append(new Option("Domain " + DomainList_RNU[i], DomainSelections[val]));
+		}
+		//console.log(DomainSelections[val]);
+	});
+	
+	// Do the Helices
+	var HelixList = new Array;
+	var HelixSelections = new Array;
+	
+	for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
+		HelixList[i] = rvDataSets[0].Residues[i].Helix_Num;
+		if (!HelixSelections[HelixList[i]]) {
+			HelixSelections[HelixList[i]] = new Array;
+		}
+		if (rvDataSets[0].Residues[i].resNum.indexOf(":") >= 0) {
+			HelixSelections[HelixList[i]].push(rvDataSets[0].Residues[i].resNum);
+		} else {
+			HelixSelections[HelixList[i]].push(rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[i].ChainID)] + ":" + rvDataSets[0].Residues[i].resNum);
+		}
+	}
+	
+	var HelixListU = $.grep(HelixList, function (v, k) {
+			return $.inArray(v, HelixList) === k;
+		});
+	
+	$('#selectByDomainHelix').append('<optgroup label="Helices" id="helciesList" />');
+	
+	$.each(HelixListU, function (i, val) {
+		$('#helciesList').append(new Option("Helix " + val, HelixSelections[val]));
+	});
+	
+	// Refresh Menu
+	$("#selectByDomainHelix").multiselect("refresh");
+	
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////// Canvas Functions ///////////////////////////
+function watermark(usetime) {
+	if (rvDataSets[0].SpeciesEntry.MapType && rvDataSets[0].SpeciesEntry.MapType != "None") {
+		var h = (rvDataSets[0].SpeciesEntry.Orientation == "portrait") ? 779 : 612;
+		var d = new Date();
+		var df;
+		
+		var x = 10;
+		var y = h - 20;
+		var Message = "A " + rvDataSets[0].SpeciesEntry.MapType + " secondary structure, generated by RiboVision.";
+		var df = d.toLocaleString().indexOf("G");
+		var LabelLayers = rvDataSets[0].getLayerByType("labels");
+		var targetLayer = LabelLayers[0];
+		targetLayer.CanvasContext.textAlign = 'left';
+		targetLayer.CanvasContext.font = '10pt "Myriad Pro", Calibri, Arial';
+		targetLayer.CanvasContext.fillStyle = "#FF5500";
+		targetLayer.CanvasContext.fillText(Message, x, y);
+		
+		var output = '<g id="WaterMark">\n';
+		output = output + '<text id="WaterMark" transform="matrix(1 0 0 1 ' + (parseFloat(x) - 1.262).toFixed(3) + ' ' + (parseFloat(y) + 1.145).toFixed(3) + ')" fill="#f6a828" font-family="Myriad Pro" font-size="10">' + Message + '</text>\n';
+		if (usetime) {
+			targetLayer.CanvasContext.fillText("Saved on " + d.toLocaleString().slice(0, df - 1), x + 75, y + 15);
+			output = output + '<text id="Date" transform="matrix(1 0 0 1 ' + (parseFloat(x) - 1.262 + 75).toFixed(3) + ' ' + (parseFloat(y) + 15 + 1.145).toFixed(3) + ')" fill="#f6a828" font-family="Myriad Pro" font-size="8">' + "Saved on " + d.toLocaleString().slice(0, df - 1) + '</text>\n';
+		}
+		output = output + '</g>\n';
+		return output;
+	}
+}
+
+function canvas_arrow(fromx, fromy, tox, toy) {
+	
+	//rvDataSets[0].Layers[rvDataSets[0].LastLayer].CanvasContext = ResidueLayer.getContext("2d");
+	
+	var headlen = 10; // length of head in pixels
+	var angle = Math.atan2(toy - fromy, tox - fromx);
+	rvDataSets[0].Layers[0].CanvasContext.moveTo(fromx, fromy);
+	rvDataSets[0].Layers[0].CanvasContext.lineTo(tox, toy);
+	rvDataSets[0].Layers[0].CanvasContext.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+	rvDataSets[0].Layers[0].CanvasContext.moveTo(tox, toy);
+	rvDataSets[0].Layers[0].CanvasContext.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+}
+
+function welcomeScreen() {
+	var scale_factor = parseFloat($("#canvasDiv").css('width')) / 733;
+	// New Welcome Screen
+	var img = new Image();
+	img.onload = function() {
+		if (canvas2DSupported) {
+			rvDataSets[0].Layers[0].clearCanvas();
+			rvDataSets[0].Layers[0].CanvasContext.drawImage(img, rvViews[0].x - 80, rvViews[0].y - 30,733 * scale_factor,550 * scale_factor);
+		}
+	}
+	img.src = "images/RiboVisionLogoHigh.png"; //
+
+	
+}
+///////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////// Math //////////////////////////////////
+function d2h(d) {
+	return d.toString(16);
+};
+function h2d(h) {
+	return parseInt(h, 16);
+};
+function rgb2hex(rgb) {
+    rgb = rgb.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+))?\)$/);
+    function hex(x) {
+        return ("0" + parseInt(x).toString(16)).slice(-2);
+    }
+    return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+}
+///////////////////////////////////////////////////////////////////////////////
+
+function changeLineOpacity(opacity){
+	document.getElementById('lineOpacity').innerHTML = "Line Opacity: " + Math.round(opacity * 100) + "%";
+	$.each(rvDataSets[0].BasePairs, function (ind, item) {
+		item.opacity = opacity;
+	});
+	rvDataSets[0].drawBasePairs("lines");
+}
+////////////////Nav Line ///////
+
+function drawNavLine(){
+		if($('input[name="nl"][value=off]').is(':checked')){
+			return;
+		}
+		$('#NavLineDiv').empty(); //clean div before draw new graph
+		var data = [];
+		var selectedData=[];
+		var selectedDataX=[];
+		var selectedDataY=[];
+		var maxdata = undefined; 
+		var mindata = undefined; 
+		
+		var targetLayer=rvDataSets[0].getSelectedLayer();
+		if (targetLayer===false){
+			return;
+		}
+		var linename = targetLayer.DataLabel;
+		var	w = 1.00 * $('#NavLineDiv').innerWidth();
+		var h = 0.95 * $('#NavLineDiv').innerHeight();
+		var	MarginXL = 60;
+		var MarginXR = 120;
+		var MarginYT = 40;
+		var MarginYB = 40;
+		
+		var maxdata2 = d3.max($.map(targetLayer.Data, function(d) { return parseFloat(d); }));
+		var mindata2 = d3.min($.map(targetLayer.Data, function(d) { return parseFloat(d); }));
+		
+		if (maxdata2 !== undefined){
+			maxdata = maxdata2;
+		} 
+		if (mindata2 !== undefined){
+			mindata = mindata2;
+		} 
+		if (targetLayer.Type == "selected"){
+			maxdata=1;
+			mindata=0;
+		}
+		if (targetLayer.DataLabel === "Protein Contacts"){
+			maxdata=1;
+			mindata=0;
+		}
+		var	xScale = d3.scale.linear().domain([0, rvDataSets[0].Residues.length]).range([0 + MarginXL, w - MarginXR]);
+		var	yScale = d3.scale.linear().domain([mindata, maxdata]).range([h - MarginYB,0 + MarginYT ]);
+		var NavLine = d3.select("#NavLineDiv")
+			.append("svg:svg")
+			.attr("width", w)
+			.attr("height", h)
+
+		var g = NavLine.append("svg:g")
+			.attr("width", w)
+			.attr("height", h);
+			//.attr("transform", "translate(0, " + 200+")");
+			
+			
+		var line = d3.svg.line()
+			.defined(function(d) { 
+				return (((d!==undefined) && d!=="") ? !isNaN(d) : false) 
+			})			
+			.x(function(d,i) { return xScale(i); })
+			.y(function(d) { return yScale(d); });	
+		
+		var GraphData = [];
+		if (targetLayer.Type === "selected"){
+			$.each(targetLayer.Data, function (index,value){
+				if (value === false){
+					GraphData[index]=0;
+				} else {
+					GraphData[index]=1;
+				}
+			});
+			linename = "Selected Residues";
+		} else if ((targetLayer.DataLabel === "empty data") || (targetLayer.DataLabel === "None")){
+			$.each(targetLayer.Data, function (index,value){
+				GraphData[index]=0;
+			});
+		} else if (targetLayer.DataLabel === "Protein Contacts"){
+			$.each(targetLayer.Data, function (index,value){
+					if (value === " "){
+						GraphData[index]=0;
+					} else {
+						GraphData[index]=1;
+					}
+				});
+			linename = "Protein Contacts";
+		} else {
+			GraphData = targetLayer.Data;
+		}
+		
+		g.append("svg:path").attr("d", line(GraphData)).style("stroke", targetLayer.Color);
+		//Axes
+		var xAxis = d3.svg.axis()
+			  .scale(xScale)
+			  .orient("bottom")
+			  .ticks(20);  //Set rough # of ticks
+			  
+		NavLine.append("g")
+			.attr("class", "axis")  //Assign "axis" class
+			.attr("transform", "translate(0," + (h - MarginYB) + ")")
+			.call(xAxis);
+			
+		var yAxis = d3.svg.axis()
+			  .scale(yScale)
+			  .orient("left")
+			  .ticks(5);
+		
+		NavLine.append("g")
+			.attr("class", "axis")
+			.attr("transform", "translate(" + MarginXL + ",0)")
+			.call(yAxis);
+		
+		//XLabel			
+		g.append("text")
+		  .attr("x", (w - MarginXR-MarginXL)/2 + MarginXL)
+		  .attr("y", h-MarginYB/4)
+		  .attr("text-anchor", "middle")
+		  .text("Nucleotide Number");	
+		  
+		//add legend to the navline 
+		 g.append("text")
+		  .attr("x", MarginXL/4)
+		  .attr("y", h/2)
+		  .attr("text-anchor", "middle")
+		  .attr("transform", "rotate(-90 " + "," + MarginXL/4 + "," + h/2 + ")")
+		  .text(linename);	
+		
+}
+
+function addPopUpWindowResidue(ResIndex){
+	//Width and height
+	var Xoffset = 40;
+	var Yoffset = 20;
+	//var barHeight = 120;
+	//var barWidth = 200;
+		
+	//var w = barWidth + Xoffset;
+	//var h = barHeight + Yoffset;
+	
+	var w = 192;
+	var h = 128;
+	
+	//var barPadding = 10;
+	var barPaddingPer = 20;
+	//var Xoffset = 40;
+	//var padding = 30;
+	//var Xpadding = 30;
+	var barColors = ["green","blue","black","red","orange"];
+	
+	//Remove old SVG
+	d3.select("#ResidueTipContent svg").remove();
+	
+	if (rvDataSets[0].Residues[ResIndex].resNum.indexOf(":") >= 0 ){
+		var ResName = rvDataSets[0].Residues[ResIndex].resNum;
+	} else {
+		var ResName = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[ResIndex].ChainID)] +
+		":" + rvDataSets[0].Residues[ResIndex].resNum;
+	}
+	
+	var dobj = $.grep(rvDataSets[0].ConservationTable, function(e){ return e.resNum == ResName; })[0];
+	//var dobj = rvDataSets[0].ConservationTable[ResIndex];
+	if (dobj){
+		//round the number to two decimal places
+		var Anum = dobj.A*100;
+		var An = Anum.toFixed(1);
+		var Cnum = dobj.C*100;
+		var Cn = Cnum.toFixed(1);
+		var Gnum = dobj.G*100;
+		var Gn = Gnum.toFixed(1);
+		var Unum = dobj.U*100;
+		var Un = Unum.toFixed(1);
+		var Hnum = dobj.Shannon * 1;
+		var Hn = Hnum.toFixed(2);	 
+		var Gpnum = dobj.Gaps*100;
+		var Gpn = Gpnum.toFixed(1);	 
+		var dataset = [An,Cn,Gn,Un,Gpn];
+		var sLabels = ["A","C","G","U","gaps"];
+		var lenDataSet = dataset.length;
+		var ConsensusSymbol = dobj.Consensus;
+		drawConGraph();
+	} else {
+		var ConsensusSymbol = "n/a";
+		var Hn = "n/a";
+	}
+		
+	var targetLayer=rvDataSets[0].getSelectedLayer();
+	var rn = rvDataSets[0].Residues[ResIndex].resNum.split(":");
+	if (rn.length < 2 ){
+		$('#resName').html(rvDataSets[0].Residues[ResIndex].resName + rvDataSets[0].Residues[ResIndex].resNum +
+			" (" + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[ResIndex].ChainID)] + " rRNA)");
+	} else {
+		$('#resName').html(rvDataSets[0].Residues[ResIndex].resName + rn[1] +
+			" (" + rn[0] + " rRNA)");
+	}
+	$('#conSeqLetter').html("Consensus: " + ConsensusSymbol);
+	$('#activeData').html("Selected Data: " + targetLayer.Data[ResIndex]);
+	$("#conPercentage").html("Shannon Entropy: " + Hn);
+	
+	function drawConGraph(){
+		
+		//Create SVG element
+		var svg = d3.select("#ResidueTipContent")
+			.append("svg")
+			.attr("width", w)
+			.attr("height", h);
+		
+		var barWidth = (w - Xoffset) / (lenDataSet + ( barPaddingPer/100 * (lenDataSet -1) ) );
+		//Scales
+		//var xScale = d3.scale.linear();				
+		
+		var xScale = d3.scale.linear()
+								 .domain([0, lenDataSet - 1])
+								 .range([Xoffset, w - barWidth]);
+								
+		var yScale = d3.scale.linear()
+							.domain([0, 100])
+							.range([h - 2*Yoffset,0]);
+			
+		svg.selectAll("rect")
+		   .data(dataset)
+		   .enter()
+		   .append("rect")
+		   .attr("x", function(d, i) {
+				return xScale(i);
+		  })
+		   .attr("y", function(d) {
+				return Yoffset + yScale(d);
+		   })
+		   .attr("width", barWidth)
+		   .attr("height", function(d) {
+				return h - 2*Yoffset - yScale(d);
+		   })
+		   .attr("fill", function(d, i) {
+			 return barColors[i];
+			});
+
+		svg.selectAll("text.number")
+		   .data(dataset)		 
+		   .enter()
+		   .append("text")
+		   .text(function(d) {
+				return d;
+		   })
+		   .attr("text-anchor", "middle")
+		   .attr("x", function(d, i) {
+				return xScale(i) + barWidth/2;
+		   })
+		   .attr("y", function(d) {
+				return Yoffset + yScale(d) - 5;
+		   })
+		   .attr("font-family", "sans-serif")
+		   .attr("font-size", "10px")
+		   .attr("fill", "black")
+		   .attr('class','number')
+		   .text(String);
+		   
+		   //Define X axis
+				
+			var xAxis = d3.svg.axis()
+							  .scale(xScale)
+							  .orient("bottom")
+							  .ticks(5);
+
+		   //Define Y axis
+			var yAxis = d3.svg.axis()
+					  .scale(yScale)
+					  .orient("left")
+					  .ticks(5);
+			xAxis.tickFormat(function(d,i){
+					return sLabels[i];
+			});
+			
+			//Create X axis
+			
+			svg.append("g")
+				.attr("class", "axis")
+				.attr("transform", "translate(" + barWidth/2 + "," + (h - Yoffset) + ")")
+				.call(xAxis);
+			//Create Y axis
+			svg.append("g")
+				.attr("class", "axis")
+				.attr("transform", "translate(" + 0.8* Xoffset + "," + Yoffset + ")")
+				.call(yAxis);	
+	}	
+}
+function addPopUpWindowLine(SeleLine){
+	
+	var j = rvDataSets[0].BasePairs[SeleLine].resIndex1;
+	var k = rvDataSets[0].BasePairs[SeleLine].resIndex2;
+	
+	var targetLayer = rvDataSets[0].getLayerByType("lines");
+	
+	if (rvDataSets[0].Residues[j].resNum.indexOf(":") >= 0 ){
+		var ResName1 = rvDataSets[0].Residues[j].resNum;
+	} else {
+		var ResName1 = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[j].ChainID)] +
+		":" + rvDataSets[0].Residues[j].resNum;
+	}
+	if (rvDataSets[0].Residues[k].resNum.indexOf(":") >= 0 ){
+		var ResName2 = rvDataSets[0].Residues[k].resNum;
+	} else {
+		var ResName2 = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[k].ChainID)] +
+		":" + rvDataSets[0].Residues[k].resNum;
+	}
+	$('#BasePairType').html("Interaction Type: " +  targetLayer[0].DataLabel);
+	if (rvDataSets[0].BasePairs[SeleLine].ProteinName){
+		$('#BasePairSubType').html("Interaction Subtype: " + rvDataSets[0].BasePairs[SeleLine].ProteinName + " " + rvDataSets[0].BasePairs[SeleLine].bp_type);
+	} else {
+		$('#BasePairSubType').html("Interaction Subtype: " + rvDataSets[0].BasePairs[SeleLine].bp_type);
+	}
+	
+	addPopUpWindowResidue(j);
+	$("#iResidueTipA").html($("#residuetip").find("#ResidueTipContent").html());
+	addPopUpWindowResidue(k);
+	$("#iResidueTipB").html($("#residuetip").find("#ResidueTipContent").html());
+}
+//////////End of navline functions////
+
+function UpdateLocalStorage(SaveStateFileName){
+	var rvSaveState = {};
+	if (localStorageAvailable){
+		if($("input[name='LayersCheck']").attr("checked")){
+			//localStorage.setItem("rvLayers",JSON.stringify(rvDataSets[0].Layers));
+			rvSaveState["rvLayers"] = JSON.stringify(rvDataSets[0].Layers);
+		}
+		if($("input[name='SelectionsCheck']").attr("checked")){
+			//localStorage.setItem("rvSelections",JSON.stringify(rvDataSets[0].Selections));
+			rvSaveState["rvSelections"] = JSON.stringify(rvDataSets[0].Selections);
+		}
+		if($("input[name='LastSpeciesCheck']").attr("checked")){
+			//localStorage.setItem("rvLastSpecies",rvDataSets[0].Name);
+			rvSaveState["rvLastSpecies"] = rvDataSets[0].Name;
+		}
+		if($("input[name='PanelSizesCheck']").attr("checked")){
+			var po = {
+				PanelDivide : PanelDivide,
+				TopDivide : TopDivide
+			}
+			//localStorage.setItem("rvPanelSizes",JSON.stringify(po));
+			rvSaveState["rvPanelSizes"] = JSON.stringify(po);
+		}
+		if($("input[name='MouseModeCheck']").attr("checked")){
+			//localStorage.setItem("rvMouseMode",onebuttonmode);	
+			rvSaveState["rvMouseMode"] = onebuttonmode;
+		}
+		if($("input[name='CanvasOrientationCheck']").attr("checked")){
+			//localStorage.setItem("rvView",JSON.stringify(rvViews[0]));
+			rvSaveState["rvView"] = JSON.stringify(rvViews[0]);			
+		}
+		if($("input[name='JmolOrientationCheck']").attr("checked")){
+			if($('input[name="jp"][value=on]').is(':checked')){
+				rvSaveState["rvJmolOrientation"] = Jmol.evaluate(myJmol,"script('show orientation')");	
+			}			
+		}
+		localStorage.setItem(SaveStateFileName,JSON.stringify(rvSaveState));
+		var RSL = localStorage["RV_Session_List"];
+		if(RSL){
+			var RSLa = JSON.parse(RSL);
+			RSLa.push(SaveStateFileName);
+			var RSLaU;
+			RSLaU = $.grep(RSLa, function (v, k) {
+				return $.inArray(v, RSLa) === k;
+			});
+			localStorage.setItem("RV_Session_List",JSON.stringify(RSLaU));
+		} else {
+			localStorage.setItem("RV_Session_List",JSON.stringify([SaveStateFileName]));
+		}
+		$("#SessionList").text(localStorage["RV_Session_List"].replace(/[\[\]"]/g,"").replace(/,/g,", "));
+	}
+}
+function RestoreLocalStorage(SaveStateFileName) { 
+	var DoneLoading = $.Deferred();
+	var DoneLoading2 = $.Deferred();
+	
+	if (localStorageAvailable){
+		rvSaveState = JSON.parse(localStorage[SaveStateFileName]);
+		if($("input[name='LastSpeciesCheck']").attr("checked")){
+			loadSpecies(rvSaveState.rvLastSpecies,DoneLoading,DoneLoading2);
+		} else {
+			DoneLoading.resolve();
+		}
+	}
+	DoneLoading.done(function() {
+		processRvState(rvSaveState);
+		//RestoreLocalStorage2();
+	});
+	DoneLoading2.done(function() {
+		$.each(rvDataSets[0].Selections, function (key, value){
+			updateSelectionDiv(value.Name);
 		});
 		rvDataSets[0].drawSelection("selected");
 		updateModel();
 		update3Dcolors();
-		if ($("input[name='JmolOrientationCheck']").attr("checked") &&
-			$('input[name="jp"][value=on]').is(":checked")) {
-			var a = rvSaveState.rvJmolOrientation.match(/reset[^\n]+/);
-			Jmol.script(myJmol, a[0])
+		if($("input[name='JmolOrientationCheck']").attr("checked")){
+			if($('input[name="jp"][value=on]').is(':checked')){
+				var a = rvSaveState.rvJmolOrientation.match(/reset[^\n]+/);
+				Jmol.script(myJmol, a[0]);
+			}
+			
 		}
-	})
+	});
 }
-function RestoreLocalStorage2(a) {
-	processRvState(a)
+function RestoreLocalStorage2(rvSaveState) {
+	processRvState(rvSaveState);
 }
-function rvSaveManager(a, k) {
-	var e = $("#SaveStateFileName").val();
-	switch (a) {
-	case "Save":
-		switch (k) {
-		case "LocalStorage":
-			UpdateLocalStorage(e);
+
+function rvSaveManager(rvAction,rvLocation) {
+	var SaveStateFileName = $("#SaveStateFileName").val();
+	
+	switch (rvAction) {
+		case "Save":
+			switch (rvLocation) {
+				case "LocalStorage":
+					//alert(SaveStateFileName);
+					UpdateLocalStorage(SaveStateFileName);
+					break;
+				case "File":
+					saveRvState(SaveStateFileName);
+					break;		
+				case "Server":
+					storeRvState(SaveStateFileName);
+					break;
+				default:
+					alert("shouldn't happen right now");
+			}
 			break;
-		case "File":
-			saveRvState(e);
+		case "Restore":
+			switch (rvLocation) {
+				case "LocalStorage":
+					//alert(SaveStateFileName);
+					RestoreLocalStorage(SaveStateFileName);
+					break;
+				case "File":
+					$("#dialog-restore-state").dialog("open");
+					break;		
+				case "Server":
+					retrieveRvState(SaveStateFileName);
+					break;
+				default:
+					alert("shouldn't happen right now");
+			}
 			break;
-		case "Server":
-			storeRvState(e);
-			break;
-		default:
-			alert("shouldn't happen right now")
+		default: 
+			alert("shouldn't happen right now");
 		}
-		break;
-	case "Restore":
-		switch (k) {
-		case "LocalStorage":
-			RestoreLocalStorage(e);
-			break;
-		case "File":
-			$("#dialog-restore-state").dialog("open");
-			break;
-		case "Server":
-			retrieveRvState(e);
-			break;
-		default:
-			alert("shouldn't happen right now")
-		}
-		break;
-	default:
-		alert("shouldn't happen right now")
-	}
 }
-function processRvState(a) {
-	if ($("input[name='LayersCheck']").attr("checked")) {
-		var k = JSON.parse(a.rvLayers);
-		rvDataSets[0].Layers = [];
-		$.each(k, function (a, e) {
-			rvDataSets[0].Layers[a] = rvDataSets[0].HighlightLayer.fromJSON(e)
+
+function processRvState(rvSaveState) {
+	if($("input[name='LayersCheck']").attr("checked")){
+		var data = JSON.parse(rvSaveState.rvLayers);
+		rvDataSets[0].Layers=[];
+		$.each(data, function (index, value) {
+			rvDataSets[0].Layers[index] = rvDataSets[0].HighlightLayer.fromJSON(value);
 		});
-		$.each(rvDataSets[0].Layers, function (a, e) {
-			e.updateZIndex(a)
+		
+		$.each(rvDataSets[0].Layers,function (index, value) {
+			value.updateZIndex(index);
 		});
-		var k = rvDataSets[0].getSelectedLayer(),
-		e = rvDataSets[0].getLinkedLayer();
-		resizeElements(!0);
+		// Restore Selected and Linked
+		var selectedLayer = rvDataSets[0].getSelectedLayer();
+		var linkedLayer = rvDataSets[0].getLinkedLayer();
+		resizeElements(true);
 		$(".oneLayerGroup").remove();
+		//remove minilayers
 		$(".miniLayerName").remove();
-		$.each(rvDataSets[0].Layers, function (a, e) {
-			LayerMenu(e, a)
+		// Put in Layers
+		$.each(rvDataSets[0].Layers, function (key, value){
+			LayerMenu(value, key);
 		});
 		RefreshLayerMenu();
-		$(".oneLayerGroup[name=" + k.LayerName + "]").find(".selectLayerRadioBtn").attr("checked", "checked");
-		rvDataSets[0].selectLayer(k.LayerName);
-		$(".oneLayerGroup[name=" + e.LayerName + "]").find(".mappingRadioBtn").attr("checked", "checked");
-		rvDataSets[0].linkLayer(e.LayerName);
-		e = rvDataSets[0].getLinkedLayer();
+		
+		$(".oneLayerGroup" + "[name=" + selectedLayer.LayerName + "]").find(".selectLayerRadioBtn").attr("checked","checked");
+		rvDataSets[0].selectLayer(selectedLayer.LayerName);
+		$(".oneLayerGroup" + "[name=" + linkedLayer.LayerName + "]").find(".mappingRadioBtn").attr("checked","checked");
+		rvDataSets[0].linkLayer(linkedLayer.LayerName);
+		
+		//Refresh Linked MiniLayer
+		var linkedLayer = rvDataSets[0].getLinkedLayer();
 		$("#LinkSection").find(".miniLayerName").remove();
-		$("#LinkSection").append($('<h3 class="miniLayerName ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom ">').text(e.LayerName).attr("name",
-				e.LayerName).droppable({
-				drop : function (a, e) {
-					ProcessBubbleDrop(a, e)
-				}
-			}));
-		k = rvDataSets[0].getLayerByType("lines");
-		rvDataSets[0].BasePairs = k[0].Data
+		$("#LinkSection").append($('<h3 class="miniLayerName ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom ">')
+		.text(linkedLayer.LayerName).attr('name',linkedLayer.LayerName).droppable({
+			drop: function (event,ui) {
+				ProcessBubbleDrop(event,ui);
+			}
+		}));
+		var	targetLayer=rvDataSets[0].getLayerByType("lines");
+		rvDataSets[0].BasePairs=targetLayer[0].Data;
 	}
-	if ($("input[name='SelectionsCheck']").attr("checked")) {
-		rvDataSets[0].Selections = JSON.parse(a.rvSelections);
+	if($("input[name='SelectionsCheck']").attr("checked")){
+		rvDataSets[0].Selections = JSON.parse(rvSaveState.rvSelections);
 		$(".oneSelectionGroup").remove();
-		$.each(rvDataSets[0].Selections, function (a, e) {
-			SelectionMenu(e, a)
+		// Put in Selections
+		$.each(rvDataSets[0].Selections, function (key, value){
+			SelectionMenu(value, key);
 		});
+		//Default check first selection. Come back to these to restore saved state
 		$("#SelectionPanel div").first().next().find(".selectSelectionRadioBtn").attr("checked", "checked");
 		RefreshSelectionMenu();
-		var f = !1;
-		$.each(rvDataSets[0].Selections,
-			function (a, e) {
-			if (e.Selected)
-				return f = e.Name, !1
+		var ret = false;
+		$.each(rvDataSets[0].Selections, function (key, value) {
+			if (value.Selected) {
+				ret = value.Name;
+				return false;
+			}
 		});
-		$(".oneSelectionGroup[name='" + f + "']").find(".selectSelectionRadioBtn").trigger("click")
+		$(".oneSelectionGroup[name='" + ret + "']").find(".selectSelectionRadioBtn").trigger("click");
 	}
-	$("input[name='PanelSizesCheck']").attr("checked") && (k = JSON.parse(a.rvPanelSizes), PanelDivide = k.PanelDivide, TopDivide = k.TopDivide, $("#canvasPorportionSlider").slider("value", PanelDivide), $("#topPorportionSlider").slider("value", TopDivide));
-	$("input[name='MouseModeCheck']").attr("checked") && $("#buttonmode").find("input[value='" + a.rvMouseMode + "']").trigger("click");
-	$("input[name='CanvasOrientationCheck']").attr("checked") && (rvViews[0] = rvViews[0].fromJSON(a.rvView), rvViews[0].restore());
-	$("input[name='JmolOrientationCheck']").attr("checked") && $('input[name="jp"][value=on]').is(":checked") && (a = a.rvJmolOrientation.match(/reset[^\n]+/), Jmol.script(myJmol, a[0]));
+	if($("input[name='PanelSizesCheck']").attr("checked")){
+		var po = JSON.parse(rvSaveState.rvPanelSizes);
+		PanelDivide = po.PanelDivide;
+		TopDivide = po.TopDivide;
+		$( "#canvasPorportionSlider" ).slider("value",PanelDivide);
+		$( "#topPorportionSlider" ).slider("value",TopDivide);					
+	}
+	if($("input[name='MouseModeCheck']").attr("checked")){
+		$("#buttonmode").find("input[value='" + rvSaveState.rvMouseMode + "']").trigger("click");
+	}
+	if($("input[name='CanvasOrientationCheck']").attr("checked")){
+		//localStorage.setItem("rvView",7);
+		rvViews[0] = rvViews[0].fromJSON(rvSaveState.rvView);
+		rvViews[0].restore();
+	}
+	if($("input[name='JmolOrientationCheck']").attr("checked")){
+		//localStorage.setItem("rvJmolOrientation",8);
+		if($('input[name="jp"][value=on]').is(':checked')){
+			var a = rvSaveState.rvJmolOrientation.match(/reset[^\n]+/);
+			Jmol.script(myJmol, a[0]);
+		}
+	}
+	
 	rvDataSets[0].drawResidues("residues");
 	rvDataSets[0].drawSelection("selected");
 	rvDataSets[0].refreshResiduesExpanded("circles");
 	rvDataSets[0].drawLabels("labels");
 	rvDataSets[0].drawBasePairs("lines");
-	$("input[name='LastSpeciesCheck']").attr("checked") ||
-	(updateModel(), update3Dcolors())
+	
+	if(!$("input[name='LastSpeciesCheck']").attr("checked")){
+		updateModel();
+		update3Dcolors();
+	}
+	
+	//InitRibovision2(true);
 }
 function RiboVisionReady() {
 	$("#MiniOpenLayerBtn").button({});
