@@ -1579,6 +1579,7 @@ function customDataProcess(ui,targetLayer){
 					rvDataSets[0].Residues[index]["font-weight"]="normal";
 				}
 			});
+			rvDataSets[0].drawResidues("residues");
 		}
 		if ($.inArray("ColorCol", customkeys) >= 0) {
 			rvDataSets[0].drawResidues("residues");
