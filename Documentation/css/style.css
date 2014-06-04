@@ -170,7 +170,15 @@ table {
 	padding-bottom: 10px;
 	
 }
+.docTable {
+	width:400px;
+	
+}
 
+.docTable th,td {
+	padding:15px;
+	text-align: center;
+}
 #ContentDiv li {
 	font-size: 1.1em;
 	/*text-indent:2.5em;*/
