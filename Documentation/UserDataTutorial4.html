@@ -15,33 +15,31 @@
 	
 	<div id = "ContentDiv">
 
-		<h1>Color by Data</h1>
-		<p>What we call "Color by Data" is that the user <b>(you)</b> have some data which you have converted into a <b>numerical</b> format. 
-		You may have decided this "by hand", or you may have adapted your computer programs to output to our input format. RiboVision will determine the minimum and maximum
-		of your data, and map everything to one of 64 colors in our Rainbow gradient. A future update will let you decide the gradient yourself. Small values are mapped to blue, 
-		and large values are mapped to red.
+		<h1>Interactions</h1>
+		<p>What we call "Interactions" is that the user <b>(you)</b> have decided you'd like a line drawn between two nucleotides. The relationship between those two nucleotides
+		is totally up to you. You may have decided this "by hand", or you may have adapted your computer programs to output to our input format. 
 		</p>
 		
-		<p>For this example, we have decided to color the entire Small Subunit from red to blue. This is essentially backwards rainbow. We start from 4000 arbitraily, and count down
-		by one for each nucleotide.	In addition,  we will set a coloumn called "DataDescription". In the first row, we write a description of the data. It can be as detailed as you like.
+		<p>For this example, we have decided to use real Watson/Hoogsteen interactions. We downloaded the list of these interactions from RiboVision, then added additional properties to them. 
+		We've added Color, Opacity, and LineWidth values based on different properties of these base pairs. You may try to figure out what each of these variables is correlated with if you like. 
+		Otherwise, the exact nature of this relationship doesn't matter for this demonstration. You will have your own criteria for what you want to see. 
 		</p>
+
 		<h2>Example</h2>
-			<p><span style="word-spacing:100px;"><b>resNum, DataCol, DataDescription</b></span></p>
-		<p><span style="word-spacing:100px;">16S:1, 4000, <span style="word-spacing:5px;">"This is essentially..."</span> </span></p>
-			<p><span style="word-spacing:100px;">16S:2,	3999, </span></p>
-			<p><span style="word-spacing:100px;">16S:1274, 2727, </span></p>
-			<p><span style="word-spacing:100px;">16S:1542, 2459, </span></p>
-			
-			<p><a href="examples/example2.csv" target="_blank">Here</a> is the csv file for this example. Below, is this file mapped onto <i>E. coli</i> SSU Phylogeny Structure.
-			<img src="examples/Example2.png" class="ManualImages" title="RiboVision Import Data Example 2" alt="RiboVision Import Data Example 2" />
-			</p>
-			<p>You can see our DataDescription in the "Main Menu" and see that example2.csv has been loaded into the Circles layer as filled and regular circles. 
-			NavLine contains a graph of DataCol, which starts from 4000, and goes down linearly to about 2500. 
-			<p/>
+		<table class="docTable" align="center";>
+			<tr><th>Residue_i</th><th>Residue_j</th><th>Int_Type</th><th>ColorCol</th><th>Opacity</th><th>LineWidth</th></tr>
+			<tr><td>23S:1</td><td>23S:2902</td><td>cWW</td><td>Gray</td><td>1.00</td><td>1.5</td></tr>
+			<tr><td>23S:10</td><td>23S:2629</td><td>tHW</td><td>Orange</td><td>0.67</td><td>1.0</td></tr>
+			<tr><td>23S:33</td><td>23S:447</td><td>tWH</td><td>Cyan</td><td>0.67</td><td>0.5</td></tr>
+			<tr><td>23S:49</td><td>23S:120</td><td>cHW</td><td>Red</td><td>0.67</td><td>1.0</td></tr>
+			<tr><td>23S:191</td><td>23S:204</td><td>tHH</td><td>Green</td><td>0.33</td><td>0.5</td></tr>
+		</table>	
 		
-		
+		<p><a href="examples/Example4.csv" target="_blank">Here</a> is the csv file for this example. Below, is this file mapped onto <i>E. coli</i> LSU 3D-based Structure.
+		<img src="examples/Example4.png" class="ManualImages" title="RiboVision Import Data Example 4" alt="RiboVision Import Data Example 4" />
+		</p>
 	</div>
 	<div id="FooterDiv"></div>
 	</body>
-</html><a href="examples/example1.csv" target="_blank">Here</a> is the csv file for this example. 
+</html>
 				
