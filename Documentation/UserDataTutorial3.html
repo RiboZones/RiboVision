@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta name="generator" content="HTML Tidy for HTML5 (experimental) for Windows https://github.com/w3c/tidy-html5/tree/c63cc39" />
+    <title>RiboVision: Ribosome Visualization Suite.</title>
+	<link rel="stylesheet" type="text/css" href="css/style.css" />
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script type="text/javascript" src="js/template.js"></script>
+</head>
+
+<body lang="EN-US" xml:lang="EN-US">
+	<div id="HeaderDiv"></div>
+	<div id="MenuDiv"></div>
+	
+	<div id = "ContentDiv">
+
+		<h1>Manual Bolding</h1>
+		<p>What we call "Manual Bolding" is that the user <b>(you)</b> have already decided exactly which nucleotides you would like to be which font weight. 
+		You may have decided this "by hand", or you may have adapted your computer programs to output to our input format. Here is the 
+		<a href="http://www.w3schools.com/cssref/pr_font_weight.asp" target="_blank">Font Weight</a> documentation.
+		</p>
+		
+		<p>For this example, we have decided to set the font weight for each nucleotide in the Small Subunit based on identity. G's will be 900 (most bold) 
+		C's will be 700 (normal bold), A's will be 400 (normal), and U's will be thin (100). In addition, we will set a column called "DataDescription". 
+		In the first row, we write a description of the data. It can be as detailed as you like. The resName column is just there for our convenience. resName is 
+		not currently a recognized input name in this mode and will be ignored. 
+		</p>
+		<h2>Example</h2>
+		<table class="docTable" align="center";>
+			<tr><th>resNum</th><th>resName</th><th>FontWeight</th><th>DataDescription</th></tr>
+			<tr><td>16S:1</td><td>A</td><td>400</td><td>"This is essentially..."</td></tr>
+			<tr><td>16S:4</td><td>U</td><td>100</td></tr>
+			<tr><td>16S:1276</td><td>G</td><td>900</td></tr>
+			<tr><td>16S:1539</td><td>C</td><td>700</td></tr>
+		</table>
+
+		<p><a href="examples/Example3.csv" target="_blank">Here</a> is the csv file for this example. Below, is this file mapped onto <i>E. coli</i> SSU 3D-based Structure.
+		It is zoomed in to better see the bolding effect.
+		<img src="examples/Example3.png" class="ManualImages" title="RiboVision Import Data Example 3" alt="RiboVision Import Data Example 3" />
+		</p>	
+	</div>
+	<div id="FooterDiv"></div>
+	</body>
+</html>
+				
