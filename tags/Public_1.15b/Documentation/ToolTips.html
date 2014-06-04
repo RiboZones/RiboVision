@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta name="generator" content="HTML Tidy for HTML5 (experimental) for Windows https://github.com/w3c/tidy-html5/tree/c63cc39" />
+    <title>RiboVision: Ribosome Visualization Suite.</title>
+	<link rel="stylesheet" type="text/css" href="css/style.css" />
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script type="text/javascript" src="js/template.js"></script>
+</head>
+
+<body lang="EN-US" xml:lang="EN-US">
+	<div id="HeaderDiv"></div>
+	<div id="MenuDiv"></div>
+	
+	<div id = "ContentDiv">
+   <h1>ResidueTips</h1>
+
+    <p>Additional information about a nucleotide is displayed, by hovering the mouse over it. This feature is called ResidueTip. We will use 23S:42 as an example. 
+	In addition to seeing the nucleotide number, 23S:42 on the first line, there is also the sequence A, and the consensus sequence in parentheses, G. 
+	Selected Data means the data associated with the selected layer. In this case, we loaded B Factors, so 10.208 is the B factor of 23S:42. The Shannon Entropy at this 
+	position is 1.20. The graph is the composition of this position. 23S:42 is usually an A or a G.
+	</p>
+	<img src="images/ResidueTip.png" class="ManualImagesThin" title="RiboVision ResidueTip Example" alt="RiboVision ResidueTip Example" />
+		
+	<p>Interactions (lines) also have ResidueTips. Now, they include the full ResidueTip of both nucleotides, plus interaction type and subtype. To activate this feature, hold the Alt key down while hovering over a line. In this example,
+	we see that the line is representing a Base-Sugar interactions. It has subtype 6BR, which refers to the geometry of the interaction. The interaction is
+	between nucleotides 23S:1477 and 23S:1514. 
+	</p>
+		<img src="images/ResidueTipInteraction.png" class="ManualImagesThin" title="RiboVision ResidueTip Interaction Example" alt="RiboVision ResidueTip Interaction Example" />
+	
+	<p>This feature can be disabled in the <a href="RiboVisionSettings.html">RiboVision Settings</a> menu. </p>
+		
+	</div>
+	<div id="FooterDiv"></div>
+	</body>
+</html>

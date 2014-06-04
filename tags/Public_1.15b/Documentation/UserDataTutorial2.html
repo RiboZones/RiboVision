@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta name="generator" content="HTML Tidy for HTML5 (experimental) for Windows https://github.com/w3c/tidy-html5/tree/c63cc39" />
+    <title>RiboVision: Ribosome Visualization Suite.</title>
+	<link rel="stylesheet" type="text/css" href="css/style.css" />
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script type="text/javascript" src="js/template.js"></script>
+</head>
+
+<body lang="EN-US" xml:lang="EN-US">
+	<div id="HeaderDiv"></div>
+	<div id="MenuDiv"></div>
+	
+	<div id = "ContentDiv">
+
+		<h1>Color by Data</h1>
+		<p>What we call "Color by Data" is that the user <b>(you)</b> have some data which you have converted into a <b>numerical</b> format. 
+		You may have decided this "by hand", or you may have adapted your computer programs to output to our input format. RiboVision will determine the minimum and maximum
+		of your data, and map everything to one of 64 colors in our Rainbow gradient. A future update will let you decide the gradient yourself. Small values are mapped to blue, 
+		and large values are mapped to red.
+		</p>
+		
+		<p>For this example, we have decided to color the entire Small Subunit from red to blue. This is essentially backwards rainbow. We start from 4000 arbitrarily, and count down
+		by one for each nucleotide.	In addition,  we will set a column called "DataDescription". In the first row, we write a description of the data. It can be as detailed as you like.
+		</p>
+		
+		<h2>Example</h2>
+		<table class="docTable" align="center";>
+			<tr><th>resNum</th><th>DataCol</th><th>DataDescription</th></tr>
+			<tr><td>16S:1</td><td>4000</td><td>"This is essentially..."</td></tr>
+			<tr><td>16S:2</td><td>3999</td></tr>
+			<tr><td>16S:1274</td><td>2727</td></tr>
+			<tr><td>16S:1542</td><td>2459</td></tr>
+		</table>
+
+			<p><a href="examples/Example2.csv" target="_blank">Here</a> is the csv file for this example. Below, is this file mapped onto <i>E. coli</i> SSU Phylogeny Structure.
+			<img src="examples/Example2.png" class="ManualImages" title="RiboVision Import Data Example 2" alt="RiboVision Import Data Example 2" />
+			</p>
+			<p>You can see our DataDescription in the "Main Menu" and see that Example2.csv has been loaded into the Circles layer as filled and regular circles. 
+			NavLine contains a graph of DataCol, which starts from 4000, and goes down linearly to about 2500. 
+			<p/>
+	</div>
+	<div id="FooterDiv"></div>
+	</body>
+</html>
+				

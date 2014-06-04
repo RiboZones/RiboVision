@@ -1,0 +1,6 @@
+Residue_i,Residue_j,Int_Type,ColorCol,Opacity,LineWidth
+23S:1,23S:1000,Class A,Red,0.2,0.5
+23S:2,23S:1001,Type B,Green,0.4,0.7
+23S:3,23S:1002,Long Range,Blue,0.6,1.2
+23S:4,23S:1003,<b>Bold</b>,Brown,0.8,1.5
+23S:5,23S:1004,"<span style=""color:red"">Red</span>",Black,1,2
