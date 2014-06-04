@@ -1670,18 +1670,11 @@ function ColorProteinsPyMOL(PDB_Obj_Names){
 		if (ressplit[0] !== "undefined"){
 			var curr_color = value.Color;
 				var h = rvDataSets[0].SpeciesEntry.SubunitProtChains[1].indexOf(ressplit[0]);
-				//if (colorNameToHex(curr_color).indexOf("#") == -1) {
-					//script += "color " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + ressplit[0] + " and " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "; color Cartoon opaque [x" + value.Color + "]; ";
 					script += "color " + curr_color.replace("#", "0x") + ", " + rvDataSets[0].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[0].SpeciesEntry.SubunitProtChains[0][h].replace(/\(/g,"_").replace(/\)/g,"") + "_custom" +
 						" and resi " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "\n";
-				//} else {
-					//script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + ressplit[0] + " and " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "; color Cartoon opaque [" + value.Color.replace("#", "x") + "]; ";
-				//}
 		}
 	});
 	
-	/*
-	Jmol.script(myJmol, script);*/
 	script += "\ndisable *rp*\n";
 	return script;
 }
@@ -2805,7 +2798,7 @@ function welcomeScreen() {
 			rvDataSets[0].Layers[0].CanvasContext.drawImage(img, rvViews[0].x - 80, rvViews[0].y - 30,733 * scale_factor,550 * scale_factor);
 		}
 	}
-	img.src = "images/RiboVisionLogo.png"; //
+	img.src = "images/RiboVisionLogoHigh.png"; //
 
 	
 }
