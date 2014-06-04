@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta name="generator" content="HTML Tidy for HTML5 (experimental) for Windows https://github.com/w3c/tidy-html5/tree/c63cc39" />
+    <title>RiboVision: Ribosome Visualization Suite.</title>
+	<link rel="stylesheet" type="text/css" href="css/style.css" />
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script type="text/javascript" src="js/template.js"></script>
+</head>
+
+<body lang="EN-US" xml:lang="EN-US">
+	<div id="HeaderDiv"></div>
+	<div id="MenuDiv"></div>
+	
+	<div id = "ContentDiv">
+
+		<h1>Nucleotide Data:</h1>
+		<p>We intend to greatly expand the data available in RiboVision. We will release the data we use for our own research. 
+		We are also soliciting data from the ribosomal community at large. The usefulness of RiboVision goes up exponentially with the 
+		amount of data inside it. We will make sure people get the scientific citation to go with any data that they use.</p>
+		
+		<h2>Rainbow:</h2>
+		<p>We have rainbow, which is just colored from 5&#39; end to 3&#39; end. No citation needed, other than for the secondary structure itself.</p>
+		<h2>Onion:</h2>
+		<p>We have onion which corresponds to our Onion model. An onion, as seen here, is basically dividing a ribosomal subunit rRNA into 20&#197; wide concentric shells.
+		For the large subunit, HM and TT, the center is identical to the one used in (Hsiao et al., 2009). For EC and SC, the center is approximatly in the same relative place. 
+		For the small subunit, we use N9 of A1493(TT and EC) or A1756 (SC). If you re-publish this data, please cite (Hsiao et al., 2009).
+		</br></br>
+		Hsiao et al., (2009) "Peeling the Onion: Ribosomes Are Ancient Molecular Fossils", <i>Mol. Biol. Evol.</i> <b>26</b>, 2415-2425, 
+		<a href="http://mbe.oxfordjournals.org/content/26/11/2415.long" target="_blank">doi 10.1093/molbev/msp163</a>
+		</p>
+		<h2>B factors:</h2>
+		<p>B factors is just the B factors, an experimental property obtained through x-ray crystallography. If you use this, please cite the reference
+		for the crystal structure that you used.</p>
+		<h2>Domains:</h2>
+		<p>These are the domains of the rRNA. For the phylogeny-based structures, these are the traditional domains with edges chosen by Noeller and Steitz. 
+		For the 3D-based structures, these are our new domains as defined in (Petrov et al., 2013). Feel free to recolor them to fit your purposes. If you use our new domains, 
+		please cite (Petrov et al., 2013). It is currently in press, we will put the full reference and link up as soon as possible.
+		</br></br>
+		Petrov et al., (2013) "Secondary Structure and Domain Architecture of the 23S rRNA", <i>Nucleic Acids Res.</i> doi: 
+		10.1093/nar/gkt513
+		</p>
+		<h2>Helices:</h2>
+		<p>
+			We have partitioned all nucleotides into "helicoids". A helicoid is a helix plus the most closely 
+			associated single-stranded rRNA. Each nucleotide is uniquely contained in one helicoid. The collection of all helicoids contain all 
+			rRNA. A helicoid is an in-house construct invented by Eli Hershkovits that is useful networking analysis, evolutionary 
+			pathways, etc. We have not included these in any publication yet. We are providing them for convience. The colors for the helices are arbitrary. 
+			We used 4 contrasting colors so that the boundary between them is always visible.
+		</p>
+		<h2>Mg ions:</h2>
+		<p> We have Mg contacts, computed at distances of 2.4&#197;, 2.6&#197;, and 6.0&#197;. These are computed directly from the crystal structures. 
+		If the distance between an rRNA nucleotide and a Mg ion is less than these distance, it is called a Mg contact. Using a distance of 6.0&#197; is partially useful, as
+		this includes Mg ions which are coordinated through a water molecule. If you use this data, please cite the reference for the crystal structure that you used. 
+		Unfortunately, we do not have automatic selection of these Mg in Jmol yet. You can use the Jmol console to turn them on, or export your selections to PyMOL.
+		</p>
+		
+	</div>
+	<div id="FooterDiv"></div>
+	</body>
+</html>

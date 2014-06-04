@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta name="generator" content="HTML Tidy for HTML5 (experimental) for Windows https://github.com/w3c/tidy-html5/tree/c63cc39" />
+    <title>RiboVision: Ribosome Visualization Suite.</title>
+	<link rel="stylesheet" type="text/css" href="css/style.css" />
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script type="text/javascript" src="js/template.js"></script>
+</head>
+
+<body lang="EN-US" xml:lang="EN-US">
+	<div id="HeaderDiv"></div>
+	<div id="MenuDiv"></div>
+	
+	<div id = "ContentDiv">
+		<h1>Import Data Files</h1>
+		<p>
+		Importing data currently works by reading in a CSV (comma separated value) text file. You can make the CSV files with anything.
+		Most people would probably use Excel or another spreadsheet program to make them. RiboVision has two primary data types, nucleotide level data, and "interactions", which don't have to
+		be real physical interactions. For our purposes here, interaction just means a line drawn between two residues. The Inter-Nucleotide Contacts section represents real physical interactions
+		but your data doesn't need to be of this kind.</p>
+		
+		<h1>Import Data Files (Interaction Data)</h1>
+		<p>We currently support one set of data, to make one layer, per file. Since we only support one interactions layer, all data automatically goes there. Lines can be drawn between any two nucleotides.
+		It is possible to color each line individually, if desired. See <a href="RiboVisionColoring.html">RiboVision Coloring</a> for details on colors. Additionally, you can vary line thickness and opacity.
+		</p>
+
+		<h1>Import Data Syntax</h1>
+		<p>
+		Import data feature uses the same syntax as <a href="BasicSelection.html">selections</a>. We recommend you always use the prefixed syntax, because it is clearer. 
+		However, each interactions needs to be on its own line. The first nucleotide goes into column Residue_i, the second into column Residue_j. Data about the type of the line can optionally
+		be included in the column Int_Type. The Int_Type can be plain text or HTML if you want that effect. This data will show up in the ResidueTip. Opacity and LineWidth can also be included if desired. Otherwise, 
+		the default opacity is 0.5, and the default line width is 0.75. 
+		</p>
+			<h2>Example</h2>
+			<table class="docTable" align="center";>
+			<tr><th>Residue_i</th><th>Residue_j</th><th>Int_Type</th><th>ColorCol</th><th>Opacity</th><th>LineWidth</th></tr>
+			<tr><td>23S:1</td><td>23S:1000</td><td>Class A</td><td>Red</td><td>0.2</td><td>.5</td></tr>
+			<tr><td>23S:2</td><td>23S:1001</td><td>Type B</td><td>Green</td><td>0.4</td><td>.7</td></tr>
+			<tr><td>23S:3</td><td>23S:1002</td><td>Long Range</td><td>Blue</td><td>0.6</td><td>1.2</td></tr>
+			<tr><td>23S:4</td><td>23S:1003</td><td><pre>&lt;b>Bold&lt;/b></pre></td><td>Brown</td><td>0.8</td><td>1.5</td></tr>
+			<tr><td>23S:5</td><td>23S:1004</td><td><pre>&lt;span style="color:red">Red&lt;/span></pre></td><td>Black</td><td>1</td><td>2</td></tr>
+			</table>
+			
+			<p><a href="examples/Example5.csv" target="_blank">Here</a> is the csv file for this example. Below, is this file mapped onto <i>E. coli</i> LSU 3D-based Structure.
+			<img src="examples/Example5.png" class="ManualImages" title="RiboVision Import Data Example 5" alt="RiboVision Import Data Example 5" />
+			</p>
+		
+		<h1>Import Data Mapping:</h1>
+		<p>
+		For interactions, data is instantly mapped onto the Interactions layer. It is recommended for now to keep interaction data and nucleotide data in separate CSV files, but please load both to the same molecule
+		in RiboVision if you like. 
+		</p>
+		<p><img src="images/ImportMenu.png" class="ManualImagesThinMultiple" title="RiboVision Import Menu" alt="RiboVision Import Menu" /></p>
+	</div>
+	<div id="FooterDiv"></div>
+	</body>
+</html>
