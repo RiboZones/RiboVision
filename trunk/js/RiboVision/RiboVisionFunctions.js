@@ -1580,6 +1580,8 @@ function customDataProcess(ui,targetLayer){
 				}
 			});
 			rvDataSets[0].drawResidues("residues");
+			rvDataSets[0].refreshResiduesExpanded(targetLayer.LayerName);
+			update3Dcolors();
 		}
 		if ($.inArray("ColorCol", customkeys) >= 0) {
 			rvDataSets[0].drawResidues("residues");
