@@ -1,59 +1,60 @@
-/* Ribovision 0.6 script library Ribovision.js 7:34 PM 01/07/2013 Chad R. Bernier
+/* RiboVision 1.15 script library RiboVision.js 5:24 PM 06/10/2014 Chad R. Bernier
 
 
-based on:
+ * The MIT License (MIT)
  *
- * Copyright (C) 2012,2013  RiboEvo, Georgia Institute of Technology, apollo.chemistry.gatech.edu
+ * Copyright (C) 2012-2014  RiboEvo, Georgia Institute of Technology, apollo.chemistry.gatech.edu
  *
  * Contact: Bernier.C.R@gatech.edu
  *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public
- *  License as published by the Free Software Foundation; either
- *  version 2.1 of the License, or (at your option) any later version.
- *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
- *  02111-1307  USA.
- */
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
 
-// for documentation see apollo.chemistry.gatech.edu/Ribovision/documentation
-//This doesn't exist and this probably won't be the final license.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+
+// For user documentation see http://apollo.chemistry.gatech.edu/RiboVision/Documentation/index.html
+// For developer documentation see http://apollo.chemistry.gatech.edu/RiboVision/Documentation/DeveloperHelp.html
+*/
 
 /////////////////////////// Global Variable Declaration ///////////////////////
-// Main Variables
-var rvDataSets = [];
-var rvViews = [];
+// Main Variables [See RiboVisionObjects.js]
+var rvDataSets = []; //Array of rvDataSet objects. RiboVision currently only supports one dataset at a time, so this is always referred to as rvDataSets[0].
+var rvViews = []; //Array of rvView objects. RiboVision currently only supports one view at a time, so this is always referred to as rvViews[0].
 
 // Other Global Variables
-var FullBasePairSet;
-var AgreeFunction = function () {};
-var drag = false;
-//var seleLineMode = false;
+var FullBasePairSet; //We should create an object/class for rvBasePairs, but that hasn't happened yet. This variable stores all the BasePairs currently loaded, not currently displayed. 
+var AgreeFunction = function () {}; // This is a function that is redefined when the user runs something that needs a privacy policy approved. Those functions should be rewritten to not need this global variable.
+var drag = false; //This variable controls if we are in Select Residue mode. Better design should eliminate this variable. 
 
-// Website Settings
-var localStorageAvailable = false;
-//var zoomEnabled = true;  //needs restoration, after adding a switch for it.
-var onebuttonmode; //needs restoration
-var CurrPrivacyCookie;
-var PanelDivide = 0.5; //needs restoration
-var TopDivide = 0.215; //needs restoration
-var OpenStateOnLoad = false;
-var UserName = "Guest";
 
-// Color Palettes, need to be consolidated
+// Website Settings. We should create an object/class which stores these values for us
+var localStorageAvailable = false; //Stores whether we can use the LocalStorage feature or not. Browser Support. 
+var canvas2DSupported = !!window.CanvasRenderingContext2D; //Stores whether we can use the Canvas feature or not. Website will be non-functional if this is false, but at least there won't be loading errors.
+var onebuttonmode; //Vale of the One Button Mouse Mode Setting
+var CurrPrivacyCookie; // We have two types of privacy policies right now. This variable should be eliminated. 
+var PanelDivide = 0.5; //The ratio between the 2D and 3D panels
+var TopDivide = 0.215; //The ratio between the 1D and the 2D/3D panels
+var OpenStateOnLoad = false; //This variable isn't used any more. It would be used when developing a feature to restore where the user last left off. 
+var UserName = "Guest"; // Everyone operates in guest mode. We don't have a user account system set up yet. 
+
+// Color Palettes, need to be consolidated. We should create an object/class which stores these values for us. They are just lists of colors needed for different kinds of data. 
 var OnionColors = ["#000000", "#ff0000", "#008000", "#0000ff", "#800080", "#ff8c00", "#ff8c00", "#ff8c00", "#ff8c00"];
 var DomainColors = ["#ffd4a2", "#a999fb", "#3aa7ff", "#cc99cc", "#f0ff00", "#ff99cc", "#0ba34a", "#8ec640", "#B27643", "#325d3d"];
 var HelixColors = ["#000000", "#ed1c24", "#00a651", "#1c75bc", "#662d91"];
 var ShapeColors = ["#808080", "#0000ff", "#008000", "#ffd700", "#ff0000"];
-//var BinaryColors = ["#509467", "#FF784F", "#FF0DE7"];
-//var BinaryColors = ["#858585", "#FF0DE7", "#FF0DE7"];
 var BinaryColors = ["#858585", "#FF0DE7"];
 
 var RainBowColors = ["#00008f", "#00009f", "#0000af", "#0000bf", "#0000cf", "#0000df",
@@ -68,6 +69,7 @@ var RainBowColors = ["#00008f", "#00009f", "#0000af", "#0000bf", "#0000cf", "#00
 	"#ff1000", "#ff0000", "#ef0000", "#df0000", "#cf0000", "#bf0000",
 	"#af0000", "#9f0000", "#8f0000", "#800000"];
 
+// Stores color name / hex code pairs. 
 var SupportedColors = {
 	"black" : "#000000",
 	"navyblue" : "#000080",
@@ -1777,60 +1779,9 @@ var SupportedColors = {
 	"ivory" : "#fffff0",
 	"white" : "#ffffff"
 };
-
-
 ///////////////////////////////////////////////////////////////////////////////
-var canvas2DSupported = !!window.CanvasRenderingContext2D;
-/////////////////////////// D3 Library IE 9+ //////////////////////////////////
-if (canvas2DSupported) {
-	/*
-	$.holdReady(true);
-	$.ajax({
-	type: "GET",
-	async : false,
-	url: "js/d3.js",
-	dataType: "script",
-	success: function(){
-	$.holdReady(false);},
-	error: function(){
-	alert("js load fail");}
-	});
-	$.holdReady(true);
-	$.ajax({
-	type: "GET",
-	async : false,
-	url: "js/d3.csv.js",
-	dataType: "script",
-	success: function(){
-	$.holdReady(false);},
-	error: function(){
-	alert("js load fail");}
-	});
-	$.holdReady(true);
-	$.ajax({
-	type: "GET",
-	async : false,
-	url: "js/d3.v3.js",
-	dataType: "script",
-	success: function(){
-	$.holdReady(false);},
-	error: function(){
-	alert("js load fail");}
-	});
-	$.holdReady(true);
-	$.ajax({
-	type: "GET",
-	async : false,
-	url: "js/d3.v2.js",
-	dataType: "script",
-	success: function(){
-	$.holdReady(false);},
-	error: function(){
-	alert("js load fail");}
-	});
-	 */
-}
-///////////////////////////////////////////////////////////////////////////////
+
+//Load up the various js files that we need. This way allows them to be in separate files, but still allows debugging in Firefox/Chrome.
 ////////////////////////// RiboVision Object Definitions  /////////////////////
 $.holdReady(true);
 $.ajax({
@@ -1918,6 +1869,7 @@ $.ajax({
 });
 ///////////////////////////////////////////////////////////////////////////////
 
+//Only after all other js files are loaded, do we start the initialization. 
 $(document).ready(function () {
 	$.ajax({
 		type : "GET",
@@ -1925,7 +1877,7 @@ $(document).ready(function () {
 		url : "js/RiboVision/RiboVisionInitialization.js",
 		dataType : "script",
 		success : function () {
-			RiboVisionReady();
+			RiboVisionReady(); //Starts the initialization. [See RiboVisionInitialization.js]
 		},
 		error : function () {
 			alert("js load fail");

@@ -1,33 +1,35 @@
-/* Ribovision 0.6 script library Ribovision.js 7:34 PM 01/07/2013 Chad R. Bernier
+/* RiboVision 1.15 script library RiboVisionInitialization.js 5:24 PM 06/10/2014 Chad R. Bernier
 
 
-based on:
+ * The MIT License (MIT)
  *
- * Copyright (C) 2012,2013  RiboEvo, Georgia Institute of Technology, apollo.chemistry.gatech.edu
+ * Copyright (C) 2012-2014  RiboEvo, Georgia Institute of Technology, apollo.chemistry.gatech.edu
  *
  * Contact: Bernier.C.R@gatech.edu
  *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public
- *  License as published by the Free Software Foundation; either
- *  version 2.1 of the License, or (at your option) any later version.
- *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
- *  02111-1307  USA.
- */
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
 
-// for documentation see apollo.chemistry.gatech.edu/Ribovision/documentation
-//This doesn't exist and this probably won't be the final license.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
 
+// For user documentation see http://apollo.chemistry.gatech.edu/RiboVision/Documentation/index.html
+// For developer documentation see http://apollo.chemistry.gatech.edu/RiboVision/Documentation/DeveloperHelp.html
+*/
 	
-// Ready Function
+// Ready Function. This sets up a lot of the menus and buttons and stuff. 
 function RiboVisionReady() {
 	$("#MiniOpenLayerBtn").button({
 	});
@@ -51,7 +53,6 @@ function RiboVisionReady() {
 			hide: false,
 			track: false,
 			open : function(event,ui) {
-				//alert(this);
 			}
 	});
 	$("#InteractionTip").tooltip({
@@ -59,10 +60,9 @@ function RiboVisionReady() {
 			hide: false,
 			track: false,
 			open : function(event,ui) {
-				//alert(this);
 			}
 	});
-	// New Stuff Section, Layers, Selections Panels
+
 	$.fx.speeds._default = 1000;
 	$("#PanelTabs").tabs();
 	$("#SaveTabs").tabs();
@@ -189,14 +189,6 @@ function RiboVisionReady() {
 		return false;
 	});
 	
-	//////////////////////////////////////////////////
-	//radio buttons for line interaction
-	$(function() {
-        $( "#singleMultiChoice" ).buttonset();
-    });
-	
-	///////////////////////////////////////////////////
-	
 	$('#slider').slider({
 		min : 0,
 		max : 70,
@@ -223,10 +215,8 @@ function RiboVisionReady() {
 			}
 		},
 		open : function () {
-			//$("#myJmol_object").css("visibility", "hidden");
 		},
 		close : function () { 
-			//$("#myJmol_object").css("visibility", "visible");
 		}
 	});
 	$( "#dialog-invalid-color-error" ).dialog({
@@ -241,10 +231,8 @@ function RiboVisionReady() {
 			}
 		},
 		open : function () {
-			//$("#myJmol_object").css("visibility", "hidden");
 		},
 		close : function () { 
-			//$("#myJmol_object").css("visibility", "visible");
 		}
 	});
 	$( "#dialog-unique-selection-error" ).dialog({
@@ -259,10 +247,8 @@ function RiboVisionReady() {
 			}
 		},
 		open : function () {
-			//$("#myJmol_object").css("visibility", "hidden");
 		},
 		close : function () { 
-			//$("#myJmol_object").css("visibility", "visible");
 		}
 	});
 	$( "#dialog-name-error" ).dialog({
@@ -277,10 +263,8 @@ function RiboVisionReady() {
 			}
 		},
 		open : function () {
-			//$("#myJmol_object").css("visibility", "hidden");
 		},
 		close : function () { 
-			//$("#myJmol_object").css("visibility", "visible");
 		}
 	});
 	$( "#dialog-generic-notice" ).dialog({
@@ -329,11 +313,7 @@ function RiboVisionReady() {
 			"Restore": function() {
 				openRvState();
 				$( this ).dialog( "close" );
-			}/*,
-			"Fresh State": function () {
-				InitRibovision(true);
-				$( this ).dialog( "close" );
-			}*/
+			}
 		},
 		open : function () {
 			$("#myJmol_object").css("visibility", "hidden");
