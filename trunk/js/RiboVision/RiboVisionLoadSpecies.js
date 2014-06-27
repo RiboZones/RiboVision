@@ -48,13 +48,22 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 		}, function (data) {
 			var targetLayer = rvDataSets[0].getLayerByType("residues");
 			rvDataSets[0].clearData("residues");
+			var resMod = $('input[name="ptmod"][value=on]').is(':checked');
 			$.each(data, function (i, item) {
 				data[i]["color"] = "#000000";
 				data[i]["selected"] = 0;
 				data[i]["font-weight"] = "normal";
 				targetLayer[0].Data[i] = data[i]["Domains_Color"];
+				if (resMod){
+					data[i]["resName"]=data[i]["modResName"];
+				} else {
+					data[i]["resName"]=data[i]["unModResName"];
+				}
+				
 			});
 			rvDataSets[0].addResidues(data);
+			
+			
 			
 			targetLayer[0].DataLabel = "Domains";
 			$("[name=" + targetLayer[0].LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer[0].DataLabel);
