@@ -2273,6 +2273,7 @@ function canvasToSVG() {
 	var ChosenSide;
 	var Orientation;
 	var AllMode = $('input[name="savelayers"][value=all]').attr("checked");
+	var resMod = $('input[name="ptmod"][value=on]').is(':checked');
 	
 	if (rvDataSets[0].SpeciesEntry.Orientation.indexOf("portrait") >= 0) {
 		var mapsize = "612 792";
@@ -2386,7 +2387,27 @@ function canvasToSVG() {
 					//console.log(xcorr,ycorr);
 					for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
 						var residue = rvDataSets[0].Residues[i];
-						output = output + '<text id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" transform="matrix(1 0 0 1 ' + (parseFloat(residue.X) + xcorr).toFixed(3) + ' ' + (parseFloat(residue.Y) + ycorr).toFixed(3) + ')" fill="' + residue.color + '" font-family="Myriad Pro" ' + 'font-weight="' + residue["font-weight"] + '" font-size="' + rvDataSets[0].SpeciesEntry.Font_Size_SVG + '">' + residue.resName + '</text>\n';
+						if (resMod){
+							var resName = residue.modResName;
+							if(residue.modResName == '&'){
+								resName = '&amp;';
+							}
+							if(residue.modResName == '<'){
+								resName = '&lt;';
+							}
+						} else {
+							var resName = residue.resName;
+						}
+						
+						if (rvDataSets[0].Residues[i].resNum.indexOf(":") >= 0 ){
+							var ResName = rvDataSets[0].Residues[i].resNum;
+						} else {
+							var ResName = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[i].ChainID)] +
+							":" + rvDataSets[0].Residues[i].resNum;
+						}
+						
+						
+						output = output + '<text id="' + residue.resName + "_" + ResName + '" transform="matrix(1 0 0 1 ' + (parseFloat(residue.X) + xcorr).toFixed(3) + ' ' + (parseFloat(residue.Y) + ycorr).toFixed(3) + ')" fill="' + residue.color + '" font-family="Myriad Pro" ' + 'font-weight="' + residue["font-weight"] + '" font-size="' + rvDataSets[0].SpeciesEntry.Font_Size_SVG + '">' + resName + '</text>\n';
 					}
 					output = output + '</g>\n';
 					break;
@@ -2764,7 +2785,7 @@ function watermark(usetime) {
 		targetLayer.CanvasContext.fillStyle = "#FF5500";
 		targetLayer.CanvasContext.fillText(Message, x, y);
 		
-		var output = '<g id="WaterMark">\n';
+		var output = '<g id="g_WaterMark">\n';
 		output = output + '<text id="WaterMark" transform="matrix(1 0 0 1 ' + (parseFloat(x) - 1.262).toFixed(3) + ' ' + (parseFloat(y) + 1.145).toFixed(3) + ')" fill="#f6a828" font-family="Myriad Pro" font-size="10">' + Message + '</text>\n';
 		if (usetime) {
 			targetLayer.CanvasContext.fillText("Saved on " + d.toLocaleString().slice(0, df - 1), x + 75, y + 15);

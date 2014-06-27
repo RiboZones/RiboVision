@@ -664,6 +664,7 @@ function rvDataSet(DataSetName) {
 		*/
 	}
 	function drawResidues(targetLayer, dataIndices, ColorArray, noClear) {
+		//var resMod = $('input[name="ptmod"][value=on]').is(':checked');
 		if (targetLayer.Type === "residues") {
 			targetLayer.clearCanvas();
 			
@@ -694,7 +695,11 @@ function rvDataSet(DataSetName) {
 				for (var i = rvDataSets[0].Residues.length - 1; i >= 0; i--) {
 					targetLayer.CanvasContext.fillStyle = (targetLayer.dataLayerColors[i] || "#000000");
 					targetLayer.CanvasContext.font = rvDataSets[0].Residues[i]["font-weight"] + " " + rvDataSets[0].SpeciesEntry.Font_Size_Canvas + 'pt "Myriad Pro", Calibri, Arial';
-					targetLayer.CanvasContext.fillText(rvDataSets[0].Residues[i].resName, rvDataSets[0].Residues[i].X, rvDataSets[0].Residues[i].Y);
+					//if (resMod){
+						//targetLayer.CanvasContext.fillText(rvDataSets[0].Residues[i].modResName, rvDataSets[0].Residues[i].X, rvDataSets[0].Residues[i].Y);
+					//} else {
+						targetLayer.CanvasContext.fillText(rvDataSets[0].Residues[i].resName, rvDataSets[0].Residues[i].X, rvDataSets[0].Residues[i].Y);
+					//}
 				}
 			} else {
 				welcomeScreen();

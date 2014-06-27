@@ -709,6 +709,17 @@ function RiboVisionReady() {
 		}
 		resizeElements();
 	});
+	$("[name=ptmod]").button().change(function(event,ui){
+		var resMod = $('input[name="ptmod"][value=on]').is(':checked');
+			$.each(rvDataSets[0].Residues, function (i, item) {
+				if (resMod){
+					item["resName"]=item["modResName"];
+				} else {
+					item["resName"]=item["unModResName"];
+				}
+			});
+		rvDataSets[0].drawResidues("residues");
+	});
 	
 	$("#JmolTypeToggle").buttonset();
 	//$("#JmolJava").attr("checked","checked");
