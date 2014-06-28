@@ -33,6 +33,7 @@
 // Main Variables [See RiboVisionObjects.js]
 var rvDataSets = []; //Array of rvDataSet objects. RiboVision currently only supports one dataset at a time, so this is always referred to as rvDataSets[0].
 var rvViews = []; //Array of rvView objects. RiboVision currently only supports one view at a time, so this is always referred to as rvViews[0].
+console.log("Reached line 36 of the RiboVision.js file")
 
 // Other Global Variables
 var FullBasePairSet; //We should create an object/class for rvBasePairs, but that hasn't happened yet. This variable stores all the BasePairs currently loaded, not currently displayed. 
