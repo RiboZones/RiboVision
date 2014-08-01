@@ -2530,7 +2530,7 @@ function computeSeqDataTable(){
 }
 function computeInteractionDataTable(){
 	var WholeSet="";
-	var WholeSet= WholeSet + "Residue_i,ResidueName_i,Residue_j,ResidueName_j,Int_Type\n";
+	var WholeSet= WholeSet + "Residue_i,ResidueName_i,Residue_j,ResidueName_j,Int_Type,ColorCol\n";
 	//var WholeSet= WholeSet + "resNum,resName,resNum,resName,bp_type\n";
 	
 	$.each(rvDataSets[0].BasePairs, function (index,basepair) {
@@ -2550,7 +2550,7 @@ function computeInteractionDataTable(){
 			":" + rvDataSets[0].Residues[k].resNum;
 		}
 	
-		WholeSet+= ResName1 + "," + rvDataSets[0].Residues[j].resName + "," + ResName2 + "," + rvDataSets[0].Residues[k].resName + "," + basepair.bp_type + "\n";
+		WholeSet+= ResName1 + "," + rvDataSets[0].Residues[j].resName + "," + ResName2 + "," + rvDataSets[0].Residues[k].resName + "," + basepair.bp_type + "," + basepair.color_hex + "\n";
 	});
 	
 	return WholeSet.replace(/,/g,'\t');
