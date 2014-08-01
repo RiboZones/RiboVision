@@ -844,12 +844,15 @@ function rvDataSet(DataSetName) {
 						break;
 					case "residues":
 						var grd = colorLayer.CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
+						
 						if (rvDataSets[0].Residues[j].color && rvDataSets[0].Residues[k].color) {
 							color1 = colorNameToHex(rvDataSets[0].Residues[j].color);
 							color2 = colorNameToHex(rvDataSets[0].Residues[k].color);
 							
 							grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + "," + targetLayer.Data[i].opacity + ")");
 							grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + "," + targetLayer.Data[i].opacity + ")");
+						} else {
+							color1='#231F20';
 						}
 						//colorLayer.addLinearGradient(grd);
 						targetLayer.Data[i]["color"] = grd;
@@ -863,6 +866,8 @@ function rvDataSet(DataSetName) {
 							
 							grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + "," + targetLayer.Data[i].opacity + ")");
 							grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + "," + targetLayer.Data[i].opacity + ")");
+						} else {
+							color1='#231F20';
 						}
 						//colorLayer.addLinearGradient(grd);
 						targetLayer.Data[i]["color"] = grd;
@@ -877,6 +882,8 @@ function rvDataSet(DataSetName) {
 							//color2 = colorNameToHex("#231F20");
 							grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + "," + targetLayer.Data[i].opacity + ")");
 							grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + "," + targetLayer.Data[i].opacity + ")");
+						} else {
+							color1='#231F20';
 						}
 						//colorLayer.addLinearGradient(grd);
 						targetLayer.Data[i]["color"] = grd;
@@ -916,6 +923,7 @@ function rvDataSet(DataSetName) {
 				}
 			}
 		}
+		rvDataSets[0].BasePairs=targetLayer.Data;
 	}
 };
 
