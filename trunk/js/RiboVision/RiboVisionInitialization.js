@@ -1035,11 +1035,13 @@ function RiboVisionReady() {
 };
 
 function InitRibovision(FreshState) {
+	//debugger;
 	rvDataSets[0] = new rvDataSet("EmptyDataSet");
 	rvDataSets[0].addHighlightLayer("HighlightLayer", "HighlightLayer", [], false, 1.176, 'highlight');
 	rvDataSets[0].addLayer("Interactions", "InteractionsLayer", [], true, 1.0, 'lines');
 	rvDataSets[0].addLayer("Labels", "LabelLayer", [], true, 1.0, 'labels');
 	rvDataSets[0].addLayer("Letters", "NucleotideLayer", [], true, 1.0, 'residues');
+	rvDataSets[0].addLayer("ContourLine", "ContourLine", [], true, 1.0, 'contour');
 	rvDataSets[0].addLayer("Circles", "CircleLayer1", [], true, 1.0, 'circles');
 	//rvDataSets[0].addLayer("Data2", "CircleLayer2", [], true, 1.0, 'circles');
 	rvDataSets[0].addLayer("Selection", "SSelectionLayer", [], false, 1.176, 'selected');
@@ -1125,6 +1127,7 @@ function InitRibovision2(noLoad,FreshState) {
 	rvDataSets[0].refreshResiduesExpanded("circles");
 	rvDataSets[0].drawLabels("labels");
 	rvDataSets[0].drawBasePairs("lines");
+	rvDataSets[0].drawContourLines("contour");
 	
 	if (!noLoad){
 		InitRibovision3(FreshState);
@@ -1227,6 +1230,11 @@ function InitRibovision3(FreshState) {
 		if (FreshState){
 			list.iosMenu().data("iosMenu")._insertBackButtons();
 		};
+		if(window.location.hash) {
+			var hash = window.location.hash.substring(1); //Puts hash in variable, and removes the # character
+			loadSpecies(hash);
+			// auto-load species if direct link
+		}
 	});
 }
 ///////////////////////////////////////////////////////////////////////////////

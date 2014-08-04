@@ -216,6 +216,7 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 				ProcessBubble($("#StructDataBubbles").find(".dataBubble:contains('Domains')"),targetLayer[0])
 				//rvDataSets[0].drawResidues("residues");
 				rvDataSets[0].drawLabels("labels");
+				rvDataSets[0].drawContourLines("contour");
 				
 				drawNavLine(); //load navLine 
 				if(myJmol!=null){
