@@ -84,6 +84,7 @@ function zoom(px, py, factor, rvViewObj) {
 	rvViewObj.y = (rvViewObj.y - py) * factor + py;
 	rvViewObj.scale *= factor;
 	rvDataSets[0].drawResidues("residues");
+	rvDataSets[0].drawContourLines("contour");
 	rvDataSets[0].drawSelection("selected");
 	rvDataSets[0].refreshResiduesExpanded("circles");
 	rvDataSets[0].drawLabels("labels");
@@ -95,6 +96,7 @@ function pan(dx, dy) {
 	rvViews[0].x += dx;
 	rvViews[0].y += dy;
 	rvDataSets[0].drawResidues("residues");
+	rvDataSets[0].drawContourLines("contour");
 	rvDataSets[0].drawSelection("selected");
 	rvDataSets[0].refreshResiduesExpanded("circles");
 	rvDataSets[0].drawLabels("labels");
@@ -220,6 +222,7 @@ function resizeElements(noDraw) {
 	
 	if (noDraw!==true){
 		rvDataSets[0].drawResidues("residues");
+		rvDataSets[0].drawContourLines("contour");
 		rvDataSets[0].drawSelection("selected");
 		rvDataSets[0].refreshResiduesExpanded("circles");
 		rvDataSets[0].drawLabels("labels");
@@ -233,6 +236,7 @@ function resetView() {
 	rvViews[0].y = 20;
 	rvViews[0].scale = 1.2;
 	rvDataSets[0].drawResidues("residues");
+	rvDataSets[0].drawContourLines("contour");
 	rvDataSets[0].drawSelection("selected");
 	rvDataSets[0].refreshResiduesExpanded("circles");
 	rvDataSets[0].drawLabels("labels");
@@ -743,6 +747,9 @@ function colorProcess(DataInput, indexMode,targetLayer,colors,SkipDraw) {
 			case "residues":
 				rvDataSets[0].drawResidues(targetLayer.LayerName, dataIndices, colors);
 				break;
+			case "contour":
+				rvDataSets[0].drawContourLines(targetLayer.LayerName, dataIndices, colors);
+				break;
 			default:
 				$( "#dialog-layer-type-error" ).dialog("open")
 		}
@@ -892,6 +899,13 @@ function colorMapping(targetLayer,ChoiceList, ManualCol, OverRideColors, indexMo
 		}
 		switch (targetLayer.Type) {
 		case "circles":
+			var data = new Array;
+			for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
+				data[j] = rvDataSets[0].Residues[j][colName[0]];
+			}
+			colorProcess(data, indexMode[0],targetLayer,colors);
+			break;
+		case "contour":
 			var data = new Array;
 			for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
 				data[j] = rvDataSets[0].Residues[j][colName[0]];
