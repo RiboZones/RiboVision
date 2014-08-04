@@ -601,6 +601,22 @@ function LayerMenu(Layer, key, RVcolor) {
 		//$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="' + 'sele-' + key + '">'))
 		//$("#selectDiv").html(text)
 		break;
+	case "contour":	
+		//Data Label Section
+		$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div>').html("<b>Loaded Data: </b><span name='DataLabel'>" + Layer.DataLabel + "</span>").append($("<br>")).append($("<br>")));
+
+		$("#LayerPanel div").first().next().find(".selectLayerRadioBtn").attr("checked", "checked");
+		$("#LayerPanel div").first().next().find(".radioDIV2").find('input').prop("disabled", false);
+		$("#LayerPanel div").first().next().find(".radioDIV2").find('input').prop("checked", true);
+		$("#MiniOpenLayerBtn").after($('<h3 class="miniLayerName ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom ">')
+			.text($currentLayerName).attr('name', $currentLayerName).droppable({
+				drop : function (event, ui) {
+					ProcessBubbleDrop(event, ui);
+				}
+			}));
+
+		
+		break;
 	default:
 		break;
 	}
