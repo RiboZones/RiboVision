@@ -1,5 +1,11 @@
 <?php
-$dsn = "mysql:host=localhost;dbname=Ribosome_View1;charset=utf8";
+header('Expires: Thu, 01-Jan-70 00:00:01 GMT');
+header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+header('Cache-Control: no-store, no-cache, must-revalidate');
+header('Cache-Control: post-check=0, pre-check=0', false);
+header('Pragma: no-cache');
+
+$dsn = "mysql:host=localhost;dbname=Ribosome_View2;charset=utf8";
 $username = "website";
 $pdo = new PDO($dsn, $username);
 
@@ -9,11 +15,11 @@ if(isset($_GET['Residues'])) {
 	$stmt = $pdo->query($query);
 	$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } else if(isset($_GET['SpeciesTable'])) {
-	$stmt = $pdo->prepare("SELECT * FROM SpeciesTables WHERE SS_Table = ?");
+	$stmt = $pdo->prepare("SELECT * FROM SpeciesTables2 WHERE SS_Table = ?");
 	$stmt->execute(array($_GET['SpeciesTable']));
 	$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } else if(isset($_GET['FetchMapList'])){
-	$query = "SELECT Species_Name, Species_Abr, Subunit,DataSetName, MapType, SS_Table FROM SpeciesTables";
+	$query = "SELECT Species_Name, Species_Abr, Subunit,DataSetName, MapType, SS_Table FROM SpeciesTables2";
 	$stmt = $pdo->query($query);
 	$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } else if(isset($_GET['TextLabels'])) {

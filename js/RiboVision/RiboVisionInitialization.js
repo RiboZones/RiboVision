@@ -1040,8 +1040,8 @@ function InitRibovision(FreshState) {
 	rvDataSets[0].addHighlightLayer("HighlightLayer", "HighlightLayer", [], false, 1.176, 'highlight');
 	rvDataSets[0].addLayer("Interactions", "InteractionsLayer", [], true, 1.0, 'lines');
 	rvDataSets[0].addLayer("Labels", "LabelLayer", [], true, 1.0, 'labels');
-	rvDataSets[0].addLayer("Letters", "NucleotideLayer", [], true, 1.0, 'residues');
 	rvDataSets[0].addLayer("ContourLine", "ContourLine", [], true, 1.0, 'contour');
+	rvDataSets[0].addLayer("Letters", "NucleotideLayer", [], true, 1.0, 'residues');
 	rvDataSets[0].addLayer("Circles", "CircleLayer1", [], true, 1.0, 'circles');
 	//rvDataSets[0].addLayer("Data2", "CircleLayer2", [], true, 1.0, 'circles');
 	rvDataSets[0].addLayer("Selection", "SSelectionLayer", [], false, 1.176, 'selected');
