@@ -1341,7 +1341,8 @@ function ProcessBubble(ui,targetLayer){
 			customDataProcess(ui,targetLayer)
 			break;
 		default :
-			alert("other");
+			//debugger;
+			//alert("other");
 	}
 	
 }
@@ -1458,6 +1459,7 @@ function handleFileSelect(event) {
 				} else {
 					$("#FileDiv").find(".DataDescription").html("Data Description is missing.");
 				}
+				clicky.log(window.location.pathname + window.location.hash,'User Data Import');
 				$("#CustomDataBubbles").find(".dataBubble").attr("FileName",FileReaderFile[0].name);
 				//Add Custom Lines support here. 
 				if($.inArray("Residue_i", customkeys) >= 0) {
@@ -1798,6 +1800,7 @@ function checkSavePrivacyStatus() {
 		$("#Privacy-confirm").dialog('open');
 	} else {
 		AgreeFunction();
+		clicky.log(window.location.pathname + window.location.hash,'User Download','download');
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////
@@ -2376,6 +2379,18 @@ function canvasToSVG() {
 								alert("this shouldn't be happening right now 54.");
 							
 						}
+					}
+					output = output + '</g>\n';
+					break;
+				case "contour" :
+					output = output + '<g id="' + value.LayerName + '">\n';
+					for (var j = 0; j < rvDataSets[0].ContourLinePoints.length; j++) {
+						var ContourLinePoint = rvDataSets[0].ContourLinePoints[j];
+						output = output + '<polyline fill="none" stroke="' + value.dataLayerColors[j] + '" stroke-opacity="' + '1' + '" stroke-width="' + '3.2' + 
+						'" stroke-linejoin="round" stroke-miterlimit="10" points="' + parseFloat(ContourLinePoint.X1).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y1).toFixed(3)
+						+ ' ' + parseFloat(ContourLinePoint.X2).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y2).toFixed(3)
+						+ ' ' + parseFloat(ContourLinePoint.X3).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y3).toFixed(3)
+						+ ' "/>\n';
 					}
 					output = output + '</g>\n';
 					break;
