@@ -213,6 +213,7 @@ function rvDataSet(DataSetName) {
 	//Properties
 	this.Name = DataSetName;
 	this.Layers = [];
+    this.numDomains = 0; //This gets found later, defaults to 0
 	this.HighlightLayer = [];
 	this.Residues = [];
 	this.ResidueList = [];
@@ -286,6 +287,8 @@ function rvDataSet(DataSetName) {
 		this.Residues = rvResidues;
 		this.ResidueList = makeResidueList(rvResidues);
 		this.SequenceList = makeSequenceList(rvResidues);
+        this.domainNames = findDomainNames(rvResidues);
+        this.numDomains = this.domainNames.length; //just for convenience and clarity really.
 	};
 	this.addLabels = function (rvTextLabels, rvLineLabels, rvExtraLabels) {
 		if (rvTextLabels !== undefined){
@@ -592,7 +595,7 @@ function rvDataSet(DataSetName) {
 		});
 		return ret;
 	}
-	
+   
 	// Private functions, kinda
 	function makeResidueList(rvResidues) {
 		var ResidueListLocal = [],j;
@@ -602,12 +605,53 @@ function rvDataSet(DataSetName) {
 		return ResidueListLocal;
 	}
 	function makeSequenceList(rvResidues) {
+        //This function takes the array rvResidues, which contains residue objects which in turn
+        //contain a residue name field, and returns the string SequenceListLocal which is an ongoing
+        //string of residue names.
 		var SequenceListLocal = "",j;
 		for (j = 0; j < rvResidues.length; j++) {
-			SequenceListLocal = SequenceListLocal.concat(rvResidues[j].resName);
+			SequenceListLocal = SequenceListLocal.concat(rvResidues[j].modResName);
 		}
 		return SequenceListLocal;
 	}
+    function findDomainNames(rvResidues) {
+        //This function parses the rvResidues array and finds the largest domain number
+        var domNames = rvResidues[0].Domain_RN + ","; //pulls domain name of first residue
+        var curDomain;
+        var numDomains = 0;
+        for (var j = 1; j < rvResidues.length; j++) {
+            curDomain = rvResidues[j].Domain_RN;
+            if (!(stringContains(domNames,curDomain))) { //if the comma separated string doesn't contain this domain name.
+                domNames += rvResidues[j].Domain_RN + ","; //add current domain name to string
+                numDomains++; //add 1 domain
+            }
+        }
+        var output = new Array(numDomains);
+        var counter = 0;
+        var start = 0; // used for clipping strings below
+        for (var j = 0; j < domNames.length; j++) {
+            if (domNames.charAt(j) == ",") { //if the character at point j is a comma
+                output[counter] = domNames.slice(start,j); //snip the previous domain name and store it in the output
+                start = j+1; //set start of next domain name
+                counter++;
+            }
+        }
+        return output; //returns an array of strings representing "Roman Numeral" domain names
+        function stringContains(str, tok) { //private function to check if the string already contains this name
+            var token = "";
+            for (var j = 0; j < str.length; j++) { //this is essentially a rewrite of the java strTok function.
+                if (str.charAt(j) != ",") { //if character is not a separation comma
+                    token += str.charAt(j); //builds a domain name
+                } else {
+                    if (token == tok) {
+                        return true; //checks if its the same as the input
+                    }
+                    token = ""; //resets the token
+                }
+            }
+            return false;
+        }
+    }    
 	function refreshLayer(targetLayer) {
 		if (rvDataSets[0].Residues !== undefined && targetLayer.Type === "circles") {
 			targetLayer.clearCanvas();
@@ -916,6 +960,207 @@ function rvDataSet(DataSetName) {
 		}
 	}
 };
+
+//Nucleotide object, used in the 1D panel for drawing and selection. The actual structure of any given domain in the 1D panel is a singly linked list.
+function oneDimNucleotide(type, domain, number, xCoord, yCoord) {
+    this.selected = false; //all nucleotides start off unselected
+    this.type = type; //A,C,U,T,or G
+    this.domain = domain; //domain number, used for sorting in 1D panel
+    this.number = number; //overall nucleotide number in the total genetic sequence of the RNA piece
+    this.next = false; //false is the same as no object in JavaScript. Go figure...
+    this.x = xCoord;
+    this.y = yCoord;
+    this.drawnObject = null; //starting out there is no drawn object (nothing on the screen)
+    this.setNext = function(nextNode) {
+        next = nextNode;
+    }
+    this.draw = function(graphics) {
+        this.drawnObject = graphics.append("text") // append text to panel
+            .attr("x", this.x) //x position
+            .attr("y", this.y) //y position
+            .attr("text-anchor","left")
+            .attr("color", this.getColor())
+            .text(this.type);
+    }
+    this.setSelected = function(input) {
+        if (input === true) {
+            this.selected = input;
+        } else if (input === false) {
+            this.selected = input;
+        } else {
+            this.selected = false;
+        }
+        this.drawnObject.attr("fill", this.getColor());
+    }
+    this.getColor = function() {
+        var output = "black";
+        if (this.selected == true) {
+            output = "blue";
+        }
+        return output;
+    }
+}
+        
+
+//One dimensional panel mouse listener. Used to draw selections and throw selection events.
+function OneDPanelMouseListener(sequenceArray, coordArray, mLength, panel) {
+    this.sequence = sequenceArray;
+    this.maxDomLength = mLength;
+    this.panel = panel;
+    this.startCoords = new Array(2); //starting x/y on the page, starts undefined
+    this.endCoords = new Array(2); //ending x/y
+    this.mouseDown = false;
+    this.cArr = coordArray; // [starting X, starting Y, Y incrament, X incrament] this is used to calculate which nucleotides are selected
+    this.setMouseDown = function(input) {
+        if (input === true) { //makes sure no javascript nonsense occurs. Only boolean true/false are accepted, no objects or nulls.
+            this.mouseDown = true;
+        } else if (input === false) {
+            this.mouseDown = false;
+        }
+    }
+    this.setStart = function(x, y) {
+        this.startCoords[0] = x;
+        this.startCoords[1] = y;
+    }
+    this.setStop = function(x, y) {
+        this.endCoords[0] = x;
+        this.endCoords[1] = y;
+    }
+    this.throwEvent = function() { //This function calculates the nucleotides selected, selects them, and then throws an event containing their numbers.
+        if (this.mouseDown == true) { //don't throw events while mouseDown flag is up
+            return
+        }
+        var xStart, xEnd, yStart, yEnd; //coordinates of the selection. Start is always smaller than end, defined below.
+        if (this.startCoords[0] > this.endCoords[0]) { //case where the user clicks then drags up and to the left
+            xStart = this.endCoords[0];
+            xEnd = this.startCoords[0];
+        } else if (this.startCoords[0] < this.endCoords[0]) { //case where the user clicks then drags down and to the right
+            xStart = this.startCoords[0];
+            xEnd = this.endCoords[0];
+        } else { //case of a click without moving
+            return //do nothing
+        }
+        if (this.startCoords[1] > this.endCoords[1]) { //case where the user clicks then drags up and to the left
+            yStart = this.endCoords[1];
+            yEnd = this.startCoords[1];
+        } else if (this.startCoords[1] < this.endCoords[1]) { //case where the user clicks then drags down and to the right
+            yStart = this.startCoords[1];
+            yEnd = this.endCoords[1];
+        } else { //case of a click without moving
+            return //do nothing
+        }
+        if (xStart > this.maxDomLength * this.cArr[3] || xEnd < this.cArr[0] || yEnd < this.cArr[1] || yStart > (this.cArr[1] + this.cArr[2] * this.sequence.length)){
+            return //if the user selects outside the range of any nucleotides don't do anything
+        }
+        var selection = ""; //selection is a comma separated string of the selected nucleotides numbers
+        for (var i = 0; i < this.sequence.length; i++) {
+            for (var j = 0; j < this.sequence[i].length; j++) {
+                if ((this.sequence[i][j].x >= xStart) && (this.sequence[i][j].x <= xEnd) && (this.sequence[i][j].y >= yStart) && (this.sequence[i][j].y <= yEnd)) { //if within selection
+                    this.sequence[i][j].setSelected(true); //selects nucleotide
+                    selection += this.sequence[i][j].number + ",";
+                } else {
+                    this.sequence[i][j].setSelected(false); //deselects prior selections
+                }
+            }
+        }
+        if (selection.length < 1) {
+            return; //no selection
+        } else { //Chad, I couldn't figure out how you are doing your communication in this program, though it doesn't appear to use events.
+        //at this point you have a comma separated string containing the selection. It should be relatively straighforward to integrate it into
+        // your own panels from here. I was thinking of doing something like what I have below but you don't seem to use events so i'm not entirely
+        // sure how you would want this integrated.
+        //    var selectionEvent = new oneDSelection(selection);
+        //    throw selectionEvent
+        }
+    }
+}
+
+function OneDimSelectionBox(graphics) {
+//this object is a selection box for the 1D panel made of 4 individual line objects attached to a graphics panel
+    this.g = graphics;
+    this.lastPoint = [0,0];
+    this.top = this.g.append("line")
+                     .attr("x1", -5)
+                     .attr("x2", 0)
+                     .attr("y1", -5)
+                     .attr("y2", 0)
+                     .attr("stroke", "blue")
+                     .attr("stroke-width", 1);
+    this.bot = this.g.append("line")
+                     .attr("x1", -5)
+                     .attr("x2", 0)
+                     .attr("y1", -5)
+                     .attr("y2", 0)
+                     .attr("stroke", "blue")
+                     .attr("stroke-width", 1);
+    this.left = this.g.append("line")
+                     .attr("x1", -5)
+                     .attr("x2", 0)
+                     .attr("y1", -5)
+                     .attr("y2", 0)
+                     .attr("stroke", "blue")
+                     .attr("stroke-width", 1);
+    this.right = this.g.append("line")
+                     .attr("x1", -5)
+                     .attr("x2", 0)
+                     .attr("y1", -5)
+                     .attr("y2", 0)
+                     .attr("stroke", "blue")
+                     .attr("stroke-width", 1);
+    this.setStart = function(xStart, yStart) {
+    //This method is called when the user clicks the mouse down, it puts a small box under their cursor
+        this.lastPoint[0] = xStart;
+        this.lastPoint[1] = yStart;
+        this.top.attr("x1", xStart);
+        this.top.attr("y1", yStart);
+        this.top.attr("y2", yStart);
+        this.top.attr("x2", xStart + 1);
+        this.left.attr("x1", xStart);
+        this.left.attr("y1", yStart);
+        this.left.attr("x2", xStart);
+        this.left.attr("y2", yStart + 1);
+        this.bot.attr("x1", xStart);
+        this.bot.attr("y1", yStart + 1);
+        this.bot.attr("x2", xStart + 1);
+        this.bot.attr("y2", yStart + 1);
+        this.right.attr("x1", xStart + 1);
+        this.right.attr("x2", xStart + 1);
+        this.right.attr("y1", yStart);
+        this.right.attr("y2", yStart + 1);
+    }
+    this.moveBox = function(x,y) { //this method is called when the user moves the mouse with the button down
+        this.lastPoint[0] = x;
+        this.lastPoint[1] = y;
+        this.top.attr("x2", x);
+        this.left.attr("y2", y);
+        this.bot.attr("y1", y);
+        this.bot.attr("y2", y);
+        this.bot.attr("x1", x);
+        this.right.attr("x1", x);
+        this.right.attr("x2", x);
+        this.right.attr("y2", y);
+    }
+    this.reset = function() {//this method removes the box from the screen
+        this.lastPoint[0] = 0;
+        this.lastPoint[1] = 0;
+        this.top.attr("x1", -1);
+        this.top.attr("y1", -1);
+        this.top.attr("y2", -1);
+        this.top.attr("x2", -1);
+        this.left.attr("x1", -1);
+        this.left.attr("y1", -1);
+        this.left.attr("x2", -1);
+        this.left.attr("y2", -1);
+        this.bot.attr("x1", -1);
+        this.bot.attr("y1", -1);
+        this.bot.attr("x2" -1);
+        this.bot.attr("y2", -1);
+        this.right.attr("x1", -1);
+        this.right.attr("x2", -1);
+        this.right.attr("y1", -1);
+        this.right.attr("y2", -1);
+    }
+}
 
 function rvView(x, y, scale) {
 	//Properties
