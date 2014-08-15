@@ -2831,10 +2831,12 @@ function changeLineOpacity(opacity){
 	rvDataSets[0].drawBasePairs("lines");
 }
 ////////////////Nav Line ///////
-
+// The drawNavLine function draws the current 1D panel, this is what needs to be re-written.
+// The goal is for the new version of it to draw the nucleotides in a string.
+// 6/28/2014, test version. Added comments/remarks to the code.
 function drawNavLine(){
-		if($('input[name="nl"][value=off]').is(':checked')){
-			return;
+		if($('input[name="nl"][value=off]').is(':checked')){ //checks if input exists and has a value
+			return; //error condition, screen not ready or something like that
 		}
 		$('#NavLineDiv').empty(); //clean div before draw new graph
 		var data = [];
@@ -2844,27 +2846,60 @@ function drawNavLine(){
 		var maxdata = undefined; 
 		var mindata = undefined; 
 		
-		var targetLayer=rvDataSets[0].getSelectedLayer();
+		var targetLayer=rvDataSets[0].getSelectedLayer(); //rvDataSets is an array containing the data sets
+        //contents of rvDataSets: still working on that....
+        //currently selected layer of current data set.
 		if (targetLayer===false){
-			return;
+			return; // if it doesn't exist exit.
 		}
 		var linename = targetLayer.DataLabel;
-		var	w = 1.00 * $('#NavLineDiv').innerWidth();
-		var h = 0.95 * $('#NavLineDiv').innerHeight();
+        var panelWidth = $('#NavLineDiv').innerWidth();
+        var panelHeight = $('#NavLineDiv').innerHeight();
 		var	MarginXL = 60;
 		var MarginXR = 120;
-		var MarginYT = 40;
-		var MarginYB = 40;
+		var MarginYT = 20;
+        var LeftOffset = 1100;
+		var MarginYB = 2; //sets margins (how far you step when you start drawing)
+        var yIncrament = 20; //Gap between lines
+        var xStart = 80; //offset from the left of the screen to start drawing at
+        var yStart = 35; //offset from the top of the screen to start drawing at
+        var letterGap = 12; //spacing between nucleotides
+        var coordArray = [xStart, yStart, yIncrament, letterGap]; //passed to the oneDPanelMousListener to calculate selections
+        var c = 0; //iterrator
+        var maxDomLength = 0; //used to find longest domain
+        var numDomains = rvDataSets[0].numDomains; //number of domains
+        var domNames = rvDataSets[0].domainNames; //Array with all the domain names, contains values from the Domain_RN field
+        var sequenceArray = new Array(numDomains); //This array stores the individual domains
+        for (var i = 0; i < numDomains; i++) {
+            sequenceArray[i] = generateDomain(domNames[i], xStart, yStart, letterGap); //the generateSequence function parses rvDataSets[0].residues for all the nucleotides within domain i
+            if (sequenceArray[i].length > maxDomLength) {
+                maxDomLength = sequenceArray[i].length;
+            }
+            yStart += yIncrament;
+        }
+        var wCoeff = (xStart + (letterGap * maxDomLength)) / panelWidth; //determines how many times longer the sequence is than the panel
+        var hCoeff = yStart / panelHeight; // same for height
+        var	w = wCoeff * panelWidth; //size definitions 
+		var h = hCoeff * panelHeight; //used to dinamically add scroll bars to the 1D panel as needed to fit all data
+        
+
 		
 		var maxdata2 = d3.max($.map(targetLayer.Data, function(d) { return parseFloat(d); }));
 		var mindata2 = d3.min($.map(targetLayer.Data, function(d) { return parseFloat(d); }));
-		
+        //Not sure what these lines do, need to ask Chad
+        //Hypothesis on what this does:
+        // d3 is an object with values min and max, declared in the function calls for min/max data2
+        // the min and max values are extracted from JQuery.map which aparently returns an array.
+        // The JQuery.map function takes in the data of the current target layer and a float value.
+        // The fload value is parsed via an in line function from a variable called d.
+        // What d is I have no idea.
+		// No idea what's going on below here
 		if (maxdata2 !== undefined){
 			maxdata = maxdata2;
 		} 
 		if (mindata2 !== undefined){
 			mindata = mindata2;
-		} 
+		} //checks if we got the values then assigns them to the undefined variables 
 		if (targetLayer.Type == "selected"){
 			maxdata=1;
 			mindata=0;
@@ -2873,8 +2908,11 @@ function drawNavLine(){
 			maxdata=1;
 			mindata=0;
 		}
+        //This whole mess above defines some sort of minimum and maximum values held in min/max data
 		var	xScale = d3.scale.linear().domain([0, rvDataSets[0].Residues.length]).range([0 + MarginXL, w - MarginXR]);
+        //Xscale is a macro, not really sure how it works or what it returns
 		var	yScale = d3.scale.linear().domain([mindata, maxdata]).range([h - MarginYB,0 + MarginYT ]);
+        //YScale, likely an array containing the markers of the Y scale on the grpah, don't need this either.
 		var NavLine = d3.select("#NavLineDiv")
 			.append("svg:svg")
 			.attr("width", w)
@@ -2884,18 +2922,21 @@ function drawNavLine(){
 			.attr("width", w)
 			.attr("height", h);
 			//.attr("transform", "translate(0, " + 200+")");
-			
-			
+            
+        var ODSelectionBox = new OneDimSelectionBox(NavLine);
+        
 		var line = d3.svg.line()
 			.defined(function(d) { 
 				return (((d!==undefined) && d!=="") ? !isNaN(d) : false) 
 			})			
-			.x(function(d,i) { return xScale(i); })
-			.y(function(d) { return yScale(d); });	
+			//.x(function(d,i) { return xScale(i); })
+			.y(function(d) {        
+            return yScale(d); });	
 		
 		var GraphData = [];
 		if (targetLayer.Type === "selected"){
-			$.each(targetLayer.Data, function (index,value){
+			$.each(targetLayer.Data, function (index,value)
+            {
 				if (value === false){
 					GraphData[index]=0;
 				} else {
@@ -2919,44 +2960,143 @@ function drawNavLine(){
 		} else {
 			GraphData = targetLayer.Data;
 		}
-		
-		g.append("svg:path").attr("d", line(GraphData)).style("stroke", targetLayer.Color);
+		g.append("svg:path")
+            .attr("d", line(GraphData))
+            .style("stroke", targetLayer.Color);
 		//Axes
-		var xAxis = d3.svg.axis()
-			  .scale(xScale)
-			  .orient("bottom")
-			  .ticks(20);  //Set rough # of ticks
+        // The x axis was used in a prior version of the 1D panel, left here for reference
+		//var xAxis = d3.svg.axis()
+			  //.scale(xScale)
+			  //.orient("bottom")
+			  //.ticks(20);  //Set rough # of ticks
 			  
-		NavLine.append("g")
-			.attr("class", "axis")  //Assign "axis" class
-			.attr("transform", "translate(0," + (h - MarginYB) + ")")
-			.call(xAxis);
-			
-		var yAxis = d3.svg.axis()
-			  .scale(yScale)
-			  .orient("left")
-			  .ticks(5);
+		//NavLine.append("g")
+			//.attr("class", "axis")  //Assign "axis" class
+			//.attr("transform", "translate(0," + (h - MarginYB) + ")")
+			//.call(xAxis);
+            
+		// var yAxis = d3.svg.axis()
+			  // .scale(yScale)
+			  // .orient("left")
+			  // .ticks(numDomains);
 		
-		NavLine.append("g")
-			.attr("class", "axis")
-			.attr("transform", "translate(" + MarginXL + ",0)")
-			.call(yAxis);
-		
-		//XLabel			
-		g.append("text")
-		  .attr("x", (w - MarginXR-MarginXL)/2 + MarginXL)
-		  .attr("y", h-MarginYB/4)
-		  .attr("text-anchor", "middle")
-		  .text("Nucleotide Number");	
+		// NavLine.append("g")
+			// .attr("class", "axis")
+			// .attr("transform", "translate(" + MarginXL + ",0)")
+			// .call(yAxis);
+        //Drawing loop
+        yStart = yStart - numDomains*yIncrament; //resets the yStart variable for domain labeling
+        xStart = xStart - 80; //offset to prevent overlapping
+        var numUndefined = 0; //This is used to compensate for empty domains.
+        while (c < numDomains) {
+            if (sequenceArray[c] !== false) { //a "false" domain is one that is empty
+                g.append("text")
+                    .attr("x", xStart)
+                    .attr("y", yStart)
+                    .attr("text-anchor","left")
+                    .text("Domain " + domNames[c] + ":"); //EX) Domain III: 
+                    for (var j = 0; j < sequenceArray[c].length; j++) {
+                        sequenceArray[c][j].draw(g); //The data is a matrix with domain number on the y and sequence number on the x
+                    }
+                    yStart += yIncrament;
+            } else {
+                numUndefined++;
+            }
+            c++;
+        }
+        var ODMouseListener = new OneDPanelMouseListener(sequenceArray, coordArray, maxDomLength, g); //handles selection and the selection event
+        //The one D panel mouse listener is defined in the RiboVisionObjects.js file
+        
+        //Add the selection listener
+        NavLine[0][0].onmousedown = gMouseDown;
+        NavLine[0][0].onmousemove = gMouseMove;
+        NavLine[0][0].onmouseup = gMouseUp
+		//XLabel
+        // The x axis was used in a prior version of the 1D panel, left here for reference
+		//g.append("text")
+		  //.attr("x", (w - MarginXR-MarginXL)/2 + MarginXL)
+		  //.attr("y", h-MarginYB/4)
+		  //.attr("text-anchor", "middle")
+		  //.text("Nucleotide Number");	
 		  
 		//add legend to the navline 
-		 g.append("text")
-		  .attr("x", MarginXL/4)
-		  .attr("y", h/2)
-		  .attr("text-anchor", "middle")
-		  .attr("transform", "rotate(-90 " + "," + MarginXL/4 + "," + h/2 + ")")
-		  .text(linename);	
-		
+		 // g.append("text")
+		  // .attr("x", MarginXL/4)
+		  // .attr("y", h/2)
+		  // .attr("text-anchor", "middle")
+		  // .attr("transform", "rotate(-90 " + "," + MarginXL/4 + "," + h/2 + ")")
+		  // .text(linename);
+        
+        //These are "private" functions used for mouse listeners in the 1D panel
+        //These just keep track of where the mouse is in the 1D panel and pass that info to the One Dimensional Panel Mouse Listener
+        function gMouseDown(event) {
+            //event.preventDefault();
+            ODMouseListener.setMouseDown(true);
+            ODMouseListener.setStart(event.offsetX, event.offsetY);
+            ODSelectionBox.setStart(event.offsetX, event.offsetY);
+        }
+        function gMouseUp(event) {
+            if ((typeof event.offsetX) === 'undefined' || (typeof event.offsetY) === 'undefined') {
+                ODSelectionBox.reset();
+                return //sanity check, scrolling around the panel using a laptop mouse pad trips the listeners using undefined coordinates
+            }
+            event.preventDefault();
+            ODMouseListener.setMouseDown(false);
+            ODMouseListener.setStop(event.offsetX, event.offsetY);
+            ODSelectionBox.reset();
+            ODMouseListener.throwEvent(); //ODMouseListener throws an event containing a string of comma separated numbers representing nucleotides to select in other panels
+        }
+        //This function just draws a box while the user is selecting.
+        function gMouseMove(event) {
+            if (ODMouseListener.mouseDown == true) {
+                if (jerkingFix(event)) {
+                    ODSelectionBox.moveBox(event.offsetX, event.offsetY);
+                }
+            }
+        }
+        function jerkingFix(event) {
+        //This function smooths out the movement of the selection box, it checks for "fake" mouse move events
+        //if the differance between the mouses last coordinates and its current coordinates is too large the event
+        //gets ignored.
+        var jerkingThreshold = 0.8; //Any movement representing more than a 50% change from the last movement
+            if ((Math.abs(event.offsetX - ODSelectionBox.lastPoint[0]) / ODSelectionBox.lastPoint[0]) > jerkingThreshold) {
+                return false //false means ignore this movement
+            } else if ((Math.abs(event.offsetY - ODSelectionBox.lastPoint[1]) / ODSelectionBox.lastPoint[1]) > jerkingThreshold) {
+                return false
+            } else {
+                return true
+            }
+        }
+}
+function generateDomain(i, xInput, yInput, letterGap) {
+    //This is a helper function to drawNavLine() which finds all of the nucleotides in a given rvDataSets with domain i (a Domain_RN value). It returns an array.
+    var nType, domain;
+    var nNum = 0;
+    var nX = xInput;
+    var nCount = 0; 
+    if (rvDataSets[0].Residues.length == 0) {
+        return false; //This is an error condition that will cause the drawing function to stop. Used before data is loaded
+    }
+    for (var j = 0; j < rvDataSets[0].Residues.length; j++) { //first loop just determines size of the array to allocate
+        if (i.localeCompare(rvDataSets[0].Residues[j].Domain_RN)) { //if the roman numeral name of residue J is the same as the input
+            nCount++;
+        }
+    }
+    if (nCount == 0) {
+        return false; //if a domain is empty, its counted as false. False domains are not drawn;
+    }
+    domain = new Array(nCount);
+    nCount = 0; //resets nCount to use it again in the second loop
+    for (var j = 0; j < rvDataSets[0].Residues.length; j++) { //second loop creates nucleotides and allocates them, faster than dynamically expanding the array.
+        if (i.localeCompare(rvDataSets[0].Residues[j].Domain_RN)) { //if the domain of nucleotide j as a number is equal to the input
+            nType = rvDataSets[0].Residues[j].modResName; //residue name;
+            nNum = rvDataSets[0].Residues[j].id; //NOTE! NUCLEOTIDES ARE NUMBERED FROM 1 NOT 0!!
+            domain[nCount] = new oneDimNucleotide(nType, i, nNum, nX, yInput); //creates a nucleotide object
+            nX += letterGap; //lettergap is defined in drawNavLine and is the spacing between letters
+            nCount++;
+        }
+    }
+    return domain;
 }
 
 function addPopUpWindowResidue(ResIndex){
