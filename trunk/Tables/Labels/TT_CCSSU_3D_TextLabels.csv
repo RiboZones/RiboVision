@@ -1,24 +1,24 @@
 LabelText,X,Y,Font,FontSize,Fill
 varchar(500),"real(8,3)","real(8,3)",varchar(100),"real(6,3)",char(7)
-1,571.5312,408.8871,MyriadPro-Regular,7.9096,#0D72BA
-2,611.834,393.2944,MyriadPro-Regular,7.9096,#0D72BA
-3,536.7695,365.5741,MyriadPro-Regular,7.9096,#0D72BA
-19,554.4492,339.6655,MyriadPro-Regular,7.9096,#0D72BA
-27,630.9492,350.6791,MyriadPro-Regular,7.9096,#0D72BA
-28,632.0234,400.5131,MyriadPro-Regular,7.9096,#0D72BA
-1,568.5576,425.6361,MyriadPro-Regular,4.5198,#7F141D
-10,566.2979,402.5375,MyriadPro-Regular,4.5198,#7F141D
-20,585.5073,397.2929,MyriadPro-Regular,4.5198,#7F141D
-30,550.479,398.4223,MyriadPro-Regular,4.5198,#7F141D
-40,532.2529,373.5233,MyriadPro-Regular,4.5198,#7F141D
-50,557.1118,352.0546,MyriadPro-Regular,4.5198,#7F141D
-60,565.353,305.8246,MyriadPro-Regular,4.5198,#7F141D
-70,586.3804,349.4149,MyriadPro-Regular,4.5198,#7F141D
-80,620.1543,350.5448,MyriadPro-Regular,4.5198,#7F141D
-90,614.5098,379.3622,MyriadPro-Regular,4.5198,#7F141D
-100,597.5601,377.1024,MyriadPro-Regular,4.5198,#7F141D
-110,617.8994,403.0273,MyriadPro-Regular,4.5198,#7F141D
-120,665.8281,414.6991,MyriadPro-Regular,4.5198,#7F141D
-130,614.5098,429.0121,MyriadPro-Regular,4.5198,#7F141D
-central core of small subunit ribosomal RNA,688.6142,795.4655,MyriadPro-Regular,12.7559,#231F20
-Thermus thermophilus,689.2245,777.039,MyriadPro-Regular,19.1339,#231F20
+1,279.9219,382.5767,MyriadPro-Regular,7,#1173BB
+2,315.5898,368.7759,MyriadPro-Regular,7,#1173BB
+3,249.1582,344.2432,MyriadPro-Regular,7,#1173BB
+19,264.8057,321.3149,MyriadPro-Regular,7,#1173BB
+27,332.5088,331.061,MyriadPro-Regular,7,#1173BB
+28,333.458,375.165,MyriadPro-Regular,7,#1173BB
+1,277.291,397.3984,MyriadPro-Regular,4,#80141F
+10,275.2891,376.9561,MyriadPro-Regular,4,#80141F
+20,292.291,372.3149,MyriadPro-Regular,4,#80141F
+30,261.291,373.3154,MyriadPro-Regular,4,#80141F
+40,245.1611,351.2798,MyriadPro-Regular,4,#80141F
+50,267.1621,332.2783,MyriadPro-Regular,4,#80141F
+60,274.4541,291.3657,MyriadPro-Regular,4,#80141F
+70,293.0645,329.9419,MyriadPro-Regular,4,#80141F
+80,322.9531,330.9438,MyriadPro-Regular,4,#80141F
+90,317.96,356.4458,MyriadPro-Regular,4,#80141F
+100,302.957,354.4463,MyriadPro-Regular,4,#80141F
+110,320.959,377.3911,MyriadPro-Regular,4,#80141F
+120,363.375,387.7192,MyriadPro-Regular,4,#80141F
+130,317.96,400.3867,MyriadPro-Regular,4,#80141F
+central core of small subunit ribosomal RNA,375.4854,748.2598,MyriadPro-Regular,12.0001,#231F20
+Thermus thermophilus,376.0596,730.9268,MyriadPro-Regular,18.0003,#231F20
