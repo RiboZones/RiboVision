@@ -75,33 +75,8 @@ function initLabels(species) {
 
 
 ////////////////////////// Window Functions ///////////////////////////////////
-function zoom(px, py, factor, rvViewObj) {
-	if (rvViewObj == undefined) {
-		rvViewObj = rvViews[0];
-	}
-	
-	rvViewObj.x = (rvViewObj.x - px) * factor + px;
-	rvViewObj.y = (rvViewObj.y - py) * factor + py;
-	rvViewObj.scale *= factor;
-	rvDataSets[0].drawResidues("residues");
-	rvDataSets[0].drawContourLines("contour");
-	rvDataSets[0].drawSelection("selected");
-	rvDataSets[0].refreshResiduesExpanded("circles");
-	rvDataSets[0].drawLabels("labels");
-	rvDataSets[0].drawBasePairs("lines");
-	
-}
-
-function pan(dx, dy) {
-	rvViews[0].x += dx;
-	rvViews[0].y += dy;
-	rvDataSets[0].drawResidues("residues");
-	rvDataSets[0].drawContourLines("contour");
-	rvDataSets[0].drawSelection("selected");
-	rvDataSets[0].refreshResiduesExpanded("circles");
-	rvDataSets[0].drawLabels("labels");
-	rvDataSets[0].drawBasePairs("lines");
-	
+function pan(dx,dy){
+	rvViews[0].panXY(dx,dy);
 }
 
 function resizeElements(noDraw) {
@@ -215,26 +190,28 @@ function resizeElements(noDraw) {
 	$("#LogoDiv").css('height', 0.1 * height);
 	$("#LogoDiv").css('top', $("#menu").css('height'));
 	
-	rvViews[0].width = rvDataSets[0].HighlightLayer.Canvas.width;
-	rvViews[0].height = rvDataSets[0].HighlightLayer.Canvas.height;
-	rvViews[0].clientWidth = rvDataSets[0].HighlightLayer.Canvas.clientWidth;
-	rvViews[0].clientHeight = rvDataSets[0].HighlightLayer.Canvas.clientHeight;
-	
-	if (noDraw!==true){
-		rvDataSets[0].drawResidues("residues");
-		rvDataSets[0].drawContourLines("contour");
-		rvDataSets[0].drawSelection("selected");
-		rvDataSets[0].refreshResiduesExpanded("circles");
-		rvDataSets[0].drawLabels("labels");
-		rvDataSets[0].drawBasePairs("lines");
+	if (rvViews[0]){
+		rvViews[0].width = rvDataSets[0].HighlightLayer.Canvas.width;
+		rvViews[0].height = rvDataSets[0].HighlightLayer.Canvas.height;
+		rvViews[0].clientWidth = rvDataSets[0].HighlightLayer.Canvas.clientWidth;
+		rvViews[0].clientHeight = rvDataSets[0].HighlightLayer.Canvas.clientHeight;
+		if (noDraw!==true){
+			rvDataSets[0].drawResidues("residues");
+			rvDataSets[0].drawContourLines("contour");
+			rvDataSets[0].drawSelection("selected");
+			rvDataSets[0].refreshResiduesExpanded("circles");
+			rvDataSets[0].drawLabels("labels");
+			rvDataSets[0].drawBasePairs("lines");
+		}
+		drawNavLine();
 	}
-	drawNavLine();
 }
 
 function resetView() {
-	rvViews[0].x = 20;
-	rvViews[0].y = 20;
-	rvViews[0].scale = 1.2;
+	
+	rvViews[0].centerZoom(rvViews[0].defaultScale);
+	rvViews[0].panXY(rvViews[0].defaultX,rvViews[0].defaultY);
+	
 	rvDataSets[0].drawResidues("residues");
 	rvDataSets[0].drawContourLines("contour");
 	rvDataSets[0].drawSelection("selected");
@@ -249,9 +226,7 @@ function resetView() {
 
 /////////////////////////// Selection Functions ///////////////////////////////
 function dragHandle(event) {
-	pan(event.clientX - rvViews[0].lastX, event.clientY - rvViews[0].lastY);
-	rvViews[0].lastX = event.clientX;
-	rvViews[0].lastY = event.clientY;
+	rvViews[0].pan(event);
 }
 
 function getSelectedLine(event){
@@ -2839,18 +2814,20 @@ function canvas_arrow(fromx, fromy, tox, toy) {
 }
 
 function welcomeScreen() {
+	var image_width=1.0*parseFloat($("#canvasDiv").css('width'));
+	var image_height= image_width * 550/733;
+	
 	var scale_factor = parseFloat($("#canvasDiv").css('width')) / 733;
 	// New Welcome Screen
 	var img = new Image();
 	img.onload = function() {
 		if (canvas2DSupported) {
 			rvDataSets[0].Layers[0].clearCanvas();
-			rvDataSets[0].Layers[0].CanvasContext.drawImage(img, rvViews[0].x - 80, rvViews[0].y - 30,733 * scale_factor,550 * scale_factor);
+			rvDataSets[0].Layers[0].CanvasContext.drawImage(img, -1*(rvDataSets[0].HighlightLayer.Canvas.width - 612)/2,-1*(rvDataSets[0].HighlightLayer.Canvas.height - 792-242)/2,image_width,image_height);
 		}
 	}
 	img.src = "images/RiboVisionLogoHigh.png"; //
 
-	
 }
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -2881,6 +2858,7 @@ function changeLineOpacity(opacity){
 ////////////////Nav Line ///////
 
 function drawNavLine(){
+		if (typeof d3 === 'undefined'){return;};
 		if($('input[name="nl"][value=off]').is(':checked')){
 			return;
 		}
@@ -3027,8 +3005,6 @@ function addPopUpWindowResidue(ResIndex){
 	//var Xpadding = 30;
 	var barColors = ["green","blue","black","red","orange"];
 	
-	//Remove old SVG
-	d3.select("#ResidueTipContent svg").remove();
 	
 	if (rvDataSets[0].Residues[ResIndex].resNum.indexOf(":") >= 0 ){
 		var ResName = rvDataSets[0].Residues[ResIndex].resNum;
@@ -3077,7 +3053,9 @@ function addPopUpWindowResidue(ResIndex){
 	$("#conPercentage").html("Shannon Entropy: " + Hn);
 	
 	function drawConGraph(){
-		
+		if (typeof d3 === 'undefined'){return;};
+		//Remove old SVG
+		d3.select("#ResidueTipContent svg").remove();
 		//Create SVG element
 		var svg = d3.select("#ResidueTipContent")
 			.append("svg")

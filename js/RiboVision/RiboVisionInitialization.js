@@ -203,7 +203,7 @@ function RiboVisionReady() {
 		value : 20,
 		orientation : "vertical",
 		slide : function (event, ui) {
-			zoom(rvViews[0].width / 2, rvViews[0].height / 2, Math.pow(1.1, (ui.value - $(this).slider("value"))));
+			rvViews[0].zoomDelta(rvViews[0].width/2, rvViews[0].height/2, Math.pow(1.1, (ui.value - $(this).slider("value"))));
 			rvViews[0].slideValue = ui.value;
 		}
 	});
@@ -783,89 +783,18 @@ function RiboVisionReady() {
 				return this.value;
 			}).get();
 		colorMappingLoop(undefined,array_of_checked_values);
-		/*
-		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
-				return this.value;
-			}).get();
-		var targetLayer = rvDataSets[0].getSelectedLayer();
-		//targetLayer.DataLabel = ui.text;
-		targetLayer.DataLabel = "Protein Contacts";
-		//var ColName = ui.value.match(/[^\'\\,]+/);
-		var ColName = [];
-		ColName[0] = "All_Proteins";
-		var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
-		if (result[0]){
-			$(this).parent().find(".DataDescription").text(result[0].Description);
-			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation/" + result[0].HelpLink + ".html");
-		} else {
-			$(this).parent().find(".DataDescription").text("Data Description is missing.");
-			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation");
-		}
-		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
-		colorMappingLoop(array_of_checked_values);
-		//drawNavLine();*/
 	});
 	$("#ProtList").on("multiselectcheckall", function (event, ui) {
 		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
 				return this.value;
 			}).get();
 		colorMappingLoop(undefined,array_of_checked_values);
-		/*
-		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
-				return this.value;
-			}).get();
-		var targetLayer = rvDataSets[0].getSelectedLayer();
-		//targetLayer.DataLabel = ui.text;
-		targetLayer.DataLabel = "Protein Contacts";
-		//var ColName = ui.value.match(/[^\'\\,]+/);
-		var ColName = [];
-		ColName[0] = "All_Proteins";
-		var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
-		if (result[0]){
-			$(this).parent().find(".DataDescription").text(result[0].Description);
-			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation/" + result[0].HelpLink + ".html");
-		} else {
-			$(this).parent().find(".DataDescription").text("Data Description is missing.");
-			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation");
-		}
-		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
-		colorMappingLoop(array_of_checked_values);*/
 	});
 	$("#ProtList").on("multiselectuncheckall", function (event, ui) {
 		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
 				return this.value;
 			}).get();
 		colorMappingLoop(undefined,array_of_checked_values);
-		/*	
-		resetColorState();
-		targetLayer=rvDataSets[0].getSelectedLayer();
-		targetLayer.DataLabel = "empty data";
-		//var ColName = ui.value.match(/[^\'\\,]+/);
-		//var ColName = "All_Proteins";
-		//var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
-		//if (result[0]){
-		//	$(this).parent().find(".DataDescription").text(result[0].Description);
-		//} else {
-			$(this).parent().find(".DataDescription").text("");
-			$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation");
-	
-		//}
-		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
-		targetLayer.clearData();
-		if ( targetLayer.Type == "circles"){
-			rvDataSets[0].clearCanvas(rvDataSets[0].getSelectedLayer().LayerName);
-		}
-		var array_of_checked_values = $("#PrimaryInteractionList").multiselect("getChecked").map(function(){
-		   return this.value;	
-		}).get();
-		var interactionchoice = array_of_checked_values[0];
-		//var interactionchoice = $('#PrimaryInteractionList').val();
-		var p = interactionchoice.indexOf("_NPN");
-		if (p>=0){
-			rvDataSets[0].BasePairs = [];
-			rvDataSets[0].clearCanvas("lines");
-		}
-		drawNavLine();*/
 	});
 	// Check for the various File API support.
 	if (window.File && window.FileReader && window.FileList && window.Blob) {
@@ -878,9 +807,7 @@ function RiboVisionReady() {
 			handleFileSelect(event);
 			//resetFileInput($('#files'));
 		});
-		
-		//document.getElementById('files').addEventListener('change',{$('#files').on('change', handleFileSelect);handleFileSelect}, false);
-		//alert('File APIs are as good as Curiosity');
+
 	} else {
 		dd = document.getElementById('FileDiv');
 		dd.innerHTML = "Your browser doesn't support file loading feature. IE does not support it until IE10+.";
@@ -1047,11 +974,12 @@ function InitRibovision(FreshState) {
 	rvDataSets[0].addLayer("Selection", "SSelectionLayer", [], false, 1.176, 'selected');
 	rvDataSets[0].sort();
 	
-	rvViews[0] = new rvView(20, 20, 1.2);
-	//resizeElements(true);
 	$(".oneLayerGroup").remove();
 	$(".oneSelectionGroup").remove();
 	rvDataSets[0].addSelection("Selection_1");
+	
+	resizeElements(true);
+
 	switch (get_cookie("JmolState")) {
 		case "Java" :
 			$('[name="jjsmol"][value="Java"]').attr("checked", true);
@@ -1068,10 +996,13 @@ function InitRibovision(FreshState) {
 		default :
 			$("#dialog-Jmol-Type").dialog("open");
 	}
+	rvViews[0] = new rvView();
+	rvViews[0].centerZoom(1);
+		
 	if (canvas2DSupported) {
 		InitRibovision2(false,FreshState);
 	}
-	resizeElements();
+	
 	if (!canvas2DSupported) {return};
 	if (OpenStateOnLoad && !FreshState) {
 		$("#SaveTabs").tabs( "option", "active", 2 );
@@ -1080,11 +1011,6 @@ function InitRibovision(FreshState) {
 }
 
 function InitRibovision2(noLoad,FreshState) {
-	//adopt to current screen size
-	rvViews[0].width = rvDataSets[0].HighlightLayer.Canvas.width;
-	rvViews[0].height = rvDataSets[0].HighlightLayer.Canvas.height;
-	rvViews[0].clientWidth = rvDataSets[0].HighlightLayer.Canvas.clientWidth;
-	rvViews[0].clientHeight = rvDataSets[0].HighlightLayer.Canvas.clientHeight;
 	
 	//remove minilayers
 	$(".miniLayerName").remove();
