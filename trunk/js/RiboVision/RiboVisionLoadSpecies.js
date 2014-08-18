@@ -49,6 +49,8 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 			var targetLayer = rvDataSets[0].getLayerByType("residues");
 			rvDataSets[0].clearData("residues");
 			var resMod = $('input[name="ptmod"][value=on]').is(':checked');
+			var resXs=[];
+			var resYs=[];
 			$.each(data, function (i, item) {
 				data[i]["color"] = "#000000";
 				data[i]["selected"] = 0;
@@ -59,11 +61,21 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 				} else {
 					data[i]["resName"]=data[i]["unModResName"];
 				}
+				resXs[i]=parseFloat(data[i]["X"]);
+				resYs[i]=parseFloat(data[i]["Y"]);
 				
 			});
 			rvDataSets[0].addResidues(data);
+			var resRangeX=Math.max.apply(null,resXs) - Math.min.apply(null,resXs);
+			var resXcenter=Math.min.apply(null,resXs) + resRangeX/2;
+			var resRangeY=Math.max.apply(null,resYs) - Math.min.apply(null,resYs);
+			var resYcenter=Math.min.apply(null,resYs) + resRangeY/2;
 			
+			rvViews[0].defaultScale=612/resRangeX;
+			rvViews[0].defaultX=rvViews[0].defaultScale*(306-resXcenter);
+			rvViews[0].defaultY=rvViews[0].defaultScale * (398-resYcenter);
 			
+			resetView();
 			
 			targetLayer[0].DataLabel = "Domains";
 			$("[name=" + targetLayer[0].LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer[0].DataLabel);
@@ -265,8 +277,7 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 		if(myJmol!=null){
 			Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
 		}
-		//clearSelection();
-		//console.log("Nothing to see here, move along now, and 42!");
+		
 		welcomeScreen();
 		if (DoneLoading){
 			DoneLoading.resolve();
