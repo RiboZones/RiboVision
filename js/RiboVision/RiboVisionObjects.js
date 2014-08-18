@@ -1053,14 +1053,64 @@ function rvView(x, y, scale) {
 	this.clientWidth = [];
 	this.clientHeight = [];
 	this.slideValue = 20;
+	this.defaultScale = 1;
+	this.defaultX = 0;
+	this.defaultY = 0;
 	
 	//Methods
 	this.zoom = function (event, delta) {
 		if (($("#slider").slider("value") + delta) <= $("#slider").slider("option", "max") & ($("#slider").slider("value") + delta) >= $("#slider").slider("option", "min")) {
-			zoom(event.clientX - $("#menu").outerWidth(), event.clientY - $("#topMenu").outerHeight(), Math.pow(1.1, delta), this);
+			this.zoomDelta(event.clientX - $("#menu").outerWidth(), event.clientY - $("#topMenu").outerHeight(), Math.pow(1.1, delta));
 			$("#slider").slider("value", $("#slider").slider("value") + delta);
 			this.slideValue = $("#slider").slider("value") + delta;
 		}
+	}
+	this.zoomDelta = function (px, py, factor){
+		console.log([px,py]);
+		this.scale *= factor;
+		this.x = (this.x - px) * factor + px;
+		this.y = (this.y - py) * factor + py;
+		
+		rvDataSets[0].drawResidues("residues");
+		rvDataSets[0].drawContourLines("contour");
+		rvDataSets[0].drawSelection("selected");
+		rvDataSets[0].refreshResiduesExpanded("circles");
+		rvDataSets[0].drawLabels("labels");
+		rvDataSets[0].drawBasePairs("lines");
+	}
+	
+	this.centerZoom = function (scale) {
+		this.scale = scale;
+		this.x = (rvDataSets[0].HighlightLayer.Canvas.width - this.scale*612)/2;
+		this.y = (rvDataSets[0].HighlightLayer.Canvas.height - this.scale*792)/2;
+		rvViews[0].width = rvDataSets[0].HighlightLayer.Canvas.width;
+		rvViews[0].height = rvDataSets[0].HighlightLayer.Canvas.height;
+		rvViews[0].clientWidth = rvDataSets[0].HighlightLayer.Canvas.clientWidth;
+		rvViews[0].clientHeight = rvDataSets[0].HighlightLayer.Canvas.clientHeight;
+	}
+	this.pan = function (event) {
+		rvViews[0].x += event.clientX - rvViews[0].lastX;
+		rvViews[0].y += event.clientY - rvViews[0].lastY;
+		rvDataSets[0].drawResidues("residues");
+		rvDataSets[0].drawContourLines("contour");
+		rvDataSets[0].drawSelection("selected");
+		rvDataSets[0].refreshResiduesExpanded("circles");
+		rvDataSets[0].drawLabels("labels");
+		rvDataSets[0].drawBasePairs("lines");
+		rvViews[0].lastX = event.clientX;
+		rvViews[0].lastY = event.clientY;
+	}
+	this.panXY = function (dx,dy) {
+		rvViews[0].x += dx;
+		rvViews[0].y += dy;
+		rvDataSets[0].drawResidues("residues");
+		rvDataSets[0].drawContourLines("contour");
+		rvDataSets[0].drawSelection("selected");
+		rvDataSets[0].refreshResiduesExpanded("circles");
+		rvDataSets[0].drawLabels("labels");
+		rvDataSets[0].drawBasePairs("lines");
+		rvViews[0].lastX += dx;
+		rvViews[0].lastY += dy;
 	}
 	this.drag = function (event) {
 		var targetSelection=rvDataSets[0].getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
