@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta name="generator" content="HTML Tidy for HTML5 (experimental) for Windows https://github.com/w3c/tidy-html5/tree/c63cc39" />
+    <title>RiboVision: Ribosome Visualization Suite.</title>
+	<link rel="stylesheet" type="text/css" href="css/style.css" />
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script type="text/javascript" src="js/template.js"></script>
+</head>
+
+<body lang="EN-US" xml:lang="EN-US">
+	<div id="HeaderDiv"></div>
+	<div id="MenuDiv"></div>
+	
+	<div id = "ContentDiv">
+		<h1>Import Data Files</h1>
+		<p>
+		Importing data currently works by reading in a CSV (comma separated value) text file. You can make the CSV files with anything.
+		Most people would probably use Excel or another spreadsheet program to make them. RiboVision has two primary data types, nucleotide level data, and "interactions", which don't have to
+		be real physical interactions. For our purposes here, interaction just means a line drawn between two residues. The Inter-Nucleotide Contacts section represents real physical interactions
+		but your data doesn't need to be of this kind.</p>
+		
+		<h1>Import Data Files (Nucleotide Data)</h1>
+		<p>We currently support one set of data, to make one layer, per file. We support three use cases for now: manual coloring, color by data, and manual bolding. Data can either be mapped to the "letters" layer or
+		a circle type layer. Optionally, a description of the data in the file can be supplied, by putting it into the first field in a "DataDescription" column in the CSV file. 
+		</p>
+		
+		<p>We are providing basic data templates for each molecule. Please be sure to exactly match the template to your map of interest.
+		 These templates contain every nucleotide listed individually. Using the templates is not required, as long as you name your nucleotides correctly. </p>
+		 
+		<h2>Manual Coloring</h2>
+		<p>Manual coloring means you have determined which colors you want the nucleotides to be. This is ideal for qualitative or categorical data. It can also be used for quantitative data, if you have your own
+		data to color algorithm. Manual coloring mode is triggered by the presence of the column "ColorCol" in your CSV data file. In this mode, the column "DataCol" is optional in your CSV data file. 
+		RiboVision supports a wide variety of colors. See <a href="RiboVisionColoring.html">RiboVision Coloring</a>.See this tutorial for further information: <a href="UserDataTutorial1.html">Manual Coloring</a>. 
+		</p>
+		
+		<h2>Color by Data</h2>
+		<p>Color by Data means you have quantitative data and you wish to use RiboVision's built-in data to color algorithms. Color by Data mode is triggered by the absence of the column "ColorCol" in your CSV data file. 
+		In this mode, the column "DataCol" is required in your CSV data file. RiboVision's algorithm will linearly map your data onto a color gradient (a list of colors). If you need a log-based gradient or something,
+		please transform your numbers first. The default gradient is the Rainbow gradient. You may specify your own custom gradient in your CSV file. See <a href="RiboVisionColoring.html">RiboVision Coloring</a> for details. 
+		See this tutorial for further information: <a href="UserDataTutorial2.html">Color by Data</a>.
+		</p>
+		
+		<h2>Manual Bolding</h2>
+		<p>Manual Bolding is a new under-developed feature. It currently only applies to the letters layer. This feature can be used instead of or in additional to the other modes. 
+		It will apply to the letters layer regardless of which layer you drop the "User Data" bubble onto. The thickness of letters will be affected. Manual Bolding mode is triggered by the presence of
+		the column "FontWeight" in your CSV data file. Values can be lighter, normal, bold, or bolder. In addition, values can be 100, 200, 300, 400, 500, 600, 700, 800, or 900. 400 is the same as normal,
+		and 700 is the same as bold. See this tutorial for further information: <a href="UserDataTutorial4.html">Manual Bolding</a>. 
+		</p>
+		<p>
+		Caution. If you use this feature, be aware of your intended outcome. You may mix color and bolding data in the same file if you want. If you want bolding separate, then dropping the "User Data" bubble
+		onto "Letters" will cause all letters to turn black. If you want to keep the letters colored, please drop the "User Data" bubble onto a circle type layer. To avoid overwriting the colors on that one too,
+		you can make an extra circles type layer for this purpose. There is no other way to mix data from two separate sources yet. Alternatively, you can bold the letters first, and then color them. 
+		</p>
+		
+		<h1>Import Data Syntax</h1>
+		<p>
+		Import data feature uses the same syntax as <a href="BasicSelection.html">selections</a>. We recommend you always use the prefixed syntax, because it is clearer. 
+		You may put multiple selection commands in the same line, separated by semicolons as usual, if they share the same data or color. Alternatively, you can have these on 
+		separate lines. Use whatever is most convenient for you. You don't need to include all nucleotides in the file. If you put in the same nucleotide more than once, 
+		it will obtain the color/data from the last occurrence. Make sure that the nucleotides you explicitly include exist in the secondary structure you are using. 
+		For example, <i>T. thermophilus </i> does not have a 23S:655. The selection 23S:(600-700) is fine,
+		but the selection 23S:(600-655) is not fine. You would need to use 23S:(600-652B) if you wanted to stop right before 23S:656. 
+		</p>
+		
+			<h2>Example</h2>
+			<table class="docTable" align="center";>
+			<tr><th>resNum</th><th>DataCol</th><th>ColorCol</th></tr>
+			<tr><td>23S:(1-1000)</td><td>p1</td><td>DarkBlue</td></tr>
+			<tr><td>23S:(1001-2000)</td><td>p2</td><td>Coral</td></tr>
+			<tr><td>5S:(56-104)</td><td>p3</td><td>#1D4E56</td></tr>
+			<tr><td>23S:2500</td><td>p4</td><td>#232323</td></tr>
+			</table>
+			<p><a href="examples/Example0.csv" target="_blank">Here</a> is the csv file for this example. Below, is this file mapped onto <i>E. coli</i> LSU Phylogeny Structure. Since ColorCol is present,
+			 DataCol is optional. The data in DataCol will show up in ResidueTips so it can be useful. 
+			<img src="examples/Example0.jpg" class="ManualImages" title="RiboVision Import Data Example 0" alt="RiboVision Import Data Example 0" />
+			</p>
+			
+		<h1>Import Data Mapping:</h1>
+		<p>
+		Mapping your data onto ribosomal structures works just like displaying our precomputed data. After loading your data file, a dataset called "User Data" will appear. Drag this to your layer of choice. 
+		There is an additional feature right now. Every nucleotide included in your file will be put into a new selection, found in the Selection Manager. The selection will be invisible by default.
+		</p>
+		<p>
+		<img src="images/ImportMenu.png" class="ManualImagesThinMultiple" title="RiboVision Import Menu" alt="RiboVision Import Menu" />
+		<img src="images/NewSelectionImport.png" class="ManualImagesThinMultiple" title="RiboVision New Selection Import" alt="RiboVision New Selection Import" />
+		</p>
+	</div>
+	<div id="FooterDiv"></div>
+	</body>
+</html>
