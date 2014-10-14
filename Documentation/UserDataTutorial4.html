@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta name="generator" content="HTML Tidy for HTML5 (experimental) for Windows https://github.com/w3c/tidy-html5/tree/c63cc39" />
+    <title>RiboVision: Ribosome Visualization Suite.</title>
+	<link rel="stylesheet" type="text/css" href="css/style.css" />
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script type="text/javascript" src="js/template.js"></script>
+</head>
+
+<body lang="EN-US" xml:lang="EN-US">
+	<div id="HeaderDiv"></div>
+	<div id="MenuDiv"></div>
+	
+	<div id = "ContentDiv">
+
+		<h1>Interactions</h1>
+		<p>What we call "Interactions" is that the user <b>(you)</b> have decided you'd like a line drawn between two nucleotides. The relationship between those two nucleotides
+		is totally up to you. You may have decided this "by hand", or you may have adapted your computer programs to output to our input format. 
+		</p>
+		
+		<p>For this example, we have decided to use real Watson/Hoogsteen interactions. We downloaded the list of these interactions from RiboVision, then added additional properties to them. 
+		We've added Color, Opacity, and LineWidth values based on different properties of these base pairs. You may try to figure out what each of these variables is correlated with if you like. 
+		Otherwise, the exact nature of this relationship doesn't matter for this demonstration. You will have your own criteria for what you want to see. 
+		</p>
+
+		<h2>Example</h2>
+		<table class="docTable" align="center";>
+			<tr><th>Residue_i</th><th>Residue_j</th><th>Int_Type</th><th>ColorCol</th><th>Opacity</th><th>LineWidth</th></tr>
+			<tr><td>23S:1</td><td>23S:2902</td><td>cWW</td><td>Gray</td><td>1.00</td><td>1.5</td></tr>
+			<tr><td>23S:10</td><td>23S:2629</td><td>tHW</td><td>Orange</td><td>0.67</td><td>1.0</td></tr>
+			<tr><td>23S:33</td><td>23S:447</td><td>tWH</td><td>Cyan</td><td>0.67</td><td>0.5</td></tr>
+			<tr><td>23S:49</td><td>23S:120</td><td>cHW</td><td>Red</td><td>0.67</td><td>1.0</td></tr>
+			<tr><td>23S:191</td><td>23S:204</td><td>tHH</td><td>Green</td><td>0.33</td><td>0.5</td></tr>
+		</table>	
+		
+		<p><a href="examples/Example4.csv" target="_blank">Here</a> is the csv file for this example. Below, is this file mapped onto <i>E. coli</i> LSU 3D-based Structure.
+		<img src="examples/Example4.png" class="ManualImages" title="RiboVision Import Data Example 4" alt="RiboVision Import Data Example 4" />
+		</p>
+	</div>
+	<div id="FooterDiv"></div>
+	</body>
+</html>
+				
