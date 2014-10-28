@@ -254,27 +254,30 @@ select :0 or :9;
   
   
 
-  select (1.1 and (1843-1869:A or 2297-2316:A or 2452-2487:A or 2649-2710:A));
-  color Cartoon opaque [xffd4a2];
   
-  select (1.1 and 1671-1842:A);
+  select (1.1 and 1671-1825:A);
   color Cartoon opaque [xa999fb];
 
-  select (1.1 and 1870-2296:A);
+    
+  select (1.1 and 1826-2315:A);
   color Cartoon opaque [x3aa7ff];
   
-  select (1.1 and 2317-2451:A);
+  select (1.1 and 2316-2451:A);
   color Cartoon opaque [xcc99cc];
   
-  select (1.1 and 2488-2648:A);
+  select (1.1 and 2452-2679:A);
   color Cartoon opaque [xf0ff00];
   
-  select (1.1 and 2711-3107:A);
+  select (1.1 and 2680-3107:A);
   color Cartoon opaque [xff99cc];
   
   select (1.1 and 3108-3229:A);
   color Cartoon opaque [x0ba34a];
   
+
+  
+  
+ 
   
   boundBox off;
   font boundBox 14 SansSerif Plain;
