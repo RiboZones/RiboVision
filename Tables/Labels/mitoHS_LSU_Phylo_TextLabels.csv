@@ -15,8 +15,6 @@ VI,554.7422,571.4287,MyriadPro-Regular,24,#09A24A
 4,309.293,473.1064,MyriadPro-Regular,7,#0D71BA
 11,419.835,521.374,MyriadPro-Regular,7,#0D71BA
 13,360.0591,480.5527,MyriadPro-Regular,7,#0D71BA
-20,406.1875,586.4707,MyriadPro-Regular,7,#0D71BA
-21,285.1846,510.4941,MyriadPro-Regular,7,#0D71BA
 23,236.9053,487.2451,MyriadPro-Regular,7,#0D71BA
 25,219.5771,400.04,MyriadPro-Regular,7,#0D71BA
 26,226.519,316.8633,MyriadPro-Regular,7,#0D71BA
@@ -33,7 +31,6 @@ VI,554.7422,571.4287,MyriadPro-Regular,24,#09A24A
 39,63.0742,214.6943,MyriadPro-Regular,7,#0D71BA
 40,112.0122,185.311,MyriadPro-Regular,7,#0D71BA
 41,165.9062,213.395,MyriadPro-Regular,7,#0D71BA
-45,176.2871,216.8604,MyriadPro-Regular,7,#0D71BA
 47,259.769,280.6787,MyriadPro-Regular,7,#0D71BA
 48,298.4653,268.8179,MyriadPro-Regular,7,#0D71BA
 49,268.8623,232.0352,MyriadPro-Regular,7,#0D71BA
@@ -55,7 +52,6 @@ VI,554.7422,571.4287,MyriadPro-Regular,24,#09A24A
 80,645.1299,253.2002,MyriadPro-Regular,7,#0D71BA
 81,668.2861,228.9473,MyriadPro-Regular,7,#0D71BA
 82,686.0449,267.0029,MyriadPro-Regular,7,#0D71BA
-83,681.0859,235.6738,MyriadPro-Regular,7,#0D71BA
 86,735.1055,268.1011,MyriadPro-Regular,7,#0D71BA
 87,704.8848,314.041,MyriadPro-Regular,7,#0D71BA
 88,663.8828,330.9912,MyriadPro-Regular,7,#0D71BA
@@ -104,6 +100,10 @@ VI,554.7422,571.4287,MyriadPro-Regular,24,#09A24A
 3170,560.5,524.0234,MyriadPro-Regular,4,#7F151C
 3229,464.668,501.1211,MyriadPro-Regular,4,#7F151C
 3020,685.4219,513.7197,MyriadPro-Regular,4,#7F151C
+3120,563.0195,464.5303,MyriadPro-Regular,4,#7F151C
+3220,503.9893,486.6602,MyriadPro-Regular,4,#7F151C
+          Homo sapiens,584.333,587.5,MyriadPro-It,18,#231F20
+large subunit mito ribosomal RNA,581.9512,604.834,MyriadPro-Regular,12,#231F20
 3120,563.0195,464.5303,MyriadPro-Regular,4,#7F151C
 3220,503.9893,486.6602,MyriadPro-Regular,4,#7F151C
           Homo sapiens,512.333,518,MyriadPro-It,18,#231F20
