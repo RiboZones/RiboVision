@@ -1776,6 +1776,9 @@ function checkSavePrivacyStatus() {
 	} else {
 		AgreeFunction();
 		clicky.log(window.location.pathname + window.location.hash,'User Download','download');
+		Histats_variables.push("SaveSomething","Yes");
+		Histats.track_event('b');
+
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////
