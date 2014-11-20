@@ -335,7 +335,7 @@ Clazz.defineMethod (c$, "printVersion",
 function (g, pageHeight) {
 this.g2d.setGraphicsColor (g, this.BLACK);
 var font = this.setFont (g, 100, 0, 12, true);
-var s = this.jsvp.getApiPlatform ().getDateFormat (false) + " JSpecView " + JSV.common.JSVersion.VERSION_SHORT;
+var s = this.jsvp.getApiPlatform ().getDateFormat (null) + " JSpecView " + JSV.common.JSVersion.VERSION_SHORT;
 var w = font.stringWidth (s);
 this.g2d.drawString (g, s, (this.thisWidth - this.right) * this.scalingFactor - w, pageHeight * this.scalingFactor - font.getHeight () * 3);
 }, "~O,~N");

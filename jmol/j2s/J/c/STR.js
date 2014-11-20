@@ -43,4 +43,5 @@ Clazz.defineEnumConstant (c$, "CARBOHYDRATE", 7, [6, 0xFFA6A6FA]);
 Clazz.defineEnumConstant (c$, "HELIX310", 8, [7, 0xFFA00080]);
 Clazz.defineEnumConstant (c$, "HELIXALPHA", 9, [8, 0xFFFF0080]);
 Clazz.defineEnumConstant (c$, "HELIXPI", 10, [9, 0xFF600080]);
+Clazz.defineEnumConstant (c$, "ANNOTATION", 11, [-2, 0]);
 });

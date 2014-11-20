@@ -25,7 +25,7 @@ this.menuMap =  new java.util.Hashtable ();
 Clazz.defineMethod (c$, "setViewer", 
 function (vwr) {
 this.vwr = vwr;
-}, "J.api.JmolViewer");
+}, "JV.Viewer");
 Clazz.defineMethod (c$, "addButton", 
 function (b, label) {
 b.addConsoleListener (this);
@@ -66,11 +66,7 @@ this.historyButton = this.setButton ("History");
 this.loadButton = this.setButton ("Load");
 this.defaultMessage = this.getLabel ("default");
 this.setTitle ();
-J.i18n.GT.setDoTranslate (false);
-{
-this.defaultMessage = this.getLabel("default").split("Click")[0];
-}J.i18n.GT.setDoTranslate (doTranslate);
-this.defaultMessage = this.getLabel ("default");
+J.i18n.GT.setDoTranslate (doTranslate);
 });
 Clazz.defineMethod (c$, "getLabel", 
 function (key) {
@@ -207,6 +203,7 @@ case J.c.CBK.ANIMFRAME:
 case J.c.CBK.APPLETREADY:
 case J.c.CBK.ATOMMOVED:
 case J.c.CBK.CLICK:
+case J.c.CBK.DRAGDROP:
 case J.c.CBK.ERROR:
 case J.c.CBK.EVAL:
 case J.c.CBK.HOVER:
@@ -278,8 +275,7 @@ function () {
 Clazz.defineMethod (c$, "recallCommand", 
 function (up) {
 var cmd = this.vwr.getSetHistory (up ? -1 : 1);
-if (cmd == null) return;
-this.input.setText (cmd);
+if (cmd != null) this.input.setText (JU.PT.escUnicode (cmd));
 }, "~B");
 Clazz.defineMethod (c$, "processKey", 
 function (kcode, kid, isControlDown) {
@@ -288,10 +284,12 @@ switch (kid) {
 case 401:
 switch (kcode) {
 case 9:
+var s = this.input.getText ();
+if (s.endsWith ("\n") || s.endsWith ("\t")) return 0;
 mode = 1;
-if (this.input.getCaretPosition () == this.input.getText ().length) {
-var cmd = this.completeCommand (this.getText ());
-if (cmd != null) this.input.setText (cmd.$replace ('\t', ' '));
+if (this.input.getCaretPosition () == s.length) {
+var cmd = this.completeCommand (s);
+if (cmd != null) this.input.setText (JU.PT.escUnicode (cmd).$replace ('\t', ' '));
 this.nTab++;
 return mode;
 }break;

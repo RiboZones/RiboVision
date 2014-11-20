@@ -31,7 +31,7 @@ Clazz.makeConstructor (c$,
 function () {
 });
 Clazz.overrideMethod (c$, "set", 
-function (g3d) {
+function (g3d, gdata) {
 try {
 this.rgb16sW =  new Array (64);
 this.rgb16sE =  new Array (64);
@@ -50,7 +50,7 @@ throw e;
 }
 }
 return this;
-}, "J.api.JmolRendererInterface");
+}, "J.api.JmolRendererInterface,JU.GData");
 Clazz.defineMethod (c$, "reallocRgb16s", 
 function (rgb16s, n) {
 var t =  new Array (n);
@@ -201,8 +201,8 @@ this.generateRaster (dyMidMin + 1, iMinY, iMidY, this.axW, this.azW, 0, gouraudW
 this.generateRaster (nLines - dyMidMin, iMidY, iMaxY, this.axW, this.azW, dyMidMin, gouraudW);
 this.generateRaster (nLines, iMinY, iMaxY, this.axE, this.azE, 0, gouraudE);
 }}this.g3d.setZMargin (5);
-if (useGouraud) this.fillRasterG (yMin, nLines, isClipped, this.g3d.$isPass2 ? 1 : 0);
- else this.fillRaster (yMin, nLines, isClipped, this.g3d.$isPass2 ? 1 : 0);
+if (useGouraud) this.fillRasterG (yMin, nLines, isClipped, this.g3d.isPass2 ? 1 : 0);
+ else this.fillRaster (yMin, nLines, isClipped, this.g3d.isPass2 ? 1 : 0);
 this.g3d.setZMargin (0);
 }, "~B");
 Clazz.defineMethod (c$, "reallocRasterArrays", 

@@ -1,6 +1,9 @@
 Clazz.declarePackage ("JU");
 Clazz.load (["JU.T3"], "JU.V3", null, function () {
 c$ = Clazz.declareType (JU, "V3", JU.T3);
+Clazz.makeConstructor (c$, 
+function () {
+});
 c$.newV = Clazz.defineMethod (c$, "newV", 
 function (t) {
 return JU.V3.new3 (t.x, t.y, t.z);

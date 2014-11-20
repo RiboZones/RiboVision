@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JS");
-Clazz.load (["JS.ScriptError"], "JS.ScriptParam", ["java.lang.Float", "JU.CU", "$.Lst", "$.P3", "$.P4", "$.PT", "$.Quat", "$.SB", "$.V3", "JM.TickInfo", "JS.SV", "$.T", "JU.Edge", "$.Escape", "$.Logger", "$.Measure"], function () {
+Clazz.load (["JS.ScriptError"], "JS.ScriptParam", ["java.lang.Float", "JU.CU", "$.Lst", "$.Measure", "$.P3", "$.P4", "$.PT", "$.Quat", "$.SB", "$.V3", "JM.TickInfo", "JS.SV", "$.T", "JU.Edge", "$.Escape", "$.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.contextVariables = null;
 this.thisContext = null;
@@ -180,6 +180,7 @@ function (i) {
 var vAB =  new JU.V3 ();
 var vAC =  new JU.V3 ();
 var plane = null;
+if (this.tokAt (i) == 135266319) i++;
 var isNegated = (this.tokAt (i) == 269484192);
 if (isNegated) i++;
 if (i < this.slen) switch (this.getToken (i).tok) {
@@ -212,6 +213,7 @@ if (str.equalsIgnoreCase ("yz")) return JU.P4.new4 (1, 0, 0, 0);
 this.iToken += 2;
 break;
 case 1048586:
+case 8:
 if (!this.isPoint3f (i)) {
 plane = this.getPoint4f (i);
 break;
@@ -343,7 +345,7 @@ if (n == 3) {
 var pt = JU.P3.new3 (coord[0], coord[1], coord[2]);
 if (this.coordinatesAreFractional && doConvert) {
 this.fractionalPoint = JU.P3.newP (pt);
-if (!this.chk) this.vwr.toCartesian (pt, !this.vwr.getBoolean (603979848));
+if (!this.chk) this.vwr.toCartesian (pt, false);
 }return pt;
 }if (n == 4) {
 if (this.coordinatesAreFractional) this.invArg ();
@@ -434,7 +436,7 @@ return (this.theToken.value).floatValue ();
 return 0;
 }, "~N");
 Clazz.defineMethod (c$, "getPointArray", 
-function (i, nPoints) {
+function (i, nPoints, allowNull) {
 var points = (nPoints < 0 ? null :  new Array (nPoints));
 var vp = (nPoints < 0 ?  new JU.Lst () : null);
 var tok = (i < 0 ? 7 : this.getToken (i++).tok);
@@ -444,7 +446,7 @@ var v = (this.theToken).getList ();
 if (nPoints >= 0 && v.size () != nPoints) this.invArg ();
 nPoints = v.size ();
 if (points == null) points =  new Array (nPoints);
-for (var j = 0; j < nPoints; j++) if ((points[j] = JS.SV.ptValue (v.get (j))) == null) this.invArg ();
+for (var j = 0; j < nPoints; j++) if ((points[j] = JS.SV.ptValue (v.get (j))) == null && !allowNull) this.invArg ();
 
 return points;
 case 1073742195:
@@ -466,7 +468,7 @@ default:
 if (nPoints >= 0 && n == nPoints) {
 tok = 0;
 break;
-}var pt = this.getPoint3f (i, true);
+}var pt = this.centerParameter (i);
 if (points == null) vp.addLast (pt);
  else points[n] = pt;
 n++;
@@ -477,7 +479,7 @@ if (tok != 269484097) this.invArg ();
 if (points == null) points = vp.toArray ( new Array (vp.size ()));
 if (nPoints > 0 && points[nPoints - 1] == null) this.invArg ();
 return points;
-}, "~N,~N");
+}, "~N,~N,~B");
 Clazz.defineMethod (c$, "listParameter", 
 function (i, nMin, nMax) {
 var v =  new JU.Lst ();

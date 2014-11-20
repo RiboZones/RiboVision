@@ -152,6 +152,7 @@ return true;
 Clazz.defineMethod (c$, "readOutputUnitCell", 
  function () {
 this.applySymmetryAndSetTrajectory ();
+this.asc.newAtomSetClear (false);
 this.setFractionalCoordinates (true);
 this.abc = this.read3Vectors (false);
 this.setLatticeVectors ();
@@ -170,6 +171,7 @@ this.setAtomCoordTokens (atom, this.tokens, 3);
 });
 Clazz.defineMethod (c$, "readEnergy", 
  function (pt) {
+if (this.isTrajectory) this.applySymmetryAndSetTrajectory ();
 this.tokens = this.getTokens ();
 try {
 var energy = Double.$valueOf (Double.parseDouble (this.tokens[pt]));
@@ -183,13 +185,11 @@ this.appendLoadNote ("CASTEP Energy could not be read: " + this.line);
 throw e;
 }
 }
-this.applySymmetryAndSetTrajectory ();
-this.asc.newAtomSetClear (false);
-this.setLatticeVectors ();
 }, "~N");
 Clazz.defineMethod (c$, "readPhononTrajectories", 
  function () {
 this.isTrajectory = (this.desiredVibrationNumber <= 0);
+if (this.isTrajectory) this.asc.setTrajectory ();
 this.doApplySymmetry = true;
 while (this.line != null && this.line.contains ("<-- E")) {
 this.asc.newAtomSetClear (false);
@@ -208,7 +208,7 @@ this.applySymmetryAndSetTrajectory ();
 this.discardLinesUntilContains ("<-- E");
 }
 });
-Clazz.overrideMethod (c$, "finalizeReader", 
+Clazz.overrideMethod (c$, "finalizeSubclassReader", 
 function () {
 if (this.isPhonon || this.isOutput) {
 this.isTrajectory = false;
@@ -369,19 +369,17 @@ this.readLines (2);
 var haveSpin = (this.line.indexOf ("Spin") >= 0);
 this.rd ();
 var atoms = this.asc.atoms;
-var spins = (haveSpin ?  new Array (atoms.length) : null);
-if (spins != null) for (var i = 0; i < spins.length; i++) spins[i] = "0";
+var spins = (haveSpin ?  Clazz.newFloatArray (atoms.length, 0) : null);
+if (spins != null) for (var i = 0; i < spins.length; i++) spins[i] = 0;
 
 while (this.rd () != null && this.line.indexOf ('=') < 0) {
 var index = this.readOutputAtomIndex ();
 var charge = this.parseFloatStr (this.tokens[haveSpin ? this.tokens.length - 2 : this.tokens.length - 1]);
 atoms[index].partialCharge = charge;
-if (haveSpin) spins[index] = this.tokens[this.tokens.length - 1];
+if (haveSpin) spins[index] = this.parseFloatStr (this.tokens[this.tokens.length - 1]);
 }
-if (haveSpin) {
-var data = JU.PT.join (spins, '\n', 0);
-this.asc.setAtomSetAtomProperty ("spin", data, -1);
-}});
+if (haveSpin) this.asc.setAtomProperties ("spin", spins, -1, false);
+});
 Clazz.defineMethod (c$, "readPhononUnitCell", 
  function () {
 this.abc = this.read3Vectors (this.line.indexOf ("bohr") >= 0);
@@ -424,8 +422,9 @@ if (!isOK) return;
 var nx = 1;
 var ny = 1;
 var nz = 1;
+var xSym = this.asc.getXSymmetry ();
 if (this.ptSupercell != null && !isOK && !isSecond) {
-this.asc.getXSymmetry ().setSupercellFromPoint (this.ptSupercell);
+xSym.setSupercellFromPoint (this.ptSupercell);
 nx = this.ptSupercell.x;
 ny = this.ptSupercell.y;
 nz = this.ptSupercell.z;
@@ -470,9 +469,7 @@ for (var j = 0; j < this.ac; j++) {
 this.fillFloatArray (null, 0, data);
 for (var k = iatom++; k < aCount; k++) if (atoms[k].atomSite == j) {
 t.sub2 (atoms[k], atoms[atoms[k].atomSite]);
-t.x *= nx;
-t.y *= ny;
-t.z *= nz;
+xSym.rotateToSuperCell (t);
 this.setPhononVector (data, atoms[k], t, qvec, v);
 this.asc.addVibrationVectorWithSymmetry (k, v.x, v.y, v.z, true);
 }

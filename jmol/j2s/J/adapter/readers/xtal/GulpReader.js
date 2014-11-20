@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.adapter.readers.xtal");
-Clazz.load (["J.adapter.smarter.AtomSetCollectionReader", "$.AtomSetCollection"], "J.adapter.readers.xtal.GulpReader", ["java.lang.Double", "$.Float", "java.util.Hashtable", "JU.V3"], function () {
+Clazz.load (["J.adapter.smarter.AtomSetCollectionReader"], "J.adapter.readers.xtal.GulpReader", ["java.lang.Double", "$.Float", "java.util.Hashtable", "JU.PT", "$.V3"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.isSlab = false;
 this.isPolymer = false;
@@ -26,7 +26,7 @@ this.isPrimitive = !this.checkFilterKey ("CONV");
 this.coordinatesArePrimitive = true;
 this.setFractionalCoordinates (this.readDimensionality ());
 });
-Clazz.overrideMethod (c$, "finalizeReader", 
+Clazz.overrideMethod (c$, "finalizeSubclassReader", 
 function () {
 if (this.atomCharges == null) return;
 var atoms = this.asc.atoms;
@@ -79,7 +79,7 @@ return true;
 });
 Clazz.defineMethod (c$, "readSpaceGroup", 
  function () {
-this.spaceGroup = this.line.substring (this.line.indexOf (":") + 1).trim ();
+this.sgName = this.line.substring (this.line.indexOf (":") + 1).trim ();
 });
 c$.parameterIndex = Clazz.defineMethod (c$, "parameterIndex", 
  function (key) {
@@ -119,7 +119,7 @@ if (this.totEnergy != null) this.setEnergy ();
 }}, "~B");
 Clazz.defineMethod (c$, "setModelParameters", 
  function (isPrimitive) {
-if (this.spaceGroup != null) this.setSpaceGroupName (isPrimitive ? "P1" : this.spaceGroup);
+if (this.sgName != null) this.setSpaceGroupName (isPrimitive ? "P1" : this.sgName);
 if (isPrimitive && this.primitiveData != null) {
 this.addPrimitiveLatticeVector (0, this.primitiveData, 0);
 this.addPrimitiveLatticeVector (1, this.primitiveData, 3);
@@ -195,6 +195,7 @@ for (var i = i0; i < i1; i++) {
 var atom = atoms[i];
 this.symmetry.toCartesian (atom, true);
 symFull.toFractional (atom, true);
+if (this.fixJavaFloat) JU.PT.fixPtFloats (atom, 100000.0);
 }
 this.setModelParameters (false);
 }this.applySymTrajASCR ();
@@ -243,5 +244,6 @@ this.asc.setInfo ("Energy", this.totEnergy);
 this.asc.setAtomSetName ("E = " + this.totEnergy + " " + this.energyUnits);
 this.totEnergy = null;
 });
-c$.tags = c$.prototype.tags = J.adapter.smarter.AtomSetCollection.notionalUnitcellTags;
+Clazz.defineStatics (c$,
+"tags", ["a", "b", "c", "alpha", "beta", "gamma"]);
 });

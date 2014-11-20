@@ -17,6 +17,7 @@ this.rho = null;
 this.firstPosition = false;
 this.vR = null;
 this.v0Cart = null;
+this.isLegendre = false;
 this.floats = null;
 Clazz.instantialize (this, arguments);
 }, J.adapter.readers.xtal, "JanaReader", J.adapter.smarter.AtomSetCollectionReader);
@@ -86,19 +87,23 @@ return true;
 });
 Clazz.overrideMethod (c$, "doPreSymmetry", 
 function () {
-if (this.ms != null) this.ms.setModulation (false);
+if (this.ms != null) this.ms.setModulation (false, null);
+if (this.vibsFractional) this.asc.getXSymmetry ().scaleFractionalVibs ();
 });
-Clazz.overrideMethod (c$, "finalizeReader", 
+Clazz.overrideMethod (c$, "finalizeSubclassReader", 
 function () {
 if (!this.haveM40Data) this.readM40Data (false);
 if (this.lattvecs != null && this.lattvecs.size () > 0) this.asc.getSymmetry ().addLatticeVectors (this.lattvecs);
 this.applySymmetryAndSetTrajectory ();
-this.adjustM40Occupancies ();
-if (this.ms != null) {
-this.ms.setModulation (true);
-this.ms.finalizeModulation ();
-}this.finalizeReaderASCR ();
+this.finalizeReaderASCR ();
 });
+Clazz.overrideMethod (c$, "finalizeSubclassSymmetry", 
+function (haveSymmetry) {
+this.adjustM40Occupancies ();
+if (this.ms != null && haveSymmetry) {
+this.ms.setModulation (true, this.asc.getXSymmetry ().getBaseSymmetry ());
+this.ms.finalizeModulation ();
+}}, "~B");
 Clazz.defineMethod (c$, "cell", 
  function () {
 for (var ipt = 0; ipt < 6; ipt++) this.setUnitCellItem (ipt, this.parseFloat ());
@@ -106,14 +111,18 @@ for (var ipt = 0; ipt < 6; ipt++) this.setUnitCellItem (ipt, this.parseFloat ())
 });
 Clazz.defineMethod (c$, "ndim", 
  function () {
-this.ms = J.api.Interface.getOption ("adapter.readers.cif.MSReader");
+this.ms = J.api.Interface.getOption ("adapter.readers.cif.MSRdr", this.vwr, "file");
 this.modDim = this.ms.initialize (this, (this.parseIntStr (this.getTokens ()[1]) - 3));
 });
 Clazz.defineMethod (c$, "qi", 
  function () {
 var pt =  Clazz.newDoubleArray (this.modDim, 0);
 pt[this.qicount] = 1;
-this.ms.addModulation (null, "W_" + (++this.qicount), [this.parseFloat (), this.parseFloat (), this.parseFloat ()], -1);
+var a = [this.parseFloat (), this.parseFloat (), this.parseFloat ()];
+this.parseTokenStr (this.rd ());
+for (var i = 0; i < 3; i++) a[i] += this.parseFloat ();
+
+this.ms.addModulation (null, "W_" + (++this.qicount), a, -1);
 this.ms.addModulation (null, "F_" + this.qicount + "_coefs_", pt, -1);
 });
 Clazz.defineMethod (c$, "symmetry", 
@@ -335,6 +344,7 @@ atom.foccupancy *= o_0;
 var wv = 0;
 var a1;
 var a2;
+this.isLegendre = false;
 for (var j = 0; j < nOcc; j++) {
 if (haveSpecialOcc) {
 var data = this.readM40FloatLines (2, 1);
@@ -359,24 +369,49 @@ for (var k = 0; k < 3; k++) if (this.floats[k] != 0) this.ms.addModulation (null
 this.addSinCos (j, "D_", label, isPos);
 }}
 var rotData = (isPos && nDisp > 0 ? this.readM40FloatLines (nDisp, 6) : null);
-if (!isPos) for (var j = 0; j < nUij; j++) {
-this.ensureFourier (j);
+if (!isPos) {
+if (this.isLegendre) nUij *= 2;
+for (var j = 0; j < nUij; j++) {
 if (tType == 1) {
 this.addSinCos (j, "U_", label, false);
 } else {
 if (haveSpecialUij) {
 JU.Logger.error ("JanaReader -- not interpreting SpecialUij flag: " + this.line);
+} else if (this.isLegendre) {
+var data = this.readM40FloatLines (1, 6);
+var order = j + 1;
+var coeff = 0;
+for (var k = 0, p = 0; k < 6; k++, p += 3) {
+if ((coeff = data[0][k]) != 0) this.ms.addModulation (null, "U_L" + order + "#" + "U11U22U33U12U13U23UISO".substring (p, p + 3) + label, [coeff, order, 0], -1);
+}
 } else {
 var data = this.readM40FloatLines (2, 6);
-for (var k = 0, p = 0; k < 6; k++, p += 3) this.ms.addModulation (null, "U_" + (j + 1) + "#" + "U11U22U33U12U13U23UISO".substring (p, p + 3) + label, [data[1][k], data[0][k], 0], -1);
-
+for (var k = 0, p = 0; k < 6; k++, p += 3) {
+var csin = data[1][k];
+var ccos = data[0][k];
+this.ms.addModulation (null, "U_" + (j + 1) + "#" + "U11U22U33U12U13U23UISO".substring (p, p + 3) + label, [csin, ccos, 0], -1);
+}
 }}}
-return rotData;
+}return rotData;
 }, "J.adapter.smarter.Atom,JU.P3,JU.P3,~B");
 Clazz.defineMethod (c$, "addSinCos", 
  function (j, key, label, isPos) {
-this.ensureFourier (j);
 this.readM40Floats ();
+if (this.isLegendre) {
+for (var i = 0; i < 2; i++) {
+var order = (j * 2 + i + 1);
+for (var k = 0; k < 3; ++k) {
+var coeff = this.floats[3 * i + k];
+if (coeff == 0) {
+continue;
+}var axis = J.adapter.readers.xtal.JanaReader.XYZ[k % 3];
+if (this.modAxes != null && this.modAxes.indexOf (axis.toUpperCase ()) < 0) continue;
+var id = key + "L#" + axis + order + label;
+this.ms.addModulation (null, id, [coeff, order, 0], -1);
+}
+}
+return;
+}this.ensureFourier (j);
 for (var k = 0; k < 3; ++k) {
 var csin = this.floats[k];
 var ccos = this.floats[k + 3];
@@ -417,6 +452,7 @@ Clazz.defineMethod (c$, "readM40FloatLines",
 var data =  Clazz.newFloatArray (nLines, nFloats, 0);
 for (var i = 0; i < nLines; i++) {
 this.readM40Floats ();
+if (this.line.indexOf ("Legendre") == 19) this.isLegendre = true;
 for (var j = 0; j < nFloats; j++) data[i][j] = this.floats[j];
 
 }

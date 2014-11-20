@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JU");
-Clazz.load (null, "JU.MeshSurface", ["java.lang.Float", "java.util.Hashtable", "JU.AU", "$.BS", "$.Lst", "$.P3", "$.P4", "$.PT", "$.SB", "JU.BSUtil", "$.BoxInfo", "$.C", "$.Escape", "$.Geodesic", "$.Measure", "$.TempArray"], function () {
+Clazz.load (null, "JU.MeshSurface", ["java.lang.Float", "java.util.Hashtable", "JU.AU", "$.BS", "$.Lst", "$.Measure", "$.P3", "$.P4", "$.PT", "$.SB", "JU.BSUtil", "$.BoxInfo", "$.C", "$.Escape", "$.Geodesic", "$.TempArray"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.spanningVectors = null;
 this.meshType = null;
@@ -53,9 +53,6 @@ this.mergePolygonCount0 = 0;
 this.isMerged = false;
 Clazz.instantialize (this, arguments);
 }, JU, "MeshSurface");
-Clazz.makeConstructor (c$, 
-function () {
-});
 c$.newMesh = Clazz.defineMethod (c$, "newMesh", 
 function (isAlt, vertices, vertexCount, polygonIndexes, normals, nNormals) {
 var ms =  new JU.MeshSurface ();
@@ -360,6 +357,7 @@ var isSlab = (vData == null);
 var pts = null;
 if (fData == null) {
 if (tokType == 3 && bsSource != null) {
+if (this.vertexSource == null) return;
 fData =  Clazz.newFloatArray (this.vc, 0);
 for (var i = 0; i < this.vc; i++) if ((fData[i] = this.vertexSource[i]) == -1) System.out.println ("meshsurface hmm");
 

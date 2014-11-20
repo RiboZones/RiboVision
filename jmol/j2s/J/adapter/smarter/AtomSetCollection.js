@@ -38,6 +38,7 @@ this.bondIndex0 = 0;
 this.checkSpecial = true;
 this.atomSymbolicMap = null;
 this.haveUnitCell = false;
+this.vibScale = 0;
 Clazz.instantialize (this, arguments);
 }, J.adapter.smarter, "AtomSetCollection");
 Clazz.prepareFields (c$, function () {
@@ -102,10 +103,30 @@ if (Clazz.instanceOf (o, JU.Lst)) this.appendAtomSetCollectionList (o);
 }, "JU.Lst");
 Clazz.defineMethod (c$, "setTrajectory", 
 function () {
-if (!this.isTrajectory) {
-this.trajectorySteps =  new JU.Lst ();
-}this.isTrajectory = true;
-this.addTrajectoryStep ();
+if (!this.isTrajectory) this.trajectorySteps =  new JU.Lst ();
+this.isTrajectory = true;
+var n = (this.bsAtoms == null ? this.ac : this.bsAtoms.cardinality ());
+if (n == 0) return;
+var trajectoryStep =  new Array (n);
+var haveVibrations = (n > 0 && this.atoms[0].vib != null && !Float.isNaN (this.atoms[0].vib.z));
+var vibrationStep = (haveVibrations ?  new Array (n) : null);
+var prevSteps = (this.trajectoryStepCount == 0 ? null : this.trajectorySteps.get (this.trajectoryStepCount - 1));
+for (var i = 0, ii = 0; i < this.ac; i++) {
+if (this.bsAtoms != null && !this.bsAtoms.get (i)) continue;
+var pt = JU.P3.newP (this.atoms[i]);
+if (this.doFixPeriodic && prevSteps != null) pt = J.adapter.smarter.AtomSetCollection.fixPeriodic (pt, prevSteps[i]);
+trajectoryStep[ii] = pt;
+if (haveVibrations) vibrationStep[ii] = this.atoms[i].vib;
+ii++;
+}
+if (haveVibrations) {
+if (this.vibrationSteps == null) {
+this.vibrationSteps =  new JU.Lst ();
+for (var i = 0; i < this.trajectoryStepCount; i++) this.vibrationSteps.addLast (null);
+
+}this.vibrationSteps.addLast (vibrationStep);
+}this.trajectorySteps.addLast (trajectoryStep);
+this.trajectoryStepCount++;
 });
 Clazz.defineMethod (c$, "appendAtomSetCollection", 
 function (collectionIndex, collection) {
@@ -526,7 +547,7 @@ data[i] = val;
 }, "J.adapter.smarter.Atom,~N,~N");
 Clazz.defineMethod (c$, "getXSymmetry", 
 function () {
-if (this.xtalSymmetry == null) this.xtalSymmetry = (J.api.Interface.getOption ("adapter.smarter.XtalSymmetry")).set (this);
+if (this.xtalSymmetry == null) this.xtalSymmetry = (J.api.Interface.getOption ("adapter.smarter.XtalSymmetry", this.reader.vwr, "file")).set (this.reader);
 return this.xtalSymmetry;
 });
 Clazz.defineMethod (c$, "getSymmetry", 
@@ -572,27 +593,6 @@ Clazz.defineMethod (c$, "getAtomSetCollectionAuxiliaryInfo",
 function (key) {
 return this.ascAuxiliaryInfo.get (key);
 }, "~S");
-Clazz.defineMethod (c$, "addTrajectoryStep", 
- function () {
-var trajectoryStep =  new Array (this.ac);
-var haveVibrations = (this.ac > 0 && this.atoms[0].vib != null && !Float.isNaN (this.atoms[0].vib.z));
-var vibrationStep = (haveVibrations ?  new Array (this.ac) : null);
-var prevSteps = (this.trajectoryStepCount == 0 ? null : this.trajectorySteps.get (this.trajectoryStepCount - 1));
-for (var i = 0; i < this.ac; i++) {
-var pt = JU.P3.newP (this.atoms[i]);
-if (this.doFixPeriodic && prevSteps != null) pt = J.adapter.smarter.AtomSetCollection.fixPeriodic (pt, prevSteps[i]);
-trajectoryStep[i] = pt;
-if (haveVibrations) vibrationStep[i] = this.atoms[i].vib;
-}
-if (haveVibrations) {
-if (this.vibrationSteps == null) {
-this.vibrationSteps =  new JU.Lst ();
-for (var i = 0; i < this.trajectoryStepCount; i++) this.vibrationSteps.addLast (null);
-
-}this.vibrationSteps.addLast (vibrationStep);
-}this.trajectorySteps.addLast (trajectoryStep);
-this.trajectoryStepCount++;
-});
 c$.fixPeriodic = Clazz.defineMethod (c$, "fixPeriodic", 
  function (pt, pt0) {
 pt.x = J.adapter.smarter.AtomSetCollection.fixPoint (pt.x, pt0.x);
@@ -622,13 +622,16 @@ Clazz.defineMethod (c$, "finalizeTrajectory",
 if (this.trajectoryStepCount == 0) return;
 var trajectory = this.trajectorySteps.get (0);
 var vibrations = (this.vibrationSteps == null ? null : this.vibrationSteps.get (0));
-var v =  new JU.V3 ();
-if (this.vibrationSteps != null && vibrations != null && vibrations.length < this.ac || trajectory.length < this.ac) {
+var n = (this.bsAtoms == null ? this.ac : this.bsAtoms.cardinality ());
+if (this.vibrationSteps != null && vibrations != null && vibrations.length < n || trajectory.length < n) {
 this.errorMessage = "File cannot be loaded as a trajectory";
 return;
-}for (var i = 0; i < this.ac; i++) {
-if (this.vibrationSteps != null) this.atoms[i].vib = (vibrations == null ? v : vibrations[i]);
-if (trajectory[i] != null) this.atoms[i].setT (trajectory[i]);
+}var v =  new JU.V3 ();
+for (var i = 0, ii = 0; i < this.ac; i++) {
+if (this.bsAtoms != null && !this.bsAtoms.get (i)) continue;
+if (this.vibrationSteps != null) this.atoms[i].vib = (vibrations == null ? v : vibrations[ii]);
+if (trajectory[ii] != null) this.atoms[i].setT (trajectory[ii]);
+ii++;
 }
 this.setInfo ("trajectorySteps", this.trajectorySteps);
 if (this.vibrationSteps != null) this.setInfo ("vibrationSteps", this.vibrationSteps);
@@ -712,14 +715,14 @@ if (p == null) this.setAtomSetAuxiliaryInfoForSet ("modelProperties", p =  new j
 p.put (key, value);
 if (key.startsWith (".")) p.put (key.substring (1), value);
 }, "~S,~S,~N");
-Clazz.defineMethod (c$, "setAtomSetAtomProperty", 
-function (key, data, atomSetIndex) {
-if (!data.endsWith ("\n")) data += "\n";
+Clazz.defineMethod (c$, "setAtomProperties", 
+function (key, data, atomSetIndex, isGroup) {
+if (Clazz.instanceOf (data, String) && !(data).endsWith ("\n")) data = data + "\n";
 if (atomSetIndex < 0) atomSetIndex = this.iSet;
 var p = this.getAtomSetAuxiliaryInfoValue (atomSetIndex, "atomProperties");
 if (p == null) this.setAtomSetAuxiliaryInfoForSet ("atomProperties", p =  new java.util.Hashtable (), atomSetIndex);
 p.put (key, data);
-}, "~S,~S,~N");
+}, "~S,~O,~N,~B");
 Clazz.defineMethod (c$, "setAtomSetPartialCharges", 
 function (auxKey) {
 if (!this.atomSetAuxiliaryInfo[this.iSet].containsKey (auxKey)) {
@@ -771,7 +774,8 @@ return this.getAtomSetAuxiliaryInfoValue (atomSetIndex, "name");
 }, "~N");
 Clazz.defineMethod (c$, "getAtomSetAuxiliaryInfo", 
 function (atomSetIndex) {
-return this.atomSetAuxiliaryInfo[atomSetIndex >= this.atomSetCount ? this.atomSetCount - 1 : atomSetIndex];
+var i = (atomSetIndex >= this.atomSetCount ? this.atomSetCount - 1 : atomSetIndex);
+return (i < 0 ? null : this.atomSetAuxiliaryInfo[i]);
 }, "~N");
 Clazz.defineMethod (c$, "setAtomNames", 
 function (atomIdNames) {
@@ -835,11 +839,12 @@ for (var i = 0; i < a.trajectoryStepCount; i++) this.trajectorySteps.add (this.t
 this.setInfo ("trajectorySteps", this.trajectorySteps);
 }, "J.adapter.smarter.AtomSetCollection");
 Clazz.defineStatics (c$,
-"globalBooleans", ["someModelsHaveFractionalCoordinates", "someModelsHaveSymmetry", "someModelsHaveUnitcells", "someModelsHaveCONECT", "isPDB"],
+"globalBooleans", ["someModelsHaveFractionalCoordinates", "someModelsHaveSymmetry", "someModelsHaveUnitcells", "someModelsHaveCONECT", "isPDB", "someModelsHaveDomains", "someModelsHaveValidations"],
 "GLOBAL_FRACTCOORD", 0,
 "GLOBAL_SYMMETRY", 1,
 "GLOBAL_UNITCELLS", 2,
 "GLOBAL_CONECT", 3,
 "GLOBAL_ISPDB", 4,
-"notionalUnitcellTags", ["a", "b", "c", "alpha", "beta", "gamma"]);
+"GLOBAL_DOMAINS", 5,
+"GLOBAL_VALIDATIONS", 6);
 });

@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.awtjs2d");
-Clazz.load (["javajs.api.GenericFileInterface"], "J.awtjs2d.JSFile", ["JU.PT", "JV.FileManager", "$.Viewer"], function () {
+Clazz.load (["javajs.api.GenericFileInterface"], "J.awtjs2d.JSFile", ["JU.OC", "$.PT", "JV.Viewer"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.name = null;
 this.fullName = null;
@@ -13,7 +13,7 @@ Clazz.makeConstructor (c$,
 function (name) {
 this.name = name.$replace ('\\', '/');
 this.fullName = name;
-if (!this.fullName.startsWith ("/") && JV.FileManager.urlTypeIndex (name) < 0) this.fullName = JV.Viewer.jsDocumentBase + "/" + this.fullName;
+if (!this.fullName.startsWith ("/") && JU.OC.urlTypeIndex (name) < 0) this.fullName = JV.Viewer.jsDocumentBase + "/" + this.fullName;
 this.fullName = JU.PT.rep (this.fullName, "/./", "/");
 name = name.substring (name.lastIndexOf ("/") + 1);
 }, "~S");
@@ -38,13 +38,13 @@ Clazz.overrideMethod (c$, "length",
 function () {
 return 0;
 });
-c$.getBufferedURLInputStream = Clazz.defineMethod (c$, "getBufferedURLInputStream", 
+c$.getURLContents = Clazz.defineMethod (c$, "getURLContents", 
 function (url, outputBytes, post) {
 try {
 var conn = url.openConnection ();
 if (outputBytes != null) conn.outputBytes (outputBytes);
  else if (post != null) conn.outputString (post);
-return conn.getSB ();
+return conn.getContents ();
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
 return e.toString ();

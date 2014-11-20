@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.awtjs2d");
-Clazz.load (["javajs.api.GenericPlatform"], "J.awtjs2d.Platform", ["java.net.URL", "JU.AjaxURLStreamHandlerFactory", "J.api.Interface", "J.awtjs2d.Display", "$.Image", "$.JSFile", "$.JSFont", "$.Mouse"], function () {
+Clazz.load (["javajs.api.GenericPlatform"], "J.awtjs2d.Platform", ["java.net.URL", "JU.AjaxURLStreamHandlerFactory", "$.Rdr", "$.SB", "J.api.Interface", "J.awtjs2d.Display", "$.Image", "$.JSFile", "$.JSFont", "$.Mouse"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.canvas = null;
 this.vwr = null;
@@ -50,7 +50,7 @@ J.awtjs2d.Display.getFullScreenDimensions (canvas, widthHeight);
 Clazz.overrideMethod (c$, "getMenuPopup", 
 function (menuStructure, type) {
 var c = (type == 'j' ? "awtjs2d.JmolJSPopup" : "awtjs2d.JSModelKitPopup");
-var jmolpopup = J.api.Interface.getOption (c);
+var jmolpopup = J.api.Interface.getOption (c, this.vwr, "popup");
 try {
 if (jmolpopup != null) jmolpopup.jpiInitialize (this.vwr, menuStructure);
 } catch (e) {
@@ -78,7 +78,7 @@ J.awtjs2d.Display.renderScreenImage (this.vwr, context, size);
 }, "~O,~O");
 Clazz.overrideMethod (c$, "drawImage", 
 function (context, canvas, x, y, width, height) {
-J.awtjs2d.Image.drawImage (context, canvas, x, y, width, height);
+J.awtjs2d.Display.drawImage (context, canvas, x, y, width, height);
 }, "~O,~O,~N,~N,~N,~N");
 Clazz.overrideMethod (c$, "requestFocusInWindow", 
 function (canvas) {
@@ -86,8 +86,10 @@ J.awtjs2d.Display.requestFocusInWindow (canvas);
 }, "~O");
 Clazz.overrideMethod (c$, "repaint", 
 function (canvas) {
-J.awtjs2d.Display.repaint (canvas);
-}, "~O");
+{
+if (typeof Jmol != "undefined" && Jmol._repaint)
+Jmol._repaint(this.vwr.html5Applet,true);
+}}, "~O");
 Clazz.overrideMethod (c$, "setTransparentCursor", 
 function (canvas) {
 J.awtjs2d.Display.setTransparentCursor (canvas);
@@ -133,8 +135,8 @@ Clazz.overrideMethod (c$, "flushImage",
 function (imagePixelBuffer) {
 }, "~O");
 Clazz.overrideMethod (c$, "getGraphics", 
-function (image) {
-return (image == null ? this.context : J.awtjs2d.Image.getGraphics (image));
+function (canvas) {
+return (canvas == null ? this.context : J.awtjs2d.Image.getGraphics (canvas));
 }, "~O");
 Clazz.overrideMethod (c$, "getImageHeight", 
 function (canvas) {
@@ -152,14 +154,14 @@ Clazz.overrideMethod (c$, "newBufferedImage",
 function (image, w, h) {
 {
 if (typeof Jmol != "undefined" && Jmol._getHiddenCanvas)
-return Jmol._getHiddenCanvas(this.vwr.applet, "stereoImage", w, h);
+return Jmol._getHiddenCanvas(this.vwr.html5Applet, "stereoImage", w, h);
 }return null;
 }, "~O,~N,~N");
 Clazz.overrideMethod (c$, "newOffScreenImage", 
 function (w, h) {
 {
 if (typeof Jmol != "undefined" && Jmol._getHiddenCanvas)
-return Jmol._getHiddenCanvas(this.vwr.applet, "textImage", w, h);
+return Jmol._getHiddenCanvas(this.vwr.html5Applet, "textImage", w, h);
 }return null;
 }, "~N,~N");
 Clazz.overrideMethod (c$, "waitForDisplay", 
@@ -194,9 +196,16 @@ function (fontFace, isBold, isItalic, fontSize) {
 return J.awtjs2d.JSFont.newFont (fontFace, isBold, isItalic, fontSize, "px");
 }, "~S,~B,~B,~N");
 Clazz.overrideMethod (c$, "getDateFormat", 
-function (isoiec8824) {
+function (isoType) {
 {
-if (isoiec8824) {
+if (isoType == null) {
+} else if (isoType.indexOf("8824") >= 0) {
+var d = new Date();
+var x = d.toString().split(" ");
+var MM = "0" + d.getMonth(); MM = MM.substring(MM.length - 2);
+var dd = "0" + d.getDate(); dd = dd.substring(dd.length - 2);
+return x[3] + MM + dd + x[4].replace(/\:/g,"") + x[5].substring(3,6) + "'" + x[5].substring(6,8) + "'"
+} else if (isoType.indexOf("8601") >= 0){
 var d = new Date();
 var x = d.toString().split(" ");
 var MM = "0" + d.getMonth(); MM = MM.substring(MM.length - 2);
@@ -204,7 +213,7 @@ var dd = "0" + d.getDate(); dd = dd.substring(dd.length - 2);
 return x[3] + MM + dd + x[4].replace(/\:/g,"") + x[5].substring(3,6) + "'" + x[5].substring(6,8) + "'"
 }
 return ("" + (new Date())).split(" (")[0];
-}}, "~B");
+}}, "~S");
 Clazz.overrideMethod (c$, "newFile", 
 function (name) {
 return  new J.awtjs2d.JSFile (name);
@@ -213,10 +222,23 @@ Clazz.overrideMethod (c$, "getBufferedFileInputStream",
 function (name) {
 return null;
 }, "~S");
-Clazz.overrideMethod (c$, "getBufferedURLInputStream", 
-function (url, outputBytes, post) {
-return J.awtjs2d.JSFile.getBufferedURLInputStream (url, outputBytes, post);
-}, "java.net.URL,~A,~S");
+Clazz.overrideMethod (c$, "getURLContents", 
+function (url, outputBytes, post, asString) {
+return J.awtjs2d.Platform.getURLContentsStatic (url, outputBytes, post, asString);
+}, "java.net.URL,~A,~S,~B");
+c$.getURLContentsStatic = Clazz.defineMethod (c$, "getURLContentsStatic", 
+function (url, outputBytes, post, asString) {
+var ret = J.awtjs2d.JSFile.getURLContents (url, outputBytes, post);
+try {
+return (!asString ? ret : Clazz.instanceOf (ret, String) ? ret : Clazz.instanceOf (ret, JU.SB) ? (ret).toString () : Clazz.instanceOf (ret, Array) ?  String.instantialize (ret) :  String.instantialize (JU.Rdr.getStreamAsBytes (ret, null)));
+} catch (e) {
+if (Clazz.exceptionOf (e, Exception)) {
+return "" + e;
+} else {
+throw e;
+}
+}
+}, "java.net.URL,~A,~S,~B");
 Clazz.overrideMethod (c$, "getLocalUrl", 
 function (fileName) {
 return null;

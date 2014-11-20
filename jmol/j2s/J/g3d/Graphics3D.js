@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.g3d");
-Clazz.load (["J.api.JmolRendererInterface", "JU.GData", "JU.V3", "JU.Normix"], "J.g3d.Graphics3D", ["java.lang.NullPointerException", "java.util.Arrays", "javajs.awt.Font", "JU.AU", "J.api.Interface", "J.c.STER", "J.g3d.CylinderRenderer", "$.ImageRenderer", "$.LineRenderer", "$.Pixelator", "$.PixelatorShaded", "$.Platform3D", "$.SphereRenderer", "$.TextRenderer", "$.TextSorter", "$.TextString", "JU.C"], function () {
+Clazz.load (["J.api.JmolRendererInterface", "JU.GData", "JU.V3"], "J.g3d.Graphics3D", ["java.lang.NullPointerException", "java.util.Arrays", "javajs.awt.Font", "JU.AU", "J.api.Interface", "J.c.STER", "J.g3d.CylinderRenderer", "$.ImageRenderer", "$.LineRenderer", "$.Pixelator", "$.PixelatorShaded", "$.Platform3D", "$.SphereRenderer", "$.TextRenderer", "$.TextSorter", "$.TextString", "JU.C", "$.Normix"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.platform = null;
 this.line3d = null;
@@ -27,7 +27,6 @@ this.anaglyphLength = 0;
 this.isScreened = false;
 this.argbNoisyUp = 0;
 this.argbNoisyDn = 0;
-this.currentFont = null;
 this.pixel = null;
 this.zMargin = 0;
 this.aobuf = null;
@@ -36,11 +35,9 @@ this.lastRawColor = 0;
 this.translucencyLog = 0;
 this.saveAmbient = 0;
 this.saveDiffuse = 0;
-this.$currentlyRendering = false;
 this.vectorAB = null;
 this.vectorAC = null;
 this.vectorNormal = null;
-this.transformedVectors = null;
 this.shadeIndexes = null;
 this.shadeIndexes2Sided = null;
 Clazz.instantialize (this, arguments);
@@ -49,12 +46,8 @@ Clazz.prepareFields (c$, function () {
 this.vectorAB =  new JU.V3 ();
 this.vectorAC =  new JU.V3 ();
 this.vectorNormal =  new JU.V3 ();
-this.transformedVectors =  new Array (J.g3d.Graphics3D.normixCount);
-{
-for (var i = J.g3d.Graphics3D.normixCount; --i >= 0; ) this.transformedVectors[i] =  new JU.V3 ();
-
-}this.shadeIndexes =  Clazz.newByteArray (J.g3d.Graphics3D.normixCount, 0);
-this.shadeIndexes2Sided =  Clazz.newByteArray (J.g3d.Graphics3D.normixCount, 0);
+this.shadeIndexes =  Clazz.newByteArray (JU.GData.normixCount, 0);
+this.shadeIndexes2Sided =  Clazz.newByteArray (JU.GData.normixCount, 0);
 });
 Clazz.overrideMethod (c$, "clear", 
 function () {
@@ -68,10 +61,6 @@ this.releaseBuffers ();
 this.platform = null;
 this.graphicsForMetrics = null;
 });
-Clazz.overrideMethod (c$, "getGData", 
-function () {
-return this;
-});
 Clazz.defineMethod (c$, "setZMargin", 
 function (dz) {
 this.zMargin = dz;
@@ -79,16 +68,19 @@ this.zMargin = dz;
 Clazz.makeConstructor (c$, 
 function () {
 Clazz.superConstructor (this, J.g3d.Graphics3D, []);
+for (var i = JU.GData.normixCount; --i >= 0; ) this.transformedVectors[i] =  new JU.V3 ();
+
 });
 Clazz.overrideMethod (c$, "initialize", 
-function (apiPlatform) {
+function (vwr, apiPlatform) {
+this.vwr = vwr;
 this.apiPlatform = apiPlatform;
 this.platform =  new J.g3d.Platform3D (apiPlatform);
 this.graphicsForMetrics = this.platform.getGraphicsForMetrics ();
 this.line3d =  new J.g3d.LineRenderer (this);
 this.sphere3d =  new J.g3d.SphereRenderer (this);
 this.cylinder3d =  new J.g3d.CylinderRenderer (this);
-}, "javajs.api.GenericPlatform");
+}, "JV.Viewer,javajs.api.GenericPlatform");
 Clazz.overrideMethod (c$, "addRenderer", 
 function (tok) {
 switch (tok) {
@@ -104,25 +96,24 @@ break;
 }, "~N");
 Clazz.defineMethod (c$, "getRenderer", 
  function (type) {
-return (J.api.Interface.getOption ("g3d." + type + "Renderer")).set (this);
+var r = (J.api.Interface.getOption ("g3d." + type + "Renderer", this.vwr, "render"));
+if (r == null) throw  new NullPointerException ("Interface");
+r.set (this, this);
+return r;
 }, "~S");
-Clazz.overrideMethod (c$, "currentlyRendering", 
-function () {
-return this.$currentlyRendering;
-});
 Clazz.overrideMethod (c$, "setWindowParameters", 
 function (width, height, antialias) {
 this.setWinParams (width, height, antialias);
-if (this.$currentlyRendering) this.endRendering ();
+if (this.currentlyRendering) this.endRendering ();
 }, "~N,~N,~B");
 Clazz.overrideMethod (c$, "checkTranslucent", 
 function (isAlphaTranslucent) {
 if (isAlphaTranslucent) this.$haveTranslucentObjects = true;
-return (!this.twoPass || this.twoPass && (this.$isPass2 == isAlphaTranslucent));
+return (!this.twoPass || this.twoPass && (this.isPass2 == isAlphaTranslucent));
 }, "~B");
 Clazz.overrideMethod (c$, "beginRendering", 
 function (rotationMatrix, translucentMode, isImageWrite, renderLow) {
-if (this.$currentlyRendering) this.endRendering ();
+if (this.currentlyRendering) this.endRendering ();
 this.renderLow = renderLow;
 if (this.windowWidth != this.newWindowWidth || this.windowHeight != this.newWindowHeight || this.newAntialiasing != this.isFullSceneAntialiasingEnabled) {
 this.windowWidth = this.newWindowWidth;
@@ -131,12 +122,12 @@ this.isFullSceneAntialiasingEnabled = this.newAntialiasing;
 this.releaseBuffers ();
 }this.setRotationMatrix (rotationMatrix);
 this.antialiasEnabled = this.antialiasThisFrame = this.newAntialiasing;
-this.$currentlyRendering = true;
+this.currentlyRendering = true;
 if (this.strings != null) for (var i = Math.min (this.strings.length, this.stringCount); --i >= 0; ) this.strings[i] = null;
 
 this.stringCount = 0;
 this.twoPass = true;
-this.$isPass2 = false;
+this.isPass2 = false;
 this.colixCurrent = 0;
 this.$haveTranslucentObjects = false;
 this.translucentCoverOnly = !translucentMode;
@@ -149,6 +140,7 @@ this.aobuf = null;
 }this.setWidthHeight (this.antialiasThisFrame);
 this.platform.clearBuffer ();
 if (this.backgroundImage != null) this.plotImage (-2147483648, 0, -2147483648, this.backgroundImage, null, 0, 0, 0);
+this.textY = 0;
 }, "JU.M3,~B,~B,~B");
 Clazz.overrideMethod (c$, "setBackgroundTransparent", 
 function (TF) {
@@ -166,8 +158,8 @@ this.line3d.clearLineCache ();
 });
 Clazz.overrideMethod (c$, "setPass2", 
 function (antialiasTranslucent) {
-if (!this.$haveTranslucentObjects || !this.$currentlyRendering) return false;
-this.$isPass2 = true;
+if (!this.$haveTranslucentObjects || !this.currentlyRendering) return false;
+this.isPass2 = true;
 this.colixCurrent = 0;
 this.aap = true;
 if (this.pbufT == null || this.antialias2 != antialiasTranslucent) {
@@ -181,9 +173,9 @@ return true;
 }, "~B");
 Clazz.overrideMethod (c$, "endRendering", 
 function () {
-if (!this.$currentlyRendering) return;
+if (!this.currentlyRendering) return;
 if (this.pbuf != null) {
-if (this.$isPass2 && this.pbufT != null) for (var offset = this.pbufT.length; --offset >= 0; ) J.g3d.Graphics3D.mergeBufferPixel (this.pbuf, offset, this.pbufT[offset], this.bgcolor);
+if (this.isPass2 && this.pbufT != null) for (var offset = this.pbufT.length; --offset >= 0; ) J.g3d.Graphics3D.mergeBufferPixel (this.pbuf, offset, this.pbufT[offset], this.bgcolor);
 
 if (this.ambientOcclusion != 0) {
 if (this.aobuf == null) this.aobuf =  Clazz.newIntArray (this.pbuf.length, 0);
@@ -193,7 +185,7 @@ this.shader.occludePixels (this.pbuf, this.zbuf, this.aobuf, this.width, this.he
 }if (this.antialiasThisFrame) this.downsampleFullSceneAntialiasing (false);
 }this.platform.setBackgroundColor (this.bgcolor);
 this.platform.notifyEndOfRendering ();
-this.$currentlyRendering = false;
+this.currentlyRendering = false;
 });
 c$.mergeBufferPixel = Clazz.defineMethod (c$, "mergeBufferPixel", 
 function (pbuf, offset, argbB, bgcolor) {
@@ -272,7 +264,7 @@ break;
 }, "J.c.STER,~A");
 Clazz.overrideMethod (c$, "snapshotAnaglyphChannelBytes", 
 function () {
-if (this.$currentlyRendering) throw  new NullPointerException ();
+if (this.currentlyRendering) throw  new NullPointerException ();
 this.anaglyphLength = this.windowWidth * this.windowHeight;
 if (this.anaglyphChannelBytes == null || this.anaglyphChannelBytes.length != this.anaglyphLength) this.anaglyphChannelBytes =  Clazz.newByteArray (this.anaglyphLength, 0);
 for (var i = this.anaglyphLength; --i >= 0; ) this.anaglyphChannelBytes[i] = this.pbuf[i];
@@ -337,12 +329,15 @@ var offset1 = 0;
 var offset4 = 0;
 var bgcheck = this.bgcolor;
 if (downsampleZBuffer) bgcheck += ((bgcheck & 0xFF) == 0xFF ? -1 : 1);
+bgcheck &= 0xFFFFFF;
 for (var i = this.pbuf.length; --i >= 0; ) if (this.pbuf[i] == 0) this.pbuf[i] = bgcheck;
 
-bgcheck &= 0xFFFFFF;
+var bg0 = ((bgcheck >> 2) & 0x3F3F3F3F) << 2;
+bg0 += (bg0 & 0xC0C0C0C0) >> 6;
 for (var i = this.windowHeight; --i >= 0; offset4 += width4) for (var j = this.windowWidth; --j >= 0; ++offset1) {
 var argb = ((this.pbuf[offset4] >> 2) & 0x3F3F3F3F) + ((this.pbuf[offset4++ + width4] >> 2) & 0x3F3F3F3F) + ((this.pbuf[offset4] >> 2) & 0x3F3F3F3F) + ((this.pbuf[offset4++ + width4] >> 2) & 0x3F3F3F3F);
 argb += (argb & 0xC0C0C0C0) >> 6;
+if (argb == bg0) argb = bgcheck;
 {
 this.pbuf[offset1] = argb & 0x00FFFFFF | 0xFF000000;
 }}
@@ -378,8 +373,8 @@ if (this.renderLow) mask = 0;
 var isTranslucent = (mask != 0);
 this.isScreened = isTranslucent && mask == 30720;
 if (!this.checkTranslucent (isTranslucent && !this.isScreened)) return false;
-this.aap = this.$isPass2 || !isTranslucent;
-if (this.$isPass2) {
+this.aap = this.isPass2 || !isTranslucent;
+if (this.isPass2) {
 this.translucencyMask = (mask << 13) | 0xFFFFFF;
 this.translucencyLog = mask >> 11;
 } else {
@@ -446,6 +441,7 @@ this.saveAmbient = this.shader.ambientPercent;
 this.saveDiffuse = this.shader.diffusePercent;
 this.setAmbientPercent (100);
 this.setDiffusePercent (0);
+this.addRenderer (1073741880);
 } else {
 this.setAmbientPercent (this.saveAmbient);
 this.setDiffusePercent (this.saveDiffuse);
@@ -585,7 +581,7 @@ this.plotImage (x, y, z, objImage, null, bgcolix, width, height);
 Clazz.overrideMethod (c$, "plotImage", 
 function (x, y, z, image, jmolRenderer, bgcolix, width, height) {
 this.setC (bgcolix);
-if (!this.$isPass2) this.translucencyMask = -1;
+if (!this.isPass2) this.translucencyMask = -1;
 if (bgcolix == 0) this.argbCurrent = 0;
 J.g3d.ImageRenderer.plotImage (x, y, z, image, this, jmolRenderer, this.antialiasThisFrame, this.argbCurrent, width, height);
 }, "~N,~N,~N,~O,J.api.JmolRendererInterface,~N,~N,~N");
@@ -597,10 +593,6 @@ Clazz.overrideMethod (c$, "setFont",
 function (font3d) {
 this.currentFont = font3d;
 }, "javajs.awt.Font");
-Clazz.overrideMethod (c$, "getFont3DCurrent", 
-function () {
-return this.currentFont;
-});
 Clazz.overrideMethod (c$, "drawPixel", 
 function (x, y, z) {
 this.plotPixelClippedXYZ (x, y, z);
@@ -701,12 +693,6 @@ if ((check & 1) == 1) this.drawLine (colixA, colixB, screenA.x, screenA.y, scree
 if ((check & 2) == 2) this.drawLine (colixB, colixC, screenB.x, screenB.y, screenB.z, screenC.x, screenC.y, screenC.z);
 if ((check & 4) == 4) this.drawLine (colixA, colixC, screenA.x, screenA.y, screenA.z, screenC.x, screenC.y, screenC.z);
 }, "JU.P3i,~N,JU.P3i,~N,JU.P3i,~N,~N");
-Clazz.overrideMethod (c$, "drawTriangle3I", 
-function (screenA, screenB, screenC, check) {
-if ((check & 1) == 1) this.line3d.plotLine (this.argbCurrent, !this.aap, this.argbCurrent, !this.aap, screenA.x, screenA.y, screenA.z, screenB.x, screenB.y, screenB.z, true);
-if ((check & 2) == 2) this.line3d.plotLine (this.argbCurrent, !this.aap, this.argbCurrent, !this.aap, screenB.x, screenB.y, screenB.z, screenC.x, screenC.y, screenC.z, true);
-if ((check & 4) == 4) this.line3d.plotLine (this.argbCurrent, !this.aap, this.argbCurrent, !this.aap, screenA.x, screenA.y, screenA.z, screenC.x, screenC.y, screenC.z, true);
-}, "JU.P3i,JU.P3i,JU.P3i,~N");
 Clazz.overrideMethod (c$, "fillTriangleTwoSided", 
 function (normix, xScreenA, yScreenA, zScreenA, xScreenB, yScreenB, zScreenB, xScreenC, yScreenC, zScreenC) {
 this.setColorNoisy (this.getShadeIndex (normix));
@@ -726,7 +712,7 @@ function (screenA, screenB, screenC, ptA, ptB, ptC) {
 Clazz.overrideMethod (c$, "fillTriangle", 
 function (screenA, colixA, normixA, screenB, colixB, normixB, screenC, colixC, normixC, factor) {
 var useGouraud;
-if (!this.$isPass2 && normixA == normixB && normixA == normixC && colixA == colixB && colixA == colixC) {
+if (!this.isPass2 && normixA == normixB && normixA == normixC && colixA == colixB && colixA == colixC) {
 this.setTriangleColixAndShadeIndex (colixA, this.getShadeIndex (normixA));
 useGouraud = false;
 } else {
@@ -738,7 +724,7 @@ useGouraud = true;
 Clazz.overrideMethod (c$, "fillTriangle3CN", 
 function (screenA, colixA, normixA, screenB, colixB, normixB, screenC, colixC, normixC) {
 var useGouraud;
-if (!this.$isPass2 && normixA == normixB && normixA == normixC && colixA == colixB && colixA == colixC) {
+if (!this.isPass2 && normixA == normixB && normixA == normixC && colixA == colixB && colixA == colixC) {
 this.setTriangleColixAndShadeIndex (colixA, this.getShadeIndex (normixA));
 useGouraud = false;
 } else {
@@ -756,7 +742,7 @@ this.setColorNoisy (shadeIndex);
 }, "~N,~N");
 Clazz.defineMethod (c$, "setTriangleTranslucency", 
  function (colixA, colixB, colixC) {
-if (!this.$isPass2) return true;
+if (!this.isPass2) return true;
 var maskA = colixA & 30720;
 var maskB = colixB & 30720;
 var maskC = colixC & 30720;
@@ -1041,18 +1027,10 @@ Clazz.overrideMethod (c$, "clearFontCache",
 function () {
 J.g3d.TextRenderer.clearFontCache ();
 });
-Clazz.overrideMethod (c$, "getTransformedVertexVectors", 
-function () {
-return this.transformedVectors;
-});
-Clazz.overrideMethod (c$, "isDirectedTowardsCamera", 
-function (normix) {
-return (normix < 0) || (this.transformedVectors[normix].z > 0);
-}, "~N");
 Clazz.defineMethod (c$, "setRotationMatrix", 
 function (rotationMatrix) {
 var vertexVectors = JU.Normix.getVertexVectors ();
-for (var i = J.g3d.Graphics3D.normixCount; --i >= 0; ) {
+for (var i = JU.GData.normixCount; --i >= 0; ) {
 var tv = this.transformedVectors[i];
 rotationMatrix.rotate2 (vertexVectors[i], tv);
 this.shadeIndexes[i] = this.shader.getShadeB (tv.x, -tv.y, tv.z);
@@ -1088,9 +1066,9 @@ this.setC (minMax[2] > navOffset.y ? 21 : 11);
 this.drawRect (x, y + h, z, 0, w, h);
 }, "~A,~N,~N,JU.P3,~N");
 Clazz.overrideMethod (c$, "initializeOutput", 
-function (vwr, privateKey, gdata, params) {
+function (vwr, privateKey, params) {
 return false;
-}, "JV.Viewer,~N,JU.GData,java.util.Map");
+}, "JV.Viewer,~N,java.util.Map");
 Clazz.defineMethod (c$, "shadeTextPixel", 
 function (offset, z, argb, bgargb, shade) {
 switch (shade) {
@@ -1106,8 +1084,6 @@ J.g3d.Graphics3D.mergeBufferPixel (this.pbuf, offset, (argb & 0xFFFFFF) | shade 
 this.zbuf[offset] = z;
 }, "~N,~N,~N,~N,~N");
 Clazz.defineStatics (c$,
-"sort", null);
-c$.normixCount = c$.prototype.normixCount = JU.Normix.getNormixCount ();
-Clazz.defineStatics (c$,
+"sort", null,
 "nullShadeIndex", 50);
 });

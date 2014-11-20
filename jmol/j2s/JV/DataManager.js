@@ -38,14 +38,19 @@ JU.Parser.parseFloatArrayFromMatchAndField (stringData, this.vwr.bsUserVdws, 1, 
 for (var i = this.vwr.userVdws.length; --i >= 0; ) this.vwr.userVdwMars[i] = Clazz.doubleToInt (Math.floor (this.vwr.userVdws[i] * 1000));
 
 return;
-}if (data[2] != null && arrayCount > 0) {
+}var depth = (data[3]).intValue ();
+var val = data[1];
+if (depth == -1) data[3] = Integer.$valueOf (depth = (Clazz.instanceOf (val, String) ? 0 : JU.PT.isAF (val) ? 1 : JU.PT.isAFF (val) ? 2 : JU.PT.isAFFF (val) ? 3 : -1));
+if (data[2] != null && arrayCount > 0) {
 var createNew = (matchField != 0 || field != -2147483648 && field != 2147483647);
 var oldData = this.dataValues.get (type);
 var bs;
 var f = (oldData == null || createNew ?  Clazz.newFloatArray (actualAtomCount, 0) : JU.AU.ensureLengthA ((oldData[1]), actualAtomCount));
-var depth = (data[3]).intValue ();
-var stringData = (depth == 0 ? data[1] : null);
-var floatData = (depth == 1 ? data[1] : null);
+if (depth == -1) {
+JU.Logger.error ("Cannot determine data type for " + val);
+return;
+}var stringData = (depth == 0 ? val : null);
+var floatData = (depth == 1 ? val : null);
 var strData = null;
 if (field == -2147483648 && (strData = JU.PT.getTokens (stringData)).length > 1) field = 0;
 if (field == -2147483648) {
@@ -176,7 +181,7 @@ if (obj.length > 4 && obj[4] === Boolean.FALSE) continue;
 haveData = true;
 var data = obj[1];
 if (data != null && (obj[3]).intValue () == 1) {
-sc.getAtomicPropertyStateBuffer (sb, 14, obj[2], name, data);
+sc.getAtomicPropertyStateBuffer (sb, 15, obj[2], name, data);
 sb.append ("\n");
 } else {
 sb.append ("\n").append (JU.Escape.encapsulateData (name, data, 0));
@@ -196,10 +201,6 @@ sb.append ("\n").append (JU.Escape.encapsulateData (name, data, 3));
 return haveData;
 }, "JV.JmolStateCreator,JU.SB");
 Clazz.defineStatics (c$,
-"DATA_TYPE_STRING", 0,
-"DATA_TYPE_AF", 1,
-"DATA_ARRAY_FF", 2,
-"DATA_ARRAY_FFF", 3,
 "DATA_VALUE", 1,
 "DATA_SELECTION_MAP", 2,
 "DATA_TYPE", 3,

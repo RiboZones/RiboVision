@@ -8,10 +8,6 @@ this.intThread = 0;
 this.isFirst = false;
 Clazz.instantialize (this, arguments);
 }, J.thread, "AnimationThread", J.thread.JmolThread);
-Clazz.makeConstructor (c$, 
-function () {
-Clazz.superConstructor (this, J.thread.AnimationThread, []);
-});
 Clazz.overrideMethod (c$, "setManager", 
 function (manager, vwr, params) {
 var options = params;
@@ -79,7 +75,7 @@ case 3:
 while (this.am.animationOn && !this.checkInterrupted (this.am.animationThread) && !this.vwr.getRefreshing ()) {
 if (!this.runSleep (10, 3)) return;
 }
-if (!this.vwr.getSpinOn ()) this.vwr.refresh (1, "animationThread");
+if (!this.vwr.tm.spinOn) this.vwr.refresh (1, "animationThread");
 this.sleepTime = (this.targetTime - (System.currentTimeMillis () - this.startTime));
 if (!this.runSleep (this.sleepTime, 0)) return;
 mode = 0;

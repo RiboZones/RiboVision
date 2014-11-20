@@ -117,13 +117,13 @@ throw e;
 Clazz.defineMethod (c$, "skipComments", 
 function (allowBlankLines) {
 var sb =  new JU.SB ();
-while (this.readLine () != null && (allowBlankLines && this.line.length == 0 || this.line.indexOf ("#") == 0)) sb.append (this.line).appendC ('\n');
+while (this.rd () != null && (allowBlankLines && this.line.length == 0 || this.line.indexOf ("#") == 0)) sb.append (this.line).appendC ('\n');
 
 return sb.toString ();
 }, "~B");
 Clazz.defineMethod (c$, "readVoxelVector", 
 function (voxelVectorIndex) {
-this.readLine ();
+this.rd ();
 var voxelVector = this.volumetricVectors[voxelVectorIndex];
 if ((this.voxelCounts[voxelVectorIndex] = this.parseIntStr (this.line)) == -2147483648) this.next[0] = this.line.indexOf (" ");
 voxelVector.set (this.parseFloat (), this.parseFloat (), this.parseFloat ());
@@ -203,7 +203,7 @@ Clazz.defineMethod (c$, "getPlaneProcessed",
 function (x) {
 var plane;
 if (this.iPlaneRaw == 0) {
-this.qpc = J.api.Interface.getOption ("quantum.NciCalculation");
+this.qpc = J.api.Interface.getOption ("quantum.NciCalculation", this.sg.getAtomDataServer (), null);
 var atomData =  new J.atomdata.AtomData ();
 atomData.modelIndex = -1;
 atomData.bsSelected = this.params.bsSelected;
@@ -301,7 +301,7 @@ Clazz.defineMethod (c$, "nextVoxel",
 function () {
 var voxelValue = this.parseFloat ();
 if (Float.isNaN (voxelValue)) {
-while (this.readLine () != null && Float.isNaN (voxelValue = this.parseFloatStr (this.line))) {
+while (this.rd () != null && Float.isNaN (voxelValue = this.parseFloatStr (this.line))) {
 }
 if (this.line == null) {
 if (!this.endOfData) JU.Logger.warn ("end of file reading cube voxel data? nBytes=" + this.nBytes + " nDataPoints=" + this.nDataPoints + " (line):" + this.line);
@@ -323,7 +323,7 @@ this.skipDataVFR (nPoints);
 Clazz.defineMethod (c$, "skipDataVFR", 
 function (nPoints) {
 var iV = 0;
-while (iV < nPoints) iV += this.countData (this.readLine ());
+while (iV < nPoints) iV += this.countData (this.rd ());
 
 }, "~N");
 Clazz.defineMethod (c$, "countData", 
@@ -391,4 +391,14 @@ this.volumetricVectors[0].scale (scale);
 this.volumetricVectors[1].scale (scale);
 this.volumetricVectors[2].scale (scale);
 }, "~N");
+Clazz.defineMethod (c$, "swapXZ", 
+function () {
+var v = this.volumetricVectors[0];
+this.volumetricVectors[0] = this.volumetricVectors[2];
+this.volumetricVectors[2] = v;
+var n = this.voxelCounts[0];
+this.voxelCounts[0] = this.voxelCounts[2];
+this.voxelCounts[2] = n;
+this.params.insideOut = !this.params.insideOut;
+});
 });

@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.adapter.readers.more");
-Clazz.load (["J.adapter.readers.more.ForceFieldReader"], "J.adapter.readers.more.Mol2Reader", ["J.adapter.smarter.Bond", "J.api.JmolAdapter"], function () {
+Clazz.load (["J.adapter.readers.more.ForceFieldReader"], "J.adapter.readers.more.Mol2Reader", ["J.adapter.smarter.Bond", "J.api.JmolAdapter", "JV.JC"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.nAtoms = 0;
 this.ac = 0;
@@ -60,8 +60,10 @@ this.readCrystalInfo ();
 }this.rd ();
 }
 this.nAtoms += this.ac;
-if (this.isPDB) this.setIsPDB ();
-this.applySymmetryAndSetTrajectory ();
+if (this.isPDB) {
+this.setIsPDB ();
+this.setModelPDB (true);
+}this.applySymmetryAndSetTrajectory ();
 return true;
 });
 Clazz.defineMethod (c$, "readAtoms", 
@@ -82,7 +84,7 @@ if (atom.sequenceNumber < this.lastSequenceNumber) {
 if (this.chainID == 90) this.chainID = 96;
 this.chainID++;
 }this.lastSequenceNumber = atom.sequenceNumber;
-this.setChainID (atom, String.fromCharCode (this.chainID));
+this.setChainID (atom, "" + String.fromCharCode (this.chainID));
 }if (tokens.length > 7) atom.group3 = tokens[7];
 if (tokens.length > 8) {
 atom.partialCharge = this.parseFloatStr (tokens[8]);
@@ -100,7 +102,7 @@ if (isPDB) {
 isPDB = false;
 for (var i = this.asc.ac; --i >= i0; ) {
 var atom = atoms[i];
-if (atom.group3.length <= 3 && J.api.JmolAdapter.lookupGroupID (atom.group3) >= 0) {
+if (atom.group3.length <= 3 && (JV.JC.knownPDBGroupID (atom.group3) >= 0 || JV.JC.checkCarbohydrate (atom.group3))) {
 isPDB = this.isPDB = true;
 break;
 }}

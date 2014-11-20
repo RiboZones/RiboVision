@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JM");
-Clazz.load (["JM.Model"], "JM.BioModel", ["java.lang.Float", "java.util.Hashtable", "JU.AU", "$.BS", "$.Lst", "$.SB", "J.api.Interface", "J.c.STR", "JM.AtomCollection", "JM.AlphaPolymer", "$.AminoPolymer", "$.Monomer", "$.Resolver", "JU.BSUtil", "$.Escape", "$.Txt", "JV.Viewer"], function () {
+Clazz.load (["JM.Model"], "JM.BioModel", ["java.lang.Float", "java.util.Hashtable", "JU.AU", "$.BS", "$.Lst", "$.P3", "$.PT", "$.SB", "J.api.Interface", "J.c.STR", "JM.AtomCollection", "JM.AlphaPolymer", "$.AminoPolymer", "$.Monomer", "$.Resolver", "JU.BSUtil", "$.Escape", "JV.Viewer"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.bioPolymerCount = 0;
 this.bioPolymers = null;
@@ -7,7 +7,8 @@ Clazz.instantialize (this, arguments);
 }, JM, "BioModel", JM.Model);
 Clazz.makeConstructor (c$, 
 function (modelSet, modelIndex, trajectoryBaseIndex, jmolData, properties, auxiliaryInfo) {
-Clazz.superConstructor (this, JM.BioModel, [modelSet, modelIndex, trajectoryBaseIndex, jmolData, properties, auxiliaryInfo]);
+Clazz.superConstructor (this, JM.BioModel, []);
+this.set (modelSet, modelIndex, trajectoryBaseIndex, jmolData, properties, auxiliaryInfo);
 this.isBioModel = true;
 this.clearBioPolymers ();
 }, "JM.ModelSet,~N,~N,~S,java.util.Properties,java.util.Map");
@@ -40,8 +41,8 @@ if (this.bioPolymers[i].isNucleic ()) haveNucl = true;
  else if (Clazz.instanceOf (this.bioPolymers[i], JM.AminoPolymer)) haveProt = true;
 }
 var s = "";
-if (haveProt) (J.api.Interface.getOption ("dssx.DSSP")).calculateDssp (this.bioPolymers, this.bioPolymerCount, vHBonds, doReport, dsspIgnoreHydrogen, setStructure);
-if (haveNucl && this.auxiliaryInfo.containsKey ("dssr") && vHBonds != null) s += this.ms.vwr.getDSSRParser ().getHBonds (this.ms, this.modelIndex, vHBonds, doReport);
+if (haveProt) s += (J.api.Interface.getOption ("dssx.DSSP", this.ms.vwr, "ms")).calculateDssp (this.bioPolymers, this.bioPolymerCount, vHBonds, doReport, dsspIgnoreHydrogen, setStructure);
+if (haveNucl && this.auxiliaryInfo.containsKey ("dssr") && vHBonds != null) s += this.ms.vwr.getAnnotationParser ().getHBonds (this.ms, this.modelIndex, vHBonds, doReport);
 return s;
 }, "JU.Lst,~B,~B,~B");
 Clazz.overrideMethod (c$, "setConformation", 
@@ -88,7 +89,7 @@ if (bs !== this.bsAtoms) {
 bs2.clearAll ();
 bs2.or (this.bsAtoms);
 bs2.andNot (bs);
-if (bs2.nextSetBit (0) >= 0) sb.append ("select " + JU.Escape.eBS (bs2) + " & !connected;stars 0.5;");
+if (bs2.nextSetBit (0) >= 0) sb.append ("select " + JU.Escape.eBS (bs2) + " & !connected;stars 0.5;spacefill off;");
 }}, "JU.SB,~N");
 Clazz.overrideMethod (c$, "fixIndices", 
 function (modelIndex, nAtomsDeleted, bsDeleted) {
@@ -131,7 +132,8 @@ for (var i = this.bioPolymerCount; --i >= 0; ) this.bioPolymers[i].setStructureL
 }, "java.util.Map");
 Clazz.overrideMethod (c$, "calculateStraightness", 
 function (vwr, ctype, qtype, mStep) {
-for (var p = 0; p < this.bioPolymerCount; p++) this.bioPolymers[p].getPdbData (vwr, ctype, qtype, mStep, 2, null, null, false, false, false, null, null, null,  new JU.BS ());
+var ptTemp =  new JU.P3 ();
+for (var p = 0; p < this.bioPolymerCount; p++) this.bioPolymers[p].getPdbData (vwr, ctype, qtype, mStep, 2, null, null, false, false, false, null, null, null,  new JU.BS (), ptTemp);
 
 }, "JV.Viewer,~S,~S,~N");
 Clazz.overrideMethod (c$, "getPolymerPointsAndVectors", 
@@ -182,7 +184,7 @@ function (seqcodeA, seqcodeB, chainID, bs, caseSensitive) {
 var id;
 for (var i = this.chainCount; --i >= 0; ) {
 var chain = this.chains[i];
-if (chainID == -1 || chainID == (id = chain.chainID) || !caseSensitive && id < 256 && chainID == JM.AtomCollection.chainToUpper (id)) for (var index = 0; index >= 0; ) index = this.chains[i].selectSeqcodeRange (index, seqcodeA, seqcodeB, bs);
+if (chainID == -1 || chainID == (id = chain.chainID) || !caseSensitive && id > 0 && id < 300 && chainID == JM.AtomCollection.chainToUpper (id)) for (var index = 0; index >= 0; ) index = this.chains[i].selectSeqcodeRange (index, seqcodeA, seqcodeB, bs);
 
 }
 }, "~N,~N,~N,JU.BS,~B");
@@ -397,7 +399,7 @@ var sb;
 switch (type) {
 case J.c.STR.HELIX:
 nx = ++nHelix;
-if (sid == null || pdbFileMode) sid = JU.Txt.formatStringI ("%3N %3N", "N", nx);
+if (sid == null || pdbFileMode) sid = JU.PT.formatStringI ("%3N %3N", "N", nx);
 str = "HELIX  %ID %3GROUPA %1CA %4RESA  %3GROUPB %1CB %4RESB";
 sb = sbHelix;
 var stype = null;
@@ -418,26 +420,26 @@ break;
 case J.c.STR.SHEET:
 nx = ++nSheet;
 if (sid == null || pdbFileMode) {
-sid = JU.Txt.formatStringI ("%3N %3A 0", "N", nx);
-sid = JU.Txt.formatStringS (sid, "A", "S" + nx);
+sid = JU.PT.formatStringI ("%3N %3A 0", "N", nx);
+sid = JU.PT.formatStringS (sid, "A", "S" + nx);
 }str = "SHEET  %ID %3GROUPA %1CA%4RESA  %3GROUPB %1CB%4RESB";
 sb = sbSheet;
 break;
 case J.c.STR.TURN:
 default:
 nx = ++nTurn;
-if (sid == null || pdbFileMode) sid = JU.Txt.formatStringI ("%3N %3N", "N", nx);
+if (sid == null || pdbFileMode) sid = JU.PT.formatStringI ("%3N %3N", "N", nx);
 str = "TURN   %ID %3GROUPA %1CA%4RESA  %3GROUPB %1CB%4RESB";
 sb = sbTurn;
 break;
 }
-str = JU.Txt.formatStringS (str, "ID", sid);
-str = JU.Txt.formatStringS (str, "GROUPA", group1);
-str = JU.Txt.formatStringS (str, "CA", chain1);
-str = JU.Txt.formatStringI (str, "RESA", res1);
-str = JU.Txt.formatStringS (str, "GROUPB", group2);
-str = JU.Txt.formatStringS (str, "CB", chain2);
-str = JU.Txt.formatStringI (str, "RESB", res2);
+str = JU.PT.formatStringS (str, "ID", sid);
+str = JU.PT.formatStringS (str, "GROUPA", group1);
+str = JU.PT.formatStringS (str, "CA", chain1);
+str = JU.PT.formatStringI (str, "RESA", res1);
+str = JU.PT.formatStringS (str, "GROUPB", group2);
+str = JU.PT.formatStringS (str, "CB", chain2);
+str = JU.PT.formatStringI (str, "RESB", res2);
 sb.append (str);
 if (showMode) sb.append (" strucno= ").appendI (lastId);
 sb.append ("\n");
@@ -468,7 +470,7 @@ function () {
 if (this.modelIndex < 0) return "";
 var info = this.auxiliaryInfo.get ("fileHeader");
 if (info != null) return info;
-info = this.ms.vwr.getCurrentFileAsString ();
+info = this.ms.vwr.getCurrentFileAsString ("biomodel");
 var ichMin = info.length;
 for (var i = JM.BioModel.pdbRecords.length; --i >= 0; ) {
 var ichFound;
@@ -502,7 +504,8 @@ bothEnds = true;
 }out.append ("\nREMARK   6 Jmol Version ").append (JV.Viewer.getJmolVersion ()).append ("\n");
 if (ctype == 'R') out.append ("REMARK   6 Jmol data min = {-180 -180 -180} max = {180 180 180} unScaledXyz = xyz * {1 1 1} + {0 0 0} plotScale = {100 100 100}\n");
  else out.append ("REMARK   6 Jmol data min = {-1 -1 -1} max = {1 1 1} unScaledXyz = xyz * {0.1 0.1 0.1} + {0 0 0} plotScale = {100 100 100}\n");
-}for (var p = 0; p < this.bioPolymerCount; p++) this.bioPolymers[p].getPdbData (vwr, ctype, qtype, mStep, derivType, this.bsAtoms, bsSelected, bothEnds, isDraw, p == 0, tokens, out, pdbCONECT, bsWritten);
+}var ptTemp =  new JU.P3 ();
+for (var p = 0; p < this.bioPolymerCount; p++) this.bioPolymers[p].getPdbData (vwr, ctype, qtype, mStep, derivType, this.bsAtoms, bsSelected, bothEnds, isDraw, p == 0, tokens, out, pdbCONECT, bsWritten, ptTemp);
 
 }, "JV.Viewer,~S,~S,~B,JU.BS,JU.OC,~A,JU.SB,JU.BS");
 Clazz.defineStatics (c$,

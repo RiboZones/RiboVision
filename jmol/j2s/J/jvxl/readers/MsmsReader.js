@@ -46,7 +46,7 @@ return this.readPolygonsPM ();
 });
 Clazz.defineMethod (c$, "skipHeader", 
  function () {
-while (this.readLine () != null && this.line.indexOf ("#") >= 0) {
+while (this.rd () != null && this.line.indexOf ("#") >= 0) {
 }
 this.tokens = this.getTokens ();
 this.iToken = 0;

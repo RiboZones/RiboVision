@@ -82,7 +82,7 @@ default:
 return null;
 case 0:
 case 28:
-this.vwr.sm.syncSend (this.vwr.fullName + "JSpecView" + script.substring (9), ">", 0);
+this.vwr.sm.syncSend (this.vwr.fullName + "JSpecView" + script.substring (11), ">", 0);
 return null;
 case 21:
 if (this.vwr.isApplet ()) return null;
@@ -90,6 +90,7 @@ return null;
 case 14:
 var filename = JU.PT.getQuotedAttribute (script, "file");
 var isSimulation = filename.startsWith (JV.FileManager.SIMULATION_PROTOCOL);
+var id = (!isSimulation || this.vwr.isApplet () ? "" : JU.PT.getQuotedAttribute (filename.$replace ('\'', '"'), "id"));
 if (isSimulation && !this.vwr.isApplet () && filename.startsWith (JV.FileManager.SIMULATION_PROTOCOL + "MOL=")) filename = null;
  else filename = JU.PT.rep (filename, "#molfile", "");
 var modelID = (isSimulation ? "molfile" : JU.PT.getQuotedAttribute (script, "model"));
@@ -97,7 +98,7 @@ var baseModel = JU.PT.getQuotedAttribute (script, "baseModel");
 var atoms = JU.PT.getQuotedAttribute (script, "atoms");
 var select = JU.PT.getQuotedAttribute (script, "select");
 var script2 = JU.PT.getQuotedAttribute (script, "script");
-var id = (modelID == null ? null : (filename == null ? "" : filename + "#") + modelID);
+if (id.length == 0) id = (modelID == null ? null : (filename == null ? "" : filename + "#") + modelID);
 if ("".equals (baseModel)) id += ".baseModel";
 var modelIndex = (id == null ? -3 : this.vwr.getModelIndexFromId (id));
 if (modelIndex == -2) return null;

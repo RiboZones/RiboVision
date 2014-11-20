@@ -21,7 +21,7 @@ Clazz.defineMethod (c$, "outputString",
 function (post) {
 this.postOut = post;
 }, "~S");
-Clazz.defineMethod (c$, "getSB", 
+Clazz.defineMethod (c$, "getContents", 
 function () {
 return this.doAjax ();
 });

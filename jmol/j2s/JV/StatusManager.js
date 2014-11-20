@@ -173,6 +173,14 @@ var sJmol = this.jmolScriptCallback (J.c.CBK.ANIMFRAME);
 if (this.notifyEnabled (J.c.CBK.ANIMFRAME)) this.cbl.notifyCallback (J.c.CBK.ANIMFRAME, [sJmol, [frameNo, fileNo, modelNo, firstNo, lastNo, currentFrame], entryName, Float.$valueOf (currentMorphModel)]);
 if (this.vwr.jmolpopup != null && !animating) this.vwr.jmolpopup.jpiUpdateComputedMenus ();
 }, "~N,~N,~N,~N,~N,~N,~S");
+Clazz.defineMethod (c$, "setStatusDragDropped", 
+function (mode, x, y, fileName) {
+this.setStatusChanged ("dragDrop", 0, "", false);
+var sJmol = this.jmolScriptCallback (J.c.CBK.DRAGDROP);
+if (!this.notifyEnabled (J.c.CBK.DRAGDROP)) return false;
+this.cbl.notifyCallback (J.c.CBK.DRAGDROP, [sJmol, Integer.$valueOf (mode), Integer.$valueOf (x), Integer.$valueOf (y), fileName]);
+return true;
+}, "~N,~N,~N,~S");
 Clazz.defineMethod (c$, "setScriptEcho", 
 function (strEcho, isScriptQueued) {
 if (strEcho == null) return;
@@ -329,7 +337,7 @@ return (this.jsl == null ? null : this.jsl.getRegistryInfo ());
 Clazz.defineMethod (c$, "dialogAsk", 
 function (type, fileName) {
 var isImage = type.equals ("Save Image");
-var sd = J.api.Interface.getOption ("dialog.Dialog");
+var sd = J.api.Interface.getOption ("dialog.Dialog", this.vwr, "status");
 if (sd == null) return null;
 sd.setupUI (false);
 if (isImage) sd.setImageInfo (this.qualityJPG, this.qualityPNG, this.imageType);

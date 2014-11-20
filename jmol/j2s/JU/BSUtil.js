@@ -80,6 +80,31 @@ for (i = lend; i < len; i++) bs.setBitTo (ipt++, bs.get (i));
 if (ipt < len) bs.clearBits (ipt, len);
 return bs;
 }, "JU.BS,JU.BS");
+c$.shiftBits = Clazz.defineMethod (c$, "shiftBits", 
+function (bs, bsAdded, setIfFound, iLast) {
+if (bs == null || bsAdded == null) return;
+var n = bsAdded.length ();
+var bsNew = JU.BS.newN (n);
+var isFound = false;
+var doSet = false;
+var checkFound = setIfFound;
+for (var j = 0, i = 0; j < n && i < iLast; j++) {
+if (bsAdded.get (j)) {
+if (doSet) bsNew.set (j);
+checkFound = setIfFound;
+isFound = false;
+} else if (bs.get (i++)) {
+bsNew.set (j);
+if (checkFound) {
+checkFound = false;
+isFound = true;
+doSet = true;
+}} else if (checkFound && !isFound) {
+doSet = false;
+}}
+bs.clearAll ();
+bs.or (bsNew);
+}, "JU.BS,JU.BS,~B,~N");
 c$.offset = Clazz.defineMethod (c$, "offset", 
 function (bs0, pos, offset) {
 if (bs0 == null) return;

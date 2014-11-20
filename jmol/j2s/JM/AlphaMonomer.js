@@ -25,8 +25,8 @@ function () {
 return this.proteinStructure;
 });
 Clazz.defineMethod (c$, "setStructure", 
-function (proteinStructure) {
-if ((this.proteinStructure = proteinStructure) == null) this.nitrogenHydrogenPoint = null;
+function (ps) {
+if ((this.proteinStructure = ps) == null) this.nitrogenHydrogenPoint = null;
 }, "JM.ProteinStructure");
 Clazz.overrideMethod (c$, "setStrucNo", 
 function (n) {

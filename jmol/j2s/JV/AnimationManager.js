@@ -45,7 +45,7 @@ if (animationOn == this.animationOn) return;
 if (!animationOn || !this.vwr.haveModelSet () || this.vwr.isHeadless ()) {
 this.stopThread (false);
 return;
-}if (!this.vwr.getSpinOn ()) this.vwr.refresh (3, "Anim:setAnimationOn");
+}if (!this.vwr.tm.spinOn) this.vwr.refresh (3, "Anim:setAnimationOn");
 this.setAnimationRange (-1, -1);
 this.resumeAnimation ();
 }, "~B");
@@ -57,7 +57,7 @@ this.animationThread.interrupt ();
 this.animationThread = null;
 stopped = true;
 }this.animationPaused = isPaused;
-if (stopped && !this.vwr.getSpinOn ()) this.vwr.refresh (3, "Viewer:setAnimationOff");
+if (stopped && !this.vwr.tm.spinOn) this.vwr.refresh (3, "Viewer:setAnimationOff");
 this.animation (false);
 this.vwr.setStatusFrameChanged (false, true);
 }, "~B");
@@ -229,7 +229,7 @@ return;
 this.animationPaused = false;
 if (this.animationThread == null) {
 this.intAnimThread++;
-this.animationThread = J.api.Interface.getOption ("thread.AnimationThread");
+this.animationThread = J.api.Interface.getOption ("thread.AnimationThread", this.vwr, "script");
 this.animationThread.setManager (this, this.vwr, [this.firstFrameIndex, this.lastFrameIndex, this.intAnimThread]);
 this.animationThread.start ();
 }});
@@ -311,7 +311,7 @@ throw e;
 Clazz.defineMethod (c$, "setViewer", 
  function (clearBackgroundModel) {
 this.vwr.ms.setTrajectory (this.cmi);
-this.vwr.setFrameOffset (this.cmi);
+this.vwr.tm.setFrameOffset (this.cmi);
 if (this.cmi == -1 && clearBackgroundModel) this.setBackgroundModelIndex (-1);
 this.vwr.setTainted (true);
 this.setFrameRangeVisible ();

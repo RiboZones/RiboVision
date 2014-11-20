@@ -2,7 +2,6 @@ Clazz.declarePackage ("JM");
 Clazz.load (null, "JM.Object2d", ["java.lang.Float", "JU.C", "JV.JC"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.isLabelOrHover = false;
-this.gdata = null;
 this.xyz = null;
 this.target = null;
 this.script = null;
@@ -39,9 +38,6 @@ this.boxXY = null;
 this.scalePixelsPerMicron = 0;
 Clazz.instantialize (this, arguments);
 }, JM, "Object2d");
-Clazz.prepareFields (c$, function () {
-this.boxXY =  Clazz.newFloatArray (5, 0);
-});
 Clazz.defineMethod (c$, "getScalePixelsPerMicron", 
 function () {
 return this.scalePixelsPerMicron;

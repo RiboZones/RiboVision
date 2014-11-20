@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.renderspecial");
-Clazz.load (["J.render.MeshRenderer", "JU.BS", "$.P3", "$.P3i", "$.V3"], "J.renderspecial.DrawRenderer", ["JU.A4", "$.M3", "J.shapespecial.Draw", "JU.C", "$.GData", "$.Measure"], function () {
+Clazz.load (["J.render.MeshRenderer", "JU.BS", "$.P3", "$.P3i", "$.V3"], "J.renderspecial.DrawRenderer", ["JU.A4", "$.M3", "$.Measure", "J.shapespecial.Draw", "JU.C", "$.GData"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.drawType = null;
 this.dmesh = null;
@@ -70,7 +70,7 @@ for (var i = 0; i < n; i++) this.pt1f.add (this.vertices[i]);
 
 this.pt1f.scale (1 / n);
 this.tm.transformPtScr (this.pt1f, this.pt1i);
-this.diameter = Clazz.floatToInt (this.vwr.scaleToScreen (this.pt1i.z, Clazz.doubleToInt (Math.floor (this.width * 1000))));
+this.diameter = Clazz.floatToInt (this.vwr.tm.scaleToScreen (this.pt1i.z, Clazz.doubleToInt (Math.floor (this.width * 1000))));
 if (this.diameter == 0) this.diameter = 1;
 }if ((this.dmesh.isVector) && this.dmesh.haveXyPoints) {
 var ptXY = 0;
@@ -92,7 +92,7 @@ case J.shapespecial.Draw.EnumDrawType.CIRCLE:
 this.tm.transformPtScr (this.vertices[0], this.pt1i);
 if (this.diameter == 0 && this.width == 0) this.width = 1.0;
 if (this.dmesh.scale > 0) this.width *= this.dmesh.scale;
-if (this.width > 0) this.diameter = Clazz.floatToInt (this.vwr.scaleToScreen (this.pt1i.z, Clazz.doubleToInt (Math.floor (this.width * 1000))));
+if (this.width > 0) this.diameter = Clazz.floatToInt (this.vwr.tm.scaleToScreen (this.pt1i.z, Clazz.doubleToInt (Math.floor (this.width * 1000))));
 if (this.diameter > 0 && (this.mesh.drawTriangles || this.mesh.fillTriangles)) {
 this.g3d.addRenderer (1073741880);
 this.g3d.drawFilledCircle (this.colix, this.mesh.fillTriangles ? this.colix : 0, this.diameter, this.pt1i.x, this.pt1i.y, this.pt1i.z);
@@ -313,12 +313,11 @@ break;
 });
 Clazz.defineMethod (c$, "renderInfo", 
  function () {
-if (this.mesh.title == null || this.vwr.getDrawHover () || !this.g3d.setC (this.vwr.getColixBackgroundContrast ())) return;
+if (this.isExport || this.mesh.title == null || this.vwr.getDrawHover () || !this.g3d.setC (this.vwr.getColixBackgroundContrast ())) return;
 for (var i = this.dmesh.pc; --i >= 0; ) if (this.isPolygonDisplayable (i)) {
 var size = this.vwr.getFloat (570425356);
 if (size <= 0) size = 14;
-var fid = this.g3d.getFontFid (size * this.imageFontScaling);
-this.g3d.setFontFid (fid);
+this.vwr.gdata.setFontFid (this.vwr.gdata.getFontFid (size * this.imageFontScaling));
 var s = this.mesh.title[i < this.mesh.title.length ? i : this.mesh.title.length - 1];
 var pt = 0;
 if (s.length > 1 && s.charAt (0) == '>') {

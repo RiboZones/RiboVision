@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JU");
-Clazz.load (null, "JU.Escape", ["java.lang.Float", "java.util.Map", "JU.A4", "$.BS", "$.Lst", "$.M3", "$.M34", "$.M4", "$.P3", "$.P4", "$.PT", "$.Quat", "$.SB", "$.T3", "JS.SV"], function () {
+Clazz.load (null, "JU.Escape", ["java.lang.Float", "java.util.Map", "JU.A4", "$.BS", "$.Lst", "$.M3", "$.M34", "$.M4", "$.P3", "$.P4", "$.PT", "$.Quat", "$.SB", "$.T3", "$.V3", "JS.SV"], function () {
 c$ = Clazz.declareType (JU, "Escape");
 c$.escapeColor = Clazz.defineMethod (c$, "escapeColor", 
 function (argb) {
@@ -418,4 +418,22 @@ function (x) {
 {
 return Clazz.instanceOf(x[0], JS.SV);
 }}, "~O");
+c$.escapeHelical = Clazz.defineMethod (c$, "escapeHelical", 
+function (id, tokType, a, b, pts) {
+switch (tokType) {
+case 135266320:
+return (pts == null ?  new JU.P3 () : pts[0]);
+case 1073741854:
+case 1666189314:
+return (pts == null ?  new JU.V3 () : pts[tokType == 1073741854 ? 1 : 2]);
+case 135266305:
+return Float.$valueOf (pts == null ? NaN : pts[3].x);
+case 135176:
+return (pts == null ? "" : "draw ID \"" + id + "\" VECTOR " + JU.Escape.eP (pts[0]) + " " + JU.Escape.eP (pts[1]) + " color " + (pts[3].x < 0 ? "{255.0 200.0 0.0}" : "{255.0 0.0 128.0}"));
+case 1746538509:
+return (pts == null ? "" : "measure " + JU.Escape.eP (a) + JU.Escape.eP (pts[0]) + JU.Escape.eP (pts[4])) + JU.Escape.eP (b);
+default:
+return (pts == null ?  new Array (0) : pts);
+}
+}, "~S,~N,JU.P3,JU.P3,~A");
 });

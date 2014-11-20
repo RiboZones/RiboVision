@@ -15,7 +15,6 @@ this.emptyListPt = 0;
 this.thisSection = null;
 this.inMovie = false;
 this.inNames = false;
-this.thisName = null;
 this.lastMark = 0;
 this.retrieveCount = 0;
 Clazz.instantialize (this, arguments);
@@ -112,7 +111,6 @@ a =  Clazz.newByteArray (i, 0);
 this.binaryDoc.readByteArray (a, 0, i);
 s =  String.instantialize (a, "UTF-8");
 if (this.inNames && this.markCount == 3 && this.lastMark == this.stack.size ()) {
-this.thisName = s;
 this.filePt = this.emptyListPt;
 }this.push (s);
 break;

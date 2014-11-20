@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.adapter.readers.xml");
-Clazz.load (["J.adapter.readers.xml.XmlReader"], "J.adapter.readers.xml.XmlCmlReader", ["java.lang.Float", "$.IndexOutOfBoundsException", "java.util.Properties", "$.StringTokenizer", "JU.PT", "J.adapter.smarter.Atom", "$.AtomSetCollection", "$.Bond", "J.api.JmolAdapter", "JU.Logger"], function () {
+Clazz.load (["J.adapter.readers.xml.XmlReader"], "J.adapter.readers.xml.XmlCmlReader", ["java.lang.Float", "$.IndexOutOfBoundsException", "java.util.Properties", "$.StringTokenizer", "JU.PT", "J.adapter.smarter.Atom", "$.Bond", "J.api.JmolAdapter", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.scalarDictRef = null;
 this.scalarDictValue = null;
@@ -263,7 +263,7 @@ this.parent.setFractionalCoordinates (false);
 case 3:
 if (name.equals ("scalar")) {
 this.state = 2;
-if (this.scalarTitle != null) this.checkUnitCellItem (J.adapter.smarter.AtomSetCollection.notionalUnitcellTags, this.scalarTitle);
+if (this.scalarTitle != null) this.checkUnitCellItem (J.adapter.readers.xml.XmlCmlReader.notionalUnitcellTags, this.scalarTitle);
  else if (this.scalarDictRef != null) this.checkUnitCellItem (J.api.JmolAdapter.cellParamNames, (this.scalarDictValue.startsWith ("_") ? this.scalarDictValue : "_" + this.scalarDictValue));
 }this.setKeepChars (false);
 this.scalarTitle = null;
@@ -484,5 +484,6 @@ Clazz.defineStatics (c$,
 "MOLECULE_BOND_BUILTIN", 14,
 "MODULE", 15,
 "SYMMETRY", 17,
-"LATTICE_VECTOR", 18);
+"LATTICE_VECTOR", 18,
+"notionalUnitcellTags", ["a", "b", "c", "alpha", "beta", "gamma"]);
 });

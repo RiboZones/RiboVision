@@ -75,7 +75,7 @@ this.shader = g3d.shader;
 }, "J.g3d.Graphics3D");
 Clazz.defineMethod (c$, "render", 
 function (colixA, colixB, isScreenedA, isScreenedB, endcaps, diameter, xa, ya, za, xb, yb, zb) {
-if (diameter > this.g3d.getRenderHeight () * 3) return;
+if (diameter > this.g3d.height * 3) return;
 var r = Clazz.doubleToInt (diameter / 2) + 1;
 var codeMinA = this.g3d.clipCode3 (xa - r, ya - r, za - r);
 var codeMaxA = this.g3d.clipCode3 (xa + r, ya + r, za + r);
@@ -123,7 +123,7 @@ if (endcaps == 3) this.renderSphericalEndcaps ();
 }, "~N,~N,~B,~B,~N,~N,~N,~N,~N,~N,~N,~N");
 Clazz.defineMethod (c$, "renderBits", 
 function (colixA, colixB, isScreenedA, isScreenedB, endcaps, diameter, xa, ya, za, xb, yb, zb) {
-if (diameter > this.g3d.getRenderHeight () * 3) return;
+if (diameter > this.g3d.height * 3) return;
 var r = Clazz.doubleToInt (diameter / 2) + 1;
 var ixA = Math.round (xa);
 var iyA = Math.round (ya);
@@ -188,7 +188,7 @@ this.zAf += this.dzBf;
 }, "~N,~N,~B,~B,~N,~N,~N,~N,~N,~N,~N,~N");
 Clazz.defineMethod (c$, "renderCone", 
 function (colix, isScreenedA, endcap, diameter, xa, ya, za, xtip, ytip, ztip, doFill, isBarb) {
-if (diameter > this.g3d.getRenderHeight () * 3) return;
+if (diameter > this.g3d.height * 3) return;
 this.dxBf = (xtip) - (this.xAf = xa);
 this.dyBf = (ytip) - (this.yAf = ya);
 this.dzBf = (ztip) - (this.zAf = za);

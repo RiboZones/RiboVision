@@ -1,9 +1,9 @@
 Clazz.declarePackage ("JM");
-Clazz.load (["JM.BioPolymer"], "JM.NucleicPolymer", ["JU.P4", "$.V3", "JM.HBond", "JU.Measure"], function () {
+Clazz.load (["JM.PhosphorusPolymer"], "JM.NucleicPolymer", ["JU.Measure", "$.P4", "$.V3", "JM.HBond"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.isDssrSet = false;
 Clazz.instantialize (this, arguments);
-}, JM, "NucleicPolymer", JM.BioPolymer);
+}, JM, "NucleicPolymer", JM.PhosphorusPolymer);
 Clazz.makeConstructor (c$, 
 function (monomers) {
 Clazz.superConstructor (this, JM.NucleicPolymer, [monomers]);
@@ -86,10 +86,6 @@ if (atom1 == null || atom2 == null) return 0;
 vAtoms.addLast ( new JM.HBond (atom1, atom2, 18432, 1, 0, 0));
 return 1;
 }, "JU.Lst,JM.Atom,JM.Atom");
-Clazz.defineMethod (c$, "getPdbData", 
-function (vwr, ctype, qtype, mStep, derivType, bsAtoms, bsSelected, bothEnds, isDraw, addHeader, tokens, pdbATOM, pdbCONECT, bsWritten) {
-JM.BioPolymer.getPdbData (vwr, this, ctype, qtype, mStep, derivType, bsAtoms, bsSelected, bothEnds, isDraw, addHeader, tokens, pdbATOM, pdbCONECT, bsWritten);
-}, "JV.Viewer,~S,~S,~N,~N,JU.BS,JU.BS,~B,~B,~B,~A,JU.OC,JU.SB,JU.BS");
 Clazz.defineStatics (c$,
 "htGroup1", null);
 });

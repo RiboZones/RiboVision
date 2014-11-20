@@ -12,7 +12,7 @@ Clazz.makeConstructor (c$,
 function () {
 });
 Clazz.overrideMethod (c$, "set", 
-function (g3d) {
+function (g3d, gdata) {
 try {
 this.g3d = g3d;
 } catch (e) {
@@ -22,7 +22,7 @@ throw e;
 }
 }
 return this;
-}, "J.api.JmolRendererInterface");
+}, "J.api.JmolRendererInterface,JU.GData");
 Clazz.defineMethod (c$, "plotCircleCenteredClipped", 
 function (xCenter, yCenter, zCenter, diameter) {
 if (this.g3d.isClippedXY (diameter, xCenter, yCenter)) return;

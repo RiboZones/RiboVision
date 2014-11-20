@@ -27,7 +27,7 @@ return q;
 c$.newM = Clazz.defineMethod (c$, "newM", 
 function (mat) {
 var q =  new JU.Quat ();
-q.setM (mat);
+q.setM (JU.M3.newM3 (mat));
 return q;
 }, "JU.M3");
 c$.newAA = Clazz.defineMethod (c$, "newAA", 
@@ -93,7 +93,7 @@ if (aa.angle == 0) aa.y = 1;
 this.setM ( new JU.M3 ().setAA (aa));
 }, "JU.A4");
 Clazz.defineMethod (c$, "setM", 
-function (mat) {
+ function (mat) {
 this.mat = mat;
 var trace = mat.m00 + mat.m11 + mat.m22;
 var temp;
@@ -414,9 +414,11 @@ function () {
 var rA;
 var rB;
 var rG;
-rA = Math.atan2 (2 * (this.q2 * this.q3 - this.q0 * this.q1), 2 * (this.q1 * this.q3 + this.q0 * this.q2));
+if (this.q1 == 0 && this.q2 == 0) {
+return [this.getTheta (), 0, 0];
+}rA = Math.atan2 (2 * (this.q2 * this.q3 + this.q0 * this.q1), 2 * (-this.q1 * this.q3 + this.q0 * this.q2));
 rB = Math.acos (this.q3 * this.q3 - this.q2 * this.q2 - this.q1 * this.q1 + this.q0 * this.q0);
-rG = Math.atan2 (2 * (this.q2 * this.q3 + this.q0 * this.q1), 2 * (this.q0 * this.q2 - this.q1 * this.q3));
+rG = Math.atan2 (2 * (this.q2 * this.q3 - this.q0 * this.q1), 2 * (this.q0 * this.q2 + this.q1 * this.q3));
 return [(rA / 0.017453292519943295), (rB / 0.017453292519943295), (rG / 0.017453292519943295)];
 });
 Clazz.defineMethod (c$, "getEulerZXZ", 
@@ -424,9 +426,11 @@ function () {
 var rA;
 var rB;
 var rG;
-rA = Math.atan2 (2 * (this.q1 * this.q3 + this.q0 * this.q2), 2 * (this.q0 * this.q1 - this.q2 * this.q3));
+if (this.q1 == 0 && this.q2 == 0) {
+return [this.getTheta (), 0, 0];
+}rA = Math.atan2 (2 * (this.q1 * this.q3 - this.q0 * this.q2), 2 * (this.q0 * this.q1 + this.q2 * this.q3));
 rB = Math.acos (this.q3 * this.q3 - this.q2 * this.q2 - this.q1 * this.q1 + this.q0 * this.q0);
-rG = Math.atan2 (2 * (this.q1 * this.q3 - this.q0 * this.q2), 2 * (this.q2 * this.q3 + this.q0 * this.q1));
+rG = Math.atan2 (2 * (this.q1 * this.q3 + this.q0 * this.q2), 2 * (-this.q2 * this.q3 + this.q0 * this.q1));
 return [(rA / 0.017453292519943295), (rB / 0.017453292519943295), (rG / 0.017453292519943295)];
 });
 c$.qZero = c$.prototype.qZero =  new JU.P4 ();

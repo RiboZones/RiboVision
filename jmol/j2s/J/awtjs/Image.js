@@ -32,9 +32,6 @@ c$.getGraphics = Clazz.defineMethod (c$, "getGraphics",
 function (image) {
 return null;
 }, "~O");
-c$.drawImage = Clazz.defineMethod (c$, "drawImage", 
-function (g, img, x, y, width, height) {
-}, "~O,~O,~N,~N,~N,~N");
 c$.flush = Clazz.defineMethod (c$, "flush", 
 function (image) {
 }, "~O");
