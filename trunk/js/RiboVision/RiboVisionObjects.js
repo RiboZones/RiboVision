@@ -1066,7 +1066,7 @@ function rvView(x, y, scale) {
 		}
 	}
 	this.zoomDelta = function (px, py, factor){
-		console.log([px,py]);
+		//console.log([px,py]);
 		this.scale *= factor;
 		this.x = (this.x - px) * factor + px;
 		this.y = (this.y - py) * factor + py;

@@ -2675,10 +2675,12 @@ function refreshModel() {
 		return;
 	}
 	var script = "set hideNotSelected true;select (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (";
-	for (var ii = 0; ii < rvDataSets[0].SpeciesEntry.PDB_chains.length; ii++) {
-		script += ":" + rvDataSets[0].SpeciesEntry.PDB_chains[ii];
-		if (ii < (rvDataSets[0].SpeciesEntry.PDB_chains.length - 1)) {
-			script += " or ";
+	if (rvDataSets[0].SpeciesEntry.PDB_chains){
+		for (var ii = 0; ii < rvDataSets[0].SpeciesEntry.PDB_chains.length; ii++) {
+			script += ":" + rvDataSets[0].SpeciesEntry.PDB_chains[ii];
+			if (ii < (rvDataSets[0].SpeciesEntry.PDB_chains.length - 1)) {
+				script += " or ";
+			}
 		}
 	}
 	script += ")); center selected;";
