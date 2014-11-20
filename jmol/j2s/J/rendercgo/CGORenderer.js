@@ -42,6 +42,7 @@ this.ptColor = 0;
 this.doColor = !mesh.useColix;
 var pt;
 var spt;
+this.g3d.addRenderer (1073742182);
 for (var i = 0; i < n; i++) {
 var type = this.cgoMesh.getInt (i);
 if (type == 0) break;
@@ -215,7 +216,6 @@ this.tm.transformPtScr (pt, pti);
 }, "~N,JU.P3,JU.P3i");
 Clazz.defineMethod (c$, "fillTriangle", 
  function () {
-this.g3d.addRenderer (1073742182);
 this.g3d.fillTriangle3CN (this.pt0i, this.colix0, this.normix0, this.pt1i, this.colix1, this.normix1, this.pt2i, this.colix2, this.normix2);
 });
 });

@@ -7,6 +7,7 @@ this.fixedOrigin = null;
 this.originPoint = null;
 this.axisPoints = null;
 this.labels = null;
+this.axisType = null;
 this.ptTemp = null;
 this.corner = null;
 Clazz.instantialize (this, arguments);
@@ -35,7 +36,9 @@ return this.ptTemp;
 Clazz.overrideMethod (c$, "setProperty", 
 function (propertyName, value, bs) {
 if ("position" === propertyName) {
+var doSetScale = (this.axisXY.z == 0 && (value).z != 0);
 this.axisXY = value;
+this.setScale (doSetScale ? 1 : this.scale);
 return;
 }if ("origin" === propertyName) {
 if (value == null) {
@@ -54,13 +57,16 @@ return;
 }if ("labelsOff" === propertyName) {
 this.labels = ["", "", ""];
 return;
+}if ("type" === propertyName) {
+this.axisType = value;
+if (this.axisType.equals ("abc")) this.axisType = null;
 }this.setPropFLS (propertyName, value);
 }, "~S,~O,JU.BS");
 Clazz.defineMethod (c$, "initShape", 
 function () {
 Clazz.superCall (this, J.shape.Axes, "initShape", []);
 this.myType = "axes";
-this.font3d = this.gdata.getFont3D (14);
+this.font3d = this.vwr.gdata.getFont3D (14);
 var axesMode = this.vwr.g.axesMode;
 if (this.fixedOrigin == null) this.originPoint.set (0, 0, 0);
  else this.originPoint.setT (this.fixedOrigin);
@@ -117,6 +123,8 @@ sb.append ("  axes labels ");
 for (var i = 0; i < this.labels.length; i++) if (this.labels[i] != null) sb.append (JU.PT.esc (this.labels[i])).append (" ");
 
 sb.append (";\n");
+}if (this.axisType != null) {
+sb.append ("  axes type " + JU.PT.esc (this.axisType));
 }return Clazz.superCall (this, J.shape.Axes, "getShapeState", []) + sb;
 });
 c$.pt0 = c$.prototype.pt0 =  new JU.P3 ();

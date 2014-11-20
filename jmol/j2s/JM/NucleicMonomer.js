@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JM");
-Clazz.load (["JM.PhosphorusMonomer"], "JM.NucleicMonomer", ["java.lang.Character", "JU.Lst", "$.P3", "$.Quat", "$.V3", "J.c.STR", "JM.Group", "JM.NucleicPolymer", "J.shapebio.BioShape"], function () {
+Clazz.load (["JM.PhosphorusMonomer"], "JM.NucleicMonomer", ["java.lang.Character", "JU.Lst", "$.P3", "$.Quat", "$.V3", "J.c.STR", "JM.NucleicPolymer", "JV.JC"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.hasRnaO2Prime = false;
 this.baseCenter = null;
@@ -145,18 +145,19 @@ var radius = Clazz.floatToInt (this.scaleToScreen (lead.sZ, mar));
 if (radius < 4) radius = 4;
 if (this.isCursorOnTopOf (lead, x, y, radius, competitor) || this.isCursorOnTopOf (o5prime, x, y, radius, competitor) || this.isCursorOnTopOf (c3prime, x, y, radius, competitor)) closest[0] = lead;
 }, "~N,~N,~A,~N,~N");
-Clazz.defineMethod (c$, "setModelClickability", 
+Clazz.defineMethod (c$, "setRingsVisible", 
+function (isVisible) {
+for (var i = 6; --i >= 0; ) this.getAtomFromOffsetIndex (JM.NucleicMonomer.ring6OffsetIndexes[i]).setShapeVisibility (32768, isVisible);
+
+if (this.$isPurine) for (var i = 4; --i >= 1; ) this.getAtomFromOffsetIndex (JM.NucleicMonomer.ring5OffsetIndexes[i]).setShapeVisibility (32768, isVisible);
+
+}, "~B");
+Clazz.defineMethod (c$, "setRingsClickable", 
 function () {
-var atom;
-if (this.isAtomHidden (this.leadAtomIndex)) return;
-for (var i = 6; --i >= 0; ) {
-atom = this.getAtomFromOffsetIndex (JM.NucleicMonomer.ring6OffsetIndexes[i]);
-atom.setClickable (J.shapebio.BioShape.CARTOON_VISIBILITY_FLAG);
-}
-if (this.$isPurine) for (var i = 4; --i >= 1; ) {
-atom = this.getAtomFromOffsetIndex (JM.NucleicMonomer.ring5OffsetIndexes[i]);
-atom.setClickable (J.shapebio.BioShape.CARTOON_VISIBILITY_FLAG);
-}
+for (var i = 6; --i >= 0; ) this.getAtomFromOffsetIndex (JM.NucleicMonomer.ring6OffsetIndexes[i]).setClickable (32768);
+
+if (this.$isPurine) for (var i = 4; --i >= 1; ) this.getAtomFromOffsetIndex (JM.NucleicMonomer.ring5OffsetIndexes[i]).setClickable (32768);
+
 });
 Clazz.defineMethod (c$, "getN0", 
 function () {
@@ -230,12 +231,12 @@ var p1 = this.getAtomFromOffsetIndex (23);
 var p2 = this.getAtomFromOffsetIndex (24);
 var bonds = ptNorP.getBonds ();
 if (bonds == null) return null;
-var g = ptNorP.getGroup ();
+var g = ptNorP.group;
 for (var i = 0; i < bonds.length; i++) {
 var atom = bonds[i].getOtherAtom (ptNorP);
 if (p1 != null && atom.i == p1.i) continue;
 if (p2 != null && atom.i == p2.i) continue;
-if (atom.getGroup () === g) ptB = atom;
+if (atom.group === g) ptB = atom;
  else ptA = atom;
 }
 break;
@@ -276,7 +277,7 @@ var haveCrossLinks = false;
 for (var i = 0; i < bonds.length; i++) {
 if (bonds[i].isHydrogen ()) {
 var N2 = bonds[i].getOtherAtom (N);
-var g = N2.getGroup ();
+var g = N2.group;
 if (!(Clazz.instanceOf (g, JM.NucleicMonomer))) continue;
 var m = g;
 if ((this.$isPurine ? m.getN3 () : m.getN1 ()) === N2) {
@@ -325,12 +326,12 @@ if (this.group1 == '\0') this.group1 = g;
 }, "~S");
 Clazz.defineMethod (c$, "getBasePairs", 
 function () {
-if (!(this.bioPolymer).isDssrSet) this.bioPolymer.model.ms.vwr.getDSSRParser ().setAllDSSRParametersForModel (this.bioPolymer.model.ms.vwr, this.bioPolymer.model.modelIndex);
+if (!(this.bioPolymer).isDssrSet) this.bioPolymer.model.ms.vwr.getAnnotationParser ().setAllDSSRParametersForModel (this.bioPolymer.model.ms.vwr, this.bioPolymer.model.modelIndex);
 return this.bps;
 });
 Clazz.overrideMethod (c$, "getGroup1b", 
 function () {
-var g3 = JM.Group.group3Names[this.groupID];
+var g3 = JV.JC.group3Names[this.groupID];
 var g1 = (JM.NucleicPolymer.htGroup1 == null ? null : JM.NucleicPolymer.htGroup1.get (g3));
 return (g1 == null ? Character.toLowerCase (g3.charAt (g3.length - 1)) : g1.charAt (0));
 });

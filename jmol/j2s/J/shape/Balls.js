@@ -1,6 +1,15 @@
 Clazz.declarePackage ("J.shape");
 Clazz.load (["J.shape.AtomShape"], "J.shape.Balls", ["JU.BS", "J.c.PAL", "JU.C"], function () {
 c$ = Clazz.declareType (J.shape, "Balls", J.shape.AtomShape);
+Clazz.overrideMethod (c$, "setSize", 
+function (size, bsSelected) {
+if (size == 2147483647) {
+this.isActive = true;
+if (this.bsSizeSet == null) this.bsSizeSet =  new JU.BS ();
+this.bsSizeSet.or (bsSelected);
+return;
+}this.setSize2 (size, bsSelected);
+}, "~N,JU.BS");
 Clazz.overrideMethod (c$, "setSizeRD", 
 function (rd, bsSelected) {
 this.isActive = true;
@@ -67,7 +76,7 @@ return;
 propertyName = propertyName.substring (4).intern ();
 }this.setPropAS (propertyName, value, bs);
 }, "~S,~O,JU.BS");
-Clazz.overrideMethod (c$, "setModelClickability", 
+Clazz.overrideMethod (c$, "setAtomClickability", 
 function () {
 var bsDeleted = this.vwr.getDeletedAtoms ();
 for (var i = this.ac; --i >= 0; ) {

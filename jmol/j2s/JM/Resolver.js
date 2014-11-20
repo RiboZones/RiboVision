@@ -1,9 +1,10 @@
 Clazz.declarePackage ("JM");
-Clazz.load (["J.api.JmolBioResolver"], "JM.Resolver", ["java.lang.Boolean", "$.NullPointerException", "java.util.Arrays", "$.Hashtable", "JU.BS", "$.P3", "$.P4", "$.PT", "$.SB", "$.V3", "J.c.STR", "JM.Group", "JM.AlphaMonomer", "$.AlphaPolymer", "$.AminoMonomer", "$.AminoPolymer", "$.BioModel", "$.CarbohydrateMonomer", "$.CarbohydratePolymer", "$.Monomer", "$.NucleicMonomer", "$.NucleicPolymer", "$.PhosphorusMonomer", "$.PhosphorusPolymer", "JU.BSUtil", "$.Logger", "$.Measure", "JV.JC"], function () {
+Clazz.load (["J.api.JmolBioResolver"], "JM.Resolver", ["java.lang.Boolean", "$.NullPointerException", "java.util.Arrays", "$.Hashtable", "JU.BS", "$.Measure", "$.P3", "$.P4", "$.PT", "$.SB", "$.V3", "J.c.STR", "JM.Group", "JM.AlphaMonomer", "$.AlphaPolymer", "$.AminoMonomer", "$.AminoPolymer", "$.BioModel", "$.CarbohydrateMonomer", "$.CarbohydratePolymer", "$.Monomer", "$.NucleicMonomer", "$.NucleicPolymer", "$.PhosphorusMonomer", "$.PhosphorusPolymer", "JU.BSUtil", "$.Logger", "JV.JC"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.ml = null;
 this.ms = null;
 this.bsAddedHydrogens = null;
+this.bsAddedMask = null;
 this.bsAtomsForHs = null;
 this.htBondMap = null;
 this.htGroupBonds = null;
@@ -77,7 +78,7 @@ Clazz.overrideMethod (c$, "addImplicitHydrogenAtoms",
 function (adapter, iGroup, nH) {
 var group3 = this.ml.getGroup3 (iGroup);
 var nH1;
-if (this.haveHsAlready || group3 == null || (nH1 = JV.JC.getStandardPdbHydrogenCount (JM.Group.lookupGroupID (group3))) == 0) return;
+if (this.haveHsAlready || group3 == null || (nH1 = JV.JC.getStandardPdbHydrogenCount (group3)) == 0) return;
 nH = (nH1 < 0 ? -1 : nH1 + nH);
 var model = null;
 var iFirst = this.ml.getFirstAtomIndex (iGroup);
@@ -94,7 +95,8 @@ this.bsAtomsForHs.setBits (iFirst, ac);
 this.bsAddedHydrogens.setBits (ac, ac + nH);
 var isHetero = this.ms.at[iFirst].isHetero ();
 var xyz = JU.P3.new3 (NaN, NaN, NaN);
-for (var i = 0; i < nH; i++) this.ms.addAtom (this.ms.at[iFirst].mi, this.ms.at[iFirst].getGroup (), 1, "H", 0, 0, xyz, NaN, null, 0, 0, 1, 0, null, isHetero, 0, null).deleteBonds (null);
+var a = this.ms.at[iFirst];
+for (var i = 0; i < nH; i++) this.ms.addAtom (a.mi, a.group, 1, "H", 0, a.getSeqID (), 0, xyz, NaN, null, 0, 0, 1, 0, null, isHetero, 0, null).deleteBonds (null);
 
 }, "J.api.JmolAdapter,~N,~N");
 Clazz.defineMethod (c$, "getBondInfo", 
@@ -179,6 +181,7 @@ this.addHydrogens ();
 Clazz.defineMethod (c$, "addHydrogens", 
  function () {
 if (this.bsAddedHydrogens.nextSetBit (0) < 0) return;
+this.bsAddedMask = JU.BSUtil.copy (this.bsAddedHydrogens);
 this.finalizePdbCharges ();
 var nTotal =  Clazz.newIntArray (1, 0);
 var pts = this.ms.calculateHydrogens (this.bsAtomsForHs, nTotal, true, false, null);
@@ -187,7 +190,7 @@ var ipt = 0;
 for (var i = 0; i < pts.length; i++) {
 if (pts[i] == null) continue;
 var atom = this.ms.at[i];
-var g = atom.getGroup ();
+var g = atom.group;
 if (g !== groupLast) {
 groupLast = g;
 ipt = g.lastAtomIndex;
@@ -284,14 +287,57 @@ break;
 }}}
 }
 this.ms.deleteBonds (bsBondsDeleted, true);
-this.ml.deleteAtoms (this.bsAddedHydrogens);
+this.deleteAtoms (this.bsAddedHydrogens);
 });
+Clazz.defineMethod (c$, "deleteAtoms", 
+ function (bsDeletedAtoms) {
+var mapOldToNew =  Clazz.newIntArray (this.ms.ac, 0);
+var mapNewToOld =  Clazz.newIntArray (this.ms.ac - bsDeletedAtoms.cardinality (), 0);
+var n = this.ml.baseAtomIndex;
+var models = this.ms.am;
+var atoms = this.ms.at;
+for (var i = this.ml.baseAtomIndex; i < this.ms.ac; i++) {
+models[atoms[i].mi].bsAtoms.clear (i);
+models[atoms[i].mi].bsAtomsDeleted.clear (i);
+if (bsDeletedAtoms.get (i)) {
+mapOldToNew[i] = n - 1;
+models[atoms[i].mi].ac--;
+} else {
+mapNewToOld[n] = i;
+mapOldToNew[i] = n++;
+}}
+this.ms.setMSInfo ("bsDeletedAtoms", bsDeletedAtoms);
+for (var i = this.ml.baseGroupIndex; i < this.ml.groups.length; i++) {
+var g = this.ml.groups[i];
+if (g.firstAtomIndex >= this.ml.baseAtomIndex) {
+g.firstAtomIndex = mapOldToNew[g.firstAtomIndex];
+g.lastAtomIndex = mapOldToNew[g.lastAtomIndex];
+if (g.leadAtomIndex >= 0) g.leadAtomIndex = mapOldToNew[g.leadAtomIndex];
+}}
+this.ms.adjustAtomArrays (mapNewToOld, this.ml.baseAtomIndex, n);
+this.ms.calcBoundBoxDimensions (null, 1);
+this.ms.resetMolecules ();
+this.ms.validateBspf (false);
+this.bsAddedMask = JU.BSUtil.deleteBits (this.bsAddedMask, bsDeletedAtoms);
+System.out.println ("res bsAddedMask = " + this.bsAddedMask);
+for (var i = this.ml.baseModelIndex; i < this.ml.ms.mc; i++) {
+this.fixAnnotations (i, "domains", 1073741925);
+this.fixAnnotations (i, "validation", 1073742189);
+}
+}, "JU.BS");
+Clazz.defineMethod (c$, "fixAnnotations", 
+ function (i, name, type) {
+var o = this.ml.ms.getInfo (i, name);
+if (o != null) {
+var dbObj = this.ml.ms.getCachedAnnotationMap (i, name, o);
+if (dbObj != null) this.ml.ms.vwr.getAnnotationParser ().fixAtoms (i, dbObj, this.bsAddedMask, type, 20);
+}}, "~N,~S,~N");
 Clazz.defineMethod (c$, "finalizePdbCharges", 
  function () {
 var atoms = this.ms.at;
 for (var i = this.bsAtomsForHs.nextSetBit (0); i >= 0; i = this.bsAtomsForHs.nextSetBit (i + 1)) {
 var a = atoms[i];
-if (a.getGroup ().getNitrogenAtom () === a && a.getCovalentBondCount () == 1) a.setFormalCharge (1);
+if (a.group.getNitrogenAtom () === a && a.getCovalentBondCount () == 1) a.setFormalCharge (1);
 if ((i = this.bsAtomsForHs.nextClearBit (i + 1)) < 0) break;
 }
 });
@@ -303,8 +349,8 @@ var bonds = this.ms.bo;
 for (var i = this.baseBondIndex; i < bondCount; i++) {
 var a1 = bonds[i].getAtom1 ();
 var a2 = bonds[i].getAtom2 ();
-var g = a1.getGroup ();
-if (g !== a2.getGroup ()) continue;
+var g = a1.group;
+if (g !== a2.group) continue;
 var key =  new JU.SB ().append (g.getGroup3 ());
 key.append (":");
 var n1 = a1.getAtomName ();
@@ -337,7 +383,7 @@ if (htKeysBad.isEmpty ()) return;
 for (var i = 0; i < bondCount; i++) {
 var a1 = bonds[i].getAtom1 ();
 var a2 = bonds[i].getAtom2 ();
-if (a1.getGroup () === a2.getGroup ()) continue;
+if (a1.group === a2.group) continue;
 var value;
 if ((value = htKeysBad.get (a1.getGroup3 (false) + ":" + a1.getAtomName ())) == null && ((value = htKeysBad.get (a2.getGroup3 (false) + ":" + a2.getAtomName ())) == null)) continue;
 bonds[i].setOrder (JU.PT.parseInt (value));
@@ -358,17 +404,20 @@ this.ml.undeleteAtom (iAtom);
 this.ms.bondAtoms (atoms[iTo], atoms[iAtom], 1, this.ms.getDefaultMadFromOrder (1), null, 0, true, false);
 }, "~N,~N,~S,JU.P3");
 Clazz.overrideMethod (c$, "fixPropertyValue", 
-function (bsAtoms, data) {
-var aData = JU.PT.split (data, "\n");
+function (bsAtoms, data, toHydrogens) {
 var atoms = this.ms.at;
-var newData =  new Array (bsAtoms.cardinality ());
-var lastData = "";
-for (var pt = 0, iAtom = 0, i = bsAtoms.nextSetBit (0); i >= 0; i = bsAtoms.nextSetBit (i), iAtom++) {
-if (atoms[i].getElementNumber () != 1) lastData = aData[pt++];
-newData[iAtom] = lastData;
+var fData = data;
+var newData =  Clazz.newFloatArray (bsAtoms.cardinality (), 0);
+var lastData = 0;
+for (var pt = 0, iAtom = 0, i = bsAtoms.nextSetBit (0); i >= 0; i = bsAtoms.nextSetBit (i + 1), iAtom++) {
+if (atoms[i].getElementNumber () == 1) {
+if (!toHydrogens) continue;
+} else {
+lastData = fData[pt++];
+}newData[iAtom] = lastData;
 }
-return JU.PT.join (newData, '\n', 0);
-}, "JU.BS,~S");
+return newData;
+}, "JU.BS,~O,~B");
 c$.allocateBioPolymer = Clazz.defineMethod (c$, "allocateBioPolymer", 
 function (groups, firstGroupIndex, checkConnections) {
 var previous = null;

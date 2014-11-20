@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.jvxl.readers");
-Clazz.load (["J.jvxl.readers.VolumeDataReader", "JU.P3"], "J.jvxl.readers.IsoShapeReader", ["java.lang.Float", "java.util.Random", "JU.SB", "$.V3", "J.jvxl.data.JvxlCoder", "JU.Logger", "$.Measure", "$.MeshSurface"], function () {
+Clazz.load (["J.jvxl.readers.VolumeDataReader", "JU.P3"], "J.jvxl.readers.IsoShapeReader", ["java.lang.Float", "java.util.Random", "JU.Measure", "$.SB", "$.V3", "J.jvxl.data.JvxlCoder", "JU.Logger", "$.MeshSurface"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.psi_n = 2;
 this.psi_l = 1;

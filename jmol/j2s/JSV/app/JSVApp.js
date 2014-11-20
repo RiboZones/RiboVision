@@ -97,21 +97,20 @@ this.toggle (JSV.common.ScriptToken.INTEGRATE);
 });
 Clazz.defineMethod (c$, "toggle", 
  function (st) {
-var jsvp = this.vwr.selectedPanel;
-if (jsvp != null) this.runScript (st + " TOGGLE");
+if (this.vwr.selectedPanel != null) this.runScript (st + " TOGGLE");
 }, "JSV.common.ScriptToken");
 Clazz.overrideMethod (c$, "addHighlight", 
 function (x1, x2, r, g, b, a) {
-this.vwr.addHighLight (x1, x2, r, g, b, a);
+this.runScript ("HIGHLIGHT " + x1 + " " + x2 + " " + r + " " + g + " " + b + " " + a);
 }, "~N,~N,~N,~N,~N,~N");
-Clazz.overrideMethod (c$, "removeAllHighlights", 
-function () {
-this.vwr.removeAllHighlights ();
-});
 Clazz.overrideMethod (c$, "removeHighlight", 
 function (x1, x2) {
-this.vwr.removeHighlight (x1, x2);
+this.runScript ("HIGHLIGHT " + x1 + " " + x2 + " OFF");
 }, "~N,~N");
+Clazz.overrideMethod (c$, "removeAllHighlights", 
+function () {
+this.runScript ("HIGHLIGHT OFF");
+});
 Clazz.overrideMethod (c$, "syncScript", 
 function (peakScript) {
 this.vwr.syncScript (peakScript);
@@ -136,7 +135,7 @@ this.appletFrame.createMainPanel (this.vwr);
 });
 Clazz.overrideMethod (c$, "repaint", 
 function () {
-var applet = (this.vwr == null ? null : this.vwr.applet);
+var applet = (this.vwr == null ? null : this.vwr.html5Applet);
 {
 applet && self.Jmol && Jmol._repaint &&(Jmol._repaint(applet,true));
 }});
@@ -173,7 +172,7 @@ return this.vwr.getSolutionColorStr (true);
 });
 Clazz.defineMethod (c$, "updateJSView", 
  function (msg) {
-var applet = this.vwr.applet;
+var applet = this.vwr.html5Applet;
 var panel = (applet == null ? null : this.vwr.selectedPanel);
 {
 applet && applet._viewSet != null && applet._updateView(panel, msg);
@@ -221,8 +220,8 @@ this.appletFrame.newWindow (isSelected);
 }}, "~B,~B");
 Clazz.overrideMethod (c$, "siValidateAndRepaint", 
 function (isAll) {
-var pd;
-if (this.vwr.selectedPanel != null && (pd = this.vwr.pd ()) != null) pd.taintedAll = true;
+var pd = this.vwr.pd ();
+if (pd != null) pd.taintedAll = true;
 this.appletFrame.validate ();
 this.repaint ();
 }, "~B");
@@ -287,7 +286,7 @@ break;
 }, "JSV.common.ScriptToken,~S");
 Clazz.overrideMethod (c$, "siLoaded", 
 function (value) {
-if (this.loadFileCallbackFunctionName != null) this.appletFrame.callToJavaScript (this.loadFileCallbackFunctionName, [this.vwr.appletID, value]);
+if (this.loadFileCallbackFunctionName != null) this.appletFrame.callToJavaScript (this.loadFileCallbackFunctionName, [this.vwr.appletName, value]);
 this.updateJSView (null);
 return null;
 }, "~S");

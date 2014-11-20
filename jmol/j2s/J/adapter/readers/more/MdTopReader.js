@@ -9,6 +9,7 @@ Clazz.instantialize (this, arguments);
 }, J.adapter.readers.more, "MdTopReader", J.adapter.readers.more.ForceFieldReader);
 Clazz.overrideMethod (c$, "initializeReader", 
 function () {
+this.setIsPDB ();
 this.setUserAtomTypes ();
 });
 Clazz.overrideMethod (c$, "checkLine", 
@@ -24,7 +25,7 @@ if (this.line.equals ("POINTERS")) this.getPointers ();
  else if (this.line.equals ("MASS")) this.getMasses ();
 return false;
 });
-Clazz.overrideMethod (c$, "finalizeReader", 
+Clazz.overrideMethod (c$, "finalizeSubclassReader", 
 function () {
 this.finalizeReaderASCR ();
 var atoms = this.asc.atoms;
@@ -53,7 +54,7 @@ this.asc.discardPreviousAtoms ();
 for (var i = 0; i < this.nAtoms; i++) this.asc.addAtom (atoms2[i]);
 
 }JU.Logger.info ("Total number of atoms used=" + this.nAtoms);
-this.setIsPDB ();
+this.setModelPDB (true);
 this.htParams.put ("defaultType", "mdcrd");
 });
 Clazz.defineMethod (c$, "getDataBlock", 

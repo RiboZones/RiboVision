@@ -325,6 +325,10 @@ this.m20 = 0.0;
 this.m21 = 0.0;
 this.m22 = 1.0;
 }, "~N");
+Clazz.defineMethod (c$, "determinant3", 
+function () {
+return this.m00 * (this.m11 * this.m22 - this.m21 * this.m12) - this.m01 * (this.m10 * this.m22 - this.m20 * this.m12) + this.m02 * (this.m10 * this.m21 - this.m20 * this.m11);
+});
 Clazz.defineMethod (c$, "err", 
 function () {
 throw  new ArrayIndexOutOfBoundsException ("matrix column/row out of bounds");

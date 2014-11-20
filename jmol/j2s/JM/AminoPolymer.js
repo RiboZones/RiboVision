@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JM");
-Clazz.load (["JM.AlphaPolymer"], "JM.AminoPolymer", ["JU.P3", "$.V3", "J.c.STR", "JM.HBond", "JU.Logger", "$.Measure"], function () {
+Clazz.load (["JM.AlphaPolymer"], "JM.AminoPolymer", ["JU.Measure", "$.P3", "$.V3", "J.c.STR", "JM.HBond", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.structureList = null;
 Clazz.instantialize (this, arguments);

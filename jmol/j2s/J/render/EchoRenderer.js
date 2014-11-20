@@ -16,8 +16,9 @@ if (!(t.pointerPt).checkVisible ()) continue;
 }if (t.valign == 4) {
 this.tm.transformPtScr (t.xyz, this.pt0i);
 t.setXYZs (this.pt0i.x, this.pt0i.y, this.pt0i.z, this.pt0i.z);
-} else if (t.movableZPercent != 2147483647) {
-var z = this.vwr.zValueFromPercent (t.movableZPercent);
+}if (t.movableZPercent != 2147483647) {
+var z = this.vwr.tm.zValueFromPercent (t.movableZPercent % 1000);
+if (t.valign == 4 && Math.abs (t.movableZPercent) >= 1000) z = this.pt0i.z - this.vwr.tm.zValueFromPercent (0) + z;
 t.setZs (z, z);
 }if (t.pointerPt == null) {
 t.pointer = 0;
@@ -28,7 +29,7 @@ t.atomX = this.pt0i.x;
 t.atomY = this.pt0i.y;
 t.atomZ = this.pt0i.z;
 if (t.zSlab == -2147483648) t.zSlab = 1;
-}J.render.TextRenderer.render (t, this.vwr, this.g3d, scalePixelsPerMicron, this.imageFontScaling, false, null, this.xy);
+}J.render.TextRenderer.render (t, this.g3d, scalePixelsPerMicron, this.imageFontScaling, false, null, this.xy);
 if (JU.C.isColixTranslucent (t.bgcolix) || JU.C.isColixTranslucent (t.colix)) haveTranslucent = true;
 }
 if (!this.isExport) {
@@ -41,8 +42,7 @@ this.renderFrameTitle (frameTitle);
 });
 Clazz.defineMethod (c$, "renderFrameTitle", 
  function (frameTitle) {
-var fid = this.g3d.getFontFidFS ("Serif", 14 * this.imageFontScaling);
-this.g3d.setFontFid (fid);
+this.vwr.gdata.setFontFid (this.vwr.gdata.getFontFidFS ("Serif", 14 * this.imageFontScaling));
 var y = Clazz.doubleToInt (Math.floor (this.vwr.getScreenHeight () * (this.g3d.isAntialiased () ? 2 : 1) - 10 * this.imageFontScaling));
 var x = Clazz.doubleToInt (Math.floor (5 * this.imageFontScaling));
 this.g3d.drawStringNoSlab (frameTitle, null, x, y, 0, 0);

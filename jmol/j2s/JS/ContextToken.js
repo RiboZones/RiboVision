@@ -7,7 +7,7 @@ Clazz.instantialize (this, arguments);
 }, JS, "ContextToken", JS.T);
 c$.newContext = Clazz.defineMethod (c$, "newContext", 
 function (isOpen) {
-var ct = (isOpen ? JS.ContextToken.newCmd (1276383749, "{") : JS.ContextToken.newCmd (1276383249, "}"));
+var ct = (isOpen ? JS.ContextToken.newCmd (1276384259, "{") : JS.ContextToken.newCmd (1276383249, "}"));
 ct.intValue = 0;
 return ct;
 }, "~B");

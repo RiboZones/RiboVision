@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JU");
-Clazz.load (["JU.P3", "$.P3i", "$.V3"], "JU.BoxInfo", ["JU.Lst", "$.P4", "JU.Measure", "$.Point3fi"], function () {
+Clazz.load (["JU.P3", "$.P3i", "$.V3"], "JU.BoxInfo", ["JU.Lst", "$.Measure", "$.P4", "JU.Point3fi"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.bbCorner0 = null;
 this.bbCorner1 = null;

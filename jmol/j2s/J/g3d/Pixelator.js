@@ -10,7 +10,7 @@ this.g = graphics3d;
 }, "J.g3d.Graphics3D");
 Clazz.defineMethod (c$, "clearPixel", 
 function (offset, z) {
-if (!this.g.$isPass2 && this.g.zbuf[offset] > z) this.g.zbuf[offset] = 2147483647;
+if (!this.g.isPass2 && this.g.zbuf[offset] > z) this.g.zbuf[offset] = 2147483647;
 }, "~N,~N");
 Clazz.defineMethod (c$, "addPixel", 
 function (offset, z, p) {
@@ -18,7 +18,7 @@ this.addPixel1 (offset, z, p);
 }, "~N,~N,~N");
 Clazz.defineMethod (c$, "addPixel1", 
 function (offset, z, p) {
-if (!this.g.$isPass2) {
+if (!this.g.isPass2) {
 this.g.zbuf[offset] = z;
 this.g.pbuf[offset] = p;
 return;

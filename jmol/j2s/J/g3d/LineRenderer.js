@@ -33,7 +33,7 @@ Clazz.defineMethod (c$, "setLineBits",
 function (dx, dy) {
 this.slope = (dx != 0 ? dy / dx : dy >= 0 ? 3.4028235E38 : -3.4028235E38);
 this.lineTypeX = (this.slope <= 1 && this.slope >= -1);
-this.nBits = (this.lineTypeX ? this.g3d.getRenderWidth () : this.g3d.getRenderHeight ());
+this.nBits = (this.lineTypeX ? this.g3d.width : this.g3d.height);
 if (this.getCachedLine ()) return;
 this.lineBits = JU.BS.newN (this.nBits);
 dy = Math.abs (dy);
@@ -219,7 +219,7 @@ return 1;
 Clazz.defineMethod (c$, "plotLineClipped", 
  function (argb1, tScreened1, argb2, tScreened2, x, y, z, dx, dy, dz, clipped, run, rise) {
 var zbuf = this.g3d.zbuf;
-var width = this.g3d.getRenderWidth ();
+var width = this.g3d.width;
 var runIndex = 0;
 if (run == 0) {
 rise = 2147483647;
@@ -298,7 +298,7 @@ if (zCurrent < zbuf[offset]) this.g3d.addPixel (offset, zCurrent, argb);
 Clazz.defineMethod (c$, "plotLineClippedA", 
  function (shades1, tScreened1, shades2, tScreened2, shadeIndex, x, y, z, dx, dy, dz, clipped, run, rise) {
 var zbuf = this.g3d.zbuf;
-var width = this.g3d.getRenderWidth ();
+var width = this.g3d.width;
 var runIndex = 0;
 if (run == 0) {
 rise = 2147483647;

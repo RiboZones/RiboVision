@@ -14,10 +14,10 @@ Clazz.defineMethod (c$, "initShape",
 function () {
 Clazz.superCall (this, J.shape.Hover, "initShape", []);
 this.isHover = true;
-var font3d = this.gdata.getFont3DFSS ("SansSerif", "Plain", 12);
+var font3d = this.vwr.gdata.getFont3DFSS ("SansSerif", "Plain", 12);
 var bgcolix = JU.C.getColixS ("#FFFFC3");
 var colix = 4;
-this.currentObject = this.hoverText = JM.Text.newLabel (this.gdata, font3d, null, colix, bgcolix, 1, 0, null);
+this.currentObject = this.hoverText = JM.Text.newLabel (this.vwr, font3d, null, colix, bgcolix, 1, 0, null);
 this.hoverText.setAdjustForWindow (true);
 });
 Clazz.overrideMethod (c$, "setProperty", 

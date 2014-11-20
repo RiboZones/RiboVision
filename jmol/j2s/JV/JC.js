@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JV");
-Clazz.load (["JU.SB", "$.V3", "JU.Elements", "$.Txt"], "JV.JC", ["java.util.Hashtable", "JU.PT"], function () {
+Clazz.load (["java.util.Hashtable", "JU.SB", "$.V3", "JU.Elements"], "JV.JC", ["java.lang.Short", "JU.AU", "$.PT"], function () {
 c$ = Clazz.declareType (JV, "JC");
 c$.embedScript = Clazz.defineMethod (c$, "embedScript", 
 function (s) {
@@ -90,16 +90,46 @@ break;
 }return true;
 }, "~S,~S,~A");
 c$.getStandardPdbHydrogenCount = Clazz.defineMethod (c$, "getStandardPdbHydrogenCount", 
-function (pt) {
+function (group3) {
+var pt = JV.JC.knownPDBGroupID (group3);
 return (pt < 0 || pt >= JV.JC.pdbHydrogenCount.length ? -1 : JV.JC.pdbHydrogenCount[pt]);
+}, "~S");
+c$.addGroup3Name = Clazz.defineMethod (c$, "addGroup3Name", 
+ function (group3) {
+if (JV.JC.group3NameCount == JV.JC.group3Names.length) JV.JC.group3Names = JU.AU.doubleLengthS (JV.JC.group3Names);
+var groupID = JV.JC.group3NameCount++;
+JV.JC.group3Names[groupID] = group3;
+JV.JC.htGroup.put (group3, Short.$valueOf (groupID));
+return groupID;
+}, "~S");
+c$.getGroup3For = Clazz.defineMethod (c$, "getGroup3For", 
+function (groupID) {
+return JV.JC.group3Names[groupID];
 }, "~N");
+c$.getGroupIdFor = Clazz.defineMethod (c$, "getGroupIdFor", 
+function (group3) {
+if (group3 == null) return -1;
+var groupID = JV.JC.knownPDBGroupID (group3);
+return (groupID == -1 ? JV.JC.addGroup3Name (group3) : groupID);
+}, "~S");
+c$.knownPDBGroupID = Clazz.defineMethod (c$, "knownPDBGroupID", 
+function (group3) {
+if (group3 != null) {
+var boxedGroupID = JV.JC.htGroup.get (group3);
+if (boxedGroupID != null) return boxedGroupID.shortValue ();
+}return -1;
+}, "~S");
 c$.getPdbBondInfo = Clazz.defineMethod (c$, "getPdbBondInfo", 
-function (pt, isLegacy) {
+function (group3, isLegacy) {
+if (JV.JC.htPdbBondInfo == null) JV.JC.htPdbBondInfo =  new java.util.Hashtable ();
+var info = JV.JC.htPdbBondInfo.get (group3);
+if (info != null) return info;
+var pt = JV.JC.knownPDBGroupID (group3);
 if (pt < 0 || pt > JV.JC.pdbBondInfo.length) return null;
 var s = JV.JC.pdbBondInfo[pt];
 if (isLegacy && (pt = s.indexOf ("O3'")) >= 0) s = s.substring (0, pt);
 var temp = JU.PT.getTokens (s);
-var info =  new Array (Clazz.doubleToInt (temp.length / 2));
+info =  new Array (Clazz.doubleToInt (temp.length / 2));
 for (var i = 0, p = 0; i < info.length; i++) {
 var source = temp[p++];
 var target = temp[p++];
@@ -129,8 +159,9 @@ target = source;
 source = s;
 }info[i] = [source, target, (target.startsWith ("H") ? "1" : "2")];
 }
+JV.JC.htPdbBondInfo.put (group3, info);
 return info;
-}, "~N,~B");
+}, "~S,~B");
 c$.checkCarbohydrate = Clazz.defineMethod (c$, "checkCarbohydrate", 
 function (group3) {
 return (group3 != null && ",[AHR],[ALL],[AMU],[ARA],[ARB],[BDF],[BDR],[BGC],[BMA],[FCA],[FCB],[FRU],[FUC],[FUL],[GAL],[GLA],[GLC],[GXL],[GUP],[LXC],[MAN],[RAM],[RIB],[RIP],[XYP],[XYS],[CBI],[CT3],[CTR],[CTT],[LAT],[MAB],[MAL],[MLR],[MTT],[SUC],[TRE],[GCU],[MTL],[NAG],[NDG],[RHA],[SOR],[SOL],[SOE],[XYL],[A2G],[LBT],[NGA],[SIA],[SLB],[AFL],[AGC],[GLB],[NAN],[RAA]".indexOf ("[" + group3.toUpperCase () + "]") >= 0);
@@ -248,11 +279,11 @@ return 29;
 case 537022465:
 return 30;
 case 1611272194:
-return 31;
-case 1679429641:
-return 32;
-case 1614417948:
 return 33;
+case 1679429641:
+return 31;
+case 1614417948:
+return 32;
 case 544771:
 return 34;
 case 1611272202:
@@ -265,6 +296,10 @@ function (shapeID, isRenderer) {
 if (shapeID < 0) return JV.JC.shapeClassBases[~shapeID];
 return "J." + (isRenderer ? "render" : "shape") + (shapeID >= 9 && shapeID < 16 ? "bio." : shapeID >= 16 && shapeID < 23 ? "special." : shapeID >= 24 && shapeID < 29 ? "surface." : shapeID == 23 ? "cgo." : ".") + JV.JC.shapeClassBases[shapeID];
 }, "~N,~B");
+c$.isScriptType = Clazz.defineMethod (c$, "isScriptType", 
+function (fname) {
+return JU.PT.isOneOf (fname.substring (fname.lastIndexOf (".") + 1), ";pse;spt;png;pngj;jmol;zip;");
+}, "~S");
 c$.getOffset = Clazz.defineMethod (c$, "getOffset", 
 function (xOffset, yOffset) {
 xOffset = Math.min (Math.max (xOffset, -127), 127);
@@ -306,7 +341,7 @@ function (script) {
 return (script.length < 7 ? -1 : ("JSPECVIPEAKS: SELECT:JSVSTR:H1SIMUL").indexOf (script.substring (0, 7).toUpperCase ()));
 }, "~S");
 Clazz.defineStatics (c$,
-"databases", ["dssr", "http://x3dna.bio.columbia.edu/dssr/report.php?id=%FILE&opts=--jmol%20--more", "dssrModel", "http://x3dna.bio.columbia.edu/dssr/report.php?POST?opts=--jmol --more&model=", "ligand", "http://www.rcsb.org/pdb/files/ligand/%FILE.cif", "mp", "http://www.materialsproject.org/materials/%FILE/cif", "nci", "http://cactus.nci.nih.gov/chemical/structure/%FILE", "nmr", "http://www.nmrdb.org/predictor?POST?molfile=", "nmrdb", "http://www.nmrdb.org/service/predictor?POST?molfile=", "pdb", "http://www.rcsb.org/pdb/files/%FILE.pdb.gz", "pubchem", "http://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/%FILE/SDF?record_type=3d"],
+"databases", ["dssr", "http://x3dna.bio.columbia.edu/dssr/report.php?id=%FILE&opts=--jmol%20--more", "dssrModel", "http://x3dna.bio.columbia.edu/dssr/report.php?POST?opts=--jmol --more&model=", "ligand", "http://www.rcsb.org/pdb/files/ligand/%FILE.cif", "mp", "http://www.materialsproject.org/materials/%FILE/cif", "nci", "http://cactus.nci.nih.gov/chemical/structure/%FILE", "nmr", "http://www.nmrdb.org/new_predictor?POST?molfile=", "nmrdb", "http://www.nmrdb.org/service/predictor?POST?molfile=", "pdb", "http://www.rcsb.org/pdb/files/%FILE.pdb.gz", "pdbe", "http://www.ebi.ac.uk/pdbe/entry-files/download/%FILE.cif", "pubchem", "http://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/%FILE/SDF?record_type=3d", "map", "http://wwwdev.ebi.ac.uk/pdbe/api/%TYPE/%FILE?pretty=false&metadata=true", "rna3d", "http://rna.bgsu.edu/rna3dhub/%TYPE/download/%FILE"],
 "copyright", "(C) 2012 Jmol Development",
 "version", null,
 "date", null,
@@ -315,7 +350,7 @@ Clazz.defineStatics (c$,
 var tmpVersion = null;
 var tmpDate = null;
 {
-tmpVersion = ___JmolVersion; tmpDate = ___JmolDate;
+tmpVersion = Jmol.___JmolVersion; tmpDate = Jmol.___JmolDate;
 }if (tmpDate != null) {
 tmpDate = tmpDate.substring (7, 23);
 }JV.JC.version = (tmpVersion != null ? tmpVersion : "(Unknown version)");
@@ -492,14 +527,24 @@ Clazz.defineStatics (c$,
 "predefinedGroup3Names", ["", "ALA", "ARG", "ASN", "ASP", "CYS", "GLN", "GLU", "GLY", "HIS", "ILE", "LEU", "LYS", "MET", "PHE", "PRO", "SER", "THR", "TRP", "TYR", "VAL", "ASX", "GLX", "UNK", "G", "C", "A", "T", "U", "I", "DG", "DC", "DA", "DT", "DU", "DI", "+G", "+C", "+A", "+T", "+U", "+I", "HOH", "DOD", "WAT", "UREA", "PO4", "SO4", "UNL"],
 "naNoH", "A3;A1;C3;G3;I3",
 "aaSp2", "ARGN;ASNN;ASNO;ASPO;GLNN;GLNO;GLUO;HISN;HISC;PHECTRPC;TRPN;TYRC",
-"aaPlus", "LYSN",
+"aaPlus", "LYSN");
+c$.htGroup = c$.prototype.htGroup =  new java.util.Hashtable ();
+c$.group3Names = c$.prototype.group3Names =  new Array (128);
+Clazz.defineStatics (c$,
+"group3NameCount", 0);
+{
+for (var i = 0; i < JV.JC.predefinedGroup3Names.length; ++i) {
+JV.JC.addGroup3Name (JV.JC.predefinedGroup3Names[i]);
+}
+}Clazz.defineStatics (c$,
+"htPdbBondInfo", null,
 "pdbBondInfo", ["", "N N CA HA C O CB HB?", "N N CA HA C O CB HB2@HB3 CG HG2@HG3 CD D NE HE CZ NH1 NH1 HH11@HH12 NH2 HH21@HH22", "N N CA HA C O CB B CG OD1 ND2 HD21@HD22", "N N CA HA C O CB B CG OD1", "N N CA HA C O CB B SG HG", "N N CA HA C O CB B CG G CD OE1 NE2 HE21@HE22", "N N CA HA C O CB B CG G CD OE1", "N N CA HA2@HA3 C O", "N N CA HA C O CB B CG CD2 ND1 CE1 ND1 HD1 CD2 HD2 CE1 HE1 NE2 HE2", "N N CA HA C O CB HB CG1 HG12@HG13 CG2 HG2? CD1 HD1?", "N N CA HA C O CB HB2@HB3 CG HG CD1 HD1? CD2 HD2?", "N N CA HA C O CB B CG G CD HD2@HD3 CE HE3@HE2 NZ HZ?", "N N CA HA C O CB HB2@HB3 CG HG2@HG3 CE HE?", "N N CA HA C O CB B CG CD1 CD1 HD1 CD2 CE2 CD2 HD2 CE1 CZ CE1 HE1 CE2 HE2 CZ HZ", "N H CA HA C O CB B CG G CD HD2@HD3", "N N CA HA C O CB B OG HG", "N N CA HA C O CB HB OG1 HG1 CG2 HG2?", "N N CA HA C O CB B CG CD1 CD1 HD1 CD2 CE2 NE1 HE1 CE3 CZ3 CE3 HE3 CZ2 CH2 CZ2 HZ2 CZ3 HZ3 CH2 HH2", "N N CA HA C O CB B CG CD1 CD1 HD1 CD2 CE2 CD2 HD2 CE1 CZ CE1 HE1 CE2 HE2 OH HH", "N N CA HA C O CB HB CG1 HG1? CG2 HG2?", "CA HA C O CB HB2@HB1 C H", "CA HA C O CB HB1 CB HB2 CG HG1 CG HG2", "", "P OP1 C5' 5 C4' H4' C3' H3' C2' H2' O2' HO2' C1' H1' C8 N7 C8 H8 C5 C4 C6 O6 N1 H1 C2 N3 N2 H21@H22 O3' HO3' O5' HO5'", "P OP1 C5' 5 C4' H4' C3' H3' C2' H2' O2' HO2' C1' H1' C2 O2 N3 C4 N4 H41@H42 C5 C6 C5 H5 C6 H6 O3' HO3' O5' HO5'", "P OP1 C5' 5 C4' H4' C3' H3' C2' H2' O2' HO2' C1' H1' C8 N7 C8 H8 C5 C4 C6 N1 N6 H61@H62 C2 N3 C2 H2 O3' HO3' O5' HO5'", "P OP1 C5' 5 C4' H4' C3' H3' C2' 2 C1' H1' C2 O2 N3 H3 C4 O4 C5 C6 C7 H7? C6 H6 O3' HO3' O5' HO5'", "P OP1 C5' 5 C4' H4' C3' H3' C2' H2' O2' HO2' C1' H1' C2 O2 N3 H3 C4 O4 C5 C6 C5 H5 C6 H6 O3' HO3' O5' HO5'", "P OP1 C5' 5 C4' H4' C3' H3' C2' H2' O2' HO2' C1' H1' C8 N7 C8 H8 C5 C4 C6 O6 N1 H1 C2 N3 C2 H2 O3' HO3' O5' HO5'", "P OP1 C5' 5 C4' H4' C3' H3' C2' 2 C1' H1' C8 N7 C8 H8 C5 C4 C6 O6 N1 H1 C2 N3 N2 H21@H22 O3' HO3' O5' HO5'", "P OP1 C5' 5 C4' H4' C3' H3' C2' 2 C1' H1' C2 O2 N3 C4 N4 H41@H42 C5 C6 C5 H5 C6 H6 O3' HO3' O5' HO5'", "P OP1 C5' 5 C4' H4' C3' H3' C2' 2 C1' H1' C8 N7 C8 H8 C5 C4 C6 N1 N6 H61@H62 C2 N3 C2 H2 O3' HO3' O5' HO5'", "P OP1 C5' H5'@H5'' C4' H4' C3' H3' C2' H2'@H2'' C1' H1' C2 O2 N3 H3 C4 O4 C5 C6 C7 H7? C6 H6 O3' HO3' O5' HO5'", "P OP1 C5' 5 C4' H4' C3' H3' C2' H2'@H2'' C1' H1' C2 O2 N3 H3 C4 O4 C5 C6 C5 H5 C6 H6 O3' HO3' O5' HO5'", "P OP1 C5' 5 C4' H4' C3' H3' C2' 2 C1' H1' C8 N7 C8 H8 C5 C4 C6 O6 N1 H1 C2 N3 C2 H2 O3' HO3' O5' HO5'"],
 "pdbHydrogenCount", [0, 6, 16, 7, 6, 6, 9, 8, 4, 9, 12, 12, 14, 10, 10, 8, 6, 8, 11, 10, 10, 3, 5, 0, 13, 13, 13, -1, 12, 12, 13, 13, 13, 14, 12, 12],
 "argbsShapely", [0xFFFF00FF, 0xFF00007C, 0xFFFF7C70, 0xFF8CFF8C, 0xFFA00042, 0xFFFFFF70, 0xFFFF4C4C, 0xFF660000, 0xFFFFFFFF, 0xFF7070FF, 0xFF004C00, 0xFF455E45, 0xFF4747B8, 0xFF534C52, 0xFFB8A042, 0xFF525252, 0xFFFF7042, 0xFFB84C00, 0xFF4F4600, 0xFF8C704C, 0xFFFF8CFF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF00FF, 0xFFFF7070, 0xFFFF8C4B, 0xFFA0A0FF, 0xFFA0FFA0, 0xFFFF8080, 0xFF80FFFF, 0xFFFF7070, 0xFFFF8C4B, 0xFFA0A0FF, 0xFFA0FFA0, 0xFFFF8080, 0xFF80FFFF, 0xFFFF7070, 0xFFFF8C4B, 0xFFA0A0FF, 0xFFA0FFA0, 0xFFFF8080, 0xFF80FFFF],
 "allCarbohydrates", ",[AHR],[ALL],[AMU],[ARA],[ARB],[BDF],[BDR],[BGC],[BMA],[FCA],[FCB],[FRU],[FUC],[FUL],[GAL],[GLA],[GLC],[GXL],[GUP],[LXC],[MAN],[RAM],[RIB],[RIP],[XYP],[XYS],[CBI],[CT3],[CTR],[CTT],[LAT],[MAB],[MAL],[MLR],[MTT],[SUC],[TRE],[GCU],[MTL],[NAG],[NDG],[RHA],[SOR],[SOL],[SOE],[XYL],[A2G],[LBT],[NGA],[SIA],[SLB],[AFL],[AGC],[GLB],[NAN],[RAA]",
 "group3List", null,
 "group3Count", 0,
-"predefinedGroup1Names", ['\0', 'A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G', 'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S', 'T', 'W', 'Y', 'V', 'A', 'G', '?', 'G', 'C', 'A', 'T', 'U', 'I', 'G', 'C', 'A', 'T', 'U', 'I', 'G', 'C', 'A', 'T', 'U', 'I', 'I'],
+"predefinedGroup1Names", ['\0', 'A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G', 'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S', 'T', 'W', 'Y', 'V', 'A', 'G', '?', 'G', 'C', 'A', 'T', 'U', 'I', 'G', 'C', 'A', 'T', 'U', 'I', 'G', 'C', 'A', 'T', 'U', 'I'],
 "predefinedVariable", ["@_1H _H & !(_2H,_3H)", "@_12C _C & !(_13C,_14C)", "@_14N _N & !(_15N)", "@solvent water, (_g>=45 & _g<48)", "@ligand _g=0|!(_g<46,protein,nucleic,water)", "@turn structure=1", "@sheet structure=2", "@helix structure=3", "@helix310 substructure=7", "@helixalpha substructure=8", "@helixpi substructure=9", "@bonded bondcount>0"],
 "predefinedStatic", ["@amino _g>0 & _g<=23", "@acidic asp,glu", "@basic arg,his,lys", "@charged acidic,basic", "@negative acidic", "@positive basic", "@neutral amino&!(acidic,basic)", "@polar amino&!hydrophobic", "@cyclic his,phe,pro,trp,tyr", "@acyclic amino&!cyclic", "@aliphatic ala,gly,ile,leu,val", "@aromatic his,phe,trp,tyr", "@cystine within(group, (cys.sg or cyx.sg) and connected(cys.sg or cyx.sg))", "@buried ala,cys,ile,leu,met,phe,trp,val", "@surface amino&!buried", "@hydrophobic ala,gly,ile,leu,met,phe,pro,trp,tyr,val", "@mainchain backbone", "@small ala,gly,ser", "@medium asn,asp,cys,pro,thr,val", "@large arg,glu,gln,his,ile,leu,lys,met,phe,trp,tyr", "@c nucleic & ([C] or [DC] or within(group,_a=42))", "@g nucleic & ([G] or [DG] or within(group,_a=43))", "@cg c,g", "@a nucleic & ([A] or [DA] or within(group,_a=44))", "@t nucleic & ([T] or [DT] or within(group,_a=45 | _a=49))", "@at a,t", "@i nucleic & ([I] or [DI] or within(group,_a=46) & !g)", "@u nucleic & ([U] or [DU] or within(group,_a=47) & !t)", "@tu nucleic & within(group,_a=48)", "@ions _g>=46&_g<48", "@alpha _a=2", "@backbone protein&(_a>=1&_a<6|_a>=64&_a<72)|nucleic&(_a>=6&_a<14|_a>=72)", "@spine protein&_a>=1&_a<4|nucleic&_a>=6&_a<14&_a!=12", "@sidechain (protein,nucleic) & !backbone", "@base nucleic & !backbone", "@dynamic_flatring search('[a]')"],
 "MODELKIT_ZAP_STRING", "5\n\nC 0 0 0\nH .63 .63 .63\nH -.63 -.63 .63\nH -.63 .63 -.63\nH .63 -.63 -.63",
@@ -522,6 +567,7 @@ Clazz.defineStatics (c$,
 "SHAPE_LABELS", 5,
 "SHAPE_MEASURES", 6,
 "SHAPE_STARS", 7,
+"SHAPE_MIN_HAS_SETVIS", 8,
 "SHAPE_HALOS", 8,
 "SHAPE_MIN_SECONDARY", 9,
 "SHAPE_BACKBONE", 9,
@@ -557,9 +603,10 @@ Clazz.defineStatics (c$,
 "SHAPE_MAX_MESH_COLLECTION", 29,
 "SHAPE_ECHO", 30,
 "SHAPE_MAX_HAS_ID", 31,
-"SHAPE_AXES", 31,
-"SHAPE_BBCAGE", 32,
-"SHAPE_UCCAGE", 33,
+"SHAPE_BBCAGE", 31,
+"SHAPE_MAX_HAS_SETVIS", 32,
+"SHAPE_UCCAGE", 32,
+"SHAPE_AXES", 33,
 "SHAPE_HOVER", 34,
 "SHAPE_FRANK", 35,
 "SHAPE_MAX", 36,
@@ -567,18 +614,20 @@ Clazz.defineStatics (c$,
 "ATOM_VISSET", 2,
 "ATOM_VISIBLE", 4,
 "ATOM_NOTHIDDEN", 8,
-"ATOM_NOFLAGS", -16,
+"ATOM_NOFLAGS", -64,
 "ATOM_INFRAME_NOTHIDDEN", 9,
 "ATOM_SHAPE_VIS_MASK", -10,
 "VIS_BOND_FLAG", 32,
 "VIS_BALLS_FLAG", 16,
 "VIS_LABEL_FLAG", 512,
 "VIS_BACKBONE_FLAG", 8192,
-"shapeClassBases", ["Balls", "Sticks", "Hsticks", "Sssticks", "Struts", "Labels", "Measures", "Stars", "Halos", "Backbone", "Trace", "Cartoon", "Strands", "MeshRibbon", "Ribbons", "Rockets", "Dots", "Dipoles", "Vectors", "GeoSurface", "Ellipsoids", "Polyhedra", "Draw", "CGO", "Isosurface", "Contact", "LcaoCartoon", "MolecularOrbital", "Pmesh", "Plot3D", "Echo", "Axes", "Bbcage", "Uccage", "Hover", "Frank"],
+"VIS_CARTOON_FLAG", 32768,
+"ALPHA_CARBON_VISIBILITY_FLAG", 1040384,
+"shapeClassBases", ["Balls", "Sticks", "Hsticks", "Sssticks", "Struts", "Labels", "Measures", "Stars", "Halos", "Backbone", "Trace", "Cartoon", "Strands", "MeshRibbon", "Ribbons", "Rockets", "Dots", "Dipoles", "Vectors", "GeoSurface", "Ellipsoids", "Polyhedra", "Draw", "CGO", "Isosurface", "Contact", "LcaoCartoon", "MolecularOrbital", "Pmesh", "Plot3D", "Echo", "Bbcage", "Uccage", "Axes", "Hover", "Frank"],
 "SCRIPT_COMPLETED", "Script completed",
 "JPEG_EXTENSIONS", ";jpg;jpeg;jpg64;jpeg64;");
-c$.IMAGE_TYPES = c$.prototype.IMAGE_TYPES = ";jpg;jpeg;jpg64;jpeg64;gif;pdf;ppm;png;pngj;pngt;";
-c$.IMAGE_OR_SCENE = c$.prototype.IMAGE_OR_SCENE = ";jpg;jpeg;jpg64;jpeg64;gif;pdf;ppm;png;pngj;pngt;scene;";
+c$.IMAGE_TYPES = c$.prototype.IMAGE_TYPES = ";jpg;jpeg;jpg64;jpeg64;gif;gift;pdf;ppm;png;pngj;pngt;";
+c$.IMAGE_OR_SCENE = c$.prototype.IMAGE_OR_SCENE = ";jpg;jpeg;jpg64;jpeg64;gif;gift;pdf;ppm;png;pngj;pngt;scene;";
 {
 {
 }}Clazz.defineStatics (c$,
@@ -601,5 +650,6 @@ c$.IMAGE_OR_SCENE = c$.prototype.IMAGE_OR_SCENE = ";jpg;jpeg;jpg64;jpeg64;gif;pd
 "JSV_SETPEAKS", 7,
 "JSV_SELECT", 14,
 "JSV_STRUCTURE", 21,
-"JSV_SEND_H1SIMULATE", 28);
+"JSV_SEND_H1SIMULATE", 28,
+"READER_NOT_FOUND", "File reader was not found:");
 });

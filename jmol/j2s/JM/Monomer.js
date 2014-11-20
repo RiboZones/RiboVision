@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JM");
-Clazz.load (["JM.Group"], "JM.Monomer", ["java.lang.Float", "JU.P3", "$.Quat", "J.c.STR", "JU.Logger", "$.Measure", "JV.JC"], function () {
+Clazz.load (["JM.Group"], "JM.Monomer", ["java.lang.Float", "JU.Measure", "$.P3", "$.Quat", "J.c.STR", "JM.ProteinStructure", "JU.Escape", "$.Logger", "JV.JC"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.bioPolymer = null;
 this.offsets = null;
@@ -12,6 +12,10 @@ this.mu = NaN;
 this.theta = NaN;
 Clazz.instantialize (this, arguments);
 }, JM, "Monomer", JM.Group);
+Clazz.makeConstructor (c$, 
+function () {
+Clazz.superConstructor (this, JM.Monomer, []);
+});
 c$.have = Clazz.defineMethod (c$, "have", 
 function (offsets, n) {
 return (offsets[n] & 0xFF) != 0xFF;
@@ -169,8 +173,8 @@ function () {
 return this.bioPolymer.haveParameters;
 });
 Clazz.defineMethod (c$, "getMyInfo", 
-function () {
-var info = this.getGroupInfo (this.groupIndex);
+function (ptTemp) {
+var info = this.getGroupInfo (this.groupIndex, ptTemp);
 info.put ("chain", this.chain.getIDStr ());
 var seqNum = this.getResno ();
 if (seqNum > 0) info.put ("sequenceNumber", Integer.$valueOf (seqNum));
@@ -185,16 +189,16 @@ if (!Float.isNaN (f)) info.put ("mu", Float.$valueOf (f));
 f = this.getGroupParameter (1112539152);
 if (!Float.isNaN (f)) info.put ("theta", Float.$valueOf (f));
 var structure = this.getStructure ();
-if (structure != null) {
-info.put ("structureId", Integer.$valueOf (structure.strucNo));
-info.put ("structureType", structure.type.getBioStructureTypeName (false));
+if (Clazz.instanceOf (structure, JM.ProteinStructure)) {
+info.put ("structureId", Integer.$valueOf ((structure).strucNo));
+info.put ("structureType", (structure).type.getBioStructureTypeName (false));
 }info.put ("shapeVisibilityFlags", Integer.$valueOf (this.shapeVisibilityFlags));
 return info;
-});
+}, "JU.P3");
 Clazz.overrideMethod (c$, "getStructureId", 
 function () {
 var structure = this.getStructure ();
-return (structure == null ? "" : structure.type.getBioStructureTypeName (false));
+return (Clazz.instanceOf (structure, JM.ProteinStructure) ? (structure).type.getBioStructureTypeName (false) : "");
 });
 Clazz.defineMethod (c$, "getConformation", 
 function (atoms, bsConformation, conformationIndex) {
@@ -257,14 +261,13 @@ var q1 = (mStep < 1 ? JU.Quat.getQuaternionFrameV (JV.JC.axisX, JV.JC.axisY, JV.
 if (q1 == null || q2 == null) return this.getHelixData (tokType, qType, mStep);
 var a = (mStep < 1 ? JU.P3.new3 (0, 0, 0) : prev.getQuaternionFrameCenter (qType));
 var b = this.getQuaternionFrameCenter (qType);
-if (a == null || b == null) return this.getHelixData (tokType, qType, mStep);
-return JU.Measure.computeHelicalAxis (tokType == 135176 ? "helixaxis" + this.getUniqueID () : null, tokType, a, b, q2.div (q1));
+return (a == null || b == null ? this.getHelixData (tokType, qType, mStep) : JU.Escape.escapeHelical ((tokType == 135176 ? "helixaxis" + this.getUniqueID () : null), tokType, a, b, JU.Measure.computeHelicalAxis (a, b, q2.div (q1))));
 }, "~N,~S,~N");
 Clazz.defineMethod (c$, "getUniqueID", 
 function () {
 var cid = this.getChainID ();
 var a = this.getLeadAtom ();
-var id = (a == null ? "" : "_" + a.getModelIndex ()) + "_" + this.getResno () + (cid == 0 ? "" : "_" + cid);
+var id = (a == null ? "" : "_" + a.mi) + "_" + this.getResno () + (cid == 0 ? "" : "_" + cid);
 var aid = (a == null ? '\0' : this.getLeadAtom ().getAlternateLocationID ());
 if (aid != '\0') id += "_" + aid;
 return id;
@@ -295,7 +298,7 @@ var haveCrossLink = false;
 var checkPrevious = (vReturn == null && group == null);
 for (var j = 0; j < bonds.length; j++) {
 var a = bonds[j].getOtherAtom (atom);
-var g = a.getGroup ();
+var g = a.group;
 if (group != null && g !== group) continue;
 var iPolymer = g.getBioPolymerIndexInModel ();
 var igroup = g.getMonomerIndex ();

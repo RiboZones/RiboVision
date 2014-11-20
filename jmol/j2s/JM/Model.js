@@ -84,6 +84,9 @@ for (var i = this.ms.bondCount; --i >= 0; ) if (bonds[i].atom1.mi == this.modelI
 return this.bondCount;
 });
 Clazz.makeConstructor (c$, 
+function () {
+});
+Clazz.defineMethod (c$, "set", 
 function (modelSet, modelIndex, trajectoryBaseIndex, jmolData, properties, auxiliaryInfo) {
 this.ms = modelSet;
 this.dataSourceFrame = this.modelIndex = modelIndex;
@@ -104,7 +107,8 @@ this.isJmolDataFrame = true;
 auxiliaryInfo.put ("jmolData", jmolData);
 auxiliaryInfo.put ("title", jmolData);
 this.jmolFrameType = (jmolData.indexOf ("ramachandran") >= 0 ? "ramachandran" : jmolData.indexOf ("quaternion") >= 0 ? "quaternion" : "data");
-}}, "JM.ModelSet,~N,~N,~S,java.util.Properties,java.util.Map");
+}return this;
+}, "JM.ModelSet,~N,~N,~S,java.util.Properties,java.util.Map");
 Clazz.defineMethod (c$, "setNAltLocs", 
 function (nAltLocs) {
 this.nAltLocs = nAltLocs;

@@ -70,7 +70,7 @@ this.render2 (this.isExport);
 } else {
 var vTemp =  new JU.P3 ();
 var unitcell;
-if ((unitcell = mesh.unitCell) == null && (unitcell = this.vwr.ms.am[mesh.modelIndex].biosymmetry) == null && (unitcell = this.vwr.getModelUnitCell (mesh.modelIndex)) == null) unitcell = mesh.getUnitCell ();
+if ((unitcell = mesh.unitCell) == null && (unitcell = this.vwr.ms.am[mesh.modelIndex].biosymmetry) == null && (unitcell = this.vwr.getModelUnitCell (mesh.modelIndex)) == null) unitcell = mesh.getUnitCell (this.vwr);
 if (mesh.symops != null) {
 if (mesh.symopNormixes == null) mesh.symopNormixes = JU.AU.newShort2 (mesh.symops.length);
 var verticesTemp = null;
@@ -121,7 +121,7 @@ Clazz.defineMethod (c$, "setVariables",
  function () {
 if (this.mesh.visibilityFlags == 0) return false;
 if (this.mesh.bsSlabGhost != null) this.g3d.setC (this.mesh.slabColix);
-this.isGhostPass = (this.mesh.bsSlabGhost != null && (this.isExport ? this.exportPass == 2 : this.g3d.isPass2 ()));
+this.isGhostPass = (this.mesh.bsSlabGhost != null && (this.isExport ? this.exportPass == 2 : this.vwr.gdata.isPass2));
 this.isTranslucentInherit = (this.isGhostPass && JU.C.getColixTranslucent3 (this.mesh.slabColix, false, 0) == 1);
 this.isTranslucent = this.isGhostPass || JU.C.isColixTranslucent (this.mesh.colix);
 if (this.isTranslucent || this.volumeRender || this.mesh.bsSlabGhost != null) this.needTranslucent = true;
@@ -141,7 +141,7 @@ this.bsPolygons = (this.isGhostPass ? this.mesh.bsSlabGhost : this.selectedPolyO
 this.renderLow = (!this.isExport && !this.vwr.checkMotionRendering (1073742018));
 this.frontOnly = this.renderLow || !this.tm.slabEnabled && this.mesh.frontOnly && !this.mesh.isTwoSided && !this.selectedPolyOnly && (this.meshSlabValue == -2147483648 || this.meshSlabValue >= 100);
 this.screens = this.vwr.allocTempScreens (this.vertexCount);
-if (this.frontOnly) this.transformedVectors = this.g3d.getTransformedVertexVectors ();
+if (this.frontOnly) this.transformedVectors = this.vwr.gdata.getTransformedVertexVectors ();
 if (this.transformedVectors == null) this.frontOnly = false;
 }return true;
 });
@@ -150,7 +150,7 @@ function (colix) {
 if (this.isGhostPass) return true;
 if (this.volumeRender && !this.isTranslucent) colix = JU.C.getColixTranslucent3 (colix, true, 0.8);
 this.colix = colix;
-if (JU.C.isColixLastAvailable (colix)) this.g3d.setColor (this.mesh.color);
+if (JU.C.isColixLastAvailable (colix)) this.vwr.gdata.setColor (this.mesh.color);
 return this.g3d.setC (colix);
 }, "~N");
 Clazz.defineMethod (c$, "isPolygonDisplayable", 
@@ -218,7 +218,7 @@ continue;
 }var check;
 if (this.mesh.isTriangleSet) {
 var normix = this.normixes[i];
-if (!this.g3d.isDirectedTowardsCamera (normix)) continue;
+if (!this.vwr.gdata.isDirectedTowardsCamera (normix)) continue;
 if (fill) {
 if (iShowTriangles) {
 this.g3d.fillTriangle (this.screens[iA], this.colix, normix, this.screens[iB], this.colix, normix, this.screens[iC], this.colix, normix, 0.1);
@@ -291,7 +291,7 @@ if (this.diameter == 0) this.diameter = (this.mesh.diameter > 0 ? this.mesh.diam
 if (this.exportType == 1) {
 this.pt1f.ave (vA, vB);
 this.tm.transformPtScr (this.pt1f, this.pt1i);
-this.diameter = Clazz.doubleToInt (Math.floor (this.vwr.unscaleToScreen (this.pt1i.z, this.diameter) * 1000));
+this.diameter = Clazz.doubleToInt (Math.floor (this.vwr.tm.unscaleToScreen (this.pt1i.z, this.diameter) * 1000));
 }if (iA == iB) {
 this.g3d.fillSphereI (this.diameter, sA);
 } else {
@@ -300,7 +300,7 @@ this.g3d.fillCylinder (endCap, this.diameter, sA, sB);
 this.pt1f.ave (vA, vB);
 this.tm.transformPtScr (this.pt1f, this.pt1i);
 var mad = Clazz.doubleToInt (Math.floor (Math.abs (this.width) * 1000));
-this.diameter = Clazz.floatToInt (this.exportType == 1 ? mad : this.vwr.scaleToScreen (this.pt1i.z, mad));
+this.diameter = Clazz.floatToInt (this.exportType == 1 ? mad : this.vwr.tm.scaleToScreen (this.pt1i.z, mad));
 if (this.diameter == 0) this.diameter = 1;
 this.tm.transformPt3f (vA, this.pt1f);
 this.tm.transformPt3f (vB, this.pt2f);

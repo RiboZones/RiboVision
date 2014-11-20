@@ -92,7 +92,7 @@ return this.needTranslucent;
 });
 Clazz.defineMethod (c$, "setGlobals", 
  function () {
-this.isPass2 = this.g3d.isPass2 ();
+this.isPass2 = this.vwr.gdata.isPass2;
 this.invalidateMesh = false;
 this.needTranslucent = false;
 this.g3d.addRenderer (553648147);
@@ -189,32 +189,22 @@ return true;
 }, "J.shapebio.BioShape");
 Clazz.defineMethod (c$, "setStructureTypes", 
  function () {
-this.structureTypes = this.vwr.allocTempEnum (this.monomerCount + 1);
-for (var i = this.monomerCount; --i >= 0; ) {
-this.structureTypes[i] = this.monomers[i].getProteinStructureType ();
-if (this.structureTypes[i] === J.c.STR.TURN) this.structureTypes[i] = J.c.STR.NONE;
-}
-this.structureTypes[this.monomerCount] = this.structureTypes[this.monomerCount - 1];
-});
-Clazz.defineMethod (c$, "isHelix", 
-function (i) {
-return this.structureTypes[i] === J.c.STR.HELIX;
-}, "~N");
-Clazz.defineMethod (c$, "getScreenControlPoints", 
-function () {
-this.calcScreenControlPoints (this.controlPoints);
+var types = this.structureTypes = this.vwr.allocTempEnum (this.monomerCount + 1);
+for (var i = this.monomerCount; --i >= 0; ) if ((types[i] = this.monomers[i].getProteinStructureType ()) === J.c.STR.TURN) types[i] = J.c.STR.NONE;
+
+types[this.monomerCount] = types[this.monomerCount - 1];
 });
 Clazz.defineMethod (c$, "calcScreenControlPoints", 
-function (points) {
+function () {
 var count = this.monomerCount + 1;
-this.controlPointScreens = this.vwr.allocTempScreens (count);
-for (var i = count; --i >= 0; ) {
-this.tm.transformPtScr (points[i], this.controlPointScreens[i]);
-}
+var scr = this.controlPointScreens = this.vwr.allocTempScreens (count);
+var points = this.controlPoints;
+for (var i = count; --i >= 0; ) this.tm.transformPtScr (points[i], scr[i]);
+
 this.haveControlPointScreens = true;
-}, "~A");
+});
 Clazz.defineMethod (c$, "calcScreens", 
-function (offsetFraction) {
+function (offsetFraction, mads) {
 var count = this.controlPoints.length;
 var screens = this.vwr.allocTempScreens (count);
 if (offsetFraction == 0) {
@@ -222,10 +212,10 @@ for (var i = count; --i >= 0; ) this.tm.transformPtScr (this.controlPoints[i], s
 
 } else {
 var offset_1000 = offsetFraction / 1000;
-for (var i = count; --i >= 0; ) this.calc1Screen (this.controlPoints[i], this.wingVectors[i], (this.mads[i] == 0 && i > 0 ? this.mads[i - 1] : this.mads[i]), offset_1000, screens[i]);
+for (var i = count; --i >= 0; ) this.calc1Screen (this.controlPoints[i], this.wingVectors[i], (mads[i] == 0 && i > 0 ? mads[i - 1] : mads[i]), offset_1000, screens[i]);
 
 }return screens;
-}, "~N");
+}, "~N,~A");
 Clazz.defineMethod (c$, "calc1Screen", 
  function (center, vector, mad, offset_1000, screen) {
 this.pointT.scaleAdd2 (mad * offset_1000, vector, center);
@@ -233,7 +223,7 @@ this.tm.transformPtScr (this.pointT, screen);
 }, "JU.P3,JU.V3,~N,~N,JU.P3i");
 Clazz.defineMethod (c$, "getLeadColix", 
 function (i) {
-return JU.C.getColixInherited (this.colixes[i], this.monomers[i].getLeadAtom ().getColix ());
+return JU.C.getColixInherited (this.colixes[i], this.monomers[i].getLeadAtom ().colixAtom);
 }, "~N");
 Clazz.defineMethod (c$, "getLeadColixBack", 
 function (i) {
@@ -261,9 +251,9 @@ this.madEnd = this.madBeg;
 }} else {
 if (!thisTypeOnly || this.structureTypes[i] === this.structureTypes[this.iPrev]) this.madBeg = (((this.mads[this.iPrev] == 0 ? this.madMid : this.mads[this.iPrev]) + this.madMid) >> 1);
 if (!thisTypeOnly || this.structureTypes[i] === this.structureTypes[this.iNext]) this.madEnd = (((this.mads[this.iNext] == 0 ? this.madMid : this.mads[this.iNext]) + this.madMid) >> 1);
-}this.diameterBeg = Clazz.floatToInt (this.vwr.scaleToScreen (this.controlPointScreens[i].z, this.madBeg));
-this.diameterMid = Clazz.floatToInt (this.vwr.scaleToScreen (this.monomers[i].getLeadAtom ().sZ, this.madMid));
-this.diameterEnd = Clazz.floatToInt (this.vwr.scaleToScreen (this.controlPointScreens[this.iNext].z, this.madEnd));
+}this.diameterBeg = Clazz.floatToInt (this.vwr.tm.scaleToScreen (this.controlPointScreens[i].z, this.madBeg));
+this.diameterMid = Clazz.floatToInt (this.vwr.tm.scaleToScreen (this.monomers[i].getLeadAtom ().sZ, this.madMid));
+this.diameterEnd = Clazz.floatToInt (this.vwr.tm.scaleToScreen (this.controlPointScreens[this.iNext].z, this.madEnd));
 this.doCap0 = (i == this.iPrev || thisTypeOnly && this.structureTypes[i] !== this.structureTypes[this.iPrev]);
 this.doCap1 = (this.iNext == this.iNext2 || thisTypeOnly && this.structureTypes[i] !== this.structureTypes[this.iNext]);
 return ((this.aspectRatio > 0 && (this.exportType == 1 || this.checkDiameter (this.diameterBeg) || this.checkDiameter (this.diameterMid) || this.checkDiameter (this.diameterEnd))));
@@ -351,10 +341,12 @@ JU.Logger.error ("render mesh error hermiteArrowHead: " + e.toString ());
 throw e;
 }
 }
-}this.calc1Screen (this.controlPoints[i], this.wingVectors[i], this.madBeg, .0007, this.screenArrowTop);
-this.calc1Screen (this.controlPoints[i], this.wingVectors[i], this.madBeg, -7.0E-4, this.screenArrowBot);
-this.calc1Screen (this.controlPoints[i], this.wingVectors[i], this.madBeg, 0.001, this.screenArrowTopPrev);
-this.calc1Screen (this.controlPoints[i], this.wingVectors[i], this.madBeg, -0.001, this.screenArrowBotPrev);
+}var cp = this.controlPoints[i];
+var wv = this.wingVectors[i];
+this.calc1Screen (cp, wv, this.madBeg, .0007, this.screenArrowTop);
+this.calc1Screen (cp, wv, this.madBeg, -7.0E-4, this.screenArrowBot);
+this.calc1Screen (cp, wv, this.madBeg, 0.001, this.screenArrowTopPrev);
+this.calc1Screen (cp, wv, this.madBeg, -0.001, this.screenArrowBotPrev);
 this.g3d.drawHermite7 (true, this.ribbonBorder, this.isNucleic ? 4 : 7, this.screenArrowTopPrev, this.screenArrowTop, this.controlPointScreens[this.iNext], this.controlPointScreens[this.iNext2], this.screenArrowBotPrev, this.screenArrowBot, this.controlPointScreens[this.iNext], this.controlPointScreens[this.iNext2], Clazz.floatToInt (this.aspectRatio), this.colixBack);
 if (this.ribbonBorder && this.aspectRatio == 0) {
 this.g3d.fillCylinderXYZ (this.colix, this.colix, 3, (this.exportType == 1 ? 50 : 3), this.screenArrowTop.x, this.screenArrowTop.y, this.screenArrowTop.z, this.screenArrowBot.x, this.screenArrowBot.y, this.screenArrowBot.z);
@@ -362,7 +354,7 @@ this.g3d.fillCylinderXYZ (this.colix, this.colix, 3, (this.exportType == 1 ? 50 
 Clazz.defineMethod (c$, "createMesh", 
  function (i, madBeg, madMid, madEnd, aspectRatio, tension) {
 this.setNeighbors (i);
-if (this.controlPoints[i].distance (this.controlPoints[this.iNext]) == 0) return false;
+if (this.controlPoints[i].distanceSquared (this.controlPoints[this.iNext]) == 0) return false;
 var isEccentric = (aspectRatio != 1 && this.wingVectors != null);
 var isFlatMesh = (aspectRatio == 0);
 var isElliptical = (this.cartoonsFancy || this.hermiteLevel >= 6);

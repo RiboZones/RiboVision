@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JM");
-Clazz.load (null, "JM.Measurement", ["java.lang.Float", "JU.Lst", "$.PT", "$.SB", "J.atomdata.RadiusData", "J.c.VDW", "JM.LabelToken", "JU.Escape", "$.Measure"], function () {
+Clazz.load (null, "JM.Measurement", ["java.lang.Float", "JU.Lst", "$.Measure", "$.PT", "$.SB", "J.atomdata.RadiusData", "J.c.VDW", "JM.LabelToken", "JU.Escape"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.thisID = null;
 this.ms = null;

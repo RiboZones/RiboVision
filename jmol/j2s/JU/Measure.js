@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JU");
-Clazz.load (null, "JU.Measure", ["java.lang.Float", "JU.Lst", "$.P3", "$.P4", "$.Quat", "$.V3", "J.api.Interface", "JM.Atom", "JU.Escape", "$.Logger", "JV.JC"], function () {
+Clazz.load (["JU.V3"], "JU.Measure", ["java.lang.Float", "javajs.api.Interface", "JU.Lst", "$.P3", "$.P4", "$.Quat"], function () {
 c$ = Clazz.declareType (JU, "Measure");
 c$.computeAngle = Clazz.defineMethod (c$, "computeAngle", 
 function (pointA, pointB, pointC, vectorBA, vectorBC, asDegrees) {
@@ -49,17 +49,14 @@ torsion = (dot / absDot > 0) ? torsion : -torsion;
 return (asDegrees ? torsion / 0.017453292 : torsion);
 }, "JU.T3,JU.T3,JU.T3,JU.T3,~B");
 c$.computeHelicalAxis = Clazz.defineMethod (c$, "computeHelicalAxis", 
-function (id, tokType, a, b, dq) {
+function (a, b, dq) {
 var vab =  new JU.V3 ();
 vab.sub2 (b, a);
 var theta = dq.getTheta ();
 var n = dq.getNormal ();
 var v_dot_n = vab.dot (n);
 if (Math.abs (v_dot_n) < 0.0001) v_dot_n = 0;
-if (tokType == 1073741854) {
-if (v_dot_n != 0) n.scale (v_dot_n);
-return n;
-}var va_prime_d =  new JU.V3 ();
+var va_prime_d =  new JU.V3 ();
 va_prime_d.cross (vab, n);
 if (va_prime_d.dot (va_prime_d) != 0) va_prime_d.normalize ();
 var vda =  new JU.V3 ();
@@ -71,30 +68,17 @@ vda.scale (0.5);
 va_prime_d.scale (theta == 0 ? 0 : (vda.length () / Math.tan (theta / 2 / 180 * 3.141592653589793)));
 var r = JU.V3.newV (va_prime_d);
 if (theta != 0) r.add (vda);
-if (tokType == 1666189314) return r;
 var pt_a_prime = JU.P3.newP (a);
 pt_a_prime.sub (r);
-if (tokType == 135266320) {
-return pt_a_prime;
-}if (v_dot_n != 1.4E-45) n.scale (v_dot_n);
+if (v_dot_n != 1.4E-45) n.scale (v_dot_n);
 var pt_b_prime = JU.P3.newP (pt_a_prime);
 pt_b_prime.add (n);
 theta = JU.Measure.computeTorsion (a, pt_a_prime, pt_b_prime, b, true);
 if (Float.isNaN (theta) || r.length () < 0.0001) theta = dq.getThetaDirectedV (n);
-if (tokType == 135266305) return Float.$valueOf (theta);
-if (tokType == 135176) return "draw ID \"" + id + "\" VECTOR " + JU.Escape.eP (pt_a_prime) + " " + JU.Escape.eP (n) + " color " + (theta < 0 ? "{255.0 200.0 0.0}" : "{255.0 0.0 128.0}");
-if (tokType == 1746538509) return "measure " + JU.Escape.eP (a) + JU.Escape.eP (pt_a_prime) + JU.Escape.eP (pt_b_prime) + JU.Escape.eP (b);
 var residuesPerTurn = Math.abs (theta == 0 ? 0 : 360 / theta);
 var pitch = Math.abs (v_dot_n == 1.4E-45 ? 0 : n.length () * (theta == 0 ? 1 : 360 / theta));
-switch (tokType) {
-case 135266306:
-return [pt_a_prime, n, r, JU.P3.new3 (theta, pitch, residuesPerTurn)];
-case 1073742001:
-return [JU.Escape.eP (pt_a_prime), JU.Escape.eP (n), JU.Escape.eP (r), JU.Escape.eP (JU.P3.new3 (theta, pitch, residuesPerTurn))];
-default:
-return null;
-}
-}, "~S,~N,JU.P3,JU.P3,JU.Quat");
+return [pt_a_prime, n, r, JU.P3.new3 (theta, pitch, residuesPerTurn), pt_b_prime];
+}, "JU.P3,JU.P3,JU.Quat");
 c$.getPlaneThroughPoints = Clazz.defineMethod (c$, "getPlaneThroughPoints", 
 function (pointA, pointB, pointC, vNorm, vAB, vAC, plane) {
 var w = JU.Measure.getNormalThroughPoints (pointA, pointB, pointC, vNorm, vAB, vAC);
@@ -162,7 +146,7 @@ return !isReversed;
 c$.getNormalToLine = Clazz.defineMethod (c$, "getNormalToLine", 
 function (pointA, pointB, vNormNorm) {
 vNormNorm.sub2 (pointA, pointB);
-vNormNorm.cross (vNormNorm, JV.JC.axisY);
+vNormNorm.cross (vNormNorm, JU.Measure.axisY);
 vNormNorm.normalize ();
 if (Float.isNaN (vNormNorm.x)) vNormNorm.set (1, 0, 0);
 }, "JU.P3,JU.P3,JU.V3");
@@ -230,102 +214,6 @@ for (var i = 1; i < nPoints; i++) averagePoint.add (points[i]);
 
 averagePoint.scale (1 / nPoints);
 }, "~A,~N,JU.P3");
-c$.getCenterAndPoints = Clazz.defineMethod (c$, "getCenterAndPoints", 
-function (vPts) {
-var n = vPts.size ();
-var pts =  new Array (n + 1);
-pts[0] =  new JU.P3 ();
-if (n > 0) {
-for (var i = 0; i < n; i++) {
-pts[0].add (pts[i + 1] = vPts.get (i));
-}
-pts[0].scale (1 / n);
-}return pts;
-}, "JU.Lst");
-c$.getTransformMatrix4 = Clazz.defineMethod (c$, "getTransformMatrix4", 
-function (ptsA, ptsB, m, centerA, doReport) {
-var cptsA = JU.Measure.getCenterAndPoints (ptsA);
-var cptsB = JU.Measure.getCenterAndPoints (ptsB);
-var retStddev =  Clazz.newFloatArray (2, 0);
-var q = JU.Measure.calculateQuaternionRotation ([cptsA, cptsB], retStddev, doReport);
-var v = JU.V3.newVsub (cptsB[0], cptsA[0]);
-m.setMV (q.getMatrix (), v);
-if (centerA != null) centerA.setT (cptsA[0]);
-return retStddev[1];
-}, "JU.Lst,JU.Lst,JU.M4,JU.P3,~B");
-c$.calculateQuaternionRotation = Clazz.defineMethod (c$, "calculateQuaternionRotation", 
-function (centerAndPoints, retStddev, doReport) {
-retStddev[1] = NaN;
-var q =  new JU.Quat ();
-if (centerAndPoints[0].length == 1 || centerAndPoints[0].length != centerAndPoints[1].length) return q;
-var n = centerAndPoints[0].length - 1;
-if (doReport) for (var i = 1; i <= n; i++) {
-var aij = centerAndPoints[0][i];
-var bij = centerAndPoints[1][i];
-if (Clazz.instanceOf (aij, JM.Atom) && Clazz.instanceOf (bij, JM.Atom)) JU.Logger.info (" atom 1 " + (aij).getInfo () + "\tatom 2 " + (bij).getInfo ());
- else break;
-}
-if (n < 2) return q;
-var Sxx = 0;
-var Sxy = 0;
-var Sxz = 0;
-var Syx = 0;
-var Syy = 0;
-var Syz = 0;
-var Szx = 0;
-var Szy = 0;
-var Szz = 0;
-var ptA =  new JU.P3 ();
-var ptB =  new JU.P3 ();
-for (var i = n + 1; --i >= 1; ) {
-var aij = centerAndPoints[0][i];
-var bij = centerAndPoints[1][i];
-ptA.sub2 (aij, centerAndPoints[0][0]);
-ptB.sub2 (bij, centerAndPoints[0][1]);
-Sxx += ptA.x * ptB.x;
-Sxy += ptA.x * ptB.y;
-Sxz += ptA.x * ptB.z;
-Syx += ptA.y * ptB.x;
-Syy += ptA.y * ptB.y;
-Syz += ptA.y * ptB.z;
-Szx += ptA.z * ptB.x;
-Szy += ptA.z * ptB.y;
-Szz += ptA.z * ptB.z;
-}
-retStddev[0] = JU.Measure.getRmsd (centerAndPoints, q);
-var N =  Clazz.newDoubleArray (4, 4, 0);
-N[0][0] = Sxx + Syy + Szz;
-N[0][1] = N[1][0] = Syz - Szy;
-N[0][2] = N[2][0] = Szx - Sxz;
-N[0][3] = N[3][0] = Sxy - Syx;
-N[1][1] = Sxx - Syy - Szz;
-N[1][2] = N[2][1] = Sxy + Syx;
-N[1][3] = N[3][1] = Szx + Sxz;
-N[2][2] = -Sxx + Syy - Szz;
-N[2][3] = N[3][2] = Syz + Szy;
-N[3][3] = -Sxx - Syy + Szz;
-var eigen = (J.api.Interface.getUtil ("Eigen")).newM (N);
-var v = eigen.getEigenvectorsFloatTransposed ()[3];
-q = JU.Quat.newP4 (JU.P4.new4 (v[1], v[2], v[3], v[0]));
-retStddev[1] = JU.Measure.getRmsd (centerAndPoints, q);
-return q;
-}, "~A,~A,~B");
-c$.getRmsd = Clazz.defineMethod (c$, "getRmsd", 
-function (centerAndPoints, q) {
-var sum2 = 0;
-var ptsA = centerAndPoints[0];
-var ptsB = centerAndPoints[1];
-var cA = ptsA[0];
-var cB = ptsB[0];
-var n = ptsA.length - 1;
-var ptAnew =  new JU.P3 ();
-for (var i = n + 1; --i >= 1; ) {
-ptAnew.sub2 (ptsA[i], cA);
-q.transformP2 (ptAnew, ptAnew).add (cB);
-sum2 += ptAnew.distanceSquared (ptsB[i]);
-}
-return Math.sqrt (sum2 / n);
-}, "~A,JU.Quat");
 c$.transformPoints = Clazz.defineMethod (c$, "transformPoints", 
 function (vPts, m4, center) {
 var v =  new JU.Lst ();
@@ -415,6 +303,96 @@ vTemp.sub2 (ptRet, pt1);
 ptRet.scaleAdd2 (vTemp.dot (tempNorm) / l_dot_n, v, pt1);
 return ptRet;
 }, "JU.P3,JU.V3,JU.P4,JU.P3,JU.V3,JU.V3");
+c$.calculateQuaternionRotation = Clazz.defineMethod (c$, "calculateQuaternionRotation", 
+function (centerAndPoints, retStddev) {
+retStddev[1] = NaN;
+var q =  new JU.Quat ();
+if (centerAndPoints[0].length == 1 || centerAndPoints[0].length != centerAndPoints[1].length) return q;
+var n = centerAndPoints[0].length - 1;
+if (n < 2) return q;
+var Sxx = 0;
+var Sxy = 0;
+var Sxz = 0;
+var Syx = 0;
+var Syy = 0;
+var Syz = 0;
+var Szx = 0;
+var Szy = 0;
+var Szz = 0;
+var ptA =  new JU.P3 ();
+var ptB =  new JU.P3 ();
+for (var i = n + 1; --i >= 1; ) {
+var aij = centerAndPoints[0][i];
+var bij = centerAndPoints[1][i];
+ptA.sub2 (aij, centerAndPoints[0][0]);
+ptB.sub2 (bij, centerAndPoints[0][1]);
+Sxx += ptA.x * ptB.x;
+Sxy += ptA.x * ptB.y;
+Sxz += ptA.x * ptB.z;
+Syx += ptA.y * ptB.x;
+Syy += ptA.y * ptB.y;
+Syz += ptA.y * ptB.z;
+Szx += ptA.z * ptB.x;
+Szy += ptA.z * ptB.y;
+Szz += ptA.z * ptB.z;
+}
+retStddev[0] = JU.Measure.getRmsd (centerAndPoints, q);
+var N =  Clazz.newDoubleArray (4, 4, 0);
+N[0][0] = Sxx + Syy + Szz;
+N[0][1] = N[1][0] = Syz - Szy;
+N[0][2] = N[2][0] = Szx - Sxz;
+N[0][3] = N[3][0] = Sxy - Syx;
+N[1][1] = Sxx - Syy - Szz;
+N[1][2] = N[2][1] = Sxy + Syx;
+N[1][3] = N[3][1] = Szx + Sxz;
+N[2][2] = -Sxx + Syy - Szz;
+N[2][3] = N[3][2] = Syz + Szy;
+N[3][3] = -Sxx - Syy + Szz;
+var v = (javajs.api.Interface.getInterface ("JU.Eigen")).setM (N).getEigenvectorsFloatTransposed ()[3];
+q = JU.Quat.newP4 (JU.P4.new4 (v[1], v[2], v[3], v[0]));
+retStddev[1] = JU.Measure.getRmsd (centerAndPoints, q);
+return q;
+}, "~A,~A");
+c$.getTransformMatrix4 = Clazz.defineMethod (c$, "getTransformMatrix4", 
+function (ptsA, ptsB, m, centerA) {
+var cptsA = JU.Measure.getCenterAndPoints (ptsA);
+var cptsB = JU.Measure.getCenterAndPoints (ptsB);
+var retStddev =  Clazz.newFloatArray (2, 0);
+var q = JU.Measure.calculateQuaternionRotation ([cptsA, cptsB], retStddev);
+var v = JU.V3.newVsub (cptsB[0], cptsA[0]);
+m.setMV (q.getMatrix (), v);
+if (centerA != null) centerA.setT (cptsA[0]);
+return retStddev[1];
+}, "JU.Lst,JU.Lst,JU.M4,JU.P3");
+c$.getCenterAndPoints = Clazz.defineMethod (c$, "getCenterAndPoints", 
+function (vPts) {
+var n = vPts.size ();
+var pts =  new Array (n + 1);
+pts[0] =  new JU.P3 ();
+if (n > 0) {
+for (var i = 0; i < n; i++) {
+pts[0].add (pts[i + 1] = vPts.get (i));
+}
+pts[0].scale (1 / n);
+}return pts;
+}, "JU.Lst");
+c$.getRmsd = Clazz.defineMethod (c$, "getRmsd", 
+function (centerAndPoints, q) {
+var sum2 = 0;
+var ptsA = centerAndPoints[0];
+var ptsB = centerAndPoints[1];
+var cA = ptsA[0];
+var cB = ptsB[0];
+var n = ptsA.length - 1;
+var ptAnew =  new JU.P3 ();
+for (var i = n + 1; --i >= 1; ) {
+ptAnew.sub2 (ptsA[i], cA);
+q.transformP2 (ptAnew, ptAnew).add (cB);
+sum2 += ptAnew.distanceSquared (ptsB[i]);
+}
+return Math.sqrt (sum2 / n);
+}, "~A,JU.Quat");
 Clazz.defineStatics (c$,
 "radiansPerDegree", (0.017453292519943295));
+c$.axisY = c$.prototype.axisY = JU.V3.new3 (0, 1, 0);
 });

@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JV");
-Clazz.load (["JV.JmolStateCreator", "java.util.Hashtable"], "JV.StateCreator", ["java.lang.Float", "java.util.Arrays", "$.Date", "javajs.awt.Font", "JU.BS", "$.P3", "$.PT", "$.SB", "$.V3", "J.c.AXES", "$.PAL", "$.STER", "$.STR", "$.VDW", "JM.Atom", "$.AtomCollection", "$.Bond", "$.BondSet", "J.shape.Shape", "JU.BSUtil", "$.C", "$.ColorEncoder", "$.Edge", "$.Escape", "$.Logger", "JV.GlobalSettings", "$.JC", "$.StateManager", "$.Viewer"], function () {
+Clazz.load (["JV.JmolStateCreator", "java.util.Hashtable"], "JV.StateCreator", ["java.lang.Float", "java.util.Arrays", "$.Date", "javajs.awt.Font", "JU.BS", "$.P3", "$.PT", "$.SB", "J.c.AXES", "$.PAL", "$.STER", "$.STR", "$.VDW", "JM.Atom", "$.AtomCollection", "$.Bond", "$.BondSet", "J.shape.Shape", "JU.BSUtil", "$.C", "$.ColorEncoder", "$.Edge", "$.Escape", "$.Logger", "JV.GlobalSettings", "$.JC", "$.StateManager", "$.Viewer"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.vwr = null;
 this.temp = null;
@@ -48,7 +48,7 @@ this.app (sfunc, "set refreshing true");
 this.app (sfunc, "set antialiasDisplay " + global.antialiasDisplay);
 this.app (sfunc, "set antialiasTranslucent " + global.antialiasTranslucent);
 this.app (sfunc, "set antialiasImages " + global.antialiasImages);
-if (this.vwr.getSpinOn ()) this.app (sfunc, "spin on");
+if (this.vwr.tm.spinOn) this.app (sfunc, "spin on");
 sfunc.append ("}\n\n_setState;\n");
 }if (isAll) s.appendSB (sfunc);
 return s.toString ();
@@ -120,7 +120,7 @@ var sb =  new JU.SB ();
 for (var i = 0; i < ms.bondCount; i++) if (!models[bonds[i].atom1.mi].isModelKit) if (bonds[i].isHydrogen () || (bonds[i].order & 131072) != 0) {
 var bond = bonds[i];
 var index = bond.atom1.i;
-if (bond.atom1.getGroup ().isAdded (index)) index = -1 - index;
+if (bond.atom1.group.isAdded (index)) index = -1 - index;
 sb.appendI (index).appendC ('\t').appendI (bond.atom2.i).appendC ('\t').appendI (bond.order & -131073).appendC ('\t').appendF (bond.mad / 1000).appendC ('\t').appendF (bond.getEnergy ()).appendC ('\t').append (JU.Edge.getBondOrderNameFromOrder (bond.order)).append (";\n");
 }
 if (sb.length () > 0) commands.append ("data \"connect_atoms\"\n").appendSB (sb).append ("end \"connect_atoms\";\n");
@@ -150,7 +150,7 @@ if (needOrientations && models[i].orientation != null && !ms.isTrajectorySubFram
 if (models[i].frameDelay != 0 && !ms.isTrajectorySubFrame (i)) commands.append (fcmd).append ("; frame delay ").appendF (models[i].frameDelay / 1000).append (";\n");
 if (models[i].simpleCage != null) {
 commands.append (fcmd).append ("; unitcell ").append (JU.Escape.eAP (models[i].simpleCage.getUnitCellVectors ())).append (";\n");
-this.getShapeState (commands, isAll, 33);
+this.getShapeState (commands, isAll, 32);
 }}
 var loadUC = false;
 if (ms.unitCells != null) {
@@ -168,16 +168,16 @@ if (pt != null) {
 commands.append ("; set unitcell ").append (JU.Escape.eP (pt));
 loadUC = true;
 }commands.append (";\n");
-haveModulation = new Boolean (haveModulation | (this.vwr.modelGetLastVibrationIndex (i, 1276121113) >= 0)).valueOf ();
+haveModulation = new Boolean (haveModulation | (this.vwr.ms.getLastVibrationVector (i, 1276121113) >= 0)).valueOf ();
 }
-if (loadUC) this.vwr.shm.loadShape (33);
-this.getShapeState (commands, isAll, 33);
+if (loadUC) this.vwr.shm.loadShape (32);
+this.getShapeState (commands, isAll, 32);
 if (haveModulation) {
 var temp =  new java.util.Hashtable ();
 var ivib;
 for (var i = modelCount; --i >= 0; ) {
-if ((ivib = this.vwr.modelGetLastVibrationIndex (i, 1276121113)) >= 0) for (var j = models[i].firstAtomIndex; j <= ivib; j++) {
-var mset = this.vwr.getVibration (j);
+if ((ivib = this.vwr.ms.getLastVibrationVector (i, 1276121113)) >= 0) for (var j = models[i].firstAtomIndex; j <= ivib; j++) {
+var mset = ms.getModulation (j);
 if (mset != null) JU.BSUtil.setMapBitSet (temp, j, j, mset.getState ());
 }
 }
@@ -218,8 +218,9 @@ this.app (str, "stateVersion = " + JV.JC.versionInt);
 this.app (str, "background " + JU.Escape.escapeColor (global.objColors[0]));
 for (var i = 1; i < 8; i++) if (global.objColors[i] != 0) this.app (str, JV.StateManager.getObjectNameFromId (i) + "Color = \"" + JU.Escape.escapeColor (global.objColors[i]) + '"');
 
-if (global.backgroundImageFileName != null) this.app (str, "background IMAGE /*file*/" + JU.PT.esc (global.backgroundImageFileName));
-str.append (this.getSpecularState ());
+if (global.backgroundImageFileName != null) {
+this.app (str, "background IMAGE " + (global.backgroundImageFileName.startsWith (";base64,") ? "" : "/*file*/") + JU.PT.esc (global.backgroundImageFileName));
+}str.append (this.getSpecularState ());
 this.app (str, "statusReporting  = " + global.statusReporting);
 if (sfunc != null) str.append ("}\n\n");
 return str.toString ();
@@ -579,9 +580,11 @@ for (var i = 0; i < monomerCount; i++) {
 var atomIndex1 = monomers[i].firstAtomIndex;
 var atomIndex2 = monomers[i].lastAtomIndex;
 if (as.bsSizeSet != null && (as.bsSizeSet.get (i) || as.bsColixSet != null && as.bsColixSet.get (i))) {
-if (bsSizeDefault.get (i)) JU.BSUtil.setMapBitSet (temp, atomIndex1, atomIndex2, type + (as.bsSizeSet.get (i) ? " on" : " off"));
- else JU.BSUtil.setMapBitSet (temp, atomIndex1, atomIndex2, type + " " + (as.mads[i] / 2000));
-}if (as.bsColixSet != null && as.bsColixSet.get (i)) JU.BSUtil.setMapBitSet (temp2, atomIndex1, atomIndex2, J.shape.Shape.getColorCommand (type, as.paletteIDs[i], as.colixes[i], shape.translucentAllowed));
+if (bsSizeDefault.get (i)) {
+JU.BSUtil.setMapBitSet (temp, atomIndex1, atomIndex2, type + (as.bsSizeSet.get (i) ? " on" : " off"));
+} else {
+JU.BSUtil.setMapBitSet (temp, atomIndex1, atomIndex2, type + " " + JU.PT.escF (as.mads[i] / 2000));
+}}if (as.bsColixSet != null && as.bsColixSet.get (i)) JU.BSUtil.setMapBitSet (temp2, atomIndex1, atomIndex2, J.shape.Shape.getColorCommand (type, as.paletteIDs[i], as.colixes[i], shape.translucentAllowed));
 }
 }, "J.shape.AtomShape,J.shape.Shape,~N,~A,JU.BS,java.util.Map,java.util.Map");
 Clazz.overrideMethod (c$, "getMeasurementState", 
@@ -749,8 +752,8 @@ if (shape.bsSizeSet != null && shape.bsSizeSet.get (i)) {
 if ((r = atoms[i].madAtom) < 0) JU.BSUtil.setMapBitSet (this.temp, i, i, "Spacefill on");
  else JU.BSUtil.setMapBitSet (this.temp, i, i, "Spacefill " + (r / 2000));
 }if (shape.bsColixSet != null && shape.bsColixSet.get (i)) {
-var pid = atoms[i].getPaletteID ();
-if (pid != J.c.PAL.CPK.id || atoms[i].isTranslucent ()) JU.BSUtil.setMapBitSet (this.temp, i, i, J.shape.Shape.getColorCommand ("atoms", pid, atoms[i].getColix (), shape.translucentAllowed));
+var pid = atoms[i].paletteID;
+if (pid != J.c.PAL.CPK.id || atoms[i].isTranslucent ()) JU.BSUtil.setMapBitSet (this.temp, i, i, J.shape.Shape.getColorCommand ("atoms", pid, atoms[i].colixAtom, shape.translucentAllowed));
 if (colixes != null && i < colixes.length) JU.BSUtil.setMapBitSet (this.temp2, i, i, J.shape.Shape.getColorCommand ("balls", pids[i], colixes[i], shape.translucentAllowed));
 }}
 s = this.getCommands (this.temp, this.temp2, "select");
@@ -783,7 +786,7 @@ break;
 default:
 s.append ("  set echo ").append (JV.JC.vAlignNames[t.valign]).append (" ").append (JV.JC.hAlignNames[t.align]);
 }
-if (t.valign == 0 && t.movableZPercent != 2147483647) s.append (";  ").append (echoCmd).append (" depth ").appendI (t.movableZPercent);
+if (t.movableZPercent != 2147483647) s.append (";  ").append (echoCmd).append (" depth ").appendI (t.movableZPercent);
 if (isImage) s.append ("; ").append (echoCmd).append (" IMAGE /*file*/");
  else s.append ("; echo ");
 s.append (JU.PT.esc (text));
@@ -854,7 +857,7 @@ this.clearTemp ();
 var type = JV.JC.shapeClassBases[shape.shapeID];
 var isVector = (shape.shapeID == 18);
 var mad;
-if (shape.bsSizeSet != null) for (var i = shape.bsSizeSet.nextSetBit (0); i >= 0; i = shape.bsSizeSet.nextSetBit (i + 1)) JU.BSUtil.setMapBitSet (this.temp, i, i, type + ((mad = shape.mads[i]) < 0 ? (isVector && mad < -1 ? " " + -mad : " on") : " " + mad / 2000));
+if (shape.bsSizeSet != null) for (var i = shape.bsSizeSet.nextSetBit (0); i >= 0; i = shape.bsSizeSet.nextSetBit (i + 1)) JU.BSUtil.setMapBitSet (this.temp, i, i, type + " " + ((mad = shape.mads[i]) < 0 ? (isVector && mad < -1 ? "" + -mad : "on") : JU.PT.escF (mad / 2000)));
 
 if (shape.bsColixSet != null) for (var i = shape.bsColixSet.nextSetBit (0); i >= 0; i = shape.bsColixSet.nextSetBit (i + 1)) JU.BSUtil.setMapBitSet (this.temp2, i, i, J.shape.Shape.getColorCommand (type, shape.paletteIDs[i], shape.colixes[i], shape.translucentAllowed));
 
@@ -899,7 +902,7 @@ function (taintWhat, bsSelected) {
 if (!this.vwr.g.preserveState) return "";
 var bs;
 var commands =  new JU.SB ();
-for (var type = 0; type < 14; type++) if (taintWhat < 0 || type == taintWhat) if ((bs = (bsSelected != null ? bsSelected : this.vwr.getTaintedAtoms (type))) != null) this.getAtomicPropertyStateBuffer (commands, type, bs, null, null);
+for (var type = 0; type < 15; type++) if (taintWhat < 0 || type == taintWhat) if ((bs = (bsSelected != null ? bsSelected : this.vwr.ms.getTaintedAtoms (type))) != null) this.getAtomicPropertyStateBuffer (commands, type, bs, null, null);
 
 return commands.toString ();
 }, "~N,JU.BS");
@@ -915,11 +918,14 @@ var tainted = this.vwr.ms.tainted;
 if (bs != null) for (var i = bs.nextSetBit (0); i >= 0; i = bs.nextSetBit (i + 1)) {
 s.appendI (i + 1).append (" ").append (atoms[i].getElementSymbol ()).append (" ").append (atoms[i].getInfo ().$replace (' ', '_')).append (" ");
 switch (type) {
-case 14:
+case 15:
 if (i < fData.length) s.appendF (fData[i]);
 break;
 case 13:
 s.appendI (atoms[i].getAtomNumber ());
+break;
+case 14:
+s.appendI (atoms[i].getSeqID ());
 break;
 case 0:
 s.append (atoms[i].getAtomName ());
@@ -933,8 +939,9 @@ s.appendF (atoms[i].x).append (" ").appendF (atoms[i].y).append (" ").appendF (a
 break;
 case 12:
 var v = atoms[i].getVibrationVector ();
-if (v == null) v =  new JU.V3 ();
-s.appendF (v.x).append (" ").appendF (v.y).append (" ").appendF (v.z);
+if (v == null) s.append ("0 0 0");
+ else if (Float.isNaN (v.modScale)) s.appendF (v.x).append (" ").appendF (v.y).append (" ").appendF (v.z);
+ else s.appendF (1.4E-45).append (" ").appendF (1.4E-45).append (" ").appendF (v.modScale);
 break;
 case 3:
 s.appendI (atoms[i].getAtomicAndIsotopeNumber ());
@@ -970,14 +977,6 @@ commands.append ("\n  DATA \"" + dataLabel + "\"\n").appendI (n).append (" ;\nJm
 commands.appendSB (s);
 commands.append ("  end \"" + dataLabel + "\";\n");
 }, "JU.SB,~N,JU.BS,~S,~A");
-Clazz.overrideMethod (c$, "getAtomDefs", 
-function (names) {
-var sb =  new JU.SB ();
-for (var e, $e = names.entrySet ().iterator (); $e.hasNext () && ((e = $e.next ()) || true);) {
-if (Clazz.instanceOf (e.getValue (), JU.BS)) sb.append ("{" + e.getKey () + "} <" + (e.getValue ()).cardinality () + " atoms>\n");
-}
-return sb.append ("\n").toString ();
-}, "java.util.Map");
 Clazz.overrideMethod (c$, "undoMoveAction", 
 function (action, n) {
 switch (action) {
@@ -1158,7 +1157,7 @@ case 90:
 this.vwr.spinXYBy (JU.PT.parseInt (tokens[2]), JU.PT.parseInt (tokens[3]), JU.PT.parseFloat (tokens[4]));
 return;
 case 105:
-this.vwr.rotateArcBall (JU.PT.parseInt (tokens[2]), JU.PT.parseInt (tokens[3]), JU.PT.parseFloat (tokens[4]));
+this.vwr.rotateXYBy (JU.PT.parseInt (tokens[2]), JU.PT.parseInt (tokens[3]));
 return;
 }
 } catch (e) {

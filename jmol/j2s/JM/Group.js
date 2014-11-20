@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JM");
-Clazz.load (["java.lang.Short", "java.util.Hashtable", "JV.JC"], "JM.Group", ["java.lang.Float", "JU.AU", "$.BS", "$.P3", "$.Quat", "$.V3", "J.c.STR", "JU.BSUtil", "$.Logger"], function () {
+Clazz.load (["java.lang.Short", "JV.JC"], "JM.Group", ["java.util.Hashtable", "JU.BS", "$.Quat", "J.c.STR", "JU.BSUtil", "$.Escape", "$.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.groupIndex = 0;
 this.group1 = '\0';
@@ -31,7 +31,7 @@ function (chain, group3, seqcode, firstAtomIndex, lastAtomIndex) {
 this.chain = chain;
 this.seqcode = seqcode;
 if (group3 == null) group3 = "";
-this.groupID = JM.Group.getGroupIdFor (group3);
+this.groupID = JV.JC.getGroupIdFor (group3);
 this.$isProtein = (this.groupID >= 1 && this.groupID < 24);
 this.firstAtomIndex = firstAtomIndex;
 this.lastAtomIndex = lastAtomIndex;
@@ -50,12 +50,8 @@ this.shapeVisibilityFlags &= ~visFlag;
 }}, "~N,~B");
 Clazz.defineMethod (c$, "getGroup3", 
 function () {
-return JM.Group.group3Names[this.groupID];
+return JV.JC.group3Names[this.groupID];
 });
-c$.getGroup3For = Clazz.defineMethod (c$, "getGroup3For", 
-function (groupID) {
-return JM.Group.group3Names[groupID];
-}, "~N");
 Clazz.defineMethod (c$, "getGroup1", 
 function () {
 return (this.groupID < JV.JC.predefinedGroup1Names.length ? JV.JC.predefinedGroup1Names[this.groupID] : this.group1.charCodeAt (0) > 1 ? this.group1 : this.group1.charCodeAt (0) == 1 ? '?' : (this.group1 = this.getGroup1b ()));
@@ -132,27 +128,6 @@ Clazz.defineMethod (c$, "isCarbohydrate",
 function () {
 return false;
 });
-c$.addGroup3Name = Clazz.defineMethod (c$, "addGroup3Name", 
- function (group3) {
-if (JM.Group.group3NameCount == JM.Group.group3Names.length) JM.Group.group3Names = JU.AU.doubleLengthS (JM.Group.group3Names);
-var groupID = JM.Group.group3NameCount++;
-JM.Group.group3Names[groupID] = group3;
-JM.Group.htGroup.put (group3, Short.$valueOf (groupID));
-return groupID;
-}, "~S");
-c$.getGroupIdFor = Clazz.defineMethod (c$, "getGroupIdFor", 
- function (group3) {
-if (group3 == null) return -1;
-var groupID = JM.Group.lookupGroupID (group3);
-return (groupID == -1 ? JM.Group.addGroup3Name (group3) : groupID);
-}, "~S");
-c$.lookupGroupID = Clazz.defineMethod (c$, "lookupGroupID", 
-function (group3) {
-if (group3 != null) {
-var boxedGroupID = JM.Group.htGroup.get (group3);
-if (boxedGroupID != null) return boxedGroupID.shortValue ();
-}return -1;
-}, "~S");
 Clazz.defineMethod (c$, "getResno", 
 function () {
 return (this.seqcode == -2147483648 ? 0 : this.seqcode >> 8);
@@ -225,16 +200,12 @@ return "[" + this.getGroup3 () + "-" + this.getSeqcodeString () + "]";
 });
 Clazz.defineMethod (c$, "scaleToScreen", 
 function (Z, mar) {
-return this.chain.model.ms.vwr.scaleToScreen (Z, mar);
+return this.chain.model.ms.vwr.tm.scaleToScreen (Z, mar);
 }, "~N,~N");
 Clazz.defineMethod (c$, "isCursorOnTopOf", 
 function (atom, x, y, radius, champ) {
 return this.chain.model.ms.isCursorOnTopOf (atom, x, y, radius, champ);
 }, "JM.Atom,~N,~N,~N,JM.Atom");
-Clazz.defineMethod (c$, "isAtomHidden", 
-function (atomIndex) {
-return this.chain.model.ms.isAtomHidden (atomIndex);
-}, "~N");
 Clazz.defineMethod (c$, "getModel", 
 function () {
 return this.chain.model;
@@ -283,19 +254,7 @@ function (i) {
 }, "~N");
 Clazz.defineMethod (c$, "getHelixData", 
 function (tokType, qType, mStep) {
-switch (tokType) {
-case 135266320:
-return  new JU.P3 ();
-case 1073741854:
-case 1666189314:
-return  new JU.V3 ();
-case 135266305:
-return Float.$valueOf (NaN);
-case 135266306:
-case 1073742001:
-return [];
-}
-return "";
+return JU.Escape.escapeHelical (null, tokType, null, null, null);
 }, "~N,~S,~N");
 Clazz.defineMethod (c$, "isWithinStructure", 
 function (type) {
@@ -341,7 +300,7 @@ this.lastAtomIndex -= atomsDeleted;
 if (this.bsAdded != null) JU.BSUtil.deleteBits (this.bsAdded, bsDeleted);
 }, "~N,JU.BS");
 Clazz.defineMethod (c$, "getGroupInfo", 
-function (igroup) {
+function (igroup, ptTemp) {
 var infoGroup =  new java.util.Hashtable ();
 infoGroup.put ("groupIndex", Integer.$valueOf (igroup));
 infoGroup.put ("groupID", Short.$valueOf (this.groupID));
@@ -350,11 +309,11 @@ if (s != null) infoGroup.put ("seqCode", s);
 infoGroup.put ("_apt1", Integer.$valueOf (this.firstAtomIndex));
 infoGroup.put ("_apt2", Integer.$valueOf (this.lastAtomIndex));
 if (this.bsAdded != null) infoGroup.put ("addedAtoms", this.bsAdded);
-infoGroup.put ("atomInfo1", this.chain.model.ms.getAtomInfo (this.firstAtomIndex, null));
-infoGroup.put ("atomInfo2", this.chain.model.ms.getAtomInfo (this.lastAtomIndex, null));
+infoGroup.put ("atomInfo1", this.chain.model.ms.getAtomInfo (this.firstAtomIndex, null, ptTemp));
+infoGroup.put ("atomInfo2", this.chain.model.ms.getAtomInfo (this.lastAtomIndex, null, ptTemp));
 infoGroup.put ("visibilityFlags", Integer.$valueOf (this.shapeVisibilityFlags));
 return infoGroup;
-}, "~N");
+}, "~N,JU.P3");
 Clazz.defineMethod (c$, "getMinZ", 
 function (atoms, minZ) {
 minZ[0] = 2147483647;
@@ -376,16 +335,12 @@ Clazz.defineMethod (c$, "getAtomIndex",
 function (name, offset) {
 return -1;
 }, "~S,~N");
+Clazz.defineMethod (c$, "getBSSideChain", 
+function () {
+return  new JU.BS ();
+});
 Clazz.defineStatics (c$,
 "SEQUENCE_NUMBER_FLAG", 0x80,
 "INSERTION_CODE_MASK", 0x7F,
 "SEQUENCE_NUMBER_SHIFT", 8);
-c$.htGroup = c$.prototype.htGroup =  new java.util.Hashtable ();
-c$.group3Names = c$.prototype.group3Names =  new Array (128);
-Clazz.defineStatics (c$,
-"group3NameCount", 0);
-{
-for (var i = 0; i < JV.JC.predefinedGroup3Names.length; ++i) {
-JM.Group.addGroup3Name (JV.JC.predefinedGroup3Names[i]);
-}
-}});
+});

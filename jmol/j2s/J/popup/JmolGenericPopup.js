@@ -71,7 +71,7 @@ this.noZapped = ["surfaceMenu", "measureMenu", "pickingMenu", "computationMenu",
 Clazz.defineMethod (c$, "initialize", 
 function (vwr, bundle, title) {
 this.vwr = vwr;
-this.initSwing (title, bundle, vwr.getApplet (), vwr.isJS, vwr.getBooleanProperty ("_signedApplet"), vwr.isWebGL);
+this.initSwing (title, bundle, vwr.getHtml5Applet (), vwr.isJS, vwr.getBooleanProperty ("_signedApplet"), vwr.isWebGL);
 }, "JV.Viewer,J.popup.PopupResource,~S");
 Clazz.overrideMethod (c$, "jpiDispose", 
 function () {
@@ -160,6 +160,7 @@ id = id.substring (pt + 1);
 if ((pt = id.indexOf ("]")) >= 0) id = id.substring (0, pt);
 id = id.$replace ('_', ' ');
 if (script.indexOf ("[]") < 0) script = "[] " + script;
+script = script.$replace ('_', ' ');
 return JU.PT.rep (script, "[]", id);
 } else if (script.indexOf ("?FILEROOT?") >= 0) {
 script = JU.PT.rep (script, "FILEROOT?", this.modelSetRoot);
@@ -213,7 +214,7 @@ this.updateModelSetComputedMenu ();
 Clazz.defineMethod (c$, "setFrankMenu", 
  function (id) {
 if (this.currentFrankId != null && this.currentFrankId === id && this.nFrankList > 0) return;
-if (this.frankPopup == null) this.frankPopup = this.helper.menuCreatePopup ("Frank", this.vwr.getApplet ());
+if (this.frankPopup == null) this.frankPopup = this.helper.menuCreatePopup ("Frank", this.vwr.getHtml5Applet ());
 this.thisPopup = this.frankPopup;
 this.menuRemoveAll (this.frankPopup, 0);
 this.menuCreateItem (this.frankPopup, this.getMenuText ("mainMenuText"), "MAIN", "");
@@ -230,10 +231,10 @@ i = iNew + 1;
 }
 this.thisPopup = this.popupMenu;
 }, "~S");
-c$.checkBoolean = Clazz.defineMethod (c$, "checkBoolean", 
- function (info, key) {
-return (info != null && info.get (key) === Boolean.TRUE);
-}, "java.util.Map,~S");
+Clazz.defineMethod (c$, "checkBoolean", 
+ function (key) {
+return (this.modelSetInfo != null && this.modelSetInfo.get (key) === Boolean.TRUE);
+}, "~S");
 Clazz.defineMethod (c$, "getViewerData", 
  function () {
 this.modelSetName = this.vwr.getModelSetName ();
@@ -249,11 +250,11 @@ this.ac = this.vwr.getAtomCountInModel (this.modelIndex);
 this.modelSetInfo = this.vwr.getModelSetAuxiliaryInfo ();
 this.modelInfo = this.vwr.getModelAuxiliaryInfo (this.modelIndex);
 if (this.modelInfo == null) this.modelInfo =  new java.util.Hashtable ();
-this.isPDB = J.popup.JmolGenericPopup.checkBoolean (this.modelSetInfo, "isPDB");
+this.isPDB = this.checkBoolean ("isPDB");
 this.isMultiFrame = (this.modelCount > 1);
-this.isSymmetry = J.popup.JmolGenericPopup.checkBoolean (this.modelInfo, "hasSymmetry");
+this.isSymmetry = this.checkBoolean ("hasSymmetry");
 this.isUnitCell = this.modelInfo.containsKey ("notionalUnitcell");
-this.fileHasUnitCell = (this.isPDB && this.isUnitCell || J.popup.JmolGenericPopup.checkBoolean (this.modelInfo, "fileHasUnitCell"));
+this.fileHasUnitCell = (this.isPDB && this.isUnitCell || this.checkBoolean ("fileHasUnitCell"));
 this.isLastFrame = (this.modelIndex == this.modelCount - 1);
 this.altlocs = this.vwr.getAltLocListInModel (this.modelIndex);
 this.isMultiConfiguration = (this.altlocs.length > 0);

@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JM");
-Clazz.load (["JM.AlphaMonomer"], "JM.AminoMonomer", ["JU.A4", "$.M3", "$.P3", "$.Quat", "$.V3", "J.c.STR", "JU.Escape", "$.Logger", "$.Txt"], function () {
+Clazz.load (["JM.AlphaMonomer"], "JM.AminoMonomer", ["JU.A4", "$.BS", "$.M3", "$.P3", "$.PT", "$.Quat", "$.V3", "J.c.STR", "JU.Escape", "$.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.nhChecked = false;
 this.ptTemp = null;
@@ -198,11 +198,31 @@ Clazz.overrideMethod (c$, "getProteinStructureTag",
 function () {
 if (this.proteinStructure == null || this.proteinStructure.structureID == null) return null;
 var tag = "%3N %3ID";
-tag = JU.Txt.formatStringI (tag, "N", this.proteinStructure.serialID);
-tag = JU.Txt.formatStringS (tag, "ID", this.proteinStructure.structureID);
-if (this.proteinStructure.type === J.c.STR.SHEET) tag += JU.Txt.formatStringI ("%2SC", "SC", this.proteinStructure.strandCount);
+tag = JU.PT.formatStringI (tag, "N", this.proteinStructure.serialID);
+tag = JU.PT.formatStringS (tag, "ID", this.proteinStructure.structureID);
+if (this.proteinStructure.type === J.c.STR.SHEET) tag += JU.PT.formatStringI ("%2SC", "SC", this.proteinStructure.strandCount);
 return tag;
 });
+Clazz.overrideMethod (c$, "getBSSideChain", 
+function () {
+var bs =  new JU.BS ();
+this.selectAtoms (bs);
+this.clear (bs, this.getLeadAtom (), true);
+this.clear (bs, this.getCarbonylCarbonAtom (), false);
+this.clear (bs, this.getCarbonylOxygenAtom (), false);
+this.clear (bs, this.getNitrogenAtom (), true);
+return bs;
+});
+Clazz.defineMethod (c$, "clear", 
+ function (bs, a, andH) {
+if (a == null) return;
+bs.clear (a.i);
+if (!andH) return;
+var b = a.getBonds ();
+var h;
+for (var j = b.length; --j >= 0; ) if ((h = b[j].getOtherAtom (a)).getElementNumber () == 1) bs.clear (h.i);
+
+}, "JU.BS,JM.Atom,~B");
 Clazz.defineStatics (c$,
 "CA", 0,
 "O", 1,

@@ -98,6 +98,7 @@ $isBinary = false;
 $filename = "";
 
 if ($call == "getInfoFromDatabase") {
+  // TODO: add PDBe annotation business here
 	if ($database == '=') {
 		$restQueryUrl = "http://www.pdb.org/pdb/rest/search";
 		$restReportUrl = "http://www.pdb.org/pdb/rest/customReport";
