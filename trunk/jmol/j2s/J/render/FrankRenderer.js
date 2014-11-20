@@ -13,7 +13,7 @@ var imageFontScaling = this.vwr.getImageFontScaling ();
 frank.getFont (imageFontScaling);
 var dx = Clazz.floatToInt (frank.frankWidth + 4 * imageFontScaling);
 var dy = frank.frankDescent;
-this.g3d.drawStringNoSlab (frank.frankString, frank.font3d, this.g3d.getRenderWidth () - dx, this.g3d.getRenderHeight () - dy, 0, 0);
+this.g3d.drawStringNoSlab (frank.frankString, frank.font3d, this.vwr.gdata.width - dx, this.vwr.gdata.height - dy, 0, 0);
 if (modelKitMode) {
 this.g3d.fillRect (0, 0, 0, 0, dy * 2, Clazz.doubleToInt (dx * 3 / 2));
 }return false;

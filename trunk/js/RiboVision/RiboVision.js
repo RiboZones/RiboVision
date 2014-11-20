@@ -30,6 +30,7 @@ based on:
 // Main Variables
 var rvDataSets = [];
 var rvViews = [];
+var SpeciesTable = [];
 
 // Other Global Variables
 var FullBasePairSet;

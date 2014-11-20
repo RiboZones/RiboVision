@@ -36,11 +36,11 @@ this.moveToText = "moveTo -1.0 PyMOL " + JU.Escape.eAF (pymolView);
 return;
 }vwr.finalizeTransformParameters ();
 if (asDefault) {
-var rotationMatrix = vwr.ms.getInfoM ("defaultOrientationMatrix");
-if (rotationMatrix == null) this.rotationMatrix.setScale (1);
- else this.rotationMatrix.setM3 (rotationMatrix);
+var rot = vwr.ms.getInfoM ("defaultOrientationMatrix");
+if (rot == null) this.rotationMatrix.setScale (1);
+ else this.rotationMatrix.setM3 (rot);
 } else {
-vwr.getRotation (this.rotationMatrix);
+vwr.tm.getRotation (this.rotationMatrix);
 }this.xTrans = vwr.tm.getTranslationXPercent ();
 this.yTrans = vwr.tm.getTranslationYPercent ();
 this.zoom = vwr.tm.getZoomSetting ();
@@ -55,7 +55,7 @@ this.yNav = vwr.tm.getNavigationOffsetPercent ('Y');
 this.navDepth = vwr.tm.getNavigationDepthPercent ();
 this.navCenter = JU.P3.newP (vwr.tm.getNavigationCenter ());
 }if (vwr.tm.camera.z != 0) {
-this.cameraDepth = vwr.getCameraDepth ();
+this.cameraDepth = vwr.tm.getCameraDepth ();
 this.cameraX = vwr.tm.camera.x;
 this.cameraY = vwr.tm.camera.y;
 }}, "JV.Viewer,~B,~A");
@@ -69,7 +69,7 @@ if (isAll) {
 this.vwr.setBooleanProperty ("windowCentered", this.windowCenteredFlag);
 this.vwr.setBooleanProperty ("navigationMode", this.navigationMode);
 if (this.pymolView == null) this.vwr.moveTo (this.vwr.eval, timeSeconds, this.center, null, NaN, this.rotationMatrix, this.zoom, this.xTrans, this.yTrans, this.rotationRadius, this.navCenter, this.xNav, this.yNav, this.navDepth, this.cameraDepth, this.cameraX, this.cameraY);
- else this.vwr.movePyMOL (this.vwr.eval, timeSeconds, this.pymolView);
+ else this.vwr.tm.moveToPyMOL (this.vwr.eval, timeSeconds, this.pymolView);
 } else {
 this.vwr.tm.setRotation (this.rotationMatrix);
 }return true;

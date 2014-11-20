@@ -335,7 +335,7 @@ var quantum = (this.hi - this.lo) / segmentCount;
 var f = quantum * (this.isReversed ? -0.5 : 0.5);
 for (var i = 0; i < segmentCount; i++) {
 values[i] = (this.isReversed ? this.hi - i * quantum : this.lo + i * quantum);
-colors.addLast (JU.CU.colorPtFromInt (this.getArgb (values[i] + f)));
+colors.addLast (JU.CU.colorPtFromInt (this.getArgb (values[i] + f), null));
 }
 values[segmentCount] = (this.isReversed ? this.lo : this.hi);
 info.put ("values", values);

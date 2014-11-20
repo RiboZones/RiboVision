@@ -127,7 +127,7 @@ sb.append ("; axisType: ").appendC (this.axisType);
 if (this.diagonalReferenceAxis != '\0') sb.appendC (this.diagonalReferenceAxis);
 }if (this.translationString.length > 0) sb.append ("; translation: ").append (this.translationString);
 if (vectorCode.length > 0) sb.append ("; vector offset: ").append (vectorCode);
-if (this.rotation != null) sb.append ("\noperator: ").append (this.getXYZ (this.allPositive)).append ("\nSeitz matrix:\n").append (JS.SymmetryOperation.dumpSeitz (this.seitzMatrix12ths));
+if (this.rotation != null) sb.append ("\noperator: ").append (this.getXYZ (this.allPositive)).append ("\nSeitz matrix:\n").append (JS.SymmetryOperation.dumpSeitz (this.seitzMatrix12ths, false));
 return sb.toString ();
 }, "~S");
 Clazz.defineMethod (c$, "getXYZ", 

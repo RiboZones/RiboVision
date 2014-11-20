@@ -102,7 +102,7 @@ if (property.equals ("selectionState")) return (this.selectedBonds != null ? "se
 if (property.equals ("sets")) return [this.bsOrderSet, this.bsSizeSet, this.bsColixSet];
 return null;
 }, "~S,~N");
-Clazz.overrideMethod (c$, "setModelClickability", 
+Clazz.overrideMethod (c$, "setAtomClickability", 
 function () {
 var bonds = this.ms.bo;
 for (var i = this.ms.bondCount; --i >= 0; ) {
@@ -144,7 +144,7 @@ return map;
 Clazz.defineMethod (c$, "findPickedBond", 
  function (x, y, bsVisible, pt) {
 var dmin2 = 100;
-if (this.gdata.isAntialiased ()) {
+if (this.vwr.gdata.isAntialiased ()) {
 x <<= 1;
 y <<= 1;
 dmin2 <<= 1;

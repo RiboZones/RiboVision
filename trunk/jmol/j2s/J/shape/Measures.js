@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.shape");
-Clazz.load (["J.api.JmolMeasurementClient", "J.shape.AtomShape", "JU.Lst"], "J.shape.Measures", ["java.lang.Float", "java.util.Hashtable", "JU.BS", "$.PT", "JM.Measurement", "$.MeasurementData", "JU.BSUtil", "$.C", "$.Escape", "$.Txt"], function () {
+Clazz.load (["J.api.JmolMeasurementClient", "J.shape.AtomShape", "JU.Lst"], "J.shape.Measures", ["java.lang.Float", "java.util.Hashtable", "JU.BS", "$.PT", "JM.Measurement", "$.MeasurementData", "JU.BSUtil", "$.C", "$.Escape"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.bsSelected = null;
 this.strFormat = null;
@@ -32,7 +32,7 @@ this.atoms = this.ms.at;
 });
 Clazz.overrideMethod (c$, "initShape", 
 function () {
-this.font3d = this.gdata.getFont3D (15);
+this.font3d = this.vwr.gdata.getFont3D (15);
 });
 Clazz.overrideMethod (c$, "setSize", 
 function (size, bsSelected) {
@@ -187,7 +187,7 @@ this.showHideM ( new JM.Measurement ().setPoints (this.ms, value, null, null), t
 }return;
 }if ("show" === propertyName) {
 if (Clazz.instanceOf (value, String)) {
-this.doAction (null, value, 4148);
+this.doAction (null, value, 135270926);
 } else {
 this.showHideM ( new JM.Measurement ().setPoints (this.ms, value, null, null), false);
 }return;
@@ -374,10 +374,10 @@ this.vwr.setStatusMeasuring ("measureDeleted", i, msg, 0);
 Clazz.defineMethod (c$, "doAction", 
  function (md, s, tok) {
 s = s.toUpperCase ().$replace ('?', '*');
-var isWild = JU.Txt.isWild (s);
+var isWild = JU.PT.isWild (s);
 for (var i = this.measurements.size (); --i >= 0; ) {
 var m = this.measurements.get (i);
-if (m.thisID != null && (m.thisID.equalsIgnoreCase (s) || isWild && JU.Txt.isMatch (m.thisID.toUpperCase (), s, true, true))) switch (tok) {
+if (m.thisID != null && (m.thisID.equalsIgnoreCase (s) || isWild && JU.PT.isMatch (m.thisID.toUpperCase (), s, true, true))) switch (tok) {
 case 1666189314:
 m.mad = md.mad;
 break;
@@ -387,7 +387,7 @@ this.measurements.remove (i);
 this.measurementCount--;
 this.vwr.setStatusMeasuring ("measureDeleted", i, msg, 0);
 break;
-case 4148:
+case 135270926:
 m.isHidden = false;
 break;
 case 12294:

@@ -24,6 +24,7 @@ this.bindAction (8454, 45);
 this.bindAction (8721, 45);
 this.bindAction (8712, 45);
 this.bindAction (8464, 25);
+this.bindAction (8720, 25);
 this.bindAction (8472, 28);
 this.bindAction (8453, 28);
 this.bindAction (8465, 29);

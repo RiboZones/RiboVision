@@ -1,7 +1,7 @@
 Clazz.declarePackage ("J.adapter.readers.cif");
-Clazz.load (null, "J.adapter.readers.cif.Subsystem", ["JU.Lst", "$.Matrix", "$.V3", "J.api.Interface", "JU.Logger"], function () {
+Clazz.load (null, "J.adapter.readers.cif.Subsystem", ["JU.Lst", "$.Matrix", "$.V3", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
-this.msReader = null;
+this.msRdr = null;
 this.code = null;
 this.d = 0;
 this.w = null;
@@ -11,12 +11,12 @@ this.isFinalized = false;
 Clazz.instantialize (this, arguments);
 }, J.adapter.readers.cif, "Subsystem");
 Clazz.makeConstructor (c$, 
-function (msReader, code, w) {
-this.msReader = msReader;
+function (msRdr, code, w) {
+this.msRdr = msRdr;
 this.code = code;
 this.w = w;
 this.d = w.getArray ().length - 3;
-}, "J.adapter.readers.cif.MSReader,~S,JU.Matrix");
+}, "J.adapter.readers.cif.MSRdr,~S,JU.Matrix");
 Clazz.defineMethod (c$, "getSymmetry", 
 function () {
 if (!this.isFinalized) this.setSymmetry (true);
@@ -38,11 +38,11 @@ var w33 = this.w.getSubmatrix (0, 0, 3, 3);
 var wd3 = this.w.getSubmatrix (3, 0, this.d, 3);
 var w3d = this.w.getSubmatrix (0, 3, 3, this.d);
 var wdd = this.w.getSubmatrix (3, 3, this.d, this.d);
-var sigma = this.msReader.getSigma ();
+var sigma = this.msRdr.getSigma ();
 var sigma_nu = wdd.mul (sigma).add (wd3).mul (w3d.mul (sigma).add (w33).inverse ());
 var tFactor = wdd.sub (sigma_nu.mul (w3d));
 JU.Logger.info ("sigma_nu = " + sigma_nu);
-var s0 = this.msReader.cr.asc.getSymmetry ();
+var s0 = this.msRdr.cr.asc.getSymmetry ();
 var vu43 = s0.getUnitCellVectors ();
 var vr43 = this.reciprocalsOf (vu43);
 var mard3 =  new JU.Matrix (null, 3 + this.d, 3);
@@ -61,7 +61,7 @@ uc_nu[0] = vu43[0];
 for (var i = 0; i < 3; i++) uc_nu[i + 1] = JU.V3.new3 (a[i][0], a[i][1], a[i][2]);
 
 uc_nu = this.reciprocalsOf (uc_nu);
-this.symmetry = J.api.Interface.getSymmetry ().getUnitCell (uc_nu, false);
+this.symmetry = (this.msRdr.cr.getInterface ("JS.Symmetry")).getUnitCell (uc_nu, false, null);
 this.modMatrices = [sigma_nu, tFactor];
 if (!setOperators) return;
 this.isFinalized = true;
@@ -76,7 +76,7 @@ var r = this.w.mul (r0).mul (winv);
 var v = this.w.mul (v0);
 var code = this.code;
 if (this.isMixed (r)) {
-for (var e, $e = this.msReader.htSubsystems.entrySet ().iterator (); $e.hasNext () && ((e = $e.next ()) || true);) {
+for (var e, $e = this.msRdr.htSubsystems.entrySet ().iterator (); $e.hasNext () && ((e = $e.next ()) || true);) {
 var ss = e.getValue ();
 if (ss === this) continue;
 var rj = ss.w.mul (r0).mul (winv);

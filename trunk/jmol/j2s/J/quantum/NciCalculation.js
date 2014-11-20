@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.quantum");
-Clazz.load (["J.api.QuantumPlaneCalculationInterface", "J.quantum.QuantumCalculation", "JU.AU"], "J.quantum.NciCalculation", ["java.lang.Double", "JU.BS", "JU.BSUtil", "$.Eigen", "$.Escape", "$.Logger"], function () {
+Clazz.load (["J.api.QuantumPlaneCalculationInterface", "J.quantum.QuantumCalculation", "JU.AU"], "J.quantum.NciCalculation", ["java.lang.Double", "JU.BS", "$.Eigen", "JU.BSUtil", "$.Escape", "$.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.havePoints = false;
 this.isReducedDensity = false;
@@ -30,6 +30,7 @@ this.gzzTemp = 0;
 this.gxyTemp = 0;
 this.gyzTemp = 0;
 this.gxzTemp = 0;
+this.eigenValues = null;
 this.test1 = 0;
 this.yzPlanesRaw = null;
 this.yzCount = 0;
@@ -40,6 +41,7 @@ this.p2 = null;
 Clazz.instantialize (this, arguments);
 }, J.quantum, "NciCalculation", J.quantum.QuantumCalculation, J.api.QuantumPlaneCalculationInterface);
 Clazz.prepareFields (c$, function () {
+this.eigenValues =  Clazz.newFloatArray (3, 0);
 this.yzPlanesRho = JU.AU.newFloat2 (2);
 });
 Clazz.overrideMethod (c$, "getNoValue", 
@@ -208,8 +210,8 @@ this.hess[1][1] = this.gyyTemp;
 this.hess[1][2] = this.hess[2][1] = this.gyzTemp;
 this.hess[2][2] = this.gzzTemp;
 this.eigen.calc (this.hess);
-var lambda2 = this.eigen.getRealEigenvalues ()[1];
-s = (lambda2 < 0 ? -rho : rho);
+this.eigen.fillFloatArrays (null, this.eigenValues);
+s = (this.eigenValues[1] < 0 ? -rho : rho);
 }return s;
 }, "~N,~B");
 Clazz.defineMethod (c$, "processAtoms", 

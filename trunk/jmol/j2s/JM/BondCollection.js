@@ -1,13 +1,12 @@
 Clazz.declarePackage ("JM");
 Clazz.load (["JM.AtomCollection", "JU.BS"], "JM.BondCollection", ["JU.AU", "JM.Bond", "$.BondIteratorSelected", "$.HBond", "JU.BSUtil", "$.Edge", "$.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
-this.molecules = null;
-this.moleculeCount = 0;
 this.bo = null;
 this.bondCount = 0;
 this.numCached = null;
 this.freeBonds = null;
-this.haveWarned = false;
+this.molecules = null;
+this.moleculeCount = 0;
 this.defaultCovalentMad = 0;
 this.bsAromaticSingle = null;
 this.bsAromaticDouble = null;
@@ -16,12 +15,15 @@ this.haveHiddenBonds = false;
 Clazz.instantialize (this, arguments);
 }, JM, "BondCollection", JM.AtomCollection);
 Clazz.prepareFields (c$, function () {
+this.bsAromatic =  new JU.BS ();
+});
+Clazz.defineMethod (c$, "setupBC", 
+function () {
 this.numCached =  Clazz.newIntArray (5, 0);
 this.freeBonds =  new Array (5);
-{
 for (var i = 5; --i > 0; ) this.freeBonds[i] =  new Array (200);
 
-}this.bsAromatic =  new JU.BS ();
+this.setupAC ();
 });
 Clazz.overrideMethod (c$, "releaseModelSet", 
 function () {
@@ -107,7 +109,7 @@ atom1.group.addAtoms (atom1.i);
 }}return bond;
 }, "JM.Atom,JM.Atom,~N,~N,JU.BS,~N,~B,~B");
 Clazz.defineMethod (c$, "getOrAddBond", 
- function (atom, atomOther, order, mad, bsBonds, energy, overrideBonding) {
+function (atom, atomOther, order, mad, bsBonds, energy, overrideBonding) {
 var i;
 if (order == 131071 || order == 65535) order = 1;
 if (atom.isBonded (atomOther)) {
@@ -175,20 +177,6 @@ var maxAcceptable = bondingRadiusA + bondingRadiusB + bondTolerance;
 var maxAcceptable2 = maxAcceptable * maxAcceptable;
 return (distance2 > maxAcceptable2 ? 0 : 1);
 }, "~N,~N,~N,~N,~N");
-Clazz.defineMethod (c$, "checkValencesAndBond", 
-function (atomA, atomB, order, mad, bsBonds) {
-if (atomA.getCurrentBondCount () > 20 || atomB.getCurrentBondCount () > 20) {
-if (!this.haveWarned) JU.Logger.warn ("maximum auto bond count reached");
-this.haveWarned = true;
-return false;
-}var formalChargeA = atomA.getFormalCharge ();
-if (formalChargeA != 0) {
-var formalChargeB = atomB.getFormalCharge ();
-if ((formalChargeA < 0 && formalChargeB < 0) || (formalChargeA > 0 && formalChargeB > 0)) return false;
-}if (atomA.altloc != atomB.altloc && atomA.altloc != '\0' && atomB.altloc != '\0' && this.getVibration (atomA.i, false) == null) return false;
-this.getOrAddBond (atomA, atomB, order, mad, bsBonds, 0, false);
-return true;
-}, "JM.Atom,JM.Atom,~N,~N,JU.BS");
 Clazz.defineMethod (c$, "deleteAllBonds2", 
 function () {
 this.vwr.setShapeProperty (1, "reset", null);

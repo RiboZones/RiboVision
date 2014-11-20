@@ -36,7 +36,6 @@ this.frames = null;
 this.uniqueSettings = null;
 this.atoms = null;
 this.haveScenes = false;
-this.baseAtomIndex = 0;
 this.baseModelIndex = 0;
 this.sceneOrder = null;
 this.bondCount = 0;
@@ -82,7 +81,7 @@ this.process (map);
 Clazz.overrideMethod (c$, "setAdditionalAtomParameters", 
 function (atom) {
 }, "J.adapter.smarter.Atom");
-Clazz.overrideMethod (c$, "finalizeReader", 
+Clazz.overrideMethod (c$, "finalizeSubclassReader", 
 function () {
 this.finalizeReaderPDB ();
 this.asc.setTensors ();
@@ -556,7 +555,7 @@ if (group3.equals (" ")) group3 = "UNK";
 var sym = J.adapter.readers.pymol.PyMOLReader.stringAt (a, 7);
 if (sym.equals ("A")) sym = "C";
 var isHetero = (J.adapter.readers.pymol.PyMOLReader.intAt (a, 19) != 0);
-var ichain = this.vwr.getChainID (chainID);
+var ichain = this.vwr.getChainID (chainID, true);
 var atom = this.processAtom ( new J.adapter.smarter.Atom (), name, altLoc.charAt (0), group3, ichain, seqNo, insCode.charAt (0), isHetero, sym);
 if (!this.filterPDBAtom (atom, this.fileAtomIndex++)) return null;
 icoord *= 3;

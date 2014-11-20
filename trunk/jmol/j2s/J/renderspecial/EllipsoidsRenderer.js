@@ -142,7 +142,7 @@ this.colix = ellipsoid.colix;
 } else {
 atom = this.ms.at[ellipsoid.tensor.atomIndex1];
 if (atom.sZ <= 1 || !this.isVisibleForMe (atom)) continue;
-this.colix = JU.C.getColixInherited (ellipsoid.colix, atom.getColix ());
+this.colix = JU.C.getColixInherited (ellipsoid.colix, atom.colixAtom);
 }if (!this.g3d.setC (this.colix)) {
 needTranslucent = true;
 continue;
@@ -168,7 +168,7 @@ this.setAxes (maxPt);
 if (this.g3d.isClippedXY (this.dx + this.dx, this.s0.x, this.s0.y)) return;
 this.eigenSignMask = e.tensor.eigenSignMask;
 this.setOptions (e.options);
-this.diameter = Clazz.floatToInt (this.vwr.scaleToScreen (this.s0.z, this.bOptions[6] ? 1 : this.diameter0));
+this.diameter = Clazz.floatToInt (this.vwr.tm.scaleToScreen (this.s0.z, this.bOptions[6] ? 1 : this.diameter0));
 if (e.tensor.isIsotropic) {
 this.renderBall ();
 return;
@@ -195,7 +195,7 @@ this.mat.setColumnV (i, this.v1);
 this.mat.invertM (this.mat);
 this.matScreenToEllipsoid.mul2 (this.mat, this.matScreenToCartesian);
 this.matEllipsoidToScreen.invertM (this.matScreenToEllipsoid);
-this.perspectiveFactor = this.vwr.scaleToPerspective (this.s0.z, 1.0);
+this.perspectiveFactor = this.vwr.tm.scaleToPerspective (this.s0.z, 1.0);
 this.matScreenToEllipsoid.scale (1 / this.perspectiveFactor);
 });
 Clazz.defineMethod (c$, "setAxes", 
@@ -209,7 +209,7 @@ this.matEllipsoidToScreen.rotate (this.pt1);
 this.screens[i].set (Math.round (this.s0.x + this.pt1.x * this.perspectiveFactor), Math.round (this.s0.y + this.pt1.y * this.perspectiveFactor), Math.round (this.pt1.z + this.s0.z));
 this.screens[i + 32].set (Math.round (this.s0.x + this.pt1.x * this.perspectiveFactor * 1.05), Math.round (this.s0.y + this.pt1.y * this.perspectiveFactor * 1.05), Math.round (this.pt1.z * 1.05 + this.s0.z));
 }
-this.dx = 2 + Clazz.floatToInt (this.vwr.scaleToScreen (this.s0.z, Math.round ((Float.isNaN (this.factoredLengths[maxPt]) ? 1.0 : this.factoredLengths[maxPt]) * 1000)));
+this.dx = 2 + Clazz.floatToInt (this.vwr.tm.scaleToScreen (this.s0.z, Math.round ((Float.isNaN (this.factoredLengths[maxPt]) ? 1.0 : this.factoredLengths[maxPt]) * 1000)));
 }, "~N");
 Clazz.defineMethod (c$, "renderBall", 
  function () {

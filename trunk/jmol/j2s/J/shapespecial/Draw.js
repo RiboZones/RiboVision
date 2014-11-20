@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.shapespecial");
-Clazz.load (["java.lang.Enum", "J.shape.MeshCollection", "JU.P3i", "$.V3"], "J.shapespecial.Draw", ["java.lang.Boolean", "$.Float", "java.util.Hashtable", "JU.AU", "$.BS", "$.Lst", "$.P3", "$.PT", "$.SB", "J.shapespecial.DrawMesh", "JU.BSUtil", "$.C", "$.Escape", "$.Logger", "$.Measure", "$.MeshSurface", "$.Txt"], function () {
+Clazz.load (["java.lang.Enum", "J.shape.MeshCollection", "JU.P3i", "$.V3"], "J.shapespecial.Draw", ["java.lang.Boolean", "$.Float", "java.util.Hashtable", "JU.AU", "$.BS", "$.Lst", "$.Measure", "$.P3", "$.PT", "$.SB", "J.shapespecial.DrawMesh", "JU.BSUtil", "$.C", "$.Escape", "$.Logger", "$.MeshSurface"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.dmeshes = null;
 this.thisMesh = null;
@@ -665,7 +665,7 @@ normal.sub2 (this.ptList[1], center);
 normal.scale (0.5 / normal.length () * (this.length == 0 ? 0.01 : this.length));
 if (this.length == 0) center.setT (this.ptList[0]);
 this.ptList[0].sub2 (center, normal);
-this.ptList[1].add2 (this.ptList[0], normal);
+this.ptList[1].add2 (center, normal);
 }if (nVertices > 4) nVertices = 4;
 switch (nVertices) {
 case -2:
@@ -705,6 +705,7 @@ if (dmesh.isRenderScalable ()) return;
 var diff =  new JU.V3 ();
 var iptlast = -1;
 var ipt = 0;
+try {
 for (var i = dmesh.pc; --i >= 0; ) {
 var center = (dmesh.isVector ? dmesh.vs[0] : dmesh.ptCenters == null ? dmesh.ptCenter : dmesh.ptCenters[i]);
 if (center == null) return;
@@ -718,6 +719,14 @@ diff.sub2 (dmesh.vs[ipt], center);
 diff.scale (f);
 diff.add (center);
 dmesh.vs[ipt].setT (diff);
+}
+}
+} catch (e) {
+if (Clazz.exceptionOf (e, Exception)) {
+JU.Logger.info ("Error executing DRAW command: " + e);
+dmesh.isValid = false;
+} else {
+throw e;
 }
 }
 }, "J.shape.Mesh,~N");
@@ -742,7 +751,7 @@ n++;
 if (n == 0) return;
 m.axis.scale (1 / n);
 }, "J.shapespecial.DrawMesh");
-Clazz.overrideMethod (c$, "setVisibilityFlags", 
+Clazz.overrideMethod (c$, "setModelVisibilityFlags", 
 function (bsModels) {
 for (var i = 0; i < this.meshCount; i++) {
 var m = this.dmeshes[i];
@@ -786,7 +795,7 @@ function (x, y, bsVisible) {
 if (!this.vwr.getDrawHover ()) return false;
 if (JU.C.isColixTranslucent (this.colix)) return false;
 if (!this.findPickedObject (x, y, false, bsVisible)) return false;
-if (this.gdata.isDisplayAntialiased ()) {
+if (this.vwr.gdata.antialiasEnabled) {
 x <<= 1;
 y <<= 1;
 }var s = (this.pickedMesh.title == null ? this.pickedMesh.thisID : this.pickedMesh.title[0]);
@@ -813,7 +822,7 @@ return true;
 Clazz.defineMethod (c$, "move2D", 
  function (mesh, vertexes, iVertex, x, y, moveAll) {
 if (vertexes == null || vertexes.length == 0) return;
-if (this.gdata.isAntialiased ()) {
+if (this.vwr.gdata.isAntialiased ()) {
 x <<= 1;
 y <<= 1;
 }var pt =  new JU.P3 ();
@@ -841,7 +850,7 @@ mesh.setCenters ();
 Clazz.defineMethod (c$, "findPickedObject", 
  function (x, y, isPicking, bsVisible) {
 var dmin2 = 100;
-if (this.gdata.isAntialiased ()) {
+if (this.vwr.gdata.isAntialiased ()) {
 x <<= 1;
 y <<= 1;
 dmin2 <<= 1;
@@ -881,18 +890,18 @@ Clazz.defineMethod (c$, "getCommand",
 function (mesh) {
 if (mesh != null) return this.getCommand2 (mesh, mesh.modelIndex);
 var sb =  new JU.SB ();
-var key = (this.explicitID && this.previousMeshID != null && JU.Txt.isWild (this.previousMeshID) ? this.previousMeshID.toUpperCase () : null);
-if (key != null && key.length == 0) key = null;
-for (var i = 0; i < this.meshCount; i++) {
-var m = this.meshes[i];
-if (key == null || JU.Txt.isMatch (m.thisID.toUpperCase (), key, true, true)) sb.append (this.getCommand2 (m, m.modelIndex));
+var key = (this.explicitID && this.previousMeshID != null && JU.PT.isWild (this.previousMeshID) ? this.previousMeshID : null);
+var list = this.getMeshList (key, false);
+for (var i = list.size (); --i >= 0; ) {
+var m = list.get (i);
+sb.append (this.getCommand2 (m, m.modelIndex));
 }
 return sb.toString ();
 }, "J.shape.Mesh");
 Clazz.defineMethod (c$, "getCommand2", 
 function (mesh, iModel) {
 var dmesh = mesh;
-if (dmesh.drawType === J.shapespecial.Draw.EnumDrawType.NONE && dmesh.lineData == null && dmesh.drawVertexCount == 0 && dmesh.drawVertexCounts == null) return "";
+if (!dmesh.isValid || dmesh.drawType === J.shapespecial.Draw.EnumDrawType.NONE && dmesh.lineData == null && dmesh.drawVertexCount == 0 && dmesh.drawVertexCounts == null) return "";
 var str =  new JU.SB ();
 var modelCount = this.vwr.getModelCount ();
 if (!dmesh.isFixed && iModel >= 0 && modelCount > 1) J.shape.Shape.appendCmd (str, "frame " + this.vwr.getModelNumberDotted (iModel));
@@ -1027,6 +1036,7 @@ for (var i = 0; i < this.meshCount; i++) {
 var mesh = this.dmeshes[i];
 if (mesh.vc == 0) continue;
 var info =  new java.util.Hashtable ();
+info.put ("visible", mesh.visible ? Boolean.TRUE : Boolean.FALSE);
 info.put ("fixed", mesh.ptCenters == null ? Boolean.TRUE : Boolean.FALSE);
 info.put ("ID", (mesh.thisID == null ? "<noid>" : mesh.thisID));
 info.put ("drawType", mesh.drawType.$$name);

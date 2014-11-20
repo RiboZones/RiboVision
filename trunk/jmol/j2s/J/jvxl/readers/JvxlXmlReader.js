@@ -128,7 +128,7 @@ this.jvxlReadSurfaceInfo ();
 }, "~N,~N");
 Clazz.defineMethod (c$, "jvxlSkipData", 
 function (nPoints, doSkipColorData) {
-this.readLine ();
+this.rd ();
 this.xr.skipTag ("jvxlSurface");
 }, "~N,~B");
 Clazz.defineMethod (c$, "jvxlReadSurfaceInfo", 
@@ -333,7 +333,7 @@ var nThisValue = 0;
 while (bsVoxelPtr < nPoints) {
 nThisValue = this.parseInt ();
 if (nThisValue == -2147483648) {
-this.readLine ();
+this.rd ();
 if (this.line == null || (nThisValue = this.parseIntStr (this.line)) == -2147483648) {
 if (!this.endOfData) JU.Logger.error ("end of file in JvxlReader?" + " line=" + this.line);
 this.endOfData = true;

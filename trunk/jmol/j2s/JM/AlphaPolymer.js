@@ -1,6 +1,11 @@
 Clazz.declarePackage ("JM");
-Clazz.load (["java.lang.Enum", "JM.BioPolymer"], "JM.AlphaPolymer", ["JU.BS", "$.Lst", "$.P3", "J.c.STR", "JM.Helix", "$.Sheet", "$.Turn", "JU.Logger", "$.Measure"], function () {
+Clazz.load (["java.lang.Enum", "JM.BioPolymer"], "JM.AlphaPolymer", ["JU.BS", "$.Lst", "$.Measure", "$.P3", "J.c.STR", "JM.Helix", "$.Sheet", "$.Turn", "JU.Logger"], function () {
 c$ = Clazz.declareType (JM, "AlphaPolymer", JM.BioPolymer);
+Clazz.makeConstructor (c$, 
+function (monomers) {
+Clazz.superConstructor (this, JM.AlphaPolymer, [monomers]);
+this.hasStructure = true;
+}, "~A");
 Clazz.overrideMethod (c$, "getProteinStructure", 
 function (monomerIndex) {
 return this.monomers[monomerIndex].getStructure ();
@@ -14,10 +19,6 @@ var pt = JU.P3.newP (this.leadPoints[i]);
 pt.add (v);
 return pt;
 }, "~N,JU.V3");
-Clazz.defineMethod (c$, "getPdbData", 
-function (vwr, ctype, qtype, mStep, derivType, bsAtoms, bsSelected, bothEnds, isDraw, addHeader, tokens, pdbATOM, pdbCONECT, bsWritten) {
-JM.BioPolymer.getPdbData (vwr, this, ctype, qtype, mStep, derivType, bsAtoms, bsSelected, bothEnds, isDraw, addHeader, tokens, pdbATOM, pdbCONECT, bsWritten);
-}, "JV.Viewer,~S,~S,~N,~N,JU.BS,JU.BS,~B,~B,~B,~A,JU.OC,JU.SB,JU.BS");
 Clazz.defineMethod (c$, "addStructure", 
 function (type, structureID, serialID, strandCount, startChainID, startSeqcode, endChainID, endSeqcode, istart, iend, bsAssigned) {
 var i0 = -1;
@@ -32,39 +33,39 @@ if ((indexStart = this.getIndex (startChainID, startSeqcode, i0, i1)) == -1 || (
 if (istart >= 0 && bsAssigned != null) {
 var pt = bsAssigned.nextSetBit (this.monomers[indexStart].firstAtomIndex);
 if (pt >= 0 && pt < this.monomers[indexEnd].lastAtomIndex) return;
-}this.addStructureProtected (type, structureID, serialID, strandCount, indexStart, indexEnd);
-if (istart >= 0) bsAssigned.setBits (istart, iend + 1);
+}if (this.addStructureProtected (type, structureID, serialID, strandCount, indexStart, indexEnd) && istart >= 0) bsAssigned.setBits (istart, iend + 1);
 }, "J.c.STR,~S,~N,~N,~N,~N,~N,~N,~N,~N,JU.BS");
 Clazz.defineMethod (c$, "addStructureProtected", 
 function (type, structureID, serialID, strandCount, indexStart, indexEnd) {
 if (indexEnd < indexStart) {
 JU.Logger.error ("AlphaPolymer:addSecondaryStructure error:  indexStart:" + indexStart + " indexEnd:" + indexEnd);
-return;
+return false;
 }var structureCount = indexEnd - indexStart + 1;
-var proteinstructure = null;
+var ps = null;
 switch (type) {
 case J.c.STR.HELIX:
 case J.c.STR.HELIXALPHA:
 case J.c.STR.HELIX310:
 case J.c.STR.HELIXPI:
-proteinstructure =  new JM.Helix (this, indexStart, structureCount, type);
+ps =  new JM.Helix (this, indexStart, structureCount, type);
 break;
 case J.c.STR.SHEET:
-proteinstructure =  new JM.Sheet (this, indexStart, structureCount, type);
+ps =  new JM.Sheet (this, indexStart, structureCount, type);
 break;
 case J.c.STR.TURN:
-proteinstructure =  new JM.Turn (this, indexStart, structureCount);
+ps =  new JM.Turn (this, indexStart, structureCount);
 break;
 default:
 JU.Logger.error ("unrecognized secondary structure type");
-return;
+return false;
 }
-proteinstructure.structureID = structureID;
-proteinstructure.serialID = serialID;
-proteinstructure.strandCount = strandCount;
+ps.structureID = structureID;
+ps.serialID = serialID;
+ps.strandCount = strandCount;
 for (var i = indexStart; i <= indexEnd; ++i) {
-(this.monomers[i]).setStructure (proteinstructure);
+(this.monomers[i]).setStructure (ps);
 }
+return true;
 }, "J.c.STR,~S,~N,~N,~N,~N");
 Clazz.overrideMethod (c$, "clearStructures", 
 function () {
@@ -94,7 +95,7 @@ var polymerIndex = a1.getPolymerIndexInModel ();
 var monomerIndex = a1.getMonomerIndex ();
 var bpt = monomerIndex;
 if (bpt < nEndMin) biopolymerStartsEnds[polymerIndex][bpt] = i + 1;
-bpt = (a1.getGroup ()).getBioPolymerLength () - monomerIndex - 1;
+bpt = (a1.group).getBioPolymerLength () - monomerIndex - 1;
 if (bpt < nEndMin) biopolymerStartsEnds[polymerIndex][nEndMin + bpt] = i + 1;
 }
 var d2 =  Clazz.newFloatArray (Clazz.doubleToInt (n * (n - 1) / 2), 0);

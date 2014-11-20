@@ -50,7 +50,7 @@ this.output ("\nchildren [\n");
 });
 Clazz.defineMethod (c$, "getViewpoint", 
 function () {
-this.vwr.getAxisAngle (this.viewpoint);
+this.vwr.tm.getAxisAngle (this.viewpoint);
 this.tempP1.set (this.viewpoint.x, this.viewpoint.y, (this.viewpoint.angle == 0 ? 1 : this.viewpoint.z));
 return (this.aperatureAngle * 3.141592653589793 / 180);
 });

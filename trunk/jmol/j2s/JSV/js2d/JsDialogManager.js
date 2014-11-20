@@ -26,7 +26,7 @@ return  Clazz.newIntArray (2, 0);
 Clazz.overrideMethod (c$, "getOptionFromDialog", 
 function (frame, items, jsvp, dialogName, labelName) {
 var i = -1;
-var applet = this.vwr.applet;
+var applet = this.vwr.html5Applet;
 {
 i = applet.getOption(items, dialogName, labelName);
 }return i;

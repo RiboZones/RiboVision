@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.render");
-Clazz.load (["J.render.LabelsRenderer"], "J.render.MeasuresRenderer", ["java.util.Hashtable", "JU.A4", "$.M3", "$.P3", "J.render.FontLineShapeRenderer", "JU.Measure", "$.Point3fi"], function () {
+Clazz.load (["J.render.LabelsRenderer"], "J.render.MeasuresRenderer", ["java.util.Hashtable", "JU.A4", "$.M3", "$.Measure", "$.P3", "J.render.FontLineShapeRenderer", "JU.Point3fi"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.doJustify = false;
 this.modulating = false;
@@ -22,11 +22,11 @@ function () {
 if (!this.g3d.checkTranslucent (false)) return false;
 if (this.atomPt == null) this.atomPt =  new JU.Point3fi ();
 var measures = this.shape;
-this.doJustify = this.vwr.getBoolean (603979872);
+this.doJustify = this.vwr.getBoolean (603979871);
 this.modulating = this.ms.bsModulated != null;
 this.imageFontScaling = this.vwr.getImageFontScaling ();
 this.mad0 = measures.mad;
-this.font3d = this.g3d.getFont3DScaled (measures.font3d, this.imageFontScaling);
+this.font3d = this.vwr.gdata.getFont3DScaled (measures.font3d, this.imageFontScaling);
 this.m = measures.mPending;
 if (!this.isExport && this.m != null && (this.count = this.m.count) != 0) this.renderPendingMeasurement ();
 if (!this.vwr.getBoolean (603979926)) return false;
@@ -67,13 +67,12 @@ Clazz.defineMethod (c$, "getModAtom",
 var ii = Integer.$valueOf (i);
 var pt = this.mpts.get (ii);
 if (pt != null) ii = null;
-var v = this.ms.getVibration (i, false);
-var a = this.ms.at[i];
+var v = this.ms.getModulation (i);
 if (v == null) {
-pt = a;
+pt = this.ms.at[i];
 } else {
 if (pt == null) pt =  new JU.Point3fi ();
-pt.setT (a);
+pt.setT (this.ms.at[i]);
 if (this.vwr.tm.vibrationOn) this.vwr.tm.getVibrationPoint (v, pt, NaN);
 pt.sD = -1;
 }if (ii != null) this.mpts.put (ii, pt);
@@ -233,7 +232,7 @@ y <<= 1;
 });
 Clazz.overrideMethod (c$, "drawLine", 
 function (x1, y1, z1, x2, y2, z2, mad) {
-var diameter = Clazz.floatToInt (mad >= 20 && this.exportType != 1 ? this.vwr.scaleToScreen (Clazz.doubleToInt ((z1 + z2) / 2), mad) : mad);
+var diameter = Clazz.floatToInt (mad >= 20 && this.exportType != 1 ? this.vwr.tm.scaleToScreen (Clazz.doubleToInt ((z1 + z2) / 2), mad) : mad);
 if (this.dotsOrDashes && (this.dashDots == null || this.dashDots === J.render.FontLineShapeRenderer.ndots)) this.width = diameter;
 return this.drawLine2 (x1, y1, z1, x2, y2, z2, diameter);
 }, "~N,~N,~N,~N,~N,~N,~N");

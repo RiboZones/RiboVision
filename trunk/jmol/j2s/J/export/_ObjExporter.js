@@ -167,7 +167,7 @@ this.debugPrint ("  nPolygonColixes=" + meshSurface.pc);
 this.debugPrint ("  all polygons used");
 } else {
 this.debugPrint ("  number of polygons used=" + meshSurface.bsPolygons.cardinality ());
-}this.debugPrint ("  solid color=" + this.g3d.getColorArgbOrGray (colix));
+}this.debugPrint ("  solid color=" + this.gdata.getColorArgbOrGray (colix));
 }var bsPolygons = meshSurface.bsPolygons;
 var nPolygons = meshSurface.pc;
 if (meshSurface.normals != null) meshSurface.normalCount = meshSurface.vc;
@@ -210,9 +210,9 @@ var bsValid =  new JU.BS ();
 this.addMesh (name, data, matrix, null, colix, dim, bsValid);
 }, "JU.MeshSurface,~N");
 Clazz.overrideMethod (c$, "initializeOutput", 
-function (vwr, privateKey, g3d, params) {
+function (vwr, privateKey, gdata, params) {
 this.debugPrint ("initializeOutput: + output");
-var retVal = this.initOutput (vwr, privateKey, g3d, params);
+var retVal = this.initOutput (vwr, privateKey, gdata, params);
 if (!retVal) {
 this.debugPrint ("End initializeOutput (error in super):");
 return false;
@@ -264,7 +264,7 @@ this.mtlout.append (data);
 }, "~S");
 Clazz.defineMethod (c$, "getTextureName", 
  function (colix) {
-return "k" + JU.Escape.getHexColorFromRGB (this.g3d.getColorArgbOrGray (colix));
+return "k" + JU.Escape.getHexColorFromRGB (this.gdata.getColorArgbOrGray (colix));
 }, "~N");
 Clazz.defineMethod (c$, "outputCircle1", 
  function (ptCenter, ptPerp, colix, radius) {
@@ -468,17 +468,18 @@ var w = width * 3;
 var h = height * 3;
 var bytes = (textureType.equals ("tga") ?  Clazz.newByteArray (h, w * 3, 0) : null);
 var rgbbuf = (bytes == null ?  Clazz.newIntArray (h * w, 0) : null);
+var ptTemp =  new JU.P3 ();
 for (var i = 0; i < data.pis.length; i++) {
 var rgb;
 if (data.pcs == null) {
 var face = data.pis[i];
 sum.set (0, 0, 0);
-for (var iVertex, $iVertex = 0, $$iVertex = face; $iVertex < $$iVertex.length && ((iVertex = $$iVertex[$iVertex]) || true); $iVertex++) sum.add (JU.CU.colorPtFromInt (this.g3d.getColorArgbOrGray (colixes[iVertex])));
+for (var iVertex, $iVertex = 0, $$iVertex = face; $iVertex < $$iVertex.length && ((iVertex = $$iVertex[$iVertex]) || true); $iVertex++) sum.add (JU.CU.colorPtFromInt (this.gdata.getColorArgbOrGray (colixes[iVertex]), ptTemp));
 
 sum.scale (1.0 / face.length);
 rgb = JU.CU.colorPtToFFRGB (sum);
 } else {
-rgb = this.g3d.getColorArgbOrGray (colixes[i]);
+rgb = this.gdata.getColorArgbOrGray (colixes[i]);
 }if (bytes == null) {
 for (var j = 0; j < 3; j++) for (var k = 0; k < 3; k++) rgbbuf[(row * 3 + k) * w + col * 3 + j] = rgb;
 

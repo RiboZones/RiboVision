@@ -1,7 +1,6 @@
 Clazz.declarePackage ("JV");
 Clazz.load (["JU.BS"], "JV.ShapeManager", ["java.lang.Boolean", "JU.P3", "J.api.Interface", "J.c.PAL", "$.VDW", "JM.Atom", "JU.BSUtil", "JV.JC"], function () {
 c$ = Clazz.decorateAsClass (function () {
-this.gdata = null;
 this.ms = null;
 this.shapes = null;
 this.vwr = null;
@@ -16,7 +15,6 @@ this.navigationCrossHairMinMax =  Clazz.newIntArray (4, 0);
 Clazz.makeConstructor (c$, 
 function (vwr) {
 this.vwr = vwr;
-this.gdata = vwr.gdata;
 }, "JV.Viewer");
 Clazz.defineMethod (c$, "findNearestShapeAtomIndex", 
 function (x, y, closest, bsNot) {
@@ -64,9 +62,9 @@ if (this.shapes[shapeID] != null) return this.shapes[shapeID];
 if (shapeID == 2 || shapeID == 3 || shapeID == 4) return null;
 var className = JV.JC.getShapeClassName (shapeID, false);
 var shape;
-if ((shape = J.api.Interface.getInterface (className)) == null) return null;
+if ((shape = J.api.Interface.getInterface (className, this.vwr, "shape")) == null) return null;
 this.vwr.setShapeErrorState (shapeID, "allocate");
-shape.initializeShape (this.vwr, this.gdata, this.ms, shapeID);
+shape.initializeShape (this.vwr, this.ms, shapeID);
 this.vwr.setShapeErrorState (-1, null);
 return this.shapes[shapeID] = shape;
 }, "~N");
@@ -83,7 +81,7 @@ if (this.shapes != null) this.shapes[shapeID] = null;
 }, "~N");
 Clazz.defineMethod (c$, "resetShapes", 
 function () {
-if (!this.vwr.noGraphicsAllowed ()) this.shapes =  new Array (36);
+if (!this.vwr.noGraphicsAllowed) this.shapes =  new Array (36);
 });
 Clazz.defineMethod (c$, "setShapeSizeBs", 
 function (shapeID, size, rd, bsSelected) {
@@ -215,28 +213,26 @@ function () {
 var shapes = this.shapes;
 if (shapes == null || shapes[0] == null) return;
 var bs = this.vwr.getVisibleFramesBitSet ();
-for (var i = 1; i < 36; i++) if (shapes[i] != null) shapes[i].setVisibilityFlags (bs);
+for (var i = 8; i < 32; i++) if (shapes[i] != null) shapes[i].setModelVisibilityFlags (bs);
 
 var showHydrogens = this.vwr.getBoolean (603979922);
 var bsDeleted = this.vwr.getDeletedAtoms ();
 var atoms = this.ms.at;
-var flag0 = -48;
 for (var i = this.ms.ac; --i >= 0; ) {
 var atom = atoms[i];
-atom.shapeVisibilityFlags &= flag0;
+atom.shapeVisibilityFlags &= -64;
 if (bsDeleted != null && bsDeleted.get (i) || !showHydrogens && atom.getElementNumber () == 1) continue;
-var modelIndex = atom.getModelIndex ();
-if (bs.get (modelIndex)) {
+if (bs.get (atom.mi)) {
 var f = 1;
 if (!this.ms.isAtomHidden (i)) {
 f |= 8;
 if (atom.madAtom != 0) f |= 16;
 atom.setShapeVisibility (f, true);
 }}}
-shapes[0].setVisibilityFlags (bs);
+this.ms.clearVisibleSets ();
 for (var i = 0; i < 36; ++i) {
 var shape = shapes[i];
-if (shape != null) shape.setModelClickability ();
+if (shape != null) shape.setAtomClickability ();
 }
 });
 Clazz.defineMethod (c$, "finalizeAtoms", 
@@ -244,7 +240,6 @@ function (bsAtoms, ptOffset) {
 var vwr = this.vwr;
 var tm = vwr.tm;
 var bs = this.bsRenderableAtoms;
-var gdata = this.gdata;
 if (bsAtoms != null) {
 var ptCenter = this.ms.getAtomSetCenter (bsAtoms);
 var pt =  new JU.P3 ();
@@ -256,23 +251,24 @@ vwr.setAtomCoordsRelative (pt, bsAtoms);
 ptOffset.set (0, 0, 0);
 }this.ms.getRenderable (bs);
 var vibrationVectors = this.ms.vibrations;
-var atoms = this.ms.at;
 var vibs = (vibrationVectors != null && tm.vibrationOn);
+var atoms = this.ms.at;
 for (var i = bs.nextSetBit (0); i >= 0; i = bs.nextSetBit (i + 1)) {
 var atom = atoms[i];
-var screen = (vibs && atom.hasVibration () ? tm.transformPtVib (atom, vibrationVectors[i], NaN) : tm.transformPt (atom));
+var screen = (vibs && atom.hasVibration () ? tm.transformPtVib (atom, vibrationVectors[i]) : tm.transformPt (atom));
 atom.sX = screen.x;
 atom.sY = screen.y;
 atom.sZ = screen.z;
 var d = Math.abs (atom.madAtom);
 if (d == JM.Atom.MAD_GLOBAL) d = Clazz.floatToInt (vwr.getFloat (1141899265) * 2000);
-atom.sD = Clazz.floatToShort (vwr.scaleToScreen (screen.z, d));
+atom.sD = Clazz.floatToShort (vwr.tm.scaleToScreen (screen.z, d));
 }
+var gdata = vwr.gdata;
 if (tm.slabEnabled) {
 var slabByMolecule = vwr.getBoolean (603979940);
-var slabByAtom = vwr.getBoolean (603979938);
-var minZ = gdata.getSlab ();
-var maxZ = gdata.getDepth ();
+var slabByAtom = vwr.getBoolean (603979939);
+var minZ = gdata.slab;
+var maxZ = gdata.depth;
 if (slabByMolecule) {
 var molecules = this.ms.getMolecules ();
 var moleculeCount = this.ms.getMoleculeCountInModel (-1);

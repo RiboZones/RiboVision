@@ -161,7 +161,7 @@ return false;
 }if (steps > 0) {
 this.bsTaint = JU.BSUtil.copy (this.bsAtoms);
 JU.BSUtil.andNot (this.bsTaint, bsFixed);
-this.vwr.setTaintedAtoms (this.bsTaint, 2);
+this.vwr.ms.setTaintedAtoms (this.bsTaint, 2);
 }if (bsFixed != null) this.bsFixed = bsFixed;
 this.setAtomPositions ();
 if (this.constraints != null) {
@@ -481,6 +481,6 @@ function (bonds, bondCount, atoms, bsAtoms) {
 var ff =  new JM.FF.ForceFieldMMFF (this);
 ff.setArrays (atoms, bsAtoms, bonds, bondCount, true, true);
 this.vwr.setAtomProperty (bsAtoms, 1087375361, 0, 0, null, null, ff.getAtomTypeDescriptions ());
-this.vwr.setAtomProperty (bsAtoms, 1112541196, 0, 0, null, ff.getPartialCharges (), null);
+this.vwr.setAtomProperty (bsAtoms, 1112541195, 0, 0, null, ff.getPartialCharges (), null);
 }, "~A,~N,~A,JU.BS");
 });

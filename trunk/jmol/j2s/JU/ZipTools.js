@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JU");
-Clazz.load (["javajs.api.GenericZipTools"], "JU.ZipTools", ["java.io.BufferedInputStream", "java.lang.Boolean", "java.util.zip.CRC32", "$.GZIPInputStream", "$.ZipEntry", "$.ZipInputStream", "javajs.api.GenericZipInputStream", "$.ZInputStream", "JU.BArray", "$.Lst", "$.PT", "$.Rdr", "$.SB"], function () {
+Clazz.load (["javajs.api.GenericZipTools"], "JU.ZipTools", ["java.io.BufferedInputStream", "$.IOException", "java.lang.Boolean", "java.util.zip.CRC32", "$.GZIPInputStream", "$.ZipEntry", "$.ZipInputStream", "javajs.api.GenericZipInputStream", "$.ZInputStream", "JU.BArray", "$.Lst", "$.PT", "$.Rdr", "$.SB"], function () {
 c$ = Clazz.declareType (JU, "ZipTools", null, javajs.api.GenericZipTools);
 Clazz.makeConstructor (c$, 
 function () {
@@ -56,7 +56,7 @@ for (var i = 0; i < bytes.length; i++) ret.append (Integer.toHexString (bytes[i]
 return ret.toString ();
 }, "~A");
 Clazz.overrideMethod (c$, "getZipFileDirectory", 
-function (bis, list, listPtr, asBufferedInputStream) {
+function (jzt, bis, list, listPtr, asBufferedInputStream) {
 var ret;
 if (list == null || listPtr >= list.length) return this.getZipDirectoryAsStringAndClose (bis);
 bis = JU.Rdr.getPngZipStream (bis, true);
@@ -83,14 +83,14 @@ var bytes = (ze == null ? null : JU.Rdr.getLimitedStreamBytes (zis, ze.getSize (
 ze = null;
 zis.close ();
 if (bytes == null) return "";
-if (JU.Rdr.isZipB (bytes) || JU.Rdr.isPngZipB (bytes)) return this.getZipFileDirectory (JU.Rdr.getBIS (bytes), list, ++listPtr, asBufferedInputStream);
+if (JU.Rdr.isZipB (bytes) || JU.Rdr.isPngZipB (bytes)) return this.getZipFileDirectory (jzt, JU.Rdr.getBIS (bytes), list, ++listPtr, asBufferedInputStream);
 if (asBufferedInputStream) return JU.Rdr.getBIS (bytes);
 if (asBinaryString) {
 ret =  new JU.SB ();
 for (var i = 0; i < bytes.length; i++) ret.append (Integer.toHexString (bytes[i] & 0xFF)).appendC (' ');
 
 return ret.toString ();
-}if (JU.Rdr.isGzipB (bytes)) bytes = JU.Rdr.getLimitedStreamBytes (JU.ZipTools.getUnGzippedInputStream (bytes), -1);
+}if (JU.Rdr.isGzipB (bytes)) bytes = JU.Rdr.getLimitedStreamBytes (this.getUnGzippedInputStream (bytes), -1);
 return JU.Rdr.fixUTF (bytes);
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
@@ -99,7 +99,7 @@ return "";
 throw e;
 }
 }
-}, "java.io.BufferedInputStream,~A,~N,~B");
+}, "javajs.api.GenericZipTools,java.io.BufferedInputStream,~A,~N,~B");
 Clazz.overrideMethod (c$, "getZipFileContentsAsBytes", 
 function (bis, list, listPtr) {
 var ret =  Clazz.newByteArray (0, 0);
@@ -175,50 +175,14 @@ c$.getStreamAsString = Clazz.defineMethod (c$, "getStreamAsString",
 function (is) {
 return JU.Rdr.fixUTF (JU.Rdr.getLimitedStreamBytes (is, -1));
 }, "java.io.InputStream");
-c$.cacheZipContents = Clazz.defineMethod (c$, "cacheZipContents", 
-function (bis, fileName, cache, asByteArray) {
-var zis = JU.ZipTools.newZIS (bis);
-var ze;
-var listing =  new JU.SB ();
-var n = 0;
-try {
-while ((ze = zis.getNextEntry ()) != null) {
-var name = ze.getName ();
-if (fileName != null) listing.append (name).appendC ('\n');
-var nBytes = ze.getSize ();
-var bytes = JU.Rdr.getLimitedStreamBytes (zis, nBytes);
-n += bytes.length;
-var o = (asByteArray ?  new JU.BArray (bytes) : bytes);
-cache.put ((fileName == null ? "" : fileName + "|") + name, o);
-}
-zis.close ();
-} catch (e) {
-if (Clazz.exceptionOf (e, Exception)) {
-try {
-zis.close ();
-} catch (e1) {
-if (Clazz.exceptionOf (e1, java.io.IOException)) {
-} else {
-throw e1;
-}
-}
-return null;
-} else {
-throw e;
-}
-}
-if (n == 0 || fileName == null) return null;
-System.out.println ("ZipTools cached " + n + " bytes from " + fileName);
-return listing.toString ();
-}, "java.io.BufferedInputStream,~S,java.util.Map,~B");
 Clazz.overrideMethod (c$, "newGZIPInputStream", 
 function (is) {
 return  new java.io.BufferedInputStream ( new java.util.zip.GZIPInputStream (is, 512));
 }, "java.io.InputStream");
-c$.getUnGzippedInputStream = Clazz.defineMethod (c$, "getUnGzippedInputStream", 
+Clazz.overrideMethod (c$, "getUnGzippedInputStream", 
 function (bytes) {
 try {
-return JU.Rdr.getUnzippedInputStream (JU.Rdr.getBIS (bytes));
+return JU.Rdr.getUnzippedInputStream (this, JU.Rdr.getBIS (bytes));
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
 return null;
@@ -248,15 +212,20 @@ crc.update (bytes, 0, bytes.length);
 return crc.getValue ();
 }, "~A");
 Clazz.overrideMethod (c$, "readFileAsMap", 
-function (bis, bdata) {
+function (bis, bdata, name) {
+var pt = (name == null ? -1 : name.indexOf ("|"));
+name = (pt >= 0 ? name.substring (pt + 1) : null);
 try {
 if (JU.Rdr.isPngZipStream (bis)) {
-bdata.put ("_IMAGE_",  new JU.BArray (JU.ZipTools.getPngImageBytes (bis)));
-JU.ZipTools.cacheZipContents (bis, null, bdata, true);
+var isImage = "_IMAGE_".equals (name);
+if (name == null || isImage) bdata.put ((isImage ? "_DATA_" : "_IMAGE_"),  new JU.BArray (JU.ZipTools.getPngImageBytes (bis)));
+if (!isImage) this.cacheZipContents (bis, name, bdata, true);
 } else if (JU.Rdr.isZipS (bis)) {
-JU.ZipTools.cacheZipContents (bis, null, bdata, true);
-} else {
+this.cacheZipContents (bis, name, bdata, true);
+} else if (name == null) {
 bdata.put ("_DATA_",  new JU.BArray (JU.Rdr.getLimitedStreamBytes (bis, -1)));
+} else {
+throw  new java.io.IOException ("ZIP file " + name + " not found");
 }bdata.put ("$_BINARY_$", Boolean.TRUE);
 } catch (e) {
 if (Clazz.exceptionOf (e, java.io.IOException)) {
@@ -266,7 +235,55 @@ bdata.put ("_ERROR_", e.getMessage ());
 throw e;
 }
 }
-}, "java.io.BufferedInputStream,java.util.Map");
+}, "java.io.BufferedInputStream,java.util.Map,~S");
+Clazz.overrideMethod (c$, "cacheZipContents", 
+function (bis, fileName, cache, asByteArray) {
+var zis = JU.ZipTools.newZIS (bis);
+var ze;
+var listing =  new JU.SB ();
+var n = 0;
+var oneFile = (asByteArray && fileName != null);
+var pt = (oneFile ? fileName.indexOf ("|") : -1);
+var file0 = (pt >= 0 ? fileName : null);
+if (pt >= 0) fileName = fileName.substring (0, pt);
+try {
+while ((ze = zis.getNextEntry ()) != null) {
+var name = ze.getName ();
+if (fileName != null) {
+if (oneFile) {
+if (!name.equalsIgnoreCase (fileName)) continue;
+} else {
+listing.append (name).appendC ('\n');
+}}var nBytes = ze.getSize ();
+var bytes = JU.Rdr.getLimitedStreamBytes (zis, nBytes);
+if (file0 != null) {
+this.readFileAsMap (JU.Rdr.getBIS (bytes), cache, file0);
+return null;
+}n += bytes.length;
+var o = (asByteArray ?  new JU.BArray (bytes) : bytes);
+cache.put ((oneFile ? "_DATA_" : (fileName == null ? "" : fileName + "|") + name), o);
+if (oneFile) break;
+}
+zis.close ();
+} catch (e) {
+if (Clazz.exceptionOf (e, Exception)) {
+try {
+zis.close ();
+} catch (e1) {
+if (Clazz.exceptionOf (e1, java.io.IOException)) {
+} else {
+throw e1;
+}
+}
+return null;
+} else {
+throw e;
+}
+}
+if (n == 0 || fileName == null) return null;
+System.out.println ("ZipTools cached " + n + " bytes from " + fileName);
+return listing.toString ();
+}, "java.io.BufferedInputStream,~S,java.util.Map,~B");
 c$.getPngImageBytes = Clazz.defineMethod (c$, "getPngImageBytes", 
  function (bis) {
 try {

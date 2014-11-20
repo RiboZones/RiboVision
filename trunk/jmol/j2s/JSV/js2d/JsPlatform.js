@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JSV.js2d");
-Clazz.load (["javajs.api.GenericPlatform"], "JSV.js2d.JsPlatform", ["java.net.URL", "JU.AjaxURLStreamHandlerFactory", "JSV.app.GenericMouse", "JSV.js2d.Display", "$.Image", "$.JsFile", "$.JsFont"], function () {
+Clazz.load (["javajs.api.GenericPlatform"], "JSV.js2d.JsPlatform", ["java.net.URL", "JU.AjaxURLStreamHandlerFactory", "$.Rdr", "$.SB", "JSV.app.GenericMouse", "JSV.js2d.Display", "$.Image", "$.JsFile", "$.JsFont"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.canvas = null;
 this.viewer = null;
@@ -122,8 +122,8 @@ Clazz.overrideMethod (c$, "flushImage",
 function (imagePixelBuffer) {
 }, "~O");
 Clazz.overrideMethod (c$, "getGraphics", 
-function (image) {
-return (image == null ? this.context : JSV.js2d.Image.getGraphics (image));
+function (canvas) {
+return (canvas == null ? this.context : (this.context = JSV.js2d.Image.getGraphics (this.canvas = canvas)));
 }, "~O");
 Clazz.overrideMethod (c$, "getImageHeight", 
 function (canvas) {
@@ -141,14 +141,14 @@ Clazz.overrideMethod (c$, "newBufferedImage",
 function (image, w, h) {
 {
 if (self.Jmol && Jmol._getHiddenCanvas)
-return Jmol._getHiddenCanvas(this.vwr.applet, "stereoImage", w, h);
+return Jmol._getHiddenCanvas(this.vwr.html5Applet, "stereoImage", w, h);
 }return null;
 }, "~O,~N,~N");
 Clazz.overrideMethod (c$, "newOffScreenImage", 
 function (w, h) {
 {
 if (self.Jmol && Jmol._getHiddenCanvas)
-return Jmol._getHiddenCanvas(this.vwr.applet, "textImage", w, h);
+return Jmol._getHiddenCanvas(this.vwr.html5Applet, "textImage", w, h);
 }return null;
 }, "~N,~N");
 Clazz.overrideMethod (c$, "waitForDisplay", 
@@ -176,9 +176,16 @@ function (fontFace, isBold, isItalic, fontSize) {
 return JSV.js2d.JsFont.newFont (fontFace, isBold, isItalic, fontSize, "px");
 }, "~S,~B,~B,~N");
 Clazz.overrideMethod (c$, "getDateFormat", 
-function (isoiec8824) {
+function (isoType) {
 {
-if (isoiec8824) {
+if (isoType == null) {
+} else if (isoType.indexOf("8824") >= 0) {
+var d = new Date();
+var x = d.toString().split(" ");
+var MM = "0" + d.getMonth(); MM = MM.substring(MM.length - 2);
+var dd = "0" + d.getDate(); dd = dd.substring(dd.length - 2);
+return x[3] + MM + dd + x[4].replace(/\:/g,"") + x[5].substring(3,6) + "'" + x[5].substring(6,8) + "'"
+} else if (isoType.indexOf("8601") >= 0){
 var d = new Date();
 var x = d.toString().split(" ");
 var MM = "0" + d.getMonth(); MM = MM.substring(MM.length - 2);
@@ -186,7 +193,7 @@ var dd = "0" + d.getDate(); dd = dd.substring(dd.length - 2);
 return x[3] + MM + dd + x[4].replace(/\:/g,"") + x[5].substring(3,6) + "'" + x[5].substring(6,8) + "'"
 }
 return ("" + (new Date())).split(" (")[0];
-}}, "~B");
+}}, "~S");
 Clazz.overrideMethod (c$, "newFile", 
 function (name) {
 return  new JSV.js2d.JsFile (name);
@@ -195,10 +202,19 @@ Clazz.overrideMethod (c$, "getBufferedFileInputStream",
 function (name) {
 return null;
 }, "~S");
-Clazz.overrideMethod (c$, "getBufferedURLInputStream", 
-function (url, outputBytes, post) {
-return JSV.js2d.JsFile.getBufferedURLInputStream (url, outputBytes, post);
-}, "java.net.URL,~A,~S");
+Clazz.overrideMethod (c$, "getURLContents", 
+function (url, outputBytes, post, asString) {
+var ret = JSV.js2d.JsFile.getURLContents (url, outputBytes, post);
+try {
+return (!asString ? ret : Clazz.instanceOf (ret, String) ? ret : Clazz.instanceOf (ret, JU.SB) ? (ret).toString () : Clazz.instanceOf (ret, Array) ?  String.instantialize (ret) :  String.instantialize (JU.Rdr.getStreamAsBytes (ret, null)));
+} catch (e) {
+if (Clazz.exceptionOf (e, Exception)) {
+return "" + e;
+} else {
+throw e;
+}
+}
+}, "java.net.URL,~A,~S,~B");
 Clazz.overrideMethod (c$, "getLocalUrl", 
 function (fileName) {
 return null;

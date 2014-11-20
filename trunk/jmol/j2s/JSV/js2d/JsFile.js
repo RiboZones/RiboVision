@@ -38,13 +38,13 @@ Clazz.overrideMethod (c$, "length",
 function () {
 return 0;
 });
-c$.getBufferedURLInputStream = Clazz.defineMethod (c$, "getBufferedURLInputStream", 
+c$.getURLContents = Clazz.defineMethod (c$, "getURLContents", 
 function (url, outputBytes, post) {
 try {
 var conn = url.openConnection ();
 if (outputBytes != null) conn.outputBytes (outputBytes);
  else if (post != null) conn.outputString (post);
-return conn.getSB ();
+return conn.getContents ();
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
 return e.toString ();

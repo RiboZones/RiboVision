@@ -1,7 +1,6 @@
 Clazz.declarePackage ("J.adapter.readers.simple");
 Clazz.load (["J.adapter.smarter.AtomSetCollectionReader"], "J.adapter.readers.simple.MopacReader", ["java.lang.Exception", "$.Float", "JU.BS", "$.PT", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
-this.baseAtomIndex = 0;
 this.chargesFound = false;
 this.haveHeader = false;
 this.mopacVersion = 0;

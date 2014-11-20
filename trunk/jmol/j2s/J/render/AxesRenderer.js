@@ -32,7 +32,7 @@ if (this.vwr.areAxesTainted ()) {
 var f = axes.font3d;
 axes.initShape ();
 if (f != null) axes.font3d = f;
-}this.font3d = this.g3d.getFont3DScaled (axes.font3d, this.imageFontScaling);
+}this.font3d = this.vwr.gdata.getFont3DScaled (axes.font3d, this.imageFontScaling);
 var modelIndex = this.vwr.am.cmi;
 var isUnitCell = (axesMode === J.c.AXES.UNITCELL);
 if (this.vwr.ms.isJmolDataFrameForModel (modelIndex) && !this.vwr.ms.getJmolFrameType (modelIndex).equals ("plot data")) return false;
@@ -53,7 +53,7 @@ labelPtr = (this.vwr.getBoolean (603979806) ? 15 : 9);
 if (nPoints != 3) nPoints = (axes.labels.length < 6 ? 3 : 6);
 labelPtr = -1;
 }var isDataFrame = this.vwr.isJmolDataFrame ();
-var slab = this.g3d.getSlab ();
+var slab = this.vwr.gdata.slab;
 var diameter = mad;
 var drawTicks = false;
 if (isXY) {
@@ -92,6 +92,7 @@ this.colixes[0] = this.vwr.getObjectColix (1);
 this.colixes[1] = this.vwr.getObjectColix (2);
 this.colixes[2] = this.vwr.getObjectColix (3);
 for (var i = nPoints; --i >= 0; ) {
+if (isXY && axes.axisType != null && !axes.axisType.contains (J.render.AxesRenderer.axesTypes[i])) continue;
 this.colix = this.colixes[i % 3];
 this.g3d.setC (this.colix);
 var label = (axes.labels == null ? J.render.AxesRenderer.axisLabels[i + labelPtr] : i < axes.labels.length ? axes.labels[i] : null);
@@ -132,4 +133,6 @@ this.g3d.drawString (str, this.font3d, Clazz.doubleToInt (xStrBaseline), Clazz.d
 }, "~S,~N,~N,~N,~N,~N");
 Clazz.defineStatics (c$,
 "axisLabels", ["+X", "+Y", "+Z", null, null, null, "a", "b", "c", "X", "Y", "Z", null, null, null, "X", null, "Z", null, "(Y)", null]);
+Clazz.defineStatics (c$,
+"axesTypes", ["a", "b", "c"]);
 });

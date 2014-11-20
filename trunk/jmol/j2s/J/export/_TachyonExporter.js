@@ -17,14 +17,14 @@ Clazz.superConstructor (this, J["export"]._TachyonExporter, []);
 this.commentChar = "# ";
 });
 Clazz.overrideMethod (c$, "initializeOutput", 
-function (vwr, privateKey, g3d, params) {
+function (vwr, privateKey, gdata, params) {
 this.getLightingInfo ();
-return this.initOutput (vwr, privateKey, g3d, params);
+return this.initOutput (vwr, privateKey, gdata, params);
 }, "JV.Viewer,~N,JU.GData,java.util.Map");
 Clazz.defineMethod (c$, "getLightingInfo", 
  function () {
-this.lighting = " AMBIENT " + J["export"].___Exporter.round (this.g3d.getAmbientPercent () / 100) + " DIFFUSE " + J["export"].___Exporter.round (this.g3d.getDiffusePercent () / 100) + " SPECULAR " + J["export"].___Exporter.round (this.g3d.getSpecularPercent () / 100);
-this.phong = " Phong Plastic 0.5 Phong_size " + this.g3d.getSpecularExponent ();
+this.lighting = " AMBIENT " + J["export"].___Exporter.round (this.gdata.getAmbientPercent () / 100) + " DIFFUSE " + J["export"].___Exporter.round (this.gdata.getDiffusePercent () / 100) + " SPECULAR " + J["export"].___Exporter.round (this.gdata.getSpecularPercent () / 100);
+this.phong = " Phong Plastic 0.5 Phong_size " + this.gdata.getSpecularExponent ();
 });
 Clazz.overrideMethod (c$, "outputHeader", 
 function () {
@@ -129,7 +129,7 @@ Clazz.overrideMethod (c$, "outputCone",
 function (screenBase, screenTip, radius, colix, isBarb) {
 this.tm.unTransformPoint (screenBase, this.tempP1);
 this.tm.unTransformPoint (screenTip, this.tempP2);
-radius = this.vwr.unscaleToScreen (screenBase.z, radius);
+radius = this.vwr.tm.unscaleToScreen (screenBase.z, radius);
 var matRotateScale = this.getRotationMatrix (this.tempP1, this.tempP2, radius);
 this.jmolRenderer.drawSurface (J["export"].___Exporter.getConeMesh (this.tempP1, matRotateScale, colix), colix);
 }, "JU.P3,JU.P3,~N,~N,~B");
@@ -150,7 +150,7 @@ this.outputRing (Clazz.floatToInt (screenB.x), Clazz.floatToInt (screenB.y), Cla
 }}, "JU.P3,JU.P3,~N,~N,~B");
 Clazz.overrideMethod (c$, "fillConicalCylinder", 
 function (screenA, screenB, madBond, colix, endcaps) {
-var diameter = Clazz.floatToInt (this.vwr.scaleToScreen (Clazz.floatToInt ((screenA.z + screenB.z) / 2), madBond));
+var diameter = Clazz.floatToInt (this.vwr.tm.scaleToScreen (Clazz.floatToInt ((screenA.z + screenB.z) / 2), madBond));
 this.fillCylinderScreenMad (colix, endcaps, diameter, screenA, screenB);
 }, "JU.P3,JU.P3,~N,~N,~N");
 Clazz.overrideMethod (c$, "outputCylinderConical", 

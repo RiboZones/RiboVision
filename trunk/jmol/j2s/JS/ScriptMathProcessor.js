@@ -79,7 +79,7 @@ var x = this.xStack[0];
 if (this.chk) {
 if (this.asBitSet) return JS.SV.newV (10,  new JU.BS ());
 return x;
-}if (x.tok == 10 || x.tok == 7 || x.tok == 4 || x.tok == 11 || x.tok == 12) x = JS.SV.selectItemVar (x);
+}if (x.tok == 10 || x.tok == 7 || x.tok == 15 || x.tok == 4 || x.tok == 11 || x.tok == 12) x = JS.SV.selectItemVar (x);
 if (this.asBitSet && x.tok == 7) x = JS.SV.newV (10, JS.SV.unEscapeBitSetArray (x.value, false));
 return x;
 }}if (!this.allowUnderflow && (this.xPt >= 0 || this.oPt >= 0)) this.eval.invArg ();
@@ -478,7 +478,7 @@ if (this.xPt < 0 || this.xPt == 0 && !this.isArrayItem) {
 return false;
 }var var1 = this.xStack[this.xPt--];
 var $var = this.xStack[this.xPt];
-if ($var.tok == 7 && $var.intValue != 2147483647) if (var1.tok == 4 || this.assignLeft && this.squareCount == 1) {
+if (($var.tok == 7 || $var.tok == 15) && $var.intValue != 2147483647) if (var1.tok == 4 || this.assignLeft && this.squareCount == 1) {
 this.xStack[this.xPt] = $var = JS.SV.selectItemTok ($var, -2147483648);
 }if (this.assignLeft && $var.tok != 4) this.lastAssignedString = null;
 switch ($var.tok) {
@@ -494,6 +494,7 @@ this.putOp (null);
 default:
 $var = JS.SV.newS (JS.SV.sValue ($var));
 case 10:
+case 15:
 case 7:
 case 4:
 case 11:
@@ -540,7 +541,9 @@ var args =  new Array (nParam);
 for (var i = nParam; --i >= 0; ) args[i] = this.getX ();
 
 this.xPt--;
-return (!this.chk ? this.getMathExt ().evaluate (this, op, args, tok) : op.tok == 269484241 ? true : this.addXBool (true));
+if (!this.chk) return this.getMathExt ().evaluate (this, op, args, tok);
+if (op.tok == 269484241) this.xPt--;
+return this.addXBool (true);
 }, "~N");
 Clazz.defineMethod (c$, "operate", 
  function () {
@@ -613,12 +616,13 @@ return this.addXBool (!x2.asBoolean ());
 }
 case 269484241:
 var iv = op.intValue & -481;
+if (this.chk) return this.addXObj (JS.SV.newS (""));
 if (this.vwr.allowArrayDotNotation) switch (x2.tok) {
 case 6:
 case 14:
 switch (iv) {
 case 1141899272:
-case 1141899281:
+case 1141899282:
 case 1141899270:
 break;
 default:
@@ -632,7 +636,7 @@ case 1073741824:
 return (x2.tok == 10 && this.getAllProperties (x2, op.value));
 case 1141899272:
 return this.addXStr (JS.ScriptMathProcessor.typeOf (x2));
-case 1141899281:
+case 1141899282:
 return this.getKeys (x2, (op.intValue & 480) == 480);
 case 1141899267:
 case 1276117012:
@@ -658,9 +662,7 @@ case 1766856708:
 switch (x2.tok) {
 case 4:
 case 7:
-s = JS.SV.sValue (x2);
-pt =  new JU.P3 ();
-return this.addXPt (JU.CU.colorPtFromString (s, pt));
+return this.addXPt (JU.CU.colorPtFromString (JS.SV.sValue (x2)));
 case 2:
 case 3:
 return this.addXPt (this.vwr.getColorPointForPropertyValue (JS.SV.fValue (x2)));
@@ -713,7 +715,10 @@ if ((lst = x2.getList ()) != null && (n = lst.size ()) > 0) this.getKeyList (lst
 }return;
 }for (var e, $e = map.entrySet ().iterator (); $e.hasNext () && ((e = $e.next ()) || true);) {
 var k = e.getKey ();
-keys.addLast (prefix + k);
+if (isAll && (k.length == 0 || !JU.PT.isLetter (k.charAt (0)))) {
+if (prefix.endsWith (".")) prefix = prefix.substring (0, prefix.length - 1);
+k = "[" + JU.PT.esc (k) + "]";
+}keys.addLast (prefix + k);
 if (isAll) this.getKeyList (e.getValue (), true, keys, prefix + k + ".");
 }
 }, "JS.SV,~B,JU.Lst,~S");
@@ -1209,7 +1214,7 @@ case 128:
 case 160:
 return this.addXObj (this.getMathExt ().getMinMax (x2.getList (), op.intValue));
 case 1276383249:
-return this.addX (x2.pushPop (null));
+return this.addX (x2.pushPop (null, null));
 case 1276117011:
 case 1141899269:
 return this.addX (x2.sortOrReverse (op.intValue == 1141899269 ? -2147483648 : 1));
@@ -1249,7 +1254,7 @@ case 1112541193:
 case 1146095629:
 var ptfu = JU.P3.newP (x2.value);
 this.vwr.toFractional (ptfu, false);
-return (op.intValue == 1146095627 ? this.addXPt (ptfu) : this.addXFloat (op.intValue == 1112541191 ? ptfu.x : op.intValue == 1112541192 ? ptfu.y : ptfu.z));
+return (op.intValue == 1146095629 ? this.addXPt (ptfu) : this.addXFloat (op.intValue == 1112541191 ? ptfu.x : op.intValue == 1112541192 ? ptfu.y : ptfu.z));
 case 1112539153:
 case 1112539154:
 case 1112539155:
@@ -1271,7 +1276,7 @@ return this.addXFloat ((x2.value).y);
 case 1112541187:
 case 1112541207:
 return this.addXFloat ((x2.value).z);
-case 1141899280:
+case 1141899281:
 return this.addXFloat ((x2.value).w);
 }
 break;

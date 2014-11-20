@@ -13,7 +13,7 @@ function (vwr) {
 this.setViewer (vwr);
 this.setLabels ();
 this.displayConsole ();
-}, "J.api.JmolViewer");
+}, "JV.Viewer");
 Clazz.overrideMethod (c$, "layoutWindow", 
 function (enabledButtons) {
 {
