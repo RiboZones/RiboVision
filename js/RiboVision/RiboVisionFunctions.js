@@ -2219,7 +2219,8 @@ function selectionToPML(PDB_Obj_Names,targetSelection){
 	var SeleResidues=targetSelection.Residues.sort(function (a, b) {;
 		return (Number(a.map_Index) - Number(b.map_Index));
 	});
-		
+	
+	if(SeleResidues.length==0){return ''};
 	r0 = SeleResidues[0].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
 	curr_chain = SeleResidues[0].ChainID;
 	for (var i = 1; i < SeleResidues.length; i++) {
