@@ -1694,7 +1694,7 @@ function CustomDataExpand(targetLayer){
 			var targetSelection = rvDataSets[0].Selections[0];
 			expandSelection(command, targetSelection.Name);
 			var l = targetSelection.Residues.length;
-			if (l == 0){
+			if (l == SeleLen){
 				if ($.inArray("DataCol", customkeys) >= 0) {
 					if (isNaN(parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]))){
 						ExtraData.push(rvDataSets[0].CustomData[ii]["DataCol"]);
