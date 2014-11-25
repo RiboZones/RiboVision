@@ -197,9 +197,10 @@ function resizeElements(noDraw) {
 		rvViews[0].clientHeight = rvDataSets[0].HighlightLayer.Canvas.clientHeight;
 		if (noDraw!==true){
 			rvDataSets[0].drawResidues("residues");
-			rvDataSets[0].drawContourLines("contour");
+			//rvDataSets[0].drawContourLines("contour");
 			rvDataSets[0].drawSelection("selected");
-			rvDataSets[0].refreshResiduesExpanded("circles");
+			rvDataSets[0].refreshResiduesExpanded("circles");			
+			rvDataSets[0].refreshResiduesExpanded("contour");
 			rvDataSets[0].drawLabels("labels");
 			rvDataSets[0].drawBasePairs("lines");
 		}
@@ -213,9 +214,10 @@ function resetView() {
 	rvViews[0].panXY(rvViews[0].defaultX,rvViews[0].defaultY);
 	
 	rvDataSets[0].drawResidues("residues");
-	rvDataSets[0].drawContourLines("contour");
+	//rvDataSets[0].drawContourLines("contour");
 	rvDataSets[0].drawSelection("selected");
 	rvDataSets[0].refreshResiduesExpanded("circles");
+	rvDataSets[0].refreshResiduesExpanded("contour");
 	rvDataSets[0].drawLabels("labels");
 	rvDataSets[0].drawBasePairs("lines");
 	
@@ -503,6 +505,9 @@ function colorResidue(event) {
 			case "circles" :
 				rvDataSets[0].refreshResiduesExpanded(targetLayer.LayerName);
 				break;
+			case "contour" :
+				rvDataSets[0].refreshResiduesExpanded(targetLayer.LayerName);
+				break;
 			default:
 		}
 		//drawLabels();
@@ -746,6 +751,10 @@ function colorMappingLoop(targetLayer, seleProt, seleProtNames, OverRideColors) 
 			targetLayer.clearCanvas();
 			targetLayer.clearData();
 		}
+		if (targetLayer.Type === "contour"){
+			targetLayer.clearCanvas();
+			targetLayer.clearData();
+		}
 		if (targetLayer.Type === "residues"){
 			//targetLayer.clearCanvas();
 			clearColor(false);
@@ -799,6 +808,7 @@ function colorMappingLoop(targetLayer, seleProt, seleProtNames, OverRideColors) 
 				}
 			}
 			rvDataSets[0].drawDataCircles(targetLayer.LayerName, dataIndices, ["#000000", newcolor], true);
+			rvDataSets[0].drawContourLines(targetLayer.LayerName, dataIndices, ["#000000", newcolor], true);
 			rvDataSets[0].drawResidues(targetLayer.LayerName, dataIndices, ["#000000", newcolor], true);
 		}
 		if (i === 0) {
@@ -1128,6 +1138,17 @@ function mouseMoveFunction(event){
 								rvDataSets[0].HighlightLayer.CanvasContext.fill();
 							}
 							break;
+						case "contour" :
+							rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
+							rvDataSets[0].HighlightLayer.CanvasContext.lineJoin = "round";  
+							rvDataSets[0].HighlightLayer.CanvasContext.moveTo(rvDataSets[0].ContourLinePoints[sel].X1 - .05, rvDataSets[0].ContourLinePoints[sel].Y1 - .3);
+							rvDataSets[0].HighlightLayer.CanvasContext.lineTo(rvDataSets[0].ContourLinePoints[sel].X2 - .05, rvDataSets[0].ContourLinePoints[sel].Y2 - .3);
+							rvDataSets[0].HighlightLayer.CanvasContext.lineTo(rvDataSets[0].ContourLinePoints[sel].X3 - .05, rvDataSets[0].ContourLinePoints[sel].Y3 - .3);
+							rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#MainColor").val());
+							rvDataSets[0].HighlightLayer.CanvasContext.lineWidth = 3.2;					
+							rvDataSets[0].HighlightLayer.CanvasContext.stroke();
+							rvDataSets[0].HighlightLayer.CanvasContext.closePath();
+							break;
 						default :
 					}
 				}
@@ -1191,11 +1212,20 @@ function mouseMoveFunction(event){
 							rvDataSets[0].HighlightLayer.CanvasContext.fill();
 						}
 						break;
+					case "contour" :
+						rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
+						rvDataSets[0].HighlightLayer.CanvasContext.lineJoin = "round";  
+						rvDataSets[0].HighlightLayer.CanvasContext.moveTo(rvDataSets[0].ContourLinePoints[sel].X1 - .05, rvDataSets[0].ContourLinePoints[sel].Y1 - .3);
+						rvDataSets[0].HighlightLayer.CanvasContext.lineTo(rvDataSets[0].ContourLinePoints[sel].X2 - .05, rvDataSets[0].ContourLinePoints[sel].Y2 - .3);
+						rvDataSets[0].HighlightLayer.CanvasContext.lineTo(rvDataSets[0].ContourLinePoints[sel].X3 - .05, rvDataSets[0].ContourLinePoints[sel].Y3 - .3);
+						rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#MainColor").val());
+						rvDataSets[0].HighlightLayer.CanvasContext.lineWidth = 3.2;					
+						rvDataSets[0].HighlightLayer.CanvasContext.stroke();
+						rvDataSets[0].HighlightLayer.CanvasContext.closePath();
+						break;
 					default :
 				}
 			}
-			
-			
 			break;
 		default: 
 	}
@@ -2035,7 +2065,7 @@ function savePML() {
 		}
 		script += "\n";
 		// Layers to PyMOL
-		var dsLayers = rvDataSets[0].getLayerByType(["residues","circles","selected"]);
+		var dsLayers = rvDataSets[0].getLayerByType(["residues","circles","contour","selected"]);
 		$.each(dsLayers, function (key, value) {
 			script += layerToPML(PDB_Obj_Names,value);
 		});
@@ -3395,6 +3425,7 @@ function processRvState(rvSaveState) {
 	rvDataSets[0].drawResidues("residues");
 	rvDataSets[0].drawSelection("selected");
 	rvDataSets[0].refreshResiduesExpanded("circles");
+	rvDataSets[0].refreshResiduesExpanded("contour");
 	rvDataSets[0].drawLabels("labels");
 	rvDataSets[0].drawBasePairs("lines");
 	
