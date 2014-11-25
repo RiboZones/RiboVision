@@ -694,6 +694,25 @@ function rvDataSet(DataSetName) {
 				}
 			}
 		}
+		
+		if (rvDataSets[0].Residues !== undefined && targetLayer.Type === "contour") {
+			targetLayer.clearCanvas();
+			if (rvDataSets[0].Residues && rvDataSets[0].Residues.length > 0) {
+				$.each(rvDataSets[0].Residues, function (index, value) {
+					if (targetLayer.dataLayerColors[index] != undefined && targetLayer.dataLayerColors[index] != '#858585') {
+						targetLayer.CanvasContext.beginPath();
+						targetLayer.CanvasContext.lineJoin = "round";  
+						targetLayer.CanvasContext.moveTo(rvDataSets[0].ContourLinePoints[index].X1 - .05, rvDataSets[0].ContourLinePoints[index].Y1 - .3);
+						targetLayer.CanvasContext.lineTo(rvDataSets[0].ContourLinePoints[index].X2 - .05, rvDataSets[0].ContourLinePoints[index].Y2 - .3);
+						targetLayer.CanvasContext.lineTo(rvDataSets[0].ContourLinePoints[index].X3 - .05, rvDataSets[0].ContourLinePoints[index].Y3 - .3);
+						targetLayer.CanvasContext.strokeStyle = targetLayer.dataLayerColors[index];	
+						targetLayer.CanvasContext.lineWidth = 3.2;					
+						targetLayer.CanvasContext.stroke();
+						targetLayer.CanvasContext.closePath();
+					}
+				});
+			}
+		}
 	}
 	function drawLabels(targetLayer,drawExtra) {
 		if (!canvas2DSupported){return};
@@ -779,10 +798,10 @@ function rvDataSet(DataSetName) {
 	}
 	function drawContourLine(targetLayer, dataIndices, ColorArray, noClear) {
 		if (targetLayer.Type === "contour") {
-			targetLayer.clearCanvas();
+			//targetLayer.clearCanvas();
 			if (!noClear) {
-				//targetLayer.clearCanvas();
-				//targetLayer.dataLayerColors = [];
+				targetLayer.clearCanvas();
+				targetLayer.dataLayerColors = [];
 			}
 			if (rvDataSets[0].Residues && rvDataSets[0].Residues.length > 0) {
 				$.each(rvDataSets[0].Residues, function (index, value) {
@@ -808,7 +827,7 @@ function rvDataSet(DataSetName) {
 						targetLayer.CanvasContext.stroke();
 						targetLayer.CanvasContext.closePath();
 					} else 	{
-						targetLayer.dataLayerColors[index] = undefined;
+						//targetLayer.dataLayerColors[index] = undefined;
 					}
 				});
 			} else {
@@ -970,6 +989,7 @@ function rvDataSet(DataSetName) {
 						targetLayer.Data[i]["color"] = grd;
 						targetLayer.Data[i]["color_hex"] = color1;
 						break;
+					case "contour":
 					case "circles":
 						var grd = colorLayer.CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
 						if (colorLayer.dataLayerColors[j] && colorLayer.dataLayerColors[k]) {
@@ -1072,9 +1092,10 @@ function rvView(x, y, scale) {
 		this.y = (this.y - py) * factor + py;
 		
 		rvDataSets[0].drawResidues("residues");
-		rvDataSets[0].drawContourLines("contour");
+		//rvDataSets[0].drawContourLines("contour");
 		rvDataSets[0].drawSelection("selected");
 		rvDataSets[0].refreshResiduesExpanded("circles");
+		rvDataSets[0].refreshResiduesExpanded("contour");
 		rvDataSets[0].drawLabels("labels");
 		rvDataSets[0].drawBasePairs("lines");
 	}
@@ -1092,9 +1113,10 @@ function rvView(x, y, scale) {
 		rvViews[0].x += event.clientX - rvViews[0].lastX;
 		rvViews[0].y += event.clientY - rvViews[0].lastY;
 		rvDataSets[0].drawResidues("residues");
-		rvDataSets[0].drawContourLines("contour");
+		//rvDataSets[0].drawContourLines("contour");
 		rvDataSets[0].drawSelection("selected");
 		rvDataSets[0].refreshResiduesExpanded("circles");
+		rvDataSets[0].refreshResiduesExpanded("contour");
 		rvDataSets[0].drawLabels("labels");
 		rvDataSets[0].drawBasePairs("lines");
 		rvViews[0].lastX = event.clientX;
@@ -1104,9 +1126,10 @@ function rvView(x, y, scale) {
 		rvViews[0].x += dx;
 		rvViews[0].y += dy;
 		rvDataSets[0].drawResidues("residues");
-		rvDataSets[0].drawContourLines("contour");
+		//rvDataSets[0].drawContourLines("contour");
 		rvDataSets[0].drawSelection("selected");
 		rvDataSets[0].refreshResiduesExpanded("circles");
+		rvDataSets[0].refreshResiduesExpanded("contour");
 		rvDataSets[0].drawLabels("labels");
 		rvDataSets[0].drawBasePairs("lines");
 		rvViews[0].lastX += dx;
@@ -1121,9 +1144,10 @@ function rvView(x, y, scale) {
 	this.restore = function () {
 		$("#slider").slider("value",this.slideValue);
 		rvDataSets[0].drawResidues("residues");
-		rvDataSets[0].drawContourLines("contour");
+		//rvDataSets[0].drawContourLines("contour");
 		rvDataSets[0].drawSelection("selected");
 		rvDataSets[0].refreshResiduesExpanded("circles");
+		rvDataSets[0].refreshResiduesExpanded("contour");
 		rvDataSets[0].drawLabels("labels");
 		rvDataSets[0].drawBasePairs("lines");
 	}
