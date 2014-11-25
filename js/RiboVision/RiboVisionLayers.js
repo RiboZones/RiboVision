@@ -637,7 +637,7 @@ function RefreshLayerMenu() {
 		$selectbox.options[0].setAttribute("selected", "selected");
 		$selectbox.options[1] = new Option("Manual Coloring", "manual_coloring");
 
-		var dsLayers = rvDataSets[0].getLayerByType(["residues", "circles", "selected"]);
+		var dsLayers = rvDataSets[0].getLayerByType(["residues", "circles","contour", "selected"]);
 		$.each(dsLayers.reverse(), function (key, value) {
 			$selectbox.options[$selectbox.options.length] = new Option(value.LayerName, value.LayerName);
 		});
