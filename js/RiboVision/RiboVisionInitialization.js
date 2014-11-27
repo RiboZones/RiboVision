@@ -420,6 +420,7 @@ function RiboVisionReady() {
 	});
 	$("#ProtList").multiselect().multiselectfilter();
 	
+	/*
 	$( "#speciesList" ).multiselect({
 		multiple: false,
 		header: "Select a Species",
@@ -455,7 +456,7 @@ function RiboVisionReady() {
 		selectedList: 1
 	});
 	$("#3D_Struct_List").multiselect().multiselectfilter();
-
+*/
 	
 	$("#speciesList").menu({});
 	$("#selectByDomainHelix").multiselect({
@@ -1073,7 +1074,7 @@ function InitRibovision3(FreshState) {
 		
 		var SpeciesList = [];
 		var SubUnits = [];
-		//$("#speciesList li[role=presentation]").remove();
+		$("#speciesList li[role=presentation]").remove();
 		
 		$.each(MapList, function (ind, item) {
 			SpeciesList.push(MapList[ind].Species_Name);
@@ -1082,16 +1083,19 @@ function InitRibovision3(FreshState) {
 		SpeciesListU = $.grep(SpeciesList, function (v, k) {
 				return $.inArray(v, SpeciesList) === k;
 			});
-		//alert(SpeciesList);
+		alert(SpeciesList);
 		
 		var sl = document.getElementById("speciesList");
 		
 		$.each(SpeciesListU, function (i, item) {
-			sl.options[i+1] = new Option(SpeciesListU[i], SpeciesListU[i]);
-			/*
+			//sl.options[i+1] = new Option(SpeciesListU[i], SpeciesListU[i]);
+			$("#speciesList").append(
+				$("<li>").append($('<i>').append(SpeciesListU[i])))
+			
+			
 			// Subunits
 			var FoundSubUnits = [];
-			for (var j = 0; j <  .length; j++) {
+			for (var j = 0; j <  SpeciesList.length; j++) {
 				if (SpeciesListU[i] == SpeciesList[j]) {
 					FoundSubUnits.push(SubUnits[j]);
 				}
@@ -1115,7 +1119,7 @@ function InitRibovision3(FreshState) {
 						if (MapList[ii].Species_Name == SpeciesListU[i]) {
 							if (MapList[ii].Subunit == FoundSubUnitsU[jj]) {
 								$("#" + SpeciesListU[i].replace(/[\s]/g, "") + 'sub' + 'LSU').append(
-									$("<li>").append(MapList[ii].DataSetName))
+									$("<li>").append(MapList[ii].SS_Table))
 							}
 						}
 					});
@@ -1129,18 +1133,18 @@ function InitRibovision3(FreshState) {
 						if (MapList[iii].Species_Name == SpeciesListU[i]) {
 							if (MapList[iii].Subunit == FoundSubUnitsU[jj]) {
 								$("#" + SpeciesListU[i].replace(/[\s]/g, "") + 'sub' + 'SSU').append(
-									$("<li>").append(MapList[iii].DataSetName))
+									$("<li>").append(MapList[iii].SS_Table))
 							}
 						}
 					});
 				}
 			}
-			*/
+			
 		});
-		$("#speciesList").multiselect("refresh");
+		//$("#speciesList").multiselect("refresh");
 		SpeciesTable=MapList;
-		/*
-		//$("#speciesList").menu("refresh");
+		
+		$("#speciesList").menu("refresh");
 		var list = $('#speciesList');
 		var firstLI = list.find('li').first();
 		list
@@ -1159,7 +1163,7 @@ function InitRibovision3(FreshState) {
 			var hash = window.location.hash.substring(1); //Puts hash in variable, and removes the # character
 			loadSpecies(hash);
 			// auto-load species if direct link
-		}*/
+		}
 	});
 }
 ///////////////////////////////////////////////////////////////////////////////
