@@ -66,7 +66,7 @@
 <body>
     <div id="menu" class="ui-widget-content">
         <div id="SiteInfo" class="ui-widget-content">
-            <h3 class="ui-widget-header2"><a href="./ChangeLog.txt" target="_blank" style="color:#FFF">RiboVision: Version 1.19.1</a></h3>
+            <h3 class="ui-widget-header2"><a href="./ChangeLog.txt" target="_blank" style="color:#FFF">RiboVision: Version 1.1.9.3</a></h3>
             <div id="MainLogoDiv"><a href="./Documentation/index.html" target="_blank"><img src="images/RiboVisionLogo.png" id="MainLogo" title="RiboVision Manual" alt="RiboVision Logo" /></a></div>
         Click for RiboVision Manual
 		</div>
@@ -77,24 +77,11 @@
             <div id="SideBarAccordian">
                 <h3><a href="#">Species/Subunit</a></h3>
                 <div id="SpeciesDiv" style="padding:0.1em">
-					<input id="speciesList1" type="button" /><br />
-					<!--
-					<select id="speciesList" multiple="multiple">
-					  <option value="volvo">None</option>
-
-                        </select><br />
-						
-					<select id="2D_Struct_List" multiple="multiple">
-						<optgroup label="LSU" id="LSU_2D_List" /></optgroup>
-						<optgroup label="SSU" id="SSU_2D_List" /></optgroup>
-						<optgroup label="mito-LSU" id="mitoLSU_2D_List" /></optgroup>
-						<optgroup label="mito-SSU" id="mitoSSU_2D_List" /></optgroup>
-					
-					</select><br />
-						
-					<select id="3D_Struct_List" multiple="multiple">
-                        </select><br />
-					//-->
+					<div id="SubUnitNumberToggle">
+						<input id="LoadSubunit1" type="radio" name="LoadSubunit" value="on" /><label for="LoadSubunit1">1st</label>
+						<input id="LoadSubunit2" type="radio" name="LoadSubunit" value="off" /><label for="LoadSubunit2">2nd</label>
+					</div>
+		
 					<ul id="speciesList" style="font-size:0.9em">
                         <li class="ui-menu-item ios-menu-back-link" role="menu">No Molecule</li>
                     </ul>

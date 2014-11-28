@@ -7,11 +7,9 @@ $.widget( "ui.iosMenu", {
 
 	_insertBackButtons: function() {
 		this.element.find( 'li ul, li ol' ).prepend(
-			$( '<li class="ui-menu-item ios-menu-back-link" role="presentation">' +
-				 '	<a href="#menu-back" class="ui-corner-role" tabindex="-1" role="menuitem" aria-haspopup="true" >' +
+			$( '<li class="ui-menu-item ios-menu-back-link ui-corner-role" tabindex="-1" role="menuitem" aria-haspopup="true">' +
 				'	<span class="ui-menu-icon ui-icon ui-icon-carat-1-w"></span>' +
 							this.options.backText +
-				 '	</a>' +
 				 '</li>'
 		) );
 		return this;
@@ -39,7 +37,7 @@ $.widget( "ui.iosMenu", {
 		// Override menu#select to account for nesting and back buttons:
 		menu.select = function( event ) {
 			//menu.active = menu.active || $( event.target ).closest( ".ui-menu-item" ); //new random line
-			if ( menu.active && menu.active.find('a').attr("href") == "#menu-back" ) {
+			if ( menu.active && menu.active.hasClass("ios-menu-back-link") ) {
 				// if you selected "back", go back:
 				menu.focus( event, menu.active );
 				menu.collapse( event );
@@ -87,7 +85,7 @@ $.widget( "ui.iosMenu", {
 					self		= this,
 					parent;
 			if ( newItem && newItem.length ) {
-			  newItem.find( '> a' ).addClass( 'ui-state-focus' ).removeClass( 'ui-state-active' );
+			  newItem.addClass( 'ui-state-focus' ).removeClass( 'ui-state-active' );
 				parent = this.active.parent();
 				parent
 					.attr( 'aria-hidden', 'true' )
