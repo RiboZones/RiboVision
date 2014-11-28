@@ -687,6 +687,13 @@ function RiboVisionReady() {
 		drawNavLine();
 	});
 	
+	$("#SubUnitNumberToggle").buttonset();
+	$("#LoadSubunit1").attr("checked","checked");
+	$("#SubUnitNumberToggle").buttonset("refresh");
+	$("[name=LoadSubunit]").button().change(function(event,ui){
+		//alert(42)
+	});
+	
 	$("#JmolToggle").buttonset();
 	//$("#jpON").attr("checked","checked");
 	//$("#JmolToggle").buttonset("refresh");
@@ -766,6 +773,8 @@ function RiboVisionReady() {
 	$("[name=savelayers]").button();
 	$("#colorSelection").button();
 	//$("#layerColorSelection").button();
+	
+	
 	if(typeof(Storage)!=="undefined"){
 	  localStorageAvailable = true;
 	  // Yes! localStorage and sessionStorage support!
@@ -972,6 +981,7 @@ function RiboVisionReady() {
 function InitRibovision(FreshState) {
 	//debugger;
 	rvDataSets[0] = new rvDataSet("EmptyDataSet");
+	rvDataSets[1] = new rvDataSet("EmptyDataSet");
 	rvDataSets[0].addHighlightLayer("HighlightLayer", "HighlightLayer", [], false, 1.176, 'highlight');
 	rvDataSets[0].addLayer("Interactions", "InteractionsLayer", [], true, 1.0, 'lines');
 	rvDataSets[0].addLayer("Labels", "LabelLayer", [], true, 1.0, 'labels');
@@ -1083,7 +1093,7 @@ function InitRibovision3(FreshState) {
 		SpeciesListU = $.grep(SpeciesList, function (v, k) {
 				return $.inArray(v, SpeciesList) === k;
 			});
-		alert(SpeciesList);
+		//alert(SpeciesList);
 		
 		var sl = document.getElementById("speciesList");
 		
@@ -1119,7 +1129,7 @@ function InitRibovision3(FreshState) {
 						if (MapList[ii].Species_Name == SpeciesListU[i]) {
 							if (MapList[ii].Subunit == FoundSubUnitsU[jj]) {
 								$("#" + SpeciesListU[i].replace(/[\s]/g, "") + 'sub' + 'LSU').append(
-									$("<li>").append(MapList[ii].SS_Table))
+									$("<li>").append(MapList[ii].DataSetName).data({ss_table : MapList[ii].SS_Table}))
 							}
 						}
 					});
@@ -1133,7 +1143,7 @@ function InitRibovision3(FreshState) {
 						if (MapList[iii].Species_Name == SpeciesListU[i]) {
 							if (MapList[iii].Subunit == FoundSubUnitsU[jj]) {
 								$("#" + SpeciesListU[i].replace(/[\s]/g, "") + 'sub' + 'SSU').append(
-									$("<li>").append(MapList[iii].SS_Table))
+									$("<li>").append(MapList[iii].DataSetName).data({ss_table : MapList[iii].SS_Table}))
 							}
 						}
 					});
@@ -1142,7 +1152,6 @@ function InitRibovision3(FreshState) {
 			
 		});
 		//$("#speciesList").multiselect("refresh");
-		SpeciesTable=MapList;
 		
 		$("#speciesList").menu("refresh");
 		var list = $('#speciesList');
@@ -1152,9 +1161,15 @@ function InitRibovision3(FreshState) {
 		.focus()
 		.menu('focus', {}, firstLI)
 		.on('menuselect', function (event, ui) {
-			var species = $(ui.item).find("a").attr('href');
-			loadSpecies(species.substr(1));
-			
+			if( typeof this.species_array == 'undefined' ) {
+				this.species_array = ['',''];
+			}
+			if($('input[name="LoadSubunit"][value=on]').is(':checked')){
+				this.species_array[0]=$(ui.item).data("ss_table");
+			} else {
+				this.species_array[1]=$(ui.item).data("ss_table");
+			}
+			loadSpecies(this.species_array.join("&"));
 		});
 		if (FreshState){
 			list.iosMenu().data("iosMenu")._insertBackButtons();
