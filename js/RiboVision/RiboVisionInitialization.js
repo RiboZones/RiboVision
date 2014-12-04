@@ -494,30 +494,6 @@ function RiboVisionReady() {
 	});
 	$("#selectByDomainHelix").multiselect().multiselectfilter();
 	
-	/*$("#alnList").multiselect({
-		minWidth : 160,
-		multiple : false,
-		header : "Select a Data Set",
-		noneSelectedText : "Select an Option",
-		selectedList : 1,
-		click: function(event,ui){
-			
-			var targetLayer = rvDataSets[0].getSelectedLayer();
-			targetLayer.DataLabel = ui.text;
-			$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer.DataLabel);
-			var ColName = ui.value.match(/[^\'\\,]+/);
-			var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
-			if (result[0]){
-				//$(this).parent().find(".DataDescription").text(result[0].Description);
-				//$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation/" + result[0].HelpLink + ".html");				
-			} else {
-				//$(this).parent().find(".DataDescription").text("Data Description is missing.");
-				//$(this).parent().find(".ManualLink").find("a").attr("href","/Documentation");				
-			}
-			colorMapping("42",ui.value);
-			drawNavLine();
-		}
-	});*/
 	$("#PrimaryInteractionList").multiselect({
 		minWidth : 160,
 		multiple : false,
@@ -567,19 +543,19 @@ function RiboVisionReady() {
 			var array_of_checked_values = $("#SecondaryInteractionList").multiselect("getChecked").map(function(){
 			   return this.value;	
 			}).get();
-			filterBasePairs(FullBasePairSet,array_of_checked_values);
+			filterBasePairs(array_of_checked_values);
 		},
 		uncheckAll : function () {
 			var array_of_checked_values = $("#SecondaryInteractionList").multiselect("getChecked").map(function(){
 			   return this.value;	
 			}).get();
-			filterBasePairs(FullBasePairSet,array_of_checked_values);
+			filterBasePairs(array_of_checked_values);
 		},
 		checkAll : function (event, ui) {
 			var array_of_checked_values = $("#SecondaryInteractionList").multiselect("getChecked").map(function(){
 			   return this.value;	
 			}).get();
-			filterBasePairs(FullBasePairSet,array_of_checked_values);
+			filterBasePairs(array_of_checked_values);
 		}
 	});
 	$("#SaveEverythingBtn").button().click(function(){
@@ -979,23 +955,25 @@ function RiboVisionReady() {
 };
 
 function InitRibovision(FreshState) {
+	var numDataSets = 2; // Only two supported for starters.
 	//debugger;
-	rvDataSets[0] = new rvDataSet("EmptyDataSet");
-	rvDataSets[1] = new rvDataSet("EmptyDataSet");
-	rvDataSets[0].addHighlightLayer("HighlightLayer", "HighlightLayer", [], false, 1.176, 'highlight');
-	rvDataSets[0].addLayer("Interactions", "InteractionsLayer", [], true, 1.0, 'lines');
-	rvDataSets[0].addLayer("Labels", "LabelLayer", [], true, 1.0, 'labels');
-	rvDataSets[0].addLayer("ContourLine", "ContourLine", [], true, 1.0, 'contour');
-	rvDataSets[0].addLayer("Letters", "NucleotideLayer", [], true, 1.0, 'residues');
-	rvDataSets[0].addLayer("Circles", "CircleLayer1", [], true, 1.0, 'circles');
-	//rvDataSets[0].addLayer("Data2", "CircleLayer2", [], true, 1.0, 'circles');
-	rvDataSets[0].addLayer("Selection", "SSelectionLayer", [], false, 1.176, 'selected');
-	rvDataSets[0].sort();
-	
 	$(".oneLayerGroup").remove();
 	$(".oneSelectionGroup").remove();
-	rvDataSets[0].addSelection("Selection_1");
 	
+	for (var i = 0; i < numDataSets; i++) {
+		rvDataSets[i] = new rvDataSet("EmptyDataSet",i);
+		rvDataSets[i].addHighlightLayer("HighlightLayer", "HighlightLayer", [], false, 1.176, 'highlight');
+		rvDataSets[i].addLayer("Interactions", "InteractionsLayer", [], true, 1.0, 'lines');
+		rvDataSets[i].addLayer("Labels", "LabelLayer", [], true, 1.0, 'labels');
+		rvDataSets[i].addLayer("ContourLine", "ContourLine", [], true, 1.0, 'contour');
+		rvDataSets[i].addLayer("Letters", "NucleotideLayer", [], true, 1.0, 'residues');
+		rvDataSets[i].addLayer("Circles", "CircleLayer1", [], true, 1.0, 'circles');
+		//rvDataSets[i].addLayer("Data2", "CircleLayer2", [], true, 1.0, 'circles');
+		rvDataSets[i].addLayer("Selection", "SSelectionLayer", [], false, 1.176, 'selected');
+		rvDataSets[i].sort();
+		rvDataSets[i].addSelection("Selection_1");
+	}
+		
 	resizeElements(true);
 
 	switch (get_cookie("JmolState")) {

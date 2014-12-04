@@ -70,30 +70,6 @@ function InitSelections() {
 		$("#dialog-confirm-delete-S").dialog('open');
 	});
 
-	/*
-	// Put in Layers
-	$.each(rvDataSets[0].Layers, function (key, value){
-	LayerMenu(value, key);
-	});
-
-	//Accordion that support multiple sections open
-	$("#LayerPanel").multiAccordion();
-	$("#LayerPanel").sortable({
-	update : function (event, ui) {
-	$("#LayerPanel .layerContent").each(function (e, f) {
-	//$(this).find('p').text(rvDataSets[0].LastLayer - e - 1);
-	$("#" + $(this).parent().find('h3').text()).css('zIndex', rvDataSets[0].LastLayer - e - 1)
-
-	});
-	rvDataSets[0].sort();
-	},
-	items : ".oneLayerGroup"
-
-	});
-	$("#LayerPanel").disableSelection();
-
-	//RefreshLayerMenu();
-	 */
 	///////////////////////// Add Selection Dialog ////////////////////////////////
 	$("#dialog-addSelection").dialog({
 		resizable : false,
