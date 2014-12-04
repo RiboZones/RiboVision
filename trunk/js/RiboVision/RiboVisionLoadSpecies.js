@@ -36,10 +36,18 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 		rvDataSets[0].DataDescriptions=data;
 	});
 	if (speciesSplit.length >1){
-		alert("two species mode is not finished.");
+		console.log("two species mode is not finished.");
 		//Experimental code
-		rvDataSets[1].Layers=rvDataSets[0].Layers;
 	}
+	
+	//Set interaction Menu
+	var il = document.getElementById("PrimaryInteractionList");
+	il.options.length = 0;
+	il.options[0] = new Option("None", "clear_lines", true, true);				
+	il.options[0].setAttribute("selected", "selected");
+		
+	// Reset Domain Helix menu
+	$("#selectByDomainHelix").find('option').remove().end();
 	
 	$.each(speciesSplit, function (speciesIndex,speciesInterest){
 		rvDataSets[speciesIndex].Name=speciesInterest;
@@ -73,6 +81,10 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 					
 				});
 				data["speciesIndex"]=speciesIndex;
+				// Set offset. Right now, only side by side, two structures are allowed, so this is easy.
+				rvDataSets[speciesIndex].PageOffset[0] = (rvDataSets[speciesIndex].SpeciesEntry.Orientation == "portrait") ? 792 * rvDataSets[speciesIndex].SetNumber : 612 * rvDataSets[speciesIndex].SetNumber  ; //X direction
+				rvDataSets[speciesIndex].PageOffset[1]=0; //Y direction
+				
 				rvDataSets[speciesIndex].addResidues(data);
 				var resRangeX=Math.max.apply(null,resXs) - Math.min.apply(null,resXs);
 				var resXcenter=Math.min.apply(null,resXs) + resRangeX/2;
@@ -104,7 +116,7 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 					if (!DoneLoading2) {
 						clearSelection(true);
 					}
-					initLabels(speciesInterest);
+					initLabels(speciesInterest,speciesIndex);
 					// Get conservation table
 					$.getJSON('getData.php', {
 						FullTable : rvDataSets[speciesIndex].SpeciesEntry.ConservationTable
@@ -114,7 +126,7 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 					$("#TemplateLink").attr("href", "./Templates/" + speciesInterest + "_UserDataTemplate.csv")
 
 					// Set Selection Menu
-					populateDomainHelixMenu();
+					populateDomainHelixMenu(speciesIndex);
 					
 					//Set Protein Menu
 					var pl = document.getElementById("ProtList");
@@ -186,18 +198,29 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 					
 					//$("#StructDataList").multiselect("refresh");
 					
-					//Set interaction Menu
+					//Set interaction Menu	
 					var il = document.getElementById("PrimaryInteractionList");
 					var BPList = rvDataSets[speciesIndex].SpeciesEntry.InterActionMenu.split(";");
-					il.options.length = 0;
-					il.options[0] = new Option("None", "clear_lines", true, true);				
-					il.options[0].setAttribute("selected", "selected");
-					if (BPList[0] != "") {
+					if (speciesIndex == 0 && BPList[0] != ""){
 						for (var iii = 0; iii < BPList.length; iii++) {
 							var NewBPair = BPList[iii].split(":");
-							il.options[iii + 1] = new Option(NewBPair[0], NewBPair[1]);
+							if (il.options[iii + 1]) {
+								il.options[iii + 1].value = NewBPair[1] + ';' + il.options[iii + 1].value;
+							} else {
+								il.options[iii + 1] = new Option(NewBPair[0], NewBPair[1]);
+							}
+						}
+					} else if (BPList[0] != ""){
+						for (var iii = 0; iii < BPList.length; iii++) {
+							var NewBPair = BPList[iii].split(":");
+							if (il.options[iii + 1]) {
+								il.options[iii + 1].value = il.options[iii + 1].value + ';' + NewBPair[1];
+							} else {
+								il.options[iii + 1] = new Option(NewBPair[0], NewBPair[1]);
+							}
 						}
 					}
+					
 					$("#PrimaryInteractionList").multiselect("refresh");
 					
 					
@@ -233,7 +256,7 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 						},
 						items : ".dataBubble"
 					});
-					ProcessBubble($("#StructDataBubbles").find(".dataBubble:contains('Domains')"),targetLayer[0])
+					ProcessBubble($("#StructDataBubbles").find(".dataBubble:contains('Domains')"),targetLayer[0].LayerName)
 					//rvDataSets[speciesIndex].drawResidues("residues");
 					rvDataSets[speciesIndex].drawLabels("labels");
 					rvDataSets[speciesIndex].drawContourLines("contour");
@@ -254,6 +277,9 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 				if (DoneLoading){
 					DoneLoading.resolve();
 				}
+				// Set offset. Right now, only side by side, two structures are allowed, so this is easy.
+				rvDataSets[speciesIndex].PageOffset[0] = (rvDataSets[speciesIndex].SpeciesEntry.Orientation == "portrait") ? 792 * rvDataSets[speciesIndex].SetNumber : 612 * rvDataSets[speciesIndex].SetNumber  ; //X direction
+				rvDataSets[speciesIndex].PageOffset[1]=0; //Y direction
 			});
 		} else {
 			rvDataSets[speciesIndex].addResidues([]);

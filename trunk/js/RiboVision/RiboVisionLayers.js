@@ -682,7 +682,8 @@ function ProcessBubbleDrop(event, ui) {
 			$(".miniLayerName[name=" + targetLayer.LayerName + "]").attr("title", "Data Description is missing.");
 			$(ui.draggable[0]).parent().parent().find(".ManualLink").attr("href", "./Documentation");
 		}
-		ProcessBubble($(ui.draggable[0]), targetLayer);
+		// For now, the LayerName and DataLabels are identical for both subunits. Only need to loop in ProcessBubble
+		ProcessBubble($(ui.draggable[0]), targetLayer.LayerName);
 		$(".oneLayerGroup[name='" + targetLayer.LayerName + "']").find(".selectLayerRadioBtn").prop("checked", true);
 		$(".oneLayerGroup[name='" + targetLayer.LayerName + "']").find(".selectLayerRadioBtn").trigger("change");
 		$(".oneLayerGroup[name='" + targetLayer.LayerName + "']").find(".mappingRadioBtn").prop("checked", true);

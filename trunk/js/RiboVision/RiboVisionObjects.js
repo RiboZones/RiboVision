@@ -31,16 +31,16 @@ based on:
 function RvLayer(rvds,LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color) {
 	//Properties
 	this.LayerName = LayerName;
-	this.CanvasName = CanvasName;
-	if (document.getElementById(CanvasName) == null){
+	this.SetNumber = rvds.SetNumber;
+	this.CanvasName = CanvasName + "_" + this.SetNumber;
+	if (document.getElementById(this.CanvasName) == null){
 		if (this.Type === "selected"){
-			$("#canvasDiv").append($('<canvas id="' + CanvasName + '" style="z-index:' + ( rvds.LastLayer + 1 + 800) + ';"></canvas>')); 
+			$("#canvasDiv").append($('<canvas id="' + this.CanvasName + '" style="z-index:' + ( rvds.LastLayer + 1 + 800) + ';"></canvas>')); 
 		} else {			
-			$("#canvasDiv").append($('<canvas id="' + CanvasName + '" style="z-index:' + ( rvds.LastLayer + 1 ) + ';"></canvas>')); 
+			$("#canvasDiv").append($('<canvas id="' + this.CanvasName + '" style="z-index:' + ( rvds.LastLayer + 1 ) + ';"></canvas>')); 
 		}
 	}
-	//this.Canvas = $("#" + CanvasName);
-	this.Canvas = document.getElementById(CanvasName);
+	this.Canvas = document.getElementById(this.CanvasName);
 	if (this.Canvas.getContext){
 		this.CanvasContext = this.Canvas.getContext("2d");
 	}
@@ -214,9 +214,11 @@ function RvSelection(rvds,SelectionName,rvResidues,rvColor,rvResidues_rProtein){
 	
 	//Methods
 }
-function rvDataSet(DataSetName) {
+function rvDataSet(DataSetName,SetNumber) {
 	//Properties
 	this.Name = DataSetName;
+	this.SetNumber = SetNumber;
+	this.PageOffset = [];
 	this.Layers = [];
 	this.HighlightLayer = [];
 	this.Residues = [];
@@ -226,6 +228,7 @@ function rvDataSet(DataSetName) {
 	this.rvTextLabels = [];
 	this.rvLineLabels = [];
 	this.BasePairs = [];
+	this.FullBasePairSet = [];
 	this.CustomData = [];
 	this.SpeciesEntry = [];
 	this.Selections = [];
@@ -365,13 +368,13 @@ function rvDataSet(DataSetName) {
 		if (ind >= 0) {
 			$.each(this.Layers, function (key, value) {
 				if (value.Type === layer) {
-					refreshLayer.call(this,value);
+					refreshLayer.call(rvds,value);
 				}
 			});
 		} else {
 			$.each(this.Layers, function (key, value) {
 				if (value.LayerName === layer) {
-					refreshLayer.call(this,value);
+					refreshLayer.call(rvds,value);
 				}
 			});
 		}
@@ -383,13 +386,13 @@ function rvDataSet(DataSetName) {
 		if (ind >= 0) {
 			$.each(this.Layers, function (key, value) {
 				if (value.Type === layer) {
-					drawLabels.call(this,value,drawExtra);
+					drawLabels.call(rvds,value,drawExtra);
 				}
 			});
 		} else {
 			$.each(this.Layers, function (key, value) {
 				if (value.LayerName === layer) {
-					drawLabels.call(this,value,drawExtra);
+					drawLabels.call(rvds,value,drawExtra);
 				}
 			});
 		}
@@ -435,13 +438,13 @@ function rvDataSet(DataSetName) {
 		if (ind >= 0) {
 			$.each(this.Layers, function (key, value) {
 				if (value.Type === layer) {
-					drawContourLine.call(this,value, dataIndices, ColorArray, noClear);
+					drawContourLine.call(rvds,value, dataIndices, ColorArray, noClear);
 				}
 			});
 		} else {
 			$.each(this.Layers, function (key, value) {
 				if (value.LayerName === layer) {
-					drawContourLine.call(this,value, dataIndices, ColorArray, noClear);
+					drawContourLine.call(rvds,value, dataIndices, ColorArray, noClear);
 				}
 			});
 		}
@@ -452,13 +455,13 @@ function rvDataSet(DataSetName) {
 		if (ind >= 0) {
 			$.each(this.Layers, function (key, value) {
 				if (value.Type === layer) {
-					drawSelection.call(this,value,SeleName);
+					drawSelection.call(rvds,value,SeleName);
 				}
 			});
 		} else {
 			$.each(this.Layers, function (key, value) {
 				if (value.LayerName === layer) {
-					drawSelection.call(this,value,SeleName);
+					drawSelection.call(rvds,value,SeleName);
 				}
 			});
 		}
@@ -469,13 +472,13 @@ function rvDataSet(DataSetName) {
 		if (ind >= 0) {
 			$.each(this.Layers, function (key, value) {
 				if (value.Type === layer) {
-					drawDataCircles.call(this,value, dataIndices, ColorArray, noClear);
+					drawDataCircles.call(rvds,value, dataIndices, ColorArray, noClear);
 				}
 			});
 		} else {
 			$.each(this.Layers, function (key, value) {
 				if (value.LayerName === layer) {
-					drawDataCircles.call(this,value, dataIndices, ColorArray, noClear);
+					drawDataCircles.call(rvds,value, dataIndices, ColorArray, noClear);
 				}
 			});
 		}
@@ -486,13 +489,13 @@ function rvDataSet(DataSetName) {
 		if (ind >= 0) {
 			$.each(this.Layers, function (key, value) {
 				if (value.Type === layer) {
-					drawBasePairs.call(this,value, colorLayer);
+					drawBasePairs.call(rvds,value, colorLayer);
 				}
 			});
 		} else {
 			$.each(this.Layers, function (key, value) {
 				if (value.LayerName === layer) {
-					drawBasePairs.call(this,value, colorLayer);
+					drawBasePairs.call(rvds,value, colorLayer);
 				}
 			});
 		}
@@ -616,6 +619,15 @@ function rvDataSet(DataSetName) {
 		return ret;
 	}
 	
+	this.refreshCanvases = function () {
+		this.drawResidues("residues");
+		this.drawSelection("selected");
+		this.refreshResiduesExpanded("circles");
+		this.refreshResiduesExpanded("contour");
+		this.drawLabels("labels");
+		this.drawBasePairs("lines");
+	}
+	
 	// Private functions, kinda
 	function makeResidueList(rvResidues) {
 		var ResidueListLocal = [],j;
@@ -632,43 +644,44 @@ function rvDataSet(DataSetName) {
 		return SequenceListLocal;
 	}
 	function makeContourLinePoints(rvResidues){
+		var rvds = this;
 		var ContourLinePoints = [];
 		$.each(rvResidues, function( index , value ) {
 			//Special case for firstspeciesIndex
 			if (index == 0) {
 				var diffxy=[];
-				diffxy[0]=Number(this.Residues[index + 1].X) - Number(this.Residues[index].X);
-				diffxy[1]=Number(this.Residues[index + 1].Y) - Number(this.Residues[index].Y);
+				diffxy[0]=Number(rvds.Residues[index + 1].X) - Number(rvds.Residues[index].X);
+				diffxy[1]=Number(rvds.Residues[index + 1].Y) - Number(rvds.Residues[index].Y);
 				var clp = {
-					X1 : Number(this.Residues[index].X)-diffxy[0]/2,
-					X2 : Number(this.Residues[index].X),
-					X3 : (Number(this.Residues[index + 1].X) + Number(this.Residues[index].X))/2,
-					Y1 : Number(this.Residues[index].Y)-diffxy[1]/2,
-					Y2 : Number(this.Residues[index].Y),
-					Y3 : (Number(this.Residues[index + 1].Y) + Number(this.Residues[index].Y))/2,
+					X1 : Number(rvds.Residues[index].X)-diffxy[0]/2 + rvds.PageOffset[0],
+					X2 : Number(rvds.Residues[index].X) + rvds.PageOffset[0],
+					X3 : (Number(rvds.Residues[index + 1].X) + Number(rvds.Residues[index].X))/2 + rvds.PageOffset[0],
+					Y1 : Number(rvds.Residues[index].Y)-diffxy[1]/2,
+					Y2 : Number(rvds.Residues[index].Y),
+					Y3 : (Number(rvds.Residues[index + 1].Y) + Number(rvds.Residues[index].Y))/2,
 				};
 			} else if (index == rvResidues.length - 1) {
 			//Special case for last
 				var diffxy=[];
-				diffxy[0]=Number(this.Residues[index].X) - Number(this.Residues[index - 1].X);
-				diffxy[1]=Number(this.Residues[index].Y) - Number(this.Residues[index - 1].Y);
+				diffxy[0]=Number(rvds.Residues[index].X) - Number(rvds.Residues[index - 1].X);
+				diffxy[1]=Number(rvds.Residues[index].Y) - Number(rvds.Residues[index - 1].Y);
 				var clp = {
-					X1 : (Number(this.Residues[index - 1].X) + Number(this.Residues[index].X))/2,
-					X2 : Number(this.Residues[index].X),
-					X3 : Number(this.Residues[index].X)-diffxy[0]/2,
-					Y1 : (Number(this.Residues[index - 1].Y) + Number(this.Residues[index].Y))/2,
-					Y2 : Number(this.Residues[index].Y),
-					Y3 : Number(this.Residues[index].Y)-diffxy[1]/2,
+					X1 : (Number(rvds.Residues[index - 1].X) + Number(rvds.Residues[index].X))/2 + rvds.PageOffset[0],
+					X2 : Number(rvds.Residues[index].X) + rvds.PageOffset[0],
+					X3 : Number(rvds.Residues[index].X)-diffxy[0]/2 + rvds.PageOffset[0],
+					Y1 : (Number(rvds.Residues[index - 1].Y) + Number(rvds.Residues[index].Y))/2,
+					Y2 : Number(rvds.Residues[index].Y),
+					Y3 : Number(rvds.Residues[index].Y)-diffxy[1]/2,
 				};
 			
 			} else {
 				var clp = {
-					X1 : (Number(this.Residues[index - 1].X) + Number(this.Residues[index].X))/2,
-					X2 : Number(this.Residues[index].X),
-					X3 : (Number(this.Residues[index + 1].X) + Number(this.Residues[index].X))/2,
-					Y1 : (Number(this.Residues[index - 1].Y) + Number(this.Residues[index].Y))/2,
-					Y2 : Number(this.Residues[index].Y),
-					Y3 : (Number(this.Residues[index + 1].Y) + Number(this.Residues[index].Y))/2,
+					X1 : (Number(rvds.Residues[index - 1].X) + Number(rvds.Residues[index].X))/2 + rvds.PageOffset[0],
+					X2 : Number(rvds.Residues[index].X) + rvds.PageOffset[0],
+					X3 : (Number(rvds.Residues[index + 1].X) + Number(rvds.Residues[index].X))/2 + rvds.PageOffset[0],
+					Y1 : (Number(rvds.Residues[index - 1].Y) + Number(rvds.Residues[index].Y))/2,
+					Y2 : Number(rvds.Residues[index].Y),
+					Y3 : (Number(rvds.Residues[index + 1].Y) + Number(rvds.Residues[index].Y))/2,
 				};
 			}
 			ContourLinePoints[index]=clp;
@@ -676,14 +689,14 @@ function rvDataSet(DataSetName) {
 		return ContourLinePoints;
 	}
 	function refreshLayer(targetLayer) {
-		
-		if (this.Residues !== undefined && targetLayer.Type === "circles") {
+		var rvds = this;
+		if (rvds.Residues !== undefined && targetLayer.Type === "circles") {
 			targetLayer.clearCanvas();
-			var CircleSize = this.SpeciesEntry.Circle_Radius;
-			for (var i = this.Residues.length - 1; i >= 0; i--) {
+			var CircleSize = rvds.SpeciesEntry.Circle_Radius;
+			for (var i = rvds.Residues.length - 1; i >= 0; i--) {
 				if (targetLayer.dataLayerColors[i] != undefined && targetLayer.dataLayerColors[i] != '#858585') {
 					targetLayer.CanvasContext.beginPath();
-					targetLayer.CanvasContext.arc(this.Residues[i].X, this.Residues[i].Y, (targetLayer.ScaleFactor * CircleSize), 0, 2 * Math.PI, false);
+					targetLayer.CanvasContext.arc(parseFloat(rvds.Residues[i].X) + rvds.PageOffset[0], rvds.Residues[i].Y, (targetLayer.ScaleFactor * CircleSize), 0, 2 * Math.PI, false);
 					targetLayer.CanvasContext.closePath();
 					targetLayer.CanvasContext.strokeStyle = targetLayer.dataLayerColors[i];
 					targetLayer.CanvasContext.stroke();
@@ -694,17 +707,17 @@ function rvDataSet(DataSetName) {
 				}
 			}
 		}
-		
-		if (this.Residues !== undefined && targetLayer.Type === "contour") {
+		// I do not know where these magic numbers, 0.05 and 0.3 come from. They make the contour lines look correct. 
+		if (rvds.Residues !== undefined && targetLayer.Type === "contour") {
 			targetLayer.clearCanvas();
-			if (this.Residues && this.Residues.length > 0) {
-				$.each(this.Residues, function (index, value) {
+			if (rvds.Residues && rvds.Residues.length > 0) {
+				$.each(rvds.Residues, function (index, value) {
 					if (targetLayer.dataLayerColors[index] != undefined && targetLayer.dataLayerColors[index] != '#858585') {
 						targetLayer.CanvasContext.beginPath();
 						targetLayer.CanvasContext.lineJoin = "round";  
-						targetLayer.CanvasContext.moveTo(this.ContourLinePoints[index].X1 - .05, this.ContourLinePoints[index].Y1 - .3);
-						targetLayer.CanvasContext.lineTo(this.ContourLinePoints[index].X2 - .05, this.ContourLinePoints[index].Y2 - .3);
-						targetLayer.CanvasContext.lineTo(this.ContourLinePoints[index].X3 - .05, this.ContourLinePoints[index].Y3 - .3);
+						targetLayer.CanvasContext.moveTo(rvds.ContourLinePoints[index].X1 - .05, rvds.ContourLinePoints[index].Y1 - .3);
+						targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X2 - .05, rvds.ContourLinePoints[index].Y2 - .3);
+						targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X3 - .05, rvds.ContourLinePoints[index].Y3 - .3);
 						targetLayer.CanvasContext.strokeStyle = targetLayer.dataLayerColors[index];	
 						targetLayer.CanvasContext.lineWidth = 3.2;					
 						targetLayer.CanvasContext.stroke();
@@ -722,7 +735,7 @@ function rvDataSet(DataSetName) {
 			for (var i = 0; i < this.rvTextLabels.length; i++) {
 				targetLayer.CanvasContext.font = (0.70 * this.rvTextLabels[i].FontSize) + 'pt "Myriad Pro", Calibri, Arial';
 				targetLayer.CanvasContext.fillStyle = this.rvTextLabels[i].Fill;
-				targetLayer.CanvasContext.fillText(this.rvTextLabels[i].LabelText, this.rvTextLabels[i].X, this.rvTextLabels[i].Y);
+				targetLayer.CanvasContext.fillText(this.rvTextLabels[i].LabelText, parseFloat(this.rvTextLabels[i].X) + this.PageOffset[0], this.rvTextLabels[i].Y);
 			}
 			
 			targetLayer.CanvasContext.strokeStyle = "rgba(35,31,32,32)";
@@ -730,8 +743,8 @@ function rvDataSet(DataSetName) {
 			
 			for (var i = 0; i < this.rvLineLabels.length; i++) {
 				targetLayer.CanvasContext.beginPath();
-				targetLayer.CanvasContext.moveTo(this.rvLineLabels[i].X1, this.rvLineLabels[i].Y1);
-				targetLayer.CanvasContext.lineTo(this.rvLineLabels[i].X2, this.rvLineLabels[i].Y2);
+				targetLayer.CanvasContext.moveTo(parseFloat(this.rvLineLabels[i].X1) + this.PageOffset[0], this.rvLineLabels[i].Y1);
+				targetLayer.CanvasContext.lineTo(parseFloat(this.rvLineLabels[i].X2) + this.PageOffset[0], this.rvLineLabels[i].Y2);
 				targetLayer.CanvasContext.closePath();
 				targetLayer.CanvasContext.stroke();
 			}
@@ -785,7 +798,8 @@ function rvDataSet(DataSetName) {
 					//if (resMod){
 						//targetLayer.CanvasContext.fillText(this.Residues[i].modResName, this.Residues[i].X, this.Residues[i].Y);
 					//} else {
-						targetLayer.CanvasContext.fillText(this.Residues[i].resName, this.Residues[i].X, this.Residues[i].Y);
+					// Not adjusting Y with PageOffset for now, since it won't do anything. 
+						targetLayer.CanvasContext.fillText(this.Residues[i].resName, parseFloat(this.Residues[i].X) + this.PageOffset[0], this.Residues[i].Y);
 					//}
 				}
 			} else {
@@ -794,20 +808,22 @@ function rvDataSet(DataSetName) {
 		}
 	}
 	function drawContourLine(targetLayer, dataIndices, ColorArray, noClear) {
+		var rvds = this;
 		if (targetLayer.Type === "contour") {
 			//targetLayer.clearCanvas();
 			if (!noClear) {
 				targetLayer.clearCanvas();
 				targetLayer.dataLayerColors = [];
 			}
+			// I do not know where these magic numbers, 0.05 and 0.3 come from. They make the contour lines look correct. 
 			if (this.Residues && this.Residues.length > 0) {
 				$.each(this.Residues, function (index, value) {
 					if (dataIndices && ColorArray && ColorArray[dataIndices[index]] != undefined && ColorArray[dataIndices[index]] != '#858585') {
 						targetLayer.CanvasContext.beginPath();
 						targetLayer.CanvasContext.lineJoin = "round";  
-						targetLayer.CanvasContext.moveTo(this.ContourLinePoints[index].X1 - .05, this.ContourLinePoints[index].Y1 - .3);
-						targetLayer.CanvasContext.lineTo(this.ContourLinePoints[index].X2 - .05, this.ContourLinePoints[index].Y2 - .3);
-						targetLayer.CanvasContext.lineTo(this.ContourLinePoints[index].X3 - .05, this.ContourLinePoints[index].Y3 - .3);
+						targetLayer.CanvasContext.moveTo(rvds.ContourLinePoints[index].X1 - .05, rvds.ContourLinePoints[index].Y1 - .3);
+						targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X2 - .05, rvds.ContourLinePoints[index].Y2 - .3);
+						targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X3 - .05, rvds.ContourLinePoints[index].Y3 - .3);
 						targetLayer.CanvasContext.strokeStyle = ColorArray[dataIndices[index]];	
 						targetLayer.CanvasContext.lineWidth = 3.2;					
 						targetLayer.CanvasContext.stroke();
@@ -816,9 +832,9 @@ function rvDataSet(DataSetName) {
 					} else if (!dataIndices && !ColorArray && targetLayer.dataLayerColors[index] && targetLayer.dataLayerColors[index] != '#858585') {	
 						targetLayer.CanvasContext.beginPath();
 						targetLayer.CanvasContext.lineJoin = "round";  
-						targetLayer.CanvasContext.moveTo(this.ContourLinePoints[index].X1 - .05, this.ContourLinePoints[index].Y1 - .3);
-						targetLayer.CanvasContext.lineTo(this.ContourLinePoints[index].X2 - .05, this.ContourLinePoints[index].Y2 - .3);
-						targetLayer.CanvasContext.lineTo(this.ContourLinePoints[index].X3 - .05, this.ContourLinePoints[index].Y3 - .3);
+						targetLayer.CanvasContext.moveTo(rvds.ContourLinePoints[index].X1 - .05, rvds.ContourLinePoints[index].Y1 - .3);
+						targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X2 - .05, rvds.ContourLinePoints[index].Y2 - .3);
+						targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X3 - .05, rvds.ContourLinePoints[index].Y3 - .3);
 						targetLayer.CanvasContext.strokeStyle = targetLayer.dataLayerColors[index];	
 						targetLayer.CanvasContext.lineWidth = 3.2;					
 						targetLayer.CanvasContext.stroke();
@@ -855,8 +871,8 @@ function rvDataSet(DataSetName) {
 				var targetSelection = this.getSelection(SelectionList[k]);
 				for (var j = targetSelection.Residues.length - 1; j >= 0; j--) {
 					targetLayer.CanvasContext.beginPath();
-					targetLayer.CanvasContext.arc(targetSelection.Residues[j].X, targetSelection.Residues[j].Y, (targetLayer.ScaleFactor * CircleSize), 0, 2 * Math.PI, false);
-					targetLayer.CanvasContext.closePath();
+					targetLayer.CanvasContext.arc(parseFloat(targetSelection.Residues[j].X) + this.PageOffset[0], targetSelection.Residues[j].Y, (targetLayer.ScaleFactor * CircleSize), 0, 2 * Math.PI, false);
+					targetLayer.CanvasContext.closePath(); 
 					targetLayer.CanvasContext.strokeStyle = targetSelection.Color;
 					targetLayer.CanvasContext.lineWidth = 0.5;
 					targetLayer.CanvasContext.stroke();
@@ -881,7 +897,7 @@ function rvDataSet(DataSetName) {
 				for (var i = this.Residues.length - 1; i >= 0; i--) {
 					if (dataIndices && ColorArray && ColorArray[dataIndices[i]] != undefined && ColorArray[dataIndices[i]] != '#858585') {
 						targetLayer.CanvasContext.beginPath();
-						targetLayer.CanvasContext.arc(this.Residues[i].X, this.Residues[i].Y, (targetLayer.ScaleFactor * CircleSize), 0, 2 * Math.PI, false);
+						targetLayer.CanvasContext.arc(parseFloat(this.Residues[i].X) + this.PageOffset[0], this.Residues[i].Y, (targetLayer.ScaleFactor * CircleSize), 0, 2 * Math.PI, false);
 						targetLayer.CanvasContext.closePath();
 						targetLayer.CanvasContext.strokeStyle = ColorArray[dataIndices[i]];
 						targetLayer.CanvasContext.stroke();
@@ -892,7 +908,7 @@ function rvDataSet(DataSetName) {
 						targetLayer.dataLayerColors[i] = ColorArray[dataIndices[i]];
 					} else if (!dataIndices && !ColorArray && targetLayer.dataLayerColors[i] && targetLayer.dataLayerColors[i] != '#858585') {
 						targetLayer.CanvasContext.beginPath();
-						targetLayer.CanvasContext.arc(this.Residues[i].X, this.Residues[i].Y, (targetLayer.ScaleFactor * CircleSize), 0, 2 * Math.PI, false);
+						targetLayer.CanvasContext.arc(parseFloat(this.Residues[i].X) + this.PageOffset[0], this.Residues[i].Y, (targetLayer.ScaleFactor * CircleSize), 0, 2 * Math.PI, false);
 						targetLayer.CanvasContext.closePath();
 						targetLayer.CanvasContext.strokeStyle = targetLayer.dataLayerColors[i];
 						targetLayer.CanvasContext.stroke();
@@ -1024,8 +1040,8 @@ function rvDataSet(DataSetName) {
 					//Regular Mode
 					
 					targetLayer.CanvasContext.beginPath();
-					targetLayer.CanvasContext.moveTo(this.Residues[j].X, this.Residues[j].Y);
-					targetLayer.CanvasContext.lineTo(this.Residues[k].X, this.Residues[k].Y);
+					targetLayer.CanvasContext.moveTo(parseFloat(this.Residues[j].X) + this.PageOffset[0], this.Residues[j].Y);
+					targetLayer.CanvasContext.lineTo(parseFloat(this.Residues[k].X) + this.PageOffset[0], this.Residues[k].Y);
 					targetLayer.CanvasContext.strokeStyle = targetLayer.Data[i]["color"];	
 					targetLayer.CanvasContext.lineWidth = targetLayer.Data[i].lineWidth;					
 					targetLayer.CanvasContext.stroke();
@@ -1034,8 +1050,8 @@ function rvDataSet(DataSetName) {
 						//draw the interaction type labels here
 						var x1 = this.Residues[j].X;
 						var x2 = this.Residues[k].X;
-						var x12mid = x1 - ((x1 - x2) / 2);
-						var xmid = this.Residues[j].X - (this.Residues[j].X - this.Residues[k].X) / 2;
+						var x12mid = x1 - ((x1 - x2) / 2) + this.PageOffset[0];
+						var xmid = this.Residues[j].X - (this.Residues[j].X - this.Residues[k].X) / 2 + this.PageOffset[0];
 						var ymid = this.Residues[j].Y - (this.Residues[j].Y - this.Residues[k].Y) / 2;
 						targetLayer.CanvasContext.save();
 						targetLayer.CanvasContext.lineWidth = 0.5;
@@ -1088,13 +1104,9 @@ function rvView(x, y, scale) {
 		this.x = (this.x - px) * factor + px;
 		this.y = (this.y - py) * factor + py;
 		
-		rvDataSets[0].drawResidues("residues");
-		//rvDataSets[0].drawContourLines("contour");
-		rvDataSets[0].drawSelection("selected");
-		rvDataSets[0].refreshResiduesExpanded("circles");
-		rvDataSets[0].refreshResiduesExpanded("contour");
-		rvDataSets[0].drawLabels("labels");
-		rvDataSets[0].drawBasePairs("lines");
+		$.each(rvDataSets, function (index, value) {
+			value.refreshCanvases();
+		});
 	}
 	
 	this.centerZoom = function (scale) {
@@ -1109,26 +1121,18 @@ function rvView(x, y, scale) {
 	this.pan = function (event) {
 		rvViews[0].x += event.clientX - rvViews[0].lastX;
 		rvViews[0].y += event.clientY - rvViews[0].lastY;
-		rvDataSets[0].drawResidues("residues");
-		//rvDataSets[0].drawContourLines("contour");
-		rvDataSets[0].drawSelection("selected");
-		rvDataSets[0].refreshResiduesExpanded("circles");
-		rvDataSets[0].refreshResiduesExpanded("contour");
-		rvDataSets[0].drawLabels("labels");
-		rvDataSets[0].drawBasePairs("lines");
+		$.each(rvDataSets, function (index, value) {
+			value.refreshCanvases();
+		});
 		rvViews[0].lastX = event.clientX;
 		rvViews[0].lastY = event.clientY;
 	}
 	this.panXY = function (dx,dy) {
 		rvViews[0].x += dx;
 		rvViews[0].y += dy;
-		rvDataSets[0].drawResidues("residues");
-		//rvDataSets[0].drawContourLines("contour");
-		rvDataSets[0].drawSelection("selected");
-		rvDataSets[0].refreshResiduesExpanded("circles");
-		rvDataSets[0].refreshResiduesExpanded("contour");
-		rvDataSets[0].drawLabels("labels");
-		rvDataSets[0].drawBasePairs("lines");
+		$.each(rvDataSets, function (index, value) {
+			value.refreshCanvases();
+		});
 		rvViews[0].lastX += dx;
 		rvViews[0].lastY += dy;
 	}
@@ -1140,13 +1144,9 @@ function rvView(x, y, scale) {
 	}
 	this.restore = function () {
 		$("#slider").slider("value",this.slideValue);
-		rvDataSets[0].drawResidues("residues");
-		//rvDataSets[0].drawContourLines("contour");
-		rvDataSets[0].drawSelection("selected");
-		rvDataSets[0].refreshResiduesExpanded("circles");
-		rvDataSets[0].refreshResiduesExpanded("contour");
-		rvDataSets[0].drawLabels("labels");
-		rvDataSets[0].drawBasePairs("lines");
+		$.each(rvDataSets, function (index, value) {
+			value.refreshCanvases();
+		});
 	}
 	
 	this.toJSON = function () {
