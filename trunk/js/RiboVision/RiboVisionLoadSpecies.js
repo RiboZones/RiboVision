@@ -29,6 +29,7 @@ based on:
 
 function loadSpecies(species,DoneLoading,DoneLoading2) {
 	var speciesSplit=species.split("&");
+	ResiduePositions=[];
 	// get data description table
 	$.getJSON('getData.php', {
 		FullTable : "DataDescriptions"
@@ -78,8 +79,8 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 					}
 					resXs[i]=parseFloat(data[i]["X"]);
 					resYs[i]=parseFloat(data[i]["Y"]);
-					
 				});
+				ResiduePositions=ResiduePositions.concat(data);
 				data["speciesIndex"]=speciesIndex;
 				// Set offset. Right now, only side by side, two structures are allowed, so this is easy.
 				rvDataSets[speciesIndex].PageOffset[0] = (rvDataSets[speciesIndex].SpeciesEntry.Orientation == "portrait") ? 792 * rvDataSets[speciesIndex].SetNumber : 612 * rvDataSets[speciesIndex].SetNumber  ; //X direction
