@@ -1778,7 +1778,7 @@ function get_cookie(cookie_name) {
 	}
 }
 
-function checkSavePrivacyStatus() {
+function checkSavePrivacyStatus(SpeciesIndex) {
 	var PrivacyStatus = get_cookie("privacy_status_text");
 	var PrivacyString = "This feature requires uploading data to our server. Our privacy policy at this time is to not look at these files without permission."
 		 + " We will set up autodelete for these files soon. Click \"I agree\" to acknowledge acceptance of our policy.";
@@ -1788,7 +1788,7 @@ function checkSavePrivacyStatus() {
 		CurrPrivacyCookie = "privacy_status_text";
 		$("#Privacy-confirm").dialog('open');
 	} else {
-		AgreeFunction();
+		AgreeFunction(SpeciesIndex);
 		clicky.log(window.location.pathname + window.location.hash,'User Download','download');
 		Histats_variables.push("SaveSomething","Yes");
 		Histats.track_event('b');
@@ -1805,9 +1805,6 @@ function saveNavLine() {
 		var svg = tmp.getElementsByTagName("svg")[0];
 		// Extract the data as SVG text string
 		var svg_xml = (new XMLSerializer).serializeToString(svg);
-		
-		//alert(jmlImgB64);
-		//var CS = canvasToSVG();
 		var form = document.createElement("form");
 		form.setAttribute("method", "post");
 		form.setAttribute("action", "saveNavLine.php");
@@ -1828,8 +1825,6 @@ function saveJmolImg() {
 			return;
 		}
 		var jmlImgB64 = Jmol.getPropertyAsString(myJmol,'image');
-		//alert(jmlImgB64);
-		//var CS = canvasToSVG();
 		var form = document.createElement("form");
 		form.setAttribute("method", "post");
 		form.setAttribute("action", "saveJmolImg.php");
@@ -1850,7 +1845,6 @@ function retrieveRvState(filename) {
 		datasetname : SaveStateFileName,
 		username : UserName
 	}, function (RvSaveState) {
-		//alert(RvSaveState);
 		var rvSaveState = JSON.parse(RvSaveState);
 		rvDataSets[0]=rvDataSets[0].fromJSON(rvSaveState["RvDS"]);
 		// Re stringify a few things for compatibility / symmetry with local storage
@@ -1901,8 +1895,6 @@ function storeRvState(filename){
 function saveRvState(filename){
 	SaveStateFileName=filename;
 	AgreeFunction = function () {
-		//var CS = canvasToSVG();
-		
 		var RvSaveState = {};
 		RvSaveState["RvDS"] = JSON.stringify(rvDataSets[0]);
 		RvSaveState["rvView"] = JSON.stringify(rvViews[0]);
@@ -1986,9 +1978,10 @@ function savePNG() {
 	checkSavePrivacyStatus();
 }
 
-function saveSVG() {
-	AgreeFunction = function () {
-		var CS = canvasToSVG();
+function saveSVG(SpeciesIndex) {
+	AgreeFunction = function (SpeciesIndex) {
+		//alert(SpeciesIndex);
+		var CS = canvasToSVG(SpeciesIndex);
 		var form = document.createElement("form");
 		form.setAttribute("method", "post");
 		form.setAttribute("action", "saveSVG.php");
@@ -2001,7 +1994,7 @@ function saveSVG() {
 		document.body.appendChild(form);
 		form.submit();
 	}
-	checkSavePrivacyStatus();
+	checkSavePrivacyStatus(SpeciesIndex);
 }
 
 function savePDF() {
@@ -2278,14 +2271,17 @@ function selectionToPML(PDB_Obj_Names,targetSelection){
 	return script;
 }
 
-function canvasToSVG() {
+function canvasToSVG(SpeciesIndex) {
 	var SupportesLayerTypes = ["lines", "labels", "residues", "circles", "selected"];
 	var ChosenSide;
 	var Orientation;
 	var AllMode = $('input[name="savelayers"][value=all]').attr("checked");
 	var resMod = $('input[name="ptmod"][value=on]').is(':checked');
+	if(SpeciesIndex==undefined){
+		SpeciesIndex=0;
+	}
 	
-	if (rvDataSets[0].SpeciesEntry.Orientation.indexOf("portrait") >= 0) {
+	if (rvDataSets[SpeciesIndex].SpeciesEntry.Orientation.indexOf("portrait") >= 0) {
 		var mapsize = "612 792";
 		var mapsize2 = 'width="612px" height="792px" ';
 		Orientation = "portrait";
@@ -2299,7 +2295,7 @@ function canvasToSVG() {
 		mapsize2 + 'viewBox="0 0 ' + mapsize + '" xml:space="preserve">\n';
 	//if(rvDataSets[0].Name === 'SC_LSU_3D'){;
 	var elReq = $.ajax({
-		url: "images/" + rvDataSets[0].Name + "_ExtraLabels.svg",
+		url: "images/" + rvDataSets[SpeciesIndex].Name + "_ExtraLabels.svg",
 		dataType: "text", 
 		cache: false,
 		async: false
@@ -2310,20 +2306,20 @@ function canvasToSVG() {
 	});
 		
 	//}
-	$.each(rvDataSets[0].Layers, function (index, value) {
+	$.each(rvDataSets[SpeciesIndex].Layers, function (index, value) {
 		if (AllMode || value.Visible){
 			switch (value.Type) {
 				case "lines":
 					output = output + '<g id="' + value.LayerName + '">\n';
 					if (value.ColorLayer === "gray_lines"){
-						for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
-							var BasePair = rvDataSets[0].BasePairs[j];
-							output = output + '<line fill="none" stroke="' + BasePair.color_hex + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
+						for (var j = 0; j < rvDataSets[SpeciesIndex].BasePairs.length; j++) {
+							var BasePair = rvDataSets[SpeciesIndex].BasePairs[j];
+							output = output + '<line fill="none" stroke="' + BasePair.color_hex + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
 						}
 					} else if (value.ColorLayer === "manual_coloring") {
-						for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
-							var BasePair = rvDataSets[0].BasePairs[j];
-							output = output + '<line fill="none" stroke="' + BasePair.color_hex + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
+						for (var j = 0; j < rvDataSets[SpeciesIndex].BasePairs.length; j++) {
+							var BasePair = rvDataSets[SpeciesIndex].BasePairs[j];
+							output = output + '<line fill="none" stroke="' + BasePair.color_hex + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
 						}
 					} else {
 						if (value.ColorLayer.ColorGradientMode == "Matched") {
@@ -2337,34 +2333,22 @@ function canvasToSVG() {
 						}
 						switch  (value.ColorLayer.Type){
 							case "residues" : 
-								//var grd = value.ColorLayer.CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
-								/*
-								if (rvDataSets[0].Residues[j].color && rvDataSets[0].Residues[k].color){
-									color1 = colorNameToHex(rvDataSets[0].Residues[j].color);
-									color2 = colorNameToHex(rvDataSets[0].Residues[k].color);
-									
-									grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + ",.5)");
-									grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + ",.5)");
-								}
-								value.ColorLayer.addLinearGradient(grd);
-								rvDataSets[0].BasePairs[i]["color"] = grd;
-								*/
-								for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
-									var BasePair = rvDataSets[0].BasePairs[j];
-									output = output + '<line fill="none" stroke="' + rvDataSets[0].Residues[BasePair[ChosenSide]].color + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
+								for (var j = 0; j < rvDataSets[SpeciesIndex].BasePairs.length; j++) {
+									var BasePair = rvDataSets[SpeciesIndex].BasePairs[j];
+									output = output + '<line fill="none" stroke="' + rvDataSets[SpeciesIndex].Residues[BasePair[ChosenSide]].color + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
 								}
 								break;
 							case "circles" : 
-								for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
-									var BasePair = rvDataSets[0].BasePairs[j];
-									output = output + '<line fill="none" stroke="' + value.ColorLayer.dataLayerColors[BasePair[ChosenSide]] + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
+								for (var j = 0; j < rvDataSets[SpeciesIndex].BasePairs.length; j++) {
+									var BasePair = rvDataSets[SpeciesIndex].BasePairs[j];
+									output = output + '<line fill="none" stroke="' + value.ColorLayer.dataLayerColors[BasePair[ChosenSide]] + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
 								}
 								break;
 							case "selected" : 
-								for (var j = 0; j < rvDataSets[0].BasePairs.length; j++) {
-									var BasePair = rvDataSets[0].BasePairs[j];
+								for (var j = 0; j < rvDataSets[SpeciesIndex].BasePairs.length; j++) {
+									var BasePair = rvDataSets[SpeciesIndex].BasePairs[j];
 									if (value.ColorLayer.Data[BasePair.resIndex1] || value.ColorLayer.Data[BasePair.resIndex2]) {
-										output = output + '<line fill="none" stroke="' + BasePair.color_hex + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[0].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
+										output = output + '<line fill="none" stroke="' + BasePair.color_hex + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
 									}		
 								}
 								break;
@@ -2377,8 +2361,8 @@ function canvasToSVG() {
 					break;
 				case "contour" :
 					output = output + '<g id="' + value.LayerName + '">\n';
-					for (var j = 0; j < rvDataSets[0].ContourLinePoints.length; j++) {
-						var ContourLinePoint = rvDataSets[0].ContourLinePoints[j];
+					for (var j = 0; j < rvDataSets[SpeciesIndex].ContourLinePoints.length; j++) {
+						var ContourLinePoint = rvDataSets[SpeciesIndex].ContourLinePoints[j];
 						output = output + '<polyline fill="none" stroke="' + value.dataLayerColors[j] + '" stroke-opacity="' + '1' + '" stroke-width="' + '3.2' + 
 						'" stroke-linejoin="round" stroke-miterlimit="10" points="' + parseFloat(ContourLinePoint.X1).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y1).toFixed(3)
 						+ ' ' + parseFloat(ContourLinePoint.X2).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y2).toFixed(3)
@@ -2389,26 +2373,26 @@ function canvasToSVG() {
 					break;
 				case "labels":
 					output = output + '<g id="' + value.LayerName + '_Lines">\n';
-					for (var iii = 0; iii < rvDataSets[0].rvLineLabels.length; iii++) {
-						var LabelLine = rvDataSets[0].rvLineLabels[iii];
+					for (var iii = 0; iii < rvDataSets[SpeciesIndex].rvLineLabels.length; iii++) {
+						var LabelLine = rvDataSets[SpeciesIndex].rvLineLabels[iii];
 						output = output + '<line fill="none" stroke="#211E1F" stroke-width="0.25" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(LabelLine.X1).toFixed(3) + '" y1="' + parseFloat(LabelLine.Y1).toFixed(3) + '" x2="' + parseFloat(LabelLine.X2).toFixed(3) + '" y2="' + parseFloat(LabelLine.Y2).toFixed(3) + '"/>\n';
 					}
 					output = output + '</g>\n';
 					
 					output = output + '<g id="' + value.LayerName + '_Text">\n';
-					for (var ii = 0; ii < rvDataSets[0].rvTextLabels.length; ii++) {
-						var LabelData = rvDataSets[0].rvTextLabels[ii];
+					for (var ii = 0; ii < rvDataSets[SpeciesIndex].rvTextLabels.length; ii++) {
+						var LabelData = rvDataSets[SpeciesIndex].rvTextLabels[ii];
 						output = output + '<text transform="matrix(1 0 0 1 ' + parseFloat(LabelData.X).toFixed(3) + ' ' + parseFloat(LabelData.Y).toFixed(3) + ')" fill="' + LabelData.Fill + '" font-family="Myriad Pro" font-size="' + LabelData.FontSize + '">' + LabelData.LabelText + '</text>\n';
 					}
 					output = output + '</g>\n';
 					break;
 				case "residues":
 					output = output + '<g id="' + value.LayerName + '">\n';
-					var xcorr = -0.439 * parseFloat(rvDataSets[0].SpeciesEntry.Font_Size_SVG) + 0.4346; // magic font corrections.
-					var ycorr = 0.2944 * parseFloat(rvDataSets[0].SpeciesEntry.Font_Size_SVG) - 0.0033;
+					var xcorr = -0.439 * parseFloat(rvDataSets[SpeciesIndex].SpeciesEntry.Font_Size_SVG) + 0.4346; // magic font corrections.
+					var ycorr = 0.2944 * parseFloat(rvDataSets[SpeciesIndex].SpeciesEntry.Font_Size_SVG) - 0.0033;
 					//console.log(xcorr,ycorr);
-					for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
-						var residue = rvDataSets[0].Residues[i];
+					for (var i = 0; i < rvDataSets[SpeciesIndex].Residues.length; i++) {
+						var residue = rvDataSets[SpeciesIndex].Residues[i];
 						if (resMod){
 							var resName = residue.modResName;
 							if(residue.modResName == '&'){
@@ -2421,23 +2405,23 @@ function canvasToSVG() {
 							var resName = residue.resName;
 						}
 						
-						if (rvDataSets[0].Residues[i].resNum.indexOf(":") >= 0 ){
-							var ResName = rvDataSets[0].Residues[i].resNum;
+						if (rvDataSets[SpeciesIndex].Residues[i].resNum.indexOf(":") >= 0 ){
+							var ResName = rvDataSets[SpeciesIndex].Residues[i].resNum;
 						} else {
-							var ResName = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[i].ChainID)] +
-							":" + rvDataSets[0].Residues[i].resNum;
+							var ResName = rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names[rvDataSets[SpeciesIndex].SpeciesEntry.PDB_chains.indexOf(rvDataSets[SpeciesIndex].Residues[i].ChainID)] +
+							":" + rvDataSets[SpeciesIndex].Residues[i].resNum;
 						}
 						
 						
-						output = output + '<text id="' + residue.resName + "_" + ResName + '" transform="matrix(1 0 0 1 ' + (parseFloat(residue.X) + xcorr).toFixed(3) + ' ' + (parseFloat(residue.Y) + ycorr).toFixed(3) + ')" fill="' + residue.color + '" font-family="Myriad Pro" ' + 'font-weight="' + residue["font-weight"] + '" font-size="' + rvDataSets[0].SpeciesEntry.Font_Size_SVG + '">' + resName + '</text>\n';
+						output = output + '<text id="' + residue.resName + "_" + ResName + '" transform="matrix(1 0 0 1 ' + (parseFloat(residue.X) + xcorr).toFixed(3) + ' ' + (parseFloat(residue.Y) + ycorr).toFixed(3) + ')" fill="' + residue.color + '" font-family="Myriad Pro" ' + 'font-weight="' + residue["font-weight"] + '" font-size="' + rvDataSets[SpeciesIndex].SpeciesEntry.Font_Size_SVG + '">' + resName + '</text>\n';
 					}
 					output = output + '</g>\n';
 					break;
 				case "circles":
 					output = output + '<g id="' + value.LayerName + '">\n';
-					var radius = rvDataSets[0].SpeciesEntry.Circle_Radius * value.ScaleFactor;
-					for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
-						var residue = rvDataSets[0].Residues[i];
+					var radius = rvDataSets[SpeciesIndex].SpeciesEntry.Circle_Radius * value.ScaleFactor;
+					for (var i = 0; i < rvDataSets[SpeciesIndex].Residues.length; i++) {
+						var residue = rvDataSets[SpeciesIndex].Residues[i];
 						if (residue && value.dataLayerColors[i]) {
 							if (value.Filled) {
 								output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + value.dataLayerColors[i] + '" stroke="' + value.dataLayerColors[i] + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(residue.X).toFixed(3) + '" cy="' + parseFloat(residue.Y).toFixed(3) + '" r="' + radius + '"/>\n';
@@ -2450,13 +2434,13 @@ function canvasToSVG() {
 					break;
 				case "selected":
 					output = output + '<g id="' + value.LayerName + '">\n';
-					var radius = rvDataSets[0].SpeciesEntry.Circle_Radius * value.ScaleFactor;
+					var radius = rvDataSets[SpeciesIndex].SpeciesEntry.Circle_Radius * value.ScaleFactor;
 					
 					var SelectionList =[];
 					$('.checkBoxDIV-S').find(".visibilityCheckImg[value=visible]").parent().parent().each(function (index){SelectionList.push($(this).attr("name"))});
 
 					$.each(SelectionList, function (index,SelectionName) {
-						var targetSelection = rvDataSets[0].getSelection(SelectionName);
+						var targetSelection = rvDataSets[SpeciesIndex].getSelection(SelectionName);
 						output = output + '<g id="' + targetSelection.Name + '">\n';
 						$.each(targetSelection.Residues, function (index,residue){
 							output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + 'none' + '" stroke="' + targetSelection.Color + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(residue.X).toFixed(3) + '" cy="' + parseFloat(residue.Y).toFixed(3) + '" r="' + radius + '"/>\n';

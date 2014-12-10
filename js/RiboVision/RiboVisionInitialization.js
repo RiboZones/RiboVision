@@ -492,6 +492,12 @@ function RiboVisionReady() {
 			});
 		}
 	});
+	
+	$("#saveSVG-btn").button().click(function(){
+		$.each(rvDataSets, function(SpeciesIndex,rvds){
+			saveSVG(SpeciesIndex);
+		});
+	});
 	$("#selectByDomainHelix").multiselect().multiselectfilter();
 	
 	$("#PrimaryInteractionList").multiselect({
