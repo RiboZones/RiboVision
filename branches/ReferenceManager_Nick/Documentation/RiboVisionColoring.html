@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta name="generator" content="HTML Tidy for HTML5 (experimental) for Windows https://github.com/w3c/tidy-html5/tree/c63cc39" />
+    <title>RiboVision: Ribosome Visualization Suite.</title>
+	<link rel="stylesheet" type="text/css" href="css/style.css" />
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script type="text/javascript" src="js/template.js"></script>
+</head>
+
+<body lang="EN-US" xml:lang="EN-US">
+	<div id="HeaderDiv"></div>
+	<div id="MenuDiv"></div>
+	
+	<div id = "ContentDiv">
+		<h1>Colors</h1>
+			<p>RiboVision supports 24 bit <a href="http://en.wikipedia.org/wiki/Web_colors" target="_blank">Web colors</a>. If needed, we like this <a href="http://www.colorhexa.com/" target="_blank">color converter</a>.
+			For convenience, we also support using color names, instead of hexadecimal codes. We support over <a href="examples/RiboVision_ColorList.csv" target="_blank">1700 named colors</a>. 
+			Our list is based off the work of Chirag Mehta. You can find his excellent color naming tool <a href="http://chir.ag/projects/name-that-color/" target="_blank">here</a>. 
+			</p>
+			<p>We have reserved two colors for special use. Perfect black, "#000000", now works as expected in the 2D Panel. However, we convert this color to a shade of gray in the 3D Panel. 
+			If you want black in the 3D Panel, use a different shade of black, possibly #010101. We have also applied a special meaning to the color "#858585". In the 2D Panel, this color
+			is interpreted as "no color". It is a nice medium gray shade. Letters will show up in gray as expected. Circles won't show up at all. These special color interpretations are likely
+			to disappear in a future version of RiboVision. In the meantime, you may find these special rules to be useful.
+			</p>
+		<h2>Color Gradients</h2>
+			<p>What we call "Color Gradients" or "Color Palettes" is just a list of colors. They can be organized light to dark, red to blue, or even arbitrarily.  The default palette 
+			is a <a href="examples/Rainbow_Gradient.csv" target="_blank">64 color rainbow</a> (blue to red) color scheme which would be familiar to MATLAB users. Small values are mapped to blue, 
+			and large values are mapped to red. The next version of RiboVision should have more color palettes built in. 
+			</p>
+		<h2>Custom Color Palettes</h2>
+		<p>
+		When you use the important data feature, you may optionally specify your own color palette. Just add a column to your CSV file called "ColorPalette". Then, put one color in each row until 
+		all your colors are in the file. There is no requirement to the number of colors you provide, but you need at least two to be useful. 
+		</p>
+	</div>
+	<div id="FooterDiv"></div>
+	</body>
+</html>
