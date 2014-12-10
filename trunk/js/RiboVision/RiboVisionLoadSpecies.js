@@ -29,7 +29,7 @@ based on:
 
 function loadSpecies(species,DoneLoading,DoneLoading2) {
 	var speciesSplit=species.split("&");
-	ResiduePositions=[];
+	ResiduePositions=[[]];
 	// get data description table
 	$.getJSON('getData.php', {
 		FullTable : "DataDescriptions"
@@ -67,6 +67,11 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 				var resMod = $('input[name="ptmod"][value=on]').is(':checked');
 				var resXs=[];
 				var resYs=[];
+				data["speciesIndex"]=speciesIndex;
+				// Set offset. Right now, only side by side, two structures are allowed, so this is easy.
+				rvDataSets[speciesIndex].PageOffset[0] = (rvDataSets[speciesIndex].SpeciesEntry.Orientation == "portrait") ? 792 * rvDataSets[speciesIndex].SetNumber : 612 * rvDataSets[speciesIndex].SetNumber  ; //X direction
+				rvDataSets[speciesIndex].PageOffset[1]=0; //Y direction
+				ResiduePositions[speciesIndex]=[[]];
 				$.each(data, function (i, item) {
 					data[i]["color"] = "#000000";
 					data[i]["selected"] = 0;
@@ -79,13 +84,10 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 					}
 					resXs[i]=parseFloat(data[i]["X"]);
 					resYs[i]=parseFloat(data[i]["Y"]);
+					ResiduePositions[speciesIndex][i]=[[]];
+					ResiduePositions[speciesIndex][i]["X"]=resXs[i] + rvDataSets[speciesIndex].PageOffset[0];
+					ResiduePositions[speciesIndex][i]["Y"]=resYs[i] + rvDataSets[speciesIndex].PageOffset[1];
 				});
-				ResiduePositions=ResiduePositions.concat(data);
-				data["speciesIndex"]=speciesIndex;
-				// Set offset. Right now, only side by side, two structures are allowed, so this is easy.
-				rvDataSets[speciesIndex].PageOffset[0] = (rvDataSets[speciesIndex].SpeciesEntry.Orientation == "portrait") ? 792 * rvDataSets[speciesIndex].SetNumber : 612 * rvDataSets[speciesIndex].SetNumber  ; //X direction
-				rvDataSets[speciesIndex].PageOffset[1]=0; //Y direction
-				
 				rvDataSets[speciesIndex].addResidues(data);
 				var resRangeX=Math.max.apply(null,resXs) - Math.min.apply(null,resXs);
 				var resXcenter=Math.min.apply(null,resXs) + resRangeX/2;

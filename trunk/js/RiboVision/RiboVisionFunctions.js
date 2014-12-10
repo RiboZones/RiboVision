@@ -257,10 +257,12 @@ function getSelected(event) {
 	var ny = (event.clientY - rvViews[0].y - $("#topMenu").height()) / rvViews[0].scale; //subtract 80 for the info height
 	
 	if (ResiduePositions[0] != undefined) {
-		for (var i = 0; i < ResiduePositions.length; i++) {
-			var res = ResiduePositions[i];
-			if (((nx > res.X) ? nx - res.X : res.X - nx) + ((ny > res.Y) ? ny - res.Y : res.Y - ny) < 2) {
-				return i;
+		for (var j = 0; j < rvDataSets.length; j++){
+			for (var i = 0; i < ResiduePositions[j].length; i++) {
+				var res = ResiduePositions[j][i];
+				if (((nx > res.X) ? nx - res.X : res.X - nx) + ((ny > res.Y) ? ny - res.Y : res.Y - ny) < 2) {
+					return [i,j];
+				}
 			}
 		}
 		return -1;
@@ -380,47 +382,48 @@ function commandSelect(command,SeleName) {
 }
 
 function selectResidue(event) {
-	var targetSelection = rvDataSets[0].getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
 	if (drag) {
 		var curX = (event.clientX - $("#menu").width() - rvViews[0].x) / rvViews[0].scale;
 		var curY = (event.clientY - $("#topMenu").height() - rvViews[0].y) / rvViews[0].scale;
 		if (rvDataSets[0].Residues != undefined) {
-			for (var i = 0; i < rvDataSets[0].Residues.length; i++) {
-				if (rvViews[0].startX <= rvDataSets[0].Residues[i].X && rvDataSets[0].Residues[i].X <= curX && rvViews[0].startY <= rvDataSets[0].Residues[i].Y && rvDataSets[0].Residues[i].Y <= curY) {
-					targetSelection.Residues.push(rvDataSets[0].Residues[i]);
+			for (var SpeciesIndex = 0; SpeciesIndex < rvDataSets.length; SpeciesIndex++){
+				var targetSelection = rvDataSets[SpeciesIndex].getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
+				for (var i = 0; i < ResiduePositions[SpeciesIndex].length; i++) {
+					if (rvViews[0].startX <= ResiduePositions[SpeciesIndex][i].X && ResiduePositions[SpeciesIndex][i].X <= curX && rvViews[0].startY <= ResiduePositions[SpeciesIndex][i].Y && ResiduePositions[SpeciesIndex][i].Y <= curY) {
+						targetSelection.Residues.push(rvDataSets[SpeciesIndex].Residues[i]);
+					}
+					if (rvViews[0].startX >= ResiduePositions[SpeciesIndex][i].X && ResiduePositions[SpeciesIndex][i].X >= curX && rvViews[0].startY <= ResiduePositions[SpeciesIndex][i].Y && ResiduePositions[SpeciesIndex][i].Y <= curY) {
+						targetSelection.Residues.push(rvDataSets[SpeciesIndex].Residues[i]);
+					}
+					if (rvViews[0].startX <= ResiduePositions[SpeciesIndex][i].X && ResiduePositions[SpeciesIndex][i].X <= curX && rvViews[0].startY >= ResiduePositions[SpeciesIndex][i].Y && ResiduePositions[SpeciesIndex][i].Y >= curY) {
+						targetSelection.Residues.push(rvDataSets[SpeciesIndex].Residues[i]);
+					}
+					if (rvViews[0].startX >= ResiduePositions[SpeciesIndex][i].X && ResiduePositions[SpeciesIndex][i].X >= curX && rvViews[0].startY >= ResiduePositions[SpeciesIndex][i].Y && ResiduePositions[SpeciesIndex][i].Y >= curY) {
+						targetSelection.Residues.push(rvDataSets[SpeciesIndex].Residues[i]);
+					}
 				}
-				if (rvViews[0].startX >= rvDataSets[0].Residues[i].X && rvDataSets[0].Residues[i].X >= curX && rvViews[0].startY <= rvDataSets[0].Residues[i].Y && rvDataSets[0].Residues[i].Y <= curY) {
-					targetSelection.Residues.push(rvDataSets[0].Residues[i]);
+				//Unselect code
+				var sel = getSelected(event);
+				if (sel != -1) {
+					var res = rvDataSets[sel[1]].Residues[sel[0]];
+					var result = $.grep(targetSelection.Residues, function(e){ return e.map_Index == res.map_Index; });
+					//alert(result[0].resNum);
+					
+					if (result[0]) {
+						targetSelection.Residues = $.grep(targetSelection.Residues, function(e){ return e.map_Index !== result[0].map_Index; });
+					} else {
+						targetSelection.Residues.push(res);
+					}
 				}
-				if (rvViews[0].startX <= rvDataSets[0].Residues[i].X && rvDataSets[0].Residues[i].X <= curX && rvViews[0].startY >= rvDataSets[0].Residues[i].Y && rvDataSets[0].Residues[i].Y >= curY) {
-					targetSelection.Residues.push(rvDataSets[0].Residues[i]);
-				}
-				if (rvViews[0].startX >= rvDataSets[0].Residues[i].X && rvDataSets[0].Residues[i].X >= curX && rvViews[0].startY >= rvDataSets[0].Residues[i].Y && rvDataSets[0].Residues[i].Y >= curY) {
-					targetSelection.Residues.push(rvDataSets[0].Residues[i]);
-				}
-			}
-			var sel = getSelected(event);
-			//Unselect code
-			if (sel != -1) {
-				var res = rvDataSets[0].Residues[sel];
-				var result = $.grep(targetSelection.Residues, function(e){ return e.map_Index == res.map_Index; });
-				//alert(result[0].resNum);
+				rvDataSets[SpeciesIndex].drawResidues("residues");
+				rvDataSets[SpeciesIndex].drawSelection("selected");
+				rvDataSets[SpeciesIndex].drawBasePairs("lines");
 				
-				if (result[0]) {
-					targetSelection.Residues = $.grep(targetSelection.Residues, function(e){ return e.map_Index !== result[0].map_Index; });
-				} else {
-					targetSelection.Residues.push(res);
-				}
+				//drawLabels();
+				updateSelectionDiv(targetSelection.Name);
+				drawNavLine();
+				drag = false;
 			}
-			rvDataSets[0].drawResidues("residues");
-			rvDataSets[0].drawSelection("selected");
-			rvDataSets[0].drawBasePairs("lines");
-			
-			//drawLabels();
-			updateSelectionDiv(targetSelection.Name);
-			drawNavLine();
-			drag = false;
-			//updateModel();
 		} else {
 			drag = false;
 		}
@@ -486,21 +489,21 @@ function clearLineSelection(event) {
 ///////////////////////// Color Functions /////////////////////////////////////
 function colorResidue(event) {
 	var sel = getSelected(event);
-	if (sel >=0) {
-		var targetLayer=rvDataSets[0].getSelectedLayer();
+	if (sel[0] >=0) {
+		var targetLayer=rvDataSets[sel[1]].getSelectedLayer();
 		var color = colorNameToHex($("#MainColor").val());
-		targetLayer.dataLayerColors[sel]=color;	
+		targetLayer.dataLayerColors[sel[0]]=color;	
 		switch (targetLayer.Type){
 			case "residues" : 
-				var res = rvDataSets[0].Residues[sel];
+				var res = rvDataSets[sel[1]].Residues[sel[0]]
 				res.color = color;
-				rvDataSets[0].drawResidues("residues");
+				rvDataSets[sel[1]].drawResidues("residues");
 				break;
 			case "circles" :
-				rvDataSets[0].refreshResiduesExpanded(targetLayer.LayerName);
+				rvDataSets[sel[1]].refreshResiduesExpanded(targetLayer.LayerName);
 				break;
 			case "contour" :
-				rvDataSets[0].refreshResiduesExpanded(targetLayer.LayerName);
+				rvDataSets[sel[1]].refreshResiduesExpanded(targetLayer.LayerName);
 				break;
 			default:
 		}
@@ -1109,37 +1112,37 @@ function mouseMoveFunction(event){
 			} else if (event.ctrlKey == true && event.altKey == false) {
 				var sel = getSelected(event);
 				if (sel >=0) {
-					var targetLayer=rvDataSets[0].getSelectedLayer();
+					var targetLayer=rvDataSets[sel[1]].getSelectedLayer();
 					switch (targetLayer.Type){
 						case "residues" : 
-							rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#000000";
-							rvDataSets[0].HighlightLayer.CanvasContext.font = rvDataSets[0].SpeciesEntry.Font_Size_Canvas + 'pt "Myriad Pro", Calibri, Arial';
-							rvDataSets[0].HighlightLayer.CanvasContext.textBaseline = "middle";
-							rvDataSets[0].HighlightLayer.CanvasContext.textAlign = "center";
-							rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = colorNameToHex($("#MainColor").val());
-							rvDataSets[0].HighlightLayer.CanvasContext.fillText(rvDataSets[0].Residues[sel].resName, rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y);
+							rvDataSets[sel[1]].HighlightLayer.CanvasContext.strokeStyle = "#000000";
+							rvDataSets[sel[1]].HighlightLayer.CanvasContext.font = rvDataSets[sel[1]].SpeciesEntry.Font_Size_Canvas + 'pt "Myriad Pro", Calibri, Arial';
+							rvDataSets[sel[1]].HighlightLayer.CanvasContext.textBaseline = "middle";
+							rvDataSets[sel[1]].HighlightLayer.CanvasContext.textAlign = "center";
+							rvDataSets[sel[1]].HighlightLayer.CanvasContext.fillStyle = colorNameToHex($("#MainColor").val());
+							rvDataSets[sel[1]].HighlightLayer.CanvasContext.fillText(rvDataSets[sel[1]].Residues[sel[0]].resName, rvDataSets[sel[1]].Residues[sel[0]].X, rvDataSets[sel[1]].Residues[sel[0]].Y);
 							break;
 						case "circles" :
-							rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
-							rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, (targetLayer.ScaleFactor * rvDataSets[0].SpeciesEntry.Circle_Radius), 0, 2 * Math.PI, false);
-							rvDataSets[0].HighlightLayer.CanvasContext.closePath();
-							rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#MainColor").val());
-							rvDataSets[0].HighlightLayer.CanvasContext.stroke();
+							rvDataSets[sel[1]].HighlightLayer.CanvasContext.beginPath();
+							rvDataSets[sel[1]].HighlightLayer.CanvasContext.arc(rvDataSets[sel[1]].Residues[sel[0]].X, rvDataSets[sel[1]].Residues[sel[0]].Y, (targetLayer.ScaleFactor * rvDataSets[sel[1]].SpeciesEntry.Circle_Radius), 0, 2 * Math.PI, false);
+							rvDataSets[sel[1]].HighlightLayer.CanvasContext.closePath();
+							rvDataSets[sel[1]].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#MainColor").val());
+							rvDataSets[sel[1]].HighlightLayer.CanvasContext.stroke();
 							if (targetLayer.Filled) {
-								rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = colorNameToHex($("#MainColor").val());
-								rvDataSets[0].HighlightLayer.CanvasContext.fill();
+								rvDataSets[sel[1]].HighlightLayer.CanvasContext.fillStyle = colorNameToHex($("#MainColor").val());
+								rvDataSets[sel[1]].HighlightLayer.CanvasContext.fill();
 							}
 							break;
 						case "contour" :
-							rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
-							rvDataSets[0].HighlightLayer.CanvasContext.lineJoin = "round";  
-							rvDataSets[0].HighlightLayer.CanvasContext.moveTo(rvDataSets[0].ContourLinePoints[sel].X1 - .05, rvDataSets[0].ContourLinePoints[sel].Y1 - .3);
-							rvDataSets[0].HighlightLayer.CanvasContext.lineTo(rvDataSets[0].ContourLinePoints[sel].X2 - .05, rvDataSets[0].ContourLinePoints[sel].Y2 - .3);
-							rvDataSets[0].HighlightLayer.CanvasContext.lineTo(rvDataSets[0].ContourLinePoints[sel].X3 - .05, rvDataSets[0].ContourLinePoints[sel].Y3 - .3);
-							rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#MainColor").val());
-							rvDataSets[0].HighlightLayer.CanvasContext.lineWidth = 3.2;					
-							rvDataSets[0].HighlightLayer.CanvasContext.stroke();
-							rvDataSets[0].HighlightLayer.CanvasContext.closePath();
+							rvDataSets[sel[1]].HighlightLayer.CanvasContext.beginPath();
+							rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineJoin = "round";  
+							rvDataSets[sel[1]].HighlightLayer.CanvasContext.moveTo(rvDataSets[sel[1]].ContourLinePoints[sel[0]].X1 - .05, rvDataSets[sel[1]].ContourLinePoints[sel[0]].Y1 - .3);
+							rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineTo(rvDataSets[sel[1]].ContourLinePoints[sel[0]].X2 - .05, rvDataSets[sel[1]].ContourLinePoints[sel[0]].Y2 - .3);
+							rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineTo(rvDataSets[sel[1]].ContourLinePoints[sel[0]].X3 - .05, rvDataSets[sel[1]].ContourLinePoints[sel[0]].Y3 - .3);
+							rvDataSets[sel[1]].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#MainColor").val());
+							rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineWidth = 3.2;					
+							rvDataSets[sel[1]].HighlightLayer.CanvasContext.stroke();
+							rvDataSets[sel[1]].HighlightLayer.CanvasContext.closePath();
 							break;
 						default :
 					}
@@ -1147,14 +1150,14 @@ function mouseMoveFunction(event){
 			} else if ( event.ctrlKey == true && event.altKey == true) {
 				var seleLine = getSelectedLine(event);
 				if(seleLine >=0 ){
-					var j = rvDataSets[0].BasePairs[seleLine].resIndex1;
-					var k = rvDataSets[0].BasePairs[seleLine].resIndex2;
-					rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#LineColor").val());
-					rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
-					rvDataSets[0].HighlightLayer.CanvasContext.moveTo(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y);
-					rvDataSets[0].HighlightLayer.CanvasContext.lineTo(rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
-					rvDataSets[0].HighlightLayer.CanvasContext.closePath();
-					rvDataSets[0].HighlightLayer.CanvasContext.stroke();
+					var j = rvDataSets[sel[1]].BasePairs[seleLine].resIndex1;
+					var k = rvDataSets[sel[1]].BasePairs[seleLine].resIndex2;
+					rvDataSets[sel[1]].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#LineColor").val());
+					rvDataSets[sel[1]].HighlightLayer.CanvasContext.beginPath();
+					rvDataSets[sel[1]].HighlightLayer.CanvasContext.moveTo(rvDataSets[sel[1]].Residues[j].X, rvDataSets[sel[1]].Residues[j].Y);
+					rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineTo(rvDataSets[sel[1]].Residues[k].X, rvDataSets[sel[1]].Residues[k].Y);
+					rvDataSets[sel[1]].HighlightLayer.CanvasContext.closePath();
+					rvDataSets[sel[1]].HighlightLayer.CanvasContext.stroke();
 					if($('input[name="rt"][value=on]').is(':checked')){
 						createInfoWindow(seleLine,"lines");
 						$("#InteractionTip").css("bottom",$(window).height() - event.clientY);
@@ -1165,12 +1168,12 @@ function mouseMoveFunction(event){
 			} else {
 				var sel = getSelected(event);
 				if (sel >=0){
-					rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
-					rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, 1.176 * rvDataSets[0].SpeciesEntry.Circle_Radius, 0, 2 * Math.PI, false);
-					rvDataSets[0].HighlightLayer.CanvasContext.closePath();
-					rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
-					rvDataSets[0].HighlightLayer.CanvasContext.lineWidth=rvDataSets[0].SpeciesEntry.Circle_Radius/1.7;
-					rvDataSets[0].HighlightLayer.CanvasContext.stroke();
+					rvDataSets[sel[1]].HighlightLayer.CanvasContext.beginPath();
+					rvDataSets[sel[1]].HighlightLayer.CanvasContext.arc(rvDataSets[sel[1]].Residues[sel[0]].X, rvDataSets[sel[1]].Residues[sel[0]].Y, 1.176 * rvDataSets[sel[1]].SpeciesEntry.Circle_Radius, 0, 2 * Math.PI, false);
+					rvDataSets[sel[1]].HighlightLayer.CanvasContext.closePath();
+					rvDataSets[sel[1]].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
+					rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineWidth=rvDataSets[sel[1]].SpeciesEntry.Circle_Radius/1.7;
+					rvDataSets[sel[1]].HighlightLayer.CanvasContext.stroke();
 					if($('input[name="rt"][value=on]').is(':checked')){
 						createInfoWindow(sel,"residue");
 						$("#ResidueTip").css("bottom",$(window).height() - event.clientY);
@@ -1183,37 +1186,37 @@ function mouseMoveFunction(event){
 		case "color":
 			var sel = getSelected(event);
 			if (sel != -1) {
-				var targetLayer=rvDataSets[0].getSelectedLayer();
+				var targetLayer=rvDataSets[sel[1]].getSelectedLayer();
 				switch (targetLayer.Type){
 					case "residues" : 
-						rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#000000";
-						rvDataSets[0].HighlightLayer.CanvasContext.font = rvDataSets[0].SpeciesEntry.Font_Size_Canvas + 'pt "Myriad Pro", Calibri, Arial';
-						rvDataSets[0].HighlightLayer.CanvasContext.textBaseline = "middle";
-						rvDataSets[0].HighlightLayer.CanvasContext.textAlign = "center";
-						rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = colorNameToHex($("#MainColor").val());
-						rvDataSets[0].HighlightLayer.CanvasContext.fillText(rvDataSets[0].Residues[sel].resName, rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y);
+						rvDataSets[sel[1]].HighlightLayer.CanvasContext.strokeStyle = "#000000";
+						rvDataSets[sel[1]].HighlightLayer.CanvasContext.font = rvDataSets[sel[1]].SpeciesEntry.Font_Size_Canvas + 'pt "Myriad Pro", Calibri, Arial';
+						rvDataSets[sel[1]].HighlightLayer.CanvasContext.textBaseline = "middle";
+						rvDataSets[sel[1]].HighlightLayer.CanvasContext.textAlign = "center";
+						rvDataSets[sel[1]].HighlightLayer.CanvasContext.fillStyle = colorNameToHex($("#MainColor").val());
+						rvDataSets[sel[1]].HighlightLayer.CanvasContext.fillText(rvDataSets[sel[1]].Residues[sel[0]].resName, rvDataSets[sel[1]].Residues[sel[0]].X, rvDataSets[sel[1]].Residues[sel[0]].Y);
 						break;
 					case "circles" :
-						rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
-						rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, (targetLayer.ScaleFactor * rvDataSets[0].SpeciesEntry.Circle_Radius), 0, 2 * Math.PI, false);
-						rvDataSets[0].HighlightLayer.CanvasContext.closePath();
-						rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#MainColor").val());
-						rvDataSets[0].HighlightLayer.CanvasContext.stroke();
+						rvDataSets[sel[1]].HighlightLayer.CanvasContext.beginPath();
+						rvDataSets[sel[1]].HighlightLayer.CanvasContext.arc(rvDataSets[sel[1]].Residues[sel[0]].X, rvDataSets[sel[1]].Residues[sel[0]].Y, (targetLayer.ScaleFactor * rvDataSets[sel[1]].SpeciesEntry.Circle_Radius), 0, 2 * Math.PI, false);
+						rvDataSets[sel[1]].HighlightLayer.CanvasContext.closePath();
+						rvDataSets[sel[1]].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#MainColor").val());
+						rvDataSets[sel[1]].HighlightLayer.CanvasContext.stroke();
 						if (targetLayer.Filled) {
-							rvDataSets[0].HighlightLayer.CanvasContext.fillStyle = colorNameToHex($("#MainColor").val());
-							rvDataSets[0].HighlightLayer.CanvasContext.fill();
+							rvDataSets[sel[1]].HighlightLayer.CanvasContext.fillStyle = colorNameToHex($("#MainColor").val());
+							rvDataSets[sel[1]].HighlightLayer.CanvasContext.fill();
 						}
 						break;
 					case "contour" :
-						rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
-						rvDataSets[0].HighlightLayer.CanvasContext.lineJoin = "round";  
-						rvDataSets[0].HighlightLayer.CanvasContext.moveTo(rvDataSets[0].ContourLinePoints[sel].X1 - .05, rvDataSets[0].ContourLinePoints[sel].Y1 - .3);
-						rvDataSets[0].HighlightLayer.CanvasContext.lineTo(rvDataSets[0].ContourLinePoints[sel].X2 - .05, rvDataSets[0].ContourLinePoints[sel].Y2 - .3);
-						rvDataSets[0].HighlightLayer.CanvasContext.lineTo(rvDataSets[0].ContourLinePoints[sel].X3 - .05, rvDataSets[0].ContourLinePoints[sel].Y3 - .3);
-						rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#MainColor").val());
-						rvDataSets[0].HighlightLayer.CanvasContext.lineWidth = 3.2;					
-						rvDataSets[0].HighlightLayer.CanvasContext.stroke();
-						rvDataSets[0].HighlightLayer.CanvasContext.closePath();
+						rvDataSets[sel[1]].HighlightLayer.CanvasContext.beginPath();
+						rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineJoin = "round";  
+						rvDataSets[sel[1]].HighlightLayer.CanvasContext.moveTo(rvDataSets[sel[1]].ContourLinePoints[sel[0]].X1 - .05, rvDataSets[sel[1]].ContourLinePoints[sel[0]].Y1 - .3);
+						rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineTo(rvDataSets[sel[1]].ContourLinePoints[sel[0]].X2 - .05, rvDataSets[sel[1]].ContourLinePoints[sel[0]].Y2 - .3);
+						rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineTo(rvDataSets[sel[1]].ContourLinePoints[sel[0]].X3 - .05, rvDataSets[sel[1]].ContourLinePoints[sel[0]].Y3 - .3);
+						rvDataSets[sel[1]].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#MainColor").val());
+						rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineWidth = 3.2;					
+						rvDataSets[sel[1]].HighlightLayer.CanvasContext.stroke();
+						rvDataSets[sel[1]].HighlightLayer.CanvasContext.closePath();
 						break;
 					default :
 				}
@@ -1237,33 +1240,28 @@ function mouseWheelFunction(event,delta){
 	if (sel == -1) {
 		//document.getElementById("currentDiv").innerHTML = "<br/>";
 	} else {
-		//document.getElementById("currentDiv").innerHTML = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[sel].ChainID)] + ":" + rvDataSets[0].Residues[sel].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-		
-		rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
-		rvDataSets[0].HighlightLayer.CanvasContext.arc(rvDataSets[0].Residues[sel].X, rvDataSets[0].Residues[sel].Y, 2, 0, 2 * Math.PI, false);
-		rvDataSets[0].HighlightLayer.CanvasContext.closePath();
-		rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
-		rvDataSets[0].HighlightLayer.CanvasContext.stroke();
-		
+		rvDataSets[sel[1]].HighlightLayer.CanvasContext.beginPath();
+		rvDataSets[sel[1]].HighlightLayer.CanvasContext.arc(rvDataSets[sel[1]].Residues[sel[0]].X, rvDataSets[sel[1]].Residues[sel[0]].Y, 2, 0, 2 * Math.PI, false);
+		rvDataSets[sel[1]].HighlightLayer.CanvasContext.closePath();
+		rvDataSets[sel[1]].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
+		rvDataSets[sel[1]].HighlightLayer.CanvasContext.stroke();
 	}
 	if (drag) {
 		rvViews[0].drag(event);
 	}
 	return false;
-
-
 }
 
 function colorLineSelection(event) {
 }
 
 ///////For popup window////
-function createInfoWindow(Index,InfoMode){
+function createInfoWindow(Sele,InfoMode){
 	if (InfoMode === "residue"){
-		addPopUpWindowResidue(Index);
+		addPopUpWindowResidue(Sele);
 		$("#ResidueTip").tooltip("option","content",$("#residuetip").html());
 	} else {
-		addPopUpWindowLine(Index);
+		addPopUpWindowLine(Sele);
 		$("#InteractionTip").tooltip("option","content",$("#interactiontip").html());
 	}
 }
@@ -1278,8 +1276,8 @@ function BaseViewCenter(event){
 	}
 	var sel = getSelected(event);
 	if (sel != -1) {
-		var res = rvDataSets[0].Residues[sel];
-		var script = "center " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and " + res.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') +":" + res.ChainID;
+		var res = rvDataSets[sel[1]].Residues[sel[0]];
+		var script = "center " + (rvDataSets[sel[1]].SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and " + res.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') +":" + res.ChainID;
 		Jmol.script(myJmol, script);
 	}
 }
@@ -2987,7 +2985,7 @@ function drawNavLine(){
 		
 }
 
-function addPopUpWindowResidue(ResIndex){
+function addPopUpWindowResidue(Sele){
 	//Width and height
 	var Xoffset = 40;
 	var Yoffset = 20;
@@ -3008,15 +3006,15 @@ function addPopUpWindowResidue(ResIndex){
 	var barColors = ["green","blue","black","red","orange"];
 	
 	
-	if (rvDataSets[0].Residues[ResIndex].resNum.indexOf(":") >= 0 ){
-		var ResName = rvDataSets[0].Residues[ResIndex].resNum;
+	if (rvDataSets[Sele[1]].Residues[Sele[0]].resNum.indexOf(":") >= 0 ){
+		var ResName = rvDataSets[Sele[1]].Residues[Sele[0]].resNum;
 	} else {
-		var ResName = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[ResIndex].ChainID)] +
-		":" + rvDataSets[0].Residues[ResIndex].resNum;
+		var ResName = rvDataSets[Sele[1]].SpeciesEntry.Molecule_Names[rvDataSets[Sele[1]].SpeciesEntry.PDB_chains.indexOf(rvDataSets[Sele[1]].Residues[Sele[0]].ChainID)] +
+		":" + rvDataSets[Sele[1]].Residues[Sele[0]].resNum;
 	}
 	
-	var dobj = $.grep(rvDataSets[0].ConservationTable, function(e){ return e.resNum == ResName; })[0];
-	//var dobj = rvDataSets[0].ConservationTable[ResIndex];
+	var dobj = $.grep(rvDataSets[Sele[1]].ConservationTable, function(e){ return e.resNum == ResName; })[0];
+	//var dobj = rvDataSets[Sele[1]].ConservationTable[Sele[0]];
 	if (dobj){
 		//round the number to two decimal places
 		var Anum = dobj.A*100;
@@ -3041,137 +3039,137 @@ function addPopUpWindowResidue(ResIndex){
 		var Hn = "n/a";
 	}
 		
-	var targetLayer=rvDataSets[0].getSelectedLayer();
-	var rn = rvDataSets[0].Residues[ResIndex].resNum.split(":");
+	var targetLayer=rvDataSets[Sele[1]].getSelectedLayer();
+	var rn = rvDataSets[Sele[1]].Residues[Sele[0]].resNum.split(":");
 	if (rn.length < 2 ){
-		$('#resName').html(rvDataSets[0].Residues[ResIndex].resName + rvDataSets[0].Residues[ResIndex].resNum +
-			" (" + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[ResIndex].ChainID)] + " rRNA)");
+		$('#resName').html(rvDataSets[Sele[1]].Residues[Sele[0]].resName + rvDataSets[Sele[1]].Residues[Sele[0]].resNum +
+			" (" + rvDataSets[Sele[1]].SpeciesEntry.Molecule_Names[rvDataSets[Sele[1]].SpeciesEntry.PDB_chains.indexOf(rvDataSets[Sele[1]].Residues[Sele[0]].ChainID)] + " rRNA)");
 	} else {
-		$('#resName').html(rvDataSets[0].Residues[ResIndex].resName + rn[1] +
+		$('#resName').html(rvDataSets[Sele[1]].Residues[Sele[0]].resName + rn[1] +
 			" (" + rn[0] + " rRNA)");
 	}
 	$('#conSeqLetter').html("Consensus: " + ConsensusSymbol);
-	$('#activeData').html("Selected Data: " + targetLayer.Data[ResIndex]);
+	$('#activeData').html("Selected Data: " + targetLayer.Data[Sele[0]]);
 	$("#conPercentage").html("Shannon Entropy: " + Hn);
-	
-	function drawConGraph(){
-		if (typeof d3 === 'undefined'){return;};
-		//Remove old SVG
-		d3.select("#ResidueTipContent svg").remove();
-		//Create SVG element
-		var svg = d3.select("#ResidueTipContent")
-			.append("svg")
-			.attr("width", w)
-			.attr("height", h);
-		
-		var barWidth = (w - Xoffset) / (lenDataSet + ( barPaddingPer/100 * (lenDataSet -1) ) );
-		//Scales
-		//var xScale = d3.scale.linear();				
-		
-		var xScale = d3.scale.linear()
-								 .domain([0, lenDataSet - 1])
-								 .range([Xoffset, w - barWidth]);
-								
-		var yScale = d3.scale.linear()
-							.domain([0, 100])
-							.range([h - 2*Yoffset,0]);
-			
-		svg.selectAll("rect")
-		   .data(dataset)
-		   .enter()
-		   .append("rect")
-		   .attr("x", function(d, i) {
-				return xScale(i);
-		  })
-		   .attr("y", function(d) {
-				return Yoffset + yScale(d);
-		   })
-		   .attr("width", barWidth)
-		   .attr("height", function(d) {
-				return h - 2*Yoffset - yScale(d);
-		   })
-		   .attr("fill", function(d, i) {
-			 return barColors[i];
-			});
-
-		svg.selectAll("text.number")
-		   .data(dataset)		 
-		   .enter()
-		   .append("text")
-		   .text(function(d) {
-				return d;
-		   })
-		   .attr("text-anchor", "middle")
-		   .attr("x", function(d, i) {
-				return xScale(i) + barWidth/2;
-		   })
-		   .attr("y", function(d) {
-				return Yoffset + yScale(d) - 5;
-		   })
-		   .attr("font-family", "sans-serif")
-		   .attr("font-size", "10px")
-		   .attr("fill", "black")
-		   .attr('class','number')
-		   .text(String);
-		   
-		   //Define X axis
-				
-			var xAxis = d3.svg.axis()
-							  .scale(xScale)
-							  .orient("bottom")
-							  .ticks(5);
-
-		   //Define Y axis
-			var yAxis = d3.svg.axis()
-					  .scale(yScale)
-					  .orient("left")
-					  .ticks(5);
-			xAxis.tickFormat(function(d,i){
-					return sLabels[i];
-			});
-			
-			//Create X axis
-			
-			svg.append("g")
-				.attr("class", "axis")
-				.attr("transform", "translate(" + barWidth/2 + "," + (h - Yoffset) + ")")
-				.call(xAxis);
-			//Create Y axis
-			svg.append("g")
-				.attr("class", "axis")
-				.attr("transform", "translate(" + 0.8* Xoffset + "," + Yoffset + ")")
-				.call(yAxis);	
-	}	
 }
+function drawConGraph(){
+	if (typeof d3 === 'undefined'){return;};
+	//Remove old SVG
+	d3.select("#ResidueTipContent svg").remove();
+	//Create SVG element
+	var svg = d3.select("#ResidueTipContent")
+		.append("svg")
+		.attr("width", w)
+		.attr("height", h);
+	
+	var barWidth = (w - Xoffset) / (lenDataSet + ( barPaddingPer/100 * (lenDataSet -1) ) );
+	//Scales
+	//var xScale = d3.scale.linear();				
+	
+	var xScale = d3.scale.linear()
+							 .domain([0, lenDataSet - 1])
+							 .range([Xoffset, w - barWidth]);
+							
+	var yScale = d3.scale.linear()
+						.domain([0, 100])
+						.range([h - 2*Yoffset,0]);
+		
+	svg.selectAll("rect")
+	   .data(dataset)
+	   .enter()
+	   .append("rect")
+	   .attr("x", function(d, i) {
+			return xScale(i);
+	  })
+	   .attr("y", function(d) {
+			return Yoffset + yScale(d);
+	   })
+	   .attr("width", barWidth)
+	   .attr("height", function(d) {
+			return h - 2*Yoffset - yScale(d);
+	   })
+	   .attr("fill", function(d, i) {
+		 return barColors[i];
+		});
+
+	svg.selectAll("text.number")
+	   .data(dataset)		 
+	   .enter()
+	   .append("text")
+	   .text(function(d) {
+			return d;
+	   })
+	   .attr("text-anchor", "middle")
+	   .attr("x", function(d, i) {
+			return xScale(i) + barWidth/2;
+	   })
+	   .attr("y", function(d) {
+			return Yoffset + yScale(d) - 5;
+	   })
+	   .attr("font-family", "sans-serif")
+	   .attr("font-size", "10px")
+	   .attr("fill", "black")
+	   .attr('class','number')
+	   .text(String);
+	   
+	   //Define X axis
+			
+		var xAxis = d3.svg.axis()
+						  .scale(xScale)
+						  .orient("bottom")
+						  .ticks(5);
+
+	   //Define Y axis
+		var yAxis = d3.svg.axis()
+				  .scale(yScale)
+				  .orient("left")
+				  .ticks(5);
+		xAxis.tickFormat(function(d,i){
+				return sLabels[i];
+		});
+		
+		//Create X axis
+		
+		svg.append("g")
+			.attr("class", "axis")
+			.attr("transform", "translate(" + barWidth/2 + "," + (h - Yoffset) + ")")
+			.call(xAxis);
+		//Create Y axis
+		svg.append("g")
+			.attr("class", "axis")
+			.attr("transform", "translate(" + 0.8* Xoffset + "," + Yoffset + ")")
+			.call(yAxis);	
+}	
+
 function addPopUpWindowLine(SeleLine){
 	
-	var j = rvDataSets[0].BasePairs[SeleLine].resIndex1;
-	var k = rvDataSets[0].BasePairs[SeleLine].resIndex2;
+	var j = rvDataSets[SeleLine[1]].BasePairs[SeleLine[0]].resIndex1;
+	var k = rvDataSets[SeleLine[1]].BasePairs[SeleLine[0]].resIndex2;
 	
-	var targetLayer = rvDataSets[0].getLayerByType("lines");
+	var targetLayer = rvDataSets[SeleLine[1]].getLayerByType("lines");
 	
-	if (rvDataSets[0].Residues[j].resNum.indexOf(":") >= 0 ){
-		var ResName1 = rvDataSets[0].Residues[j].resNum;
+	if (rvDataSets[SeleLine[1]].Residues[j].resNum.indexOf(":") >= 0 ){
+		var ResName1 = rvDataSets[SeleLine[1]].Residues[j].resNum;
 	} else {
-		var ResName1 = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[j].ChainID)] +
-		":" + rvDataSets[0].Residues[j].resNum;
+		var ResName1 = rvDataSets[SeleLine[1]].SpeciesEntry.Molecule_Names[rvDataSets[SeleLine[1]].SpeciesEntry.PDB_chains.indexOf(rvDataSets[SeleLine[1]].Residues[j].ChainID)] +
+		":" + rvDataSets[SeleLine[1]].Residues[j].resNum;
 	}
-	if (rvDataSets[0].Residues[k].resNum.indexOf(":") >= 0 ){
-		var ResName2 = rvDataSets[0].Residues[k].resNum;
+	if (rvDataSets[SeleLine[1]].Residues[k].resNum.indexOf(":") >= 0 ){
+		var ResName2 = rvDataSets[SeleLine[1]].Residues[k].resNum;
 	} else {
-		var ResName2 = rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(rvDataSets[0].Residues[k].ChainID)] +
-		":" + rvDataSets[0].Residues[k].resNum;
+		var ResName2 = rvDataSets[SeleLine[1]].SpeciesEntry.Molecule_Names[rvDataSets[SeleLine[1]].SpeciesEntry.PDB_chains.indexOf(rvDataSets[SeleLine[1]].Residues[k].ChainID)] +
+		":" + rvDataSets[SeleLine[1]].Residues[k].resNum;
 	}
 	$('#BasePairType').html("Interaction Type: " +  targetLayer[0].DataLabel);
-	if (rvDataSets[0].BasePairs[SeleLine].ProteinName){
-		$('#BasePairSubType').html("Interaction Subtype: " + rvDataSets[0].BasePairs[SeleLine].ProteinName + " " + rvDataSets[0].BasePairs[SeleLine].bp_type);
+	if (rvDataSets[SeleLine[1]].BasePairs[SeleLine].ProteinName){
+		$('#BasePairSubType').html("Interaction Subtype: " + rvDataSets[SeleLine[1]].BasePairs[SeleLine].ProteinName + " " + rvDataSets[SeleLine[1]].BasePairs[SeleLine].bp_type);
 	} else {
-		$('#BasePairSubType').html("Interaction Subtype: " + rvDataSets[0].BasePairs[SeleLine].bp_type);
+		$('#BasePairSubType').html("Interaction Subtype: " + rvDataSets[SeleLine[1]].BasePairs[SeleLine].bp_type);
 	}
 	
-	addPopUpWindowResidue(j);
+	addPopUpWindowResidue([j,SeleLine[1]]);
 	$("#iResidueTipA").html($("#residuetip").find("#ResidueTipContent").html());
-	addPopUpWindowResidue(k);
+	addPopUpWindowResidue([k,SeleLine[1]]);
 	$("#iResidueTipB").html($("#residuetip").find("#ResidueTipContent").html());
 }
 //////////End of navline functions////
