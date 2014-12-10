@@ -495,7 +495,7 @@ function RiboVisionReady() {
 	
 	$("#saveSVG-btn").button().click(function(){
 		$.each(rvDataSets, function(SpeciesIndex,rvds){
-			saveSVG(SpeciesIndex);
+			setTimeout(function(){saveSVG(SpeciesIndex)}, 3000 * SpeciesIndex);
 		});
 	});
 	$("#selectByDomainHelix").multiselect().multiselectfilter();

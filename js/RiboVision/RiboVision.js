@@ -35,7 +35,7 @@ var rvViews = [];
 var FullBasePairSet;
 var AgreeFunction = function () {};
 var drag = false;
-//var seleLineMode = false;
+var ResiduePositions=[];
 
 // Website Settings
 var localStorageAvailable = false;
