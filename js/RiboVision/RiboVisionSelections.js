@@ -82,9 +82,9 @@ function InitSelections() {
 				var namecheck = $("#newSelectionName").val().match(/[A-z][\w-_:\.]*/);
 				if (namecheck[0].length === $("#newSelectionName").val().length && $("#newSelectionName").val().length <= 16) {
 					if (rvDataSets[0].isUniqueSelection($("#newSelectionName").val())) {
-						//$("#canvasDiv").append($('<canvas id="' + $("#newLayerName").val() + '" style="z-index:' + ( rvDataSets[0].LastLayer + 1 ) + ';"></canvas>'));
-						//resizeElements();
-						rvDataSets[0].addSelection($("#newSelectionName").val(), [], $("#selectionColor2").val());
+						$.each(rvDataSets, function(index,rvds){
+							rvds.addSelection($("#newSelectionName").val(), [], $("#selectionColor2").val());
+						}
 						SelectionMenu(rvDataSets[0].getSelection($("#newSelectionName").val()));
 						RefreshSelectionMenu();
 						$(".oneSelectionGroup[name=" + $("#newSelectionName").val() + "]").find(".selectSelectionRadioBtn").prop("checked", true);
