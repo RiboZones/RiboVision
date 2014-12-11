@@ -84,7 +84,7 @@ function InitSelections() {
 					if (rvDataSets[0].isUniqueSelection($("#newSelectionName").val())) {
 						$.each(rvDataSets, function(index,rvds){
 							rvds.addSelection($("#newSelectionName").val(), [], $("#selectionColor2").val());
-						}
+						});
 						SelectionMenu(rvDataSets[0].getSelection($("#newSelectionName").val()));
 						RefreshSelectionMenu();
 						$(".oneSelectionGroup[name=" + $("#newSelectionName").val() + "]").find(".selectSelectionRadioBtn").prop("checked", true);
