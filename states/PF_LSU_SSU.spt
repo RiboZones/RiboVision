@@ -54,7 +54,7 @@ function _setFileState() {
   set pdbGetHeader false;
   set pdbSequential false;
   set percentVdwAtom 23;
-  set smallMoleculeMaxAtoms 40000;
+  set smallMoleculeMaxAtoms 80000;
   set smartAromatic true;
   load "./pdb/PF_50S_rRNA.pdb";
   load append  "./pdb/PF_50S_rProteins.pdb";
