@@ -249,7 +249,7 @@ function _setModelState() {
   measures delete;
   select *; set measures nanometers;
   font measures 15 SansSerif Plain;
-#select :1 or :3;
+  select :1 or :2 or :3;
   wireframe off;
   Cartoon on;
   spacefill off;
@@ -274,10 +274,10 @@ function _setModelState() {
   select (1.1 and 2058-2610:1);
   color Cartoon opaque [xff99cc];
   
-  select (1.1 and 2626-2894:1);
+  select (1.1 and 2626-3049:1);
   color Cartoon opaque [x0ba34a];
   
-  select (1.1 and 1-124:3);
+  select (1.1 and 1-126:3);
   color Cartoon opaque [x8ec640];  
 
 
