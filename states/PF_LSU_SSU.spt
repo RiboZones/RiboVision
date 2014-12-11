@@ -249,7 +249,7 @@ function _setModelState() {
   measures delete;
   select *; set measures nanometers;
   font measures 15 SansSerif Plain;
-  select :1 or :3;
+#select :1 or :3;
   wireframe off;
   Cartoon on;
   spacefill off;
