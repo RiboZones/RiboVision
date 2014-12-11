@@ -51,6 +51,15 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 	$("#selectByDomainHelix").find('option').remove().end();
 	
 	$.each(speciesSplit, function (speciesIndex,speciesInterest){
+		if(speciesInterest == ""){
+			return false;
+		}
+		if (rvDataSets.length <= speciesIndex){
+			prepare_rvDataSet(speciesIndex);
+			rvDataSets[speciesIndex].selectLayer($('input:radio[name=selectedRadioL]').filter(':checked').parent().parent().attr('name'));
+			rvDataSets[speciesIndex].linkLayer($('input:radio[name=mappingRadioL]').filter(':checked').parent().parent().attr('name'));
+			resizeElements(true);
+		}
 		rvDataSets[speciesIndex].Name=speciesInterest;
 		rvDataSets[speciesIndex].ColorProteins=[];
 		$.each(rvDataSets[speciesIndex].Layers, function (i, item){

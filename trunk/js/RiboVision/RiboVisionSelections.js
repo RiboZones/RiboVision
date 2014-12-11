@@ -121,11 +121,15 @@ function InitSelections() {
 		modal : true,
 		buttons : {
 			"Delete the Selection" : function (event) {
-				rvDataSets[0].deleteSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
+				$.each(rvDataSets, function(index,rvds){
+					rvds.deleteSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
+				});
 				$("[name=" + $('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name') + "]").remove();
 				$(".oneSelectionGroup[name='" + rvDataSets[0].Selections[0].Name + "']").find(".selectSelectionRadioBtn").prop("checked", true);
 				$(".oneSelectionGroup[name='" + rvDataSets[0].Selections[0].Name + "']").find(".selectSelectionRadioBtn").trigger("change");
-				rvDataSets[0].drawSelection("selected");
+				$.each(rvDataSets, function(index,rvds){
+					rvds.drawSelection("selected");
+				});
 				$(this).dialog("close");
 			},
 			Cancel : function () {
@@ -160,16 +164,19 @@ function InitSelections() {
 	$("#SelectionPanel").sortable({
 		update : function (event, ui) {
 			$("#SelectionPanel .selectionContent").each(function (e, f) {
-				var ts = rvDataSets[0].getSelection($(this).parent().attr("name"));
-				ts.ZIndex = rvDataSets[0].Selections.length - e;
-				rvDataSets[0].drawSelection("selected");
-				console.log($(this).parent().attr("name") + ": " + ts.ZIndex);
+				$.each(rvDataSets, function(index,rvds){
+					rvds.drawSelection("selected");
+					var ts = rvds.getSelection($(this).parent().attr("name"));
+					ts.ZIndex = rvds.Selections.length - e;
+					rvds.drawSelection("selected");
+				});
 			});
-			rvDataSets[0].SelectionsSort();
+			$.each(rvDataSets, function(index,rvds){
+				rvds.SelectionsSort();
+			});
 		},
 		items : ".oneSelectionGroup",
 		axis : "y"
-
 	});
 	$("#SelectionPanel").disableSelection();
 
@@ -250,15 +257,15 @@ function SelectionMenu(targetSelection, key, RVcolor) {
 				if ($type == 'visible') {
 					this.setAttribute('value', 'invisible');
 					this.setAttribute('src', $invisibleImgPath);
-					rvDataSets[0].drawSelection("selected");
-					//targetLayer=rvDataSets[0].getLayer(this.parentNode.parentNode.getAttribute("name"));
-					//targetLayer.setVisibility("hidden");
+					$.each(rvDataSets, function(index,rvds){
+						rvds.drawSelection("selected");
+					});
 				} else if ($type == 'invisible') {
 					this.setAttribute('value', 'visible');
 					this.setAttribute('src', $visibleImgPath);
-					rvDataSets[0].drawSelection("selected");
-					//targetLayer=rvDataSets[0].getLayer(this.parentNode.parentNode.getAttribute("name"));
-					//targetLayer.setVisibility("visible");
+					$.each(rvDataSets, function(index,rvds){
+						rvds.drawSelection("selected");
+					});
 				}
 			})));
 
@@ -275,12 +282,14 @@ function SelectionMenu(targetSelection, key, RVcolor) {
 				title : 'select Selection'
 			}).addClass("selectSelectionRadioBtn").change(function (event) {
 				var selectionname = $(event.currentTarget).parent().parent().attr("name");
-				$.each(rvDataSets[0].Selections, function (key, value) {
-					if (value.Name === selectionname) {
-						value.Selected = true;
-					} else {
-						value.Selected = false;
-					}
+				$.each(rvDataSets, function(index,rvds){
+					$.each(rvds.Selections, function (key, value) {
+						if (value.Name === selectionname) {
+							value.Selected = true;
+						} else {
+							value.Selected = false;
+						}
+					});
 				});
 			})));
 
@@ -344,9 +353,11 @@ function RefreshSelectionMenu() {
 
 function changeSelectionColor() {
 	$($dblClickedSelection).parent().find(".colorBox").css("background", $("#selectionColor").val());
-	var targetSelection = rvDataSets[0].getSelection($dblClickedSelectionName);
-	targetSelection.Color = $("#selectionColor").val();
-	rvDataSets[0].drawSelection("selected");
+	$.each(rvDataSets, function(index,rvds){
+		var targetSelection = rvds.getSelection($dblClickedSelectionName);
+		targetSelection.Color = $("#selectionColor").val();
+		rvds.drawSelection("selected");
+	});
 }
 
 function changeCurrentSelectionName() {
@@ -356,8 +367,10 @@ function changeCurrentSelectionName() {
 			if (rvDataSets[0].isUniqueSelection($("#selectionNameInput").val())) {
 				$($dblClickedSelection).parent().attr("name", $("#selectionNameInput").val());
 				$($dblClickedSelection).html($("#selectionNameInput").val()).prepend('<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-e"></span>');
-				var targetSelection = rvDataSets[0].getSelection($dblClickedSelectionName);
-				targetSelection.Name = $("#selectionNameInput").val();
+				$.each(rvDataSets, function(index,rvds){
+					var targetSelection = rvds.getSelection($dblClickedSelectionName);
+					targetSelection.Name = $("#selectionNameInput").val();
+				});
 				RefreshSelectionMenu();
 				$(this).dialog("close");
 			} else {

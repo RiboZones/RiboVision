@@ -960,26 +960,23 @@ function RiboVisionReady() {
 	InitRibovision();
 };
 
+function prepare_rvDataSet(SpeciesIndex){
+	rvDataSets[SpeciesIndex] = new rvDataSet("EmptyDataSet",SpeciesIndex);
+	rvDataSets[SpeciesIndex].addHighlightLayer("HighlightLayer", "HighlightLayer", [], false, 1.176, 'highlight');
+	rvDataSets[SpeciesIndex].addLayer("Interactions", "InteractionsLayer", [], true, 1.0, 'lines');
+	rvDataSets[SpeciesIndex].addLayer("Labels", "LabelLayer", [], true, 1.0, 'labels');
+	rvDataSets[SpeciesIndex].addLayer("ContourLine", "ContourLine", [], true, 1.0, 'contour');
+	rvDataSets[SpeciesIndex].addLayer("Letters", "NucleotideLayer", [], true, 1.0, 'residues');
+	rvDataSets[SpeciesIndex].addLayer("Circles", "CircleLayer1", [], true, 1.0, 'circles');
+	rvDataSets[SpeciesIndex].addLayer("Selection", "SSelectionLayer", [], false, 1.176, 'selected');
+	rvDataSets[SpeciesIndex].sort();
+	rvDataSets[SpeciesIndex].addSelection("Selection_1");
+}
 function InitRibovision(FreshState) {
-	var numDataSets = 2; // Only two supported for starters.
 	//debugger;
 	$(".oneLayerGroup").remove();
 	$(".oneSelectionGroup").remove();
-	
-	for (var i = 0; i < numDataSets; i++) {
-		rvDataSets[i] = new rvDataSet("EmptyDataSet",i);
-		rvDataSets[i].addHighlightLayer("HighlightLayer", "HighlightLayer", [], false, 1.176, 'highlight');
-		rvDataSets[i].addLayer("Interactions", "InteractionsLayer", [], true, 1.0, 'lines');
-		rvDataSets[i].addLayer("Labels", "LabelLayer", [], true, 1.0, 'labels');
-		rvDataSets[i].addLayer("ContourLine", "ContourLine", [], true, 1.0, 'contour');
-		rvDataSets[i].addLayer("Letters", "NucleotideLayer", [], true, 1.0, 'residues');
-		rvDataSets[i].addLayer("Circles", "CircleLayer1", [], true, 1.0, 'circles');
-		//rvDataSets[i].addLayer("Data2", "CircleLayer2", [], true, 1.0, 'circles');
-		rvDataSets[i].addLayer("Selection", "SSelectionLayer", [], false, 1.176, 'selected');
-		rvDataSets[i].sort();
-		rvDataSets[i].addSelection("Selection_1");
-	}
-		
+	prepare_rvDataSet(0);
 	resizeElements(true);
 
 	switch (get_cookie("JmolState")) {
@@ -1049,13 +1046,9 @@ function InitRibovision2(noLoad,FreshState) {
 	//document.getElementById("speciesList").selectedIndex = 0;
 	document.getElementById('commandline').value = "";	
 	
-
-	rvDataSets[0].drawResidues("residues");
-	rvDataSets[0].drawSelection("selected");
-	rvDataSets[0].refreshResiduesExpanded("circles");
-	rvDataSets[0].drawLabels("labels");
-	rvDataSets[0].drawBasePairs("lines");
-	rvDataSets[0].drawContourLines("contour");
+	$.each(rvDataSets, function (index, rvds) {
+		rvds.refreshCanvases();
+	});
 	
 	if (!noLoad){
 		InitRibovision3(FreshState);
