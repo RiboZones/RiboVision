@@ -3387,8 +3387,8 @@ function processRvState(rvSaveState) {
 	}
 	
 	$.each(rvDataSets, function (index, value) {
-			value.refreshCanvases();
-		});
+		value.refreshCanvases();
+	});
 	
 	if(!$("input[name='LastSpeciesCheck']").attr("checked")){
 		updateModel();

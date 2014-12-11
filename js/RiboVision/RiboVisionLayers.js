@@ -54,8 +54,11 @@ function InitLayers() {
 	});
 
 	$("#clearLayer").click(function () {
-		var targetLayer = rvDataSets[0].getSelectedLayer();
-		targetLayer.clearAll();
+		$.each(rvDataSets, function (index, rvds) {
+			var targetLayer = rvds.getSelectedLayer();
+			targetLayer.clearAll();
+		});
+		
 		drawNavLine();
 		//$("#dialog-addSelection").dialog("open");
 	});
@@ -77,10 +80,14 @@ function InitLayers() {
 	$("#LayerPanel").sortable({
 		update : function (event, ui) {
 			$("#LayerPanel .layerContent").each(function (e, f) {
-				var tl = rvDataSets[0].getLayer($(this).parent().attr("name"));
-				tl.updateZIndex(rvDataSets[0].LastLayer - e);
+				$.each(rvDataSets, function (index, rvds) {
+					var tl = rvds.getLayer($(this).parent().attr("name"));
+					tl.updateZIndex(rvds.LastLayer - e);
+				});
 			});
-			rvDataSets[0].sort();
+			$.each(rvDataSets, function (index, rvds) {
+				rvds.sort();
+			});
 			RefreshLayerMenu();
 		},
 		items : ".oneLayerGroup",
@@ -135,7 +142,9 @@ function InitLayers() {
 				if (namecheck !== null && namecheck[0].length === $("#newLayerName").val().length && $("#newLayerName").val().length <= 16) {
 					if (rvDataSets[0].isUniqueLayer($("#newLayerName").val())) {
 						//$("#canvasDiv").append($('<canvas id="' + $("#newLayerName").val() + '" style="z-index:' + ( rvDataSets[0].LastLayer + 1 ) + ';"></canvas>'));
-						rvDataSets[0].addLayer($("#newLayerName").val(), $("#newLayerName").val(), [], true, 1.0, 'circles', $("#layerColor2").val());
+						$.each(rvDataSets, function (index, rvds) {
+							rvds.addLayer($("#newLayerName").val(), $("#newLayerName").val(), [], true, 1.0, 'circles', $("#layerColor2").val());
+						});
 						resizeElements();
 						LayerMenu(rvDataSets[0].getLayer($("#newLayerName").val()), (1000 + (rvDataSets[0].LastLayer + 1)));
 						$(".oneLayerGroup[name=" + $("#newLayerName").val() + "]").find(".selectLayerRadioBtn").prop("checked", true);
@@ -204,10 +213,14 @@ function InitLayers() {
 
 			//Update ZIndex
 			$("#LayerPanel .layerContent").each(function (e, f) {
-				var tl = rvDataSets[0].getLayer($(this).parent().attr("name"));
-				tl.updateZIndex(rvDataSets[0].LastLayer - e);
+				$.each(rvDataSets, function (index, rvds) {
+					var tl = rvds.getLayer($(this).parent().attr("name"));
+					tl.updateZIndex(rvds.LastLayer - e);
+				});
 			});
-			rvDataSets[0].sort();
+			$.each(rvDataSets, function (index, rvds) {
+				rvds.sort();
+			});
 			RefreshLayerMenu();
 		},
 		start : function (event, ui) {
@@ -229,50 +242,52 @@ function InitLayers() {
 		modal : true,
 		buttons : {
 			"Delete the Layer" : function (event) {
-				var targetLayer = rvDataSets[0].getSelectedLayer();
-				if (targetLayer.Type !== "residues") {
-					rvDataSets[0].deleteLayer(targetLayer.LayerName);
-					$("[name=" + targetLayer.LayerName + "]").remove();
-					rvDataSets[0].sort();
+				$.each(rvDataSets, function (index, rvds) {
+					var targetLayer = rvDataSets[0].getSelectedLayer();
+					if (targetLayer.Type !== "residues") {
+						rvds.deleteLayer(targetLayer.LayerName);
+						$("[name=" + targetLayer.LayerName + "]").remove();
+						rvds.sort();
 
-					//check selected layer and linked layer
-					var rLayers = rvDataSets[0].getLayerByType("residues");
-					var cLayers = rvDataSets[0].getLayerByType("circles");
-					var sLayers = rvDataSets[0].getLayerByType("selected");
-					if (rLayers.length >= 1) {
-						$(".oneLayerGroup[name='" + rLayers[0].LayerName + "']").find(".selectLayerRadioBtn").prop("checked", true);
-						$(".oneLayerGroup[name='" + rLayers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("change");
-					} else if (cLayers.length >= 1) {
-						$(".oneLayerGroup[name='" + cLayers[0].LayerName + "']").find(".selectLayerRadioBtn").prop("checked", true);
-						$(".oneLayerGroup[name='" + cLayers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("change");
-					} else if (sLayers.length >= 1) {
-						$(".oneLayerGroup[name='" + sLayers[0].LayerName + "']").find(".selectLayerRadioBtn").prop("checked", true);
-						$(".oneLayerGroup[name='" + sLayers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("change");
-					} else {
-						$(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".selectLayerRadioBtn").prop("checked", true);
-						$(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("change");
-					}
-					if (targetLayer.Linked) {
+						//check selected layer and linked layer
+						var rLayers = rvds.getLayerByType("residues");
+						var cLayers = rvds.getLayerByType("circles");
+						var sLayers = rvds.getLayerByType("selected");
 						if (rLayers.length >= 1) {
-							$(".oneLayerGroup[name='" + rLayers[0].LayerName + "']").find(".mappingRadioBtn").prop("checked", true);
-							$(".oneLayerGroup[name='" + rLayers[0].LayerName + "']").find(".mappingRadioBtn").trigger("change");
+							$(".oneLayerGroup[name='" + rLayers[0].LayerName + "']").find(".selectLayerRadioBtn").prop("checked", true);
+							$(".oneLayerGroup[name='" + rLayers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("change");
 						} else if (cLayers.length >= 1) {
-							$(".oneLayerGroup[name='" + cLayers[0].LayerName + "']").find(".mappingRadioBtn").prop("checked", true);
-							$(".oneLayerGroup[name='" + cLayers[0].LayerName + "']").find(".mappingRadioBtn").trigger("change");
+							$(".oneLayerGroup[name='" + cLayers[0].LayerName + "']").find(".selectLayerRadioBtn").prop("checked", true);
+							$(".oneLayerGroup[name='" + cLayers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("change");
 						} else if (sLayers.length >= 1) {
-							$(".oneLayerGroup[name='" + sLayers[0].LayerName + "']").find(".mappingRadioBtn").prop("checked", true);
-							$(".oneLayerGroup[name='" + sLayers[0].LayerName + "']").find(".mappingRadioBtn").trigger("change");
+							$(".oneLayerGroup[name='" + sLayers[0].LayerName + "']").find(".selectLayerRadioBtn").prop("checked", true);
+							$(".oneLayerGroup[name='" + sLayers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("change");
 						} else {
-							if ($(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".mappingRadioBtn").prop("disabled") == false) {
-								$(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".mappingRadioBtn").prop("checked", true);
-								$(".oneLayerGroup[name='" + rvDataSets[0].Layers[0].LayerName + "']").find(".mappingRadioBtn").trigger("change");
+							$(".oneLayerGroup[name='" + rvds.Layers[0].LayerName + "']").find(".selectLayerRadioBtn").prop("checked", true);
+							$(".oneLayerGroup[name='" + rvds.Layers[0].LayerName + "']").find(".selectLayerRadioBtn").trigger("change");
+						}
+						if (targetLayer.Linked) {
+							if (rLayers.length >= 1) {
+								$(".oneLayerGroup[name='" + rLayers[0].LayerName + "']").find(".mappingRadioBtn").prop("checked", true);
+								$(".oneLayerGroup[name='" + rLayers[0].LayerName + "']").find(".mappingRadioBtn").trigger("change");
+							} else if (cLayers.length >= 1) {
+								$(".oneLayerGroup[name='" + cLayers[0].LayerName + "']").find(".mappingRadioBtn").prop("checked", true);
+								$(".oneLayerGroup[name='" + cLayers[0].LayerName + "']").find(".mappingRadioBtn").trigger("change");
+							} else if (sLayers.length >= 1) {
+								$(".oneLayerGroup[name='" + sLayers[0].LayerName + "']").find(".mappingRadioBtn").prop("checked", true);
+								$(".oneLayerGroup[name='" + sLayers[0].LayerName + "']").find(".mappingRadioBtn").trigger("change");
+							} else {
+								if ($(".oneLayerGroup[name='" + rvds.Layers[0].LayerName + "']").find(".mappingRadioBtn").prop("disabled") == false) {
+									$(".oneLayerGroup[name='" + rvds.Layers[0].LayerName + "']").find(".mappingRadioBtn").prop("checked", true);
+									$(".oneLayerGroup[name='" + rvds.Layers[0].LayerName + "']").find(".mappingRadioBtn").trigger("change");
+								}
 							}
 						}
+						RefreshLayerMenu();
+					} else {
+						alert("You are not allowed to delete the residues layer");
 					}
-					RefreshLayerMenu();
-				} else {
-					alert("You are not allowed to delete the residues layer");
-				}
+				});
 				$(this).dialog("close");
 			},
 			Cancel : function () {
@@ -323,11 +338,13 @@ function changeCurrentLayerName() {
 				$("#MiniLayer").find("[name=" + $($dblClickedLayer).parent().attr("name") + "]").attr("name", $("#layerNameInput").val()).text($("#layerNameInput").val());
 				$($dblClickedLayer).parent().attr("name", $("#layerNameInput").val());
 				$($dblClickedLayer).html($("#layerNameInput").val()).prepend('<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-e"></span>');
-				var targetLayer = rvDataSets[0].getLayer($dblClickedLayerName);
-				targetLayer.LayerName = $("#layerNameInput").val();
-				if (targetLayer.Linked) {
-					$("#LinkSection").find(".miniLayerName").attr("name", $("#layerNameInput").val()).text($("#layerNameInput").val());
-				}
+				$.each(rvDataSets, function (index, rvds) {
+					var targetLayer = rvds.getLayer($dblClickedLayerName);
+					targetLayer.LayerName = $("#layerNameInput").val();
+					if (targetLayer.Linked) {
+						$("#LinkSection").find(".miniLayerName").attr("name", $("#layerNameInput").val()).text($("#layerNameInput").val());
+					}
+				});
 				RefreshLayerMenu();
 				return true;
 			} else {
@@ -359,13 +376,15 @@ function LayerMenu(Layer, key, RVcolor) {
 	//adding color box
 	$($currentGroup)
 	.append($("<div>").addClass("colorBox"));
-	var targetLayer = rvDataSets[0].getLayer($currentLayerName);
-	if (RVcolor) {
-		$($currentGroup).find(".colorBox").css("background", RVcolor);
-		targetLayer.Color = RVcolor;
-	} else {
-		$($currentGroup).find(".colorBox").css("background", targetLayer.Color);
-	}
+	$.each(rvDataSets, function (index, rvds) {
+		var targetLayer = rvds.getLayer($currentLayerName);
+		if (RVcolor) {
+			$($currentGroup).find(".colorBox").css("background", RVcolor);
+			targetLayer.Color = RVcolor;
+		} else {
+			$($currentGroup).find(".colorBox").css("background", targetLayer.Color);
+		}
+	});
 
 	//targetLayer.Color = $($currentGroup).find(".colorBox").css("background");
 
@@ -387,13 +406,17 @@ function LayerMenu(Layer, key, RVcolor) {
 				if ($type == 'visible') {
 					this.setAttribute('value', 'invisible');
 					this.setAttribute('src', $invisibleImgPath);
-					var targetLayer = rvDataSets[0].getLayer(this.parentNode.parentNode.getAttribute("name"));
-					targetLayer.setVisibility("hidden");
+					$.each(rvDataSets, function (index, rvds) {
+						var targetLayer = rvds.getLayer(this.parentNode.parentNode.getAttribute("name"));
+						targetLayer.setVisibility("hidden");
+					});
 				} else if ($type == 'invisible') {
 					this.setAttribute('value', 'visible');
 					this.setAttribute('src', $visibleImgPath);
-					var targetLayer = rvDataSets[0].getLayer(this.parentNode.parentNode.getAttribute("name"));
-					targetLayer.setVisibility("visible");
+					$.each(rvDataSets, function (index, rvds) {
+						var targetLayer = rvds.getLayer(this.parentNode.parentNode.getAttribute("name"));
+						targetLayer.setVisibility("visible");
+					});
 				}
 			})));
 
@@ -409,7 +432,9 @@ function LayerMenu(Layer, key, RVcolor) {
 				name : 'selectedRadioL',
 				title : 'select layer'
 			}).addClass("selectLayerRadioBtn").change(function (event) {
-				rvDataSets[0].selectLayer($(event.currentTarget).parent().parent().attr("name"));
+				$.each(rvDataSets, function (index, rvds) {
+					rvds.selectLayer($(event.currentTarget).parent().parent().attr("name"));
+				});
 				drawNavLine();
 			})));
 
@@ -426,11 +451,13 @@ function LayerMenu(Layer, key, RVcolor) {
 				title : 'select which layer to map into 3D',
 				disabled : 'disabled'
 			}).addClass("mappingRadioBtn").change(function (event) {
-				rvDataSets[0].linkLayer($(event.currentTarget).parent().parent().attr("name"));
-				var linkedLayer = rvDataSets[0].getLinkedLayer();
-				$("#LinkSection").find(".miniLayerName").attr("name", linkedLayer.LayerName);
-				$("#LinkSection").find(".miniLayerName").text(linkedLayer.LayerName);
-				$("#LinkSection").find(".miniLayerName").attr("title", $("#MiniLayer .miniLayerName[name=" + linkedLayer.LayerName + "]").attr("title"));
+				$.each(rvDataSets, function (index, rvds) {
+					rvds.linkLayer($(event.currentTarget).parent().parent().attr("name"));
+					var linkedLayer = rvds.getLinkedLayer();
+					$("#LinkSection").find(".miniLayerName").attr("name", linkedLayer.LayerName);
+					$("#LinkSection").find(".miniLayerName").text(linkedLayer.LayerName);
+					$("#LinkSection").find(".miniLayerName").attr("title", $("#MiniLayer .miniLayerName[name=" + linkedLayer.LayerName + "]").attr("title"));
+				});
 				update3Dcolors();
 			})));
 
@@ -480,7 +507,9 @@ function LayerMenu(Layer, key, RVcolor) {
 			} else {
 				Layer.Filled = false;
 			}
-			rvDataSets[0].refreshResiduesExpanded($(event.currentTarget).parent().parent().parent().attr("name"));
+			$.each(rvDataSets, function (index, rvds) {
+				rvds.refreshResiduesExpanded($(event.currentTarget).parent().parent().parent().attr("name"));
+			});
 		});
 
 		$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="' + 'prs-' + key + '">').text("Circle Size:").append($("<br>")));
@@ -501,7 +530,9 @@ function LayerMenu(Layer, key, RVcolor) {
 			} else {
 				Layer.ScaleFactor = 1.2;
 			}
-			rvDataSets[0].refreshResiduesExpanded($(event.currentTarget).parent().parent().parent().attr("name"));
+			$.each(rvDataSets, function (index, rvds) {
+				rvds.refreshResiduesExpanded($(event.currentTarget).parent().parent().parent().attr("name"));
+			});
 		});
 		$("#MiniOpenLayerBtn").after($('<h3 class="miniLayerName ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom ">')
 			.text($currentLayerName).attr('name', $currentLayerName).droppable({
@@ -555,13 +586,19 @@ function LayerMenu(Layer, key, RVcolor) {
 					return this.value;
 				});
 			if (array_of_checked_values[0] === "gray_lines") {
-				rvDataSets[0].drawBasePairs("lines", "gray_lines");
+				$.each(rvDataSets, function (index, rvds) {
+					rvds.drawBasePairs("lines", "gray_lines");
+				});
 				$(event.currentTarget).parent().parent().find(':radio').attr('disabled', 'disabled');
 			} else if (array_of_checked_values[0] === "manual_coloring") {
-				rvDataSets[0].drawBasePairs("lines", "manual_coloring");
+				$.each(rvDataSets, function (index, rvds) {
+					rvds.drawBasePairs("lines", "manual_coloring");
+				});
 				$(event.currentTarget).parent().parent().find(':radio').attr('disabled', 'disabled');
 			} else {
-				rvDataSets[0].drawBasePairs("lines", rvDataSets[0].getLayer(array_of_checked_values[0]));
+				$.each(rvDataSets, function (index, rvds) {
+					rvds.drawBasePairs("lines", rvDataSets[0].getLayer(array_of_checked_values[0]));
+				});
 				$(event.currentTarget).parent().parent().find(':radio').removeAttr('disabled');
 			}
 		});
@@ -572,19 +609,22 @@ function LayerMenu(Layer, key, RVcolor) {
 		$("#LayerPanel div").first().next().find(".layerContent").first().find("div").last().append($('<input type="radio" name="color_lines_gradient' + key + '" id="' + 'llmg-' + key + '-2' + '" value="Opposite"> <label for="' + 'llmg-' + key + '-2' + '">Opposite</label>'));
 		$('[name="color_lines_gradient' + key + '"]').attr('disabled', 'disabled');
 		$('input[name="color_lines_gradient' + key + '"]').change(function (event) {
-			var targetLayer = rvDataSets[0].getLayer($('input[name="color_lines_gradient' + key + '"]' + ':checked').parent().parent().parent().find('h3').text());
-			targetLayer.ColorGradientMode = $(event.currentTarget).parent().parent().find('input:checked').val();
-			rvDataSets[0].drawBasePairs("lines");
+			$.each(rvDataSets, function (index, rvds) {
+				var targetLayer = rvds.getLayer($('input[name="color_lines_gradient' + key + '"]' + ':checked').parent().parent().parent().find('h3').text());
+				targetLayer.ColorGradientMode = $(event.currentTarget).parent().parent().find('input:checked').val();
+				rvds.drawBasePairs("lines");
+			});
 		});
-
 		break;
 	case "residues":
 		//Data Label Section
 		$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div>').html("<b>Loaded Data: </b><span name='DataLabel'>" + Layer.DataLabel + "</span>").append($("<br>")).append($("<br>")));
 
 		$("#LayerPanel div").first().next().find(".selectLayerRadioBtn").attr("checked", "checked");
-		rvDataSets[0].selectLayer($("#LayerPanel div").first().next().attr("name"));
-		rvDataSets[0].linkLayer($("#LayerPanel div").first().next().attr("name"));
+		$.each(rvDataSets, function (index, rvds) {
+			rvds.selectLayer($("#LayerPanel div").first().next().attr("name"));
+			rvds.linkLayer($("#LayerPanel div").first().next().attr("name"));
+		});
 		$("#LayerPanel div").first().next().find(".radioDIV2").find('input').prop("disabled", false);
 		$("#LayerPanel div").first().next().find(".radioDIV2").find('input').prop("checked", true);
 		$("#MiniOpenLayerBtn").after($('<h3 class="miniLayerName ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom ">')
@@ -593,7 +633,6 @@ function LayerMenu(Layer, key, RVcolor) {
 					ProcessBubbleDrop(event, ui);
 				}
 			}));
-
 		break;
 	case "selected":
 		//$("#LayerPanel div").first().next().find(".layerContent").first().append($('<div id="selectDiv">'))
@@ -614,8 +653,6 @@ function LayerMenu(Layer, key, RVcolor) {
 					ProcessBubbleDrop(event, ui);
 				}
 			}));
-
-		
 		break;
 	default:
 		break;
