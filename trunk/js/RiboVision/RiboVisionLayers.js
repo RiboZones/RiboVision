@@ -323,8 +323,10 @@ function changeLayerColor() {
 		}
 	}
 	$($dblClickedLayer).parent().find(".colorBox").css("background", newcolor);
-	var targetLayer = rvDataSets[0].getLayer($dblClickedLayerName);
-	targetLayer.Color = newcolor;
+	$.each(rvDataSets, function (index, rvds) {
+		var targetLayer = rvds.getLayer($dblClickedLayerName);
+		targetLayer.Color = newcolor;
+	});
 	drawNavLine();
 	return true;
 }
@@ -502,13 +504,15 @@ function LayerMenu(Layer, key, RVcolor) {
 			$('input[name="filled' + key + '"][value=unfilled]').prop("checked", true);
 		}
 		$('input[name="filled' + key + '"]').change(function (event) {
-			if ($(this).attr("value") === "filled") {
-				Layer.Filled = true;
-			} else {
-				Layer.Filled = false;
-			}
+			var filled=$(this).attr("value");
 			$.each(rvDataSets, function (index, rvds) {
-				rvds.refreshResiduesExpanded($(event.currentTarget).parent().parent().parent().attr("name"));
+				var targetLayer = rvds.getLayer($currentLayerName);
+				if (filled === "filled") {
+					targetLayer.Filled = true;
+				} else {
+					targetLayer.Filled = false;
+				}
+				rvds.refreshResiduesExpanded($currentLayerName);
 			});
 		});
 
@@ -525,13 +529,17 @@ function LayerMenu(Layer, key, RVcolor) {
 		$("#LayerPanel div").first().next().find(".radioDIV2").find('input').prop("disabled", false);
 
 		$('input[name="size' + key + '"]').change(function (event) {
-			if ($(this).attr("value") === "regular") {
-				Layer.ScaleFactor = 1.0;
-			} else {
-				Layer.ScaleFactor = 1.2;
-			}
+			var scalefactor=$(this).attr("value");
 			$.each(rvDataSets, function (index, rvds) {
-				rvds.refreshResiduesExpanded($(event.currentTarget).parent().parent().parent().attr("name"));
+				var targetLayer = rvds.getLayer($currentLayerName);
+				if (scalefactor === "regular") {
+					targetLayer.ScaleFactor = 1.0;
+				} else {
+					targetLayer.ScaleFactor = 1.2;
+				}
+				$.each(rvDataSets, function (index, rvds) {
+					rvds.refreshResiduesExpanded($currentLayerName);
+				});
 			});
 		});
 		$("#MiniOpenLayerBtn").after($('<h3 class="miniLayerName ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom ">')

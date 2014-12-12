@@ -258,10 +258,12 @@ function getSelected(event) {
 	
 	if (ResiduePositions[0] != undefined) {
 		for (var j = 0; j < rvDataSets.length; j++){
-			for (var i = 0; i < ResiduePositions[j].length; i++) {
-				var res = ResiduePositions[j][i];
-				if (((nx > res.X) ? nx - res.X : res.X - nx) + ((ny > res.Y) ? ny - res.Y : res.Y - ny) < 2) {
-					return [i,j];
+			if (ResiduePositions[j]){ //Need to check this, because this function could run before the second set is put in here.
+				for (var i = 0; i < ResiduePositions[j].length; i++) {
+					var res = ResiduePositions[j][i];
+					if (((nx > res.X) ? nx - res.X : res.X - nx) + ((ny > res.Y) ? ny - res.Y : res.Y - ny) < 2) {
+						return [i,j];
+					}
 				}
 			}
 		}
