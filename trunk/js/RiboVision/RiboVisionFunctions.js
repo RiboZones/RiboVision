@@ -2643,29 +2643,39 @@ function updateModel() {
 		return;
 	}
 	var n;
-	
-	//Come back and support multiple selections?
-	var targetSelection = rvDataSets[0].getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
-	if (targetSelection.Residues.length > 0){
-		var script = "set hideNotSelected true;select (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (";
-		for (var i = 0; i < targetSelection.Residues.length; i++) {
-			if (targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") != null) {
-				if (script != "set hideNotSelected true;select (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (") {
-					script += " or ";
-				};
-				n = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "").match(/[A-z]/g);
-				if (n != null) {
-					r1 = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "").replace(n, "^" + n);
-				} else {
-					r1 = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-				}
-				script += r1 + ":" + targetSelection.Residues[i].ChainID;
+	var script;
+	$.each(rvDataSets, function (index, rvds) {
+		//Come back and support multiple selections?
+		var targetSelection = rvds.getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
+		if (targetSelection.Residues.length > 0){
+			if (typeof script == 'undefined'){
+				script='set hideNotSelected true;select (';
 			}
+			script += rvds.SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (";
+			for (var i = 0; i < targetSelection.Residues.length; i++) {
+				if (targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") != null) {
+					if (i > 0 || (index > 0 && i > 0)) {
+						script += " or ";
+					};
+					n = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "").match(/[A-z]/g);
+					if (n != null) {
+						r1 = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "").replace(n, "^" + n);
+					} else {
+						r1 = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+					}
+					script += r1 + ":" + targetSelection.Residues[i].ChainID;
+				}
+			}
+			if (index !== rvDataSets.length - 1){
+				script += ") or ";
+			}
+		} else {
+			refreshModel();
 		}
-		script += ")); center selected;";
+	});
+	if (typeof script != 'undefined'){
+		script += "));center selected;";
 		Jmol.script(myJmol, script);
-	} else {
-		refreshModel();
 	}
 }
 
@@ -2673,15 +2683,18 @@ function refreshModel() {
 	if($('input[name="jp"][value=off]').is(':checked')){
 		return;
 	}
-	var script = "set hideNotSelected true;select (" + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (";
-	if (rvDataSets[0].SpeciesEntry.PDB_chains){
-		for (var ii = 0; ii < rvDataSets[0].SpeciesEntry.PDB_chains.length; ii++) {
-			script += ":" + rvDataSets[0].SpeciesEntry.PDB_chains[ii];
-			if (ii < (rvDataSets[0].SpeciesEntry.PDB_chains.length - 1)) {
-				script += " or ";
+	var script= "set hideNotSelected true;select (";
+	$.each(rvDataSets, function (index, rvds) {
+		var script =  + rvds.SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (";
+		if (rvds.SpeciesEntry.PDB_chains){
+			for (var ii = 0; ii < rvds.SpeciesEntry.PDB_chains.length; ii++) {
+				script += ":" + rvds.SpeciesEntry.PDB_chains[ii];
+				if (ii < (rvds.SpeciesEntry.PDB_chains.length - 1)) {
+					script += " or ";
+				}
 			}
 		}
-	}
+	});
 	script += ")); center selected;";
 	Jmol.script(myJmol, script);
 }
