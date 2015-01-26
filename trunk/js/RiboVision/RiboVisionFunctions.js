@@ -1551,21 +1551,21 @@ function customDataProcess(ui,targetLayer){
 	$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text("User File:").append($("<br>")).append(targetLayer.DataLabel);
 	targetLayer.clearData();
 	
-	var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
+	var customkeys = Object.keys(rvDataSets[targetLayer.SetNumber].CustomData[0]);
 	NewData = CustomDataExpand(targetLayer);
 	targetLayer.Data = NewData.IncludeData;
-	var targetSelection = rvDataSets[0].Selections[0];
+	var targetSelection = rvDataSets[targetLayer.SetNumber].Selections[0];
 	SelectionMenu(targetSelection);
 	RefreshSelectionMenu();
 	//Make new selection invisible. 
 	$(".oneSelectionGroup[name=" + targetSelection.Name +"]").find(".checkBoxDIV-S").find(".visibilityCheckImg").attr("value","invisible");
 	$(".oneSelectionGroup[name=" + targetSelection.Name +"]").find(".checkBoxDIV-S").find(".visibilityCheckImg").attr("src","images/invisible.png");
-	rvDataSets[0].drawSelection("selected");
+	rvDataSets[targetLayer.SetNumber].drawSelection("selected");
 	
 	if ($.inArray("ColorPalette", customkeys) >= 0){
 	    var colors=[];
 		//console.log(rvDataSets[0].CustomData[0].ColorPalette);
-		$.each(rvDataSets[0].CustomData, function (index,value){
+		$.each(rvDataSets[targetLayer.SetNumber].CustomData, function (index,value){
 			if (value.ColorPalette !="") {
 				colors.push(value.ColorPalette);
 			} else {
@@ -1587,18 +1587,18 @@ function customDataProcess(ui,targetLayer){
 		if ($.inArray("FontWeight", customkeys) >= 0) {
 			$.each(NewData.Weight, function (index,value){
 				if (value != undefined) {
-					rvDataSets[0].Residues[index]["font-weight"]=value
+					rvDataSets[targetLayer.SetNumber].Residues[index]["font-weight"]=value
 				} else {
-					rvDataSets[0].Residues[index]["font-weight"]="normal";
+					rvDataSets[targetLayer.SetNumber].Residues[index]["font-weight"]="normal";
 				}
 			});
-			rvDataSets[0].drawResidues("residues");
-			rvDataSets[0].refreshResiduesExpanded(targetLayer.LayerName);
+			rvDataSets[targetLayer.SetNumber].drawResidues("residues");
+			rvDataSets[targetLayer.SetNumber].refreshResiduesExpanded(targetLayer.LayerName);
 			update3Dcolors();
 		}
 		if ($.inArray("ColorCol", customkeys) >= 0) {
-			rvDataSets[0].drawResidues("residues");
-			rvDataSets[0].refreshResiduesExpanded(targetLayer.LayerName);
+			rvDataSets[targetLayer.SetNumber].drawResidues("residues");
+			rvDataSets[targetLayer.SetNumber].refreshResiduesExpanded(targetLayer.LayerName);
 			update3Dcolors();
 		} else if ($.inArray("DataCol", customkeys) >= 0) {
 			colorProcess(NewData,undefined,targetLayer,colors);
@@ -1614,8 +1614,6 @@ function customDataProcess(ui,targetLayer){
 	
 	//Finishes doing Nucleotides, move on to rProteins
 	CustomProcessProteins(colors);
-	
-	
 }
 function CustomProcessProteins(colors){
 	var rProtein=undefined;
