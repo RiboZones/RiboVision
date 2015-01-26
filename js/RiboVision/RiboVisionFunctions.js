@@ -1326,10 +1326,17 @@ function ProcessBubble(ui,targetLayerName){
 			var array_of_checked_titles = $("#ProtList").multiselect("getChecked").map(function () {
 				return this.title;
 			}).get();
-			colorMappingLoop(targetLayer,array_of_checked_values,array_of_checked_titles);
+			
+			$.each(rvDataSets, function(index, value) {
+				var targetLayer = rvDataSets[index].getLayer(targetLayerName);
+				colorMappingLoop(targetLayer,array_of_checked_values,array_of_checked_titles);
+			});
 			break;
 		case "CustomDataBubbles" :
-			customDataProcess(ui,targetLayer)
+			$.each(rvDataSets, function(index, value) {
+				var targetLayer = rvDataSets[index].getLayer(targetLayerName);
+				customDataProcess(ui,targetLayer)
+			});
 			break;
 		default :
 			//debugger;
