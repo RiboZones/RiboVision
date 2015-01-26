@@ -1333,10 +1333,14 @@ function ProcessBubble(ui,targetLayerName){
 			});
 			break;
 		case "CustomDataBubbles" :
+			//CustomDataProcess will use the first selection. I make it a rule that when dragging a custom data bubble,
+			// a new selection is created for this purpose. 
+			$.each(rvDataSets, function(index, value) {
+				rvDataSets[targetLayer.SetNumber].addSelection();
+			});
 			$.each(rvDataSets, function(index, value) {
 				var targetLayer = rvDataSets[index].getLayer(targetLayerName);
-				customDataProcess(ui,targetLayer)
-			});
+				customDataProcess(ui,targetLayer);
 			break;
 		default :
 			//debugger;
@@ -1697,7 +1701,6 @@ function resetFileInput($element) {
 }
 
 function CustomDataExpand(targetLayer){
-	rvDataSets[targetLayer.SetNumber].addSelection();
 	var SeleLen = 0;
 	var NewData = [];
 	var FontWeight = [];
