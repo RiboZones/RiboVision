@@ -277,7 +277,7 @@ function expandSelection(command, SelectionName) {
 	if (!SelectionName){
 		SelectionName = "Main";
 	}
-	$.each(rvDataSets, function (index,rvds){
+	$.each(rvDataSets, function (rv_index,rvds){
 		var targetSelection=rvds.getSelection(SelectionName);
 		for (var i = 0; i < command.length; i++) {
 			var com = command[i];
@@ -1336,11 +1336,12 @@ function ProcessBubble(ui,targetLayerName){
 			//CustomDataProcess will use the first selection. I make it a rule that when dragging a custom data bubble,
 			// a new selection is created for this purpose. 
 			$.each(rvDataSets, function(index, value) {
-				rvDataSets[targetLayer.SetNumber].addSelection();
+				rvDataSets[index].addSelection();
 			});
 			$.each(rvDataSets, function(index, value) {
 				var targetLayer = rvDataSets[index].getLayer(targetLayerName);
 				customDataProcess(ui,targetLayer);
+			});
 			break;
 		default :
 			//debugger;
