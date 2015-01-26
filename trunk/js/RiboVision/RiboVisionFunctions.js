@@ -1697,54 +1697,54 @@ function resetFileInput($element) {
 }
 
 function CustomDataExpand(targetLayer){
-	rvDataSets[0].addSelection();
+	rvDataSets[targetLayer.SetNumber].addSelection();
 	var SeleLen = 0;
 	var NewData = [];
 	var FontWeight = [];
-	$.each(rvDataSets[0].Residues, function (index,value){
+	$.each(rvDataSets[targetLayer.SetNumber].Residues, function (index,value){
 		NewData[index]=undefined;
 		FontWeight[index]=undefined;
 	});
 
 	var ExtraData = [];
-	var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
+	var customkeys = Object.keys(rvDataSets[targetLayer.SetNumber].CustomData[0]);
 	if($.inArray("resNum", customkeys) >= 0){
-		for (var ii = 0; ii < rvDataSets[0].CustomData.length; ii++) {
-			var command = rvDataSets[0].CustomData[ii]["resNum"].split(";");
-			var targetSelection = rvDataSets[0].Selections[0];
+		for (var ii = 0; ii < rvDataSets[targetLayer.SetNumber].CustomData.length; ii++) {
+			var command = rvDataSets[targetLayer.SetNumber].CustomData[ii]["resNum"].split(";");
+			var targetSelection = rvDataSets[targetLayer.SetNumber].Selections[0];
 			expandSelection(command, targetSelection.Name);
 			var l = targetSelection.Residues.length;
 			if (l == SeleLen){
 				if ($.inArray("DataCol", customkeys) >= 0) {
-					if (isNaN(parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]))){
-						ExtraData.push(rvDataSets[0].CustomData[ii]["DataCol"]);
+					if (isNaN(parseFloat(rvDataSets[targetLayer.SetNumber].CustomData[ii]["DataCol"]))){
+						ExtraData.push(rvDataSets[targetLayer.SetNumber].CustomData[ii]["DataCol"]);
 					} else {
-						ExtraData.push(parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]));
+						ExtraData.push(parseFloat(rvDataSets[targetLayer.SetNumber].CustomData[ii]["DataCol"]));
 					}
 				}
 			} else {
 				for (var iii = SeleLen; iii < l; iii++) {
 					if (targetSelection.Residues[iii].resNum.indexOf(":") >= 0) {
 						var ressplit = targetSelection.Residues[iii].resNum.split(":");
-						var ResName = rvDataSets[0].SpeciesEntry.PDB_chains[rvDataSets[0].SpeciesEntry.Molecule_Names.indexOf(ressplit[0])] + "_" + ressplit[1];				
+						var ResName = rvDataSets[targetLayer.SetNumber].SpeciesEntry.PDB_chains[rvDataSets[targetLayer.SetNumber].SpeciesEntry.Molecule_Names.indexOf(ressplit[0])] + "_" + ressplit[1];				
 					} else {
 						var chainID =  targetSelection.Residues[iii].ChainID;
 						var ResName = chainID + "_" + targetSelection.Residues[iii].resNum;
 					}
-					var k = rvDataSets[0].ResidueList.indexOf(ResName);
+					var k = rvDataSets[targetLayer.SetNumber].ResidueList.indexOf(ResName);
 					
 					if ($.inArray("DataCol", customkeys) >= 0) {
-						if (isNaN(parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]))){
-							NewData[k] = rvDataSets[0].CustomData[ii]["DataCol"];
+						if (isNaN(parseFloat(rvDataSets[targetLayer.SetNumber].CustomData[ii]["DataCol"]))){
+							NewData[k] = rvDataSets[targetLayer.SetNumber].CustomData[ii]["DataCol"];
 						} else {
-							NewData[k] = parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]);
+							NewData[k] = parseFloat(rvDataSets[targetLayer.SetNumber].CustomData[ii]["DataCol"]);
 						}
 					}
 					if ($.inArray("ColorCol", customkeys) >= 0) {
-						targetLayer.dataLayerColors[k] = colorNameToHex(rvDataSets[0].CustomData[ii]["ColorCol"]);
+						targetLayer.dataLayerColors[k] = colorNameToHex(rvDataSets[targetLayer.SetNumber].CustomData[ii]["ColorCol"]);
 					}
 					if ($.inArray("FontWeight", customkeys) >= 0) {
-						FontWeight[k] = rvDataSets[0].CustomData[ii]["FontWeight"];
+						FontWeight[k] = rvDataSets[targetLayer.SetNumber].CustomData[ii]["FontWeight"];
 					}
 					SeleLen = l;
 				}
