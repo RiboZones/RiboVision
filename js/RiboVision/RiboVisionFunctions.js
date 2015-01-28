@@ -743,8 +743,10 @@ function colorMappingLoop(targetLayer, seleProt, seleProtNames, OverRideColors) 
 	} else {
 		var colors2 = RainBowColors;
 	}
+	var setNumber=0;
 	//Residue Part
 	if (targetLayer){
+		setNumber=targetLayer.SetNumber;
 		//var targetLayer = rvDataSets[0].getSelectedLayer();
 		if (targetLayer.Type === "circles"){
 			targetLayer.clearCanvas();
@@ -760,10 +762,9 @@ function colorMappingLoop(targetLayer, seleProt, seleProtNames, OverRideColors) 
 			targetLayer.clearData();
 		}
 		targetLayer.Data = new Array;
-		for (var j = 0; j < rvDataSets[0].Residues.length; j++) {
+		for (var j = 0; j < rvDataSets[setNumber].Residues.length; j++) {
 			targetLayer.Data[j] = " ";
 		}
-		
 	}
 	
 	//Interaction Part
@@ -774,12 +775,12 @@ function colorMappingLoop(targetLayer, seleProt, seleProtNames, OverRideColors) 
 	//var interactionchoice = $('#PrimaryInteractionList').val();
 	var p = interactionchoice.indexOf("_NPN");
 	if ( p >=0 ){
-		rvDataSets[0].BasePairs = [];
-		rvDataSets[0].clearCanvas("lines");
+		rvDataSets[setNumber].BasePairs = [];
+		rvDataSets[setNumber].clearCanvas("lines");
 	}
 	
 	//Jmol Part
-	var Jscript = "display (selected), (" + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and (";
+	var Jscript = "display (selected), (" + (rvDataSets[setNumber].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and (";
 	var JscriptP = "set hideNotSelected false;";
 	
 	$("#ProtList").multiselect("widget").find(".ui-multiselect-checkboxes").find("span").css("color","black"); // Reset Protein colors to black.
@@ -800,22 +801,22 @@ function colorMappingLoop(targetLayer, seleProt, seleProtNames, OverRideColors) 
 		
 		if (targetLayer){
 			var dataIndices = new Array;
-			for (var jj = 0; jj < rvDataSets[0].Residues.length; jj++) {
-				if (rvDataSets[0].Residues[jj][seleProt[i]] && rvDataSets[0].Residues[jj][seleProt[i]] >0){
-					dataIndices[jj] = rvDataSets[0].Residues[jj][seleProt[i]];
+			for (var jj = 0; jj < rvDataSets[setNumber].Residues.length; jj++) {
+				if (rvDataSets[setNumber].Residues[jj][seleProt[i]] && rvDataSets[setNumber].Residues[jj][seleProt[i]] >0){
+					dataIndices[jj] = rvDataSets[setNumber].Residues[jj][seleProt[i]];
 					targetLayer.Data[jj] = targetLayer.Data[jj] + seleProtNames[i] + " ";
 				}
 			}
-			rvDataSets[0].drawDataCircles(targetLayer.LayerName, dataIndices, ["#000000", newcolor], true);
-			rvDataSets[0].drawContourLines(targetLayer.LayerName, dataIndices, ["#000000", newcolor], true);
-			rvDataSets[0].drawResidues(targetLayer.LayerName, dataIndices, ["#000000", newcolor], true);
+			rvDataSets[setNumber].drawDataCircles(targetLayer.LayerName, dataIndices, ["#000000", newcolor], true);
+			rvDataSets[setNumber].drawContourLines(targetLayer.LayerName, dataIndices, ["#000000", newcolor], true);
+			rvDataSets[setNumber].drawResidues(targetLayer.LayerName, dataIndices, ["#000000", newcolor], true);
 		}
 		if (i === 0) {
-			Jscript += ":" + rvDataSets[0].SpeciesEntry.SubunitProtChains[1][rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(seleProt[i])];
+			Jscript += ":" + rvDataSets[setNumber].SpeciesEntry.SubunitProtChains[1][rvDataSets[setNumber].SpeciesEntry.SubunitProtChains[2].indexOf(seleProt[i])];
 		} else {
-			Jscript += " or :" + rvDataSets[0].SpeciesEntry.SubunitProtChains[1][rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(seleProt[i])];
+			Jscript += " or :" + rvDataSets[setNumber].SpeciesEntry.SubunitProtChains[1][rvDataSets[setNumber].SpeciesEntry.SubunitProtChains[2].indexOf(seleProt[i])];
 		}
-		JscriptP += "select (" + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + rvDataSets[0].SpeciesEntry.SubunitProtChains[1][rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(seleProt[i])] + "); color Cartoon opaque [" + newcolor.replace("#", "x") + "];spacefill off;";
+		JscriptP += "select (" + (rvDataSets[setNumber].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + rvDataSets[setNumber].SpeciesEntry.SubunitProtChains[1][rvDataSets[setNumber].SpeciesEntry.SubunitProtChains[2].indexOf(seleProt[i])] + "); color Cartoon opaque [" + newcolor.replace("#", "x") + "];spacefill off;";
 		if (p > 0) {
 			appendBasePairs(interactionchoice, seleProt[i]);
 		}
@@ -2724,6 +2725,44 @@ function resetColorState() {
 
 
 /////////////////////////////// Load Data Functions ///////////////////////////
+function populateStructDataMenu(speciesIndex) {
+}
+
+
+function populateProteinMenu(speciesIndex) {
+	var pl = document.getElementById("ProtList");
+	var ProtList = rvDataSets[speciesIndex].SpeciesEntry.ProteinMenu.split(";");
+	//pl.options.length = 0;
+	rvDataSets[speciesIndex].SpeciesEntry.SubunitProtChains = new Array;
+	rvDataSets[speciesIndex].SpeciesEntry.SubunitProtChains[0] = new Array;
+	rvDataSets[speciesIndex].SpeciesEntry.SubunitProtChains[1] = new Array;
+	rvDataSets[speciesIndex].SpeciesEntry.SubunitProtChains[2] = new Array;
+	
+	if (ProtList[0] != "") {
+		for (var i = 0; i < ProtList.length; i++) {
+			var NewProtPair = ProtList[i].split(":");
+			var ColName = ["All_Proteins"];
+			var result = $.grep(rvDataSets[speciesIndex].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
+			if (result[0]){
+				var title = "All_Proteins" + ": " + result[0].Description;
+			} else {
+				var title = "Data Description is missing.";
+			}
+			
+			rvDataSets[speciesIndex].SpeciesEntry.SubunitProtChains[0][i] = NewProtPair[0];
+			rvDataSets[speciesIndex].SpeciesEntry.SubunitProtChains[1][i] = NewProtPair[2];
+			rvDataSets[speciesIndex].SpeciesEntry.SubunitProtChains[2][i] = NewProtPair[1];
+		}	
+	}
+	$('#ProtList').append('<optgroup label="Proteins' + '_Struct_' + (speciesIndex + 1) + '" id="ProtList' + speciesIndex +  '" />');
+	$.each(rvDataSets[speciesIndex].SpeciesEntry.SubunitProtChains[0], function (index, value) {
+		$('#ProtList' + speciesIndex).append(new Option(rvDataSets[speciesIndex].SpeciesEntry.SubunitProtChains[0][index], rvDataSets[speciesIndex].SpeciesEntry.SubunitProtChains[2][index]));
+	});
+	//pl.options[i] = new Option(NewProtPair[0], NewProtPair[1]);
+	rvDataSets[speciesIndex].SpeciesEntry["SubunitProtChains"] = rvDataSets[speciesIndex].SpeciesEntry.SubunitProtChains;
+	$("#ProtList").multiselect("refresh");
+
+}
 function populateDomainHelixMenu(speciesIndex) {
 
 	// Do the Domains
