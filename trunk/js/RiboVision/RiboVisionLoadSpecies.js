@@ -47,8 +47,9 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 	il.options[0] = new Option("None", "clear_lines", true, true);				
 	il.options[0].setAttribute("selected", "selected");
 		
-	// Reset Domain Helix menu
+	// Reset Domain Helix menu and Protein menu
 	$("#selectByDomainHelix").find('option').remove().end();
+	$("#ProtList").find('option').remove().end();
 	
 	$.each(speciesSplit, function (speciesIndex,speciesInterest){
 		if(speciesInterest == ""){
@@ -141,35 +142,10 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 					populateDomainHelixMenu(speciesIndex);
 					
 					//Set Protein Menu
-					var pl = document.getElementById("ProtList");
-					var ProtList = rvDataSets[speciesIndex].SpeciesEntry.ProteinMenu.split(";");
-					pl.options.length = 0;
-					rvDataSets[speciesIndex].SpeciesEntry.SubunitProtChains = new Array;
-					rvDataSets[speciesIndex].SpeciesEntry.SubunitProtChains[0] = new Array;
-					rvDataSets[speciesIndex].SpeciesEntry.SubunitProtChains[1] = new Array;
-					rvDataSets[speciesIndex].SpeciesEntry.SubunitProtChains[2] = new Array;
-					
-					if (ProtList[0] != "") {
-						for (var i = 0; i < ProtList.length; i++) {
-							var NewProtPair = ProtList[i].split(":");
-							var ColName = ["All_Proteins"];
-							var result = $.grep(rvDataSets[speciesIndex].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
-							if (result[0]){
-								var title = "All_Proteins" + ": " + result[0].Description;
-							} else {
-								var title = "Data Description is missing.";
-							}
-							pl.options[i] = new Option(NewProtPair[0], NewProtPair[1]);
-							rvDataSets[speciesIndex].SpeciesEntry.SubunitProtChains[0][i] = NewProtPair[0];
-							rvDataSets[speciesIndex].SpeciesEntry.SubunitProtChains[1][i] = NewProtPair[2];
-							rvDataSets[speciesIndex].SpeciesEntry.SubunitProtChains[2][i] = NewProtPair[1];
-						}
-						$("#ProteinBubbles").append($('<h3 class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom" style="text-align:center;padding:0.2em">')
+					populateProteinMenu(speciesIndex);
+					$("#ProteinBubbles").append($('<h3 class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom" style="text-align:center;padding:0.2em">')
 						.text("Protein Contacts").attr('name',"All_Proteins").attr('title',title));
-
-					}
-					rvDataSets[speciesIndex].SpeciesEntry["SubunitProtChains"] = rvDataSets[speciesIndex].SpeciesEntry.SubunitProtChains;
-					$("#ProtList").multiselect("refresh");
+					
 					
 					//Set Alignment Menu
 					var AlnList = rvDataSets[speciesIndex].SpeciesEntry.AlnMenu.split(";");
@@ -189,6 +165,8 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 					}
 									
 					//Set StructData Menu
+					populateStructDataMenu(speciesIndex);
+					
 					var SDList = rvDataSets[speciesIndex].SpeciesEntry.StructDataMenu.split(";");
 					if (SDList[0] != "") {
 						for (var ii = 0; ii < SDList.length; ii++) {
