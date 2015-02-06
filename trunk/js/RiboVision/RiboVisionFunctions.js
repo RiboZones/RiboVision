@@ -743,10 +743,53 @@ function colorMappingLoop(targetLayer, seleProt, seleProtNames, OverRideColors) 
 	} else {
 		var colors2 = RainBowColors;
 	}
-	var setNumber=0;
-	//Residue Part
+	$("#ProtList").multiselect("widget").find(".ui-multiselect-checkboxes").find("span").css("color","black"); // Reset Protein colors to black.
+
+	//Interaction Part
+	var array_of_checked_values = $("#PrimaryInteractionList").multiselect("getChecked").map(function(){
+	   return this.value;	
+	}).get();
+	var interactionchoice = array_of_checked_values[0];
+	//var interactionchoice = $('#PrimaryInteractionList').val();
+	var p = interactionchoice.indexOf("_NPN");
+	if ( p >=0 ){
+		$.each(rvDataSets, function (index, rvds){
+			rvds.BasePairs = [];
+			rvds.clearCanvas("lines");
+		});
+	}
+	
+	
+	//Canvas Part
+	colorMappingLoopCanvas(targetLayer,seleProt,colors2);
+	
+	//Jmol Part
+	colorMappingLoop3D(seleProt,colors2);
+	
+	//Menu Part
+	for (var i = 0; i < seleProt.length; i++) {
+		if (seleProt.length > 1) {
+			var val = Math.round((i / (seleProt.length - 1)) * (colors2.length - 1));
+		} else {
+			var val = 0;
+		}	
+
+		var newcolor = (val < 0 || val >= colors2.length) ? "#000000" : colors2[val];
+		var ProtName = $.grep($("#ProtList").multiselect("getChecked"), function(e) {
+			return e.value == seleProt[i];
+		});
+		$(ProtName).next().css("color",newcolor);
+		if (p > 0) {
+			appendBasePairs(interactionchoice, seleProt[i]);
+		}
+	}	
+	drawNavLine();
+}
+
+function colorMappingLoopCanvas(targetLayer,seleProt,colors2){
+	//Rest Canvases Part
 	if (targetLayer){
-		setNumber=targetLayer.SetNumber;
+		var setNumber=targetLayer.SetNumber;
 		//var targetLayer = rvDataSets[0].getSelectedLayer();
 		if (targetLayer.Type === "circles"){
 			targetLayer.clearCanvas();
@@ -767,25 +810,6 @@ function colorMappingLoop(targetLayer, seleProt, seleProtNames, OverRideColors) 
 		}
 	}
 	
-	//Interaction Part
-	var array_of_checked_values = $("#PrimaryInteractionList").multiselect("getChecked").map(function(){
-	   return this.value;	
-	}).get();
-	var interactionchoice = array_of_checked_values[0];
-	//var interactionchoice = $('#PrimaryInteractionList').val();
-	var p = interactionchoice.indexOf("_NPN");
-	if ( p >=0 ){
-		rvDataSets[setNumber].BasePairs = [];
-		rvDataSets[setNumber].clearCanvas("lines");
-	}
-	
-	//Jmol Part
-	var Jscript = "display (selected), (" + (rvDataSets[setNumber].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and (";
-	var JscriptP = "set hideNotSelected false;";
-	
-	$("#ProtList").multiselect("widget").find(".ui-multiselect-checkboxes").find("span").css("color","black"); // Reset Protein colors to black.
-	//Loop
-	
 	for (var i = 0; i < seleProt.length; i++) {
 		if (seleProt.length > 1) {
 			var val = Math.round((i / (seleProt.length - 1)) * (colors2.length - 1));
@@ -794,10 +818,6 @@ function colorMappingLoop(targetLayer, seleProt, seleProtNames, OverRideColors) 
 		}	
 
 		var newcolor = (val < 0 || val >= colors2.length) ? "#000000" : colors2[val];
-		var ProtName = $.grep($("#ProtList").multiselect("getChecked"), function(e) {
-			return e.value == seleProt[i];
-		});
-		$(ProtName).next().css("color",newcolor);
 		
 		if (targetLayer){
 			var dataIndices = new Array;
@@ -811,20 +831,47 @@ function colorMappingLoop(targetLayer, seleProt, seleProtNames, OverRideColors) 
 			rvDataSets[setNumber].drawContourLines(targetLayer.LayerName, dataIndices, ["#000000", newcolor], true);
 			rvDataSets[setNumber].drawResidues(targetLayer.LayerName, dataIndices, ["#000000", newcolor], true);
 		}
-		if (i === 0) {
-			Jscript += ":" + rvDataSets[setNumber].SpeciesEntry.SubunitProtChains[1][rvDataSets[setNumber].SpeciesEntry.SubunitProtChains[2].indexOf(seleProt[i])];
-		} else {
-			Jscript += " or :" + rvDataSets[setNumber].SpeciesEntry.SubunitProtChains[1][rvDataSets[setNumber].SpeciesEntry.SubunitProtChains[2].indexOf(seleProt[i])];
-		}
-		JscriptP += "select (" + (rvDataSets[setNumber].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + rvDataSets[setNumber].SpeciesEntry.SubunitProtChains[1][rvDataSets[setNumber].SpeciesEntry.SubunitProtChains[2].indexOf(seleProt[i])] + "); color Cartoon opaque [" + newcolor.replace("#", "x") + "];spacefill off;";
-		if (p > 0) {
-			appendBasePairs(interactionchoice, seleProt[i]);
-		}
 	}
-	
-	drawNavLine();
-	Jscript += "));";
-	//JscriptP+="display " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA ) + ".1, " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein ) + ".1;" ;
+}
+
+function colorMappingLoop3D(seleProt,colors2){
+	var Jscript = "display (selected), (";
+	var JscriptP = "set hideNotSelected false;";
+	var numProteinsList=[];
+	$.each(rvDataSets, function (index, rvds){
+		numProteinsList[index]=0;
+		//Jmol Part
+		var foundProt;
+		for (var i = 0; i < seleProt.length; i++) {
+			if (seleProt.length > 1) {
+				var val = Math.round((i / (seleProt.length - 1)) * (colors2.length - 1));
+			} else {
+				var val = 0;
+			}	
+
+			var newcolor = (val < 0 || val >= colors2.length) ? "#000000" : colors2[val];	
+			foundProt=rvds.SpeciesEntry.SubunitProtChains[1][rvds.SpeciesEntry.SubunitProtChains[2].indexOf(seleProt[i])];
+			if (foundProt){
+				numProteinsList[index]+=1;
+				if (numProteinsList[index] === 1){
+					if (index > 0 && numProteinsList.slice(0,-1).reduce(function(a,b){return a+b}) > 0){
+						Jscript += " or ";
+					}
+					Jscript += rvds.SpeciesEntry.Jmol_Model_Num_rProtein + ".1 and (";
+				}
+				Jscript += ":" + foundProt + " or ";
+				JscriptP += "select (" + (rvds.SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + foundProt + 
+				"); color Cartoon opaque [" + newcolor.replace("#", "x") + "];spacefill off;";
+			}
+			
+		}
+		if (numProteinsList[index] > 0){
+			Jscript=Jscript.slice(0,-4);
+			Jscript += ")";
+		}
+
+	});
+	Jscript += ");";
 	if($('input[name="jp"][value=on]').is(':checked')){
 		update3Dcolors();
 		refreshModel();
@@ -2695,7 +2742,10 @@ function refreshModel() {
 	}
 	var script= "set hideNotSelected true;select (";
 	$.each(rvDataSets, function (index, rvds) {
-		var script =  + rvds.SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (";
+		if (index > 0 ){
+			script +=" or ";
+		}
+		script += rvds.SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (";
 		if (rvds.SpeciesEntry.PDB_chains){
 			for (var ii = 0; ii < rvds.SpeciesEntry.PDB_chains.length; ii++) {
 				script += ":" + rvds.SpeciesEntry.PDB_chains[ii];
@@ -2703,9 +2753,11 @@ function refreshModel() {
 					script += " or ";
 				}
 			}
+			
 		}
+		script += ")";
 	});
-	script += ")); center selected;";
+	script += "); center selected;";
 	Jmol.script(myJmol, script);
 }
 
