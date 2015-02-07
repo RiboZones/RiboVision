@@ -483,19 +483,19 @@ function rvDataSet(DataSetName,SetNumber) {
 			});
 		}
 	};
-	this.drawBasePairs = function (layer, colorLayer) {
+	this.drawBasePairs = function (layer, colorLayer,newmode) {
 		var rvds = this;
 		var ind = $.inArray(layer, this.LayerTypes);
 		if (ind >= 0) {
 			$.each(this.Layers, function (key, value) {
 				if (value.Type === layer) {
-					drawBasePairs.call(rvds,value, colorLayer);
+					drawBasePairs.call(rvds,value, colorLayer,newmode);
 				}
 			});
 		} else {
 			$.each(this.Layers, function (key, value) {
 				if (value.LayerName === layer) {
-					drawBasePairs.call(rvds,value, colorLayer);
+					drawBasePairs.call(rvds,value, colorLayer,newmode);
 				}
 			});
 		}
@@ -923,7 +923,163 @@ function rvDataSet(DataSetName,SetNumber) {
 			return false;
 		}
 	};
-	function drawBasePairs(targetLayer, colorLayer) {
+	function drawBasePairs2(targetLayer, colorLayer){
+		//alert("now mode");
+		var rvds = this;
+		var color1,color2;
+		var zoomEnabled = $('input[name="za"][value=on]').is(':checked');
+		targetLayer.clearCanvas();
+		if (!colorLayer) {
+			var colorLayer = targetLayer.ColorLayer;
+		} else {
+			targetLayer.ColorLayer = colorLayer;
+		}
+		targetLayer.Data=this.BasePairs;
+		
+		if (targetLayer.Data != undefined || targetLayer.Data == []) {
+			if (targetLayer.ColorGradientMode == "Matched") {
+				var grd_order = [0, 1];
+			} else if (targetLayer.ColorGradientMode == "Opposite") {
+				var grd_order = [1, 0];
+			} else {
+				alert("how did we get here?");
+			}
+			$.each(targetLayer.Data, function(index,base_pair){
+				var residue_i = MainResidueMap[base_pair.residue_i];
+				var residue_j = MainResidueMap[base_pair.residue_j];
+				//Come back and make zoom aware work correctly, with the same color and opacity as would be in other modes. 
+				if (zoomEnabled) {
+					var jkdist = Math.sqrt(((residue_i.X - residue_j.X) * (residue_i.X - residue_j.X) + (residue_i.Y - residue_j.Y) * (residue_i.Y - residue_j.Y)));
+					
+					if ((150 - rvViews[0].scale * 23) > jkdist) {
+						base_pair.color = "rgba(35,31,32," + base_pair.opacity + ")";
+						return true;
+					}
+					if (((residue_i.X * rvViews[0].scale + rvViews[0].x < 0) || (residue_i.X * rvViews[0].scale + rvViews[0].x > rvViews[0].clientWidth) || (residue_i.Y * rvViews[0].scale + rvViews[0].y < 0) || (residue_i.Y * rvViews[0].scale + rvViews[0].y > rvViews[0].clientHeight))
+						 && ((residue_j.X * rvViews[0].scale + rvViews[0].x < 0) || (residue_j.X * rvViews[0].scale + rvViews[0].x > rvViews[0].clientWidth) || (residue_j.Y * rvViews[0].scale + rvViews[0].y < 0) || (residue_j.Y * rvViews[0].scale + rvViews[0].y > rvViews[0].clientHeight))) {
+						base_pair.color = "rgba(35,31,32," + base_pair.color.opacity + ")";
+						return true;
+					}
+				}
+				if (residue_i && residue_j ) {
+					switch (colorLayer.Type) {
+						case undefined:
+							if (colorLayer == "gray_lines") {
+								var grd = rvds.HighlightLayer.CanvasContext.createLinearGradient(residue_i.X, residue_i.Y, residue_j.X, residue_j.Y);
+								color1 = colorNameToHex("#231F20");
+								color2 = colorNameToHex("#231F20");
+								
+								grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + "," + base_pair.opacity + ")");
+								grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + "," + base_pair.opacity + ")");
+								
+								base_pair.color = grd;
+								base_pair.color_hex = color1;
+							} else if (colorLayer == "manual_coloring") {
+								var grd = rvds.HighlightLayer.CanvasContext.createLinearGradient(residue_i.X, residue_i.Y, residue_j.X, residue_j.Y);
+								color1 = base_pair.color_hex;
+								color2 = base_pair.color_hex;
+								
+								grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + "," + base_pair.opacity + ")");
+								grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + "," + base_pair.opacity + ")");
+								
+								base_pair.color = grd;
+								base_pair.color_hex = color1;
+							} else {
+								alert("Invalid color mode");
+							}
+							break;
+						case "residues":
+							var grd = colorLayer.CanvasContext.createLinearGradient(residue_i.X, residue_i.Y, residue_j.X, residue_j.Y);
+							
+							if (residue_i.color && residue_j.color) {
+								color1 = colorNameToHex(residue_i);
+								color2 = colorNameToHex(residue_j);
+								
+								grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + "," + base_pair.opacity + ")");
+								grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + "," + base_pair.opacity + ")");
+							} else {
+								color1='#231F20';
+							}
+							//colorLayer.addLinearGradient(grd);
+							base_pair.color = grd;
+							base_pair.color_hex = color1;
+							break;
+						case "contour":
+						case "circles":
+							var grd = colorLayer.CanvasContext.createLinearGradient(residue_i.X, residue_i.Y, residue_j.X, residue_j.Y);
+							//This will be broken for now, because of j,k indices
+							if (colorLayer.dataLayerColors[j] && colorLayer.dataLayerColors[k]) {
+								color1 = colorNameToHex(colorLayer.dataLayerColors[j]);
+								color2 = colorNameToHex(colorLayer.dataLayerColors[k]);
+								
+								grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + "," + base_pair.opacity + ")");
+								grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + "," + base_pair.opacity + ")");
+							} else {
+								color1='#231F20';
+							}
+							//colorLayer.addLinearGradient(grd);
+							base_pair.color = grd;
+							base_pair.color_hex = color1;
+							break;
+						case "selected":
+							var grd = colorLayer.CanvasContext.createLinearGradient(residue_i.X, residue_i.Y, residue_j.X, residue_j.Y);
+							//This will be broken for now, because of j,k indices
+							if (colorLayer.Data[j] || colorLayer.Data[k]) {
+								color1 = colorNameToHex(colorLayer.dataLayerColors[j]);
+								color2 = colorNameToHex(colorLayer.dataLayerColors[k]);
+								//color1 = colorNameToHex("#231F20");
+								//color2 = colorNameToHex("#231F20");
+								grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + "," + base_pair.Data[i].opacity + ")");
+								grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + "," + base_pair.Data[i].opacity + ")");
+							} else {
+								color1='#231F20';
+							}
+							//colorLayer.addLinearGradient(grd);
+							base_pair.color = grd;
+							base_pair.color_hex = color1;
+							break;
+						default:
+							alert("this shouldn't be happening right now.");
+					}
+					//Regular Mode
+					
+					targetLayer.CanvasContext.beginPath();
+					targetLayer.CanvasContext.moveTo(residue_i.X, residue_i.Y);
+					targetLayer.CanvasContext.lineTo(residue_j.X, residue_j.Y);
+					targetLayer.CanvasContext.strokeStyle = base_pair.color;	
+					targetLayer.CanvasContext.lineWidth = base_pair.color.lineWidth;					
+					targetLayer.CanvasContext.stroke();
+					targetLayer.CanvasContext.closePath();
+					if (zoomEnabled && (rvViews[0].scale > 10)) {
+						//draw the interaction type labels here
+						var x1 = residue_i.X;
+						var x2 = residue_j.X;
+						var x12mid = x1 - ((x1 - x2) / 2);
+						var xmid = residue_i.X - (residue_i.X - residue_j.X) / 2;
+						var ymid = residue_i.Y - (residue_i.Y - residue_j.Y) / 2;
+						targetLayer.CanvasContext.save();
+						targetLayer.CanvasContext.lineWidth = 0.5;
+						targetLayer.CanvasContext.fillStyle = "white";
+						targetLayer.CanvasContext.fillRect(xmid - 2.4, ymid - .8, 4.7, 1.7);
+						targetLayer.CanvasContext.strokeRect(xmid - 2.3, ymid - .7, 4.5, 1.5);
+						targetLayer.CanvasContext.restore();
+						targetLayer.CanvasContext.save();
+						targetLayer.CanvasContext.font = ".5px Arial";
+						targetLayer.CanvasContext.fillText(base_pair.bp_type, xmid - 2, ymid + .5);
+						targetLayer.CanvasContext.restore();
+						
+					}
+					
+				}
+			});
+		}
+		this.BasePairs=targetLayer.Data;
+	}
+	function drawBasePairs(targetLayer, colorLayer,newmode) {
+		if(newmode){
+			drawBasePairs2.call(this,targetLayer, colorLayer);
+			return;
+		}
 		var color1,color2;
 		var zoomEnabled = $('input[name="za"][value=on]').is(':checked');
 		targetLayer.clearCanvas();

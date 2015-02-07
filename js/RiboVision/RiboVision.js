@@ -36,6 +36,7 @@ var FullBasePairSet;
 var AgreeFunction = function () {};
 var drag = false;
 var ResiduePositions=[];
+var MainResidueMap=[];
 
 // Website Settings
 var localStorageAvailable = false;
