@@ -30,6 +30,7 @@ based on:
 function loadSpecies(species,DoneLoading,DoneLoading2) {
 	var speciesSplit=species.split("&");
 	ResiduePositions=[[]];
+	MainResidueMap=[[]];
 	// get data description table
 	$.getJSON('getData.php', {
 		FullTable : "DataDescriptions"
@@ -126,6 +127,21 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 					SpeciesTable : speciesInterest
 				}, function (species_entry2) {
 					rvDataSets[speciesIndex].addSpeciesEntry(species_entry2[0]);
+					
+					//MainResidueMap Section
+					$.each(rvDataSets[speciesIndex].Residues, function (i,data){
+						var uResName=rvDataSets[speciesIndex].SpeciesEntry.Molecule_Names[rvDataSets[speciesIndex].SpeciesEntry.PDB_chains.indexOf(data.ChainID)] + ":" + data.resNum.replace(/[^:]*:/g, "");
+						
+
+						MainResidueMap[uResName]={};
+						MainResidueMap[uResName].index=i;
+						MainResidueMap[uResName].X=parseFloat(ResiduePositions[speciesIndex][i]["X"]);
+						MainResidueMap[uResName].Y=parseFloat(ResiduePositions[speciesIndex][i]["Y"]);
+						
+						//console.log(MainResidueMap[uResName]);
+					});
+					
+					
 					if (!DoneLoading2) {
 						clearSelection(true);
 					}

@@ -1532,9 +1532,9 @@ function handleFileSelect(event) {
 								var processLineWidth=false;
 							}
 							$.each(rvds.CustomData, function (index,value){
-								var j = resNumToIndex(value.Residue_i,SpeciesIndex).toString();
-								var k = resNumToIndex(value.Residue_j,SpeciesIndex).toString();
-								if (j < 0 || k < 0){return true;}
+								//var j = resNumToIndex(value.Residue_i,SpeciesIndex).toString();
+								//var k = resNumToIndex(value.Residue_j,SpeciesIndex).toString();
+								//if (j < 0 || k < 0){return true;}
 								if (processColor){
 									var color = colorNameToHex(value.ColorCol);
 								} else {
@@ -1550,7 +1550,7 @@ function handleFileSelect(event) {
 								} else {
 									var LineWidth = 1.0;
 								}
-								var grd = targetLayer[0].CanvasContext.createLinearGradient(rvds.Residues[j].X, rvds.Residues[j].Y, rvds.Residues[k].X, rvds.Residues[k].Y);
+								var grd = targetLayer[0].CanvasContext.createLinearGradient(MainResidueMap[value.Residue_i].X, MainResidueMap[value.Residue_i].Y, MainResidueMap[value.Residue_j].X, MainResidueMap[value.Residue_j].Y);
 								grd.addColorStop(0, "rgba(" + h2d(color.slice(1, 3)) + "," + h2d(color.slice(3, 5)) + "," + h2d(color.slice(5)) + "," + Opacity + ")");
 								grd.addColorStop(1, "rgba(" + h2d(color.slice(1, 3)) + "," + h2d(color.slice(3, 5)) + "," + h2d(color.slice(5)) + "," + Opacity + ")");
 								
@@ -1562,8 +1562,10 @@ function handleFileSelect(event) {
 									lineWidth: LineWidth,
 									id: (index + 1).toString(),
 									pairIndex: (index + 1).toString(),
-									resIndex1 : j,
-									resIndex2 : k
+									//resIndex1 : j,
+									//resIndex2 : k
+									residue_i: value.Residue_i,
+									residue_j: value.Residue_j
 								});
 							});
 							rvds.BasePairs=FullBasePairSet;
@@ -1571,7 +1573,7 @@ function handleFileSelect(event) {
 							
 							targetLayer[0].DataLabel = FileReaderFile[0].name;
 							$("[name=" + targetLayer[0].LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer[0].DataLabel);
-							rvds.drawBasePairs("lines");
+							rvds.drawBasePairs("lines",null,true);
 						} else {
 							alert("Expected Residue_j column. Please check input.");
 						}
