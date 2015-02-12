@@ -23,7 +23,7 @@ based on:
  *  02111-1307  USA.
  */
 
-// for documentation see apollo.chemistry.gatech.edu/Ribovision/documentation
+// for documentation see apollo.chemistry.gatech.edu/RiboVision/Documentation
 //This doesn't exist and this probably won't be the final license.
 
 
@@ -227,7 +227,7 @@ function rvDataSet(DataSetName,SetNumber) {
 	this.SequenceList = "";
 	this.rvTextLabels = [];
 	this.rvLineLabels = [];
-	this.BasePairs = [];
+	//this.BasePairs = [];
 	this.FullBasePairSet = [];
 	this.CustomData = [];
 	this.SpeciesEntry = [];
@@ -923,6 +923,7 @@ function rvDataSet(DataSetName,SetNumber) {
 			return false;
 		}
 	};
+
 	function drawBasePairs2(targetLayer, colorLayer){
 		//alert("now mode");
 		var rvds = this;
@@ -1076,7 +1077,8 @@ function rvDataSet(DataSetName,SetNumber) {
 		this.BasePairs=targetLayer.Data;
 	}
 	function drawBasePairs(targetLayer, colorLayer,newmode) {
-		if(newmode){
+		if(true){
+		//if(newmode){
 			drawBasePairs2.call(this,targetLayer, colorLayer);
 			return;
 		}

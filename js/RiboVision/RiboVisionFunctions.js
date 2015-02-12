@@ -23,7 +23,7 @@ based on:
  *  02111-1307  USA.
  */
 
-// for documentation see apollo.chemistry.gatech.edu/Ribovision/documentation
+// for documentation see apollo.chemistry.gatech.edu/RiboVision/Documentation
 //This doesn't exist and this probably won't be the final license.
 
 
@@ -226,28 +226,29 @@ function getSelectedLine(event){
 	var zoomEnabled = $('input[name="za"][value=on]').is(':checked');
 	if(rvDataSets[0].BasePairs != undefined){
 		for (var i = 0; i < rvDataSets[0].BasePairs.length; i++) {
-			var j = rvDataSets[0].BasePairs[i].resIndex1;
-			var k = rvDataSets[0].BasePairs[i].resIndex2;
-			var jdist = Math.sqrt(((nx - rvDataSets[0].Residues[j].X)*(nx - rvDataSets[0].Residues[j].X) + (ny - rvDataSets[0].Residues[j].Y)*(ny - rvDataSets[0].Residues[j].Y)));
-			var kdist = Math.sqrt(((nx - rvDataSets[0].Residues[k].X)*(nx - rvDataSets[0].Residues[k].X) + (ny - rvDataSets[0].Residues[k].Y)*(ny - rvDataSets[0].Residues[k].Y)));
-			var jkdist = Math.sqrt(((rvDataSets[0].Residues[j].X - rvDataSets[0].Residues[k].X)*(rvDataSets[0].Residues[j].X - rvDataSets[0].Residues[k].X) + (rvDataSets[0].Residues[j].Y - rvDataSets[0].Residues[k].Y)*(rvDataSets[0].Residues[j].Y - rvDataSets[0].Residues[k].Y)));
+			//var j = rvDataSets[0].BasePairs[i].resIndex1;
+			//var k = rvDataSets[0].BasePairs[i].resIndex2;
+			var residue_i = MainResidueMap[rvDataSets[0].BasePairs[i].residue_i];
+			var residue_j = MainResidueMap[rvDataSets[0].BasePairs[i].residue_j];
+			
+			var jdist = Math.sqrt(((nx - residue_i.X)*(nx - residue_i.X) + (ny - residue_i.Y)*(ny - residue_i.Y)));
+			var kdist = Math.sqrt(((nx - residue_j.X)*(nx - residue_j.X) + (ny - residue_j.Y)*(ny - residue_j.Y)));
+			var jkdist = Math.sqrt(((residue_i.X - residue_j.X)*(residue_i.X - residue_j.X) + (residue_i.Y - residue_j.Y)*(residue_i.Y - residue_j.Y)));
 
 			if(zoomEnabled){
-					var jkdist = Math.sqrt(((rvDataSets[0].Residues[j].X - rvDataSets[0].Residues[k].X)*(rvDataSets[0].Residues[j].X - rvDataSets[0].Residues[k].X) + (rvDataSets[0].Residues[j].Y - rvDataSets[0].Residues[k].Y)*(rvDataSets[0].Residues[j].Y - rvDataSets[0].Residues[k].Y)));
-					if((150 - rvViews[0].scale*23) > jkdist){
-						continue;
-					}
-					if(( (rvDataSets[0].Residues[j].X*rvViews[0].scale+rvViews[0].x < 0) || (rvDataSets[0].Residues[j].X*rvViews[0].scale+rvViews[0].x > rvViews[0].clientWidth) || (rvDataSets[0].Residues[j].Y*rvViews[0].scale+rvViews[0].y < 0) ||  (rvDataSets[0].Residues[j].Y*rvViews[0].scale+rvViews[0].y > rvViews[0].clientHeight))
-					&& ( (rvDataSets[0].Residues[k].X*rvViews[0].scale+rvViews[0].x < 0) || (rvDataSets[0].Residues[k].X*rvViews[0].scale+rvViews[0].x > rvViews[0].clientWidth) || (rvDataSets[0].Residues[k].Y*rvViews[0].scale+rvViews[0].y < 0) ||  (rvDataSets[0].Residues[k].Y*rvViews[0].scale+rvViews[0].y > rvViews[0].clientHeight)) )  {
+				var jkdist = Math.sqrt(((residue_i.X - residue_j.X)*(residue_i.X - residue_j.X) + (residue_i.Y - residue_j.Y)*(residue_i.Y - residue_j.Y)));
+				if((150 - rvViews[0].scale*23) > jkdist){
 					continue;
-						}
-						}
-			if( (jdist+kdist - jkdist) < .03){
-					return i;
 				}
-			
+				if(( (residue_i.X*rvViews[0].scale+rvViews[0].x < 0) || (residue_i.X*rvViews[0].scale+rvViews[0].x > rvViews[0].clientWidth) || (residue_i.Y*rvViews[0].scale+rvViews[0].y < 0) ||  (residue_i.Y*rvViews[0].scale+rvViews[0].y > rvViews[0].clientHeight))
+					&& ( (residue_j.X*rvViews[0].scale+rvViews[0].x < 0) || (residue_j.X*rvViews[0].scale+rvViews[0].x > rvViews[0].clientWidth) || (residue_j.Y*rvViews[0].scale+rvViews[0].y < 0) ||  (residue_j.Y*rvViews[0].scale+rvViews[0].y > rvViews[0].clientHeight)) )  {
+					continue;
+				}
 			}
-	
+			if( (jdist+kdist - jkdist) < .03){
+				return i;
+			}
+		}
 	}
 	return -1;
 }
@@ -267,9 +268,9 @@ function getSelected(event) {
 				}
 			}
 		}
-		return -1;
+		return [-1,-1];
 	} else {
-		return -1;
+		return [-1,-1];
 	}
 }
 
@@ -406,7 +407,7 @@ function selectResidue(event) {
 				}
 				//Unselect code
 				var sel = getSelected(event);
-				if (sel != -1) {
+				if (sel[0] >= 0) {
 					var res = rvDataSets[sel[1]].Residues[sel[0]];
 					var result = $.grep(targetSelection.Residues, function(e){ return e.map_Index == res.map_Index; });
 					//alert(result[0].resNum);
@@ -1026,6 +1027,8 @@ function refreshBasePairs(BasePairTable) {
 						item.lineWidth = 0.75;
 						item.opacity = 0.5;
 						item.color_hex = '#231F20';
+						item.residue_i=rvDataSets[index].SpeciesEntry.Molecule_Names[rvDataSets[index].SpeciesEntry.PDB_chains.indexOf(rvDataSets[index].	Residues[item.resIndex1].ChainID)] + ":" + rvDataSets[index].Residues[item.resIndex1].resNum.replace(/[^:]*:/g, "");
+						item.residue_j=rvDataSets[index].SpeciesEntry.Molecule_Names[rvDataSets[index].SpeciesEntry.PDB_chains.indexOf(rvDataSets[index].	Residues[item.resIndex2].ChainID)] + ":" + rvDataSets[index].Residues[item.resIndex2].resNum.replace(/[^:]*:/g, "");
 					});
 					
 					rvDataSets[index].drawBasePairs("lines");
@@ -1161,7 +1164,7 @@ function mouseMoveFunction(event){
 				}	
 			} else if (event.ctrlKey == true && event.altKey == false) {
 				var sel = getSelected(event);
-				if (sel >=0) {
+				if (sel[0] >=0) {
 					var targetLayer=rvDataSets[sel[1]].getSelectedLayer();
 					switch (targetLayer.Type){
 						case "residues" : 
@@ -1170,11 +1173,11 @@ function mouseMoveFunction(event){
 							rvDataSets[sel[1]].HighlightLayer.CanvasContext.textBaseline = "middle";
 							rvDataSets[sel[1]].HighlightLayer.CanvasContext.textAlign = "center";
 							rvDataSets[sel[1]].HighlightLayer.CanvasContext.fillStyle = colorNameToHex($("#MainColor").val());
-							rvDataSets[sel[1]].HighlightLayer.CanvasContext.fillText(rvDataSets[sel[1]].Residues[sel[0]].resName, rvDataSets[sel[1]].Residues[sel[0]].X, rvDataSets[sel[1]].Residues[sel[0]].Y);
+							rvDataSets[sel[1]].HighlightLayer.CanvasContext.fillText(rvDataSets[sel[1]].Residues[sel[0]].resName, ResiduePositions[sel[1]][sel[0]].X, ResiduePositions[sel[1]][sel[0]].Y);
 							break;
 						case "circles" :
 							rvDataSets[sel[1]].HighlightLayer.CanvasContext.beginPath();
-							rvDataSets[sel[1]].HighlightLayer.CanvasContext.arc(rvDataSets[sel[1]].Residues[sel[0]].X, rvDataSets[sel[1]].Residues[sel[0]].Y, (targetLayer.ScaleFactor * rvDataSets[sel[1]].SpeciesEntry.Circle_Radius), 0, 2 * Math.PI, false);
+							rvDataSets[sel[1]].HighlightLayer.CanvasContext.arc(ResiduePositions[sel[1]][sel[0]].X, ResiduePositions[sel[1]][sel[0]].Y, (targetLayer.ScaleFactor * rvDataSets[sel[1]].SpeciesEntry.Circle_Radius), 0, 2 * Math.PI, false);
 							rvDataSets[sel[1]].HighlightLayer.CanvasContext.closePath();
 							rvDataSets[sel[1]].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#MainColor").val());
 							rvDataSets[sel[1]].HighlightLayer.CanvasContext.stroke();
@@ -1217,9 +1220,9 @@ function mouseMoveFunction(event){
 				}	
 			} else {
 				var sel = getSelected(event);
-				if (sel >=0){
+				if (sel[0] >=0){
 					rvDataSets[sel[1]].HighlightLayer.CanvasContext.beginPath();
-					rvDataSets[sel[1]].HighlightLayer.CanvasContext.arc(rvDataSets[sel[1]].Residues[sel[0]].X, rvDataSets[sel[1]].Residues[sel[0]].Y, 1.176 * rvDataSets[sel[1]].SpeciesEntry.Circle_Radius, 0, 2 * Math.PI, false);
+					rvDataSets[sel[1]].HighlightLayer.CanvasContext.arc(ResiduePositions[sel[1]][sel[0]].X, ResiduePositions[sel[1]][sel[0]].Y, 1.176 * rvDataSets[sel[1]].SpeciesEntry.Circle_Radius, 0, 2 * Math.PI, false);
 					rvDataSets[sel[1]].HighlightLayer.CanvasContext.closePath();
 					rvDataSets[sel[1]].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
 					rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineWidth=rvDataSets[sel[1]].SpeciesEntry.Circle_Radius/1.7;
@@ -1235,7 +1238,7 @@ function mouseMoveFunction(event){
 			break;
 		case "color":
 			var sel = getSelected(event);
-			if (sel != -1) {
+			if (sel[0] != -1) {
 				var targetLayer=rvDataSets[sel[1]].getSelectedLayer();
 				switch (targetLayer.Type){
 					case "residues" : 
@@ -1244,11 +1247,11 @@ function mouseMoveFunction(event){
 						rvDataSets[sel[1]].HighlightLayer.CanvasContext.textBaseline = "middle";
 						rvDataSets[sel[1]].HighlightLayer.CanvasContext.textAlign = "center";
 						rvDataSets[sel[1]].HighlightLayer.CanvasContext.fillStyle = colorNameToHex($("#MainColor").val());
-						rvDataSets[sel[1]].HighlightLayer.CanvasContext.fillText(rvDataSets[sel[1]].Residues[sel[0]].resName, rvDataSets[sel[1]].Residues[sel[0]].X, rvDataSets[sel[1]].Residues[sel[0]].Y);
+						rvDataSets[sel[1]].HighlightLayer.CanvasContext.fillText(rvDataSets[sel[1]].Residues[sel[0]].resName, ResiduePositions[sel[1]][sel[0]].X, ResiduePositions[sel[1]][sel[0]].Y);
 						break;
 					case "circles" :
 						rvDataSets[sel[1]].HighlightLayer.CanvasContext.beginPath();
-						rvDataSets[sel[1]].HighlightLayer.CanvasContext.arc(rvDataSets[sel[1]].Residues[sel[0]].X, rvDataSets[sel[1]].Residues[sel[0]].Y, (targetLayer.ScaleFactor * rvDataSets[sel[1]].SpeciesEntry.Circle_Radius), 0, 2 * Math.PI, false);
+						rvDataSets[sel[1]].HighlightLayer.CanvasContext.arc(ResiduePositions[sel[1]][sel[0]].X, rResiduePositions[sel[1]][sel[0]].Y, (targetLayer.ScaleFactor * rvDataSets[sel[1]].SpeciesEntry.Circle_Radius), 0, 2 * Math.PI, false);
 						rvDataSets[sel[1]].HighlightLayer.CanvasContext.closePath();
 						rvDataSets[sel[1]].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#MainColor").val());
 						rvDataSets[sel[1]].HighlightLayer.CanvasContext.stroke();
@@ -1287,11 +1290,11 @@ function mouseWheelFunction(event,delta){
 	var sel = getSelected(event);
 	rvDataSets[0].HighlightLayer.clearCanvas();
 	
-	if (sel == -1) {
+	if (sel[0] == -1) {
 		//document.getElementById("currentDiv").innerHTML = "<br/>";
 	} else {
 		rvDataSets[sel[1]].HighlightLayer.CanvasContext.beginPath();
-		rvDataSets[sel[1]].HighlightLayer.CanvasContext.arc(rvDataSets[sel[1]].Residues[sel[0]].X, rvDataSets[sel[1]].Residues[sel[0]].Y, 2, 0, 2 * Math.PI, false);
+		rvDataSets[sel[1]].HighlightLayer.CanvasContext.arc(ResiduePositions[sel[1]][sel[0]].X, ResiduePositions[sel[1]][sel[0]].Y, 2, 0, 2 * Math.PI, false);
 		rvDataSets[sel[1]].HighlightLayer.CanvasContext.closePath();
 		rvDataSets[sel[1]].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
 		rvDataSets[sel[1]].HighlightLayer.CanvasContext.stroke();
@@ -1325,7 +1328,7 @@ function BaseViewCenter(event){
 		return;
 	}
 	var sel = getSelected(event);
-	if (sel != -1) {
+	if (sel[0] != -1) {
 		var res = rvDataSets[sel[1]].Residues[sel[0]];
 		var script = "center " + (rvDataSets[sel[1]].SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and " + res.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') +":" + res.ChainID;
 		Jmol.script(myJmol, script);
@@ -1501,7 +1504,7 @@ function handleFileSelect(event) {
 					rvds.addCustomData($.csv.toObjects(reader.result));
 					var customkeys = Object.keys(rvds.CustomData[0]);
 					if ($.inArray("DataDescription", customkeys) >= 0) {
-						$("#FileDiv").find(".DataDescription").html(rvdsCustomData[0]["DataDescription"]);
+						$("#FileDiv").find(".DataDescription").html(rvds.CustomData[0]["DataDescription"]);
 						$("#CustomDataBubbles").find(".dataBubble").attr("title",rvds.CustomData[0]["DataDescription"].replace(/(<([^>]+)>)/ig,""));
 					} else {
 						$("#FileDiv").find(".DataDescription").html("Data Description is missing.");
@@ -3103,6 +3106,40 @@ function drawNavLine(){
 }
 
 function addPopUpWindowResidue(Sele){
+	
+	if (rvDataSets[Sele[1]].Residues[Sele[0]].resNum.indexOf(":") >= 0 ){
+		var ResName = rvDataSets[Sele[1]].Residues[Sele[0]].resNum;
+	} else {
+		var ResName = rvDataSets[Sele[1]].SpeciesEntry.Molecule_Names[rvDataSets[Sele[1]].SpeciesEntry.PDB_chains.indexOf(rvDataSets[Sele[1]].Residues[Sele[0]].ChainID)] +
+		":" + rvDataSets[Sele[1]].Residues[Sele[0]].resNum;
+	}
+	
+	var dobj = $.grep(rvDataSets[Sele[1]].ConservationTable, function(e){ return e.resNum == ResName; })[0];
+	//var dobj = rvDataSets[Sele[1]].ConservationTable[Sele[0]];
+	if (dobj){
+		//round the number to two decimal places
+		var Hnum = dobj.Shannon * 1;
+		var Hn = Hnum.toFixed(2);	
+		drawConGraph(dobj);
+	} else {
+		var ConsensusSymbol = "n/a";
+		var Hn = "n/a";
+	}
+		
+	var targetLayer=rvDataSets[Sele[1]].getSelectedLayer();
+	var rn = rvDataSets[Sele[1]].Residues[Sele[0]].resNum.split(":");
+	if (rn.length < 2 ){
+		$('#resName').html(rvDataSets[Sele[1]].Residues[Sele[0]].resName + rvDataSets[Sele[1]].Residues[Sele[0]].resNum +
+			" (" + rvDataSets[Sele[1]].SpeciesEntry.Molecule_Names[rvDataSets[Sele[1]].SpeciesEntry.PDB_chains.indexOf(rvDataSets[Sele[1]].Residues[Sele[0]].ChainID)] + " rRNA)");
+	} else {
+		$('#resName').html(rvDataSets[Sele[1]].Residues[Sele[0]].resName + rn[1] +
+			" (" + rn[0] + " rRNA)");
+	}
+	$('#conSeqLetter').html("Consensus: " + ConsensusSymbol);
+	$('#activeData').html("Selected Data: " + targetLayer.Data[Sele[0]]);
+	$("#conPercentage").html("Shannon Entropy: " + Hn);
+}
+function drawConGraph(dobj){
 	//Width and height
 	var Xoffset = 40;
 	var Yoffset = 20;
@@ -3122,54 +3159,22 @@ function addPopUpWindowResidue(Sele){
 	//var Xpadding = 30;
 	var barColors = ["green","blue","black","red","orange"];
 	
+	//round the number to two decimal places
+	var Anum = dobj.A*100;
+	var An = Anum.toFixed(1);
+	var Cnum = dobj.C*100;
+	var Cn = Cnum.toFixed(1);
+	var Gnum = dobj.G*100;
+	var Gn = Gnum.toFixed(1);
+	var Unum = dobj.U*100;
+	var Un = Unum.toFixed(1); 
+	var Gpnum = dobj.Gaps*100;
+	var Gpn = Gpnum.toFixed(1);	 
+	var dataset = [An,Cn,Gn,Un,Gpn];
+	var sLabels = ["A","C","G","U","gaps"];
+	var lenDataSet = dataset.length;
+
 	
-	if (rvDataSets[Sele[1]].Residues[Sele[0]].resNum.indexOf(":") >= 0 ){
-		var ResName = rvDataSets[Sele[1]].Residues[Sele[0]].resNum;
-	} else {
-		var ResName = rvDataSets[Sele[1]].SpeciesEntry.Molecule_Names[rvDataSets[Sele[1]].SpeciesEntry.PDB_chains.indexOf(rvDataSets[Sele[1]].Residues[Sele[0]].ChainID)] +
-		":" + rvDataSets[Sele[1]].Residues[Sele[0]].resNum;
-	}
-	
-	var dobj = $.grep(rvDataSets[Sele[1]].ConservationTable, function(e){ return e.resNum == ResName; })[0];
-	//var dobj = rvDataSets[Sele[1]].ConservationTable[Sele[0]];
-	if (dobj){
-		//round the number to two decimal places
-		var Anum = dobj.A*100;
-		var An = Anum.toFixed(1);
-		var Cnum = dobj.C*100;
-		var Cn = Cnum.toFixed(1);
-		var Gnum = dobj.G*100;
-		var Gn = Gnum.toFixed(1);
-		var Unum = dobj.U*100;
-		var Un = Unum.toFixed(1);
-		var Hnum = dobj.Shannon * 1;
-		var Hn = Hnum.toFixed(2);	 
-		var Gpnum = dobj.Gaps*100;
-		var Gpn = Gpnum.toFixed(1);	 
-		var dataset = [An,Cn,Gn,Un,Gpn];
-		var sLabels = ["A","C","G","U","gaps"];
-		var lenDataSet = dataset.length;
-		var ConsensusSymbol = dobj.Consensus;
-		drawConGraph();
-	} else {
-		var ConsensusSymbol = "n/a";
-		var Hn = "n/a";
-	}
-		
-	var targetLayer=rvDataSets[Sele[1]].getSelectedLayer();
-	var rn = rvDataSets[Sele[1]].Residues[Sele[0]].resNum.split(":");
-	if (rn.length < 2 ){
-		$('#resName').html(rvDataSets[Sele[1]].Residues[Sele[0]].resName + rvDataSets[Sele[1]].Residues[Sele[0]].resNum +
-			" (" + rvDataSets[Sele[1]].SpeciesEntry.Molecule_Names[rvDataSets[Sele[1]].SpeciesEntry.PDB_chains.indexOf(rvDataSets[Sele[1]].Residues[Sele[0]].ChainID)] + " rRNA)");
-	} else {
-		$('#resName').html(rvDataSets[Sele[1]].Residues[Sele[0]].resName + rn[1] +
-			" (" + rn[0] + " rRNA)");
-	}
-	$('#conSeqLetter').html("Consensus: " + ConsensusSymbol);
-	$('#activeData').html("Selected Data: " + targetLayer.Data[Sele[0]]);
-	$("#conPercentage").html("Shannon Entropy: " + Hn);
-}
-function drawConGraph(){
 	if (typeof d3 === 'undefined'){return;};
 	//Remove old SVG
 	d3.select("#ResidueTipContent svg").remove();
