@@ -1499,9 +1499,11 @@ function handleFileSelect(event) {
 				items : ".dataBubble"
 			});
 			reader.onload = function () {
+				// Normalize new lines
+				var result = result.replace(/[\r|\r\n]/g, "\n"); 
 				$.each(rvDataSets, function (SpeciesIndex,rvds) {
 					//Process File
-					rvds.addCustomData($.csv.toObjects(reader.result));
+					rvds.addCustomData($.csv.toObjects(result));
 					var customkeys = Object.keys(rvds.CustomData[0]);
 					if ($.inArray("DataDescription", customkeys) >= 0) {
 						$("#FileDiv").find(".DataDescription").html(rvds.CustomData[0]["DataDescription"]);
