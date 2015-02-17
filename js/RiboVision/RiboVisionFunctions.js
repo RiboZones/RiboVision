@@ -1500,7 +1500,7 @@ function handleFileSelect(event) {
 			});
 			reader.onload = function () {
 				// Normalize new lines
-				var result = result.replace(/[\r|\r\n]/g, "\n"); 
+				var result = reader.result.replace(/[\r|\r\n]/g, "\n"); 
 				$.each(rvDataSets, function (SpeciesIndex,rvds) {
 					//Process File
 					rvds.addCustomData($.csv.toObjects(result));
