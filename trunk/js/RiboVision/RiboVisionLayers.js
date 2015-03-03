@@ -408,15 +408,17 @@ function LayerMenu(Layer, key, RVcolor) {
 				if ($type == 'visible') {
 					this.setAttribute('value', 'invisible');
 					this.setAttribute('src', $invisibleImgPath);
+					var newthis=this;
 					$.each(rvDataSets, function (index, rvds) {
-						var targetLayer = rvds.getLayer(this.parentNode.parentNode.getAttribute("name"));
+						var targetLayer = rvds.getLayer(newthis.parentNode.parentNode.getAttribute("name"));
 						targetLayer.setVisibility("hidden");
 					});
 				} else if ($type == 'invisible') {
 					this.setAttribute('value', 'visible');
 					this.setAttribute('src', $visibleImgPath);
+					var newthis=this;
 					$.each(rvDataSets, function (index, rvds) {
-						var targetLayer = rvds.getLayer(this.parentNode.parentNode.getAttribute("name"));
+						var targetLayer = rvds.getLayer(newthis.parentNode.parentNode.getAttribute("name"));
 						targetLayer.setVisibility("visible");
 					});
 				}

@@ -308,10 +308,11 @@ function rvDataSet(DataSetName,SetNumber) {
 			this.rvExtraLabels = rvExtraLabels;
 		}
 	};
+	/*
 	this.addBasePairs = function (BasePairs) {
 		this.BasePairs = BasePairs;
 	};
-	/*
+	
 	this.addSelected = function (Selected) {
 		this.Selected = Selected;
 	};*/
@@ -935,7 +936,7 @@ function rvDataSet(DataSetName,SetNumber) {
 		} else {
 			targetLayer.ColorLayer = colorLayer;
 		}
-		targetLayer.Data=this.BasePairs;
+		targetLayer.Data=ActiveBasePairSet;
 		
 		if (targetLayer.Data != undefined || targetLayer.Data == []) {
 			if (targetLayer.ColorGradientMode == "Matched") {
@@ -1074,7 +1075,7 @@ function rvDataSet(DataSetName,SetNumber) {
 				}
 			});
 		}
-		this.BasePairs=targetLayer.Data;
+		ActiveBasePairSet=targetLayer.Data;
 	}
 	function drawBasePairs(targetLayer, colorLayer,newmode) {
 		if(true){

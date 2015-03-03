@@ -224,12 +224,12 @@ function getSelectedLine(event){
 	var nx = (event.clientX - rvViews[0].x - $("#menu").width()) / rvViews[0].scale; //subtract 250 for the menu width
 	var ny = (event.clientY - rvViews[0].y - $("#topMenu").height()) / rvViews[0].scale; //subtract 80 for the info height
 	var zoomEnabled = $('input[name="za"][value=on]').is(':checked');
-	if(rvDataSets[0].BasePairs != undefined){
-		for (var i = 0; i < rvDataSets[0].BasePairs.length; i++) {
+	if(ActiveBasePairSet != undefined){
+		for (var i = 0; i < ActiveBasePairSet.length; i++) {
 			//var j = rvDataSets[0].BasePairs[i].resIndex1;
 			//var k = rvDataSets[0].BasePairs[i].resIndex2;
-			var residue_i = MainResidueMap[rvDataSets[0].BasePairs[i].residue_i];
-			var residue_j = MainResidueMap[rvDataSets[0].BasePairs[i].residue_j];
+			var residue_i = MainResidueMap[ActiveBasePairSet[i].residue_i];
+			var residue_j = MainResidueMap[ActiveBasePairSet[i].residue_j];
 			
 			var jdist = Math.sqrt(((nx - residue_i.X)*(nx - residue_i.X) + (ny - residue_i.Y)*(ny - residue_i.Y)));
 			var kdist = Math.sqrt(((nx - residue_j.X)*(nx - residue_j.X) + (ny - residue_j.Y)*(ny - residue_j.Y)));
@@ -526,8 +526,8 @@ function colorLine(event) {
 		grd.addColorStop(0, "rgba(" + h2d(color.slice(1, 3)) + "," + h2d(color.slice(3, 5)) + "," + h2d(color.slice(5)) + "," + targetLayer[0].Data[seleLine].opacity + ")");
 		grd.addColorStop(1, "rgba(" + h2d(color.slice(1, 3)) + "," + h2d(color.slice(3, 5)) + "," + h2d(color.slice(5)) + "," + targetLayer[0].Data[seleLine].opacity + ")");
 		targetLayer[0].Data[seleLine]["color"] = grd;		
-		rvDataSets[0].BasePairs[seleLine]["color"]=color;
-		rvDataSets[0].BasePairs[seleLine]["color_hex"]=color;
+		ActiveBasePairSet[seleLine]["color"]=color;
+		ActiveBasePairSet[seleLine]["color_hex"]=color;
 		rvDataSets[0].drawBasePairs("lines");
 	}
 }
@@ -754,8 +754,9 @@ function colorMappingLoop(targetLayer, seleProt, seleProtNames, OverRideColors) 
 	//var interactionchoice = $('#PrimaryInteractionList').val();
 	var p = interactionchoice.indexOf("_NPN");
 	if ( p >=0 ){
+		ActiveBasePairSet=[];
 		$.each(rvDataSets, function (index, rvds){
-			rvds.BasePairs = [];
+			//rvds.BasePairs = [];
 			rvds.clearCanvas("lines");
 		});
 	}
@@ -995,9 +996,10 @@ function appendBasePairs(BasePairTable, colName) {
 		$.getJSON('getData.php', {
 			BasePairs : BasePairTable
 		}, function (basePairs2) {
-			rvDataSets[0].BasePairs = rvDataSets[0].BasePairs.concat(basePairs2);
-			FullBasePairSet = rvDataSets[0].BasePairs;
-			rvDataSets[0].drawBasePairs("lines");
+			ActiveBasePairSet=ActiveBasePairSet.concat(basePairs2);
+			//rvDataSets[0].BasePairs = rvDataSets[0].BasePairs.concat(basePairs2);
+			FullBasePairSet = ActiveBasePairSet;
+			//rvDataSets[0].drawBasePairs("lines");
 		});
 	} else {
 		//var dd = document.getElementById("ProtList");
@@ -1006,15 +1008,18 @@ function appendBasePairs(BasePairTable, colName) {
 			ProtBasePairs : BasePairTable,
 			ProtChain : colName
 		}, function (basePairs2) {
-			rvDataSets[0].BasePairs = rvDataSets[0].BasePairs.concat(basePairs2);
-			FullBasePairSet = rvDataSets[0].BasePairs;
-			rvDataSets[0].drawBasePairs("lines");
+			ActiveBasePairSet=ActiveBasePairSet.concat(basePairs2);
+			//rvDataSets[0].BasePairs = rvDataSets[0].BasePairs.concat(basePairs2);
+			FullBasePairSet = ActiveBasePairSet;
+			//rvDataSets[0].drawBasePairs("lines");
 		});
 	}
 }
 
 function refreshBasePairs(BasePairTable) {
 	var bpts = BasePairTable.split(";");
+	//ActiveBasePairSet=[];
+	FullBasePairSet=[];
 	$.each(bpts, function(index,value){
 		if (BasePairTable != "clear_lines") {
 			var p = BasePairTable.indexOf("_NPN");
@@ -1022,23 +1027,24 @@ function refreshBasePairs(BasePairTable) {
 				$.getJSON('getData.php', {
 					BasePairs : value
 				}, function (basePairs2) {					
-					rvDataSets[index].BasePairs = basePairs2;
-					$.each(rvDataSets[index].BasePairs, function (ind, item) {
+					$.each(basePairs2, function (ind, item) {
 						item.lineWidth = 0.75;
 						item.opacity = 0.5;
 						item.color_hex = '#231F20';
 						item.residue_i=rvDataSets[index].SpeciesEntry.Molecule_Names[rvDataSets[index].SpeciesEntry.PDB_chains.indexOf(rvDataSets[index].	Residues[item.resIndex1].ChainID)] + ":" + rvDataSets[index].Residues[item.resIndex1].resNum.replace(/[^:]*:/g, "");
 						item.residue_j=rvDataSets[index].SpeciesEntry.Molecule_Names[rvDataSets[index].SpeciesEntry.PDB_chains.indexOf(rvDataSets[index].	Residues[item.resIndex2].ChainID)] + ":" + rvDataSets[index].Residues[item.resIndex2].resNum.replace(/[^:]*:/g, "");
 					});
+					FullBasePairSet=FullBasePairSet.concat(basePairs2);	
+					ActiveBasePairSet = FullBasePairSet;
 					
 					rvDataSets[index].drawBasePairs("lines");
 					// Set interaction submenu to allow for subsets of these basepairs to be displayed. 
 					// For now, let's set a global variable to store the whole table, so that it doesn't have to be refetched everytime a subset is chosen. 
 					// This will get better when I revamp who BasePair interactions work
 		
-					rvDataSets[index].FullBasePairSet = rvDataSets[index].BasePairs;
+					//rvDataSets[index].FullBasePairSet = rvDataSets[index].BasePairs;
 					var BP_Type = [];	
-					$.each(rvDataSets[index].BasePairs, function (ind, item) {
+					$.each(FullBasePairSet, function (ind, item) {
 						BP_Type.push(item.bp_type);
 					});
 					BP_TypeU = $.grep(BP_Type, function (v, k) {
@@ -1070,13 +1076,20 @@ function refreshBasePairs(BasePairTable) {
 			}
 			
 		} else {
-			rvDataSets[index].BasePairs = [];
+			//rvDataSets[index].BasePairs = [];
 			rvDataSets[index].clearCanvas("lines");
 		}
 	});
 }
 
 function filterBasePairs(IncludeTypes){
+	ActiveBasePairSet=[];
+	$.each(FullBasePairSet, function (index, value){
+		if ($.inArray(value.bp_type,IncludeTypes) >= 0){
+			ActiveBasePairSet.push(value);
+		}
+	});
+	/*
 	$.each(rvDataSets, function (index, rvds){
 		rvds.BasePairs=[];
 		$.each(rvds.FullBasePairSet, function (index, value){
@@ -1085,7 +1098,7 @@ function filterBasePairs(IncludeTypes){
 			}
 		});
 	rvds.drawBasePairs("lines");
-	});
+	});*/
 }
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1147,8 +1160,8 @@ function mouseMoveFunction(event){
 			if (event.altKey == true && event.ctrlKey == false){
 				var seleLine = getSelectedLine(event);
 				if(seleLine >=0 ){
-					var j = rvDataSets[0].BasePairs[seleLine].resIndex1;
-					var k = rvDataSets[0].BasePairs[seleLine].resIndex2;
+					var j = ActiveBasePairSet[seleLine].resIndex1;
+					var k = ActiveBasePairSet[seleLine].resIndex2;
 					rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
 					rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
 					rvDataSets[0].HighlightLayer.CanvasContext.moveTo(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y);
@@ -1203,8 +1216,8 @@ function mouseMoveFunction(event){
 			} else if ( event.ctrlKey == true && event.altKey == true) {
 				var seleLine = getSelectedLine(event);
 				if(seleLine >=0 ){
-					var j = rvDataSets[sel[1]].BasePairs[seleLine].resIndex1;
-					var k = rvDataSets[sel[1]].BasePairs[seleLine].resIndex2;
+					var j = ActiveBasePairSet[seleLine].resIndex1;
+					var k = ActiveBasePairSet[seleLine].resIndex2;
 					rvDataSets[sel[1]].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#LineColor").val());
 					rvDataSets[sel[1]].HighlightLayer.CanvasContext.beginPath();
 					rvDataSets[sel[1]].HighlightLayer.CanvasContext.moveTo(rvDataSets[sel[1]].Residues[j].X, rvDataSets[sel[1]].Residues[j].Y);
@@ -1573,8 +1586,8 @@ function handleFileSelect(event) {
 									residue_j: value.Residue_j
 								});
 							});
-							rvds.BasePairs=FullBasePairSet;
-							rvds.FullBasePairSet=FullBasePairSet;
+							//rvds.BasePairs=FullBasePairSet;
+							//rvds.FullBasePairSet=FullBasePairSet;
 							
 							targetLayer[0].DataLabel = FileReaderFile[0].name;
 							$("[name=" + targetLayer[0].LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer[0].DataLabel);
@@ -3267,8 +3280,8 @@ function drawConGraph(dobj){
 
 function addPopUpWindowLine(SeleLine){
 	
-	var j = rvDataSets[SeleLine[1]].BasePairs[SeleLine[0]].resIndex1;
-	var k = rvDataSets[SeleLine[1]].BasePairs[SeleLine[0]].resIndex2;
+	var j = ActiveBasePairSet[SeleLine[0]].resIndex1;
+	var k = ActiveBasePairSet.resIndex2;
 	
 	var targetLayer = rvDataSets[SeleLine[1]].getLayerByType("lines");
 	
