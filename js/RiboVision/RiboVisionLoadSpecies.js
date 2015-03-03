@@ -323,7 +323,7 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 				DoneLoading.resolve();
 			}
 		}
-		rvDataSets[speciesIndex].BasePairs = [];
+		//rvDataSets[speciesIndex].BasePairs = [];
 	});
 	window.location.hash = species;
 	document.getElementById("ProtList").selectedIndex = 0;

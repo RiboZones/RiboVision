@@ -37,7 +37,8 @@ var AgreeFunction = function () {};
 var drag = false;
 var ResiduePositions=[];
 var MainResidueMap=[];
-var ActiveBasePairSet;
+var ActiveBasePairSet=[];
+var InteractionLayer;
 
 
 // Website Settings
