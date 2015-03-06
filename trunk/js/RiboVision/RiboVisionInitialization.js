@@ -499,11 +499,35 @@ function RiboVisionReady() {
 		});
 	});
 	
+	$("#savePDF-btn").button().click(function(){
+		$.each(rvDataSets, function(SpeciesIndex,rvds){
+			setTimeout(function(){savePDF(SpeciesIndex)}, 3000 * SpeciesIndex);
+		});
+	});	
+	
 	$("#savePNG-btn").button().click(function(){
 		$.each(rvDataSets, function(SpeciesIndex,rvds){
-			setTimeout(function(){saveSVG(SpeciesIndex)}, 3000 * SpeciesIndex);
+			setTimeout(function(){savePNG(SpeciesIndex)}, 3000 * SpeciesIndex);
 		});
 	});
+	
+	$("#saveJPG-btn").button().click(function(){
+		$.each(rvDataSets, function(SpeciesIndex,rvds){
+			setTimeout(function(){saveJPG(SpeciesIndex)}, 3000 * SpeciesIndex);
+		});
+	});
+	
+	$("#saveJmolImg-btn").button().click(function(){
+		$.each(rvDataSets, function(SpeciesIndex,rvds){
+			setTimeout(function(){saveJmolImg(SpeciesIndex)}, 3000 * SpeciesIndex);
+		});
+	});	
+	
+	$("#savePML-btn").button().click(function(){
+		$.each(rvDataSets, function(SpeciesIndex,rvds){
+			setTimeout(function(){savePML(SpeciesIndex)}, 3000 * SpeciesIndex);
+		});
+	});	
 	
 	$("#selectByDomainHelix").multiselect().multiselectfilter();
 	
