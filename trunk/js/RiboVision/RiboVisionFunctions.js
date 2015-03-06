@@ -1895,9 +1895,9 @@ function saveNavLine() {
 		document.body.appendChild(form);
 		form.submit();
 	}
-	checkSavePrivacyStatus(SpeciesIndex);
+	checkSavePrivacyStatus();
 }
-function saveJmolImg() {
+function saveJmolImg(SpeciesIndex) {
 	AgreeFunction = function () {
 		if($('input[name="jp"][value=off]').is(':checked')){
 			return;
@@ -1915,7 +1915,7 @@ function saveJmolImg() {
 		document.body.appendChild(form);
 		form.submit();
 	}
-	checkSavePrivacyStatus(SpeciesIndex);
+	checkSavePrivacyStatus();
 }
 function retrieveRvState(filename) {
 	SaveStateFileName=filename;
@@ -2389,8 +2389,8 @@ function canvasToSVG(SpeciesIndex) {
 				case "lines":
 					output = output + '<g id="' + value.LayerName + '">\n';
 					if (value.ColorLayer === "gray_lines"){
-						for (var j = 0; j < rvDataSets[SpeciesIndex].BasePairs.length; j++) {
-							var BasePair = rvDataSets[SpeciesIndex].BasePairs[j];
+						for (var j = 0; j < value.Data.length; j++) {
+							var BasePair = value.Data[j];
 							output = output + '<line fill="none" stroke="' + BasePair.color_hex + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
 						}
 					} else if (value.ColorLayer === "manual_coloring") {
@@ -2410,20 +2410,20 @@ function canvasToSVG(SpeciesIndex) {
 						}
 						switch  (value.ColorLayer.Type){
 							case "residues" : 
-								for (var j = 0; j < rvDataSets[SpeciesIndex].BasePairs.length; j++) {
-									var BasePair = rvDataSets[SpeciesIndex].BasePairs[j];
+								for (var j = 0; j < value.Data.length; j++) {
+									var BasePair = value.Data[j];
 									output = output + '<line fill="none" stroke="' + rvDataSets[SpeciesIndex].Residues[BasePair[ChosenSide]].color + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
 								}
 								break;
 							case "circles" : 
-								for (var j = 0; j < rvDataSets[SpeciesIndex].BasePairs.length; j++) {
-									var BasePair = rvDataSets[SpeciesIndex].BasePairs[j];
+								for (var j = 0; j < value.Data.length; j++) {
+									var BasePair = value.Data[j];
 									output = output + '<line fill="none" stroke="' + value.ColorLayer.dataLayerColors[BasePair[ChosenSide]] + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
 								}
 								break;
 							case "selected" : 
-								for (var j = 0; j < rvDataSets[SpeciesIndex].BasePairs.length; j++) {
-									var BasePair = rvDataSets[SpeciesIndex].BasePairs[j];
+								for (var j = 0; j < value.Data.length; j++) {
+									var BasePair = value.Data[j];
 									if (value.ColorLayer.Data[BasePair.resIndex1] || value.ColorLayer.Data[BasePair.resIndex2]) {
 										output = output + '<line fill="none" stroke="' + BasePair.color_hex + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
 									}		
