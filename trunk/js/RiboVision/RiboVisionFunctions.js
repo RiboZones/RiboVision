@@ -1895,7 +1895,7 @@ function saveNavLine() {
 		document.body.appendChild(form);
 		form.submit();
 	}
-	checkSavePrivacyStatus();
+	checkSavePrivacyStatus(SpeciesIndex);
 }
 function saveJmolImg() {
 	AgreeFunction = function () {
@@ -1915,7 +1915,7 @@ function saveJmolImg() {
 		document.body.appendChild(form);
 		form.submit();
 	}
-	checkSavePrivacyStatus();
+	checkSavePrivacyStatus(SpeciesIndex);
 }
 function retrieveRvState(filename) {
 	SaveStateFileName=filename;
@@ -1968,7 +1968,7 @@ function storeRvState(filename){
 		};
 		$.post("storeRvState.php", data, function(d) {});
 	}
-	checkSavePrivacyStatus();
+	checkSavePrivacyStatus(SpeciesIndex);
 }
 function saveRvState(filename){
 	SaveStateFileName=filename;
@@ -2008,7 +2008,7 @@ function saveRvState(filename){
 		document.body.appendChild(form);
 		form.submit();
 	}
-	checkSavePrivacyStatus();
+	checkSavePrivacyStatus(SpeciesIndex);
 }
 function saveJPG(SpeciesIndex) {
 	AgreeFunction = function (SpeciesIndex) {
@@ -2165,7 +2165,7 @@ function savePML(SpeciesIndex) {
 		document.body.appendChild(form);
 		form.submit();
 	}
-	checkSavePrivacyStatus();
+	checkSavePrivacyStatus(SpeciesIndex);
 }
 
 function layerToPML(PDB_Obj_Names,targetLayer,SpeciesIndex) {
