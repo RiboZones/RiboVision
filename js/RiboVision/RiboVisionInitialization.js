@@ -498,6 +498,13 @@ function RiboVisionReady() {
 			setTimeout(function(){saveSVG(SpeciesIndex)}, 3000 * SpeciesIndex);
 		});
 	});
+	
+	$("#savePNG-btn").button().click(function(){
+		$.each(rvDataSets, function(SpeciesIndex,rvds){
+			setTimeout(function(){saveSVG(SpeciesIndex)}, 3000 * SpeciesIndex);
+		});
+	});
+	
 	$("#selectByDomainHelix").multiselect().multiselectfilter();
 	
 	$("#PrimaryInteractionList").multiselect({
