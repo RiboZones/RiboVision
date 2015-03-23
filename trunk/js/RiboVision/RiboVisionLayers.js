@@ -213,8 +213,9 @@ function InitLayers() {
 
 			//Update ZIndex
 			$("#LayerPanel .layerContent").each(function (e, f) {
+				var layer_this=this;
 				$.each(rvDataSets, function (index, rvds) {
-					var tl = rvds.getLayer($(this).parent().attr("name"));
+					var tl = rvds.getLayer($(layer_this).parent().attr("name"));
 					tl.updateZIndex(rvds.LastLayer - e);
 				});
 			});
