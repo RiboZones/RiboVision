@@ -1591,7 +1591,7 @@ function handleFileSelect(event) {
 							
 							targetLayer[0].DataLabel = FileReaderFile[0].name;
 							$("[name=" + targetLayer[0].LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer[0].DataLabel);
-							rvds.drawBasePairs("lines",null,true);
+							rvds.drawBasePairs("lines",null);
 						} else {
 							alert("Expected Residue_j column. Please check input.");
 						}
@@ -2010,9 +2010,9 @@ function saveRvState(filename){
 	}
 	checkSavePrivacyStatus(SpeciesIndex);
 }
-function saveJPG(SpeciesIndex) {
-	AgreeFunction = function (SpeciesIndex) {
-		var CS = canvasToSVG(SpeciesIndex);
+function saveJPG() {
+	AgreeFunction = function () {
+		var CS = canvasToSVG();
 		var form = document.createElement("form");
 		form.setAttribute("method", "post");
 		form.setAttribute("action", "saveJPG.php");
@@ -2023,19 +2023,19 @@ function saveJPG(SpeciesIndex) {
 		hiddenField.setAttribute("value", CS.SVG);
 		var hiddenField2 = document.createElement("input");
 		hiddenField2.setAttribute("type", "hidden");
-		hiddenField2.setAttribute("name", "orientation");
-		hiddenField2.setAttribute("value", CS.Orientation);
+		hiddenField2.setAttribute("name", "PaperSize");
+		hiddenField2.setAttribute("value", JSON.stringify([600/72*CS.PaperSize[0],600/72*CS.PaperSize[1]]));
 		form.appendChild(hiddenField);
 		form.appendChild(hiddenField2);
 		document.body.appendChild(form);
 		form.submit();
 	}
-	checkSavePrivacyStatus(SpeciesIndex);
+	checkSavePrivacyStatus();
 }
 
-function savePNG(SpeciesIndex) {
-	AgreeFunction = function (SpeciesIndex) {
-		var CS = canvasToSVG(SpeciesIndex);
+function savePNG() {
+	AgreeFunction = function () {
+		var CS = canvasToSVG();
 		var form = document.createElement("form");
 		form.setAttribute("method", "post");
 		form.setAttribute("action", "savePNG.php");
@@ -2046,19 +2046,19 @@ function savePNG(SpeciesIndex) {
 		hiddenField.setAttribute("value", CS.SVG);
 		var hiddenField2 = document.createElement("input");
 		hiddenField2.setAttribute("type", "hidden");
-		hiddenField2.setAttribute("name", "orientation");
-		hiddenField2.setAttribute("value", CS.Orientation);
+		hiddenField2.setAttribute("name", "PaperSize");
+		hiddenField2.setAttribute("value", JSON.stringify([600/72*CS.PaperSize[0],600/72*CS.PaperSize[1]]));
 		form.appendChild(hiddenField);
 		form.appendChild(hiddenField2);
 		document.body.appendChild(form);
 		form.submit();
 	}
-	checkSavePrivacyStatus(SpeciesIndex);
+	checkSavePrivacyStatus();
 }
 
-function saveSVG(SpeciesIndex) {
-	AgreeFunction = function (SpeciesIndex) {
-		var CS = canvasToSVG(SpeciesIndex);
+function saveSVG() {
+	AgreeFunction = function () {
+		var CS = canvasToSVG();
 		var form = document.createElement("form");
 		form.setAttribute("method", "post");
 		form.setAttribute("action", "saveSVG.php");
@@ -2071,12 +2071,12 @@ function saveSVG(SpeciesIndex) {
 		document.body.appendChild(form);
 		form.submit();
 	}
-	checkSavePrivacyStatus(SpeciesIndex);
+	checkSavePrivacyStatus();
 }
 
-function savePDF(SpeciesIndex) {
-	AgreeFunction = function (SpeciesIndex) {
-		var CS = canvasToSVG(SpeciesIndex);
+function savePDF() {
+	AgreeFunction = function () {
+		var CS = canvasToSVG();
 		var form = document.createElement("form");
 		form.setAttribute("method", "post");
 		form.setAttribute("action", "savePDF.php");
@@ -2089,7 +2089,7 @@ function savePDF(SpeciesIndex) {
 		document.body.appendChild(form);
 		form.submit();
 	}
-	checkSavePrivacyStatus(SpeciesIndex);
+	checkSavePrivacyStatus();
 }
 
 function savePML(SpeciesIndex) {
@@ -2348,194 +2348,166 @@ function selectionToPML(PDB_Obj_Names,targetSelection){
 	return script;
 }
 
-function canvasToSVG(SpeciesIndex) {
-	var SupportesLayerTypes = ["lines", "labels", "residues", "circles", "selected"];
+function canvasToSVG() {
 	var ChosenSide;
-	var Orientation;
 	var AllMode = $('input[name="savelayers"][value=all]').attr("checked");
 	var resMod = $('input[name="ptmod"][value=on]').is(':checked');
-	if(SpeciesIndex==undefined){
-		SpeciesIndex=0;
+	
+	//This section is assuming the conditions, 1) only two structures allowed max, 2) only one can be landscape.
+	//Condition 1 is active. Condition 2 will be forced soon.
+	if (!rvDataSets[1] && rvDataSets[0].SpeciesEntry.Orientation == "landscape"){
+		var paperSize=[792,612];
+	} else if (!rvDataSets[1] && rvDataSets[0].SpeciesEntry.Orientation != "landscape"){
+		var paperSize=[612,792];
+	} else {
+		if (rvDataSets[0].SpeciesEntry.Orientation == "landscape" || rvDataSets[1].SpeciesEntry.Orientation == "landscape"){
+			var paperSize=[1404,792];
+		} else {
+			var paperSize=[1224,792];
+		}
 	}
 	
-	if (rvDataSets[SpeciesIndex].SpeciesEntry.Orientation.indexOf("portrait") >= 0) {
-		var mapsize = "612 792";
-		var mapsize2 = 'width="612px" height="792px" ';
-		Orientation = "portrait";
-	} else {
-		var mapsize = "792 612";
-		var mapsize2 = 'width="792px" height="612px" ';
-		Orientation = "landscape";
-	}
+	var mapsize = paperSize[0] + " " + paperSize[1];
+	var mapsize2 = 'width="' + paperSize[0] +'" height="' + paperSize[1] + '" ';
+	
 	output = "<?xml version='1.0' encoding='UTF-8'?>\n" +
 		'<svg version="1.1" baseProfile="basic" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" ' +
 		mapsize2 + 'viewBox="0 0 ' + mapsize + '" xml:space="preserve">\n';
-	//if(rvDataSets[SpeciesIndex].Name === 'SC_LSU_3D'){;
-	var elReq = $.ajax({
-		url: "images/" + rvDataSets[SpeciesIndex].Name + "_ExtraLabels.svg",
-		dataType: "text", 
-		cache: false,
-		async: false
-	 });
+	
+	
+	$.each(rvDataSets, function (SpeciesIndex, rvds) {
+		var pageOffsetX = rvds.PageOffset[0];
+		var pageOffsetY = rvds.PageOffset[1];
+		//This will not work correctly any more, due to the two structure mode. Will need to shift these when loaded second.
+		var elReq = $.ajax({
+			url: "images/" + rvds.Name + "_ExtraLabels.svg",
+			dataType: "text", 
+			cache: false,
+			async: false
+		 });
 	 
-	elReq.done(function (data) {
-		output = output + data;
-	});
-		
-	//}
-	$.each(rvDataSets[SpeciesIndex].Layers, function (index, value) {
-		if (AllMode || value.Visible){
-			switch (value.Type) {
-				case "lines":
-					output = output + '<g id="' + value.LayerName + '">\n';
-					if (value.ColorLayer === "gray_lines"){
-						for (var j = 0; j < value.Data.length; j++) {
-							var BasePair = value.Data[j];
-							output = output + '<line fill="none" stroke="' + BasePair.color_hex + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
-						}
-					} else if (value.ColorLayer === "manual_coloring") {
-						for (var j = 0; j < rvDataSets[SpeciesIndex].BasePairs.length; j++) {
-							var BasePair = rvDataSets[SpeciesIndex].BasePairs[j];
-							output = output + '<line fill="none" stroke="' + BasePair.color_hex + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
-						}
-					} else {
-						if (value.ColorLayer.ColorGradientMode == "Matched") {
-							//var grd_order = [0, 1];
-							ChosenSide="resIndex1";
-						} else if (value.ColorLayer.ColorGradientMode == "Opposite") {
-							//var grd_order = [1, 0];
-							ChosenSide="resIndex2";
-						} else {
-							alert("how did we get here? 34");
-						}
-						switch  (value.ColorLayer.Type){
-							case "residues" : 
-								for (var j = 0; j < value.Data.length; j++) {
-									var BasePair = value.Data[j];
-									output = output + '<line fill="none" stroke="' + rvDataSets[SpeciesIndex].Residues[BasePair[ChosenSide]].color + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
-								}
-								break;
-							case "circles" : 
-								for (var j = 0; j < value.Data.length; j++) {
-									var BasePair = value.Data[j];
-									output = output + '<line fill="none" stroke="' + value.ColorLayer.dataLayerColors[BasePair[ChosenSide]] + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
-								}
-								break;
-							case "selected" : 
-								for (var j = 0; j < value.Data.length; j++) {
-									var BasePair = value.Data[j];
-									if (value.ColorLayer.Data[BasePair.resIndex1] || value.ColorLayer.Data[BasePair.resIndex2]) {
-										output = output + '<line fill="none" stroke="' + BasePair.color_hex + '" stroke-opacity="' + BasePair.opacity + '" stroke-width="' + BasePair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex1].X).toFixed(3) + '" y1="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex1].Y).toFixed(3) + '" x2="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex2].X).toFixed(3) + '" y2="' + parseFloat(rvDataSets[SpeciesIndex].Residues[BasePair.resIndex2].Y).toFixed(3) + '"/>\n';
-									}		
-								}
-								break;
-							default :
-								alert("this shouldn't be happening right now 54.");
-							
-						}
-					}
-					output = output + '</g>\n';
-					break;
-				case "contour" :
-					output = output + '<g id="' + value.LayerName + '">\n';
-					for (var j = 0; j < rvDataSets[SpeciesIndex].ContourLinePoints.length; j++) {
-						var ContourLinePoint = rvDataSets[SpeciesIndex].ContourLinePoints[j];
-						output = output + '<polyline fill="none" stroke="' + value.dataLayerColors[j] + '" stroke-opacity="' + '1' + '" stroke-width="' + '3.2' + 
-						'" stroke-linejoin="round" stroke-miterlimit="10" points="' + parseFloat(ContourLinePoint.X1).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y1).toFixed(3)
-						+ ' ' + parseFloat(ContourLinePoint.X2).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y2).toFixed(3)
-						+ ' ' + parseFloat(ContourLinePoint.X3).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y3).toFixed(3)
-						+ ' "/>\n';
-					}
-					output = output + '</g>\n';
-					break;
-				case "labels":
-					output = output + '<g id="' + value.LayerName + '_Lines">\n';
-					for (var iii = 0; iii < rvDataSets[SpeciesIndex].rvLineLabels.length; iii++) {
-						var LabelLine = rvDataSets[SpeciesIndex].rvLineLabels[iii];
-						output = output + '<line fill="none" stroke="#211E1F" stroke-width="0.25" stroke-linejoin="round" stroke-miterlimit="10" x1="' + parseFloat(LabelLine.X1).toFixed(3) + '" y1="' + parseFloat(LabelLine.Y1).toFixed(3) + '" x2="' + parseFloat(LabelLine.X2).toFixed(3) + '" y2="' + parseFloat(LabelLine.Y2).toFixed(3) + '"/>\n';
-					}
-					output = output + '</g>\n';
-					
-					output = output + '<g id="' + value.LayerName + '_Text">\n';
-					for (var ii = 0; ii < rvDataSets[SpeciesIndex].rvTextLabels.length; ii++) {
-						var LabelData = rvDataSets[SpeciesIndex].rvTextLabels[ii];
-						output = output + '<text transform="matrix(1 0 0 1 ' + parseFloat(LabelData.X).toFixed(3) + ' ' + parseFloat(LabelData.Y).toFixed(3) + ')" fill="' + LabelData.Fill + '" font-family="Myriad Pro" font-size="' + LabelData.FontSize + '">' + LabelData.LabelText + '</text>\n';
-					}
-					output = output + '</g>\n';
-					break;
-				case "residues":
-					output = output + '<g id="' + value.LayerName + '">\n';
-					var xcorr = -0.439 * parseFloat(rvDataSets[SpeciesIndex].SpeciesEntry.Font_Size_SVG) + 0.4346; // magic font corrections.
-					var ycorr = 0.2944 * parseFloat(rvDataSets[SpeciesIndex].SpeciesEntry.Font_Size_SVG) - 0.0033;
-					//console.log(xcorr,ycorr);
-					for (var i = 0; i < rvDataSets[SpeciesIndex].Residues.length; i++) {
-						var residue = rvDataSets[SpeciesIndex].Residues[i];
-						if (resMod){
-							var resName = residue.modResName;
-							if(residue.modResName == '&'){
-								resName = '&amp;';
-							}
-							if(residue.modResName == '<'){
-								resName = '&lt;';
-							}
-						} else {
-							var resName = residue.resName;
-						}
-						
-						if (rvDataSets[SpeciesIndex].Residues[i].resNum.indexOf(":") >= 0 ){
-							var ResName = rvDataSets[SpeciesIndex].Residues[i].resNum;
-						} else {
-							var ResName = rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names[rvDataSets[SpeciesIndex].SpeciesEntry.PDB_chains.indexOf(rvDataSets[SpeciesIndex].Residues[i].ChainID)] +
-							":" + rvDataSets[SpeciesIndex].Residues[i].resNum;
-						}
-						
-						
-						output = output + '<text id="' + residue.resName + "_" + ResName + '" transform="matrix(1 0 0 1 ' + (parseFloat(residue.X) + xcorr).toFixed(3) + ' ' + (parseFloat(residue.Y) + ycorr).toFixed(3) + ')" fill="' + residue.color + '" font-family="Myriad Pro" ' + 'font-weight="' + residue["font-weight"] + '" font-size="' + rvDataSets[SpeciesIndex].SpeciesEntry.Font_Size_SVG + '">' + resName + '</text>\n';
-					}
-					output = output + '</g>\n';
-					break;
-				case "circles":
-					output = output + '<g id="' + value.LayerName + '">\n';
-					var radius = rvDataSets[SpeciesIndex].SpeciesEntry.Circle_Radius * value.ScaleFactor;
-					for (var i = 0; i < rvDataSets[SpeciesIndex].Residues.length; i++) {
-						var residue = rvDataSets[SpeciesIndex].Residues[i];
-						if (residue && value.dataLayerColors[i]) {
-							if (value.Filled) {
-								output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + value.dataLayerColors[i] + '" stroke="' + value.dataLayerColors[i] + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(residue.X).toFixed(3) + '" cy="' + parseFloat(residue.Y).toFixed(3) + '" r="' + radius + '"/>\n';
-							} else {
-								output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + 'none' + '" stroke="' + value.dataLayerColors[i] + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(residue.X).toFixed(3) + '" cy="' + parseFloat(residue.Y).toFixed(3) + '" r="' + radius + '"/>\n';
-							}
-						}
-					}
-					output = output + '</g>\n';
-					break;
-				case "selected":
-					output = output + '<g id="' + value.LayerName + '">\n';
-					var radius = rvDataSets[SpeciesIndex].SpeciesEntry.Circle_Radius * value.ScaleFactor;
-					
-					var SelectionList =[];
-					$('.checkBoxDIV-S').find(".visibilityCheckImg[value=visible]").parent().parent().each(function (index){SelectionList.push($(this).attr("name"))});
-
-					$.each(SelectionList, function (index,SelectionName) {
-						var targetSelection = rvDataSets[SpeciesIndex].getSelection(SelectionName);
-						output = output + '<g id="' + targetSelection.Name + '">\n';
-						$.each(targetSelection.Residues, function (index,residue){
-							output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + 'none' + '" stroke="' + targetSelection.Color + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + parseFloat(residue.X).toFixed(3) + '" cy="' + parseFloat(residue.Y).toFixed(3) + '" r="' + radius + '"/>\n';
+		elReq.done(function (data) {
+			output = output + data;
+		});
+		output += '<g id="Structure_' + (SpeciesIndex + 1) + '">\n';
+		$.each(rvds.Layers, function (index, value) {
+			if (AllMode || value.Visible){
+				switch (value.Type) {
+					case "lines":
+						output += '<g id="' + value.LayerName + '">\n';
+						$.each(value.Data, function(index,base_pair){
+							var residue_i = MainResidueMap[base_pair.residue_i];
+							var residue_j = MainResidueMap[base_pair.residue_j];
+							output = output + '<line fill="none" stroke="' + base_pair.color_hex + '" stroke-opacity="' + base_pair.opacity + '" stroke-width="' + base_pair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + residue_i.X.toFixed(3) + '" y1="' + residue_i.Y.toFixed(3) + '" x2="' + residue_j.X.toFixed(3) + '" y2="' + residue_j.Y.toFixed(3) + '"/>\n';
 						});
 						output = output + '</g>\n';
-					});
-					output = output + '</g>\n';
-					break;
-					
-				default:
-					break;
+						break;
+					case "contour" :
+						output = output + '<g id="' + value.LayerName + '">\n';
+						for (var j = 0; j < rvds.ContourLinePoints.length; j++) {
+							var ContourLinePoint = rvds.ContourLinePoints[j];
+							output = output + '<polyline fill="none" stroke="' + value.dataLayerColors[j] + '" stroke-opacity="' + '1' + '" stroke-width="' + '3.2' + 
+							'" stroke-linejoin="round" stroke-miterlimit="10" points="' + parseFloat(ContourLinePoint.X1).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y1).toFixed(3)
+							+ ' ' + parseFloat(ContourLinePoint.X2).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y2).toFixed(3)
+							+ ' ' + parseFloat(ContourLinePoint.X3).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y3).toFixed(3)
+							+ ' "/>\n';
+						}
+						output = output + '</g>\n';
+						break;
+					case "labels":
+						output = output + '<g id="' + value.LayerName + '_Lines">\n';
+						for (var iii = 0; iii < rvds.rvLineLabels.length; iii++) {
+							var LabelLine = rvds.rvLineLabels[iii];
+							output = output + '<line fill="none" stroke="#211E1F" stroke-width="0.25" stroke-linejoin="round" stroke-miterlimit="10" x1="' + (parseFloat(LabelLine.X1) + pageOffsetX).toFixed(3) + '" y1="' + (parseFloat(LabelLine.Y1) + pageOffsetY).toFixed(3) + '" x2="' + (parseFloat(LabelLine.X2) + pageOffsetX).toFixed(3) + '" y2="' + (parseFloat(LabelLine.Y2) + pageOffsetY).toFixed(3) + '"/>\n';
+						}
+						output = output + '</g>\n';
+						
+						output = output + '<g id="' + value.LayerName + '_Text">\n';
+						for (var ii = 0; ii < rvds.rvTextLabels.length; ii++) {
+							var LabelData = rvds.rvTextLabels[ii];
+							output = output + '<text transform="matrix(1 0 0 1 ' + (parseFloat(LabelData.X) + pageOffsetX).toFixed(3) + ' ' + (parseFloat(LabelData.Y) + pageOffsetY).toFixed(3) + ')" fill="' + LabelData.Fill + '" font-family="Myriad Pro" font-size="' + LabelData.FontSize + '">' + LabelData.LabelText + '</text>\n';
+						}
+						output = output + '</g>\n';
+						break;
+					case "residues":
+						output = output + '<g id="' + value.LayerName + '">\n';
+						var xcorr = -0.439 * parseFloat(rvds.SpeciesEntry.Font_Size_SVG) + 0.4346; // magic font corrections.
+						var ycorr = 0.2944 * parseFloat(rvds.SpeciesEntry.Font_Size_SVG) - 0.0033;
+						
+						// Add PageOffset to corrections for convenience
+						xcorr += pageOffsetX;
+						ycorr += pageOffsetY;
+						
+						//console.log(xcorr,ycorr);
+						for (var i = 0; i < rvds.Residues.length; i++) {
+							var residue = rvds.Residues[i];
+							if (resMod){
+								var resName = residue.modResName;
+								if(residue.modResName == '&'){
+									resName = '&amp;';
+								}
+								if(residue.modResName == '<'){
+									resName = '&lt;';
+								}
+							} else {
+								var resName = residue.resName;
+							}
+							
+							if (rvds.Residues[i].resNum.indexOf(":") >= 0 ){
+								var ResName = rvds.Residues[i].resNum;
+							} else {
+								var ResName = rvds.SpeciesEntry.Molecule_Names[rvds.SpeciesEntry.PDB_chains.indexOf(rvds.Residues[i].ChainID)] +
+								":" + rvds.Residues[i].resNum;
+							}
+							
+							
+							output = output + '<text id="' + residue.resName + "_" + ResName + '" transform="matrix(1 0 0 1 ' + (parseFloat(residue.X) + xcorr).toFixed(3) + ' ' + (parseFloat(residue.Y) + ycorr).toFixed(3) + ')" fill="' + residue.color + '" font-family="Myriad Pro" ' + 'font-weight="' + residue["font-weight"] + '" font-size="' + rvds.SpeciesEntry.Font_Size_SVG + '">' + resName + '</text>\n';
+						}
+						output = output + '</g>\n';
+						break;
+					case "circles":
+						output = output + '<g id="' + value.LayerName + '">\n';
+						var radius = rvds.SpeciesEntry.Circle_Radius * value.ScaleFactor;
+						for (var i = 0; i < rvds.Residues.length; i++) {
+							var residue = rvds.Residues[i];
+							if (residue && value.dataLayerColors[i]) {
+								if (value.Filled) {
+									output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + value.dataLayerColors[i] + '" stroke="' + value.dataLayerColors[i] + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + (parseFloat(residue.X) + pageOffsetX).toFixed(3) + '" cy="' + (parseFloat(residue.Y).toFixed(3)+ pageOffsetY) + '" r="' + radius + '"/>\n';
+								} else {
+									output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + 'none' + '" stroke="' + value.dataLayerColors[i] + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + (parseFloat(residue.X) + pageOffsetX).toFixed(3) + '" cy="' + (parseFloat(residue.Y) + pageOffsetY).toFixed(3) + '" r="' + radius + '"/>\n';
+								}
+							}
+						}
+						output = output + '</g>\n';
+						break;
+					case "selected":
+						output = output + '<g id="' + value.LayerName + '">\n';
+						var radius = rvds.SpeciesEntry.Circle_Radius * value.ScaleFactor;
+						
+						var SelectionList =[];
+						$('.checkBoxDIV-S').find(".visibilityCheckImg[value=visible]").parent().parent().each(function (index){SelectionList.push($(this).attr("name"))});
+
+						$.each(SelectionList, function (index,SelectionName) {
+							var targetSelection = rvds.getSelection(SelectionName);
+							output = output + '<g id="' + targetSelection.Name + '">\n';
+							$.each(targetSelection.Residues, function (index,residue){
+								output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + 'none' + '" stroke="' + targetSelection.Color + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + (parseFloat(residue.X) + pageOffsetX).toFixed(3) + '" cy="' + (parseFloat(residue.Y) + pageOffsetY).toFixed(3) + '" r="' + radius + '"/>\n';
+							});
+							output = output + '</g>\n';
+						});
+						output = output + '</g>\n';
+						break;
+						
+					default:
+						break;
+				}
 			}
-		}
+		});
+		output = output + '</g>\n';
 	});
-	
 	output = output + watermark(true);
 	output = output + '</svg>';
-	return { 'SVG': output, "Orientation" : Orientation };
+	return { 'SVG': output, "PaperSize" : paperSize };
 }
 function computeSeqTable(SpeciesIndex){
 	var WholeSet="";
@@ -2909,28 +2881,31 @@ function populateDomainHelixMenu(speciesIndex) {
 ////////////////////////////////// Canvas Functions ///////////////////////////
 function watermark(usetime) {
 	if (rvDataSets[0].SpeciesEntry.MapType && rvDataSets[0].SpeciesEntry.MapType != "None") {
-		var h = (rvDataSets[0].SpeciesEntry.Orientation == "portrait") ? 779 : 612;
-		var d = new Date();
-		var df;
-		
-		var x = 10;
-		var y = h - 20;
-		var Message = "A " + rvDataSets[0].SpeciesEntry.MapType + " secondary structure, generated by RiboVision.";
-		var df = d.toLocaleString().indexOf("G");
-		var LabelLayers = rvDataSets[0].getLayerByType("labels");
-		var targetLayer = LabelLayers[0];
-		targetLayer.CanvasContext.textAlign = 'left';
-		targetLayer.CanvasContext.font = '10pt "Myriad Pro", Calibri, Arial';
-		targetLayer.CanvasContext.fillStyle = "#FF5500";
-		targetLayer.CanvasContext.fillText(Message, x, y);
-		
-		var output = '<g id="g_WaterMark">\n';
-		output = output + '<text id="WaterMark" transform="matrix(1 0 0 1 ' + (parseFloat(x) - 1.262).toFixed(3) + ' ' + (parseFloat(y) + 1.145).toFixed(3) + ')" fill="#f6a828" font-family="Myriad Pro" font-size="10">' + Message + '</text>\n';
-		if (usetime) {
-			targetLayer.CanvasContext.fillText("Saved on " + d.toLocaleString().slice(0, df - 1), x + 75, y + 15);
-			output = output + '<text id="Date" transform="matrix(1 0 0 1 ' + (parseFloat(x) - 1.262 + 75).toFixed(3) + ' ' + (parseFloat(y) + 15 + 1.145).toFixed(3) + ')" fill="#f6a828" font-family="Myriad Pro" font-size="8">' + "Saved on " + d.toLocaleString().slice(0, df - 1) + '</text>\n';
-		}
-		output = output + '</g>\n';
+		var output='';
+		$.each(rvDataSets, function (index,rvds){
+			var h = (rvds.SpeciesEntry.Orientation == "portrait") ? 779 : 612;
+			var d = new Date();
+			var df;
+			
+			var x = 10 + rvds.PageOffset[0];
+			var y = h - 20;
+			var Message = "A " + rvds.SpeciesEntry.MapType + " secondary structure, generated by RiboVision.";
+			var df = d.toLocaleString().indexOf("G");
+			var LabelLayers = rvds.getLayerByType("labels");
+			var targetLayer = LabelLayers[0];
+			targetLayer.CanvasContext.textAlign = 'left';
+			targetLayer.CanvasContext.font = '10pt "Myriad Pro", Calibri, Arial';
+			targetLayer.CanvasContext.fillStyle = "#FF5500";
+			targetLayer.CanvasContext.fillText(Message, x, y);
+			
+			output += '<g id="g_WaterMark_' + (index + 1) + '">\n';
+			output += '<text id="WaterMark" transform="matrix(1 0 0 1 ' + (parseFloat(x) - 1.262).toFixed(3) + ' ' + (parseFloat(y) + 1.145).toFixed(3) + ')" fill="#f6a828" font-family="Myriad Pro" font-size="10">' + Message + '</text>\n';
+			if (usetime) {
+				targetLayer.CanvasContext.fillText("Saved on " + d.toLocaleString().slice(0, df - 1), x + 75, y + 15);
+				output += '<text id="Date" transform="matrix(1 0 0 1 ' + (parseFloat(x) - 1.262 + 75).toFixed(3) + ' ' + (parseFloat(y) + 15 + 1.145).toFixed(3) + ')" fill="#f6a828" font-family="Myriad Pro" font-size="8">' + "Saved on " + d.toLocaleString().slice(0, df - 1) + '</text>\n';
+			}
+			output += '</g>\n';
+		});
 		return output;
 	}
 }
@@ -3280,33 +3255,36 @@ function drawConGraph(dobj){
 
 function addPopUpWindowLine(SeleLine){
 	
-	var j = ActiveBasePairSet[SeleLine[0]].resIndex1;
-	var k = ActiveBasePairSet.resIndex2;
+	var j = ActiveBasePairSet[SeleLine].residue_i;
+	var k = ActiveBasePairSet[SeleLine].residue_j;
 	
-	var targetLayer = rvDataSets[SeleLine[1]].getLayerByType("lines");
+	var residue_j = MainResidueMap[j];
+	var residue_k = MainResidueMap[k];
 	
-	if (rvDataSets[SeleLine[1]].Residues[j].resNum.indexOf(":") >= 0 ){
-		var ResName1 = rvDataSets[SeleLine[1]].Residues[j].resNum;
+	var targetLayer = rvDataSets[0].getLayerByType("lines");
+	
+	/* if (residue_j.resNum.indexOf(":") >= 0 ){
+		var ResName1 = residue_j.resNum;
 	} else {
-		var ResName1 = rvDataSets[SeleLine[1]].SpeciesEntry.Molecule_Names[rvDataSets[SeleLine[1]].SpeciesEntry.PDB_chains.indexOf(rvDataSets[SeleLine[1]].Residues[j].ChainID)] +
-		":" + rvDataSets[SeleLine[1]].Residues[j].resNum;
+		// var ResName1 = rvDataSets[SeleLine[1]].SpeciesEntry.Molecule_Names[rvDataSets[SeleLine[1]].SpeciesEntry.PDB_chains.indexOf(rvDataSets[SeleLine[1]].Residues[j].ChainID)] +
+		// ":" + rvDataSets[SeleLine[1]].Residues[j].resNum;
 	}
-	if (rvDataSets[SeleLine[1]].Residues[k].resNum.indexOf(":") >= 0 ){
-		var ResName2 = rvDataSets[SeleLine[1]].Residues[k].resNum;
+	if (residue_k.resNum.indexOf(":") >= 0 ){
+		var ResName2 = residue_j.resNum;
 	} else {
-		var ResName2 = rvDataSets[SeleLine[1]].SpeciesEntry.Molecule_Names[rvDataSets[SeleLine[1]].SpeciesEntry.PDB_chains.indexOf(rvDataSets[SeleLine[1]].Residues[k].ChainID)] +
-		":" + rvDataSets[SeleLine[1]].Residues[k].resNum;
-	}
+		//var ResName2 = rvDataSets[SeleLine[1]].SpeciesEntry.Molecule_Names[rvDataSets[SeleLine[1]].SpeciesEntry.PDB_chains.indexOf(rvDataSets[SeleLine[1]].Residues[k].ChainID)] +
+		//":" + rvDataSets[SeleLine[1]].Residues[k].resNum;
+	} */
 	$('#BasePairType').html("Interaction Type: " +  targetLayer[0].DataLabel);
-	if (rvDataSets[SeleLine[1]].BasePairs[SeleLine].ProteinName){
-		$('#BasePairSubType').html("Interaction Subtype: " + rvDataSets[SeleLine[1]].BasePairs[SeleLine].ProteinName + " " + rvDataSets[SeleLine[1]].BasePairs[SeleLine].bp_type);
+	if (ActiveBasePairSet[SeleLine].ProteinName){
+		$('#BasePairSubType').html("Interaction Subtype: " + ActiveBasePairSet[SeleLine].ProteinName + " " + ActiveBasePairSet[SeleLine].bp_type);
 	} else {
-		$('#BasePairSubType').html("Interaction Subtype: " + rvDataSets[SeleLine[1]].BasePairs[SeleLine].bp_type);
+		$('#BasePairSubType').html("Interaction Subtype: " + ActiveBasePairSet[SeleLine].bp_type);
 	}
 	
-	addPopUpWindowResidue([j,SeleLine[1]]);
+	addPopUpWindowResidue([residue_j.index,residue_j.rvds_index]);
 	$("#iResidueTipA").html($("#residuetip").find("#ResidueTipContent").html());
-	addPopUpWindowResidue([k,SeleLine[1]]);
+	addPopUpWindowResidue([residue_k.index,residue_k.rvds_index]);
 	$("#iResidueTipB").html($("#residuetip").find("#ResidueTipContent").html());
 }
 //////////End of navline functions////

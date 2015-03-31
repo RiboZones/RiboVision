@@ -135,6 +135,7 @@ function loadSpecies(species,DoneLoading,DoneLoading2) {
 
 						MainResidueMap[uResName]={};
 						MainResidueMap[uResName].index=i;
+						MainResidueMap[uResName].rvds_index=speciesIndex;
 						MainResidueMap[uResName].X=parseFloat(ResiduePositions[speciesIndex][i]["X"]);
 						MainResidueMap[uResName].Y=parseFloat(ResiduePositions[speciesIndex][i]["Y"]);
 						

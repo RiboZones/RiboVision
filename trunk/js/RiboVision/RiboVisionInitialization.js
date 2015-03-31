@@ -494,27 +494,31 @@ function RiboVisionReady() {
 	});
 	
 	$("#saveSVG-btn").button().click(function(){
-		$.each(rvDataSets, function(SpeciesIndex,rvds){
-			setTimeout(function(){saveSVG(SpeciesIndex)}, 3000 * SpeciesIndex);
-		});
+		saveSVG();
+		//$.each(rvDataSets, function(SpeciesIndex,rvds){
+		//	setTimeout(function(){saveSVG(SpeciesIndex)}, 3000 * SpeciesIndex);
+		//});
 	});
 	
 	$("#savePDF-btn").button().click(function(){
-		$.each(rvDataSets, function(SpeciesIndex,rvds){
-			setTimeout(function(){savePDF(SpeciesIndex)}, 3000 * SpeciesIndex);
-		});
+		savePDF();
+		//$.each(rvDataSets, function(SpeciesIndex,rvds){
+		//	setTimeout(function(){savePDF(SpeciesIndex)}, 3000 * SpeciesIndex);
+		//});
 	});	
 	
 	$("#savePNG-btn").button().click(function(){
-		$.each(rvDataSets, function(SpeciesIndex,rvds){
-			setTimeout(function(){savePNG(SpeciesIndex)}, 3000 * SpeciesIndex);
-		});
+		savePNG();
+		//$.each(rvDataSets, function(SpeciesIndex,rvds){
+		//	setTimeout(function(){savePNG(SpeciesIndex)}, 3000 * SpeciesIndex);
+		//});
 	});
 	
 	$("#saveJPG-btn").button().click(function(){
-		$.each(rvDataSets, function(SpeciesIndex,rvds){
-			setTimeout(function(){saveJPG(SpeciesIndex)}, 3000 * SpeciesIndex);
-		});
+		saveJPG();
+		//$.each(rvDataSets, function(SpeciesIndex,rvds){
+		//	setTimeout(function(){saveJPG(SpeciesIndex)}, 3000 * SpeciesIndex);
+		//});
 	});
 	
 	$("#saveJmolImg-btn").button().click(function(){
