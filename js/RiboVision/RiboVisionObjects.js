@@ -484,19 +484,19 @@ function rvDataSet(DataSetName,SetNumber) {
 			});
 		}
 	};
-	this.drawBasePairs = function (layer, colorLayer,newmode) {
+	this.drawBasePairs = function (layer, colorLayer) {
 		var rvds = this;
 		var ind = $.inArray(layer, this.LayerTypes);
 		if (ind >= 0) {
 			$.each(this.Layers, function (key, value) {
 				if (value.Type === layer) {
-					drawBasePairs.call(rvds,value, colorLayer,newmode);
+					drawBasePairs.call(rvds,value, colorLayer);
 				}
 			});
 		} else {
 			$.each(this.Layers, function (key, value) {
 				if (value.LayerName === layer) {
-					drawBasePairs.call(rvds,value, colorLayer,newmode);
+					drawBasePairs.call(rvds,value, colorLayer);
 				}
 			});
 		}
@@ -925,7 +925,7 @@ function rvDataSet(DataSetName,SetNumber) {
 		}
 	};
 
-	function drawBasePairs2(targetLayer, colorLayer){
+	function drawBasePairs(targetLayer, colorLayer){
 		//alert("now mode");
 		var rvds = this;
 		var color1,color2;
@@ -993,26 +993,9 @@ function rvDataSet(DataSetName,SetNumber) {
 						case "residues":
 							var grd = colorLayer.CanvasContext.createLinearGradient(residue_i.X, residue_i.Y, residue_j.X, residue_j.Y);
 							
-							if (residue_i.color && residue_j.color) {
-								color1 = colorNameToHex(residue_i);
-								color2 = colorNameToHex(residue_j);
-								
-								grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + "," + base_pair.opacity + ")");
-								grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + "," + base_pair.opacity + ")");
-							} else {
-								color1='#231F20';
-							}
-							//colorLayer.addLinearGradient(grd);
-							base_pair.color = grd;
-							base_pair.color_hex = color1;
-							break;
-						case "contour":
-						case "circles":
-							var grd = colorLayer.CanvasContext.createLinearGradient(residue_i.X, residue_i.Y, residue_j.X, residue_j.Y);
-							//This will be broken for now, because of j,k indices
-							if (colorLayer.dataLayerColors[j] && colorLayer.dataLayerColors[k]) {
-								color1 = colorNameToHex(colorLayer.dataLayerColors[j]);
-								color2 = colorNameToHex(colorLayer.dataLayerColors[k]);
+							if (rvDataSets[residue_i.rvds_index].Residues[residue_i.index].color && rvDataSets[residue_j.rvds_index].Residues[residue_j.index].color) {
+								color1 = colorNameToHex(rvDataSets[residue_i.rvds_index].Residues[residue_i.index].color);
+								color2 = colorNameToHex(rvDataSets[residue_j.rvds_index].Residues[residue_j.index].color);
 								
 								grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + "," + base_pair.opacity + ")");
 								grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + "," + base_pair.opacity + ")");
@@ -1024,15 +1007,16 @@ function rvDataSet(DataSetName,SetNumber) {
 							base_pair.color_hex = color1;
 							break;
 						case "selected":
+						case "contour":
+						case "circles":
 							var grd = colorLayer.CanvasContext.createLinearGradient(residue_i.X, residue_i.Y, residue_j.X, residue_j.Y);
 							//This will be broken for now, because of j,k indices
-							if (colorLayer.Data[j] || colorLayer.Data[k]) {
-								color1 = colorNameToHex(colorLayer.dataLayerColors[j]);
-								color2 = colorNameToHex(colorLayer.dataLayerColors[k]);
-								//color1 = colorNameToHex("#231F20");
-								//color2 = colorNameToHex("#231F20");
-								grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + "," + base_pair.Data[i].opacity + ")");
-								grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + "," + base_pair.Data[i].opacity + ")");
+							if (rvDataSets[residue_i.rvds_index].Layers[colorLayer.zIndex].dataLayerColors[residue_i.index] && rvDataSets[residue_j.rvds_index].Layers[colorLayer.zIndex].dataLayerColors[residue_j.index]) {
+								color1 = colorNameToHex(rvDataSets[residue_i.rvds_index].Layers[colorLayer.zIndex].dataLayerColors[residue_i.index]);
+								color2 = colorNameToHex(rvDataSets[residue_j.rvds_index].Layers[colorLayer.zIndex].dataLayerColors[residue_j.index]);
+								
+								grd.addColorStop(grd_order[0], "rgba(" + h2d(color1.slice(1, 3)) + "," + h2d(color1.slice(3, 5)) + "," + h2d(color1.slice(5)) + "," + base_pair.opacity + ")");
+								grd.addColorStop(grd_order[1], "rgba(" + h2d(color2.slice(1, 3)) + "," + h2d(color2.slice(3, 5)) + "," + h2d(color2.slice(5)) + "," + base_pair.opacity + ")");
 							} else {
 								color1='#231F20';
 							}
@@ -1077,7 +1061,7 @@ function rvDataSet(DataSetName,SetNumber) {
 		}
 		ActiveBasePairSet=targetLayer.Data;
 	}
-	function drawBasePairs(targetLayer, colorLayer,newmode) {
+	/* function drawBasePairs(targetLayer, colorLayer,newmode) {
 		if(true){
 		//if(newmode){
 			drawBasePairs2.call(this,targetLayer, colorLayer);
@@ -1228,7 +1212,7 @@ function rvDataSet(DataSetName,SetNumber) {
 			}
 		}
 		this.BasePairs=targetLayer.Data;
-	}
+	} */
 };
 
 function rvView(x, y, scale) {
