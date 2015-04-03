@@ -102,7 +102,7 @@ function resizeElements(noDraw) {
 		$("#topMenu").show();
 		$("#topMenu").outerHeight(TopDivide * height);
 		$("#topMenu").css('width', width - xcorr - toolBarWidth);
-		var ycorr = $("#topMenu").outerHeight();
+		//var ycorr = $("#topMenu").outerHeight();
 	} else {
 		$("#topMenu").hide();
 		$("#topMenu").outerHeight(0);
@@ -195,6 +195,9 @@ function resizeElements(noDraw) {
 		rvViews[0].height = rvDataSets[0].HighlightLayer.Canvas.height;
 		rvViews[0].clientWidth = rvDataSets[0].HighlightLayer.Canvas.clientWidth;
 		rvViews[0].clientHeight = rvDataSets[0].HighlightLayer.Canvas.clientHeight;
+		rvViews[0].windowHeight=height;
+		rvViews[0].xcorr=xcorr;
+		rvViews[0].ycorr=ycorr;
 		if (noDraw!==true){
 			$.each(rvDataSets, function (index, value) {
 				value.refreshCanvases();
@@ -221,9 +224,9 @@ function dragHandle(event) {
 }
 
 function getSelectedLine(event){
-	var nx = (event.clientX - rvViews[0].x - $("#menu").width()) / rvViews[0].scale; //subtract 250 for the menu width
-	var ny = (event.clientY - rvViews[0].y - $("#topMenu").height()) / rvViews[0].scale; //subtract 80 for the info height
-	var zoomEnabled = $('input[name="za"][value=on]').is(':checked');
+	var nx = (event.clientX - rvViews[0].x - rvViews[0].xcorr + 2) / rvViews[0].scale; //subtract 250 for the menu width
+	var ny = (event.clientY - rvViews[0].y - rvViews[0].ycorr + 2) / rvViews[0].scale; //subtract 80 for the info height
+	//var zoomEnabled = $('input[name="za"][value=on]').is(':checked');
 	if(ActiveBasePairSet != undefined){
 		for (var i = 0; i < ActiveBasePairSet.length; i++) {
 			//var j = rvDataSets[0].BasePairs[i].resIndex1;
@@ -254,8 +257,8 @@ function getSelectedLine(event){
 }
 
 function getSelected(event) {
-	var nx = (event.clientX - rvViews[0].x - $("#menu").width()) / rvViews[0].scale; //subtract 250 for the menu width
-	var ny = (event.clientY - rvViews[0].y - $("#topMenu").height()) / rvViews[0].scale; //subtract 80 for the info height
+	var nx = (event.clientX - rvViews[0].x - rvViews[0].xcorr + 2) / rvViews[0].scale; //subtract 250 for the menu width
+	var ny = (event.clientY - rvViews[0].y - rvViews[0].ycorr + 2) / rvViews[0].scale; //subtract 80 for the info height
 	
 	if (ResiduePositions[0] != undefined) {
 		for (var j = 0; j < rvDataSets.length; j++){
@@ -1143,6 +1146,7 @@ function mouseEventFunction(event) {
 }
 
 function mouseMoveFunction(event){
+	mouseMoveFunction.count = mouseMoveFunction.count || 1 // mouseMoveFunction.count is undefined at first 
 	rvDataSets[0].HighlightLayer.clearCanvas();
 	$("#ResidueTip").tooltip("close");
 	$("#InteractionTip").tooltip("close");
@@ -1168,11 +1172,15 @@ function mouseMoveFunction(event){
 					rvDataSets[0].HighlightLayer.CanvasContext.lineTo(rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
 					rvDataSets[0].HighlightLayer.CanvasContext.closePath();
 					rvDataSets[0].HighlightLayer.CanvasContext.stroke();
-					if($('input[name="rt"][value=on]').is(':checked')){
-						createInfoWindow(seleLine,"lines");
-						$("#InteractionTip").css("bottom",$(window).height() - event.clientY);
-						$("#InteractionTip").css("left",event.clientX);
-						$("#InteractionTip").tooltip("open");
+					if(isRTon){
+						if(typeof movewaitL != 'undefined'){
+							clearTimeout(movewaitL);
+						}
+						movewaitL = setTimeout(function(){
+							createInfoWindow(seleLine,"lines");
+							$("#InteractionTip").css("bottom",rvViews[0].windowHeight - event.clientY);
+							$("#InteractionTip").css("left",event.clientX);
+							$("#InteractionTip").tooltip("open");},300);
 					}
 				}	
 			} else if (event.ctrlKey == true && event.altKey == false) {
@@ -1224,11 +1232,15 @@ function mouseMoveFunction(event){
 					rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineTo(rvDataSets[sel[1]].Residues[k].X, rvDataSets[sel[1]].Residues[k].Y);
 					rvDataSets[sel[1]].HighlightLayer.CanvasContext.closePath();
 					rvDataSets[sel[1]].HighlightLayer.CanvasContext.stroke();
-					if($('input[name="rt"][value=on]').is(':checked')){
-						createInfoWindow(seleLine,"lines");
-						$("#InteractionTip").css("bottom",$(window).height() - event.clientY);
-						$("#InteractionTip").css("left",event.clientX);
-						$("#InteractionTip").tooltip("open");
+					if(isRTon){
+						if(typeof movewaitL != 'undefined'){
+							clearTimeout(movewaitL);
+						}
+						movewaitL = setTimeout(function(){
+							createInfoWindow(seleLine,"lines");
+							$("#InteractionTip").css("bottom",rvViews[0].windowHeight - event.clientY);
+							$("#InteractionTip").css("left",event.clientX);
+							$("#InteractionTip").tooltip("open");},300);
 					}
 				}	
 			} else {
@@ -1240,11 +1252,16 @@ function mouseMoveFunction(event){
 					rvDataSets[sel[1]].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
 					rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineWidth=rvDataSets[sel[1]].SpeciesEntry.Circle_Radius/1.7;
 					rvDataSets[sel[1]].HighlightLayer.CanvasContext.stroke();
-					if($('input[name="rt"][value=on]').is(':checked')){
-						createInfoWindow(sel,"residue");
-						$("#ResidueTip").css("bottom",$(window).height() - event.clientY);
-						$("#ResidueTip").css("left",event.clientX);
-						$("#ResidueTip").tooltip("open");
+					if(isRTon){
+						if(typeof movewait != 'undefined'){
+							clearTimeout(movewait);
+						}
+						movewait = setTimeout(function(){
+							createInfoWindow(sel,"residue");
+							$("#ResidueTip").css("bottom",rvViews[0].windowHeight - event.clientY);
+							$("#ResidueTip").css("left",event.clientX);
+							console.log(mouseMoveFunction.count++);
+							$("#ResidueTip").tooltip("open");},100);
 					}
 				}
 			}

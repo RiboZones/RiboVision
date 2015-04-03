@@ -679,6 +679,7 @@ function RiboVisionReady() {
 	$("#zaOFF").attr("checked","checked");
 	$("#ZAset").buttonset();
 	$("[name=za]").button().change(function(event,ui){
+		zoomEnabled=$('input[name="za"][value=on]').is(':checked');
 		rvDataSets[0].drawBasePairs("lines");
 	});
 
@@ -694,6 +695,9 @@ function RiboVisionReady() {
 	$("#ResidueTipToggle").buttonset();
 	$("#rtON").attr("checked","checked");
 	$("#ResidueTipToggle").buttonset("refresh");
+	$("[name=rt]").button().change(function(event,ui){
+		isRTon=$('input[name="rt"][value=on]').is(':checked');
+	});
 	
 	$("#NavLineToggle").buttonset();
 	$("#nlON").attr("checked","checked");

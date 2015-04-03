@@ -50,6 +50,8 @@ var PanelDivide = 0.5; //needs restoration
 var TopDivide = 0.215; //needs restoration
 var OpenStateOnLoad = false;
 var UserName = "Guest";
+var isRTon=true;
+var zoomEnabled=false;
 
 // Color Palettes, need to be consolidated
 var OnionColors = ["#000000", "#ff0000", "#008000", "#0000ff", "#800080", "#ff8c00", "#ff8c00", "#ff8c00", "#ff8c00"];
