@@ -1232,11 +1232,14 @@ function rvView(x, y, scale) {
 	this.defaultScale = 1;
 	this.defaultX = 0;
 	this.defaultY = 0;
+	this.windowHeight=0;
+	this.xcorr=0;
+	this.ycorr=0;
 	
 	//Methods
 	this.zoom = function (event, delta) {
 		if (($("#slider").slider("value") + delta) <= $("#slider").slider("option", "max") & ($("#slider").slider("value") + delta) >= $("#slider").slider("option", "min")) {
-			this.zoomDelta(event.clientX - $("#menu").outerWidth(), event.clientY - $("#topMenu").outerHeight(), Math.pow(1.1, delta));
+			this.zoomDelta(event.clientX - this.xcorr, event.clientY - this.ycorr, Math.pow(1.1, delta));
 			$("#slider").slider("value", $("#slider").slider("value") + delta);
 			this.slideValue = $("#slider").slider("value") + delta;
 		}
@@ -1283,7 +1286,7 @@ function rvView(x, y, scale) {
 		var targetSelection=rvDataSets[0].getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
 		//rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#ff0000";
 		rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = targetSelection.Color;
-		rvDataSets[0].HighlightLayer.CanvasContext.strokeRect(this.startX, this.startY, (event.clientX - $("#menu").outerWidth() - this.x) / this.scale - this.startX, (event.clientY - $("#topMenu").outerHeight() - this.y) / this.scale - this.startY);
+		rvDataSets[0].HighlightLayer.CanvasContext.strokeRect(this.startX, this.startY, (event.clientX - this.xcorr - this.x) / this.scale - this.startX, (event.clientY - this.ycorr - this.y) / this.scale - this.startY);
 	}
 	this.restore = function () {
 		$("#slider").slider("value",this.slideValue);
