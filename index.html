@@ -66,7 +66,7 @@
 <body>
     <div id="menu" class="ui-widget-content">
         <div id="SiteInfo" class="ui-widget-content">
-            <h3 class="ui-widget-header2"><a href="./ChangeLog.txt" target="_blank" style="color:#FFF">RiboVision: Version 1.1.9.5</a></h3>
+            <h3 class="ui-widget-header2"><a href="./ChangeLog.txt" target="_blank" style="color:#FFF">RiboVision: Version 1.1.9.6</a></h3>
             <div id="MainLogoDiv"><a href="./Documentation/index.html" target="_blank"><img src="images/RiboVisionLogo.png" id="MainLogo" title="RiboVision Manual" alt="RiboVision Logo" /></a></div>
         Click for RiboVision Manual
 		</div>
@@ -77,15 +77,19 @@
             <div id="SideBarAccordian">
                 <h3><a href="#">Species/Subunit</a></h3>
                 <div id="SpeciesDiv" style="padding:0.1em">
+					Molecule Position:
 					<div id="SubUnitNumberToggle">
 						<input id="LoadSubunit1" type="radio" name="LoadSubunit" value="on" /><label for="LoadSubunit1">1st</label>
 						<input id="LoadSubunit2" type="radio" name="LoadSubunit" value="off" /><label for="LoadSubunit2">2nd</label>
 					</div>
-		
+					Built-In Structures:
 					<ul id="speciesList" style="font-size:0.9em">
                         <li class="ui-menu-item ios-menu-back-link" role="menu">No Molecule</li>
                     </ul>
-					
+					<div id="ImportStrutureFileDiv" style="padding:0.1em">
+						Custom Structures:
+						Import Structure: <input type="file" id="importstructurefile" name="importstructurefile[]" accept="text/csv" /> <output id="structurefilelist"></output><br />
+					</div>
 					<div id="ptModToggle">
 					<br /><br />
 					Post-transcriptional Modifications:<br />
@@ -165,12 +169,12 @@
 
                 <h3><a href="#">Import</a></h3>
 
-                <div id="FileDiv" style="padding:0.1em">
+                <div id="ImportDataFileDiv" style="padding:0.1em">
                     <span id="ImportDataLabel"><a class="ManualLink" href="./Documentation/UserDataSyntax.html" target="_blank">Help?</a></span><br />
                     <br />
                     <a id="TemplateLink" href="#" target="_blank">Download Data Template</a><br />
                     <br />
-                    Import Data: <input type="file" id="files" name="files[]" accept="text/csv" /> <output id="list"></output><br />
+                    Import Data: <input type="file" id="importdatafile" name="files[]" accept="text/csv" /> <output id="list"></output><br />
 
                     <div id="CustomDataBubbles"></div>
 
@@ -216,7 +220,7 @@
 
     <div id="canvasDiv" oncontextmenu="return false" class="ui-widget-content">
 		<span id="canvaslabel" class="PanelLabels">2D Panel</span>
-		<canvas id="HighlightLayer" style="z-index:998; width:100%">Your browser does not support Canvas and can not use this site. We
+		<canvas id="HighlightLayer_0" style="z-index:998; width:100%">Your browser does not support Canvas and can not use this site. We
 				recommend Firefox. Internet Explorer users need to be at least on version 9, which requires Windows Vista or higher. Internet Explorer 10 (Windows 7 or
 				higher) is needed for all features to work. Check out <a href="http://caniuse.com/#feat=canvas" target="_blank">this nice table of browser
 				support.</a>. Also, in order to use Custom Data Feature, <a href="http://caniuse.com/#feat=filereader" target="_blank">check out this
