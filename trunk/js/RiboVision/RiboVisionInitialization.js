@@ -1,4 +1,4 @@
-/* Ribovision 0.6 script library Ribovision.js 7:34 PM 01/07/2013 Chad R. Bernier
+/* RiboVision 1.2 script library RiboVision.js 6:42 PM 04/25/2015 Chad R. Bernier
 
 
 based on:
@@ -838,14 +838,20 @@ function RiboVisionReady() {
 	if (window.File && window.FileReader && window.FileList && window.Blob) {
 		// Great success! All the File APIs are supported.
 		
-		$("#FileDiv").on('click', "input:file", function (event) {
+		$("#ImportDataFileDiv").on('click', "input:file", function (event) {
 			    this.value = null;
 		});
-		$("#FileDiv").on('change', "input:file", function (event) {
-			handleFileSelect(event);
+		$("#ImportDataFileDiv").on('change', "input:file", function (event) {
+			ImportDataFileSelect(event);
 			//resetFileInput($('#files'));
 		});
-
+		$("#ImportStrutureFileDiv").on('click', "input:file", function (event) {
+				this.value = null;
+		});
+		$("#ImportStrutureFileDiv").on('change', "input:file", function (event) {
+			ImportStructureFileSelect(event);
+			//resetFileInput($('#files'));
+		});
 	} else {
 		dd = document.getElementById('FileDiv');
 		dd.innerHTML = "Your browser doesn't support file loading feature. IE does not support it until IE10+.";
@@ -862,7 +868,9 @@ function RiboVisionReady() {
 	$(window).on("mouseup", function (event) {
 		$("#canvasDiv").off("mousemove", dragHandle);
 		$("#canvasDiv").off("mousemove", dragSelBox);
-		rvDataSets[0].HighlightLayer.clearCanvas();
+		$.each(rvDataSets, function (index, rvds) {
+			rvds.HighlightLayer.clearCanvas();
+		});
 	});
 	
   /////////////
@@ -873,8 +881,10 @@ function RiboVisionReady() {
 			clientX : event.clientX,
 			clientY : event.clientY
 		});
-		rvDataSets[0].HighlightLayer.clearCanvas();
-		
+		$.each(rvDataSets, function (index, rvds) {
+			rvds.HighlightLayer.clearCanvas();
+		});
+	
 	});
 	   $( "#canvasPorportionSlider" ).slider({
     	min : 5,

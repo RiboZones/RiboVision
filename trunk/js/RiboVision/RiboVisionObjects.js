@@ -1,4 +1,4 @@
-/* Ribovision 0.6 script library Ribovision.js 7:34 PM 01/07/2013 Chad R. Bernier
+/* RiboVision 1.2 script library RiboVision.js 6:42 PM 04/25/2015 Chad R. Bernier
 
 
 based on:
@@ -290,6 +290,7 @@ function rvDataSet(DataSetName,SetNumber) {
 	this.addHighlightLayer = function (LayerName, CanvasName, Data, Filled, ScaleFactor, Type) {
 		var b = new RvLayer(this,LayerName, CanvasName, Data, Filled, ScaleFactor, Type);
 		this.HighlightLayer = b;
+		this.HighlightLayer.Canvas.style.zIndex = 990 + this.SetNumber;
 	};
 	this.addResidues = function (rvResidues) {
 		this.Residues = rvResidues;

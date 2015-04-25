@@ -1,4 +1,4 @@
-/* Ribovision 0.6 script library Ribovision.js 7:34 PM 01/07/2013 Chad R. Bernier
+/* RiboVision 1.2 script library RiboVision.js 6:42 PM 04/25/2015 Chad R. Bernier
 
 
 based on:
@@ -389,8 +389,8 @@ function commandSelect(command,SeleName) {
 
 function selectResidue(event) {
 	if (drag) {
-		var curX = (event.clientX - $("#menu").width() - rvViews[0].x) / rvViews[0].scale;
-		var curY = (event.clientY - $("#topMenu").height() - rvViews[0].y) / rvViews[0].scale;
+		var curX = (event.clientX - rvViews[0].xcorr + 2 - rvViews[0].x) / rvViews[0].scale;
+		var curY = (event.clientY - rvViews[0].ycorr + 2 - rvViews[0].y) / rvViews[0].scale;
 		if (rvDataSets[0].Residues != undefined) {
 			for (var SpeciesIndex = 0; SpeciesIndex < rvDataSets.length; SpeciesIndex++){
 				var targetSelection = rvDataSets[SpeciesIndex].getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
@@ -434,13 +434,9 @@ function selectResidue(event) {
 			drag = false;
 		}
 	}
-	$("#canvasDiv").off("mouseup", selectResidue);
-	/*
-	if (onebuttonmode === "move") {
-		$("#canvasDiv").bind("mousemove", mouseMoveFunction);
-	}*/
-	//console.log('selected Residue by mouse' );
-	//drawNavLine(1);
+	$("#canvasDiv").off("mouseup", selectResidue);			
+	$("#canvasDiv").on("mousemove", mouseMoveFunction);
+
 }
 
 function updateSelectionDiv(SeleName) {
@@ -513,6 +509,9 @@ function colorResidue(event) {
 				break;
 			default:
 		}
+		$.each(rvDataSets, function (index, rvds) {
+			rvds.refreshCanvases();
+		});
 		//drawLabels();
 		update3Dcolors();
 	}
@@ -531,7 +530,9 @@ function colorLine(event) {
 		targetLayer[0].Data[seleLine]["color"] = grd;		
 		ActiveBasePairSet[seleLine]["color"]=color;
 		ActiveBasePairSet[seleLine]["color_hex"]=color;
-		rvDataSets[0].drawBasePairs("lines");
+		$.each(rvDataSets, function (index, rvds) {
+			rvds.refreshCanvases();
+		});
 	}
 }
 
@@ -567,6 +568,9 @@ function colorSelection() {
 	rvDataSets[0].drawDataCircles(targetLayer.LayerName,undefined,undefined,true);
 	rvDataSets[0].drawResidues(targetLayer.LayerName,undefined,undefined,true);
 	//drawLabels();
+	$.each(rvDataSets, function (index, rvds) {
+		rvds.refreshCanvases();
+	});
 	update3Dcolors();
 }
 
@@ -1092,16 +1096,9 @@ function filterBasePairs(IncludeTypes){
 			ActiveBasePairSet.push(value);
 		}
 	});
-	/*
 	$.each(rvDataSets, function (index, rvds){
-		rvds.BasePairs=[];
-		$.each(rvds.FullBasePairSet, function (index, value){
-			if ($.inArray(value.bp_type,IncludeTypes) >= 0){
-				rvds.BasePairs.push(value);
-			}
-		});
-	rvds.drawBasePairs("lines");
-	});*/
+		rvds.drawBasePairs("lines");
+	});
 }
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1120,10 +1117,9 @@ function mouseEventFunction(event) {
 			$("#canvasDiv").on("mouseup", selectResidue);
 		} else if (onebuttonmode == "selectL" || (event.which == 3 && event.altKey == true )) {
 			$("#canvasDiv").off("mousemove", dragHandle);
-			$("#canvasDiv").off("mousemove", mouseMoveFunction);
+			//$("#canvasDiv").off("mousemove", mouseMoveFunction);
 		} else if (onebuttonmode == "color" || (event.which == 2 && event.altKey == false) || (event.which == 1 && event.ctrlKey == true && event.altKey == false)) {
 			$("#canvasDiv").off("mousemove", dragHandle);
-			//$("#canvasDiv").unbind("mousemove", mouseMoveFunction);
 			colorResidue(event);
 		} else if (onebuttonmode == "colorL" || (event.which == 2 && event.altKey == true) || (event.which == 1 && event.ctrlKey == true && event.altKey == true)) {
 			$("#canvasDiv").off("mousemove", dragHandle);
@@ -1140,14 +1136,19 @@ function mouseEventFunction(event) {
 	if (event.handleObj.origType == "mouseup") {
 		$("#canvasDiv").off("mousemove", dragHandle);
 		$("#canvasDiv").off("mousemove", dragSelBox);
-		$("#canvasDiv").on("mousemove", mouseMoveFunction);
-		rvDataSets[0].HighlightLayer.clearCanvas();
+		$.each(rvDataSets, function (index, rvds) {
+			rvds.HighlightLayer.clearCanvas();
+		});
 	}
 }
 
 function mouseMoveFunction(event){
-	mouseMoveFunction.count = mouseMoveFunction.count || 1 // mouseMoveFunction.count is undefined at first 
-	rvDataSets[0].HighlightLayer.clearCanvas();
+	//mouseMoveFunction.count = mouseMoveFunction.count || 1 // mouseMoveFunction.count is undefined at first 
+	//console.log(mouseMoveFunction.count++);
+
+	$.each(rvDataSets, function (index, rvds) {
+		rvds.HighlightLayer.clearCanvas();
+	});
 	$("#ResidueTip").tooltip("close");
 	$("#InteractionTip").tooltip("close");
 	switch (onebuttonmode){
@@ -1164,12 +1165,15 @@ function mouseMoveFunction(event){
 			if (event.altKey == true && event.ctrlKey == false){
 				var seleLine = getSelectedLine(event);
 				if(seleLine >=0 ){
-					var j = ActiveBasePairSet[seleLine].resIndex1;
-					var k = ActiveBasePairSet[seleLine].resIndex2;
+					var j = ActiveBasePairSet[seleLine].residue_i;
+					var k = ActiveBasePairSet[seleLine].residue_i;
+					var residue_i = MainResidueMap[j];
+					var residue_j = MainResidueMap[k];
+					
 					rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
 					rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
-					rvDataSets[0].HighlightLayer.CanvasContext.moveTo(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y);
-					rvDataSets[0].HighlightLayer.CanvasContext.lineTo(rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
+					rvDataSets[0].HighlightLayer.CanvasContext.moveTo(residue_i.X, residue_i.Y);
+					rvDataSets[0].HighlightLayer.CanvasContext.lineTo(residue_j.X, residue_j.Y);
 					rvDataSets[0].HighlightLayer.CanvasContext.closePath();
 					rvDataSets[0].HighlightLayer.CanvasContext.stroke();
 					if(isRTon){
@@ -1222,22 +1226,24 @@ function mouseMoveFunction(event){
 					}
 				}
 			} else if ( event.ctrlKey == true && event.altKey == true) {
-				var seleLine = getSelectedLine(event);
-				if(seleLine >=0 ){
-					var j = ActiveBasePairSet[seleLine].resIndex1;
-					var k = ActiveBasePairSet[seleLine].resIndex2;
-					rvDataSets[sel[1]].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#LineColor").val());
-					rvDataSets[sel[1]].HighlightLayer.CanvasContext.beginPath();
-					rvDataSets[sel[1]].HighlightLayer.CanvasContext.moveTo(rvDataSets[sel[1]].Residues[j].X, rvDataSets[sel[1]].Residues[j].Y);
-					rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineTo(rvDataSets[sel[1]].Residues[k].X, rvDataSets[sel[1]].Residues[k].Y);
-					rvDataSets[sel[1]].HighlightLayer.CanvasContext.closePath();
-					rvDataSets[sel[1]].HighlightLayer.CanvasContext.stroke();
+				var sel = getSelectedLine(event);
+				if(sel >=0 ){
+					var j = ActiveBasePairSet[seleLine].residue_i;
+					var k = ActiveBasePairSet[seleLine].residue_i;
+					var residue_i = MainResidueMap[j];
+					var residue_j = MainResidueMap[k];
+					rvDataSets[0].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#LineColor").val());
+					rvDataSets[0].HighlightLayer.CanvasContext.beginPath();
+					rvDataSets[0].HighlightLayer.CanvasContext.moveTo(residue_i.X, residue_i.Y);
+					rvDataSets[0].HighlightLayer.CanvasContext.lineTo(residue_j.X, residue_j.Y);
+					rvDataSets[0].HighlightLayer.CanvasContext.closePath();
+					rvDataSets[0].HighlightLayer.CanvasContext.stroke();
 					if(isRTon){
 						if(typeof movewaitL != 'undefined'){
 							clearTimeout(movewaitL);
 						}
 						movewaitL = setTimeout(function(){
-							createInfoWindow(seleLine,"lines");
+							createInfoWindow(sel,"lines");
 							$("#InteractionTip").css("bottom",rvViews[0].windowHeight - event.clientY);
 							$("#InteractionTip").css("left",event.clientX);
 							$("#InteractionTip").tooltip("open");},300);
@@ -1260,7 +1266,6 @@ function mouseMoveFunction(event){
 							createInfoWindow(sel,"residue");
 							$("#ResidueTip").css("bottom",rvViews[0].windowHeight - event.clientY);
 							$("#ResidueTip").css("left",event.clientX);
-							console.log(mouseMoveFunction.count++);
 							$("#ResidueTip").tooltip("open");},100);
 					}
 				}
@@ -1310,7 +1315,9 @@ function mouseMoveFunction(event){
 }
 
 function dragSelBox(event){
-	rvDataSets[0].HighlightLayer.clearCanvas();
+	$.each(rvDataSets, function (index, rvds) {
+		rvds.HighlightLayer.clearCanvas();
+	});
 	rvViews[0].drag(event);
 }
 
@@ -1318,7 +1325,9 @@ function mouseWheelFunction(event,delta){
 	rvViews[0].zoom(event, delta);
 	
 	var sel = getSelected(event);
-	rvDataSets[0].HighlightLayer.clearCanvas();
+	$.each(rvDataSets, function (index, rvds) {
+		rvds.HighlightLayer.clearCanvas();
+	});
 	
 	if (sel[0] == -1) {
 		//document.getElementById("currentDiv").innerHTML = "<br/>";
@@ -1366,24 +1375,6 @@ function BaseViewCenter(event){
 }
 function modeSelect(mode) {
 	onebuttonmode = mode;
-	/*
-	switch (mode){
-		case "selectL":
-			$("#canvasDiv").unbind("mousemove", mouseMoveFunction);
-			break;
-		case "select":
-			$("#canvasDiv").unbind("mousemove", mouseMoveFunction);
-			break;
-		case "move":
-			$("#canvasDiv").bind("mousemove", mouseMoveFunction);
-			break;
-		case "color":
-			$("#canvasDiv").unbind("mousemove", mouseMoveFunction);
-			$("#canvasDiv").bind("mousemove", mouseMoveFunction);
-			break;
-		default: 
-			//seleLineMode = false;
-	}*/
 }
 function ProcessBubble(ui,targetLayerName){
 	switch ($(ui).parent().attr("id")) {
@@ -1501,9 +1492,23 @@ function openRvState() {
 		AgreeFunction();
 	}
 }
+//This is custom structure mode
+function ImportStructureFileSelect(event) {
+	//Check for residue definition [StructureFile]
+	if ($.inArray("X", customkeys) >= 0 && $.inArray("Y", customkeys) >= 0){
+		alert("Warning, will overwrite any loaded data");
+		newResidues=residuesFromCSV(targetLayer);
+		
+		
+	};
+}
 
+function residuesFromCSV(targetLayer){
+	console.log("ok42");
+	return "42";
+}
 //This is custom data mode
-function handleFileSelect(event) {
+function ImportDataFileSelect(event) {
 	var PrivacyStatus = get_cookie("privacy_status_data");
 	var PrivacyString = "This feature does not currently upload any data to our server. We don't have a privacy policy at this time"
 		 + " because one isn't needed. We can not see these data you are about to graph. Click \"I agree\" to acknowledge acceptance of our policy.";
@@ -1536,13 +1541,14 @@ function handleFileSelect(event) {
 					rvds.addCustomData($.csv.toObjects(result));
 					var customkeys = Object.keys(rvds.CustomData[0]);
 					if ($.inArray("DataDescription", customkeys) >= 0) {
-						$("#FileDiv").find(".DataDescription").html(rvds.CustomData[0]["DataDescription"]);
+						$("#ImportDataFileDiv").find(".DataDescription").html(rvds.CustomData[0]["DataDescription"]);
 						$("#CustomDataBubbles").find(".dataBubble").attr("title",rvds.CustomData[0]["DataDescription"].replace(/(<([^>]+)>)/ig,""));
 					} else {
-						$("#FileDiv").find(".DataDescription").html("Data Description is missing.");
+						$("#ImportDataFileDiv").find(".DataDescription").html("Data Description is missing.");
 					}
 					clicky.log(window.location.pathname + window.location.hash,'User Data Import');
 					$("#CustomDataBubbles").find(".dataBubble").attr("FileName",FileReaderFile[0].name);
+					
 					//Add Custom Lines support here. 
 					if($.inArray("Residue_i", customkeys) >= 0) {
 						if ($.inArray("Residue_j", customkeys) >= 0){
@@ -1626,7 +1632,7 @@ function handleFileSelect(event) {
 		AgreeFunction(event);
 	}
 }
-
+	
 function resNumToIndex(FullResNum,SpeciesIndex){
 	var comsplit = FullResNum.split(":");
 	var chainID = rvDataSets[SpeciesIndex].SpeciesEntry.PDB_chains[rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names.indexOf(comsplit[0])];
@@ -1642,6 +1648,7 @@ function customDataProcess(ui,targetLayer){
 	targetLayer.clearData();
 	
 	var customkeys = Object.keys(rvDataSets[targetLayer.SetNumber].CustomData[0]);
+
 	NewData = CustomDataExpand(targetLayer);
 	targetLayer.Data = NewData.IncludeData;
 	var targetSelection = rvDataSets[targetLayer.SetNumber].Selections[0];
@@ -1705,6 +1712,7 @@ function customDataProcess(ui,targetLayer){
 	//Finishes doing Nucleotides, move on to rProteins
 	CustomProcessProteins(colors);
 }
+
 function CustomProcessProteins(colors){
 	var rProtein=undefined;
 	var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
@@ -2033,7 +2041,7 @@ function saveJPG() {
 		var form = document.createElement("form");
 		form.setAttribute("method", "post");
 		form.setAttribute("action", "saveJPG.php");
-		form.setAttribute("target", "_blank");
+		form.setAttribute("target", "Download.html");
 		var hiddenField = document.createElement("input");
 		hiddenField.setAttribute("type", "hidden");
 		hiddenField.setAttribute("name", "content");
