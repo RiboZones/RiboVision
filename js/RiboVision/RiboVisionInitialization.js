@@ -1026,7 +1026,6 @@ function InitRibovision(FreshState) {
 	$(".oneLayerGroup").remove();
 	$(".oneSelectionGroup").remove();
 	prepare_rvDataSet(0);
-	resizeElements(true);
 
 	switch (get_cookie("JmolState")) {
 		case "Java" :
@@ -1046,6 +1045,8 @@ function InitRibovision(FreshState) {
 	}
 	rvViews[0] = new rvView();
 	rvViews[0].centerZoom(1);
+	resizeElements(true);
+
 		
 	if (canvas2DSupported) {
 		InitRibovision2(false,FreshState);

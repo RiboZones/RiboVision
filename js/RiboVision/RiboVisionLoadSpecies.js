@@ -131,6 +131,11 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 					MainResidueMap[data.resNum].X=parseFloat(ResiduePositions[speciesIndex][i]["X"]);
 					MainResidueMap[data.resNum].Y=parseFloat(ResiduePositions[speciesIndex][i]["Y"]);
 				});
+				if (!DoneLoading2) {
+					clearSelection(true);
+				}
+				initLabels(speciesInterest,speciesIndex);
+				
 			} else {
 				$.getJSON('getData.php', {
 					Residues : speciesInterest
@@ -323,7 +328,7 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 			rvDataSets[speciesIndex].SpeciesEntry["SubunitProtChains"] = [];
 			rvDataSets[speciesIndex].SpeciesEntry.MapType = "None";
 			
-			initLabels(speciesInterest);
+			initLabels(speciesInterest,speciesIndex);
 			
 			var pl = document.getElementById("ProtList");
 			pl.options.length = 0;
