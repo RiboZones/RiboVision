@@ -766,6 +766,11 @@ function rvDataSet(DataSetName,SetNumber) {
 		*/
 	}
 	function drawResidues(targetLayer, dataIndices, ColorArray, noClear) {
+		if (this.SpeciesEntry.Font_Size_Canvas){
+			var FontSize=this.SpeciesEntry.Font_Size_Canvas;
+		} else {
+		var FontSize=3.1;
+		}
 		//var resMod = $('input[name="ptmod"][value=on]').is(':checked');
 		if (targetLayer.Type === "residues") {
 			targetLayer.clearCanvas();
@@ -796,7 +801,7 @@ function rvDataSet(DataSetName,SetNumber) {
 				targetLayer.CanvasContext.textAlign = "center";
 				for (var i = this.Residues.length - 1; i >= 0; i--) {
 					targetLayer.CanvasContext.fillStyle = (targetLayer.dataLayerColors[i] || "#000000");
-					targetLayer.CanvasContext.font = this.Residues[i]["font-weight"] + " " + this.SpeciesEntry.Font_Size_Canvas + 'pt "Myriad Pro", Calibri, Arial';
+					targetLayer.CanvasContext.font = this.Residues[i]["font-weight"] + " " + FontSize + 'pt "Myriad Pro", Calibri, Arial';
 					//if (resMod){
 						//targetLayer.CanvasContext.fillText(this.Residues[i].modResName, this.Residues[i].X, this.Residues[i].Y);
 					//} else {
