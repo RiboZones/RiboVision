@@ -634,7 +634,9 @@ function rvDataSet(DataSetName,SetNumber) {
 	function makeResidueList(rvResidues) {
 		var ResidueListLocal = [],j;
 		for (j = 0; j < rvResidues.length; j++) {
-			ResidueListLocal[j] = rvResidues[j].ChainID + "_" + rvResidues[j].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+			//ResidueListLocal[j] = rvResidues[j].ChainID + "_" + rvResidues[j].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+			ResidueListLocal[j] = rvResidues[j].resNum;
+
 		}
 		return ResidueListLocal;
 	}
@@ -694,7 +696,11 @@ function rvDataSet(DataSetName,SetNumber) {
 		var rvds = this;
 		if (rvds.Residues !== undefined && targetLayer.Type === "circles") {
 			targetLayer.clearCanvas();
-			var CircleSize = rvds.SpeciesEntry.Circle_Radius;
+			if(this.SpeciesEntry.Circle_Radius){
+				var CircleSize = this.SpeciesEntry.Circle_Radius;
+			} else {
+				var CircleSize = 1.7;
+			}
 			for (var i = rvds.Residues.length - 1; i >= 0; i--) {
 				if (targetLayer.dataLayerColors[i] != undefined && targetLayer.dataLayerColors[i] != '#858585') {
 					targetLayer.CanvasContext.beginPath();
@@ -865,7 +871,11 @@ function rvDataSet(DataSetName,SetNumber) {
 		} else {
 			SelectionList[0]=SeleName;
 		}
-		var CircleSize = this.SpeciesEntry.Circle_Radius;
+		if(this.SpeciesEntry.Circle_Radius){
+			var CircleSize = this.SpeciesEntry.Circle_Radius;
+		} else {
+			var CircleSize = 1.7;
+		}
 		targetLayer.clearCanvas();
 		targetLayer.Data = [];
 		targetLayer.dataLayerColors = [];
@@ -899,7 +909,11 @@ function rvDataSet(DataSetName,SetNumber) {
 				targetLayer.clearCanvas();
 				targetLayer.dataLayerColors = [];
 			}
-			var CircleSize = this.SpeciesEntry.Circle_Radius;
+			if(this.SpeciesEntry.Circle_Radius){
+				var CircleSize = this.SpeciesEntry.Circle_Radius;
+			} else {
+				var CircleSize = 1.7;
+			}
 			if (this.Residues != undefined) {
 				for (var i = this.Residues.length - 1; i >= 0; i--) {
 					if (dataIndices && ColorArray && ColorArray[dataIndices[i]] != undefined && ColorArray[dataIndices[i]] != '#858585') {

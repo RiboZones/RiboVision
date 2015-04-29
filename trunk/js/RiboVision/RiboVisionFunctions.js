@@ -41,7 +41,7 @@ function initLabels(species,speciesIndex) {
 	 */
 	rvDataSets[speciesIndex].addLabels([], []);
 	
-	if (species != "None") {
+	if (species != "None" && species != "custom") {
 		$.getJSON('getData.php', {
 			TextLabels : rvDataSets[speciesIndex].SpeciesEntry.TextLabels
 		}, function (labelData2) {
@@ -308,13 +308,9 @@ function expandSelection(command, SelectionName) {
 						//rProteins with ranges will need the rProtein residue list to be defined first.
 					}
 				} else {
-					var chainID = rvds.SpeciesEntry.PDB_chains[rvds.SpeciesEntry.Molecule_Names.indexOf(comsplit[0])];
-					if (chainID){
-						var aloneRes = chainID + "_" + comsplit[1];
-						var alone_ind = rvds.ResidueList.indexOf(aloneRes);
-						if (alone_ind >=0){
-							targetSelection.Residues.push(rvds.Residues[alone_ind]);
-						}
+					var alone_ind = rvds.ResidueList.indexOf(comsplit[0] + ":" + comsplit[1]);
+					if (alone_ind >=0){
+						targetSelection.Residues.push(rvds.Residues[alone_ind]);
 					} else {
 						var chainID = rvds.SpeciesEntry.PDB_chains_rProtein[rvds.SpeciesEntry.Molecule_Names_rProtein.indexOf(comsplit[0])];
 						var aloneRes = chainID + "_" + comsplit[1];
@@ -1147,12 +1143,12 @@ function mouseMoveFunction(event){
 	//mouseMoveFunction.count = mouseMoveFunction.count || 1 // mouseMoveFunction.count is undefined at first 
 	//console.log(mouseMoveFunction.count++);
 	var sel = getSelected(event);
-	if (rvDataSets[sel[1]].SpeciesEntry.Font_Size_Canvas){
+	if (sel[1] >=0 && rvDataSets[sel[1]].SpeciesEntry.Font_Size_Canvas){
 		var Font_Size_Canvas=rvDataSets[sel[1]].SpeciesEntry.Font_Size_Canvas;
 	} else {
 		var Font_Size_Canvas=3.1;
 	}
-	if (rvDataSets[sel[1]].SpeciesEntry.Circle_Radius){
+	if (sel[1] >=0 && rvDataSets[sel[1]].SpeciesEntry.Circle_Radius){
 		var Circle_Radius=rvDataSets[sel[1]].SpeciesEntry.Circle_Radius;
 	} else {
 		var Circle_Radius=1.7;
@@ -1515,7 +1511,7 @@ function ImportStructureFileSelect(event) {
 		reader.onload = function () {
 			var result = reader.result;
 			var customStructure=$.csv.toObjects(result);
-			customStructure.shift();
+			//customStructure.shift();
 			var customkeys = Object.keys(customStructure[0]);
 			//Input checks
 			
@@ -1886,11 +1882,13 @@ function CustomDataExpand(targetLayer){
 			} else {
 				for (var iii = SeleLen; iii < l; iii++) {
 					if (targetSelection.Residues[iii].resNum.indexOf(":") >= 0) {
-						var ressplit = targetSelection.Residues[iii].resNum.split(":");
-						var ResName = rvDataSets[targetLayer.SetNumber].SpeciesEntry.PDB_chains[rvDataSets[targetLayer.SetNumber].SpeciesEntry.Molecule_Names.indexOf(ressplit[0])] + "_" + ressplit[1];				
+						//var ressplit = targetSelection.Residues[iii].resNum.split(":");
+						//var ResName = rvDataSets[targetLayer.SetNumber].SpeciesEntry.PDB_chains[rvDataSets[targetLayer.SetNumber].SpeciesEntry.Molecule_Names.indexOf(ressplit[0])] + "_" + ressplit[1];	
+						var ResName = targetSelection.Residues[iii].resNum;
 					} else {
-						var chainID =  targetSelection.Residues[iii].ChainID;
-						var ResName = chainID + "_" + targetSelection.Residues[iii].resNum;
+					alert("fix customdataexpand");
+					//	var chainID =  targetSelection.Residues[iii].ChainID;
+					//	var ResName = chainID + "_" + targetSelection.Residues[iii].resNum;
 					}
 					var k = rvDataSets[targetLayer.SetNumber].ResidueList.indexOf(ResName);
 					
