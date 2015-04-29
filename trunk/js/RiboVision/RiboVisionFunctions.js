@@ -450,7 +450,8 @@ function updateSelectionDiv(SeleName) {
 		for (var i = 0; i < targetSelection.Residues.length; i++) {
 			res = targetSelection.Residues[i];
 			//text = text + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(res.ChainID)] + ":" + res.resNum.replace(/[^:]*:/g, "") + "( " + res.CurrentData + " ); ";
-			text[index] = text + rvds.SpeciesEntry.Molecule_Names[rvds.SpeciesEntry.PDB_chains.indexOf(res.ChainID)] + ":" + res.resNum.replace(/[^:]*:/g, "") + "; ";
+			//text[index] = text + rvds.SpeciesEntry.Molecule_Names[rvds.SpeciesEntry.PDB_chains.indexOf(res.ChainID)] + ":" + res.resNum.replace(/[^:]*:/g, "") + "; ";
+			text[index] = text[index] + res.resNum + "; ";
 		}
 	});
 	//$("#selectDiv").html(text)
@@ -1145,7 +1146,18 @@ function mouseEventFunction(event) {
 function mouseMoveFunction(event){
 	//mouseMoveFunction.count = mouseMoveFunction.count || 1 // mouseMoveFunction.count is undefined at first 
 	//console.log(mouseMoveFunction.count++);
-
+	var sel = getSelected(event);
+	if (rvDataSets[sel[1]].SpeciesEntry.Font_Size_Canvas){
+		var Font_Size_Canvas=rvDataSets[sel[1]].SpeciesEntry.Font_Size_Canvas;
+	} else {
+		var Font_Size_Canvas=3.1;
+	}
+	if (rvDataSets[sel[1]].SpeciesEntry.Circle_Radius){
+		var Circle_Radius=rvDataSets[sel[1]].SpeciesEntry.Circle_Radius;
+	} else {
+		var Circle_Radius=1.7;
+	}
+	
 	$.each(rvDataSets, function (index, rvds) {
 		rvds.HighlightLayer.clearCanvas();
 	});
@@ -1188,13 +1200,13 @@ function mouseMoveFunction(event){
 					}
 				}	
 			} else if (event.ctrlKey == true && event.altKey == false) {
-				var sel = getSelected(event);
+				//var sel = getSelected(event);
 				if (sel[0] >=0) {
 					var targetLayer=rvDataSets[sel[1]].getSelectedLayer();
 					switch (targetLayer.Type){
 						case "residues" : 
 							rvDataSets[sel[1]].HighlightLayer.CanvasContext.strokeStyle = "#000000";
-							rvDataSets[sel[1]].HighlightLayer.CanvasContext.font = rvDataSets[sel[1]].SpeciesEntry.Font_Size_Canvas + 'pt "Myriad Pro", Calibri, Arial';
+							rvDataSets[sel[1]].HighlightLayer.CanvasContext.font = Font_Size_Canvas + 'pt "Myriad Pro", Calibri, Arial';
 							rvDataSets[sel[1]].HighlightLayer.CanvasContext.textBaseline = "middle";
 							rvDataSets[sel[1]].HighlightLayer.CanvasContext.textAlign = "center";
 							rvDataSets[sel[1]].HighlightLayer.CanvasContext.fillStyle = colorNameToHex($("#MainColor").val());
@@ -1202,7 +1214,7 @@ function mouseMoveFunction(event){
 							break;
 						case "circles" :
 							rvDataSets[sel[1]].HighlightLayer.CanvasContext.beginPath();
-							rvDataSets[sel[1]].HighlightLayer.CanvasContext.arc(ResiduePositions[sel[1]][sel[0]].X, ResiduePositions[sel[1]][sel[0]].Y, (targetLayer.ScaleFactor * rvDataSets[sel[1]].SpeciesEntry.Circle_Radius), 0, 2 * Math.PI, false);
+							rvDataSets[sel[1]].HighlightLayer.CanvasContext.arc(ResiduePositions[sel[1]][sel[0]].X, ResiduePositions[sel[1]][sel[0]].Y, (targetLayer.ScaleFactor * Circle_Radius), 0, 2 * Math.PI, false);
 							rvDataSets[sel[1]].HighlightLayer.CanvasContext.closePath();
 							rvDataSets[sel[1]].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#MainColor").val());
 							rvDataSets[sel[1]].HighlightLayer.CanvasContext.stroke();
@@ -1250,13 +1262,13 @@ function mouseMoveFunction(event){
 					}
 				}	
 			} else {
-				var sel = getSelected(event);
+				//var sel = getSelected(event);
 				if (sel[0] >=0){
 					rvDataSets[sel[1]].HighlightLayer.CanvasContext.beginPath();
-					rvDataSets[sel[1]].HighlightLayer.CanvasContext.arc(ResiduePositions[sel[1]][sel[0]].X, ResiduePositions[sel[1]][sel[0]].Y, 1.176 * rvDataSets[sel[1]].SpeciesEntry.Circle_Radius, 0, 2 * Math.PI, false);
+					rvDataSets[sel[1]].HighlightLayer.CanvasContext.arc(ResiduePositions[sel[1]][sel[0]].X, ResiduePositions[sel[1]][sel[0]].Y, 1.176 * Circle_Radius, 0, 2 * Math.PI, false);
 					rvDataSets[sel[1]].HighlightLayer.CanvasContext.closePath();
 					rvDataSets[sel[1]].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
-					rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineWidth=rvDataSets[sel[1]].SpeciesEntry.Circle_Radius/1.7;
+					rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineWidth=Circle_Radius/1.7;
 					rvDataSets[sel[1]].HighlightLayer.CanvasContext.stroke();
 					if(isRTon){
 						if(typeof movewait != 'undefined'){
@@ -1272,13 +1284,13 @@ function mouseMoveFunction(event){
 			}
 			break;
 		case "color":
-			var sel = getSelected(event);
+			//var sel = getSelected(event);
 			if (sel[0] != -1) {
 				var targetLayer=rvDataSets[sel[1]].getSelectedLayer();
 				switch (targetLayer.Type){
 					case "residues" : 
 						rvDataSets[sel[1]].HighlightLayer.CanvasContext.strokeStyle = "#000000";
-						rvDataSets[sel[1]].HighlightLayer.CanvasContext.font = rvDataSets[sel[1]].SpeciesEntry.Font_Size_Canvas + 'pt "Myriad Pro", Calibri, Arial';
+						rvDataSets[sel[1]].HighlightLayer.CanvasContext.font = Font_Size_Canvas + 'pt "Myriad Pro", Calibri, Arial';
 						rvDataSets[sel[1]].HighlightLayer.CanvasContext.textBaseline = "middle";
 						rvDataSets[sel[1]].HighlightLayer.CanvasContext.textAlign = "center";
 						rvDataSets[sel[1]].HighlightLayer.CanvasContext.fillStyle = colorNameToHex($("#MainColor").val());
@@ -1286,7 +1298,7 @@ function mouseMoveFunction(event){
 						break;
 					case "circles" :
 						rvDataSets[sel[1]].HighlightLayer.CanvasContext.beginPath();
-						rvDataSets[sel[1]].HighlightLayer.CanvasContext.arc(ResiduePositions[sel[1]][sel[0]].X, rResiduePositions[sel[1]][sel[0]].Y, (targetLayer.ScaleFactor * rvDataSets[sel[1]].SpeciesEntry.Circle_Radius), 0, 2 * Math.PI, false);
+						rvDataSets[sel[1]].HighlightLayer.CanvasContext.arc(ResiduePositions[sel[1]][sel[0]].X, rResiduePositions[sel[1]][sel[0]].Y, (targetLayer.ScaleFactor * Circle_Radius), 0, 2 * Math.PI, false);
 						rvDataSets[sel[1]].HighlightLayer.CanvasContext.closePath();
 						rvDataSets[sel[1]].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#MainColor").val());
 						rvDataSets[sel[1]].HighlightLayer.CanvasContext.stroke();
@@ -1494,16 +1506,68 @@ function openRvState() {
 }
 //This is custom structure mode
 function ImportStructureFileSelect(event) {
-	//Check for residue definition [StructureFile]
+	
+	var FileReaderFile = event.target.files; // FileList object
+	for (var i = 0; i < FileReaderFile.length; i++) {
+		var reader = new FileReader();
+		reader.readAsText(FileReaderFile[i]);
+		
+		reader.onload = function () {
+			var result = reader.result;
+			var customStructure=$.csv.toObjects(result);
+			customStructure.shift();
+			var customkeys = Object.keys(customStructure[0]);
+			//Input checks
+			
+			
+			//Load Species
+			var d=$('#speciesList').iosMenu().menu()[0];
+			if( typeof d.species_array == 'undefined' ) {
+				d.species_array = ['',''];
+			}
+			if($('input[name="LoadSubunit"][value=on]').is(':checked')){
+				d.species_array[0]="custom";
+			} else {
+				d.species_array[1]="custom";
+			}
+			loadSpecies(d.species_array.join("&"),customStructure);
+	
+			//var customResidues=residuesFromCSV(customStructure);
+
+			rvDataSets
+		}
+	}
+	
+	/* //Check for residue definition [StructureFile]
 	if ($.inArray("X", customkeys) >= 0 && $.inArray("Y", customkeys) >= 0){
 		alert("Warning, will overwrite any loaded data");
 		newResidues=residuesFromCSV(targetLayer);
 		
 		
-	};
+	}; */
 }
 
-function residuesFromCSV(targetLayer){
+function residuesFromCSV(customStructure){
+	
+	
+	
+	ResiduePositions=[[]];
+	MainResidueMap=[[]];
+	
+	if($('input[name="LoadSubunit"][value=on]').is(':checked')){
+		var speciesIndex=0;
+	} else {
+		var speciesIndex=1;
+	}
+			
+	var targetLayer = rvDataSets[speciesIndex].getLayerByType("residues");
+	rvDataSets[speciesIndex].clearData("residues");
+	var resXs=[];
+	var resYs=[];
+	data["speciesIndex"]=speciesIndex;
+	
+	
+	
 	console.log("ok42");
 	return "42";
 }
@@ -1520,11 +1584,11 @@ function ImportDataFileSelect(event) {
 	var DataListU;
 	var ColorGrad=[];
 	
-	FileReaderFile = event.target.files; // FileList object
+	var FileReaderFile = event.target.files; // FileList object
 	$("#CustomDataBubbles").find(".dataBubble").remove();
 	AgreeFunction = function (event) {
 		for (var i = 0; i < FileReaderFile.length; i++) {
-			reader = new FileReader();
+			var reader = new FileReader();
 			reader.readAsText(FileReaderFile[i]);
 			$("#CustomDataBubbles").append($('<h3 class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom" style="text-align:center;padding:0.2em">')
 				.text("User Data").attr('name',"CustomData").attr('title',"Custom"));
@@ -3373,7 +3437,7 @@ function RestoreLocalStorage(SaveStateFileName) {
 	if (localStorageAvailable){
 		rvSaveState = JSON.parse(localStorage[SaveStateFileName]);
 		if($("input[name='LastSpeciesCheck']").attr("checked")){
-			loadSpecies(rvSaveState.rvLastSpecies,DoneLoading,DoneLoading2);
+			loadSpecies(rvSaveState.rvLastSpecies,[],DoneLoading,DoneLoading2);
 		} else {
 			DoneLoading.resolve();
 		}
