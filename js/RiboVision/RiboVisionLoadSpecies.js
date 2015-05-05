@@ -109,11 +109,8 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 		rvDataSets[speciesIndex].ConservationTable=[];
 		$(".dataBubble").remove();
 		if (speciesSplit[0] != "None") {
-			$.getJSON('getData.php', {
-			var targetLayer = rvDataSets[speciesIndex].getLayerByType("residues");
-				Residues : speciesInterest
 			rvDataSets[speciesIndex].clearData("residues");
-			
+
 			// Set offset. Right now, only side by side, two structures are allowed, so this is easy.
 			rvDataSets[speciesIndex].PageOffset[0] = (rvDataSets[speciesIndex].SpeciesEntry.Orientation == "portrait") ? 792 * rvDataSets[speciesIndex].SetNumber : 612 * rvDataSets[speciesIndex].SetNumber  ; //X direction
 			rvDataSets[speciesIndex].PageOffset[1]=0; //Y direction
@@ -144,6 +141,8 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 					Residues : speciesInterest
 				}, function (db_residues) {
 					processResidueData(db_residues,speciesIndex);
+					var targetLayer = rvDataSets[speciesIndex].getLayerByType("residues");
+
 					//Default Domain
 					targetLayer[0].DataLabel = "Domains";
 					$("[name=" + targetLayer[0].LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer[0].DataLabel);
@@ -178,6 +177,7 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 							//console.log(MainResidueMap[uResName]);
 						});
 						
+						rvDataSets[speciesIndex].makeResidueList();
 						rvDataSets[speciesIndex].makeContourLinePoints();
 						
 						if (!DoneLoading2) {
