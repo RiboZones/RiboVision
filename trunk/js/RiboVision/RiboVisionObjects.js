@@ -295,8 +295,8 @@ function rvDataSet(DataSetName,SetNumber) {
 	};
 	this.addResidues = function (rvResidues) {
 		this.Residues = rvResidues;
-		this.ResidueList = makeResidueList(rvResidues);
 		this.SequenceList = makeSequenceList(rvResidues);
+		//this.ResidueList = makeResidueList(rvResidues);
 		//this.ContourLinePoints = makeContourLinePoints.call(this,rvResidues);
 	};
 	this.addLabels = function (rvTextLabels, rvLineLabels, rvExtraLabels) {
@@ -712,15 +712,15 @@ function rvDataSet(DataSetName,SetNumber) {
 		this.ExtraContourLineSegments=ExtraContourLineSegments;
 		this.ContourLinePoints=ContourLinePoints;
 	}
-	
-	// Private functions, kinda
-	function makeResidueList(rvResidues) {
+	this.makeResidueList = function () {
 		var ResidueListLocal = [],j;
-		for (j = 0; j < rvResidues.length; j++) {
-			ResidueListLocal[j] = rvResidues[j].resNum;
+		for (j = 0; j < this.Residues.length; j++) {
+			ResidueListLocal[j] = this.Residues[j].resNum;
 		}
-		return ResidueListLocal;
+		this.ResidueList=ResidueListLocal;
 	}
+	// Private functions, kinda
+	
 	function makeSequenceList(rvResidues) {
 		var SequenceListLocal = "",j;
 		for (j = 0; j < rvResidues.length; j++) {
