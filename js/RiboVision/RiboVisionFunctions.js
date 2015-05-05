@@ -288,27 +288,26 @@ function expandSelection(command, SelectionName) {
 			if (!com){return;};
 			var comsplit = com.split(":");
 			if (comsplit.length > 1) {
+				//: detected, so either a single residue or a range with molecule names
 				var index = comsplit[1].indexOf("-");
 				if (index != -1) {
-					var chainID = rvds.SpeciesEntry.PDB_chains[rvds.SpeciesEntry.Molecule_Names.indexOf(comsplit[0])];
-					if (chainID){
-						var start = chainID + "_" + comsplit[1].substring(1, index);
-						var end = chainID + "_" + comsplit[1].substring(index + 1, comsplit[1].length - 1);
+					//Range detected
+					
+					var start = comsplit[0] + ":" + comsplit[1].substring(1, index);
+					var end = comsplit[0] + ":" + comsplit[1].substring(index + 1, comsplit[1].length - 1);
+					
+					if (start && end) {
+						var start_ind = MainResidueMap[start].index;
+						var end_ind = MainResidueMap[end].index;
 						
-						if (start && end) {
-							var start_ind = rvds.ResidueList.indexOf(start);
-							var end_ind = rvds.ResidueList.indexOf(end);
+						for (var j = start_ind; j <= end_ind; j++) {
 							
-							for (var j = start_ind; j <= end_ind; j++) {
-								
-								targetSelection.Residues.push(rvds.Residues[j]);
-							}
+							targetSelection.Residues.push(rvds.Residues[j]);
 						}
-					} else {
-						//rProteins with ranges will need the rProtein residue list to be defined first.
 					}
 				} else {
-					var alone_ind = rvds.ResidueList.indexOf(comsplit[0] + ":" + comsplit[1]);
+					// Single residue detected
+					var alone_ind = MainResidueMap[ comsplit[0] + ":" + comsplit[1]].index;
 					if (alone_ind >=0){
 						targetSelection.Residues.push(rvds.Residues[alone_ind]);
 					} else {
@@ -328,22 +327,23 @@ function expandSelection(command, SelectionName) {
 				if (comsplit[0].search(/\d/) > -1){
 					var index = comsplit[0].indexOf("-");
 					if (index != -1) {
-						var chainID = rvds.SpeciesEntry.PDB_chains[0];
-						var start = chainID + "_" + comsplit[0].substring(0, index);
-						var end = chainID + "_" + comsplit[0].substring(index + 1, comsplit[0].length);
+						//assume first moleculename
+						var molName = rvds.SpeciesEntry.Moleclue_Names[0];
+						var start = molName + ":" + comsplit[0].substring(0, index);
+						var end = molName + ":" + comsplit[0].substring(index + 1, comsplit[0].length);
 						
 						if (start && end) {
-							var start_ind = rvds.ResidueList.indexOf(start);
-							var end_ind = rvds.ResidueList.indexOf(end);
+							var start_ind = MainResidueMap[start].index;
+							var end_ind = MainResidueMap[end].index;
 							for (var j = start_ind; j <= end_ind; j++) {
 								var targetSelection=rvds.getSelection(SelectionName);
 								targetSelection.Residues.push(rvds.Residues[j]);
 							}
 						}
 					} else {
-						var chainID = rvds.SpeciesEntry.PDB_chains[0];
-						var aloneRes = chainID + "_" + comsplit[0];
-						var alone_ind = rvds.ResidueList.indexOf(aloneRes);
+						var molName = rvds.SpeciesEntry.Moleclue_Names[0];
+						var aloneRes = molName + ":" + comsplit[0];
+						var alone_ind = MainResidueMap[aloneRes].index;
 						if (alone_ind >=0){
 							var targetSelection=rvds.getSelection(SelectionName);
 							targetSelection.Residues.push(rvds.Residues[alone_ind]);
@@ -1174,7 +1174,7 @@ function mouseMoveFunction(event){
 				var seleLine = getSelectedLine(event);
 				if(seleLine >=0 ){
 					var j = ActiveBasePairSet[seleLine].residue_i;
-					var k = ActiveBasePairSet[seleLine].residue_i;
+					var k = ActiveBasePairSet[seleLine].residue_j;
 					var residue_i = MainResidueMap[j];
 					var residue_j = MainResidueMap[k];
 					
@@ -1595,7 +1595,7 @@ function ImportDataFileSelect(event) {
 			});
 			reader.onload = function () {
 				// Normalize new lines
-				var result = reader.result.replace(/[\r|\r\n]/g, "\n"); 
+				var result = reader.result.replace(/[\r|[\r\n]]/g, "\n"); 
 				$.each(rvDataSets, function (SpeciesIndex,rvds) {
 					//Process File
 					rvds.addCustomData($.csv.toObjects(result));
@@ -1633,9 +1633,6 @@ function ImportDataFileSelect(event) {
 								var processLineWidth=false;
 							}
 							$.each(rvds.CustomData, function (index,value){
-								//var j = resNumToIndex(value.Residue_i,SpeciesIndex).toString();
-								//var k = resNumToIndex(value.Residue_j,SpeciesIndex).toString();
-								//if (j < 0 || k < 0){return true;}
 								if (processColor){
 									var color = colorNameToHex(value.ColorCol);
 								} else {
@@ -1693,13 +1690,6 @@ function ImportDataFileSelect(event) {
 	}
 }
 	
-function resNumToIndex(FullResNum,SpeciesIndex){
-	var comsplit = FullResNum.split(":");
-	var chainID = rvDataSets[SpeciesIndex].SpeciesEntry.PDB_chains[rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names.indexOf(comsplit[0])];
-	var aloneRes = chainID + "_" + comsplit[1];
-	var alone_ind = rvDataSets[SpeciesIndex].ResidueList.indexOf(aloneRes);
-	return alone_ind;
-}
 
 function customDataProcess(ui,targetLayer){
 	var NewData;
@@ -1886,11 +1876,11 @@ function CustomDataExpand(targetLayer){
 						//var ResName = rvDataSets[targetLayer.SetNumber].SpeciesEntry.PDB_chains[rvDataSets[targetLayer.SetNumber].SpeciesEntry.Molecule_Names.indexOf(ressplit[0])] + "_" + ressplit[1];	
 						var ResName = targetSelection.Residues[iii].resNum;
 					} else {
-					alert("fix customdataexpand");
+						alert("this mode is being deprecated. This shouldn't happen any more");
 					//	var chainID =  targetSelection.Residues[iii].ChainID;
 					//	var ResName = chainID + "_" + targetSelection.Residues[iii].resNum;
 					}
-					var k = rvDataSets[targetLayer.SetNumber].ResidueList.indexOf(ResName);
+					var k = MainResidueMap[ResName].index;
 					
 					if ($.inArray("DataCol", customkeys) >= 0) {
 						if (isNaN(parseFloat(rvDataSets[targetLayer.SetNumber].CustomData[ii]["DataCol"]))){
@@ -2491,14 +2481,33 @@ function canvasToSVG() {
 						break;
 					case "contour" :
 						output = output + '<g id="' + value.LayerName + '">\n';
-						for (var j = 0; j < rvds.ContourLinePoints.length; j++) {
-							var ContourLinePoint = rvds.ContourLinePoints[j];
-							output = output + '<polyline fill="none" stroke="' + value.dataLayerColors[j] + '" stroke-opacity="' + '1' + '" stroke-width="' + '3.2' + 
+						output = output + '<g id="' + 'Outline' + '">\n';
+						for (var j = 0; j < rvDataSets[SpeciesIndex].ExtraContourLineSegments.length; j++) {
+							var ExtraContourLineSegment = rvDataSets[SpeciesIndex].ExtraContourLineSegments[j];
+							output = output + '<polyline fill="none" stroke-dasharray="4, 4" stroke-linecap="round" stroke="' + '#000000' + '" stroke-opacity="' + '1' + '" stroke-width="' + '1.25' + 
+							'" stroke-linejoin="round" stroke-miterlimit="10" points="' + parseFloat(ExtraContourLineSegment.X1).toFixed(3) + ',' + parseFloat(ExtraContourLineSegment.Y1).toFixed(3)
+							+ ' ' + parseFloat(ExtraContourLineSegment.X2).toFixed(3) + ',' + parseFloat(ExtraContourLineSegment.Y2).toFixed(3)
+							+ ' "/>\n';
+						}
+						for (var j = 0; j < rvDataSets[SpeciesIndex].ContourLinePoints.length; j++) {
+							var ContourLinePoint = rvDataSets[SpeciesIndex].ContourLinePoints[j];
+							output = output + '<polyline fill="none" stroke-linecap="round" stroke="' + '#000000' + '" stroke-opacity="' + '1' + '" stroke-width="' + '4.8' + 
 							'" stroke-linejoin="round" stroke-miterlimit="10" points="' + parseFloat(ContourLinePoint.X1).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y1).toFixed(3)
 							+ ' ' + parseFloat(ContourLinePoint.X2).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y2).toFixed(3)
 							+ ' ' + parseFloat(ContourLinePoint.X3).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y3).toFixed(3)
 							+ ' "/>\n';
 						}
+						output = output + '</g>\n';
+						output = output + '<g id="' + 'Main_Data' + '">\n';
+						for (var j = 0; j < rvDataSets[SpeciesIndex].ContourLinePoints.length; j++) {
+							var ContourLinePoint = rvDataSets[SpeciesIndex].ContourLinePoints[j];
+							output = output + '<polyline fill="none" stroke-linecap="round" stroke="' + value.dataLayerColors[j] + '" stroke-opacity="' + '1' + '" stroke-width="' + '3.2' + 
+							'" stroke-linejoin="round" stroke-miterlimit="10" points="' + parseFloat(ContourLinePoint.X1).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y1).toFixed(3)
+							+ ' ' + parseFloat(ContourLinePoint.X2).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y2).toFixed(3)
+							+ ' ' + parseFloat(ContourLinePoint.X3).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y3).toFixed(3)
+							+ ' "/>\n';
+						}
+						output = output + '</g>\n';
 						output = output + '</g>\n';
 						break;
 					case "labels":
@@ -2549,21 +2558,6 @@ function canvasToSVG() {
 							
 							
 							output = output + '<text id="' + residue.resName + "_" + ResName + '" transform="matrix(1 0 0 1 ' + (parseFloat(residue.X) + xcorr).toFixed(3) + ' ' + (parseFloat(residue.Y) + ycorr).toFixed(3) + ')" fill="' + residue.color + '" font-family="Myriad Pro" ' + 'font-weight="' + residue["font-weight"] + '" font-size="' + rvds.SpeciesEntry.Font_Size_SVG + '">' + resName + '</text>\n';
-						}
-						output = output + '</g>\n';
-						break;
-					case "circles":
-						output = output + '<g id="' + value.LayerName + '">\n';
-						var radius = rvds.SpeciesEntry.Circle_Radius * value.ScaleFactor;
-						for (var i = 0; i < rvds.Residues.length; i++) {
-							var residue = rvds.Residues[i];
-							if (residue && value.dataLayerColors[i]) {
-								if (value.Filled) {
-									output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + value.dataLayerColors[i] + '" stroke="' + value.dataLayerColors[i] + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + (parseFloat(residue.X) + pageOffsetX).toFixed(3) + '" cy="' + (parseFloat(residue.Y).toFixed(3)+ pageOffsetY) + '" r="' + radius + '"/>\n';
-								} else {
-									output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + 'none' + '" stroke="' + value.dataLayerColors[i] + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + (parseFloat(residue.X) + pageOffsetX).toFixed(3) + '" cy="' + (parseFloat(residue.Y) + pageOffsetY).toFixed(3) + '" r="' + radius + '"/>\n';
-								}
-							}
 						}
 						output = output + '</g>\n';
 						break;
