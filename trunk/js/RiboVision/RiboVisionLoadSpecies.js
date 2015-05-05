@@ -109,7 +109,9 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 		rvDataSets[speciesIndex].ConservationTable=[];
 		$(".dataBubble").remove();
 		if (speciesSplit[0] != "None") {
+			$.getJSON('getData.php', {
 			var targetLayer = rvDataSets[speciesIndex].getLayerByType("residues");
+				Residues : speciesInterest
 			rvDataSets[speciesIndex].clearData("residues");
 			
 			// Set offset. Right now, only side by side, two structures are allowed, so this is easy.
@@ -131,6 +133,7 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 					MainResidueMap[data.resNum].X=parseFloat(ResiduePositions[speciesIndex][i]["X"]);
 					MainResidueMap[data.resNum].Y=parseFloat(ResiduePositions[speciesIndex][i]["Y"]);
 				});
+				rvDataSets[speciesIndex].makeContourLinePoints();
 				if (!DoneLoading2) {
 					clearSelection(true);
 				}
@@ -139,8 +142,8 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 			} else {
 				$.getJSON('getData.php', {
 					Residues : speciesInterest
-				}, function (data) {
-					processResidueData(data,speciesIndex);
+				}, function (db_residues) {
+					processResidueData(db_residues,speciesIndex);
 					//Default Domain
 					targetLayer[0].DataLabel = "Domains";
 					$("[name=" + targetLayer[0].LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer[0].DataLabel);
@@ -163,7 +166,8 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 						//MainResidueMap Section
 						$.each(rvDataSets[speciesIndex].Residues, function (i,data){
 							var uResName=rvDataSets[speciesIndex].SpeciesEntry.Molecule_Names[rvDataSets[speciesIndex].SpeciesEntry.PDB_chains.indexOf(data.ChainID)] + ":" + data.resNum.replace(/[^:]*:/g, "");
-							
+							//Overwrite resNum with molecule:number style, here. This will hold things over until the database is updated to only have that style. 
+							data.resNum=uResName;
 
 							MainResidueMap[uResName]={};
 							MainResidueMap[uResName].index=i;
@@ -174,6 +178,7 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 							//console.log(MainResidueMap[uResName]);
 						});
 						
+						rvDataSets[speciesIndex].makeContourLinePoints();
 						
 						if (!DoneLoading2) {
 							clearSelection(true);

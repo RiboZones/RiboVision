@@ -224,6 +224,7 @@ function rvDataSet(DataSetName,SetNumber) {
 	this.Residues = [];
 	this.ResidueList = [];
 	this.ContourLinePoints = [];
+	this.ExtraContourLineSegments = [];
 	this.SequenceList = "";
 	this.rvTextLabels = [];
 	this.rvLineLabels = [];
@@ -296,7 +297,7 @@ function rvDataSet(DataSetName,SetNumber) {
 		this.Residues = rvResidues;
 		this.ResidueList = makeResidueList(rvResidues);
 		this.SequenceList = makeSequenceList(rvResidues);
-		this.ContourLinePoints = makeContourLinePoints.call(this,rvResidues);
+		//this.ContourLinePoints = makeContourLinePoints.call(this,rvResidues);
 	};
 	this.addLabels = function (rvTextLabels, rvLineLabels, rvExtraLabels) {
 		if (rvTextLabels !== undefined){
@@ -629,28 +630,14 @@ function rvDataSet(DataSetName,SetNumber) {
 		this.drawLabels("labels");
 		this.drawBasePairs("lines");
 	}
-	
-	// Private functions, kinda
-	function makeResidueList(rvResidues) {
-		var ResidueListLocal = [],j;
-		for (j = 0; j < rvResidues.length; j++) {
-			//ResidueListLocal[j] = rvResidues[j].ChainID + "_" + rvResidues[j].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-			ResidueListLocal[j] = rvResidues[j].resNum;
-
-		}
-		return ResidueListLocal;
-	}
-	function makeSequenceList(rvResidues) {
-		var SequenceListLocal = "",j;
-		for (j = 0; j < rvResidues.length; j++) {
-			SequenceListLocal = SequenceListLocal.concat(rvResidues[j].resName);
-		}
-		return SequenceListLocal;
-	}
-	function makeContourLinePoints(rvResidues){
+	this.makeContourLinePoints = function (){
 		var rvds = this;
+		var cutoff=11.5;
 		var ContourLinePoints = [];
-		$.each(rvResidues, function( index , value ) {
+		var ExtraContourLineSegments = [];
+		var numResidues=this.Residues.length;
+		
+		$.each(this.Residues, function( index , value ) {
 			//Special case for firstspeciesIndex
 			if (index == 0) {
 				var diffxy=[];
@@ -664,7 +651,7 @@ function rvDataSet(DataSetName,SetNumber) {
 					Y2 : Number(rvds.Residues[index].Y),
 					Y3 : (Number(rvds.Residues[index + 1].Y) + Number(rvds.Residues[index].Y))/2,
 				};
-			} else if (index == rvResidues.length - 1) {
+			} else if (index == numResidues - 1) {
 			//Special case for last
 				var diffxy=[];
 				diffxy[0]=Number(rvds.Residues[index].X) - Number(rvds.Residues[index - 1].X);
@@ -679,6 +666,10 @@ function rvDataSet(DataSetName,SetNumber) {
 				};
 			
 			} else {
+				//Unlikely for the first or last to need special adjustment, so do it only here. 
+				//We need to adjust the line lengths if either (distance is larger than a set cutoff) 
+				// OR (molecule name changes). 
+				
 				var clp = {
 					X1 : (Number(rvds.Residues[index - 1].X) + Number(rvds.Residues[index].X))/2 + rvds.PageOffset[0],
 					X2 : Number(rvds.Residues[index].X) + rvds.PageOffset[0],
@@ -687,13 +678,60 @@ function rvDataSet(DataSetName,SetNumber) {
 					Y2 : Number(rvds.Residues[index].Y),
 					Y3 : (Number(rvds.Residues[index + 1].Y) + Number(rvds.Residues[index].Y))/2,
 				};
+				
+				// We overwrite clp accordingly
+				var firstMatches=rvds.ResidueList[index - 1].match(/[^:]+/)[0] == rvds.ResidueList[index].match(/[^:]+/)[0];
+				var secondMatches=rvds.ResidueList[index + 1].match(/[^:]+/)[0] == rvds.ResidueList[index].match(/[^:]+/)[0];
+
+				var dist1 = Math.sqrt((clp.X2-clp.X1)*(clp.X2-clp.X1) + (clp.Y2-clp.Y1)*(clp.Y2-clp.Y1));
+				if (dist1 > cutoff || !firstMatches){
+					console.log(dist1 + " " + index);
+					clp.X1=clp.X2;
+					clp.Y1=clp.Y2;
+				}
+				if (dist1 > cutoff && firstMatches){
+					// Add Extra line segment
+					var ecls = {
+						X1 : ContourLinePoints[index - 1].X3,
+						X2 : clp.X1,
+						Y1 : ContourLinePoints[index - 1].Y3,
+						Y2 : clp.Y1,
+					};
+					ExtraContourLineSegments.push(ecls);
+				}
+				
+				var dist2 = Math.sqrt((clp.X3-clp.X2)*(clp.X3-clp.X2) + (clp.Y3-clp.Y2)*(clp.Y3-clp.Y2));
+				if (dist2 > cutoff || !secondMatches){
+					console.log(dist2 + " " + index);
+					clp.X3=clp.X2;
+					clp.Y3=clp.Y2;
+				}
 			}
 			ContourLinePoints[index]=clp;
 		});
-		return ContourLinePoints;
+		this.ExtraContourLineSegments=ExtraContourLineSegments;
+		this.ContourLinePoints=ContourLinePoints;
+	}
+	
+	// Private functions, kinda
+	function makeResidueList(rvResidues) {
+		var ResidueListLocal = [],j;
+		for (j = 0; j < rvResidues.length; j++) {
+			ResidueListLocal[j] = rvResidues[j].resNum;
+		}
+		return ResidueListLocal;
+	}
+	function makeSequenceList(rvResidues) {
+		var SequenceListLocal = "",j;
+		for (j = 0; j < rvResidues.length; j++) {
+			SequenceListLocal = SequenceListLocal.concat(rvResidues[j].resName);
+		}
+		return SequenceListLocal;
 	}
 	function refreshLayer(targetLayer) {
 		var rvds = this;
+		var outLineMode=true;// Come back and make this optional
+		
 		if (rvds.Residues !== undefined && targetLayer.Type === "circles") {
 			targetLayer.clearCanvas();
 			if(this.SpeciesEntry.Circle_Radius){
@@ -718,7 +756,35 @@ function rvDataSet(DataSetName,SetNumber) {
 		// I do not know where these magic numbers, 0.05 and 0.3 come from. They make the contour lines look correct. 
 		if (rvds.Residues !== undefined && targetLayer.Type === "contour") {
 			targetLayer.clearCanvas();
+			targetLayer.CanvasContext.lineCap = 'round';
 			if (rvds.Residues && rvds.Residues.length > 0) {
+				if (outLineMode){
+					/* $.each(rvds.ExtraContourLineSegments, function (index, value) {
+						targetLayer.CanvasContext.beginPath();
+						targetLayer.CanvasContext.lineJoin = "round";  
+						targetLayer.CanvasContext.moveTo(value.X1 - .05, value.Y1 - .3);
+						targetLayer.CanvasContext.lineTo(value.X2 - .05, value.Y2 - .3);
+						targetLayer.CanvasContext.setLineDash([4,4]);
+						targetLayer.CanvasContext.strokeStyle = '#000000';	
+						targetLayer.CanvasContext.lineWidth = 1.0;					
+						targetLayer.CanvasContext.stroke();
+						targetLayer.CanvasContext.closePath();
+					}); */
+					$.each(rvds.Residues, function (index, value) {
+						if (targetLayer.dataLayerColors[index] != undefined && targetLayer.dataLayerColors[index] != '#858585') {
+							targetLayer.CanvasContext.beginPath();
+							targetLayer.CanvasContext.lineJoin = "round";  
+							targetLayer.CanvasContext.moveTo(rvds.ContourLinePoints[index].X1 - .05, rvds.ContourLinePoints[index].Y1 - .3);
+							targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X2 - .05, rvds.ContourLinePoints[index].Y2 - .3);
+							targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X3 - .05, rvds.ContourLinePoints[index].Y3 - .3);
+							targetLayer.CanvasContext.setLineDash([0,0]);
+							targetLayer.CanvasContext.strokeStyle = '#000000';	
+							targetLayer.CanvasContext.lineWidth = 4.8;					
+							targetLayer.CanvasContext.stroke();
+							targetLayer.CanvasContext.closePath();
+						}
+					});
+				}
 				$.each(rvds.Residues, function (index, value) {
 					if (targetLayer.dataLayerColors[index] != undefined && targetLayer.dataLayerColors[index] != '#858585') {
 						targetLayer.CanvasContext.beginPath();
@@ -726,26 +792,43 @@ function rvDataSet(DataSetName,SetNumber) {
 						targetLayer.CanvasContext.moveTo(rvds.ContourLinePoints[index].X1 - .05, rvds.ContourLinePoints[index].Y1 - .3);
 						targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X2 - .05, rvds.ContourLinePoints[index].Y2 - .3);
 						targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X3 - .05, rvds.ContourLinePoints[index].Y3 - .3);
+						targetLayer.CanvasContext.setLineDash([0,0]);
 						targetLayer.CanvasContext.strokeStyle = targetLayer.dataLayerColors[index];	
 						targetLayer.CanvasContext.lineWidth = 3.2;					
 						targetLayer.CanvasContext.stroke();
 						targetLayer.CanvasContext.closePath();
 					}
 				});
+				
 			}
 		}
 	}
 	function drawLabels(targetLayer,drawExtra) {
 		if (!canvas2DSupported){return};
 		targetLayer.CanvasContext.textAlign = 'left';
-		if (rvDataSets[0].rvTextLabels != undefined) {
+		targetLayer.CanvasContext.lineCap = 'round';
+
+		if (this.rvTextLabels != undefined) {
 			var n = watermark(false);
+			$.each(this.ExtraContourLineSegments, function (index, value) {
+				targetLayer.CanvasContext.beginPath();
+				targetLayer.CanvasContext.lineJoin = "round";  
+				targetLayer.CanvasContext.moveTo(value.X1 - .05, value.Y1 - .3);
+				targetLayer.CanvasContext.lineTo(value.X2 - .05, value.Y2 - .3);
+				targetLayer.CanvasContext.setLineDash([4,4]);
+				targetLayer.CanvasContext.strokeStyle = '#000000';	
+				targetLayer.CanvasContext.lineWidth = 1.0;					
+				targetLayer.CanvasContext.stroke();
+				targetLayer.CanvasContext.closePath();
+			});
+	
 			for (var i = 0; i < this.rvTextLabels.length; i++) {
 				targetLayer.CanvasContext.font = (0.70 * this.rvTextLabels[i].FontSize) + 'pt "Myriad Pro", Calibri, Arial';
 				targetLayer.CanvasContext.fillStyle = this.rvTextLabels[i].Fill;
 				targetLayer.CanvasContext.fillText(this.rvTextLabels[i].LabelText, parseFloat(this.rvTextLabels[i].X) + this.PageOffset[0], this.rvTextLabels[i].Y);
 			}
 			
+			targetLayer.CanvasContext.setLineDash([0,0]);
 			targetLayer.CanvasContext.strokeStyle = "rgba(35,31,32,32)";
 			targetLayer.CanvasContext.lineWidth = .5;
 			
@@ -822,6 +905,7 @@ function rvDataSet(DataSetName,SetNumber) {
 	}
 	function drawContourLine(targetLayer, dataIndices, ColorArray, noClear) {
 		var rvds = this;
+		var outLineMode=true;
 		if (targetLayer.Type === "contour") {
 			//targetLayer.clearCanvas();
 			if (!noClear) {
@@ -830,6 +914,33 @@ function rvDataSet(DataSetName,SetNumber) {
 			}
 			// I do not know where these magic numbers, 0.05 and 0.3 come from. They make the contour lines look correct. 
 			if (this.Residues && this.Residues.length > 0) {
+				if (outLineMode){
+					/* $.each(rvds.ExtraContourLineSegments, function (index, value) {
+						targetLayer.CanvasContext.beginPath();
+						targetLayer.CanvasContext.lineJoin = "round";  
+						targetLayer.CanvasContext.moveTo(value.X1 - .05, value.Y1 - .3);
+						targetLayer.CanvasContext.lineTo(value.X2 - .05, value.Y2 - .3);
+						targetLayer.CanvasContext.setLineDash([4,4]);
+						targetLayer.CanvasContext.strokeStyle = '#000000';	
+						targetLayer.CanvasContext.lineWidth = 1.0;					
+						targetLayer.CanvasContext.stroke();
+						targetLayer.CanvasContext.closePath();
+					}); */
+					$.each(rvds.Residues, function (index, value) {
+						if (ColorArray ) {
+							targetLayer.CanvasContext.beginPath();
+							targetLayer.CanvasContext.lineJoin = "round";  
+							targetLayer.CanvasContext.moveTo(rvds.ContourLinePoints[index].X1 - .05, rvds.ContourLinePoints[index].Y1 - .3);
+							targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X2 - .05, rvds.ContourLinePoints[index].Y2 - .3);
+							targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X3 - .05, rvds.ContourLinePoints[index].Y3 - .3);
+							targetLayer.CanvasContext.setLineDash([0,0]);
+							targetLayer.CanvasContext.strokeStyle = '#000000';	
+							targetLayer.CanvasContext.lineWidth = 4.8;					
+							targetLayer.CanvasContext.stroke();
+							targetLayer.CanvasContext.closePath();
+						}
+					});
+				}
 				$.each(this.Residues, function (index, value) {
 					if (dataIndices && ColorArray && ColorArray[dataIndices[index]] != undefined && ColorArray[dataIndices[index]] != '#858585') {
 						targetLayer.CanvasContext.beginPath();
@@ -837,6 +948,7 @@ function rvDataSet(DataSetName,SetNumber) {
 						targetLayer.CanvasContext.moveTo(rvds.ContourLinePoints[index].X1 - .05, rvds.ContourLinePoints[index].Y1 - .3);
 						targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X2 - .05, rvds.ContourLinePoints[index].Y2 - .3);
 						targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X3 - .05, rvds.ContourLinePoints[index].Y3 - .3);
+						targetLayer.CanvasContext.setLineDash([0,0]);
 						targetLayer.CanvasContext.strokeStyle = ColorArray[dataIndices[index]];	
 						targetLayer.CanvasContext.lineWidth = 3.2;					
 						targetLayer.CanvasContext.stroke();
@@ -848,6 +960,7 @@ function rvDataSet(DataSetName,SetNumber) {
 						targetLayer.CanvasContext.moveTo(rvds.ContourLinePoints[index].X1 - .05, rvds.ContourLinePoints[index].Y1 - .3);
 						targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X2 - .05, rvds.ContourLinePoints[index].Y2 - .3);
 						targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X3 - .05, rvds.ContourLinePoints[index].Y3 - .3);
+						targetLayer.CanvasContext.setLineDash([0,0]);
 						targetLayer.CanvasContext.strokeStyle = targetLayer.dataLayerColors[index];	
 						targetLayer.CanvasContext.lineWidth = 3.2;					
 						targetLayer.CanvasContext.stroke();
