@@ -319,7 +319,10 @@ function rvDataSet(DataSetName,SetNumber) {
 		this.Selected = Selected;
 	};*/
 	this.addCustomData = function (CustomData) {
-		this.CustomData = CustomData;
+		var rvds=this;
+		rvds.CustomData = $.grep(CustomData, function(value,index){
+			return 	$.inArray(value.resNum,rvds.ResidueList) >=0;
+		})
 	};
 	this.addSpeciesEntry = function (SpeciesEntry) {
 		this.SpeciesEntry = SpeciesEntry;
@@ -685,7 +688,7 @@ function rvDataSet(DataSetName,SetNumber) {
 
 				var dist1 = Math.sqrt((clp.X2-clp.X1)*(clp.X2-clp.X1) + (clp.Y2-clp.Y1)*(clp.Y2-clp.Y1));
 				if (dist1 > cutoff || !firstMatches){
-					console.log(dist1 + " " + index);
+					//console.log(dist1 + " " + index);
 					clp.X1=clp.X2;
 					clp.Y1=clp.Y2;
 				}
@@ -702,7 +705,7 @@ function rvDataSet(DataSetName,SetNumber) {
 				
 				var dist2 = Math.sqrt((clp.X3-clp.X2)*(clp.X3-clp.X2) + (clp.Y3-clp.Y2)*(clp.Y3-clp.Y2));
 				if (dist2 > cutoff || !secondMatches){
-					console.log(dist2 + " " + index);
+					//console.log(dist2 + " " + index);
 					clp.X3=clp.X2;
 					clp.Y3=clp.Y2;
 				}
