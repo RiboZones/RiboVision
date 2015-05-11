@@ -1713,10 +1713,12 @@ function customDataProcess(ui,targetLayer){
 			rvDataSets[targetLayer.SetNumber].refreshResiduesExpanded(targetLayer.LayerName);
 			update3Dcolors();
 		}
-		if ($.inArray("SwitchPoint", customkeys) >= 0) {
+		if ($.inArray("TwoColorMode", customkeys) >= 0 && $.inArray("SwitchPoint", customkeys) >= 0) {
 			var SwitchPoint=parseFloat(rvDataSets[targetLayer.SetNumber].CustomData[0]["SwitchPoint"]);
-		} else {
+		} else if ($.inArray("TwoColorMode", customkeys) >= 0){
 			var SwitchPoint=0;
+		} else {
+			var SwitchPoint=undefined;
 		}
 		if ($.inArray("ColorCol", customkeys) >= 0) {
 			rvDataSets[targetLayer.SetNumber].drawResidues("residues");
@@ -2430,6 +2432,13 @@ function canvasToSVG() {
 	$.each(rvDataSets, function (SpeciesIndex, rvds) {
 		var pageOffsetX = rvds.PageOffset[0];
 		var pageOffsetY = rvds.PageOffset[1];
+		
+		if (rvds.SpeciesEntry.Font_Size_SVG){
+			var Font_Size_SVG=parseFloat(rvds.SpeciesEntry.Font_Size_SVG);
+		} else {
+			var Font_Size_SVG=3.9;
+		}
+		
 		//This will not work correctly any more, due to the two structure mode. Will need to shift these when loaded second.
 		var elReq = $.ajax({
 			url: "images/" + rvds.Name + "_ExtraLabels.svg",
@@ -2443,6 +2452,13 @@ function canvasToSVG() {
 		});
 		output += '<g id="Structure_' + (SpeciesIndex + 1) + '">\n';
 		$.each(rvds.Layers, function (index, value) {
+			if (rvds.SpeciesEntry.Circle_Radius){
+				var radius=parseFloat(rvds.SpeciesEntry.Circle_Radius) * value.ScaleFactor;
+			} else {
+				var radius= 1.7 * value.ScaleFactor;
+			}
+			var undefined_color='undefined';
+			
 			if (AllMode || value.Visible){
 				switch (value.Type) {
 					case "lines":
@@ -2466,7 +2482,13 @@ function canvasToSVG() {
 						}
 						for (var j = 0; j < rvDataSets[SpeciesIndex].ContourLinePoints.length; j++) {
 							var ContourLinePoint = rvDataSets[SpeciesIndex].ContourLinePoints[j];
-							output = output + '<polyline fill="none" stroke-linecap="round" stroke="' + '#000000' + '" stroke-opacity="' + '1' + '" stroke-width="' + '4.8' + 
+							if (value.dataLayerColors[j]){
+								var PointColor='#000000';
+							} else {
+								var PointColor=undefined_color;
+							}
+							
+							output = output + '<polyline fill="none" stroke-linecap="round" stroke="' + PointColor + '" stroke-opacity="' + '1' + '" stroke-width="' + '4.8' + 
 							'" stroke-linejoin="round" stroke-miterlimit="10" points="' + parseFloat(ContourLinePoint.X1).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y1).toFixed(3)
 							+ ' ' + parseFloat(ContourLinePoint.X2).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y2).toFixed(3)
 							+ ' ' + parseFloat(ContourLinePoint.X3).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y3).toFixed(3)
@@ -2502,8 +2524,8 @@ function canvasToSVG() {
 						break;
 					case "residues":
 						output = output + '<g id="' + value.LayerName + '">\n';
-						var xcorr = -0.439 * parseFloat(rvds.SpeciesEntry.Font_Size_SVG) + 0.4346; // magic font corrections.
-						var ycorr = 0.2944 * parseFloat(rvds.SpeciesEntry.Font_Size_SVG) - 0.0033;
+						var xcorr = -0.439 * Font_Size_SVG + 0.4346; // magic font corrections.
+						var ycorr = 0.2944 * Font_Size_SVG - 0.0033;
 						
 						// Add PageOffset to corrections for convenience
 						xcorr += pageOffsetX;
@@ -2532,14 +2554,27 @@ function canvasToSVG() {
 							}
 							
 							
-							output = output + '<text id="' + residue.resName + "_" + ResName + '" transform="matrix(1 0 0 1 ' + (parseFloat(residue.X) + xcorr).toFixed(3) + ' ' + (parseFloat(residue.Y) + ycorr).toFixed(3) + ')" fill="' + residue.color + '" font-family="Myriad Pro" ' + 'font-weight="' + residue["font-weight"] + '" font-size="' + rvds.SpeciesEntry.Font_Size_SVG + '">' + resName + '</text>\n';
+							output = output + '<text id="' + residue.resName + "_" + ResName + '" transform="matrix(1 0 0 1 ' + (parseFloat(residue.X) + xcorr).toFixed(3) + ' ' + (parseFloat(residue.Y) + ycorr).toFixed(3) + ')" fill="' + residue.color + '" font-family="Myriad Pro" ' + 'font-weight="' + residue["font-weight"] + '" font-size="' + Font_Size_SVG + '">' + resName + '</text>\n';
+						}
+						output = output + '</g>\n';
+						break;
+					case "circles":
+						output = output + '<g id="' + value.LayerName + '">\n';
+						
+						for (var i = 0; i < rvds.Residues.length; i++) {
+							var residue = rvds.Residues[i];
+							if (residue && value.dataLayerColors[i]) {
+								if (value.Filled) {
+									output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + value.dataLayerColors[i] + '" stroke="' + value.dataLayerColors[i] + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + (parseFloat(residue.X) + pageOffsetX).toFixed(3) + '" cy="' + (parseFloat(residue.Y).toFixed(3)+ pageOffsetY) + '" r="' + radius + '"/>\n';
+								} else {
+									output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + 'none' + '" stroke="' + value.dataLayerColors[i] + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + (parseFloat(residue.X) + pageOffsetX).toFixed(3) + '" cy="' + (parseFloat(residue.Y) + pageOffsetY).toFixed(3) + '" r="' + radius + '"/>\n';
+								}
+							}
 						}
 						output = output + '</g>\n';
 						break;
 					case "selected":
 						output = output + '<g id="' + value.LayerName + '">\n';
-						var radius = rvds.SpeciesEntry.Circle_Radius * value.ScaleFactor;
-						
 						var SelectionList =[];
 						$('.checkBoxDIV-S').find(".visibilityCheckImg[value=visible]").parent().parent().each(function (index){SelectionList.push($(this).attr("name"))});
 
