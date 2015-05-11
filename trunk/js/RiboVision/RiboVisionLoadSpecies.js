@@ -130,6 +130,7 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 					MainResidueMap[data.resNum].X=parseFloat(ResiduePositions[speciesIndex][i]["X"]);
 					MainResidueMap[data.resNum].Y=parseFloat(ResiduePositions[speciesIndex][i]["Y"]);
 				});
+				rvDataSets[speciesIndex].makeResidueList();
 				rvDataSets[speciesIndex].makeContourLinePoints();
 				if (!DoneLoading2) {
 					clearSelection(true);
