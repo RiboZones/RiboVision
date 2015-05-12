@@ -720,7 +720,7 @@ function colorProcess(DataInput, indexMode,targetLayer,colors,SwitchPoint,SkipDr
 		var dataIndices = new Array;
 		for (var i = 0; i < data.length; i++) {
 			if (SwitchPoint !=undefined){
-				dataIndices[i] = data[i] > SwitchPoint ? 1 : 0;
+				dataIndices[i] = data[i] >= SwitchPoint ? 1 : 0;
 			} else {
 				dataIndices[i] = Math.round((data[i] - min) / range * (colors.length - 1));
 			}
