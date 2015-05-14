@@ -67,7 +67,7 @@ function processResidueData(ResidueData,speciesIndex){
 }
 function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 	var speciesSplit=species.split("&");
-	ResiduePositions=[[]];
+	//ResiduePositions=[[]];
 	MainResidueMap=[[]];
 
 	// get data description table
@@ -108,20 +108,22 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 		});
 		rvDataSets[speciesIndex].ConservationTable=[];
 		$(".dataBubble").remove();
-		if (speciesSplit[0] != "None") {
+		if (speciesInterest != "None") {
 			rvDataSets[speciesIndex].clearData("residues");
 
-			// Set offset. Right now, only side by side, two structures are allowed, so this is easy.
-			rvDataSets[speciesIndex].PageOffset[0] = (rvDataSets[speciesIndex].SpeciesEntry.Orientation == "portrait") ? 792 * rvDataSets[speciesIndex].SetNumber : 612 * rvDataSets[speciesIndex].SetNumber  ; //X direction
-			rvDataSets[speciesIndex].PageOffset[1]=0; //Y direction
-			ResiduePositions[speciesIndex]=[[]];
+			if (speciesInterest == "custom"){
+				// Set offset. Right now, only side by side, two structures are allowed, so this is easy.
+				rvDataSets[speciesIndex].PageOffset[0] = (rvDataSets[speciesIndex].SpeciesEntry.Orientation == "landscape") ? 792 * rvDataSets[speciesIndex].SetNumber : 612 * rvDataSets[speciesIndex].SetNumber  ; //X direction
+				rvDataSets[speciesIndex].PageOffset[1]=0; //Y direction
 				
-			if (speciesSplit[0] == "custom"){
-				$.each(customResidues, function (i, item) {
-					item["modResName"]=item["resName"];
-					item["unModResName"]=item["resName"];
-				});
-				processResidueData(customResidues,speciesIndex);
+				if  (customResidues){
+					ResiduePositions[speciesIndex]=[[]];
+					$.each(customResidues, function (i, item) {
+						item["modResName"]=item["resName"];
+						item["unModResName"]=item["resName"];
+					});
+					processResidueData(customResidues,speciesIndex);
+				}
 				//MainResidueMap Section
 				$.each(rvDataSets[speciesIndex].Residues, function (i,data){
 					MainResidueMap[data.resNum]={};
@@ -138,6 +140,7 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 				initLabels(speciesInterest,speciesIndex);
 				
 			} else {
+				ResiduePositions[speciesIndex]=[[]];
 				$.getJSON('getData.php', {
 					Residues : speciesInterest
 				}, function (db_residues) {
@@ -162,7 +165,9 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 						SpeciesTable : speciesInterest
 					}, function (species_entry2) {
 						rvDataSets[speciesIndex].addSpeciesEntry(species_entry2[0]);
-						
+						// Set offset. Right now, only side by side, two structures are allowed, so this is easy.
+						rvDataSets[speciesIndex].PageOffset[0] = (rvDataSets[speciesIndex].SpeciesEntry.Orientation == "landscape") ? 792 * rvDataSets[speciesIndex].SetNumber : 612 * rvDataSets[speciesIndex].SetNumber  ; //X direction
+						rvDataSets[speciesIndex].PageOffset[1]=0; //Y direction
 						//MainResidueMap Section
 						$.each(rvDataSets[speciesIndex].Residues, function (i,data){
 							var uResName=rvDataSets[speciesIndex].SpeciesEntry.Molecule_Names[rvDataSets[speciesIndex].SpeciesEntry.PDB_chains.indexOf(data.ChainID)] + ":" + data.resNum.replace(/[^:]*:/g, "");
