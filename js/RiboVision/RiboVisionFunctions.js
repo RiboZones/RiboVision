@@ -772,7 +772,7 @@ function colorMappingLoop(targetLayer, seleProt, seleProtNames, OverRideColors) 
 	
 	
 	//Canvas Part
-	colorMappingLoopCanvas(targetLayer,seleProt,colors2);
+	colorMappingLoopCanvas(targetLayer,seleProt,seleProtNames,colors2);
 	
 	//Jmol Part
 	colorMappingLoop3D(seleProt,colors2);
@@ -797,7 +797,7 @@ function colorMappingLoop(targetLayer, seleProt, seleProtNames, OverRideColors) 
 	drawNavLine();
 }
 
-function colorMappingLoopCanvas(targetLayer,seleProt,colors2){
+function colorMappingLoopCanvas(targetLayer,seleProt,seleProtNames,colors2){
 	//Rest Canvases Part
 	if (targetLayer){
 		var setNumber=targetLayer.SetNumber;
