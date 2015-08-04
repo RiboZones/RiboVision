@@ -780,7 +780,7 @@ function rvDataSet(DataSetName,SetNumber) {
 							targetLayer.CanvasContext.moveTo(rvds.ContourLinePoints[index].X1 - .05, rvds.ContourLinePoints[index].Y1 - .3);
 							targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X2 - .05, rvds.ContourLinePoints[index].Y2 - .3);
 							targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X3 - .05, rvds.ContourLinePoints[index].Y3 - .3);
-							targetLayer.CanvasContext.setLineDash([0,0]);
+							targetLayer.CanvasContext.setLineDash([]);
 							targetLayer.CanvasContext.strokeStyle = '#000000';	
 							targetLayer.CanvasContext.lineWidth = 4.8;					
 							targetLayer.CanvasContext.stroke();
@@ -795,7 +795,7 @@ function rvDataSet(DataSetName,SetNumber) {
 						targetLayer.CanvasContext.moveTo(rvds.ContourLinePoints[index].X1 - .05, rvds.ContourLinePoints[index].Y1 - .3);
 						targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X2 - .05, rvds.ContourLinePoints[index].Y2 - .3);
 						targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X3 - .05, rvds.ContourLinePoints[index].Y3 - .3);
-						targetLayer.CanvasContext.setLineDash([0,0]);
+						targetLayer.CanvasContext.setLineDash([]);
 						targetLayer.CanvasContext.strokeStyle = targetLayer.dataLayerColors[index];	
 						targetLayer.CanvasContext.lineWidth = 3.2;					
 						targetLayer.CanvasContext.stroke();
@@ -831,7 +831,7 @@ function rvDataSet(DataSetName,SetNumber) {
 				targetLayer.CanvasContext.fillText(this.rvTextLabels[i].LabelText, parseFloat(this.rvTextLabels[i].X) + this.PageOffset[0], this.rvTextLabels[i].Y);
 			}
 			
-			targetLayer.CanvasContext.setLineDash([0,0]);
+			targetLayer.CanvasContext.setLineDash([]);
 			targetLayer.CanvasContext.strokeStyle = "rgba(35,31,32,32)";
 			targetLayer.CanvasContext.lineWidth = .5;
 			
@@ -936,7 +936,7 @@ function rvDataSet(DataSetName,SetNumber) {
 							targetLayer.CanvasContext.moveTo(rvds.ContourLinePoints[index].X1 - .05, rvds.ContourLinePoints[index].Y1 - .3);
 							targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X2 - .05, rvds.ContourLinePoints[index].Y2 - .3);
 							targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X3 - .05, rvds.ContourLinePoints[index].Y3 - .3);
-							targetLayer.CanvasContext.setLineDash([0,0]);
+							targetLayer.CanvasContext.setLineDash([]);
 							targetLayer.CanvasContext.strokeStyle = '#000000';	
 							targetLayer.CanvasContext.lineWidth = 4.8;					
 							targetLayer.CanvasContext.stroke();
@@ -951,7 +951,7 @@ function rvDataSet(DataSetName,SetNumber) {
 						targetLayer.CanvasContext.moveTo(rvds.ContourLinePoints[index].X1 - .05, rvds.ContourLinePoints[index].Y1 - .3);
 						targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X2 - .05, rvds.ContourLinePoints[index].Y2 - .3);
 						targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X3 - .05, rvds.ContourLinePoints[index].Y3 - .3);
-						targetLayer.CanvasContext.setLineDash([0,0]);
+						targetLayer.CanvasContext.setLineDash([]);
 						targetLayer.CanvasContext.strokeStyle = ColorArray[dataIndices[index]];	
 						targetLayer.CanvasContext.lineWidth = 3.2;					
 						targetLayer.CanvasContext.stroke();
@@ -963,7 +963,7 @@ function rvDataSet(DataSetName,SetNumber) {
 						targetLayer.CanvasContext.moveTo(rvds.ContourLinePoints[index].X1 - .05, rvds.ContourLinePoints[index].Y1 - .3);
 						targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X2 - .05, rvds.ContourLinePoints[index].Y2 - .3);
 						targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X3 - .05, rvds.ContourLinePoints[index].Y3 - .3);
-						targetLayer.CanvasContext.setLineDash([0,0]);
+						targetLayer.CanvasContext.setLineDash([]);
 						targetLayer.CanvasContext.strokeStyle = targetLayer.dataLayerColors[index];	
 						targetLayer.CanvasContext.lineWidth = 3.2;					
 						targetLayer.CanvasContext.stroke();
