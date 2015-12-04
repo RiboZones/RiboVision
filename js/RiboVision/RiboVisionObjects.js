@@ -28,7 +28,7 @@ based on:
 
 
 /////////////////////////// Classes ///////////////////////////////////////////
-function RvLayer(rvds,LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color) {
+function RvLayer(rvds,LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color,OutLineMode) {
 	//Properties
 	this.LayerName = LayerName;
 	this.SetNumber = rvds.SetNumber;
@@ -61,6 +61,11 @@ function RvLayer(rvds,LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Co
 		this.Color = Color;
 	} else {
 		this.Color = "#0000FF";
+	}
+	if (OutLineMode==undefined) {
+		this.OutLineMode=true;
+	} else {
+		this.OutLineMode=OutLineMode;
 	}
 	if (this.Type === "lines") {
 		this.ColorLayer = "gray_lines";
@@ -283,8 +288,8 @@ function rvDataSet(DataSetName,SetNumber) {
 		this.Layers = rvLayers;
 		this.LastLayer = this.Layers.length - 1;
 	};
-	this.addLayer = function (LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color) {
-		var b = new RvLayer(this,LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color);
+	this.addLayer = function (LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color, OutLineMode) {
+		var b = new RvLayer(this,LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Color, OutLineMode);
 		this.Layers[this.Layers.length] = b;
 		this.LastLayer = this.Layers.length - 1;
 	};
@@ -733,7 +738,7 @@ function rvDataSet(DataSetName,SetNumber) {
 	}
 	function refreshLayer(targetLayer) {
 		var rvds = this;
-		var outLineMode=true;// Come back and make this optional
+		//var outLineMode=true;// Come back and make this optional
 		
 		if (rvds.Residues !== undefined && targetLayer.Type === "circles") {
 			targetLayer.clearCanvas();
@@ -761,7 +766,7 @@ function rvDataSet(DataSetName,SetNumber) {
 			targetLayer.clearCanvas();
 			targetLayer.CanvasContext.lineCap = 'round';
 			if (rvds.Residues && rvds.Residues.length > 0) {
-				if (outLineMode){
+				if (targetLayer.OutLineMode){
 					/* $.each(rvds.ExtraContourLineSegments, function (index, value) {
 						targetLayer.CanvasContext.beginPath();
 						targetLayer.CanvasContext.lineJoin = "round";  
@@ -782,11 +787,12 @@ function rvDataSet(DataSetName,SetNumber) {
 							targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X3 - .05, rvds.ContourLinePoints[index].Y3 - .3);
 							targetLayer.CanvasContext.setLineDash([]);
 							targetLayer.CanvasContext.strokeStyle = '#000000';	
-							targetLayer.CanvasContext.lineWidth = 4.8;					
+							targetLayer.CanvasContext.lineWidth = targetLayer.ScaleFactor * 4.8;					
 							targetLayer.CanvasContext.stroke();
 							targetLayer.CanvasContext.closePath();
 						}
 					});
+					//alert(targetLayer.OutLineMode)
 				}
 				$.each(rvds.Residues, function (index, value) {
 					if (targetLayer.dataLayerColors[index] != undefined && targetLayer.dataLayerColors[index] != '#858585') {
@@ -797,7 +803,7 @@ function rvDataSet(DataSetName,SetNumber) {
 						targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X3 - .05, rvds.ContourLinePoints[index].Y3 - .3);
 						targetLayer.CanvasContext.setLineDash([]);
 						targetLayer.CanvasContext.strokeStyle = targetLayer.dataLayerColors[index];	
-						targetLayer.CanvasContext.lineWidth = 3.2;					
+						targetLayer.CanvasContext.lineWidth = targetLayer.ScaleFactor * 3.2;					
 						targetLayer.CanvasContext.stroke();
 						targetLayer.CanvasContext.closePath();
 					}
@@ -908,7 +914,7 @@ function rvDataSet(DataSetName,SetNumber) {
 	}
 	function drawContourLine(targetLayer, dataIndices, ColorArray, noClear) {
 		var rvds = this;
-		var outLineMode=true;
+		//var outLineMode=true;
 		if (targetLayer.Type === "contour") {
 			//targetLayer.clearCanvas();
 			if (!noClear) {
@@ -917,7 +923,7 @@ function rvDataSet(DataSetName,SetNumber) {
 			}
 			// I do not know where these magic numbers, 0.05 and 0.3 come from. They make the contour lines look correct. 
 			if (this.Residues && this.Residues.length > 0) {
-				if (outLineMode){
+				if (targetLayer.OutLineMode){
 					/* $.each(rvds.ExtraContourLineSegments, function (index, value) {
 						targetLayer.CanvasContext.beginPath();
 						targetLayer.CanvasContext.lineJoin = "round";  
@@ -938,7 +944,7 @@ function rvDataSet(DataSetName,SetNumber) {
 							targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X3 - .05, rvds.ContourLinePoints[index].Y3 - .3);
 							targetLayer.CanvasContext.setLineDash([]);
 							targetLayer.CanvasContext.strokeStyle = '#000000';	
-							targetLayer.CanvasContext.lineWidth = 4.8;					
+							targetLayer.CanvasContext.lineWidth = targetLayer.ScaleFactor * 4.8;					
 							targetLayer.CanvasContext.stroke();
 							targetLayer.CanvasContext.closePath();
 						}
@@ -953,7 +959,7 @@ function rvDataSet(DataSetName,SetNumber) {
 						targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X3 - .05, rvds.ContourLinePoints[index].Y3 - .3);
 						targetLayer.CanvasContext.setLineDash([]);
 						targetLayer.CanvasContext.strokeStyle = ColorArray[dataIndices[index]];	
-						targetLayer.CanvasContext.lineWidth = 3.2;					
+						targetLayer.CanvasContext.lineWidth = targetLayer.ScaleFactor * 3.2;					
 						targetLayer.CanvasContext.stroke();
 						targetLayer.CanvasContext.closePath();
 						targetLayer.dataLayerColors[index] = ColorArray[dataIndices[index]];
@@ -965,7 +971,7 @@ function rvDataSet(DataSetName,SetNumber) {
 						targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X3 - .05, rvds.ContourLinePoints[index].Y3 - .3);
 						targetLayer.CanvasContext.setLineDash([]);
 						targetLayer.CanvasContext.strokeStyle = targetLayer.dataLayerColors[index];	
-						targetLayer.CanvasContext.lineWidth = 3.2;					
+						targetLayer.CanvasContext.lineWidth = targetLayer.ScaleFactor * 3.2;					
 						targetLayer.CanvasContext.stroke();
 						targetLayer.CanvasContext.closePath();
 					} else 	{

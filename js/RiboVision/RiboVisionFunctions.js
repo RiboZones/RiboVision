@@ -1231,7 +1231,7 @@ function mouseMoveFunction(event){
 							rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineTo(rvDataSets[sel[1]].ContourLinePoints[sel[0]].X2 - .05, rvDataSets[sel[1]].ContourLinePoints[sel[0]].Y2 - .3);
 							rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineTo(rvDataSets[sel[1]].ContourLinePoints[sel[0]].X3 - .05, rvDataSets[sel[1]].ContourLinePoints[sel[0]].Y3 - .3);
 							rvDataSets[sel[1]].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#MainColor").val());
-							rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineWidth = 3.2;					
+							rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineWidth = targetLayer.ScaleFactor * 3.2;					
 							rvDataSets[sel[1]].HighlightLayer.CanvasContext.stroke();
 							rvDataSets[sel[1]].HighlightLayer.CanvasContext.closePath();
 							break;
@@ -1315,7 +1315,7 @@ function mouseMoveFunction(event){
 						rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineTo(rvDataSets[sel[1]].ContourLinePoints[sel[0]].X2 - .05, rvDataSets[sel[1]].ContourLinePoints[sel[0]].Y2 - .3);
 						rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineTo(rvDataSets[sel[1]].ContourLinePoints[sel[0]].X3 - .05, rvDataSets[sel[1]].ContourLinePoints[sel[0]].Y3 - .3);
 						rvDataSets[sel[1]].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#MainColor").val());
-						rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineWidth = 3.2;					
+						rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineWidth = targetLayer.ScaleFactor * 3.2;					
 						rvDataSets[sel[1]].HighlightLayer.CanvasContext.stroke();
 						rvDataSets[sel[1]].HighlightLayer.CanvasContext.closePath();
 						break;
@@ -2472,33 +2472,35 @@ function canvasToSVG() {
 						break;
 					case "contour" :
 						output = output + '<g id="' + value.LayerName + '">\n';
-						output = output + '<g id="' + 'Outline' + '">\n';
-						for (var j = 0; j < rvDataSets[SpeciesIndex].ExtraContourLineSegments.length; j++) {
-							var ExtraContourLineSegment = rvDataSets[SpeciesIndex].ExtraContourLineSegments[j];
-							output = output + '<polyline fill="none" stroke-dasharray="4, 4" stroke-linecap="round" stroke="' + '#000000' + '" stroke-opacity="' + '1' + '" stroke-width="' + '1.25' + 
-							'" stroke-linejoin="round" stroke-miterlimit="10" points="' + parseFloat(ExtraContourLineSegment.X1).toFixed(3) + ',' + parseFloat(ExtraContourLineSegment.Y1).toFixed(3)
-							+ ' ' + parseFloat(ExtraContourLineSegment.X2).toFixed(3) + ',' + parseFloat(ExtraContourLineSegment.Y2).toFixed(3)
-							+ ' "/>\n';
-						}
-						for (var j = 0; j < rvDataSets[SpeciesIndex].ContourLinePoints.length; j++) {
-							var ContourLinePoint = rvDataSets[SpeciesIndex].ContourLinePoints[j];
-							if (value.dataLayerColors[j]){
-								var PointColor='#000000';
-							} else {
-								var PointColor=undefined_color;
+						if (value.OutLineMode){
+							output = output + '<g id="' + 'Outline' + '">\n';
+							for (var j = 0; j < rvDataSets[SpeciesIndex].ExtraContourLineSegments.length; j++) {
+								var ExtraContourLineSegment = rvDataSets[SpeciesIndex].ExtraContourLineSegments[j];
+								output = output + '<polyline fill="none" stroke-dasharray="4, 4" stroke-linecap="round" stroke="' + '#000000' + '" stroke-opacity="' + '1' + '" stroke-width="' + '1.25' + 
+								'" stroke-linejoin="round" stroke-miterlimit="10" points="' + parseFloat(ExtraContourLineSegment.X1).toFixed(3) + ',' + parseFloat(ExtraContourLineSegment.Y1).toFixed(3)
+								+ ' ' + parseFloat(ExtraContourLineSegment.X2).toFixed(3) + ',' + parseFloat(ExtraContourLineSegment.Y2).toFixed(3)
+								+ ' "/>\n';
 							}
-							
-							output = output + '<polyline fill="none" stroke-linecap="round" stroke="' + PointColor + '" stroke-opacity="' + '1' + '" stroke-width="' + '4.8' + 
-							'" stroke-linejoin="round" stroke-miterlimit="10" points="' + parseFloat(ContourLinePoint.X1).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y1).toFixed(3)
-							+ ' ' + parseFloat(ContourLinePoint.X2).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y2).toFixed(3)
-							+ ' ' + parseFloat(ContourLinePoint.X3).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y3).toFixed(3)
-							+ ' "/>\n';
+							for (var j = 0; j < rvDataSets[SpeciesIndex].ContourLinePoints.length; j++) {
+								var ContourLinePoint = rvDataSets[SpeciesIndex].ContourLinePoints[j];
+								if (value.dataLayerColors[j]){
+									var PointColor='#000000';
+								} else {
+									var PointColor=undefined_color;
+								}
+								
+								output = output + '<polyline fill="none" stroke-linecap="round" stroke="' + PointColor + '" stroke-opacity="' + '1' + '" stroke-width="' + targetLayer.ScaleFactor * 4.8 + 
+								'" stroke-linejoin="round" stroke-miterlimit="10" points="' + parseFloat(ContourLinePoint.X1).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y1).toFixed(3)
+								+ ' ' + parseFloat(ContourLinePoint.X2).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y2).toFixed(3)
+								+ ' ' + parseFloat(ContourLinePoint.X3).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y3).toFixed(3)
+								+ ' "/>\n';
+							}
+							output = output + '</g>\n';
 						}
-						output = output + '</g>\n';
 						output = output + '<g id="' + 'Main_Data' + '">\n';
 						for (var j = 0; j < rvDataSets[SpeciesIndex].ContourLinePoints.length; j++) {
 							var ContourLinePoint = rvDataSets[SpeciesIndex].ContourLinePoints[j];
-							output = output + '<polyline fill="none" stroke-linecap="round" stroke="' + value.dataLayerColors[j] + '" stroke-opacity="' + '1' + '" stroke-width="' + '3.2' + 
+							output = output + '<polyline fill="none" stroke-linecap="round" stroke="' + value.dataLayerColors[j] + '" stroke-opacity="' + '1' + '" stroke-width="' + targetLayer.ScaleFactor * 3.2 + 
 							'" stroke-linejoin="round" stroke-miterlimit="10" points="' + parseFloat(ContourLinePoint.X1).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y1).toFixed(3)
 							+ ' ' + parseFloat(ContourLinePoint.X2).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y2).toFixed(3)
 							+ ' ' + parseFloat(ContourLinePoint.X3).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y3).toFixed(3)

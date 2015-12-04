@@ -1015,6 +1015,7 @@ function prepare_rvDataSet(SpeciesIndex){
 	rvDataSets[SpeciesIndex].addLayer("Interactions", "InteractionsLayer", [], true, 1.0, 'lines');
 	rvDataSets[SpeciesIndex].addLayer("Labels", "LabelLayer", [], true, 1.0, 'labels');
 	rvDataSets[SpeciesIndex].addLayer("ContourLine", "ContourLine", [], true, 1.0, 'contour');
+	rvDataSets[SpeciesIndex].addLayer("ContourLine2", "ContourLine2", [], true, 2.7/3.2, 'contour',undefined,false);
 	rvDataSets[SpeciesIndex].addLayer("Letters", "NucleotideLayer", [], true, 1.0, 'residues');
 	rvDataSets[SpeciesIndex].addLayer("Circles", "CircleLayer1", [], true, 1.0, 'circles');
 	rvDataSets[SpeciesIndex].addLayer("Selection", "SSelectionLayer", [], false, 1.176, 'selected');
