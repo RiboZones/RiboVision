@@ -2489,7 +2489,7 @@ function canvasToSVG() {
 									var PointColor=undefined_color;
 								}
 								
-								output = output + '<polyline fill="none" stroke-linecap="round" stroke="' + PointColor + '" stroke-opacity="' + '1' + '" stroke-width="' + targetLayer.ScaleFactor * 4.8 + 
+								output = output + '<polyline fill="none" stroke-linecap="round" stroke="' + PointColor + '" stroke-opacity="' + '1' + '" stroke-width="' + value.ScaleFactor * 4.8 + 
 								'" stroke-linejoin="round" stroke-miterlimit="10" points="' + parseFloat(ContourLinePoint.X1).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y1).toFixed(3)
 								+ ' ' + parseFloat(ContourLinePoint.X2).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y2).toFixed(3)
 								+ ' ' + parseFloat(ContourLinePoint.X3).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y3).toFixed(3)
@@ -2500,7 +2500,7 @@ function canvasToSVG() {
 						output = output + '<g id="' + 'Main_Data' + '">\n';
 						for (var j = 0; j < rvDataSets[SpeciesIndex].ContourLinePoints.length; j++) {
 							var ContourLinePoint = rvDataSets[SpeciesIndex].ContourLinePoints[j];
-							output = output + '<polyline fill="none" stroke-linecap="round" stroke="' + value.dataLayerColors[j] + '" stroke-opacity="' + '1' + '" stroke-width="' + targetLayer.ScaleFactor * 3.2 + 
+							output = output + '<polyline fill="none" stroke-linecap="round" stroke="' + value.dataLayerColors[j] + '" stroke-opacity="' + '1' + '" stroke-width="' + value.ScaleFactor * 3.2 + 
 							'" stroke-linejoin="round" stroke-miterlimit="10" points="' + parseFloat(ContourLinePoint.X1).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y1).toFixed(3)
 							+ ' ' + parseFloat(ContourLinePoint.X2).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y2).toFixed(3)
 							+ ' ' + parseFloat(ContourLinePoint.X3).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y3).toFixed(3)
