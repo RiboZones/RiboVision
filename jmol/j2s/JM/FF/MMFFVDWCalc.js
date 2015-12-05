@@ -27,7 +27,7 @@ var eps = ((181.16 * G_a * G_b * alpha_a * alpha_b) / (Math.sqrt (alpha_a / N_a)
 if (DA_a + DA_b == 133) {
 rs *= 0.8;
 eps *= 0.5;
-}calc.addLast ([[ia, ib], [rs, eps]]);
+}calc.addLast ( Clazz.newArray (-1, [ Clazz.newIntArray (-1, [ia, ib]),  Clazz.newDoubleArray (-1, [rs, eps])]));
 }, "JU.Lst,~N,~N,~N");
 Clazz.overrideMethod (c$, "compute", 
 function (dataIn) {

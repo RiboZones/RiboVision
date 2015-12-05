@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.quantum");
-Clazz.load (["J.api.QuantumPlaneCalculationInterface", "J.quantum.QuantumCalculation", "JU.AU"], "J.quantum.NciCalculation", ["java.lang.Double", "JU.BS", "JU.BSUtil", "$.Eigen", "$.Escape", "$.Logger"], function () {
+Clazz.load (["J.api.QuantumPlaneCalculationInterface", "J.quantum.QuantumCalculation", "JU.AU"], "J.quantum.NciCalculation", ["java.lang.Double", "JU.BS", "$.Eigen", "JU.BSUtil", "$.Escape", "$.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.havePoints = false;
 this.isReducedDensity = false;
@@ -30,6 +30,7 @@ this.gzzTemp = 0;
 this.gxyTemp = 0;
 this.gyzTemp = 0;
 this.gxzTemp = 0;
+this.eigenValues = null;
 this.test1 = 0;
 this.yzPlanesRaw = null;
 this.yzCount = 0;
@@ -40,6 +41,7 @@ this.p2 = null;
 Clazz.instantialize (this, arguments);
 }, J.quantum, "NciCalculation", J.quantum.QuantumCalculation, J.api.QuantumPlaneCalculationInterface);
 Clazz.prepareFields (c$, function () {
+this.eigenValues =  Clazz.newFloatArray (3, 0);
 this.yzPlanesRho = JU.AU.newFloat2 (2);
 });
 Clazz.overrideMethod (c$, "getNoValue", 
@@ -208,8 +210,8 @@ this.hess[1][1] = this.gyyTemp;
 this.hess[1][2] = this.hess[2][1] = this.gyzTemp;
 this.hess[2][2] = this.gzzTemp;
 this.eigen.calc (this.hess);
-var lambda2 = this.eigen.getRealEigenvalues ()[1];
-s = (lambda2 < 0 ? -rho : rho);
+this.eigen.fillFloatArrays (null, this.eigenValues);
+s = (this.eigenValues[1] < 0 ? -rho : rho);
 }return s;
 }, "~N,~B");
 Clazz.defineMethod (c$, "processAtoms", 
@@ -365,11 +367,11 @@ Clazz.defineStatics (c$,
 c$.c = c$.prototype.c = (1 / (2 * Math.pow (29.608813203268074, 0.3333333333333333)));
 Clazz.defineStatics (c$,
 "rpower", -1.3333333333333333,
-"coef1", [0, 0.2815, 2.437, 11.84, 31.34, 67.82, 120.2, 190.9, 289.5, 406.3, 561.3, 760.8, 1016., 1319., 1658., 2042., 2501., 3024., 3625.],
-"coef2", [0, 0., 0., 0.06332, 0.3694, 0.8527, 1.172, 2.247, 2.879, 3.049, 6.984, 22.42, 37.17, 57.95, 87.16, 115.7, 158.0, 205.5, 260.0],
-"coef3", [0, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.06358, 0.3331, 0.8878, 0.7888, 1.465, 2.170, 3.369, 5.211],
-"zeta1", [0, 0.5288, 0.3379, 0.1912, 0.1390, 0.1059, 0.0884, 0.0767, 0.0669, 0.0608, 0.0549, 0.0496, 0.0449, 0.0411, 0.0382, 0.0358, 0.0335, 0.0315, 0.0296],
-"zeta2", [0, 1., 1., 0.9992, 0.6945, 0.5300, 0.5480, 0.4532, 0.3974, 0.3994, 0.3447, 0.2511, 0.2150, 0.1874, 0.1654, 0.1509, 0.1369, 0.1259, 0.1168],
-"zeta3", [0, 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.0236, 0.7753, 0.5962, 0.6995, 0.5851, 0.5149, 0.4974, 0.4412],
-"dMax", [0, 2.982502423, 2.635120936, 4.144887422, 4.105800759, 3.576656363, 3.872424373, 3.497503547, 3.165369971, 3.204214082, 3.051069564, 4.251312809, 4.503309314, 4.047465141, 4.666024968, 4.265151411, 3.955710076, 4.040067606, 3.776022242]);
+"coef1",  Clazz.newDoubleArray (-1, [0, 0.2815, 2.437, 11.84, 31.34, 67.82, 120.2, 190.9, 289.5, 406.3, 561.3, 760.8, 1016., 1319., 1658., 2042., 2501., 3024., 3625.]),
+"coef2",  Clazz.newDoubleArray (-1, [0, 0., 0., 0.06332, 0.3694, 0.8527, 1.172, 2.247, 2.879, 3.049, 6.984, 22.42, 37.17, 57.95, 87.16, 115.7, 158.0, 205.5, 260.0]),
+"coef3",  Clazz.newDoubleArray (-1, [0, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.06358, 0.3331, 0.8878, 0.7888, 1.465, 2.170, 3.369, 5.211]),
+"zeta1",  Clazz.newDoubleArray (-1, [0, 0.5288, 0.3379, 0.1912, 0.1390, 0.1059, 0.0884, 0.0767, 0.0669, 0.0608, 0.0549, 0.0496, 0.0449, 0.0411, 0.0382, 0.0358, 0.0335, 0.0315, 0.0296]),
+"zeta2",  Clazz.newDoubleArray (-1, [0, 1., 1., 0.9992, 0.6945, 0.5300, 0.5480, 0.4532, 0.3974, 0.3994, 0.3447, 0.2511, 0.2150, 0.1874, 0.1654, 0.1509, 0.1369, 0.1259, 0.1168]),
+"zeta3",  Clazz.newDoubleArray (-1, [0, 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.0236, 0.7753, 0.5962, 0.6995, 0.5851, 0.5149, 0.4974, 0.4412]),
+"dMax",  Clazz.newDoubleArray (-1, [0, 2.982502423, 2.635120936, 4.144887422, 4.105800759, 3.576656363, 3.872424373, 3.497503547, 3.165369971, 3.204214082, 3.051069564, 4.251312809, 4.503309314, 4.047465141, 4.666024968, 4.265151411, 3.955710076, 4.040067606, 3.776022242]));
 });

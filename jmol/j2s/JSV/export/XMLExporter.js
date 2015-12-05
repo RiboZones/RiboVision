@@ -195,7 +195,7 @@ function (type) {
 return this.writeForm (type + (this.datatype.contains ("NMR") ? "_nmr" : "_tmp") + ".vm");
 }, "~S");
 Clazz.defineStatics (c$,
-"params", ["##STATE", "##RESOLUTION", "##SPECTROMETER", "##$MANUFACTURER", "##MOLFORM", "##CASREGISTRYNO", "##CASNAME", "##MP", "##BP", "##.OBSERVENUCLEUS", "##.SOLVENTNAME", "##.SOLVENTREFERENCE"],
+"params",  Clazz.newArray (-1, ["##STATE", "##RESOLUTION", "##SPECTROMETER", "##$MANUFACTURER", "##MOLFORM", "##CASREGISTRYNO", "##CASNAME", "##MP", "##BP", "##.OBSERVENUCLEUS", "##.SOLVENTNAME", "##.SOLVENTREFERENCE"]),
 "PARAM_STATE", 0,
 "PARAM_RESOLUTION", 1,
 "PARAM_SPECTROMETER", 2,

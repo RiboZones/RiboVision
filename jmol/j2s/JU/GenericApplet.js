@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JU");
-Clazz.load (["J.api.JmolAppletInterface", "$.JmolStatusListener", "java.util.Hashtable"], "JU.GenericApplet", ["java.lang.Boolean", "java.net.URL", "javajs.awt.Dimension", "JU.Lst", "$.PT", "$.SB", "J.c.CBK", "J.i18n.GT", "JU.Logger", "JV.JC", "$.Viewer"], function () {
+Clazz.load (["J.api.JmolAppletInterface", "$.JmolStatusListener"], "JU.GenericApplet", ["java.lang.Boolean", "java.net.URL", "java.util.Hashtable", "JU.Lst", "$.PT", "$.SB", "J.c.CBK", "J.i18n.GT", "JU.Logger", "JV.JC", "$.Viewer"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.isJS = false;
 this.codeBase = null;
@@ -27,13 +27,12 @@ this.syncId = null;
 this.outputBuffer = null;
 Clazz.instantialize (this, arguments);
 }, JU, "GenericApplet", null, [J.api.JmolAppletInterface, J.api.JmolStatusListener]);
-Clazz.prepareFields (c$, function () {
-this.b$ =  new java.util.Hashtable ();
-});
 Clazz.defineMethod (c$, "init", 
 function (applet) {
+this.b$ =  new java.util.Hashtable ();
+if (JU.GenericApplet.htRegistry == null) JU.GenericApplet.htRegistry =  new java.util.Hashtable ();
 this.appletObject = applet;
-this.htmlName = this.getJmolParameter ("name");
+this.htmlName = JU.PT.split ("" + this.getJmolParameter ("name"), "_object")[0];
 this.syncId = this.getJmolParameter ("syncId");
 this.fullName = this.htmlName + "__" + this.syncId + "__";
 System.out.println ("Jmol JavaScript applet " + this.fullName + " initializing");
@@ -49,6 +48,8 @@ Clazz.defineMethod (c$, "initApplication",
  function () {
 this.vwrOptions.put ("applet", Boolean.TRUE);
 if (this.getJmolParameter ("statusListener") == null) this.vwrOptions.put ("statusListener", this);
+this.language = this.getJmolParameter ("language");
+if (this.language != null) this.vwrOptions.put ("language", this.language);
 this.viewer =  new JV.Viewer (this.vwrOptions);
 this.viewer.pushHoldRepaint ();
 var emulate = this.getValueLowerCase ("emulate", "jmol");
@@ -59,8 +60,6 @@ this.loading = true;
 for (var item, $item = 0, $$item = J.c.CBK.values (); $item < $$item.length && ((item = $$item[$item]) || true); $item++) this.setValue (item.name () + "Callback", null);
 
 this.loading = false;
-this.language = this.getJmolParameter ("language");
- new J.i18n.GT (this.viewer, this.language);
 if (this.language != null) System.out.print ("requested language=" + this.language + "; ");
 this.doTranslate = (!"none".equals (this.language) && this.getBooleanValue ("doTranslate", true));
 this.language = J.i18n.GT.getLanguage ();
@@ -83,7 +82,7 @@ if ((loadParam = this.getValue ("load", null)) != null) script = "load \"" + loa
 loadParam = null;
 }this.viewer.popHoldRepaint ("applet init");
 if (loadParam != null && this.viewer.loadInline (loadParam) != null) script = "";
-if (script.length > 0) this.scriptProcessor (script, null, 2);
+if (script.length > 0) this.scriptProcessor (script, null, 1);
 this.viewer.notifyStatusReady (true);
 });
 Clazz.overrideMethod (c$, "destroy", 
@@ -156,7 +155,7 @@ return this.viewer.processMouseEvent (e.id, e.x, e.y, e.modifiers, e.when);
 }, "java.awt.Event");
 Clazz.overrideMethod (c$, "getAppletInfo", 
 function () {
-return J.i18n.GT.o (J.i18n.GT._ ("Jmol Applet version {0} {1}.\n\nAn OpenScience project.\n\nSee http://www.jmol.org for more information"), [JV.JC.version, JV.JC.date]) + "\nhtmlName = " + JU.PT.esc (this.htmlName) + "\nsyncId = " + JU.PT.esc (this.syncId) + "\ndocumentBase = " + JU.PT.esc (this.documentBase) + "\ncodeBase = " + JU.PT.esc (this.codeBase);
+return J.i18n.GT.o (J.i18n.GT._ ("Jmol Applet version {0} {1}.\n\nAn OpenScience project.\n\nSee http://www.jmol.org for more information"),  Clazz.newArray (-1, [JV.JC.version, JV.JC.date])) + "\nhtmlName = " + JU.PT.esc (this.htmlName) + "\nsyncId = " + JU.PT.esc (this.syncId) + "\ndocumentBase = " + JU.PT.esc (this.documentBase) + "\ncodeBase = " + JU.PT.esc (this.codeBase);
 });
 Clazz.overrideMethod (c$, "script", 
 function (script) {
@@ -266,11 +265,13 @@ return;
 }, "~S,~S");
 Clazz.defineMethod (c$, "consoleMessage", 
  function (message) {
-this.notifyCallback (J.c.CBK.ECHO, ["", message]);
+this.notifyCallback (J.c.CBK.ECHO,  Clazz.newArray (-1, ["", message]));
 }, "~S");
 Clazz.overrideMethod (c$, "notifyEnabled", 
 function (type) {
 switch (type) {
+case J.c.CBK.SERVICE:
+return false;
 case J.c.CBK.ECHO:
 case J.c.CBK.MESSAGE:
 case J.c.CBK.MEASURE:
@@ -278,8 +279,10 @@ case J.c.CBK.PICK:
 case J.c.CBK.SYNC:
 return true;
 case J.c.CBK.ANIMFRAME:
+case J.c.CBK.DRAGDROP:
 case J.c.CBK.ERROR:
 case J.c.CBK.EVAL:
+case J.c.CBK.IMAGE:
 case J.c.CBK.LOADSTRUCT:
 case J.c.CBK.SCRIPT:
 return !this.isJNLP;
@@ -308,8 +311,11 @@ break;
 case J.c.CBK.ERROR:
 case J.c.CBK.EVAL:
 case J.c.CBK.HOVER:
+case J.c.CBK.IMAGE:
 case J.c.CBK.MINIMIZATION:
+case J.c.CBK.SERVICE:
 case J.c.CBK.RESIZE:
+case J.c.CBK.DRAGDROP:
 break;
 case J.c.CBK.CLICK:
 if ("alert".equals (callback)) strInfo = "x=" + data[1] + " y=" + data[2] + " action=" + data[3] + " clickCount=" + data[4];
@@ -325,7 +331,7 @@ var isAnimationRunning = (frameNo <= -2);
 var animationDirection = (firstNo < 0 ? -1 : 1);
 var currentDirection = (lastNo < 0 ? -1 : 1);
 if (doCallback) {
-data = [this.htmlName, Integer.$valueOf (Math.max (frameNo, -2 - frameNo)), Integer.$valueOf (fileNo), Integer.$valueOf (modelNo), Integer.$valueOf (Math.abs (firstNo)), Integer.$valueOf (Math.abs (lastNo)), Integer.$valueOf (isAnimationRunning ? 1 : 0), Integer.$valueOf (animationDirection), Integer.$valueOf (currentDirection), data[2], data[3]];
+data =  Clazz.newArray (-1, [this.htmlName, Integer.$valueOf (Math.max (frameNo, -2 - frameNo)), Integer.$valueOf (fileNo), Integer.$valueOf (modelNo), Integer.$valueOf (Math.abs (firstNo)), Integer.$valueOf (Math.abs (lastNo)), Integer.$valueOf (isAnimationRunning ? 1 : 0), Integer.$valueOf (animationDirection), Integer.$valueOf (currentDirection), data[2], data[3]]);
 }break;
 case J.c.CBK.ATOMMOVED:
 break;
@@ -342,7 +348,7 @@ var errorMsg = data[4];
 if (errorMsg != null) {
 errorMsg = (errorMsg.indexOf ("NOTE:") >= 0 ? "" : J.i18n.GT._ ("File Error:")) + errorMsg;
 this.doShowStatus (errorMsg);
-this.notifyCallback (J.c.CBK.MESSAGE, ["", errorMsg]);
+this.notifyCallback (J.c.CBK.MESSAGE,  Clazz.newArray (-1, ["", errorMsg]));
 return;
 }break;
 case J.c.CBK.MEASURE:
@@ -440,7 +446,7 @@ Clazz.defineMethod (c$, "notifySync",
 var syncCallback = this.b$.get (J.c.CBK.SYNC);
 if (!this.mayScript || syncCallback == null) return info;
 try {
-return this.doSendCallback (syncCallback, [this.fullName, info, appletName], null);
+return this.doSendCallback (syncCallback,  Clazz.newArray (-1, [this.fullName, info, appletName]), null);
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
 if (!this.haveNotifiedError) if (JU.Logger.debugging) {
@@ -458,7 +464,7 @@ var pt = strEval.indexOf ("\1");
 if (pt >= 0) return this.sendScript (strEval.substring (pt + 1), strEval.substring (0, pt), false, false);
 if (!this.haveDocumentAccess) return "NO EVAL ALLOWED";
 if (this.b$.get (J.c.CBK.EVAL) != null) {
-this.notifyCallback (J.c.CBK.EVAL, [null, strEval]);
+this.notifyCallback (J.c.CBK.EVAL,  Clazz.newArray (-1, [null, strEval]));
 return "";
 }return this.doEval (strEval);
 }, "~S");
@@ -494,7 +500,7 @@ throw mue;
 }, "~S");
 Clazz.overrideMethod (c$, "resizeInnerPanel", 
 function (data) {
-return  new javajs.awt.Dimension (0, 0);
+return  Clazz.newIntArray (-1, [this.viewer.getScreenWidth (), this.viewer.getScreenHeight ()]);
 }, "~S");
 c$.checkIn = Clazz.defineMethod (c$, "checkIn", 
 function (name, applet) {
@@ -531,8 +537,8 @@ if (!JU.GenericApplet.htRegistry.containsKey (appletName)) appletName = "jmolApp
 if (!appletName.equals (excludeName) && JU.GenericApplet.htRegistry.containsKey (appletName)) {
 apps.addLast (appletName);
 }}, "~S,~S,~S,JU.Lst");
-c$.htRegistry = c$.prototype.htRegistry =  new java.util.Hashtable ();
 Clazz.defineStatics (c$,
+"htRegistry", null,
 "SCRIPT_CHECK", 0,
 "SCRIPT_WAIT", 1,
 "SCRIPT_NOWAIT", 2);

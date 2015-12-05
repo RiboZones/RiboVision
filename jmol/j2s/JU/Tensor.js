@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JU");
-Clazz.load (null, "JU.Tensor", ["java.lang.Float", "java.util.Arrays", "$.Hashtable", "JU.M3", "$.P3", "$.PT", "$.Quat", "$.V3", "JU.Eigen", "$.EigenSort", "$.Escape"], function () {
+Clazz.load (null, "JU.Tensor", ["java.lang.Float", "java.util.Arrays", "$.Hashtable", "JU.Eigen", "$.M3", "$.P3", "$.PT", "$.Quat", "$.V3", "JU.EigenSort", "$.Escape"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.id = null;
 this.type = null;
@@ -8,6 +8,7 @@ this.asymMatrix = null;
 this.symMatrix = null;
 this.eigenVectors = null;
 this.eigenValues = null;
+this.parBorU = null;
 this.altType = null;
 this.isIsotropic = false;
 this.forThermalEllipsoid = false;
@@ -19,7 +20,6 @@ this.atomIndex1 = -1;
 this.atomIndex2 = -1;
 this.isModulated = false;
 this.isUnmodulated = false;
-this.parBorU = null;
 Clazz.instantialize (this, arguments);
 }, JU, "Tensor");
 c$.getType = Clazz.defineMethod (c$, "getType", 
@@ -98,7 +98,7 @@ return (this.getInfo ("quaternion")).getEulerZXZ ();
 case 11:
 return JU.Quat.getQuaternionFrame (null, this.eigenVectors[0], this.eigenVectors[1]);
 case 12:
-return [this.modelIndex, this.atomIndex1, this.atomIndex2];
+return  Clazz.newIntArray (-1, [this.modelIndex, this.atomIndex1, this.atomIndex2]);
 case 13:
 return this.toString ();
 case 14:
@@ -147,6 +147,7 @@ t.eigenSignMask = this.eigenSignMask;
 t.modelIndex = this.modelIndex;
 t.atomIndex1 = this.atomIndex1;
 t.atomIndex2 = this.atomIndex2;
+t.parBorU = this.parBorU;
 t.id = this.id;
 return t;
 });
@@ -165,28 +166,15 @@ a[0][1] = a[1][0] = (a[0][1] + a[1][0]) / 2;
 a[1][2] = a[2][1] = (a[1][2] + a[2][1]) / 2;
 }if (a[0][2] != a[2][0]) {
 a[0][2] = a[2][0] = (a[0][2] + a[2][0]) / 2;
-}var eigen =  new JU.Eigen ().set (3);
-eigen.calc (a);
-var m =  new JU.M3 ();
+}var m =  new JU.M3 ();
 var mm =  Clazz.newFloatArray (9, 0);
 for (var i = 0, p = 0; i < 3; i++) for (var j = 0; j < 3; j++) mm[p++] = a[i][j];
 
 
 m.setA (mm);
-var evec = eigen.getEigenVectors3 ();
-var n =  new JU.V3 ();
-var cross =  new JU.V3 ();
-for (var i = 0; i < 3; i++) {
-n.setT (evec[i]);
-m.rotate (n);
-cross.cross (n, evec[i]);
-n.setT (evec[i]);
-n.normalize ();
-cross.cross (evec[i], evec[(i + 1) % 3]);
-}
 var vectors =  new Array (3);
 var values =  Clazz.newFloatArray (3, 0);
-eigen.fillArrays (vectors, values);
+ new JU.Eigen ().setM (a).fillFloatArrays (vectors, values);
 this.newTensorType (vectors, values, type, id);
 this.asymMatrix = asymmetricTensor;
 this.symMatrix = a;
@@ -235,7 +223,7 @@ mat[2][2] = coefs[2];
 mat[0][1] = mat[1][0] = coefs[3] / 2;
 mat[0][2] = mat[2][0] = coefs[4] / 2;
 mat[1][2] = mat[2][1] = coefs[5] / 2;
-JU.Eigen.getUnitVectors (mat, this.eigenVectors, this.eigenValues);
+ new JU.Eigen ().setM (mat).fillFloatArrays (this.eigenVectors, this.eigenValues);
 this.setType ("adp");
 this.sortAndNormalize ();
 return this;
@@ -314,7 +302,7 @@ break;
 });
 Clazz.defineMethod (c$, "sortAndNormalize", 
  function () {
-var o = [[JU.V3.newV (this.eigenVectors[0]), Float.$valueOf (this.eigenValues[0])], [JU.V3.newV (this.eigenVectors[1]), Float.$valueOf (this.eigenValues[1])], [JU.V3.newV (this.eigenVectors[2]), Float.$valueOf (this.eigenValues[2])]];
+var o =  Clazz.newArray (-1, [ Clazz.newArray (-1, [JU.V3.newV (this.eigenVectors[0]), Float.$valueOf (this.eigenValues[0])]),  Clazz.newArray (-1, [JU.V3.newV (this.eigenVectors[1]), Float.$valueOf (this.eigenValues[1])]),  Clazz.newArray (-1, [JU.V3.newV (this.eigenVectors[2]), Float.$valueOf (this.eigenValues[2])])]);
 java.util.Arrays.sort (o, JU.Tensor.getEigenSort ());
 for (var i = 0; i < 3; i++) {
 var pt = i;

@@ -17,8 +17,8 @@ Clazz.instantialize (this, arguments);
 }, javajs.img, "PngEncoder", javajs.img.CRCEncoder);
 Clazz.overrideMethod (c$, "setParams", 
 function (params) {
-if (this.quality < 0) this.quality = 2;
- else if (this.quality > 9) this.quality = 9;
+if (this.quality < 0) this.quality = (params.containsKey ("qualityPNG") ? (params.get ("qualityPNG")).intValue () : 2);
+if (this.quality > 9) this.quality = 9;
 this.encodeAlpha = false;
 this.filter = 0;
 this.compressionLevel = this.quality;
@@ -47,7 +47,7 @@ len = (this.bytes = this.appData).length;
 });
 Clazz.defineMethod (c$, "pngEncode", 
  function () {
-var pngIdBytes = [-119, 80, 78, 71, 13, 10, 26, 10];
+var pngIdBytes =  Clazz.newByteArray (-1, [-119, 80, 78, 71, 13, 10, 26, 10]);
 this.writeBytes (pngIdBytes);
 this.writeHeader ();
 this.writeText (javajs.img.PngEncoder.getApplicationText (this.appPrefix, this.type, 0, 0));
@@ -58,11 +58,11 @@ return this.writeImageData ();
 });
 c$.setJmolTypeText = Clazz.defineMethod (c$, "setJmolTypeText", 
  function (prefix, b, nPNG, nState, type) {
-var s = "iTXt" + javajs.img.PngEncoder.getApplicationText (prefix, type, nPNG, nState);
+var s = "tEXt" + javajs.img.PngEncoder.getApplicationText (prefix, type, nPNG, nState);
 var encoder =  new javajs.img.PngEncoder ();
 var test = s.substring (0, 4 + prefix.length).getBytes ();
 for (var i = test.length; --i >= 0; ) if (b[i + 37] != test[i]) {
-System.out.println ("i mage is not of the right form; appending data, but not adding iTXt tag.");
+System.out.println ("image is not of the right form; appending data, but not adding tEXt tag.");
 return;
 }
 encoder.setData (b, 37);
@@ -95,7 +95,7 @@ Clazz.defineMethod (c$, "writeText",
  function (msg) {
 this.writeInt4 (msg.length);
 this.startPos = this.bytePos;
-this.writeString ("iTXt" + msg);
+this.writeString ("tEXt" + msg);
 this.writeCRC ();
 }, "~S");
 Clazz.defineMethod (c$, "writeTransparentColor", 

@@ -26,9 +26,9 @@ return;
 JU.BSUtil.deleteBits (this.bsHighlight, bs);
 }this.setPropAS (propertyName, value, bs);
 }, "~S,~O,JU.BS");
-Clazz.overrideMethod (c$, "setVisibilityFlags", 
+Clazz.overrideMethod (c$, "setModelVisibilityFlags", 
 function (bs) {
-var bsSelected = (this.vwr.getSelectionHaloEnabled (false) ? this.vwr.bsA () : null);
+var bsSelected = (this.vwr.getSelectionHalosEnabled () ? this.vwr.bsA () : null);
 for (var i = this.ac; --i >= 0; ) {
 var isVisible = bsSelected != null && bsSelected.get (i) || (this.mads != null && this.mads[i] != 0);
 this.setShapeVisibility (this.atoms[i], isVisible);

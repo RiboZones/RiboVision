@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JU");
-Clazz.load (["javajs.api.GenericCifDataParser", "java.util.Hashtable", "JU.SB"], "JU.CifDataParser", ["java.lang.Character", "JU.Lst", "$.PT"], function () {
+Clazz.load (["javajs.api.GenericCifDataParser", "java.util.Hashtable", "JU.SB"], "JU.CifDataParser", ["JU.Lst", "$.PT"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.reader = null;
 this.br = null;
@@ -10,30 +10,38 @@ this.cch = 0;
 this.wasUnQuoted = false;
 this.strPeeked = null;
 this.ichPeeked = 0;
-this.fieldCount = 0;
-this.loopData = null;
+this.columnCount = 0;
+this.columnNames = null;
+this.columnData = null;
+this.isLoop = false;
+this.haveData = false;
 this.fileHeader = null;
 this.isHeader = true;
-this.fields = null;
+this.nullString = "\0";
 Clazz.instantialize (this, arguments);
 }, JU, "CifDataParser", null, javajs.api.GenericCifDataParser);
 Clazz.prepareFields (c$, function () {
+this.columnData =  new Array (100);
 this.fileHeader =  new JU.SB ();
 });
+Clazz.defineMethod (c$, "setNullValue", 
+function (nullString) {
+this.nullString = nullString;
+}, "~S");
 Clazz.makeConstructor (c$, 
 function () {
 });
-Clazz.overrideMethod (c$, "getLoopData", 
+Clazz.overrideMethod (c$, "getColumnData", 
 function (i) {
-return this.loopData[i];
+return this.columnData[i];
 }, "~N");
-Clazz.overrideMethod (c$, "getFieldCount", 
+Clazz.overrideMethod (c$, "getColumnCount", 
 function () {
-return this.fieldCount;
+return this.columnCount;
 });
-Clazz.overrideMethod (c$, "getField", 
+Clazz.overrideMethod (c$, "getColumnName", 
 function (i) {
-return this.fields[i];
+return this.columnNames[i];
 }, "~N");
 Clazz.overrideMethod (c$, "set", 
 function (reader, br) {
@@ -60,16 +68,16 @@ models.addLast (data =  new java.util.Hashtable ());
 data.put ("name", key);
 continue;
 }if (key.startsWith ("loop_")) {
-this.getCifLoopData (data);
+this.getAllCifLoopData (data);
 continue;
-}if (key.indexOf ("_") != 0) {
+}if (key.charAt (0) != '_') {
 System.out.println ("CIF ERROR ? should be an underscore: " + key);
 } else {
 var value = this.getNextToken ();
 if (value == null) {
 System.out.println ("CIF ERROR ? end of file; data missing: " + key);
 } else {
-data.put (key, value);
+data.put (this.fixKey (key), value);
 }}}
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
@@ -87,19 +95,18 @@ throw e;
 }
 return allData;
 });
-Clazz.defineMethod (c$, "getCifLoopData", 
+Clazz.defineMethod (c$, "getAllCifLoopData", 
  function (data) {
-var str;
+var key;
 var keyWords =  new JU.Lst ();
-while ((str = this.peekToken ()) != null && str.charAt (0) == '_') {
-str = this.getTokenPeeked ();
-keyWords.addLast (str);
-data.put (str,  new JU.Lst ());
+while ((key = this.peekToken ()) != null && key.charAt (0) == '_') {
+key = this.fixKey (this.getTokenPeeked ());
+keyWords.addLast (key);
+data.put (key,  new JU.Lst ());
 }
-this.fieldCount = keyWords.size ();
-if (this.fieldCount == 0) return;
-this.loopData =  new Array (this.fieldCount);
-while (this.getData ()) for (var i = 0; i < this.fieldCount; i++) (data.get (keyWords.get (i))).addLast (this.loopData[i]);
+this.columnCount = keyWords.size ();
+if (this.columnCount == 0) return;
+while (this.getData ()) for (var i = 0; i < this.columnCount; i++) (data.get (keyWords.get (i))).addLast (this.columnData[i]);
 
 
 }, "java.util.Map");
@@ -122,23 +129,38 @@ throw e;
 });
 Clazz.overrideMethod (c$, "getData", 
 function () {
-for (var i = 0; i < this.fieldCount; ++i) if ((this.loopData[i] = this.getNextDataToken ()) == null) return false;
+if (this.isLoop) {
+for (var i = 0; i < this.columnCount; ++i) if ((this.columnData[i] = this.getNextDataToken ()) == null) return false;
 
-return true;
+} else if (this.haveData) {
+this.haveData = false;
+} else {
+return false;
+}return (this.columnCount > 0);
 });
 Clazz.overrideMethod (c$, "skipLoop", 
-function () {
+function (doReport) {
 var str;
-while ((str = this.peekToken ()) != null && str.charAt (0) == '_') str = this.getTokenPeeked ();
-
-while (this.getNextDataToken () != null) {
+var ret = (doReport ?  new JU.SB () : null);
+var n = 0;
+while ((str = this.peekToken ()) != null && str.charAt (0) == '_') {
+if (ret != null) ret.append (str).append ("\n");
+this.getTokenPeeked ();
+n++;
 }
-});
+var m = 0;
+while ((str = this.getNextDataToken ()) != null) {
+if (ret == null) continue;
+ret.append (str).append (" ");
+if ((++m % n) == 0) ret.append ("\n");
+}
+return (ret == null ? null : ret.toString ());
+}, "~B");
 Clazz.overrideMethod (c$, "getNextToken", 
 function () {
-while (!this.hasMoreTokens ()) if (this.setStringNextLine () == null) return null;
+while (!this.strHasMoreTokens ()) if (this.setStringNextLine () == null) return null;
 
-return this.nextToken ();
+return this.nextStrToken ();
 });
 Clazz.overrideMethod (c$, "getNextDataToken", 
 function () {
@@ -149,10 +171,10 @@ return this.getTokenPeeked ();
 });
 Clazz.overrideMethod (c$, "peekToken", 
 function () {
-while (!this.hasMoreTokens ()) if (this.setStringNextLine () == null) return null;
+while (!this.strHasMoreTokens ()) if (this.setStringNextLine () == null) return null;
 
 var ich = this.ich;
-this.strPeeked = this.nextToken ();
+this.strPeeked = this.nextStrToken ();
 this.ichPeeked = this.ich;
 this.ich = ich;
 return this.strPeeked;
@@ -166,9 +188,9 @@ Clazz.overrideMethod (c$, "fullTrim",
 function (str) {
 var pt0 = -1;
 var pt1 = str.length;
-while (++pt0 < pt1 && Character.isWhitespace (str.charAt (pt0))) {
+while (++pt0 < pt1 && JU.PT.isWhitespace (str.charAt (pt0))) {
 }
-while (--pt1 > pt0 && Character.isWhitespace (str.charAt (pt1))) {
+while (--pt1 > pt0 && JU.PT.isWhitespace (str.charAt (pt1))) {
 }
 return str.substring (pt0, pt1 + 1);
 }, "~S");
@@ -189,39 +211,55 @@ throw e;
 }
 return data;
 }, "~S");
-Clazz.overrideMethod (c$, "parseLoopParameters", 
-function (fields, fieldOf, propertyOf) {
-var propertyCount = 0;
+Clazz.overrideMethod (c$, "parseDataBlockParameters", 
+function (fields, key, data, key2col, col2key) {
+this.isLoop = (key == null);
+var s;
 if (fields == null) {
-this.fields =  new Array (100);
+this.columnNames =  new Array (100);
 } else {
 if (!JU.CifDataParser.htFields.containsKey (fields[0])) for (var i = fields.length; --i >= 0; ) JU.CifDataParser.htFields.put (fields[i], Integer.$valueOf (i));
 
-for (var i = fields.length; --i >= 0; ) fieldOf[i] = -1;
+for (var i = fields.length; --i >= 0; ) key2col[i] = -1;
 
-propertyCount = fields.length;
-}this.fieldCount = 0;
+}this.columnCount = 0;
+var pt;
+var i;
+if (this.isLoop) {
 while (true) {
-var str = this.peekToken ();
-if (str == null) {
-this.fieldCount = 0;
+s = this.peekToken ();
+if (s == null) {
+this.columnCount = 0;
 break;
-}if (str.charAt (0) != '_') break;
-var pt = this.fieldCount++;
-str = this.fixKey (this.getTokenPeeked ());
+}if (s.charAt (0) != '_') break;
+pt = this.columnCount++;
+s = this.fixKey (this.getTokenPeeked ());
 if (fields == null) {
-this.fields[propertyOf[pt] = fieldOf[pt] = pt] = str;
+this.columnNames[col2key[pt] = key2col[pt] = pt] = s;
 continue;
-}var iField = JU.CifDataParser.htFields.get (str);
-var i = (iField == null ? -1 : iField.intValue ());
-if ((propertyOf[pt] = i) != -1) fieldOf[i] = pt;
+}var iField = JU.CifDataParser.htFields.get (s);
+i = (iField == null ? -1 : iField.intValue ());
+if ((col2key[pt] = i) != -1) key2col[i] = pt;
 }
-if (this.fieldCount > 0) this.loopData =  new Array (this.fieldCount);
-return propertyCount;
-}, "~A,~A,~A");
-Clazz.defineMethod (c$, "fixKey", 
- function (key) {
-return (key.startsWith ("_magnetic") ? key.substring (9) : JU.PT.rep (key, ".", "_").toLowerCase ());
+} else {
+pt = key.indexOf (".");
+var str0 = (pt < 0 ? key : key.substring (0, pt + 1));
+while (true) {
+pt = this.columnCount++;
+if (key == null) {
+key = this.getTokenPeeked ();
+data = this.getNextToken ();
+}var iField = JU.CifDataParser.htFields.get (this.fixKey (key));
+i = (iField == null ? -1 : iField.intValue ());
+if ((col2key[pt] = i) != -1) this.columnData[key2col[i] = pt] = data;
+if ((s = this.peekToken ()) == null || !s.startsWith (str0)) break;
+key = null;
+}
+this.haveData = (this.columnCount > 0);
+}}, "~A,~S,~S,~A,~A");
+Clazz.overrideMethod (c$, "fixKey", 
+function (key) {
+return (JU.PT.rep (key.startsWith ("_magnetic") ? key.substring (9) : key.startsWith ("_jana") ? key.substring (5) : key, ".", "_").toLowerCase ());
 }, "~S");
 Clazz.defineMethod (c$, "setString", 
  function (str) {
@@ -247,7 +285,7 @@ break;
 this.setString (str);
 return str;
 });
-Clazz.defineMethod (c$, "hasMoreTokens", 
+Clazz.defineMethod (c$, "strHasMoreTokens", 
  function () {
 if (this.str == null) return false;
 var ch = '#';
@@ -255,7 +293,7 @@ while (this.ich < this.cch && ((ch = this.str.charAt (this.ich)) == ' ' || ch ==
 
 return (this.ich < this.cch && ch != '#');
 });
-Clazz.defineMethod (c$, "nextToken", 
+Clazz.defineMethod (c$, "nextStrToken", 
  function () {
 if (this.ich == this.cch) return null;
 var ichStart = this.ich;
@@ -264,7 +302,7 @@ if (ch != '\'' && ch != '"' && ch != '\1') {
 this.wasUnQuoted = true;
 while (this.ich < this.cch && (ch = this.str.charAt (this.ich)) != ' ' && ch != '\t') ++this.ich;
 
-if (this.ich == ichStart + 1) if (this.str.charAt (ichStart) == '.' || this.str.charAt (ichStart) == '?') return "\0";
+if (this.ich == ichStart + 1) if (this.nullString != null && (this.str.charAt (ichStart) == '.' || this.str.charAt (ichStart) == '?')) return this.nullString;
 var s = this.str.substring (ichStart, this.ich);
 return s;
 }this.wasUnQuoted = false;
@@ -281,6 +319,8 @@ return this.str.substring (ichStart, this.ich);
 }++this.ich;
 return this.str.substring (ichStart + 1, this.ich - 2);
 });
+Clazz.defineStatics (c$,
+"KEY_MAX", 100);
 c$.htFields = c$.prototype.htFields =  new java.util.Hashtable ();
 Clazz.defineStatics (c$,
 "grABC", "ABX\u0394E\u03a6\u0393HI_K\u039bMNO\u03a0\u0398P\u03a3TY_\u03a9\u039e\u03a5Z",

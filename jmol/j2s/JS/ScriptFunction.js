@@ -47,7 +47,10 @@ var $var = (i < this.nParameters && i < nParams ? params.get (i) : null);
 if ($var != null && $var.tok != 7) $var = JS.SV.newT ($var);
 contextVariables.put (name, ($var == null ? JS.SV.newS ("").setName (name) : $var));
 }
-contextVariables.put ("_retval", JS.SV.newI (this.tok == 364558 ? 2147483647 : 0));
+if (this.tok != 364558) {
+contextVariables.put ("_argcount", JS.SV.newI (params == null ? 0 : params.size ()));
+contextVariables.put ("_arguments", (params == null ? JS.SV.getVariableAI ( Clazz.newIntArray (-1, [])) : JS.SV.getVariableList (params)));
+}contextVariables.put ("_retval", JS.SV.newI (this.tok == 364558 ? 2147483647 : 0));
 }, "java.util.Map,JU.Lst");
 Clazz.defineMethod (c$, "unsetVariables", 
 function (contextVariables, params) {
@@ -80,7 +83,7 @@ $function.lineNumbers =  Clazz.newShortArray (nCommands, 0);
 var line0 = (lineNumbers[cmdpt0] - 1);
 for (var i = 0; i < nCommands; i++) {
 $function.lineNumbers[i] = (lineNumbers[cmdpt0 + i] - line0);
-$function.lineIndices[i] = [lineIndices[cmdpt0 + i][0] - chpt0, lineIndices[cmdpt0 + i][1] - chpt0];
+$function.lineIndices[i] =  Clazz.newIntArray (-1, [lineIndices[cmdpt0 + i][0] - chpt0, lineIndices[cmdpt0 + i][1] - chpt0]);
 aatoken[i] = lltoken.get (cmdpt0 + i);
 if (aatoken[i].length > 0) {
 var tokenCommand = aatoken[i][0];
@@ -105,6 +108,7 @@ return s.toString ();
 });
 Clazz.overrideMethod (c$, "getSignature", 
 function () {
+if (this.typeName == null) return JS.T.nameOf (this.tok);
 var s =  new JU.SB ().append (this.typeName).append (" ").append (this.name).append (" (");
 for (var i = 0; i < this.nParameters; i++) {
 if (i > 0) s.append (", ");

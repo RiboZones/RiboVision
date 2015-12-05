@@ -42,7 +42,7 @@ for (var j = frames.length; --j >= 0; ) frames[j] += modelOffset;
 return;
 }
 }if (atomOffset <= 0) return;
-if (this.id == 1060866) {
+if (this.id == 12290) {
 var map = (this.info).values ();
 for (var o, $o = map.iterator (); $o.hasNext () && ((o = $o.next ()) || true);) JU.BSUtil.offset (o, 0, atomOffset);
 
@@ -62,12 +62,12 @@ var sID;
 var sb = null;
 if (this.bsAtoms != null) this.modelIndex = this.getModelIndex (m);
 switch (this.id) {
-case 3145770:
-sm.vwr.displayAtoms (this.bsAtoms, false, false, 1276118017, true);
+case 2097194:
+sm.vwr.displayAtoms (this.bsAtoms, false, false, 1275069441, true);
 return;
 case 12295:
 var bs = sm.vwr.getModelUndeletedAtomsBitSet (this.argb);
-JU.BSUtil.invertInPlace (bs, sm.vwr.getAtomCount ());
+JU.BSUtil.invertInPlace (bs, sm.vwr.ms.ac);
 sm.vwr.select (bs, false, 0, true);
 sm.restrictSelected (false, true);
 return;
@@ -78,9 +78,9 @@ if (this.info == null) {
 sm.vwr.displayAtoms (null, true, false, 0, true);
 }sm.vwr.setObjectProp (this.info, this.id);
 } else {
-sm.vwr.displayAtoms (this.bsAtoms, this.id == 1610625028, false, 1276118017, true);
+sm.vwr.displayAtoms (this.bsAtoms, this.id == 1610625028, false, 1275069441, true);
 }return;
-case 1060866:
+case 12290:
 sm.vwr.defineAtomSets (this.info);
 return;
 case 1073742032:
@@ -102,7 +102,7 @@ case 5:
 sm.loadShape (this.id);
 sm.setShapePropertyBs (this.id, "textLabels", this.info, this.bsAtoms);
 return;
-case 1678770178:
+case 1677721602:
 break;
 case 659488:
 case 1:
@@ -113,7 +113,7 @@ pymolScene.setUniqueBonds (bsBonds, this.id == 1);
 this.size = -1;
 }this.id = 1;
 break;
-case 1141899265:
+case 1140850689:
 this.id = 0;
 break;
 case 0:
@@ -121,12 +121,12 @@ break;
 case 10:
 case 9:
 sm.loadShape (this.id);
-var bsCarb = m.getAtoms (3145764, null);
+var bsCarb = m.getAtoms (2097188, null);
 JU.BSUtil.andNot (this.bsAtoms, bsCarb);
 break;
 case 16:
 sm.loadShape (this.id);
-sm.setShapePropertyBs (this.id, "ignore", JU.BSUtil.copyInvert (this.bsAtoms, sm.vwr.getAtomCount ()), null);
+sm.setShapePropertyBs (this.id, "ignore", JU.BSUtil.copyInvert (this.bsAtoms, sm.vwr.ms.ac), null);
 break;
 default:
 if (!this.visible) return;
@@ -167,7 +167,7 @@ return;
 sb.append ("isosurface ID ").append (JU.PT.esc (sID));
 if (this.modelIndex < 0) this.modelIndex = sm.vwr.am.cmi;
 if (this.bsAtoms == null) {
-sb.append (" model ").append (m.am[this.modelIndex].getModelNumberDotted ()).append (" color density sigma 1.0 ").append (JU.PT.esc (this.cacheID)).append (" ").append (JU.PT.esc (sID));
+sb.append (" model ").append (m.getModelNumberDotted (this.modelIndex)).append (" color density sigma 1.0 ").append (JU.PT.esc (this.cacheID)).append (" ").append (JU.PT.esc (sID));
 if (doCache) sb.append (";isosurface cache");
 } else {
 var lighting = (this.info)[0];
@@ -180,7 +180,7 @@ if (lighting == null) {
 lighting = "mesh nofill";
 resolution = " resolution 1.5";
 }var haveMep = JU.PT.isOneOf (sID, mepList);
-var model = m.am[this.modelIndex].getModelNumberDotted ();
+var model = m.getModelNumberDotted (this.modelIndex);
 var ignore = "";
 var type = (this.size < 0 ? " sasurface " : " solvent ");
 sb.append (" model ").append (model).append (resolution).append (" select ").append (JU.Escape.eBS (this.bsAtoms)).append (only).append (ignore).append (type).appendF (Math.abs (this.size / 1000));
@@ -208,7 +208,7 @@ this.modelIndex = sm.vwr.am.cmi;
 var mesh = this.info;
 sID = mesh.get (mesh.size () - 2).toString ();
 sb =  new JU.SB ();
-sb.append ("isosurface ID ").append (JU.PT.esc (sID)).append (" model ").append (m.am[this.modelIndex].getModelNumberDotted ()).append (" color ").append (JU.Escape.escapeColor (this.argb)).append ("  ").append (JU.PT.esc (this.cacheID)).append (" ").append (JU.PT.esc (sID)).append (" mesh nofill frontonly");
+sb.append ("isosurface ID ").append (JU.PT.esc (sID)).append (" model ").append (m.getModelNumberDotted (this.modelIndex)).append (" color ").append (JU.Escape.escapeColor (this.argb)).append ("  ").append (JU.PT.esc (this.cacheID)).append (" ").append (JU.PT.esc (sID)).append (" mesh nofill frontonly");
 var within = J.adapter.readers.pymol.PyMOLScene.floatAt (J.adapter.readers.pymol.PyMOLScene.listAt (J.adapter.readers.pymol.PyMOLScene.listAt (mesh, 2), 0), 11);
 var list = J.adapter.readers.pymol.PyMOLScene.listAt (J.adapter.readers.pymol.PyMOLScene.listAt (J.adapter.readers.pymol.PyMOLScene.listAt (mesh, 2), 0), 12);
 if (within > 0) {
@@ -222,10 +222,10 @@ sb.append (" ]");
 }if (doCache && !JU.PT.isOneOf (sID, mepList)) sb.append (";isosurface cache");
 sb.append (";set meshScale ").appendI (Clazz.doubleToInt (this.size / 500));
 break;
-case 135271429:
+case 134222850:
 sb = this.info;
 break;
-case 1113200654:
+case 1112152078:
 sm.loadShape (this.id = 10);
 sm.setShapePropertyBs (this.id, "putty", this.info, this.bsAtoms);
 break;
@@ -249,7 +249,7 @@ return (iAtom < 0 ? -1 : m.at[iAtom].mi);
 }, "JM.ModelSet");
 Clazz.defineMethod (c$, "setColors", 
 function (colixes, translucency) {
-this.colors = [colixes, Float.$valueOf (translucency)];
+this.colors =  Clazz.newArray (-1, [colixes, Float.$valueOf (translucency)]);
 }, "~A,~N");
 Clazz.defineMethod (c$, "setSize", 
 function (size) {

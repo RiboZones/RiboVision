@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.quantum");
-Clazz.load (["J.api.JmolNMRInterface", "java.util.Hashtable"], "J.quantum.NMRCalculation", ["java.lang.Character", "$.Double", "$.Float", "$.NullPointerException", "JU.BS", "$.Lst", "$.PT", "$.V3", "J.io.JmolBinary", "JU.Escape", "$.Logger", "$.Tensor"], function () {
+Clazz.load (["J.api.JmolNMRInterface", "java.util.Hashtable"], "J.quantum.NMRCalculation", ["java.lang.Double", "$.Float", "$.NullPointerException", "JU.BS", "$.Lst", "$.PT", "$.V3", "JU.Escape", "$.Logger", "$.Tensor", "JV.FileManager"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.vwr = null;
 this.isotopeData = null;
@@ -32,7 +32,7 @@ var bs1 = this.getAtomSiteBS (bsA);
 var iAtom = (bs1.cardinality () == 1 ? bs1.nextSetBit (0) : -1);
 var list =  new JU.Lst ();
 for (var i = bsModels.nextSetBit (0); i >= 0; i = bsModels.nextSetBit (i + 1)) {
-var tensors = this.vwr.getModelAuxiliaryInfoValue (i, "interactionTensors");
+var tensors = this.vwr.ms.getInfo (i, "interactionTensors");
 if (tensors == null) continue;
 var n = tensors.size ();
 for (var j = 0; j < n; j++) {
@@ -59,10 +59,10 @@ Clazz.overrideMethod (c$, "getUniqueTensorSet",
 function (bsAtoms) {
 var bs =  new JU.BS ();
 var atoms = this.vwr.ms.at;
-for (var i = this.vwr.getModelCount (); --i >= 0; ) {
+for (var i = this.vwr.ms.mc; --i >= 0; ) {
 var bsModelAtoms = this.vwr.getModelUndeletedAtomsBitSet (i);
 bsModelAtoms.and (bsAtoms);
-if (this.vwr.getModelUnitCell (i) == null) continue;
+if (this.vwr.ms.getUnitCell (i) == null) continue;
 for (var j = bsModelAtoms.nextSetBit (0); j >= 0; j = bsModelAtoms.nextSetBit (j + 1)) if (atoms[j].atomSite != atoms[j].i + 1) bsModelAtoms.clear (j);
 
 bs.or (bsModelAtoms);
@@ -109,7 +109,7 @@ a2 = this.vwr.ms.at[isc.atomIndex2];
 }, "~B,JM.Atom,JM.Atom,~S,JU.Tensor");
 Clazz.defineMethod (c$, "getISCtype", 
  function (a1, type) {
-var tensors = this.vwr.getModelAuxiliaryInfoValue (a1.mi, "interactionTensors");
+var tensors = this.vwr.ms.getInfo (a1.mi, "interactionTensors");
 if (tensors == null) return null;
 type = (type == null ? "" : type.toLowerCase ());
 var pt = -1;
@@ -142,7 +142,7 @@ Clazz.defineMethod (c$, "getData",
 var br = null;
 try {
 var debugging = JU.Logger.debugging;
-br = J.io.JmolBinary.getBufferedReaderForResource (this.vwr, this, "J/quantum/", "nmr_data.txt");
+br = JV.FileManager.getBufferedReaderForResource (this.vwr, this, "J/quantum/", "nmr_data.txt");
 this.isotopeData =  new java.util.Hashtable ();
 var line;
 while ((line = br.readLine ()) != null) {
@@ -155,7 +155,7 @@ if (debugging) JU.Logger.info (name + " default isotope " + defaultIso);
 for (var i = 3; i < tokens.length; i += 3) {
 var n = Integer.parseInt (tokens[i]);
 var isoname = n + name;
-var dataGQ = [n, Double.parseDouble (tokens[i + 1]), Double.parseDouble (tokens[i + 2])];
+var dataGQ =  Clazz.newDoubleArray (-1, [n, Double.parseDouble (tokens[i + 1]), Double.parseDouble (tokens[i + 2])]);
 if (debugging) JU.Logger.info (isoname + "  " + JU.Escape.eAD (dataGQ));
 this.isotopeData.put (isoname, dataGQ);
 }
@@ -190,11 +190,11 @@ var map =  new java.util.Hashtable ();
 map.put ("isotopes", this.isotopeData);
 map.put ("shiftRefsPPM", this.shiftRefsPPM);
 return map;
-}if (Character.isDigit (what.charAt (0))) return this.isotopeData.get (what);
+}if (JU.PT.isDigit (what.charAt (0))) return this.isotopeData.get (what);
 var info =  new JU.Lst ();
 for (var e, $e = this.isotopeData.entrySet ().iterator (); $e.hasNext () && ((e = $e.next ()) || true);) {
 var key = e.getKey ();
-if (Character.isDigit (key.charAt (0)) && key.endsWith (what)) info.addLast (e.getValue ());
+if (JU.PT.isDigit (key.charAt (0)) && key.endsWith (what)) info.addLast (e.getValue ());
 }
 return info;
 }, "~S");

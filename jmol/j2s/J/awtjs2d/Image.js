@@ -1,4 +1,5 @@
 Clazz.declarePackage ("J.awtjs2d");
+Clazz.load (null, "J.awtjs2d.Image", ["J.awtjs2d.Platform"], function () {
 c$ = Clazz.declareType (J.awtjs2d, "Image");
 c$.getWidth = Clazz.defineMethod (c$, "getWidth", 
 function (canvas) {
@@ -12,17 +13,17 @@ return (canvas.imageHeight ? canvas.imageHeight : canvas.height);
 }}, "~O");
 c$.grabPixels = Clazz.defineMethod (c$, "grabPixels", 
 function (context, width, height) {
+var data = null;
 {
-if (context._buf32) return context._buf32; // non-canvas internal buffer for image writing
-var data = context.getImageData(0, 0, width, height).data;
-return this.toIntARGB(data);
-}}, "~O,~N,~N");
+data = context.getImageData(0, 0, width, height).data;
+}return J.awtjs2d.Image.toIntARGB (data);
+}, "~O,~N,~N");
 c$.toIntARGB = Clazz.defineMethod (c$, "toIntARGB", 
 function (imgData) {
 var n = Clazz.doubleToInt (imgData.length / 4);
 var iData =  Clazz.newIntArray (n, 0);
-for (var i = 0, j = 0; i < n; j++) {
-iData[i++] = (imgData[j++] << 16) | (imgData[j++] << 8) | imgData[j++] | 0xFF000000;
+for (var i = 0, j = 0; i < n; ) {
+iData[i++] = (imgData[j++] << 16) | (imgData[j++] << 8) | imgData[j++] | (imgData[j++] << 24);
 }
 return iData;
 }, "~A");
@@ -44,29 +45,8 @@ canvas = {width:windowWidth,height:windowHeight};
 canvas.buf32 = pBuffer;
 return canvas;
 }}, "~N,~N,~A,~N,~B,~O");
-c$.getStaticGraphics = Clazz.defineMethod (c$, "getStaticGraphics", 
-function (canvas, backgroundTransparent) {
-{
-return this.getGraphics(canvas);
-}}, "~O,~B");
-c$.getGraphics = Clazz.defineMethod (c$, "getGraphics", 
-function (canvas) {
-{
-return canvas.getContext("2d");
-}}, "~O");
-c$.drawImage = Clazz.defineMethod (c$, "drawImage", 
-function (context, canvas, x, y, width, height) {
-{
-var buf8 = canvas.buf8;
-var buf32 = canvas.buf32;
-var n = width * height;
-var dw = (canvas.width - width) * 4;
-for (var i = 0, j = x * 4; i < n;) {
-buf8[j++] = (buf32[i] >> 16) & 0xFF;
-buf8[j++] = (buf32[i] >> 8) & 0xFF;
-buf8[j++] = buf32[i] & 0xFF;
-buf8[j++] = 0xFF;
-if (((++i)%width)==0) j += dw;
-}
-context.putImageData(canvas.imgdata,x,y);
-}}, "~O,~O,~N,~N,~N,~N");
+c$.getImageDialog = Clazz.defineMethod (c$, "getImageDialog", 
+function (vwr, title, imageMap) {
+return J.awtjs2d.Platform.Jmol ()._consoleGetImageDialog (vwr, title, imageMap);
+}, "JV.Viewer,~S,java.util.Map");
+});

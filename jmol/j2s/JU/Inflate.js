@@ -589,5 +589,5 @@ Clazz.defineStatics (c$,
 "COMMENT", 21,
 "HCRC", 22,
 "FLAGS", 23,
-"mark", [0, 0, 0xff, 0xff]);
+"mark",  Clazz.newByteArray (-1, [0, 0, 0xff, 0xff]));
 });

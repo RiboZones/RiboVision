@@ -24,8 +24,8 @@ Clazz.defineMethod (c$, "run",
 function () {
 var info = this.vwr.apiPlatform.getJsObjectInfo (this.aDOMNode, null, null);
 if (info != null) this.htParams.put ("nameSpaceInfo", info);
+this.vwr.zap (false, true, false);
 this.atomSetCollection = this.vwr.getModelAdapter ().getAtomSetCollectionFromDOM (this.aDOMNode, this.htParams);
 if (Clazz.instanceOf (this.atomSetCollection, String)) return;
-this.vwr.zap (false, true, false);
-this.fm.setFileInfo (["JSNode"]);
+this.fm.setFileInfo ( Clazz.newArray (-1, ["JSNode"]));
 });

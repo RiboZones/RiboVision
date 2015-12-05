@@ -4,10 +4,6 @@ c$ = Clazz.decorateAsClass (function () {
 this.w = 0;
 Clazz.instantialize (this, arguments);
 }, JU, "T4", JU.T3);
-Clazz.makeConstructor (c$, 
-function () {
-Clazz.superConstructor (this, JU.T4, []);
-});
 Clazz.defineMethod (c$, "set4", 
 function (x, y, z, w) {
 this.x = x;

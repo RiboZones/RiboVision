@@ -13,7 +13,7 @@ JSV.common.Visible.getXYZfitted (xyCoords, isAbsorbance, xyzd);
 xyzd[0] /= xyzd[3];
 xyzd[1] /= xyzd[3];
 xyzd[2] /= xyzd[3];
-var rgb = [xyzd[0] * 3.2410 + xyzd[1] * -1.5374 + xyzd[2] * -0.4986, xyzd[0] * -0.9692 + xyzd[1] * 1.8760 + xyzd[2] * 0.0416, xyzd[0] * 0.0556 + xyzd[1] * -0.204 + xyzd[2] * 1.0570];
+var rgb =  Clazz.newDoubleArray (-1, [xyzd[0] * 3.2410 + xyzd[1] * -1.5374 + xyzd[2] * -0.4986, xyzd[0] * -0.9692 + xyzd[1] * 1.8760 + xyzd[2] * 0.0416, xyzd[0] * 0.0556 + xyzd[1] * -0.204 + xyzd[2] * 1.0570]);
 var gamma = 2.4;
 for (var i = 0; i < 3; i++) rgb[i] = (rgb[i] > 0.00304 ? 1.055 * Math.pow (rgb[i], 1 / gamma) - 0.055 : 12.92 * rgb[i]);
 

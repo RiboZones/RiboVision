@@ -177,7 +177,7 @@ throw e;
 }
 }, "~N,~B");
 Clazz.defineStatics (c$,
-"tagNames", ["audittrail", "experimentstepset", "sampleset", "xx result", "spectrum", "metadatalist", "conditionlist", "parameterlist", "sample", "spectrumdata", "peaklist", "author", "peaklist"],
+"tagNames",  Clazz.newArray (-1, ["audittrail", "experimentstepset", "sampleset", "xx result", "spectrum", "metadatalist", "conditionlist", "parameterlist", "sample", "spectrumdata", "peaklist", "author", "peaklist"]),
 "AML_0", 0,
 "AML_AUDITTRAIL", 0,
 "AML_EXPERIMENTSTEPSET", 1,

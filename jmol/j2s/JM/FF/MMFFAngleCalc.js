@@ -5,7 +5,7 @@ Clazz.defineMethod (c$, "setData",
 function (calc, angle) {
 var data = this.calcs.getParameterObj (angle);
 if (data == null) return;
-calc.addLast ([angle.data, data, angle.key]);
+calc.addLast ( Clazz.newArray (-1, [angle.data, data, angle.key]));
 }, "JU.Lst,JM.MinAngle");
 Clazz.overrideMethod (c$, "compute", 
 function (dataIn) {

@@ -118,7 +118,7 @@ this.htCheckbox.put (key + "::" + this.htCheckbox.size (), checkboxMenuItem);
 }, "~S,javajs.api.SC");
 Clazz.defineMethod (c$, "updateButton", 
 function (b, entry, script) {
-var ret = [entry];
+var ret =  Clazz.newArray (-1, [entry]);
 var icon = this.getEntryIcon (ret);
 entry = ret[0];
 b.init (entry, icon, script, this.thisPopup);

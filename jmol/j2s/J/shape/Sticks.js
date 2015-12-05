@@ -11,9 +11,8 @@ Clazz.instantialize (this, arguments);
 Clazz.prepareFields (c$, function () {
 this.ptXY =  new JU.P3i ();
 });
-Clazz.defineMethod (c$, "initShape", 
+Clazz.overrideMethod (c$, "initShape", 
 function () {
-Clazz.superCall (this, J.shape.Sticks, "initShape", []);
 this.myMask = 1023;
 this.reportAll = false;
 });
@@ -67,19 +66,14 @@ var iter = (this.selectedBonds != null ? this.ms.getBondIterator (this.selectedB
 while (iter.hasNext ()) {
 this.bsColixSet.set (iter.nextIndex ());
 var bond = iter.next ();
-if (isEnergy) {
-bond.setColix (this.getColixB (colix, pal.id, bond));
-bond.setPaletteID (pal.id);
-} else {
-bond.setColix (JU.C.getColix (JU.Edge.getArgbHbondType (bond.order)));
-}}
+bond.colix = (isEnergy ? this.getColixB (colix, pal.id, bond) : JU.C.getColix (JU.Edge.getArgbHbondType (bond.order)));
+}
 return;
 }if (colix == 2 && pal !== J.c.PAL.CPK) return;
 var iter = (this.selectedBonds != null ? this.ms.getBondIterator (this.selectedBonds) : this.ms.getBondIteratorForType (this.myMask, bs));
 while (iter.hasNext ()) {
 var iBond = iter.nextIndex ();
-var bond = iter.next ();
-bond.setColix (colix);
+iter.next ().colix = colix;
 this.bsColixSet.setBitTo (iBond, (colix != 0 && colix != 2));
 }
 return;
@@ -99,17 +93,17 @@ return;
 Clazz.overrideMethod (c$, "getProperty", 
 function (property, index) {
 if (property.equals ("selectionState")) return (this.selectedBonds != null ? "select BONDS " + JU.Escape.eBS (this.selectedBonds) + "\n" : "");
-if (property.equals ("sets")) return [this.bsOrderSet, this.bsSizeSet, this.bsColixSet];
+if (property.equals ("sets")) return  Clazz.newArray (-1, [this.bsOrderSet, this.bsSizeSet, this.bsColixSet]);
 return null;
 }, "~S,~N");
-Clazz.overrideMethod (c$, "setModelClickability", 
+Clazz.overrideMethod (c$, "setAtomClickability", 
 function () {
 var bonds = this.ms.bo;
 for (var i = this.ms.bondCount; --i >= 0; ) {
 var bond = bonds[i];
-if ((bond.getShapeVisibilityFlags () & this.vf) == 0 || this.ms.isAtomHidden (bond.getAtomIndex1 ()) || this.ms.isAtomHidden (bond.getAtomIndex2 ())) continue;
-bond.getAtom1 ().setClickable (this.vf);
-bond.getAtom2 ().setClickable (this.vf);
+if ((bond.shapeVisibilityFlags & this.vf) == 0 || this.ms.isAtomHidden (bond.atom1.i) || this.ms.isAtomHidden (bond.atom2.i)) continue;
+bond.atom1.setClickable (this.vf);
+bond.atom2.setClickable (this.vf);
 }
 });
 Clazz.overrideMethod (c$, "getShapeState", 
@@ -129,7 +123,7 @@ function (x, y, modifiers, bsVisible, drawPicking) {
 var pt =  new JU.P3 ();
 var bond = this.findPickedBond (x, y, bsVisible, pt);
 if (bond == null) return null;
-var modelIndex = bond.getAtom1 ().mi;
+var modelIndex = bond.atom1.mi;
 var info = bond.getIdentity ();
 var map =  new java.util.Hashtable ();
 map.put ("pt", pt);
@@ -144,7 +138,7 @@ return map;
 Clazz.defineMethod (c$, "findPickedBond", 
  function (x, y, bsVisible, pt) {
 var dmin2 = 100;
-if (this.gdata.isAntialiased ()) {
+if (this.vwr.gdata.isAntialiased ()) {
 x <<= 1;
 y <<= 1;
 dmin2 <<= 1;
@@ -153,9 +147,9 @@ var v =  new JU.P3 ();
 var bonds = this.ms.bo;
 for (var i = this.ms.bondCount; --i >= 0; ) {
 var bond = bonds[i];
-if (bond.getShapeVisibilityFlags () == 0) continue;
-var atom1 = bond.getAtom1 ();
-var atom2 = bond.getAtom2 ();
+if (bond.shapeVisibilityFlags == 0) continue;
+var atom1 = bond.atom1;
+var atom2 = bond.atom2;
 if (!atom1.checkVisible () || !atom2.checkVisible ()) continue;
 v.ave (atom1, atom2);
 var d2 = this.coordinateInRange (x, y, v, dmin2, this.ptXY);

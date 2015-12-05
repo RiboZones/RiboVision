@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.shapesurface");
-Clazz.load (["J.shapesurface.Isosurface"], "J.shapesurface.LcaoCartoon", ["java.lang.Float", "JU.PT", "$.SB", "$.V3", "JU.C", "$.Escape", "$.Txt"], function () {
+Clazz.load (["J.shapesurface.Isosurface"], "J.shapesurface.LcaoCartoon", ["java.lang.Float", "JU.PT", "$.SB", "$.V3", "JU.C", "$.Escape"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.thisType = null;
 this.myColorPt = 0;
@@ -104,13 +104,12 @@ this.setScriptInfo (null);
 }}, "~S,~O,JU.BS");
 Clazz.defineMethod (c$, "setLcaoOn", 
  function (TF) {
-if (JU.Txt.isWild (this.lcaoID)) {
-var key = this.lcaoID.toLowerCase ();
-for (var i = this.meshCount; --i >= 0; ) {
-if (JU.Txt.isMatch (this.meshes[i].thisID.toLowerCase (), key, true, true)) this.meshes[i].visible = TF;
-}
+if (JU.PT.isWild (this.lcaoID)) {
+var list = this.getMeshList (this.lcaoID, false);
+for (var i = list.size (); --i >= 0; ) list.get (i).visible = TF;
+
 return;
-}var ac = this.vwr.getAtomCount ();
+}var ac = this.vwr.ms.ac;
 for (var i = ac; --i >= 0; ) if (this.lcaoID != null || this.thisSet.get (i)) this.setLcaoOn (i, TF);
 
 }, "~B");
@@ -122,10 +121,10 @@ for (var i = this.meshCount; --i >= 0; ) if (this.meshes[i].thisID.indexOf (id) 
 }, "~N,~B");
 Clazz.defineMethod (c$, "deleteLcaoCartoon", 
  function () {
-if (JU.Txt.isWild (this.lcaoID)) {
+if (JU.PT.isWild (this.lcaoID)) {
 this.deleteMeshKey (this.lcaoID);
 return;
-}var ac = this.vwr.getAtomCount ();
+}var ac = this.vwr.ms.ac;
 for (var i = ac; --i >= 0; ) if (this.lcaoID != null || this.thisSet.get (i)) this.deleteLcaoCartoon (i);
 
 });
@@ -155,7 +154,7 @@ this.translucentLevel = this.lcaoTranslucentLevel;
 this.setPropI ("thisID", id, null);
 if (this.lcaoScale != null) this.setPropI ("scale", this.lcaoScale, null);
 if (isCpk) {
-this.setPropI ("colorRGB", Integer.$valueOf (this.vwr.getAtomArgb (iAtom)), null);
+this.setPropI ("colorRGB", Integer.$valueOf (this.vwr.gdata.getColorArgbOrGray (this.ms.at[iAtom].colixAtom)), null);
 } else if (this.lcaoColorNeg != null) {
 this.setPropI ("colorRGB", this.lcaoColorNeg, null);
 this.setPropI ("colorRGB", this.lcaoColorPos, null);
@@ -163,7 +162,7 @@ this.setPropI ("colorRGB", this.lcaoColorPos, null);
 if (this.cappingObject != null) this.setPropI ("cap", this.cappingObject, null);
 this.setPropI ("lcaoType", this.thisType, null);
 this.setPropI ("atomIndex", Integer.$valueOf (iAtom), null);
-var axes = [ new JU.V3 (),  new JU.V3 (), JU.V3.newV (this.ms.at[iAtom]),  new JU.V3 ()];
+var axes =  Clazz.newArray (-1, [ new JU.V3 (),  new JU.V3 (), JU.V3.newV (this.ms.at[iAtom]),  new JU.V3 ()]);
 if (this.rotationAxis != null) axes[3].setT (this.rotationAxis);
 if (this.isMolecular) {
 if (this.thisType.indexOf ("px") >= 0) {
@@ -179,7 +178,7 @@ axes[1].set (1, 0, 0);
 }if (this.isMolecular || isCpk || this.thisType.equalsIgnoreCase ("s") || this.vwr.getHybridizationAndAxes (iAtom, axes[0], axes[1], this.thisType) != null) {
 this.setPropI ((this.isRadical ? "radical" : this.isLonePair ? "lonePair" : "lcaoCartoon"), axes, null);
 }if (isCpk) {
-var colix = this.vwr.ms.getAtomColix (iAtom);
+var colix = this.vwr.ms.at[iAtom].colixAtom;
 if (JU.C.isColixTranslucent (colix)) {
 this.setPropI ("translucentLevel", Float.$valueOf (JU.C.getColixTranslucencyLevel (colix)), null);
 this.setPropI ("translucency", "translucent", null);
@@ -208,5 +207,5 @@ this.lcaoColorNeg = lc.lcaoColorNeg;
 this.lcaoTranslucent = lc.lcaoTranslucent;
 this.lcaoTranslucentLevel = lc.lcaoTranslucentLevel;
 Clazz.superCall (this, J.shapesurface.LcaoCartoon, "merge", [shape]);
-}, "J.shape.Shape");
+}, "J.shape.MeshCollection");
 });

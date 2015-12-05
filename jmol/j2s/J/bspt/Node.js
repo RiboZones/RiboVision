@@ -12,7 +12,6 @@ Clazz.instantialize (this, arguments);
 }, J.bspt, "Node", J.bspt.Element);
 Clazz.makeConstructor (c$, 
 function (bspt, level, leafLeft) {
-Clazz.superConstructor (this, J.bspt.Node, []);
 this.bspt = bspt;
 if (level == bspt.treeDepth) {
 bspt.treeDepth = level + 1;
@@ -73,6 +72,13 @@ return this.eleLeft.toString () + this.dim + ":" + "\n" + this.eleRight.toString
 });
 c$.getDimensionValue = Clazz.defineMethod (c$, "getDimensionValue", 
 function (pt, dim) {
-return (dim == 0 ? pt.x : dim == 1 ? pt.y : pt.z);
+switch (dim) {
+case 0:
+return pt.x;
+case 1:
+return pt.y;
+default:
+return pt.z;
+}
 }, "JU.P3,~N");
 });

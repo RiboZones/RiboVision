@@ -29,7 +29,7 @@ function (pdf) {
 }, "JSV.common.ExportType");
 Clazz.overrideMethod (c$, "showFileOpenDialog", 
 function (panelOrFrame, userData) {
-var applet = this.vwr.applet;
+var applet = this.vwr.html5Applet;
 {
 Jmol._loadFileAsynchronously(this, applet, "?", userData);
 }return null;

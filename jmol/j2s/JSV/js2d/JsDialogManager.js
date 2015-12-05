@@ -26,7 +26,7 @@ return  Clazz.newIntArray (2, 0);
 Clazz.overrideMethod (c$, "getOptionFromDialog", 
 function (frame, items, jsvp, dialogName, labelName) {
 var i = -1;
-var applet = this.vwr.applet;
+var applet = this.vwr.html5Applet;
 {
 i = applet.getOption(items, dialogName, labelName);
 }return i;
@@ -36,7 +36,7 @@ function (frame, spectrum) {
 var dialog =  new javajs.swing.JDialog ();
 dialog.setTitle ("Header Information");
 var rowData = spectrum.getHeaderRowDataAsArray ();
-var columnNames = ["Label", "Description"];
+var columnNames =  Clazz.newArray (-1, ["Label", "Description"]);
 var tableModel =  new JSV.js2d.DialogTableModel (columnNames, rowData, false, true);
 var table =  new javajs.swing.JTable (tableModel);
 table.setPreferredScrollableViewportSize ( new javajs.awt.Dimension (400, 195));

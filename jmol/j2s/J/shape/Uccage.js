@@ -8,17 +8,20 @@ this.setPropFLS (propertyName, value);
 Clazz.defineMethod (c$, "getShapeState", 
 function () {
 if (!this.ms.haveUnitCells) return "";
-var s = Clazz.superCall (this, J.shape.Uccage, "getShapeState", []);
+var st = Clazz.superCall (this, J.shape.Uccage, "getShapeState", []);
+var s = st;
 var iAtom = this.vwr.am.cai;
 if (iAtom >= 0) s += "  unitcell ({" + iAtom + "});\n";
 var uc = this.vwr.getCurrentUnitCell ();
-if (uc != null) s += uc.getUnitCellState ();
-return s;
+if (uc != null) {
+s += uc.getUnitCellState ();
+s += st;
+}return s;
 });
 Clazz.defineMethod (c$, "initShape", 
 function () {
 Clazz.superCall (this, J.shape.Uccage, "initShape", []);
-this.font3d = this.gdata.getFont3D (14);
+this.font3d = this.vwr.gdata.getFont3D (14);
 this.myType = "unitcell";
 });
 });

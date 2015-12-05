@@ -44,9 +44,9 @@ a1 = -2.0 * cosPhi;
 a2 = 1.0;
 }
 koop /= 3.0;
-calc.addLast ([[this.ia, ib, this.ic, this.id], [koop, a0, a1, a2, koop * 10]]);
-calc.addLast ([[this.ic, ib, this.id, this.ia], [koop, a0, a1, a2, koop * 10]]);
-calc.addLast ([[this.id, ib, this.ia, this.ic], [koop, a0, a1, a2, koop * 10]]);
+calc.addLast ( Clazz.newArray (-1, [ Clazz.newIntArray (-1, [this.ia, ib, this.ic, this.id]),  Clazz.newDoubleArray (-1, [koop, a0, a1, a2, koop * 10])]));
+calc.addLast ( Clazz.newArray (-1, [ Clazz.newIntArray (-1, [this.ic, ib, this.id, this.ia]),  Clazz.newDoubleArray (-1, [koop, a0, a1, a2, koop * 10])]));
+calc.addLast ( Clazz.newArray (-1, [ Clazz.newIntArray (-1, [this.id, ib, this.ia, this.ic]),  Clazz.newDoubleArray (-1, [koop, a0, a1, a2, koop * 10])]));
 }, "JU.Lst,~N,~N,~N");
 Clazz.overrideMethod (c$, "compute", 
 function (dataIn) {

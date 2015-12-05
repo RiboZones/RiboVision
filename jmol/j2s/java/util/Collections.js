@@ -1,3 +1,5 @@
+//BH note: a declared static superclass must come before a static class referencing it
+
 Clazz.load(["java.util.AbstractList","$.AbstractMap","$.AbstractSet","$.Collection","$.Iterator","$.List","$.ListIterator","$.Map","$.RandomAccess","$.Set","$.SortedMap","$.SortedSet","java.lang.NullPointerException","$.UnsupportedOperationException","java.lang.reflect.Array"],"java.util.Collections",["java.lang.ArrayIndexOutOfBoundsException","$.ClassCastException","$.IllegalArgumentException","$.IndexOutOfBoundsException","java.util.ArrayList","$.Arrays","$.Enumeration","java.util.Map.Entry","java.util.NoSuchElementException","$.Random"],function(){
 c$=Clazz.declareType(java.util,"Collections");
 c$.binarySearch=Clazz.defineMethod(c$,"binarySearch",
@@ -924,14 +926,8 @@ function(a){
 return this.c.toArray(a);
 }},"~A");
 c$=Clazz.p0p();
-Clazz.pu$h(self.c$);
-c$=Clazz.declareType(java.util.Collections,"SynchronizedRandomAccessList",java.util.Collections.SynchronizedList,java.util.RandomAccess);
-Clazz.overrideMethod(c$,"subList",
-function(a,b){
-{
-return new java.util.Collections.SynchronizedRandomAccessList(this.list.subList(a,b),this.mutex);
-}},"~N,~N");
-c$=Clazz.p0p();
+
+
 Clazz.pu$h(self.c$);
 c$=Clazz.decorateAsClass(function(){
 this.list=null;
@@ -982,14 +978,15 @@ function(a){
 {
 return this.list.lastIndexOf(a);
 }},"~O");
-Clazz.defineMethod(c$,"listIterator",
-function(){
-{
-return this.list.listIterator();
-}});
+//Clazz.defineMethod(c$,"listIterator",
+//function(){
+//{
+//return this.list.listIterator();
+//}});
 Clazz.defineMethod(c$,"listIterator",
 function(a){
 {
+a || (a = 0);
 return this.list.listIterator(a);
 }},"~N");
 Clazz.defineMethod(c$,"remove",
@@ -1008,6 +1005,21 @@ function(a,b){
 return new java.util.Collections.SynchronizedList(this.list.subList(a,b),this.mutex);
 }},"~N,~N");
 c$=Clazz.p0p();
+
+
+
+Clazz.pu$h(self.c$);
+c$=Clazz.declareType(java.util.Collections,"SynchronizedRandomAccessList",java.util.Collections.SynchronizedList,java.util.RandomAccess);
+Clazz.overrideMethod(c$,"subList",
+function(a,b){
+{
+return new java.util.Collections.SynchronizedRandomAccessList(this.list.subList(a,b),this.mutex);
+}},"~N,~N");
+c$=Clazz.p0p();
+
+
+
+
 Clazz.pu$h(self.c$);
 c$=Clazz.decorateAsClass(function(){
 this.m=null;
@@ -1295,13 +1307,9 @@ throw new UnsupportedOperationException();
 c$=Clazz.p0p();
 };
 c$=Clazz.p0p();
-Clazz.pu$h(self.c$);
-c$=Clazz.declareType(java.util.Collections,"UnmodifiableRandomAccessList",java.util.Collections.UnmodifiableList,java.util.RandomAccess);
-Clazz.overrideMethod(c$,"subList",
-function(a,b){
-return new java.util.Collections.UnmodifiableRandomAccessList(this.list.subList(a,b));
-},"~N,~N");
-c$=Clazz.p0p();
+
+//BH note: a declared static superclass must come before a static class referencing it
+
 Clazz.pu$h(self.c$);
 c$=Clazz.decorateAsClass(function(){
 this.list=null;
@@ -1340,12 +1348,13 @@ Clazz.defineMethod(c$,"lastIndexOf",
 function(a){
 return this.list.lastIndexOf(a);
 },"~O");
-Clazz.defineMethod(c$,"listIterator",
-function(){
-return this.listIterator(0);
-});
+//Clazz.defineMethod(c$,"listIterator",
+//function(){
+//return this.listIterator(0);
+//});
 Clazz.defineMethod(c$,"listIterator",
 function(a){
+a || (a = 0);
 return((Clazz.isClassDefined("java.util.Collections$UnmodifiableList$1")?0:java.util.Collections.UnmodifiableList.$Collections$UnmodifiableList$1$()),Clazz.innerTypeInstance(java.util.Collections$UnmodifiableList$1,this,null));
 },"~N");
 Clazz.defineMethod(c$,"remove",
@@ -1409,6 +1418,32 @@ throw new UnsupportedOperationException();
 c$=Clazz.p0p();
 };
 c$=Clazz.p0p();
+
+
+
+
+Clazz.pu$h(self.c$);
+c$=Clazz.declareType(java.util.Collections,"UnmodifiableRandomAccessList",java.util.Collections.UnmodifiableList,java.util.RandomAccess);
+Clazz.overrideMethod(c$,"subList",
+function(a,b){
+return new java.util.Collections.UnmodifiableRandomAccessList(this.list.subList(a,b));
+},"~N,~N");
+c$=Clazz.p0p();
+
+
+Clazz.pu$h(self.c$);
+c$=Clazz.declareType(java.util.Collections,"UnmodifiableSet",java.util.Collections.UnmodifiableCollection,java.util.Set);
+Clazz.overrideMethod(c$,"equals",
+function(a){
+return this.c.equals(a);
+},"~O");
+Clazz.overrideMethod(c$,"hashCode",
+function(){
+return this.c.hashCode();
+});
+c$=Clazz.p0p();
+
+
 Clazz.pu$h(self.c$);
 c$=Clazz.decorateAsClass(function(){
 this.m=null;
@@ -1478,6 +1513,13 @@ Clazz.defineMethod(c$,"toString",
 function(){
 return this.m.toString();
 });
+
+
+
+
+
+
+
 Clazz.pu$h(self.c$);
 c$=Clazz.declareType(java.util.Collections.UnmodifiableMap,"UnmodifiableEntrySet",java.util.Collections.UnmodifiableSet);
 Clazz.overrideMethod(c$,"iterator",
@@ -1569,17 +1611,9 @@ return this.mapEntry.toString();
 c$=Clazz.p0p();
 c$=Clazz.p0p();
 c$=Clazz.p0p();
-Clazz.pu$h(self.c$);
-c$=Clazz.declareType(java.util.Collections,"UnmodifiableSet",java.util.Collections.UnmodifiableCollection,java.util.Set);
-Clazz.overrideMethod(c$,"equals",
-function(a){
-return this.c.equals(a);
-},"~O");
-Clazz.overrideMethod(c$,"hashCode",
-function(){
-return this.c.hashCode();
-});
-c$=Clazz.p0p();
+
+
+
 Clazz.pu$h(self.c$);
 c$=Clazz.decorateAsClass(function(){
 this.sm=null;
@@ -1783,6 +1817,8 @@ function(a){
 this.i.add(java.util.Collections.checkType(a,this.type));
 },"~O");
 c$=Clazz.p0p();
+
+
 Clazz.pu$h(self.c$);
 c$=Clazz.decorateAsClass(function(){
 this.l=null;
@@ -1829,12 +1865,13 @@ Clazz.defineMethod(c$,"lastIndexOf",
 function(a){
 return this.l.lastIndexOf(a);
 },"~O");
-Clazz.defineMethod(c$,"listIterator",
-function(){
-return new java.util.Collections.CheckedListIterator(this.l.listIterator(),this.type);
-});
+//Clazz.defineMethod(c$,"listIterator",
+//function(){
+//return new java.util.Collections.CheckedListIterator(this.l.listIterator(),this.type);
+//});
 Clazz.defineMethod(c$,"listIterator",
 function(a){
+a || (a = 0);
 return new java.util.Collections.CheckedListIterator(this.l.listIterator(a),this.type);
 },"~N");
 Clazz.defineMethod(c$,"subList",
@@ -1850,9 +1887,13 @@ function(){
 return this.l.hashCode();
 });
 c$=Clazz.p0p();
+
+
 Clazz.pu$h(self.c$);
 c$=Clazz.declareType(java.util.Collections,"CheckedRandomAccessList",java.util.Collections.CheckedList,java.util.RandomAccess);
 c$=Clazz.p0p();
+
+
 Clazz.pu$h(self.c$);
 c$=Clazz.declareType(java.util.Collections,"CheckedSet",java.util.Collections.CheckedCollection,java.util.Set);
 Clazz.overrideMethod(c$,"equals",

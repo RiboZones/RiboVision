@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.adapter.readers.xml");
-Clazz.load (["J.adapter.readers.xml.XmlReader"], "J.adapter.readers.xml.XmlQEReader", ["JU.Logger"], function () {
+Clazz.load (["J.adapter.readers.xml.XmlReader"], "J.adapter.readers.xml.XmlQEReader", ["JU.PT", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.a = 0;
 this.b = 0;
@@ -8,7 +8,7 @@ this.myAttributes = null;
 Clazz.instantialize (this, arguments);
 }, J.adapter.readers.xml, "XmlQEReader", J.adapter.readers.xml.XmlReader);
 Clazz.prepareFields (c$, function () {
-this.myAttributes = ["SPECIES", "TAU"];
+this.myAttributes =  Clazz.newArray (-1, ["SPECIES", "TAU"]);
 });
 Clazz.makeConstructor (c$, 
 function () {
@@ -25,13 +25,13 @@ this.PX (parent, saxReader);
 }, "J.adapter.readers.xml.XmlReader,~O");
 Clazz.overrideMethod (c$, "processStartElement", 
 function (localName) {
-if (JU.Logger.debugging) JU.Logger.debug ("xmlqe: start " + localName);
+if (this.debugging) JU.Logger.debug ("xmlqe: start " + localName);
 if (!this.parent.continuing) return;
 if ("NUMBER_OF_ATOMS".equalsIgnoreCase (localName) || "CELL_DIMENSIONS".equalsIgnoreCase (localName) || "AT".equalsIgnoreCase (localName)) {
 this.keepChars = true;
 return;
 }if (localName.startsWith ("ATOM.")) {
-this.parent.setAtomCoordScaled (null, J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.atts.get ("TAU")), 0, 0.5291772).elementSymbol = this.atts.get ("SPECIES").trim ();
+this.parent.setAtomCoordScaled (null, JU.PT.getTokens (this.atts.get ("TAU")), 0, 0.5291772).elementSymbol = this.atts.get ("SPECIES").trim ();
 }if ("structure".equals (localName)) {
 if (!this.parent.doGetModel (++this.parent.modelNumber, null)) {
 this.parent.checkLastModel ();
@@ -44,7 +44,7 @@ return;
 }, "~S");
 Clazz.overrideMethod (c$, "processEndElement", 
 function (localName) {
-if (JU.Logger.debugging) JU.Logger.debug ("xmlqe: end " + localName);
+if (this.debugging) JU.Logger.debug ("xmlqe: end " + localName);
 while (true) {
 if (!this.parent.doProcessLines) break;
 if ("CELL_DIMENSIONS".equalsIgnoreCase (localName)) {

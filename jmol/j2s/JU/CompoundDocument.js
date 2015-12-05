@@ -24,7 +24,8 @@ Clazz.superConstructor (this, JU.CompoundDocument);
 this.isBigEndian = true;
 });
 Clazz.overrideMethod (c$, "setStream", 
-function (bis, isBigEndian) {
+function (jzt, bis, isBigEndian) {
+this.jzt = jzt;
 if (!this.isRandom) {
 this.stream =  new java.io.DataInputStream (bis);
 }this.stream.mark (2147483647);
@@ -32,7 +33,7 @@ if (!this.readHeader ()) return;
 this.getSectorAllocationTable ();
 this.getShortSectorAllocationTable ();
 this.getDirectoryTable ();
-}, "java.io.BufferedInputStream,~B");
+}, "javajs.api.GenericZipTools,java.io.BufferedInputStream,~B");
 Clazz.defineMethod (c$, "getDirectory", 
 function () {
 return this.directory;
@@ -86,7 +87,6 @@ this.data.append ("\n");
 binaryFileList = "|" + binaryFileList + "|";
 for (var i = 0; i < this.directory.size (); i++) {
 var thisEntry = this.directory.get (i);
-System.out.println ("reading " + thisEntry.entryName);
 if (!thisEntry.isEmpty && thisEntry.entryType != 5) {
 var name = thisEntry.entryName;
 if (name.endsWith (".gz")) name = name.substring (0, name.length - 3);
@@ -233,7 +233,7 @@ System.out.println (e.toString ());
 throw e;
 }
 }
-if (gzipData.isEnabled) gzipData.addTo (data);
+if (gzipData.isEnabled) gzipData.addTo (this.jzt, data);
 return data;
 }, "~N,~N,~B");
 Clazz.defineMethod (c$, "getSectorData", 
@@ -275,12 +275,12 @@ shortSID = this.SSAT[shortSID];
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
 System.out.println (data.toString ());
-System.out.println (e.toString ());
+System.out.println ("reader error in CompoundDocument " + e.toString ());
 } else {
 throw e;
 }
 }
-if (gzipData.isEnabled) gzipData.addTo (data);
+if (gzipData.isEnabled) gzipData.addTo (this.jzt, data);
 return data;
 }, "~N,~N,~B");
 });

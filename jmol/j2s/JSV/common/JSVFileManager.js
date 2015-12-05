@@ -293,7 +293,7 @@ throw e;
 }
 }
 JU.Logger.info ("JSVFileManager opening URL " + url + (post == null ? "" : " with POST of " + post.length + " bytes"));
-$in = JSV.common.JSVFileManager.viewer.apiPlatform.getBufferedURLInputStream (url, postBytes, post);
+$in = JSV.common.JSVFileManager.viewer.apiPlatform.getURLContents (url, postBytes, post, false);
 } else {
 if (showMsg) JU.Logger.info ("JSVFileManager opening file " + name);
 $in = JSV.common.JSVFileManager.viewer.apiPlatform.getBufferedFileInputStream (name);
@@ -330,7 +330,7 @@ jcamp = JSV.common.JSVFileManager.getQuotedJSONAttribute (json, "jcamp", null);
 jcamp = "##TITLE=" + (isInline ? "JMOL SIMULATION" : name) + "\n" + jcamp.substring (jcamp.indexOf ("\n##") + 1);
 var pt = molFile.indexOf ("\n");
 pt = molFile.indexOf ("\n", pt + 1);
-if (pt > 0 && pt == molFile.indexOf ("\n \n")) molFile = molFile.substring (0, pt + 1) + "Created " + JSV.common.JSVFileManager.viewer.apiPlatform.getDateFormat (true) + " by JSpecView " + JSV.common.JSVersion.VERSION + molFile.substring (pt + 1);
+if (pt > 0 && pt == molFile.indexOf ("\n \n")) molFile = molFile.substring (0, pt + 1) + "Created " + JSV.common.JSVFileManager.viewer.apiPlatform.getDateFormat ("8824") + " by JSpecView " + JSV.common.JSVersion.VERSION + molFile.substring (pt + 1);
 pt = 0;
 pt = jcamp.indexOf ("##.");
 var id = JSV.common.JSVFileManager.getAbbreviatedSimulationName (name, false);
@@ -429,7 +429,7 @@ Clazz.defineStatics (c$,
 "viewer", null,
 "jsDocumentBase", "");
 c$.htCorrelationCache = c$.prototype.htCorrelationCache =  new java.util.Hashtable ();
-c$.urlPrefixes = c$.prototype.urlPrefixes = ["http:", "https:", "ftp:", "http://SIMULATION/", "file:"];
+c$.urlPrefixes = c$.prototype.urlPrefixes =  Clazz.newArray (-1, ["http:", "https:", "ftp:", "http://SIMULATION/", "file:"]);
 Clazz.defineStatics (c$,
 "URL_LOCAL", 4,
 "nciResolver", "http://cactus.nci.nih.gov/chemical/structure/%FILE/file?format=sdf&get3d=True",

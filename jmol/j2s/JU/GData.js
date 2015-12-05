@@ -1,16 +1,21 @@
 Clazz.declarePackage ("JU");
-Clazz.load (["J.api.JmolGraphicsInterface"], "JU.GData", ["javajs.awt.Font", "JU.AU", "$.P3", "$.V3", "JU.C", "$.Shader"], function () {
+Clazz.load (["J.api.JmolGraphicsInterface", "JU.Normix"], "JU.GData", ["javajs.awt.Font", "JU.AU", "$.P3", "$.V3", "JU.C", "$.Shader"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.apiPlatform = null;
 this.translucentCoverOnly = false;
+this.currentlyRendering = false;
+this.antialiasEnabled = false;
 this.windowWidth = 0;
 this.windowHeight = 0;
 this.displayMinX = 0;
 this.displayMaxX = 0;
 this.displayMinY = 0;
 this.displayMaxY = 0;
+this.displayMinX2 = 0;
+this.displayMaxX2 = 0;
+this.displayMinY2 = 0;
+this.displayMaxY2 = 0;
 this.antialiasThisFrame = false;
-this.antialiasEnabled = false;
 this.inGreyscaleMode = false;
 this.changeableColixMap = null;
 this.backgroundImage = null;
@@ -24,85 +29,52 @@ this.slab = 0;
 this.depth = 0;
 this.width = 0;
 this.height = 0;
-this.zSlab = 0;
-this.zDepth = 0;
-this.zShadePower = 3;
+this.ambientOcclusion = 0;
 this.colixCurrent = 0;
 this.argbCurrent = 0;
+this.ht3 = 0;
+this.isPass2 = false;
+this.textY = 0;
 this.bufferSize = 0;
 this.shader = null;
-this.zShadeR = 0;
-this.zShadeG = 0;
-this.zShadeB = 0;
+this.vwr = null;
 this.graphicsForMetrics = null;
-this.$isPass2 = false;
-this.ambientOcclusion = 0;
+this.argbNoisyUp = 0;
+this.argbNoisyDn = 0;
+this.transformedVectors = null;
+this.currentFont = null;
 Clazz.instantialize (this, arguments);
 }, JU, "GData", null, J.api.JmolGraphicsInterface);
 Clazz.prepareFields (c$, function () {
 this.changeableColixMap =  Clazz.newShortArray (16, 0);
-});
-Clazz.defineMethod (c$, "setTranslucentCoverOnly", 
-function (TF) {
-this.translucentCoverOnly = TF;
-}, "~B");
-Clazz.defineMethod (c$, "getTranslucentCoverOnly", 
-function () {
-return this.translucentCoverOnly;
+this.transformedVectors =  new Array (JU.GData.normixCount);
 });
 Clazz.makeConstructor (c$, 
 function () {
 this.shader =  new JU.Shader ();
 });
 Clazz.defineMethod (c$, "initialize", 
-function (apiPlatform) {
+function (vwr, apiPlatform) {
+this.vwr = vwr;
 this.apiPlatform = apiPlatform;
-}, "javajs.api.GenericPlatform");
-Clazz.overrideMethod (c$, "setDepth", 
+}, "JV.Viewer,javajs.api.GenericPlatform");
+Clazz.defineMethod (c$, "setDepth", 
 function (depthValue) {
 this.depth = depthValue < 0 ? 0 : depthValue;
 }, "~N");
 Clazz.overrideMethod (c$, "setSlab", 
 function (slabValue) {
-this.slab = slabValue < 0 ? 0 : slabValue;
+this.slab = Math.max (0, slabValue);
 }, "~N");
-Clazz.defineMethod (c$, "setZShade", 
-function (zShade, zSlab, zDepth, zPower) {
-if (zShade) this.setZShade2 (zSlab, zDepth, zPower);
-}, "~B,~N,~N,~N");
-Clazz.defineMethod (c$, "setZShade2", 
-function (zSlab, zDepth, zPower) {
-this.zShadeR = this.bgcolor & 0xFF;
-this.zShadeG = (this.bgcolor & 0xFF00) >> 8;
-this.zShadeB = (this.bgcolor & 0xFF0000) >> 16;
-this.zSlab = zSlab < 0 ? 0 : zSlab;
-this.zDepth = zDepth < 0 ? 0 : zDepth;
-this.zShadePower = zPower;
-}, "~N,~N,~N");
-Clazz.overrideMethod (c$, "setAmbientOcclusion", 
+Clazz.overrideMethod (c$, "setSlabAndZShade", 
+function (slab, depth, zSlab, zDepth, zPower) {
+this.setSlab (slab);
+this.setDepth (depth);
+}, "~N,~N,~N,~N,~N");
+Clazz.defineMethod (c$, "setAmbientOcclusion", 
 function (value) {
 this.ambientOcclusion = value;
 }, "~N");
-Clazz.overrideMethod (c$, "getRenderWidth", 
-function () {
-return this.width;
-});
-Clazz.overrideMethod (c$, "getRenderHeight", 
-function () {
-return this.height;
-});
-Clazz.overrideMethod (c$, "getSlab", 
-function () {
-return this.slab;
-});
-Clazz.overrideMethod (c$, "getDepth", 
-function () {
-return this.depth;
-});
-Clazz.defineMethod (c$, "isDisplayAntialiased", 
-function () {
-return this.antialiasEnabled;
-});
 Clazz.overrideMethod (c$, "isAntialiased", 
 function () {
 return this.antialiasThisFrame;
@@ -117,11 +89,7 @@ Clazz.defineMethod (c$, "changeColixArgb",
 function (id, argb) {
 if (id < this.changeableColixMap.length && this.changeableColixMap[id] != 0) this.changeableColixMap[id] = JU.C.getColix (argb);
 }, "~N,~N");
-Clazz.defineMethod (c$, "getBgColixes", 
-function (bgcolixes) {
-return bgcolixes;
-}, "~A");
-Clazz.overrideMethod (c$, "getColorArgbOrGray", 
+Clazz.defineMethod (c$, "getColorArgbOrGray", 
 function (colix) {
 if (colix < 0) colix = this.changeableColixMap[colix & 2047];
 return (this.inGreyscaleMode ? JU.C.getArgbGreyscale (colix) : JU.C.getArgb (colix));
@@ -254,17 +222,17 @@ function (diameter, x, y) {
 var r = (diameter + 1) >> 1;
 return (x < -r || x >= this.width + r || y < -r || y >= this.height + r);
 }, "~N,~N,~N");
-Clazz.overrideMethod (c$, "isClippedZ", 
+Clazz.defineMethod (c$, "isClippedZ", 
 function (z) {
 return (z != -2147483648 && (z < this.slab || z > this.depth));
 }, "~N");
 Clazz.defineMethod (c$, "clipCode3", 
 function (x, y, z) {
 var code = 0;
-if (x < 0) code |= 8;
- else if (x >= this.width) code |= 4;
-if (y < 0) code |= 2;
- else if (y >= this.height) code |= 1;
+if (x < 0) code |= (x < this.displayMinX2 ? -1 : 8);
+ else if (x >= this.width) code |= (x > this.displayMaxX2 ? -1 : 4);
+if (y < 0) code |= (y < this.displayMinY2 ? -1 : 2);
+ else if (y >= this.height) code |= (y > this.displayMaxY2 ? -1 : 1);
 if (z < this.slab) code |= 32;
  else if (z > this.depth) code |= 16;
 return code;
@@ -294,19 +262,15 @@ var iStyle = javajs.awt.Font.getFontStyleID (fontStyle);
 if (iStyle < 0) iStyle = 0;
 return javajs.awt.Font.createFont3D (javajs.awt.Font.getFontFaceID (fontFace), iStyle, fontSize, fontSize, this.apiPlatform, this.graphicsForMetrics);
 }, "~S,~S,~N");
-Clazz.overrideMethod (c$, "getFont3DScaled", 
+Clazz.defineMethod (c$, "getFont3DScaled", 
 function (font, scale) {
 var newScale = font.fontSizeNominal * scale;
 return (newScale == font.fontSize ? font : javajs.awt.Font.createFont3D (font.idFontFace, font.idFontStyle, newScale, font.fontSizeNominal, this.apiPlatform, this.graphicsForMetrics));
 }, "javajs.awt.Font,~N");
-Clazz.overrideMethod (c$, "getFontFid", 
+Clazz.defineMethod (c$, "getFontFid", 
 function (fontSize) {
 return this.getFont3D (fontSize).fid;
 }, "~N");
-c$.getFontStyleID = Clazz.defineMethod (c$, "getFontStyleID", 
-function (fontStyle) {
-return javajs.awt.Font.getFontStyleID (fontStyle);
-}, "~S");
 Clazz.defineMethod (c$, "setBackgroundTransparent", 
 function (TF) {
 }, "~B");
@@ -348,6 +312,11 @@ this.displayMinX = -(this.width >> 1);
 this.displayMaxX = this.width - this.displayMinX;
 this.displayMinY = -(this.height >> 1);
 this.displayMaxY = this.height - this.displayMinY;
+this.displayMinX2 = this.displayMinX << 2;
+this.displayMaxX2 = this.displayMaxX << 2;
+this.displayMinY2 = this.displayMinY << 2;
+this.displayMaxY2 = this.displayMaxY << 2;
+this.ht3 = this.height * 3;
 this.bufferSize = this.width * this.height;
 }, "~B");
 Clazz.defineMethod (c$, "beginRendering", 
@@ -379,6 +348,19 @@ function () {
 Clazz.defineMethod (c$, "clearFontCache", 
 function () {
 });
+Clazz.defineMethod (c$, "drawQuadrilateralBits", 
+function (jmolRenderer, colix, screenA, screenB, screenC, screenD) {
+jmolRenderer.drawLineBits (colix, colix, screenA, screenB);
+jmolRenderer.drawLineBits (colix, colix, screenB, screenC);
+jmolRenderer.drawLineBits (colix, colix, screenC, screenD);
+jmolRenderer.drawLineBits (colix, colix, screenD, screenA);
+}, "J.api.JmolRendererInterface,~N,JU.P3,JU.P3,JU.P3,JU.P3");
+Clazz.defineMethod (c$, "drawTriangleBits", 
+function (renderer, screenA, colixA, screenB, colixB, screenC, colixC, check) {
+if ((check & 1) == 1) renderer.drawLineBits (colixA, colixB, screenA, screenB);
+if ((check & 2) == 2) renderer.drawLineBits (colixB, colixC, screenB, screenC);
+if ((check & 4) == 4) renderer.drawLineBits (colixC, colixA, screenC, screenA);
+}, "J.api.JmolRendererInterface,JU.P3,~N,JU.P3,~N,JU.P3,~N,~N");
 Clazz.defineMethod (c$, "plotImage", 
 function (x, y, z, image, jmolRenderer, bgcolix, width, height) {
 }, "~N,~N,~N,~O,J.api.JmolRendererInterface,~N,~N,~N");
@@ -388,10 +370,6 @@ function (x, y, z, colorArgbOrGray, bgColor, text, font3d, jmolRenderer) {
 Clazz.defineMethod (c$, "renderBackground", 
 function (jmolRenderer) {
 }, "J.api.JmolRendererInterface");
-Clazz.defineMethod (c$, "getFont3DCurrent", 
-function () {
-return null;
-});
 Clazz.defineMethod (c$, "setFont", 
 function (font3d) {
 }, "javajs.awt.Font");
@@ -399,28 +377,17 @@ Clazz.defineMethod (c$, "setFontFid",
 function (fid) {
 }, "~N");
 Clazz.defineMethod (c$, "setColor", 
-function (color) {
-this.argbCurrent = color;
+function (argb) {
+this.argbCurrent = this.argbNoisyUp = this.argbNoisyDn = argb;
 }, "~N");
-Clazz.defineMethod (c$, "isPass2", 
-function () {
-return this.$isPass2;
-});
 Clazz.defineMethod (c$, "setC", 
 function (colix) {
 return true;
 }, "~N");
 Clazz.defineMethod (c$, "isDirectedTowardsCamera", 
 function (normix) {
-return true;
+return (normix < 0) || (this.transformedVectors[normix].z > 0);
 }, "~N");
-Clazz.defineMethod (c$, "getTransformedVertexVectors", 
-function () {
-return null;
-});
-Clazz.defineMethod (c$, "setNoisySurfaceShade", 
-function (pointA, pointB, pointC) {
-}, "JU.P3i,JU.P3i,JU.P3i");
 c$.roundInt = Clazz.defineMethod (c$, "roundInt", 
 function (a) {
 {
@@ -432,14 +399,6 @@ function () {
 Clazz.overrideMethod (c$, "renderAllStrings", 
 function (jmolRenderer) {
 }, "~O");
-c$.getScreenOctant = Clazz.defineMethod (c$, "getScreenOctant", 
-function (pt) {
-var i = 0;
-if (pt.x < 0) i |= 1;
-if (pt.y < 0) i |= 2;
-if (pt.z < 0) i |= 4;
-return i;
-}, "JU.P3");
 Clazz.defineMethod (c$, "addRenderer", 
 function (tok) {
 }, "~N");
@@ -491,6 +450,22 @@ var z = (h1 * z1 + h2 * z2 + h3 * zT1 + h4 * zT2);
 list[index0 + i] = (isPt ? JU.P3.new3 (x, y, z) : JU.V3.new3 (x, y, z));
 }
 }, "~N,JU.T3,JU.T3,JU.T3,JU.T3,JU.T3,~A,~N,~N,~B");
+Clazz.defineMethod (c$, "setTextPosition", 
+function (y) {
+this.textY = y;
+}, "~N");
+Clazz.defineMethod (c$, "getTextPosition", 
+function () {
+return this.textY;
+});
+Clazz.defineMethod (c$, "getTransformedVertexVectors", 
+function () {
+return this.transformedVectors;
+});
+Clazz.defineMethod (c$, "getFont3DCurrent", 
+function () {
+return this.currentFont;
+});
 Clazz.defineStatics (c$,
 "ENDCAPS_NONE", 0,
 "ENDCAPS_OPEN", 1,
@@ -505,5 +480,7 @@ Clazz.defineStatics (c$,
 "xGT", 4,
 "xLT", 8,
 "zGT", 16,
-"zLT", 32);
+"zLT", 32,
+"HUGE", -1);
+c$.normixCount = c$.prototype.normixCount = JU.Normix.getNormixCount ();
 });

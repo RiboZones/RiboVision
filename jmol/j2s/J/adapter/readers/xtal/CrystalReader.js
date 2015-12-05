@@ -95,8 +95,11 @@ return this.readAtoms ();
 this.discardLinesUntilContains ("GENERATED");
 return true;
 }if (!this.doProcessLines) return true;
-if (this.line.startsWith (" TOTAL ENERGY")) {
-this.readEnergy ();
+if (this.line.startsWith (" TOTAL ENERGY(")) {
+this.line = JU.PT.rep (this.line, "( ", "(");
+var tokens = this.getTokens ();
+this.energy = Double.$valueOf (Double.parseDouble (tokens[2]));
+this.setEnergy ();
 this.rd ();
 if (this.line.startsWith (" ********")) this.discardLinesUntilContains ("SYMMETRY ALLOWED");
  else if (this.line.startsWith (" TTTTTTTT")) this.discardLinesUntilContains2 ("PREDICTED ENERGY CHANGE", "HHHHHHH");
@@ -121,7 +124,7 @@ this.appendLoadNote ("Multipole Analysis");
 return true;
 }return true;
 });
-Clazz.overrideMethod (c$, "finalizeReader", 
+Clazz.overrideMethod (c$, "finalizeSubclassReader", 
 function () {
 this.createAtomsFromCoordLines ();
 if (this.energy != null) this.setEnergy ();
@@ -159,14 +162,9 @@ Clazz.defineMethod (c$, "readShift",
  function () {
 var tokens = this.getTokens ();
 var pt = tokens.length - 3;
-this.ptOriginShift.set (this.fraction (tokens[pt++]), this.fraction (tokens[pt++]), this.fraction (tokens[pt]));
+this.ptOriginShift.set (JU.PT.parseFloatFraction (tokens[pt++]), JU.PT.parseFloatFraction (tokens[pt++]), JU.PT.parseFloatFraction (tokens[pt]));
 return true;
 });
-Clazz.defineMethod (c$, "fraction", 
- function (f) {
-var ab = JU.PT.split (f, "/");
-return (ab.length == 2 ? this.parseFloatStr (ab[0]) / this.parseFloatStr (ab[1]) : 0);
-}, "~S");
 Clazz.defineMethod (c$, "setPrimitiveVolumeAndDensity", 
  function () {
 if (this.primitiveVolume != 0) this.asc.setAtomSetModelProperty ("volumePrimitive", JU.DF.formatDecimal (this.primitiveVolume, 3));
@@ -226,7 +224,7 @@ while (this.rd ().indexOf ("GAMMA") < 0) if (this.line.indexOf ("VOLUME=") >= 0)
 this.primitiveVolume = this.parseFloatStr (this.line.substring (43));
 this.primitiveDensity = this.parseFloatStr (this.line.substring (66));
 }
-var tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.rd ());
+var tokens = JU.PT.getTokens (this.rd ());
 if (this.isSlab) {
 if (this.isPrimitive) this.setUnitCell (this.parseFloatStr (tokens[0]) * f, this.parseFloatStr (tokens[1]) * f, -1, this.parseFloatStr (tokens[3]), this.parseFloatStr (tokens[4]), this.parseFloatStr (tokens[5]));
  else this.setUnitCell (this.parseFloatStr (tokens[0]) * f, this.parseFloatStr (tokens[1]) * f, -1, 90, 90, this.parseFloatStr (tokens[2]));
@@ -313,7 +311,7 @@ return true;
 });
 c$.fixAtomName = Clazz.defineMethod (c$, "fixAtomName", 
  function (s) {
-return (s.length > 1 && Character.isLetter (s.charAt (1)) ? s.substring (0, 1) + Character.toLowerCase (s.charAt (1)) + s.substring (2) : s);
+return (s.length > 1 && JU.PT.isLetter (s.charAt (1)) ? s.substring (0, 1) + Character.toLowerCase (s.charAt (1)) + s.substring (2) : s);
 }, "~S");
 Clazz.defineMethod (c$, "getAtomicNumber", 
  function (token) {
@@ -333,7 +331,7 @@ if (this.vCoords == null) return;
 this.ac = this.vCoords.size ();
 for (var i = 0; i < this.ac; i++) {
 var atom = this.asc.addNewAtom ();
-var tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.vCoords.get (i));
+var tokens = JU.PT.getTokens (this.vCoords.get (i));
 atom.atomSerial = this.parseIntStr (tokens[0]);
 var atomicNumber;
 var offset;
@@ -360,17 +358,10 @@ this.asc.newAtomSet ();
 }if (this.spaceGroupName != null) this.setSpaceGroupName (this.spaceGroupName);
 this.ac = 0;
 });
-Clazz.defineMethod (c$, "readEnergy", 
- function () {
-this.line = JU.PT.rep (this.line, "( ", "(");
-var tokens = this.getTokens ();
-this.energy = Double.$valueOf (Double.parseDouble (tokens[2]));
-this.setEnergy ();
-});
 Clazz.defineMethod (c$, "setEnergy", 
  function () {
 this.asc.setAtomSetEnergy ("" + this.energy, this.energy.floatValue ());
-this.asc.setAtomSetAuxiliaryInfo ("Energy", this.energy);
+this.asc.setCurrentModelInfo ("Energy", this.energy);
 this.asc.setInfo ("Energy", this.energy);
 this.asc.setAtomSetName ("Energy = " + this.energy + " Hartree");
 });
@@ -394,7 +385,7 @@ Clazz.defineMethod (c$, "readTotalAtomicCharges",
 var data =  new JU.SB ();
 while (this.rd () != null && this.line.indexOf ("T") < 0) data.append (this.line);
 
-var tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (data.toString ());
+var tokens = JU.PT.getTokens (data.toString ());
 var charges =  Clazz.newFloatArray (tokens.length, 0);
 if (this.nuclearCharges == null) this.nuclearCharges = charges;
 if (this.asc.ac == 0) return true;
@@ -422,7 +413,7 @@ while (this.rd () != null && this.line.indexOf ("(") >= 0) Sfrag += this.line;
 
 Sfrag = JU.PT.rep (Sfrag, "(", " ");
 Sfrag = JU.PT.rep (Sfrag, ")", " ");
-var tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (Sfrag);
+var tokens = JU.PT.getTokens (Sfrag);
 for (var i = 0, pos = 0; i < numAtomsFrag; i++, pos += 3) this.atomFrag[i] = this.getAtomIndexFromPrimitiveIndex (this.parseIntStr (tokens[pos]) - 1);
 
 java.util.Arrays.sort (this.atomFrag);
@@ -443,7 +434,7 @@ var irrep = (this.isLongMode ? this.line.substring (48, 51) : this.line.substrin
 var intens = (!haveIntensities ? "not available" : (this.isLongMode ? this.line.substring (53, 61) : this.line.substring (59, 69).$replace (')', ' ')).trim ());
 var irActivity = (this.isLongMode ? "A" : this.line.substring (55, 58).trim ());
 var ramanActivity = (this.isLongMode ? "I" : this.line.substring (71, 73).trim ());
-var data = [irrep, intens, irActivity, ramanActivity];
+var data =  Clazz.newArray (-1, [irrep, intens, irActivity, ramanActivity]);
 for (var i = i0; i <= i1; i++) vData.addLast (data);
 
 }
@@ -451,12 +442,12 @@ this.discardLinesUntilContains (this.isLongMode ? "LO MODES FOR IRREP" : this.is
 this.rd ();
 var lastAtomCount = -1;
 while (this.rd () != null && this.line.startsWith (" FREQ(CM**-1)")) {
-var tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.line.substring (15));
+var tokens = JU.PT.getTokens (this.line.substring (15));
 var frequencies =  Clazz.newFloatArray (tokens.length, 0);
 var frequencyCount = frequencies.length;
 for (var i = 0; i < frequencyCount; i++) {
 frequencies[i] = this.parseFloatStr (tokens[i]);
-if (JU.Logger.debugging) JU.Logger.debug ((this.vibrationNumber + i) + " frequency=" + frequencies[i]);
+if (this.debugging) JU.Logger.debug ((this.vibrationNumber + i) + " frequency=" + frequencies[i]);
 }
 var ignore =  Clazz.newBooleanArray (frequencyCount, false);
 var iAtom0 = 0;
@@ -504,20 +495,19 @@ return true;
 Clazz.defineMethod (c$, "readData", 
  function (name, nfields) {
 this.createAtomsFromCoordLines ();
-var s =  new Array (this.ac);
-for (var i = 0; i < this.ac; i++) s[i] = "0";
+var f =  Clazz.newFloatArray (this.ac, 0);
+for (var i = 0; i < this.ac; i++) f[i] = 0;
 
 var data = "";
-while (this.rd () != null && (this.line.length < 4 || Character.isDigit (this.line.charAt (3)))) data += this.line;
+while (this.rd () != null && (this.line.length < 4 || JU.PT.isDigit (this.line.charAt (3)))) data += this.line;
 
 data = JU.PT.rep (data, "-", " -");
-var tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (data);
+var tokens = JU.PT.getTokens (data);
 for (var i = 0, pt = nfields - 1; i < this.ac; i++, pt += nfields) {
 var iConv = this.getAtomIndexFromPrimitiveIndex (i);
-if (iConv >= 0) s[iConv] = tokens[pt];
+if (iConv >= 0) f[iConv] = this.parseFloatStr (tokens[pt]);
 }
-data = JU.PT.join (s, '\n', 0);
-this.asc.setAtomSetAtomProperty (name, data, -1);
+this.asc.setAtomProperties (name, f, -1, false);
 return true;
 }, "~S,~N");
 Clazz.defineMethod (c$, "getQuadrupoleTensors", 
@@ -527,13 +517,13 @@ var atoms = this.asc.atoms;
 while (this.rd () != null && this.line.startsWith (" *** ATOM")) {
 var tokens = this.getTokens ();
 var index = this.parseIntStr (tokens[3]) - 1;
-tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.readLines (3));
+tokens = JU.PT.getTokens (this.readLines (3));
 var vectors =  new Array (3);
 for (var i = 0; i < 3; i++) {
 vectors[i] = JU.V3.newV (this.directLatticeVectors[i]);
 vectors[i].normalize ();
 }
-atoms[index].addTensor ( new JU.Tensor ().setFromEigenVectors (vectors, [this.parseFloatStr (tokens[1]), this.parseFloatStr (tokens[3]), this.parseFloatStr (tokens[5])], "quadrupole", atoms[index].atomName, null), null, false);
+atoms[index].addTensor ( new JU.Tensor ().setFromEigenVectors (vectors,  Clazz.newFloatArray (-1, [this.parseFloatStr (tokens[1]), this.parseFloatStr (tokens[3]), this.parseFloatStr (tokens[5])]), "quadrupole", atoms[index].atomName, null), null, false);
 this.rd ();
 }
 this.appendLoadNote ("Ellipsoids set \"quadrupole\": Quadrupole tensors");
@@ -545,12 +535,12 @@ this.createAtomsFromCoordLines ();
 this.rd ();
 var atoms = this.asc.atoms;
 while (this.rd ().startsWith (" ATOM")) {
-var index = this.parseIntStr (this.line.substring (5)) - 1;
+var index = this.parseIntAt (this.line, 5) - 1;
 var atom = atoms[index];
 this.readLines (2);
 var a =  Clazz.newDoubleArray (3, 3, 0);
 for (var i = 0; i < 3; i++) {
-var tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.rd ());
+var tokens = JU.PT.getTokens (this.rd ());
 for (var j = 0; j < 3; j++) a[i][j] = this.parseFloatStr (tokens[j + 1]);
 
 }

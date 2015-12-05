@@ -28,17 +28,17 @@ function () {
 var screens;
 for (var i = this.strandCount >> 1; --i >= 0; ) {
 var f = (i * this.strandSeparation) + this.baseStrandOffset;
-screens = this.calcScreens (f);
+screens = this.calcScreens (f, this.mads);
 this.renderStrand (screens);
-this.vwr.freeTempScreens (screens);
-screens = this.calcScreens (-f);
+this.vwr.freeTempPoints (screens);
+screens = this.calcScreens (-f, this.mads);
 this.renderStrand (screens);
-this.vwr.freeTempScreens (screens);
+this.vwr.freeTempPoints (screens);
 }
 if (this.strandCount % 2 == 1) {
-screens = this.calcScreens (0);
+screens = this.calcScreens (0, this.mads);
 this.renderStrand (screens);
-this.vwr.freeTempScreens (screens);
+this.vwr.freeTempPoints (screens);
 }});
 Clazz.defineMethod (c$, "renderStrand", 
  function (screens) {

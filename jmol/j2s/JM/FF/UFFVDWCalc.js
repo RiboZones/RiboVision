@@ -14,7 +14,7 @@ var Xb = parB.dVal[2];
 var Db = parB.dVal[3];
 var Dab = 4.1868 * Math.sqrt (Da * Db);
 var Xab = Math.sqrt (Xa * Xb);
-calc.addLast ([[ia, ib], [Xab, Dab]]);
+calc.addLast ( Clazz.newArray (-1, [ Clazz.newIntArray (-1, [ia, ib]),  Clazz.newDoubleArray (-1, [Xab, Dab])]));
 }, "JU.Lst,~N,~N,~N");
 Clazz.overrideMethod (c$, "compute", 
 function (dataIn) {

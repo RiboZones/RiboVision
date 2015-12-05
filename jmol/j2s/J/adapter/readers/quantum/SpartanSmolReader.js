@@ -40,7 +40,7 @@ this.title = this.titles.get ("Title" + modelNo);
 this.title = "Profile " + modelNo + (this.title == null ? "" : ": " + this.title);
 }JU.Logger.info (this.title);
 this.asc.setAtomSetName (this.title);
-this.asc.setAtomSetAuxiliaryInfo ("isPDB", Boolean.FALSE);
+this.setModelPDB (false);
 this.asc.setCurrentAtomSetNumber (modelNo);
 if (this.isCompoundDocument) this.readMyTransform ();
 return true;
@@ -76,26 +76,27 @@ return false;
 }if (this.line.indexOf ("5D shell") >= 0) this.moData.put ("calculationType", this.calculationType = this.line);
 return true;
 });
-Clazz.overrideMethod (c$, "finalizeReader", 
+Clazz.overrideMethod (c$, "finalizeSubclassReader", 
 function () {
 this.finalizeReaderASCR ();
 if (this.ac > 0 && this.spartanArchive != null && this.asc.bondCount == 0 && this.bondData != null) this.spartanArchive.addBonds (this.bondData, 0);
 if (this.moData != null) {
-var n = this.asc.getAtomSetCollectionAuxiliaryInfo ("HOMO_N");
-if (n != null) this.moData.put ("HOMO", Integer.$valueOf (n.intValue ()));
-}});
+var n = this.asc.atomSetInfo.get ("HOMO_N");
+if (n != null) {
+var i = n.intValue ();
+this.moData.put ("HOMO", Integer.$valueOf (i));
+}}});
 Clazz.defineMethod (c$, "readMyTransform", 
  function () {
 var mat;
 var binaryCodes = this.rd ();
-var tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (binaryCodes.trim ());
+var tokens = JU.PT.getTokens (binaryCodes.trim ());
 if (tokens.length < 16) return;
 var bytes =  Clazz.newByteArray (tokens.length, 0);
 for (var i = 0; i < tokens.length; i++) bytes[i] = JU.PT.parseIntRadix (tokens[i], 16);
 
 mat =  Clazz.newFloatArray (16, 0);
-var bc =  new JU.BC ();
-for (var i = 16, j = bytes.length - 8; --i >= 0; j -= 8) mat[i] = bc.bytesToDoubleToFloat (bytes, j, false);
+for (var i = 16, j = bytes.length - 8; --i >= 0; j -= 8) mat[i] = JU.BC.bytesToDoubleToFloat (bytes, j, false);
 
 this.setTransform (mat[0], mat[1], mat[2], mat[4], mat[5], mat[6], mat[8], mat[9], mat[10]);
 });
@@ -147,11 +148,11 @@ throw e;
 Clazz.defineMethod (c$, "readArchiveHeader", 
  function () {
 var modelInfo = this.rd ();
-if (JU.Logger.debugging) JU.Logger.debug (modelInfo);
+if (this.debugging) JU.Logger.debug (modelInfo);
 if (modelInfo.indexOf ("Error:") == 0) return false;
 this.asc.setCollectionName (modelInfo);
 this.modelName = this.rd ();
-if (JU.Logger.debugging) JU.Logger.debug (this.modelName);
+if (this.debugging) JU.Logger.debug (this.modelName);
 this.rd ();
 return true;
 });

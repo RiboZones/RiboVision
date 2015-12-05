@@ -79,7 +79,7 @@ break;
 V = 2.0934;
 }
 if (JM.Util.isNearZero (V)) return;
-calc.addLast ([[this.ia, this.ib, this.ic, this.id, n], [V, cosNPhi0]]);
+calc.addLast ( Clazz.newArray (-1, [ Clazz.newIntArray (-1, [this.ia, this.ib, this.ic, this.id, n]),  Clazz.newDoubleArray (-1, [V, cosNPhi0])]));
 }, "JU.Lst,~A");
 Clazz.overrideMethod (c$, "compute", 
 function (dataIn) {

@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.io");
-Clazz.load (null, "J.io.FileReader", ["java.io.BufferedInputStream", "$.BufferedReader", "$.Reader", "javajs.api.GenericBinaryDocument", "$.ZInputStream", "JU.PT", "J.api.Interface", "J.io.JmolBinary", "JU.Logger"], function () {
+Clazz.load (null, "J.io.FileReader", ["java.io.BufferedInputStream", "$.BufferedReader", "$.Reader", "javajs.api.GenericBinaryDocument", "$.ZInputStream", "JU.AU", "$.PT", "J.api.Interface", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.fm = null;
 this.vwr = null;
@@ -23,7 +23,7 @@ this.fullPathNameIn = fullPathName;
 this.nameAsGivenIn = nameAsGiven;
 this.fileTypeIn = type;
 this.reader = (Clazz.instanceOf (reader, java.io.BufferedReader) ? reader : Clazz.instanceOf (reader, java.io.Reader) ?  new java.io.BufferedReader (reader) : null);
-this.bytes = (JU.PT.isAB (reader) ? reader : null);
+this.bytes = (JU.AU.isAB (reader) ? reader : null);
 this.htParams = htParams;
 this.isAppend = isAppend;
 }, "JV.FileManager,JV.Viewer,~S,~S,~S,~S,~O,java.util.Map,~B");
@@ -50,8 +50,8 @@ subFileList = JU.PT.split (name, "|");
 name = subFileList[0];
 }if (subFileList != null) this.htParams.put ("subFileList", subFileList);
 var zis = t;
-var zipDirectory = this.fm.getZipDirectory (name, true);
-this.atomSetCollection = t = J.io.JmolBinary.getAtomSetCollectionOrBufferedReaderFromZip (this.vwr.getModelAdapter (), zis, name, zipDirectory, this.htParams, false);
+var zipDirectory = this.fm.getZipDirectory (name, true, true);
+this.atomSetCollection = t = this.fm.getJmb ().getAtomSetCollectionOrBufferedReaderFromZip (this.vwr.getModelAdapter (), zis, name, zipDirectory, this.htParams, false);
 try {
 zis.close ();
 } catch (e) {
@@ -61,8 +61,8 @@ throw e;
 }
 }
 }}if (Clazz.instanceOf (t, java.io.BufferedInputStream)) {
-var bd = J.api.Interface.getInterface ("JU.BinaryDocument");
-bd.setStream (t, true);
+var bd = J.api.Interface.getInterface ("JU.BinaryDocument", this.vwr, "file");
+bd.setStream (this.vwr.getJzt (), t, true);
 this.reader = bd;
 }if (this.reader != null) {
 this.atomSetCollection = this.vwr.getModelAdapter ().getAtomSetCollectionReader (this.fullPathNameIn, this.fileTypeIn, this.reader, this.htParams);
@@ -78,7 +78,7 @@ throw e;
 }
 }if (Clazz.instanceOf (this.atomSetCollection, String)) return;
 if (!this.isAppend && !this.vwr.displayLoadErrors) this.vwr.zap (false, true, false);
-this.fm.setFileInfo ([this.fullPathNameIn, this.nameAsGivenIn, this.fileNameIn]);
+this.fm.setFileInfo ( Clazz.newArray (-1, [this.fullPathNameIn, this.fileNameIn, this.nameAsGivenIn]));
 });
 Clazz.defineMethod (c$, "getAtomSetCollection", 
 function () {

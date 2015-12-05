@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JS");
-Clazz.load (["J.api.JmolParallelProcessor", "JS.ScriptFunction", "JU.Lst"], "JS.ScriptParallelProcessor", ["java.util.concurrent.Executors", "JS.ScriptProcess", "$.ScriptProcessRunnable", "JU.Logger", "JV.ShapeManager", "$.Viewer"], function () {
+Clazz.load (["J.api.JmolParallelProcessor", "JS.ScriptFunction", "JU.Lst"], "JS.ScriptParallelProcessor", ["java.util.concurrent.Executors", "JS.ScriptProcess", "$.ScriptProcessRunnable", "J.shape.MeshCollection", "JU.Logger", "JV.ShapeManager", "$.Viewer"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.vwr = null;
 this.counter = 0;
@@ -56,7 +56,7 @@ vwr.setParallel (false);
 Clazz.defineMethod (c$, "mergeResults", 
 function (vShapeManagers) {
 try {
-for (var i = 0; i < vShapeManagers.size (); i++) this.vwr.shm.mergeShapes (vShapeManagers.get (i).getShapes ());
+for (var i = 0; i < vShapeManagers.size (); i++) this.mergeShapes (vShapeManagers.get (i));
 
 } catch (e) {
 if (Clazz.exceptionOf (e, Error)) {
@@ -69,6 +69,16 @@ this.counter = -1;
 vShapeManagers = null;
 }
 }, "JU.Lst");
+Clazz.defineMethod (c$, "mergeShapes", 
+ function (shapeManager) {
+var newShapes = shapeManager.shapes;
+if (newShapes == null) return;
+if (this.vwr.shm.shapes == null) this.vwr.shm.shapes = newShapes;
+ else for (var i = 0; i < newShapes.length; ++i) if (newShapes[i] != null && Clazz.instanceOf (newShapes[i], J.shape.MeshCollection)) {
+if (this.vwr.shm.shapes[i] == null) this.vwr.shm.loadShape (i);
+(this.vwr.shm.shapes[i]).merge (newShapes[i]);
+}
+}, "JV.ShapeManager");
 Clazz.defineMethod (c$, "clearShapeManager", 
 function (er) {
 {

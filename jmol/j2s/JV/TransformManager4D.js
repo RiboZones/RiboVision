@@ -84,7 +84,6 @@ if (this.m2_rotate == null) this.m2_rotate = JU.M4.newMV (this.matrixRotate, thi
 Clazz.defineMethod (c$, "calcTransformMatrix", 
 function () {
 Clazz.superCall (this, JV.TransformManager4D, "calcTransformMatrix", []);
-this.is4D = this.vwr.getTestFlag (2);
 this.doTransform4D = (this.is4D && !this.stereoFrame && this.mode != 1);
 if (!this.doTransform4D) return;
 this.v1.sub2 (this.frameOffset, this.fixedRotationCenter);
@@ -100,11 +99,11 @@ function (ptXYZ) {
 if (this.doTransform4D && Clazz.instanceOf (ptXYZ, JU.T4)) {
 this.p4.add2 (ptXYZ, this.v1);
 this.m2_rotate.rotate (this.p4);
-this.point3fScreenTemp.setT (this.p4);
-this.m3_toScreen.rotTrans (this.point3fScreenTemp);
-this.point3fScreenTemp.z += this.zOffset;
+this.fScrPt.setT (this.p4);
+this.m3_toScreen.rotTrans (this.fScrPt);
+this.fScrPt.z += this.zOffset;
 } else {
-this.matrixTransform.rotTrans2 (ptXYZ, this.point3fScreenTemp);
+this.matrixTransform.rotTrans2 (ptXYZ, this.fScrPt);
 }}, "JU.T3");
 Clazz.defineStatics (c$,
 "MODE_3D", 0,

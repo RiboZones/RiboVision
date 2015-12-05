@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.adapter.readers.pdb");
-Clazz.load (["J.adapter.smarter.AtomSetCollectionReader", "java.util.Hashtable"], "J.adapter.readers.pdb.PdbReader", ["java.lang.Boolean", "$.Character", "$.Float", "JU.Lst", "$.M4", "$.P3", "$.PT", "$.SB", "J.adapter.smarter.Atom", "$.Structure", "J.api.Interface", "$.JmolAdapter", "J.c.STR", "JU.Escape", "$.Logger"], function () {
+Clazz.load (["J.adapter.smarter.AtomSetCollectionReader", "java.util.Hashtable"], "J.adapter.readers.pdb.PdbReader", ["java.lang.Boolean", "$.Float", "JU.Lst", "$.M4", "$.P3", "$.PT", "$.SB", "J.adapter.smarter.Atom", "$.Structure", "J.api.JmolAdapter", "J.c.STR", "JU.Escape", "$.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.serMode = 0;
 this.seqMode = 0;
@@ -13,7 +13,6 @@ this.haveMappedSerials = false;
 this.isConnectStateBug = false;
 this.isLegacyModelType = false;
 this.gromacsWideFormat = false;
-this.isPQR = false;
 this.htFormul = null;
 this.htHetero = null;
 this.htSites = null;
@@ -24,7 +23,7 @@ this.thisBiomolecule = null;
 this.vBiomolecules = null;
 this.vTlsModels = null;
 this.sbTlsErrors = null;
-this.chainAtomCounts = null;
+this.biomtChainAtomCounts = null;
 this.sbIgnored = null;
 this.sbSelected = null;
 this.sbConect = null;
@@ -52,9 +51,11 @@ this.atomTypePt0 = 0;
 this.atomTypeLen = 0;
 this.isCourseGrained = false;
 this.isbiomol = false;
-this.isConcatenated = false;
 this.htGroup1 = null;
+this.maxLength = 80;
+this.pdbID = null;
 this.haveDoubleBonds = false;
+this.$cryst1 = 0;
 this.dataT = null;
 this.tlsU = null;
 this.vConnect = null;
@@ -75,11 +76,12 @@ this.applySymmetry = !this.checkFilterKey ("NOSYMMETRY");
 this.getTlsGroups = this.checkFilterKey ("TLS");
 if (this.checkFilterKey ("ASSEMBLY")) this.filter = JU.PT.rep (this.filter, "ASSEMBLY", "BIOMOLECULE");
 this.isbiomol = this.checkFilterKey ("BIOMOLECULE");
+if (this.isbiomol) this.filter = this.filter.$replace (':', ' ');
 var byChain = this.isbiomol && this.checkFilterKey ("BYCHAIN");
 var bySymop = this.isbiomol && this.checkFilterKey ("BYSYMOP");
 this.isCourseGrained = byChain || bySymop;
 if (!this.isCourseGrained) this.setIsPDB ();
-this.isConcatenated = this.htParams.containsKey ("concatenate") || this.filePath.endsWith (".dssr");
+this.isConcatenated = new Boolean (this.isConcatenated | this.filePath.endsWith (".dssr")).valueOf ();
 if (this.htParams.containsKey ("vTlsModels")) {
 this.vTlsModels = this.htParams.remove ("vTlsModels");
 }var s = this.getFilter ("TYPE ");
@@ -106,15 +108,15 @@ var ptOption = ((this.lineLength = this.line.length) < 6 ? -1 : "ATOM    HETATM 
 var isAtom = (ptOption == 0 || ptOption == 1);
 var isModel = (ptOption == 2);
 this.serial = (isAtom ? this.getSerial (6, 11) : 0);
-var isNewModel = ((this.isTrajectory || this.isSequential) && !this.isMultiModel && isAtom && this.serial == 1);
+var forceNewModel = ((this.isTrajectory || this.isSequential) && !this.isMultiModel && isAtom && this.serial == 1);
 if (this.getHeader) {
 if (isAtom || isModel) this.getHeader = false;
  else this.readHeader (false);
-}if (isModel || isNewModel) {
+}if (isModel || forceNewModel) {
 this.isMultiModel = isModel;
 this.getHeader = false;
-var modelNo = (isNewModel ? this.modelNumber + 1 : this.getModelNumber ());
-this.modelNumber = (this.bsModels == null ? modelNo : this.modelNumber + 1);
+var modelNo = (forceNewModel ? this.modelNumber + 1 : this.getModelNumber ());
+this.modelNumber = (this.useFileModelNumbers ? modelNo : this.modelNumber + 1);
 if (!this.doGetModel (this.modelNumber, null)) {
 this.handleTlsMissingModels ();
 var isOK = this.checkLastModel ();
@@ -125,7 +127,6 @@ if (this.ac > 0) this.applySymmetryAndSetTrajectory ();
 this.model (modelNo);
 if (this.isLegacyModelType || !isAtom) return true;
 }if (this.isMultiModel && !this.doProcessLines) {
-if (this.isConcatenated) this.checkDSSR ();
 return true;
 }if (isAtom) {
 this.getHeader = false;
@@ -167,21 +168,17 @@ case 16:
 this.formul ();
 return true;
 case 17:
-if (this.line.contains ("The B-factors in this file hold atomic radii")) {
-this.isPQR = true;
-return true;
-}if (this.line.contains ("This file does not adhere to the PDB standard")) {
-this.gromacsWideFormat = true;
-return true;
-}if (this.line.startsWith ("REMARK 350")) {
+if (this.line.startsWith ("REMARK 350")) {
 this.remark350 ();
 return false;
 }if (this.line.startsWith ("REMARK 290")) {
 this.remark290 ();
 return false;
+}if (this.line.contains ("This file does not adhere to the PDB standard")) {
+this.gromacsWideFormat = true;
 }if (this.getTlsGroups) {
 if (this.line.indexOf ("TLS DETAILS") > 0) return this.remarkTls ();
-}this.checkCurrentLineForScript ();
+}this.checkRemark ();
 return true;
 case 18:
 this.header ();
@@ -196,14 +193,12 @@ return true;
 case 22:
 this.seqAdv ();
 return true;
-default:
-this.checkDSSR ();
 }
 return true;
 });
-Clazz.defineMethod (c$, "checkDSSR", 
- function () {
-if (this.line.trim ().startsWith ("DSSR:") && this.asc.ac > 0) this.processDSSR (this, this.htGroup1);
+Clazz.defineMethod (c$, "checkRemark", 
+function () {
+this.checkCurrentLineForScript ();
 });
 Clazz.defineMethod (c$, "seqAdv", 
  function () {
@@ -221,24 +216,25 @@ if (!this.getHeader) return this.line;
 }this.pdbHeader.append (this.line).appendC ('\n');
 return this.line;
 }, "~B");
-Clazz.overrideMethod (c$, "finalizeReader", 
+Clazz.overrideMethod (c$, "finalizeSubclassReader", 
 function () {
 this.finalizeReaderPDB ();
 });
 Clazz.defineMethod (c$, "finalizeReaderPDB", 
 function () {
 this.checkNotPDB ();
+this.checkUnitCellParams ();
 if (!this.isCourseGrained) this.connectAll (this.maxSerial, this.isConnectStateBug);
 var symmetry;
 if (this.vBiomolecules != null && this.vBiomolecules.size () > 0 && this.asc.ac > 0) {
-this.asc.setAtomSetAuxiliaryInfo ("biomolecules", this.vBiomolecules);
+this.asc.setCurrentModelInfo ("biomolecules", this.vBiomolecules);
 this.setBiomoleculeAtomCounts ();
 if (this.thisBiomolecule != null && this.applySymmetry) {
-this.asc.getXSymmetry ().applySymmetryBio (this.thisBiomolecule, this.notionalUnitCell, this.applySymmetryToBonds, this.filter);
+this.asc.getXSymmetry ().applySymmetryBio (this.thisBiomolecule, this.unitCellParams, this.applySymmetryToBonds, this.filter);
 this.vTlsModels = null;
 this.asc.xtalSymmetry = null;
 }}if (this.vTlsModels != null) {
-symmetry = J.api.Interface.getSymmetry ();
+symmetry = this.getInterface ("JS.Symmetry");
 var n = this.asc.atomSetCount;
 if (n == this.vTlsModels.size ()) {
 for (var i = n; --i >= 0; ) this.setTlsGroups (i, i, symmetry);
@@ -255,13 +251,22 @@ this.asc.setInfo ("tlsErrors", this.sbTlsErrors.toString ());
 this.appendLoadNote (this.sbTlsErrors.toString ());
 }this.doCheckUnitCell = new Boolean (this.doCheckUnitCell & (this.iHaveUnitCell && (this.doApplySymmetry || this.isbiomol))).valueOf ();
 this.finalizeReaderASCR ();
-if (this.vCompnds != null) this.asc.setInfo ("compoundSource", this.vCompnds);
-if (this.htSites != null) {
+if (this.vCompnds != null) {
+this.asc.setInfo ("compoundSource", this.vCompnds);
+for (var i = this.asc.iSet + 1; --i >= 0; ) this.asc.setModelInfoForSet ("compoundSource", this.vCompnds, i);
+
+}if (this.htSites != null) {
 this.addSites (this.htSites);
 }if (this.pdbHeader != null) this.asc.setInfo ("fileHeader", this.pdbHeader.toString ());
 if (this.configurationPtr > 0) {
 JU.Logger.info (this.sbSelected.toString ());
 JU.Logger.info (this.sbIgnored.toString ());
+}});
+Clazz.defineMethod (c$, "checkUnitCellParams", 
+ function () {
+if (this.iHaveUnitCell) {
+this.asc.setCurrentModelInfo ("unitCellParams", this.unitCellParams);
+if (this.sgName != null) this.asc.setCurrentModelInfo ("spaceGroup", this.sgName);
 }});
 Clazz.defineMethod (c$, "checkForResidualBFactors", 
  function (symmetry) {
@@ -284,7 +289,7 @@ if (!isResidual) resid -= (anisou[0] + anisou[1] + anisou[2]) / 3;
 anisou[0] += resid;
 anisou[1] += resid;
 anisou[2] += resid;
-entry.getKey ().addTensor (symmetry.getTensor (anisou).setType (null), "TLS-R", false);
+entry.getKey ().addTensor (symmetry.getTensor (this.vwr, anisou).setType (null), "TLS-R", false);
 JU.Logger.info ("TLS-U:  " + JU.Escape.eAF (anisou));
 anisou = (entry.getKey ().anisoBorU);
 if (anisou != null) JU.Logger.info ("ANISOU: " + JU.Escape.eAF (anisou));
@@ -295,17 +300,17 @@ Clazz.defineMethod (c$, "header",
  function () {
 if (this.lineLength < 8) return;
 this.appendLoadNote (this.line.substring (7).trim ());
-var pdbID = (this.lineLength >= 66 ? this.line.substring (62, 66).trim () : "");
-if (pdbID.length == 4) {
-this.asc.setCollectionName (pdbID);
+if (this.lineLength == 80) this.maxLength = 72;
+this.pdbID = (this.lineLength >= 66 ? this.line.substring (62, 66).trim () : "");
+if (this.pdbID.length == 4) {
+this.asc.setCollectionName (this.pdbID);
 this.asc.setInfo ("havePDBHeaderName", Boolean.TRUE);
 }if (this.lineLength > 50) this.line = this.line.substring (0, 50);
 this.asc.setInfo ("CLASSIFICATION", this.line.substring (7).trim ());
 });
 Clazz.defineMethod (c$, "title", 
  function () {
-if (this.lineLength < 10) return;
-this.appendLoadNote (this.line.substring (10).trim ());
+if (this.lineLength > 10) this.appendLoadNote (this.line.substring (10, Math.min (this.maxLength, this.line.length)).trim ());
 });
 Clazz.defineMethod (c$, "compnd", 
  function (isSource) {
@@ -332,7 +337,7 @@ this.currentCompnd = this.htMolIds.get ("");
 var pt = this.line.indexOf (":");
 if (pt < 0 || pt > 0 && this.line.charAt (pt - 1) == '\\') pt = this.line.length;
 var key = this.line.substring (0, pt).trim ();
-var value = (pt < this.line.length ? this.line.substring (pt + 1) : null);
+var value = (pt < this.line.length ? this.line.substring (pt + 1).trim () : null);
 if (key.equals ("MOL_ID")) {
 if (value == null) return;
 if (isSource) {
@@ -357,19 +362,24 @@ Clazz.defineMethod (c$, "setBiomoleculeAtomCounts",
  function () {
 for (var i = this.vBiomolecules.size (); --i >= 0; ) {
 var biomolecule = this.vBiomolecules.get (i);
-var chain = biomolecule.get ("chains");
-var nTransforms = (biomolecule.get ("biomts")).size ();
+var biomts = biomolecule.get ("biomts");
+var biomtchains = biomolecule.get ("chains");
+var nTransforms = biomts.size ();
 var nAtoms = 0;
-for (var j = chain.length - 1; --j >= 0; ) if (chain.charAt (j) == ':') nAtoms += this.chainAtomCounts[chain.charCodeAt (j + 1)];
+for (var k = nTransforms; --k >= 0; ) {
+var chains = biomtchains.get (k);
+for (var j = chains.length - 1; --j >= 0; ) if (chains.charAt (j) == ':') nAtoms += this.biomtChainAtomCounts[0 + chains.charCodeAt (j + 1)];
 
-biomolecule.put ("atomCount", Integer.$valueOf (nAtoms * nTransforms));
+}
+biomolecule.put ("atomCount", Integer.$valueOf (nAtoms));
 }
 });
 Clazz.defineMethod (c$, "remark350", 
  function () {
 var biomts = null;
+var biomtchains = null;
 this.vBiomolecules =  new JU.Lst ();
-this.chainAtomCounts =  Clazz.newIntArray (255, 0);
+this.biomtChainAtomCounts =  Clazz.newIntArray (255, 0);
 var title = "";
 var chainlist = "";
 var id = "";
@@ -385,14 +395,13 @@ try {
 if (this.line.startsWith ("REMARK 350 BIOMOLECULE:")) {
 if (nBiomt > 0) JU.Logger.info ("biomolecule " + id + ": number of transforms: " + nBiomt);
 info =  new java.util.Hashtable ();
-biomts =  new JU.Lst ();
 id = this.line.substring (this.line.indexOf (":") + 1).trim ();
 title = this.line.trim ();
 info.put ("name", "biomolecule " + id);
 info.put ("molecule", id.length == 3 ? id : Integer.$valueOf (this.parseIntStr (id)));
 info.put ("title", title);
-info.put ("chains", "");
-info.put ("biomts", biomts);
+info.put ("chains", biomtchains =  new JU.Lst ());
+info.put ("biomts", biomts =  new JU.Lst ());
 this.vBiomolecules.addLast (info);
 nBiomt = 0;
 }if (this.line.indexOf ("APPLY THE FOLLOWING TO CHAINS:") >= 0) {
@@ -402,16 +411,16 @@ this.line = "REMARK 350 BIOMOLECULE: 1  APPLY THE FOLLOWING TO CHAINS:";
 continue;
 }var list = this.line.substring (41).trim ();
 this.appendLoadNote ("found biomolecule " + id + ": " + list);
-chainlist = ":" + list.$replace (' ', ':');
+chainlist = ":" + list.$replace (',', ';').$replace (' ', ':');
 needLine = false;
-while (this.readHeader (true) != null && this.line.indexOf ("BIOMT") < 0 && this.line.indexOf ("350") == 7) chainlist += ":" + this.line.substring (11).trim ().$replace (' ', ':');
+while (this.readHeader (true) != null && this.line.indexOf ("BIOMT") < 0 && this.line.indexOf ("350") == 7) chainlist += ":" + this.line.substring (11).trim ().$replace (',', ';').$replace (' ', ':');
 
-if (this.checkFilterKey ("BIOMOLECULE " + id + ";")) {
-this.setFilter (this.filter.$replace (':', '_') + chainlist);
+chainlist += ";";
+if (this.checkFilterKey ("BIOMOLECULE " + id + ";") || this.checkFilterKey ("BIOMOLECULE=" + id + ";")) {
+this.setFilter (this.filter + chainlist);
 JU.Logger.info ("filter set to \"" + this.filter + "\"");
 this.thisBiomolecule = info;
-}info.put ("chains", chainlist);
-continue;
+}continue;
 }if (this.line.startsWith ("REMARK 350   BIOMT1 ")) {
 nBiomt++;
 var mat =  Clazz.newFloatArray (16, 0);
@@ -426,9 +435,13 @@ if (i == 4 || i == 8) this.readHeader (true);
 mat[15] = 1;
 var m4 =  new JU.M4 ();
 m4.setA (mat);
-if (m4.equals (mIdent)) biomts.add (0, m4);
- else biomts.addLast (m4);
-continue;
+if (m4.equals (mIdent)) {
+biomts.add (0, m4);
+biomtchains.add (0, chainlist);
+} else {
+biomts.addLast (m4);
+biomtchains.addLast (chainlist);
+}continue;
 }} catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
 this.thisBiomolecule = null;
@@ -464,14 +477,14 @@ try {
 return this.serial = Integer.parseInt (this.line.substring (i, j));
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
-this.serMode = (Character.isDigit (c) ? 1 : 2);
+this.serMode = (JU.PT.isDigit (c) ? 1 : 2);
 return this.getSerial (i, j);
 } else {
 throw e;
 }
 }
 case 2:
-return (isBase10 || Character.isDigit (c) ? this.parseIntRange (this.line, i, j) : JU.PT.parseIntRadix (this.line.substring (i, j), 36) + (Character.isUpperCase (c) ? -16696160 : 26973856));
+return (isBase10 || JU.PT.isDigit (c) ? this.parseIntRange (this.line, i, j) : JU.PT.parseIntRadix (this.line.substring (i, j), 36) + (JU.PT.isUpperCase (c) ? -16696160 : 26973856));
 case 1:
 if (!isBase10) return this.serial = JU.PT.parseIntRadix (this.line.substring (i, j), 16);
 this.serMode = 0;
@@ -490,14 +503,14 @@ try {
 return Integer.parseInt (this.line.substring (i, j));
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
-this.seqMode = (Character.isDigit (c) ? 1 : 2);
+this.seqMode = (JU.PT.isDigit (c) ? 1 : 2);
 return this.getSeqNo (i, j);
 } else {
 throw e;
 }
 }
 case 2:
-return (isBase10 || Character.isDigit (c) ? this.parseIntRange (this.line, i, j) : JU.PT.parseIntRadix (this.line.substring (i, j), 36) + (Character.isUpperCase (c) ? -456560 : 756496));
+return (isBase10 || JU.PT.isDigit (c) ? this.parseIntRange (this.line, i, j) : JU.PT.parseIntRadix (this.line.substring (i, j), 36) + (JU.PT.isUpperCase (c) ? -456560 : 756496));
 case 1:
 if (!isBase10) return JU.PT.parseIntRadix (this.line.substring (i, j), 16);
 this.seqMode = 0;
@@ -505,14 +518,12 @@ return this.getSeqNo (i, j);
 }
 }, "~N,~N");
 Clazz.defineMethod (c$, "processAtom", 
-function (atom, name, altID, group3, chain, seqNo, insCode, isHetero, sym) {
+function (atom, name, altID, group3, chainID, seqNo, insCode, isHetero, sym) {
 atom.atomName = name;
-var ch = altID;
-if (ch != ' ') atom.altLoc = ch;
-atom.group3 = group3;
-ch = chain < 256 ? String.fromCharCode (chain) : 0;
-if (this.chainAtomCounts != null) this.chainAtomCounts[ch.charCodeAt (0)]++;
-this.setChainID (atom, ch);
+if (altID != ' ') atom.altLoc = altID;
+atom.group3 = (group3 == null ? "UNK" : group3);
+atom.chainID = chainID;
+if (this.biomtChainAtomCounts != null) this.biomtChainAtomCounts[chainID % 256]++;
 atom.sequenceNumber = seqNo;
 atom.insertionCode = J.api.JmolAdapter.canonizeInsertionCode (insCode);
 atom.isHetero = isHetero;
@@ -539,16 +550,16 @@ atom.formalCharge = charge;
 this.setAdditionalAtomParameters (atom);
 if (this.haveMappedSerials) this.asc.addAtomWithMappedSerialNumber (atom);
  else this.asc.addAtom (atom);
-if (this.ac++ == 0 && !this.isCourseGrained) this.asc.setAtomSetAuxiliaryInfo ("isPDB", Boolean.TRUE);
+if (this.ac++ == 0 && !this.isCourseGrained) this.setModelPDB (true);
 if (atom.isHetero) {
 if (this.htHetero != null) {
-this.asc.setAtomSetAuxiliaryInfo ("hetNames", this.htHetero);
+this.asc.setCurrentModelInfo ("hetNames", this.htHetero);
 this.htHetero = null;
 }}}, "J.adapter.smarter.Atom,~N,~N,~N,~N,~N");
 Clazz.defineMethod (c$, "atom", 
  function () {
 var isHetero = this.line.startsWith ("HETATM");
-var atom = this.processAtom ( new J.adapter.smarter.Atom (), this.line.substring (12, 16).trim (), this.line.charAt (16), this.parseTokenRange (this.line, 17, 20), this.line.charCodeAt (21), this.getSeqNo (22, 26), this.line.charAt (26), isHetero, this.deduceElementSymbol (isHetero));
+var atom = this.processAtom ( new J.adapter.smarter.Atom (), this.line.substring (12, 16).trim (), this.line.charAt (16), this.parseTokenRange (this.line, 17, 20), this.vwr.getChainID (this.line.substring (21, 22), true), this.getSeqNo (22, 26), this.line.charAt (26), isHetero, this.deduceElementSymbol (isHetero));
 if (this.atomTypeLen > 0) {
 var s = this.line.substring (this.atomTypePt0, this.atomTypePt0 + this.atomTypeLen).trim ();
 if (s.length > 0) atom.atomName += "\0" + s;
@@ -599,17 +610,7 @@ return false;
 }, "J.adapter.smarter.Atom,~N");
 Clazz.defineMethod (c$, "setAdditionalAtomParameters", 
 function (atom) {
-if (this.isPQR) {
-if (this.gromacsWideFormat) {
-atom.partialCharge = this.parseFloatRange (this.line, 60, 68);
-atom.radius = J.adapter.readers.pdb.PdbReader.fixRadius (this.parseFloatRange (this.line, 68, 76));
-} else {
-var tokens = this.getTokens ();
-var pt = tokens.length - 2 - (this.line.length > 75 ? 1 : 0);
-atom.partialCharge = this.parseFloatStr (tokens[pt++]);
-atom.radius = J.adapter.readers.pdb.PdbReader.fixRadius (this.parseFloatStr (tokens[pt]));
-}return;
-}var floatOccupancy;
+var floatOccupancy;
 if (this.gromacsWideFormat) {
 floatOccupancy = this.parseFloatRange (this.line, 60, 68);
 atom.bfactor = J.adapter.readers.pdb.PdbReader.fixRadius (this.parseFloatRange (this.line, 68, 76));
@@ -623,16 +624,16 @@ function (isHetero) {
 if (this.lineLength >= 78) {
 var ch76 = this.line.charAt (76);
 var ch77 = this.line.charAt (77);
-if (ch76 == ' ' && J.adapter.smarter.Atom.isValidElementSymbol (ch77)) return "" + ch77;
-if (J.adapter.smarter.Atom.isValidElementSymbolNoCaseSecondChar2 (ch76, ch77)) return "" + ch76 + ch77;
+if (ch76 == ' ' && J.adapter.smarter.Atom.isValidSym1 (ch77)) return "" + ch77;
+if (J.adapter.smarter.Atom.isValidSymNoCase (ch76, ch77)) return "" + ch76 + ch77;
 }var ch12 = this.line.charAt (12);
 var ch13 = this.line.charAt (13);
-if ((this.htElementsInCurrentGroup == null || this.htElementsInCurrentGroup.get (this.line.substring (12, 14)) != null) && J.adapter.smarter.Atom.isValidElementSymbolNoCaseSecondChar2 (ch12, ch13)) return (isHetero || ch12 != 'H' ? "" + ch12 + ch13 : "H");
+if ((this.htElementsInCurrentGroup == null || this.htElementsInCurrentGroup.get (this.line.substring (12, 14)) != null) && J.adapter.smarter.Atom.isValidSymNoCase (ch12, ch13)) return (isHetero || ch12 != 'H' ? "" + ch12 + ch13 : "H");
 if (ch12 == 'H') return "H";
-if ((this.htElementsInCurrentGroup == null || this.htElementsInCurrentGroup.get ("" + ch13) != null) && J.adapter.smarter.Atom.isValidElementSymbol (ch13)) return "" + ch13;
-if (ch12 != ' ' && (this.htElementsInCurrentGroup == null || this.htElementsInCurrentGroup.get ("" + ch12) != null) && J.adapter.smarter.Atom.isValidElementSymbol (ch12)) return "" + ch12;
+if ((this.htElementsInCurrentGroup == null || this.htElementsInCurrentGroup.get ("" + ch13) != null) && J.adapter.smarter.Atom.isValidSym1 (ch13)) return "" + ch13;
+if (ch12 != ' ' && (this.htElementsInCurrentGroup == null || this.htElementsInCurrentGroup.get ("" + ch12) != null) && J.adapter.smarter.Atom.isValidSym1 (ch12)) return "" + ch12;
 var ch14 = this.line.charAt (14);
-if (ch12 == ' ' && ch13 != 'X' && (this.htElementsInCurrentGroup == null || this.htElementsInCurrentGroup.get (this.line.substring (13, 15)) != null) && J.adapter.smarter.Atom.isValidElementSymbolNoCaseSecondChar2 (ch13, ch14)) return "" + ch13 + ch14;
+if (ch12 == ' ' && ch13 != 'X' && (this.htElementsInCurrentGroup == null || this.htElementsInCurrentGroup.get (this.line.substring (13, 15)) != null) && J.adapter.smarter.Atom.isValidSymNoCase (ch13, ch14)) return "" + ch13 + ch14;
 return "Xx";
 }, "~B");
 Clazz.defineMethod (c$, "conect", 
@@ -642,13 +643,20 @@ this.sbConect =  new JU.SB ();
 this.sb =  new JU.SB ();
 } else {
 this.sb.setLength (0);
-}var sourceSerial = -1;
-sourceSerial = this.getSerial (6, 11);
+}var sourceSerial = this.getSerial (6, 11);
 if (sourceSerial < 0) return;
-for (var i = 0; i < 9; i += (i == 5 ? 2 : 1)) {
-var offset = i * 5 + 11;
-var offsetEnd = offset + 5;
-var targetSerial = (offsetEnd <= this.lineLength ? this.getSerial (offset, offsetEnd) : -1);
+var order = 1;
+var pt1 = this.line.trim ().length;
+if (pt1 > 56) pt1 = this.line.substring (0, 56).trim ().length;
+for (var pt = 11; pt < pt1; pt += 5) {
+switch (pt) {
+case 31:
+order = 2048;
+break;
+case 41:
+continue;
+}
+var targetSerial = this.getSerial (pt, pt + 5);
 if (targetSerial < 0) continue;
 var isDoubleBond = (sourceSerial == this.lastSourceSerial && targetSerial == this.lastTargetSerial);
 if (isDoubleBond) this.haveDoubleBonds = true;
@@ -666,11 +674,9 @@ if (this.sbConect.indexOf (st) >= 0 && !isDoubleBond) continue;
 if (this.haveDoubleBonds) {
 var st1 = "--" + st;
 if (this.sbConect.indexOf (st1) >= 0) continue;
-this.sbConect.append (st);
 this.sb.append (st1);
-} else {
-this.sbConect.append (st);
-}this.addConnection ([i1, targetSerial, i < 4 ? 1 : 2048]);
+}this.sbConect.append (st);
+this.addConnection ( Clazz.newIntArray (-1, [i1, targetSerial, order]));
 }
 this.sbConect.appendSB (this.sb);
 });
@@ -707,16 +713,16 @@ endIndex = 31;
 if (this.lineLength < endIndex + 4) return;
 var structureID = this.line.substring (11, 15).trim ();
 var serialID = this.parseIntRange (this.line, 7, 10);
-var startChainID = this.line.charAt (startChainIDIndex);
+var startChainID = this.vwr.getChainID (this.line.substring (startChainIDIndex, startChainIDIndex + 1), true);
 var startSequenceNumber = this.parseIntRange (this.line, startIndex, startIndex + 4);
 var startInsertionCode = this.line.charAt (startIndex + 4);
-var endChainID = this.line.charAt (endChainIDIndex);
+var endChainID = this.vwr.getChainID (this.line.substring (endChainIDIndex, endChainIDIndex + 1), true);
 var endSequenceNumber = this.parseIntRange (this.line, endIndex, endIndex + 4);
 var endInsertionCode = ' ';
 if (this.lineLength > endIndex + 4) endInsertionCode = this.line.charAt (endIndex + 4);
 if (substructureType === J.c.STR.NONE) substructureType = structureType;
 var structure =  new J.adapter.smarter.Structure (-1, structureType, substructureType, structureID, serialID, strandCount);
-structure.set (startChainID.charCodeAt (0), startSequenceNumber, startInsertionCode, endChainID.charCodeAt (0), endSequenceNumber, endInsertionCode, -2147483648, 2147483647);
+structure.set (startChainID, startSequenceNumber, startInsertionCode, endChainID, endSequenceNumber, endInsertionCode, -2147483648, 2147483647);
 this.asc.addStructure (structure);
 });
 Clazz.defineMethod (c$, "getModelNumber", 
@@ -733,24 +739,26 @@ this.checkNotPDB ();
 this.haveMappedSerials = false;
 this.sbConect = null;
 this.asc.newAtomSet ();
-if (!this.isCourseGrained) this.asc.setAtomSetAuxiliaryInfo ("isPDB", Boolean.TRUE);
+this.checkUnitCellParams ();
+if (!this.isCourseGrained) this.setModelPDB (true);
 this.asc.setCurrentAtomSetNumber (modelNumber);
-if (this.isCourseGrained) this.asc.setAtomSetAuxiliaryInfo ("courseGrained", Boolean.TRUE);
+if (this.isCourseGrained) this.asc.setCurrentModelInfo ("courseGrained", Boolean.TRUE);
 }, "~N");
 Clazz.defineMethod (c$, "checkNotPDB", 
  function () {
 var isPDB = (!this.isCourseGrained && (this.nRes == 0 || this.nUNK != this.nRes));
-this.asc.setCheckSpecial (!isPDB);
-this.asc.setAtomSetAuxiliaryInfo ("isPDB", isPDB ? Boolean.TRUE : Boolean.FALSE);
+this.asc.checkSpecial = !isPDB;
+this.setModelPDB (isPDB);
 this.nUNK = this.nRes = 0;
 this.currentGroup3 = null;
+if (this.pdbID != null) this.asc.setAtomSetName (this.pdbID);
 });
 Clazz.defineMethod (c$, "cryst1", 
  function () {
-var a = this.getFloat (6, 9);
+var a = this.$cryst1 = this.getFloat (6, 9);
 if (a == 1) a = NaN;
 this.setUnitCell (a, this.getFloat (15, 9), this.getFloat (24, 9), this.getFloat (33, 7), this.getFloat (40, 7), this.getFloat (47, 7));
-if (this.spaceGroup == null) this.setSpaceGroupName (J.adapter.smarter.AtomSetCollectionReader.parseTrimmedRange (this.line, 55, 66));
+if (this.sgName == null || this.sgName.equals ("unspecified!")) this.setSpaceGroupName (JU.PT.parseTrimmedRange (this.line, 55, 66));
 });
 Clazz.defineMethod (c$, "getFloat", 
  function (ich, cch) {
@@ -758,7 +766,9 @@ return this.parseFloatRange (this.line, ich, ich + cch);
 }, "~N,~N");
 Clazz.defineMethod (c$, "scale", 
  function (n) {
+if (this.unitCellParams == null) return;
 var pt = n * 4 + 2;
+this.unitCellParams[0] = this.$cryst1;
 this.setUnitCellItem (pt++, this.getFloat (10, 10));
 this.setUnitCellItem (pt++, this.getFloat (20, 10));
 this.setUnitCellItem (pt++, this.getFloat (30, 10));
@@ -771,12 +781,12 @@ if (this.line.toUpperCase ().indexOf ("NMR") >= 0) this.asc.setInfo ("isNMRdata"
 Clazz.defineMethod (c$, "formul", 
  function () {
 var groupName = this.parseTokenRange (this.line, 12, 15);
-var formula = J.adapter.smarter.AtomSetCollectionReader.parseTrimmedRange (this.line, 19, 70);
+var formula = JU.PT.parseTrimmedRange (this.line, 19, 70);
 var ichLeftParen = formula.indexOf ('(');
 if (ichLeftParen >= 0) {
 var ichRightParen = formula.indexOf (')');
 if (ichRightParen < 0 || ichLeftParen >= ichRightParen || ichLeftParen + 1 == ichRightParen) return;
-formula = J.adapter.smarter.AtomSetCollectionReader.parseTrimmedRange (formula, ichLeftParen + 1, ichRightParen);
+formula = JU.PT.parseTrimmedRange (formula, ichLeftParen + 1, ichRightParen);
 }var htElementsInGroup = this.htFormul.get (groupName);
 if (htElementsInGroup == null) this.htFormul.put (groupName, htElementsInGroup =  new java.util.Hashtable ());
 this.next[0] = 0;
@@ -785,8 +795,8 @@ while ((elementWithCount = this.parseTokenNext (formula)) != null) {
 if (elementWithCount.length < 2) continue;
 var chFirst = elementWithCount.charAt (0);
 var chSecond = elementWithCount.charAt (1);
-if (J.adapter.smarter.Atom.isValidElementSymbolNoCaseSecondChar2 (chFirst, chSecond)) htElementsInGroup.put ("" + chFirst + chSecond, Boolean.TRUE);
- else if (J.adapter.smarter.Atom.isValidElementSymbol (chFirst)) htElementsInGroup.put ("" + chFirst, Boolean.TRUE);
+if (J.adapter.smarter.Atom.isValidSymNoCase (chFirst, chSecond)) htElementsInGroup.put ("" + chFirst + chSecond, Boolean.TRUE);
+ else if (J.adapter.smarter.Atom.isValidSym1 (chFirst)) htElementsInGroup.put ("" + chFirst, Boolean.TRUE);
 }
 });
 Clazz.defineMethod (c$, "het", 
@@ -798,7 +808,7 @@ this.htHetero =  new java.util.Hashtable ();
 }var groupName = this.parseTokenRange (this.line, 7, 10);
 if (this.htHetero.containsKey (groupName)) {
 return;
-}var hetName = J.adapter.smarter.AtomSetCollectionReader.parseTrimmedRange (this.line, 30, 70);
+}var hetName = JU.PT.parseTrimmedRange (this.line, 30, 70);
 this.htHetero.put (groupName, hetName);
 });
 Clazz.defineMethod (c$, "hetnam", 
@@ -806,7 +816,7 @@ Clazz.defineMethod (c$, "hetnam",
 if (this.htHetero == null) {
 this.htHetero =  new java.util.Hashtable ();
 }var groupName = this.parseTokenRange (this.line, 11, 14);
-var hetName = J.adapter.smarter.AtomSetCollectionReader.parseTrimmedRange (this.line, 15, 70);
+var hetName = JU.PT.parseTrimmedRange (this.line, 15, 70);
 if (groupName == null) {
 JU.Logger.error ("ERROR: HETNAM record does not contain a group name: " + this.line);
 return;
@@ -844,7 +854,7 @@ Clazz.defineMethod (c$, "site",
 if (this.htSites == null) {
 this.htSites =  new java.util.Hashtable ();
 }var nResidues = this.parseIntRange (this.line, 15, 17);
-var siteID = J.adapter.smarter.AtomSetCollectionReader.parseTrimmedRange (this.line, 11, 14);
+var siteID = JU.PT.parseTrimmedRange (this.line, 11, 14);
 var htSite = this.htSites.get (siteID);
 if (htSite == null) {
 htSite =  new java.util.Hashtable ();
@@ -854,11 +864,11 @@ this.htSites.put (siteID, htSite);
 }var groups = htSite.get ("groups");
 for (var i = 0; i < 4; i++) {
 var pt = 18 + i * 11;
-var resName = J.adapter.smarter.AtomSetCollectionReader.parseTrimmedRange (this.line, pt, pt + 3);
+var resName = JU.PT.parseTrimmedRange (this.line, pt, pt + 3);
 if (resName.length == 0) break;
-var chainID = J.adapter.smarter.AtomSetCollectionReader.parseTrimmedRange (this.line, pt + 4, pt + 5);
-var seq = J.adapter.smarter.AtomSetCollectionReader.parseTrimmedRange (this.line, pt + 5, pt + 9);
-var iCode = J.adapter.smarter.AtomSetCollectionReader.parseTrimmedRange (this.line, pt + 9, pt + 10);
+var chainID = JU.PT.parseTrimmedRange (this.line, pt + 4, pt + 5);
+var seq = JU.PT.parseTrimmedRange (this.line, pt + 5, pt + 9);
+var iCode = JU.PT.parseTrimmedRange (this.line, pt + 9, pt + 10);
 groups += (groups.length == 0 ? "" : ",") + "[" + resName + "]" + seq;
 if (iCode.length > 0) groups += "^" + iCode;
 if (chainID.length > 0) groups += ":" + chainID;
@@ -877,7 +887,7 @@ var range = null;
 var remark = this.line.substring (0, 11);
 while (this.readHeader (true) != null && this.line.startsWith (remark)) {
 try {
-var tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.line.substring (10).$replace (':', ' '));
+var tokens = JU.PT.getTokens (this.line.substring (10).$replace (':', ' '));
 if (tokens.length < 2) continue;
 JU.Logger.info (this.line);
 if (tokens[1].equalsIgnoreCase ("GROUP")) {
@@ -918,7 +928,7 @@ res2 = this.parseIntStr (this.line.substring (toC + 1));
 }if (chain1 == chain2) {
 range.put ("chains", "" + chain1 + chain2);
 if (res1 <= res2) {
-range.put ("residues", [res1, res2]);
+range.put ("residues",  Clazz.newIntArray (-1, [res1, res2]));
 ranges.addLast (range);
 } else {
 this.tlsAddError (" TLS group residues are not in order (range ignored)");
@@ -933,7 +943,7 @@ continue;
 }var resno = this.parseIntStr (tokens[i]);
 if (resno == -2147483648) continue;
 range =  new java.util.Hashtable ();
-range.put ("residues", [resno, this.parseIntStr (tokens[++i])]);
+range.put ("residues",  Clazz.newIntArray (-1, [resno, this.parseIntStr (tokens[++i])]));
 if (chain != '\0') range.put ("chains", "" + chain + chain);
 ranges.addLast (range);
 }
@@ -951,7 +961,7 @@ this.tlsAddError ("invalid origin: " + this.line);
 }} else if (tokens[1].equalsIgnoreCase ("TENSOR")) {
 var tensorType = tokens[0].charAt (0);
 var s = (this.readHeader (true).substring (10) + this.readHeader (true).substring (10) + this.readHeader (true).substring (10)).$replace (tensorType, ' ').$replace (':', ' ');
-tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (s);
+tokens = JU.PT.getTokens (s);
 var data =  Clazz.newFloatArray (3, 3, 0);
 tlsGroup.put ("t" + tensorType, data);
 for (var i = 0; i < tokens.length; i++) {
@@ -995,7 +1005,7 @@ JU.Logger.info ("TLS model " + (iModel + 1) + " set " + (iGroup + 1));
 var tlsGroupInfo = this.vTlsModels.get (iGroup);
 var groups = tlsGroupInfo.get ("groups");
 var index0 = this.asc.getAtomSetAtomIndex (iModel);
-var data =  Clazz.newIntArray (this.asc.getAtomSetAtomCount (iModel), 0);
+var data =  Clazz.newFloatArray (this.asc.getAtomSetAtomCount (iModel), 0);
 var indexMax = index0 + data.length;
 var atoms = this.asc.atoms;
 var nGroups = groups.size ();
@@ -1025,11 +1035,8 @@ this.setTlsTensor (atom, group, symmetry);
 }}
 }
 }
-var sdata =  new JU.SB ();
-for (var i = 0; i < data.length; i++) sdata.appendI (data[i]).appendC ('\n');
-
-this.asc.setAtomSetAtomProperty ("tlsGroup", sdata.toString (), iModel);
-this.asc.setAtomSetAuxiliaryInfoForSet ("TLS", tlsGroupInfo, iModel);
+this.asc.setAtomProperties ("tlsGroup", data, iModel, true);
+this.asc.setModelInfoForSet ("TLS", tlsGroupInfo, iModel);
 this.asc.setTensors ();
 }, "~N,~N,J.api.SymmetryInterface");
 Clazz.defineMethod (c$, "findAtomForRange", 
@@ -1085,7 +1092,7 @@ anisou[6] = 12;
 anisou[7] = bresidual;
 if (this.tlsU == null) this.tlsU =  new java.util.Hashtable ();
 this.tlsU.put (atom, anisou);
-atom.addTensor (symmetry.getTensor (this.dataT).setType (null), "TLS-U", false);
+atom.addTensor (symmetry.getTensor (this.vwr, this.dataT).setType (null), "TLS-U", false);
 }, "J.adapter.smarter.Atom,java.util.Map,J.api.SymmetryInterface");
 Clazz.defineMethod (c$, "tlsAddError", 
  function (error) {
@@ -1112,9 +1119,9 @@ Clazz.defineMethod (c$, "connectAllBad",
 var firstAtom = this.connectNextAtomIndex;
 for (var i = this.connectNextAtomSet; i < this.asc.atomSetCount; i++) {
 var count = this.asc.getAtomSetAtomCount (i);
-this.asc.setAtomSetAuxiliaryInfoForSet ("PDB_CONECT_firstAtom_count_max", [firstAtom, count, maxSerial], i);
+this.asc.setModelInfoForSet ("PDB_CONECT_firstAtom_count_max",  Clazz.newIntArray (-1, [firstAtom, count, maxSerial]), i);
 if (this.vConnect != null) {
-this.asc.setAtomSetAuxiliaryInfoForSet ("PDB_CONECT_bonds", this.vConnect, i);
+this.asc.setModelInfoForSet ("PDB_CONECT_bonds", this.vConnect, i);
 this.asc.setGlobalBoolean (3);
 }firstAtom += count;
 }
@@ -1130,11 +1137,11 @@ if (index < 0) return;
 if (isConnectStateBug) {
 this.connectAllBad (maxSerial);
 return;
-}a.setAtomSetAuxiliaryInfo ("PDB_CONECT_firstAtom_count_max", [a.getAtomSetAtomIndex (index), a.getAtomSetAtomCount (index), maxSerial]);
+}a.setCurrentModelInfo ("PDB_CONECT_firstAtom_count_max",  Clazz.newIntArray (-1, [a.getAtomSetAtomIndex (index), a.getAtomSetAtomCount (index), maxSerial]));
 if (this.vConnect == null) return;
 var firstAtom = this.connectNextAtomIndex;
 for (var i = a.atomSetCount; --i >= this.connectNextAtomSet; ) {
-a.setAtomSetAuxiliaryInfoForSet ("PDB_CONECT_bonds", this.vConnect, i);
+a.setModelInfoForSet ("PDB_CONECT_bonds", this.vConnect, i);
 a.setGlobalBoolean (3);
 firstAtom += a.getAtomSetAtomCount (i);
 }

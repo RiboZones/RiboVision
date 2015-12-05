@@ -13,7 +13,7 @@ var needTranslucent = false;
 this.mar = Clazz.floatToInt (this.vwr.getFloat (570425403) * 1000);
 if (this.mar == 0 && (this.g3d.isAntialiased () || this.isExport)) this.mar = 50;
 var atoms = this.ms.at;
-for (var i = this.ms.getAtomCount (); --i >= 0; ) {
+for (var i = this.ms.ac; --i >= 0; ) {
 var atom = atoms[i];
 if (!this.isVisibleForMe (atom)) continue;
 this.colix = J.shape.Shape.getColix (stars.colixes, i, atom);
@@ -27,12 +27,12 @@ Clazz.defineMethod (c$, "render1",
 var x = atom.sX;
 var y = atom.sY;
 var z = atom.sZ;
-var d = Clazz.floatToInt (this.vwr.scaleToScreen (z, mad));
+var d = Clazz.floatToInt (this.vwr.tm.scaleToScreen (z, mad));
 d -= (d & 1) ^ 1;
 var r = Clazz.doubleToInt (d / 2);
 if (r < 1) r = 1;
 if (this.mar > 0) {
-this.width = Clazz.floatToInt (this.vwr.scaleToScreen (z, this.mar));
+this.width = Clazz.floatToInt (this.vwr.tm.scaleToScreen (z, this.mar));
 if (this.width == 0) this.width = 1;
 if (this.width == 1 && this.g3d.isAntialiased ()) this.width = 2;
 } else {

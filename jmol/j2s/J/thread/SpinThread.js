@@ -15,12 +15,9 @@ this.haveNotified = false;
 this.index = 0;
 this.bsBranches = null;
 this.isDone = false;
+this.m4 = null;
 Clazz.instantialize (this, arguments);
 }, J.thread, "SpinThread", J.thread.JmolThread);
-Clazz.makeConstructor (c$, 
-function () {
-Clazz.superConstructor (this, J.thread.SpinThread, []);
-});
 Clazz.overrideMethod (c$, "setManager", 
 function (manager, vwr, params) {
 this.transformManager = manager;
@@ -32,7 +29,7 @@ this.isNav = true;
 this.endDegrees = (options[0]).floatValue ();
 this.endPositions = options[1];
 this.dihedralList = options[2];
-if (this.dihedralList != null) this.bsBranches = vwr.getBsBranches (this.dihedralList);
+if (this.dihedralList != null) this.bsBranches = vwr.ms.getBsBranches (this.dihedralList);
 this.bsAtoms = options[3];
 this.isGesture = (options[4] != null);
 }return 0;
@@ -83,8 +80,8 @@ break;
 case 1:
 while (!this.checkInterrupted (this.transformManager.spinThread) && !this.vwr.getRefreshing ()) if (!this.runSleep (10, 1)) return;
 
-if (this.bsAtoms == null) this.vwr.refresh (1, "SpinThread:run()");
- else this.vwr.requestRepaintAndWait ("spin thread");
+if (this.bsAtoms != null || this.vwr.g.waitForMoveTo && this.endDegrees != 3.4028235E38) this.vwr.requestRepaintAndWait ("spin thread");
+ else this.vwr.refresh (1, "SpinThread");
 if (this.endDegrees >= 1e10 ? this.nDegrees / this.endDegrees > 0.99 : !this.isNav && this.endDegrees >= 0 ? this.nDegrees >= this.endDegrees - 0.001 : -this.nDegrees <= this.endDegrees + 0.001) {
 this.isDone = true;
 this.transformManager.setSpinOff ();
@@ -95,7 +92,7 @@ case -2:
 if (this.dihedralList != null) {
 this.vwr.setDihedrals (this.dihedralList, this.bsBranches, 0);
 } else if (this.bsAtoms != null && this.endPositions != null) {
-this.vwr.setAtomCoords (this.bsAtoms, 1146095626, this.endPositions);
+this.vwr.setAtomCoords (this.bsAtoms, 1145047050, this.endPositions);
 this.bsAtoms = null;
 this.endPositions = null;
 }if (!this.isReset) {
@@ -119,7 +116,7 @@ this.transformManager.setNavigationOffsetRelative ();
 } else if (this.transformManager.isSpinInternal || this.transformManager.isSpinFixed) {
 this.angle = (this.transformManager.isSpinInternal ? this.transformManager.internalRotationAxis : this.transformManager.fixedRotationAxis).angle / this.myFps;
 if (this.transformManager.isSpinInternal) {
-this.transformManager.rotateAxisAngleRadiansInternal (this.angle, this.bsAtoms);
+this.transformManager.rotateAxisAngleRadiansInternal (this.angle, this.bsAtoms, this.m4);
 } else {
 this.transformManager.rotateAxisAngleRadiansFixed (this.angle, this.bsAtoms);
 }this.nDegrees += Math.abs (this.angle * 57.29577951308232);

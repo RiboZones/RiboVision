@@ -10,10 +10,6 @@ this.m32 = 0;
 this.m33 = 0;
 Clazz.instantialize (this, arguments);
 }, JU, "M4", JU.M34);
-Clazz.makeConstructor (c$, 
-function () {
-Clazz.superConstructor (this, JU.M4, []);
-});
 c$.newA16 = Clazz.defineMethod (c$, "newA16", 
 function (v) {
 var m =  new JU.M4 ();
@@ -77,6 +73,7 @@ this.m30 = m1.m30;
 this.m31 = m1.m31;
 this.m32 = m1.m32;
 this.m33 = m1.m33;
+return this;
 }, "JU.M4");
 Clazz.defineMethod (c$, "setMV", 
 function (m1, t) {
@@ -347,18 +344,14 @@ tmp = this.m23;
 this.m23 = this.m32;
 this.m32 = tmp;
 });
-Clazz.defineMethod (c$, "invertM", 
-function (m1) {
-this.setM4 (m1);
-this.invert ();
-}, "JU.M4");
 Clazz.defineMethod (c$, "invert", 
 function () {
-var s = this.determinant ();
-if (s == 0.0) return;
+var s = this.determinant4 ();
+if (s == 0.0) return this;
 s = 1 / s;
 this.set (this.m11 * (this.m22 * this.m33 - this.m23 * this.m32) + this.m12 * (this.m23 * this.m31 - this.m21 * this.m33) + this.m13 * (this.m21 * this.m32 - this.m22 * this.m31), this.m21 * (this.m02 * this.m33 - this.m03 * this.m32) + this.m22 * (this.m03 * this.m31 - this.m01 * this.m33) + this.m23 * (this.m01 * this.m32 - this.m02 * this.m31), this.m31 * (this.m02 * this.m13 - this.m03 * this.m12) + this.m32 * (this.m03 * this.m11 - this.m01 * this.m13) + this.m33 * (this.m01 * this.m12 - this.m02 * this.m11), this.m01 * (this.m13 * this.m22 - this.m12 * this.m23) + this.m02 * (this.m11 * this.m23 - this.m13 * this.m21) + this.m03 * (this.m12 * this.m21 - this.m11 * this.m22), this.m12 * (this.m20 * this.m33 - this.m23 * this.m30) + this.m13 * (this.m22 * this.m30 - this.m20 * this.m32) + this.m10 * (this.m23 * this.m32 - this.m22 * this.m33), this.m22 * (this.m00 * this.m33 - this.m03 * this.m30) + this.m23 * (this.m02 * this.m30 - this.m00 * this.m32) + this.m20 * (this.m03 * this.m32 - this.m02 * this.m33), this.m32 * (this.m00 * this.m13 - this.m03 * this.m10) + this.m33 * (this.m02 * this.m10 - this.m00 * this.m12) + this.m30 * (this.m03 * this.m12 - this.m02 * this.m13), this.m02 * (this.m13 * this.m20 - this.m10 * this.m23) + this.m03 * (this.m10 * this.m22 - this.m12 * this.m20) + this.m00 * (this.m12 * this.m23 - this.m13 * this.m22), this.m13 * (this.m20 * this.m31 - this.m21 * this.m30) + this.m10 * (this.m21 * this.m33 - this.m23 * this.m31) + this.m11 * (this.m23 * this.m30 - this.m20 * this.m33), this.m23 * (this.m00 * this.m31 - this.m01 * this.m30) + this.m20 * (this.m01 * this.m33 - this.m03 * this.m31) + this.m21 * (this.m03 * this.m30 - this.m00 * this.m33), this.m33 * (this.m00 * this.m11 - this.m01 * this.m10) + this.m30 * (this.m01 * this.m13 - this.m03 * this.m11) + this.m31 * (this.m03 * this.m10 - this.m00 * this.m13), this.m03 * (this.m11 * this.m20 - this.m10 * this.m21) + this.m00 * (this.m13 * this.m21 - this.m11 * this.m23) + this.m01 * (this.m10 * this.m23 - this.m13 * this.m20), this.m10 * (this.m22 * this.m31 - this.m21 * this.m32) + this.m11 * (this.m20 * this.m32 - this.m22 * this.m30) + this.m12 * (this.m21 * this.m30 - this.m20 * this.m31), this.m20 * (this.m02 * this.m31 - this.m01 * this.m32) + this.m21 * (this.m00 * this.m32 - this.m02 * this.m30) + this.m22 * (this.m01 * this.m30 - this.m00 * this.m31), this.m30 * (this.m02 * this.m11 - this.m01 * this.m12) + this.m31 * (this.m00 * this.m12 - this.m02 * this.m10) + this.m32 * (this.m01 * this.m10 - this.m00 * this.m11), this.m00 * (this.m11 * this.m22 - this.m12 * this.m21) + this.m01 * (this.m12 * this.m20 - this.m10 * this.m22) + this.m02 * (this.m10 * this.m21 - this.m11 * this.m20));
 this.scale (s);
+return this;
 });
 Clazz.defineMethod (c$, "set", 
  function (m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
@@ -379,7 +372,7 @@ this.m31 = m31;
 this.m32 = m32;
 this.m33 = m33;
 }, "~N,~N,~N,~N,~N,~N,~N,~N,~N,~N,~N,~N,~N,~N,~N,~N");
-Clazz.defineMethod (c$, "determinant", 
+Clazz.defineMethod (c$, "determinant4", 
 function () {
 return (this.m00 * this.m11 - this.m01 * this.m10) * (this.m22 * this.m33 - this.m23 * this.m32) - (this.m00 * this.m12 - this.m02 * this.m10) * (this.m21 * this.m33 - this.m23 * this.m31) + (this.m00 * this.m13 - this.m03 * this.m10) * (this.m21 * this.m32 - this.m22 * this.m31) + (this.m01 * this.m12 - this.m02 * this.m11) * (this.m20 * this.m33 - this.m23 * this.m30) - (this.m01 * this.m13 - this.m03 * this.m11) * (this.m20 * this.m32 - this.m22 * this.m30) + (this.m02 * this.m13 - this.m03 * this.m12) * (this.m20 * this.m31 - this.m21 * this.m30);
 });
@@ -417,6 +410,7 @@ this.rotTrans2 (point, point);
 Clazz.defineMethod (c$, "rotTrans2", 
 function (point, pointOut) {
 pointOut.set (this.m00 * point.x + this.m01 * point.y + this.m02 * point.z + this.m03, this.m10 * point.x + this.m11 * point.y + this.m12 * point.z + this.m13, this.m20 * point.x + this.m21 * point.y + this.m22 * point.z + this.m23);
+return pointOut;
 }, "JU.T3,JU.T3");
 Clazz.defineMethod (c$, "setAsXYRotation", 
 function (angle) {
@@ -465,4 +459,28 @@ Clazz.overrideMethod (c$, "toString",
 function () {
 return "[\n  [" + this.m00 + "\t" + this.m01 + "\t" + this.m02 + "\t" + this.m03 + "]" + "\n  [" + this.m10 + "\t" + this.m11 + "\t" + this.m12 + "\t" + this.m13 + "]" + "\n  [" + this.m20 + "\t" + this.m21 + "\t" + this.m22 + "\t" + this.m23 + "]" + "\n  [" + this.m30 + "\t" + this.m31 + "\t" + this.m32 + "\t" + this.m33 + "] ]";
 });
+Clazz.defineMethod (c$, "round", 
+function (f) {
+this.m00 = this.rnd (this.m00, f);
+this.m01 = this.rnd (this.m01, f);
+this.m02 = this.rnd (this.m02, f);
+this.m03 = this.rnd (this.m03, f);
+this.m10 = this.rnd (this.m10, f);
+this.m11 = this.rnd (this.m11, f);
+this.m12 = this.rnd (this.m12, f);
+this.m13 = this.rnd (this.m13, f);
+this.m20 = this.rnd (this.m20, f);
+this.m21 = this.rnd (this.m21, f);
+this.m22 = this.rnd (this.m22, f);
+this.m23 = this.rnd (this.m23, f);
+this.m30 = this.rnd (this.m30, f);
+this.m31 = this.rnd (this.m31, f);
+this.m32 = this.rnd (this.m32, f);
+this.m33 = this.rnd (this.m33, f);
+return this;
+}, "~N");
+Clazz.defineMethod (c$, "rnd", 
+ function (n, f) {
+return (Math.abs (n) < f ? 0 : n);
+}, "~N,~N");
 });

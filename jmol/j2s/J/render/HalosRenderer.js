@@ -7,15 +7,16 @@ Clazz.instantialize (this, arguments);
 Clazz.overrideMethod (c$, "render", 
 function () {
 var halos = this.shape;
-var selectDisplayTrue = this.vwr.getSelectionHaloEnabled (true);
+var showOnce = this.vwr.getShowSelectedOnce ();
+var selectDisplayTrue = (this.vwr.getSelectionHalosEnabled () || showOnce);
 var showHiddenSelections = (selectDisplayTrue && this.vwr.getBoolean (603979920));
 if (halos.mads == null && halos.bsHighlight == null && !selectDisplayTrue) return false;
 this.isAntialiased = this.g3d.isAntialiased ();
 var atoms = this.ms.at;
-var bsSelected = (selectDisplayTrue ? this.vwr.bsA () : null);
+var bsSelected = (showOnce && this.vwr.movableBitSet != null ? this.vwr.movableBitSet : selectDisplayTrue ? this.vwr.bsA () : null);
 var needTranslucent = false;
 this.g3d.addRenderer (1073741880);
-for (var i = this.ms.getAtomCount (); --i >= 0; ) {
+for (var i = this.ms.ac; --i >= 0; ) {
 var atom = atoms[i];
 if ((atom.shapeVisibilityFlags & 1) == 0) continue;
 var isHidden = this.ms.isAtomHidden (i);
@@ -26,11 +27,11 @@ if (isHidden && !showHiddenSelections) continue;
 if (this.mad == 0) this.mad = -1;
 if (this.colix == 0) this.colix = halos.colixSelection;
 if (this.colix == 2) this.colix = 23;
- else if (this.colix == 0) this.colix = JU.C.getColixInherited (this.colix, atom.getColix ());
+ else if (this.colix == 0) this.colix = JU.C.getColixInherited (this.colix, atom.colixAtom);
 } else if (isHidden) {
 continue;
 } else {
-this.colix = JU.C.getColixInherited (this.colix, atom.getColix ());
+this.colix = JU.C.getColixInherited (this.colix, atom.colixAtom);
 }if (this.mad != 0) {
 if (this.render1 (atom)) needTranslucent = true;
 }if (!isHidden && halos.bsHighlight != null && halos.bsHighlight.get (i)) {
@@ -54,11 +55,11 @@ if (d < 0) {
 d = atom.sD;
 if (d == 0) {
 var ellipsemax = (atom.isVisible (20) ? atom.getADPMinMax (true) : 0);
-if (ellipsemax > 0) d = this.vwr.scaleToScreen (z, Clazz.doubleToInt (Math.floor (ellipsemax * 2000)));
+if (ellipsemax > 0) d = this.vwr.tm.scaleToScreen (z, Clazz.doubleToInt (Math.floor (ellipsemax * 2000)));
 if (d == 0) {
-d = Clazz.floatToInt (this.vwr.scaleToScreen (z, this.mad == -2 ? 250 : 500));
+d = Clazz.floatToInt (this.vwr.tm.scaleToScreen (z, this.mad == -2 ? 250 : 500));
 }}} else {
-d = this.vwr.scaleToScreen (z, this.mad);
+d = this.vwr.tm.scaleToScreen (z, this.mad);
 }if (this.isAntialiased) d /= 2;
 var more = (d / 2);
 if (this.mad == -2) more /= 2;

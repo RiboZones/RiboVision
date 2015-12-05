@@ -4,12 +4,10 @@ c$ = Clazz.decorateAsClass (function () {
 this.script = null;
 this.status = 0;
 this.triggered = true;
-this.timeouts = null;
 Clazz.instantialize (this, arguments);
 }, J.thread, "TimeoutThread", J.thread.JmolThread);
 Clazz.makeConstructor (c$, 
 function (vwr, name, ms, script) {
-Clazz.superConstructor (this, J.thread.TimeoutThread, []);
 this.setViewer (vwr, name);
 this.$name = name;
 this.set (ms, script);
@@ -29,7 +27,6 @@ while (true) {
 switch (mode) {
 case -1:
 if (!this.isJS) Thread.currentThread ().setPriority (1);
-this.timeouts = this.vwr.getTimeouts ();
 this.targetTime = System.currentTimeMillis () + Math.abs (this.sleepTime);
 mode = 0;
 break;
@@ -43,11 +40,11 @@ mode = (System.currentTimeMillis () < this.targetTime ? 0 : 2);
 break;
 case 2:
 this.currentTime = System.currentTimeMillis ();
-if (this.timeouts.get (this.$name) == null) return;
+if (this.vwr.timeouts.get (this.$name) == null) return;
 this.status++;
 var continuing = (this.sleepTime < 0);
 if (continuing) this.targetTime = System.currentTimeMillis () + Math.abs (this.sleepTime);
- else this.timeouts.remove (this.$name);
+ else this.vwr.timeouts.remove (this.$name);
 if (this.triggered) {
 this.triggered = false;
 if (this.$name.equals ("_SET_IN_MOTION_")) {
@@ -57,7 +54,7 @@ this.vwr.evalStringQuiet ((continuing ? this.script + ";\ntimeout ID \"" + this.
 }}mode = (continuing ? 0 : -2);
 break;
 case -2:
-this.timeouts.remove (this.$name);
+this.vwr.timeouts.remove (this.$name);
 return;
 }
 }

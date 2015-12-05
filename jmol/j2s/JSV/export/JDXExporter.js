@@ -93,7 +93,7 @@ this.out.append ("##ORIGIN= ").append (this.spectrum.getOrigin ()).append (JSV["
 this.out.append ("##OWNER= ").append (this.spectrum.getOwner ()).append (JSV["export"].JDXExporter.newLine);
 var d = this.spectrum.getDate ();
 var longdate = "";
-var currentTime = this.vwr.apiPlatform.getDateFormat (false);
+var currentTime = this.vwr.apiPlatform.getDateFormat (null);
 if (this.spectrum.getLongDate ().equals ("") || d.length != 8) {
 longdate = currentTime + " $$ export date from JSpecView";
 } else if (d.length == 8) {

@@ -2,7 +2,6 @@ Clazz.declarePackage ("J.adapter.readers.simple");
 Clazz.load (["J.adapter.smarter.AtomSetCollectionReader"], "J.adapter.readers.simple.HyperChemReader", ["java.lang.Exception"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.atomIndex = 0;
-this.baseAtomIndex = 0;
 Clazz.instantialize (this, arguments);
 }, J.adapter.readers.simple, "HyperChemReader", J.adapter.smarter.AtomSetCollectionReader);
 Clazz.overrideMethod (c$, "checkLine", 

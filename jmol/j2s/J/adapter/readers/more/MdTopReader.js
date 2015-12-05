@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.adapter.readers.more");
-Clazz.load (["J.adapter.readers.more.ForceFieldReader"], "J.adapter.readers.more.MdTopReader", ["java.lang.Boolean", "JU.Lst", "J.adapter.smarter.Atom", "J.api.JmolAdapter", "JU.Logger"], function () {
+Clazz.load (["J.adapter.readers.more.ForceFieldReader"], "J.adapter.readers.more.MdTopReader", ["java.lang.Boolean", "JU.Lst", "J.adapter.smarter.Atom", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.nAtoms = 0;
 this.ac = 0;
@@ -9,6 +9,7 @@ Clazz.instantialize (this, arguments);
 }, J.adapter.readers.more, "MdTopReader", J.adapter.readers.more.ForceFieldReader);
 Clazz.overrideMethod (c$, "initializeReader", 
 function () {
+this.setIsPDB ();
 this.setUserAtomTypes ();
 });
 Clazz.overrideMethod (c$, "checkLine", 
@@ -24,14 +25,14 @@ if (this.line.equals ("POINTERS")) this.getPointers ();
  else if (this.line.equals ("MASS")) this.getMasses ();
 return false;
 });
-Clazz.overrideMethod (c$, "finalizeReader", 
+Clazz.overrideMethod (c$, "finalizeSubclassReader", 
 function () {
 this.finalizeReaderASCR ();
 var atoms = this.asc.atoms;
 var atom;
 for (var i = 0; i < this.ac; i++) {
 atom = atoms[i];
-atom.isHetero = J.api.JmolAdapter.isHetero (atom.group3);
+atom.isHetero = this.vwr.getJBR ().isHetero (atom.group3);
 var atomType = this.$atomTypes[i];
 if (!this.getElementSymbol (atom, atomType)) atom.elementSymbol = J.adapter.readers.more.ForceFieldReader.deducePdbElementSymbol (atom.isHetero, atom.atomName, atom.group3);
 }
@@ -49,11 +50,11 @@ if (k % 100 == 0) j++;
 this.setAtomCoordXYZ (atoms[i], (i % 100) * 2, j * 2, 0);
 }}
 if (atoms2 != null) {
-this.asc.discardPreviousAtoms ();
+this.discardPreviousAtoms ();
 for (var i = 0; i < this.nAtoms; i++) this.asc.addAtom (atoms2[i]);
 
 }JU.Logger.info ("Total number of atoms used=" + this.nAtoms);
-this.setIsPDB ();
+this.setModelPDB (true);
 this.htParams.put ("defaultType", "mdcrd");
 });
 Clazz.defineMethod (c$, "getDataBlock", 

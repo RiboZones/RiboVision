@@ -4,9 +4,8 @@ c$ = Clazz.decorateAsClass (function () {
 this.bsSelected = null;
 Clazz.instantialize (this, arguments);
 }, J.shapebio, "Backbone", J.shapebio.BioShapeCollection);
-Clazz.defineMethod (c$, "initShape", 
+Clazz.overrideMethod (c$, "initShape", 
 function () {
-Clazz.superCall (this, J.shapebio.Backbone, "initShape", []);
 this.madOn = 1;
 this.madHelixSheet = 1500;
 this.madTurnRandom = 500;
@@ -49,8 +48,8 @@ isVisible = (mad != 0);
 }var atomB = this.ms.at[index2];
 var wasVisible = (bioShape.mads[i] != 0);
 if (wasVisible != isVisible) {
-atomA.addDisplayedBackbone (this.vf, isVisible);
-atomB.addDisplayedBackbone (this.vf, isVisible);
+this.addDisplayedBackbone (atomA, isVisible);
+this.addDisplayedBackbone (atomB, isVisible);
 }bioShape.mads[i] = mad;
 bioShape.bsSizeSet.setBitTo (i, isVisible);
 bioShape.bsSizeDefault.setBitTo (i, mad == -1);
@@ -58,7 +57,12 @@ bioShape.bsSizeDefault.setBitTo (i, mad == -1);
 }
 if (useThisBsSelected) this.bsSelected = null;
 }, "~N,J.atomdata.RadiusData,JU.BS");
-Clazz.overrideMethod (c$, "setModelClickability", 
+Clazz.defineMethod (c$, "addDisplayedBackbone", 
+function (a, isVisible) {
+a.nBackbonesDisplayed += (isVisible ? 1 : -1);
+this.setShapeVisibility (a, isVisible);
+}, "JM.Atom,~B");
+Clazz.overrideMethod (c$, "setAtomClickability", 
 function () {
 if (this.bioShapes == null) return;
 for (var iShape = this.bioShapes.length; --iShape >= 0; ) {
@@ -66,7 +70,7 @@ var bioShape = this.bioShapes[iShape];
 var atomIndices = bioShape.bioPolymer.getLeadAtomIndices ();
 for (var i = bioShape.monomerCount; --i >= 0; ) {
 var atom = this.ms.at[atomIndices[i]];
-if (atom.getNBackbonesDisplayed () > 0 && !this.ms.isAtomHidden (i)) atom.setClickable (this.vf);
+if (atom.nBackbonesDisplayed > 0 && !this.ms.isAtomHidden (i)) atom.setClickable (this.vf);
 }
 }
 });
