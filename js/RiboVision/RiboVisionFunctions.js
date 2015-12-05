@@ -2598,7 +2598,7 @@ function canvasToSVG() {
 		});
 		output = output + '</g>\n';
 	});
-	output = output + watermark(true);
+	//output = output + watermark(true);
 	output = output + '</svg>';
 	return { 'SVG': output, "PaperSize" : paperSize };
 }
