@@ -99,6 +99,7 @@ if (this.isTabularData) {
 this.setTabularDataType (spectrum, label);
 if (!this.processTabularData (spectrum, dataLDRTable)) throw  new JSV.exception.JSVException ("Unable to read JDX file");
 this.addSpectrum (spectrum, false);
+if (this.isSimulation && spectrum.getXUnits ().equals ("PPM")) spectrum.setHZtoPPM (true);
 spectrum = null;
 continue;
 }if (label.equals ("##DATATYPE") && value.toUpperCase ().equals ("LINK")) {
@@ -235,7 +236,7 @@ if (this.errorLog.length () > 0 && this.errorLog.lastIndexOf ("=================
 });
 Clazz.defineMethod (c$, "getNTupleSpectra", 
  function (sourceLDRTable, spectrum0, label) {
-var minMaxY = [1.7976931348623157E308, 4.9E-324];
+var minMaxY =  Clazz.newDoubleArray (-1, [1.7976931348623157E308, 4.9E-324]);
 this.blockID = Math.random ();
 var isOK = true;
 if (this.firstSpec > 0) spectrum0.numDim = 1;
@@ -531,8 +532,7 @@ if (d > minMaxY[1]) minMaxY[1] = d;
 if (spec.offset != 1.7976931348623157E308 && freq != 1.7976931348623157E308 && spec.dataType.toUpperCase ().contains ("SPECTRUM")) {
 JSV.common.Coordinate.applyShiftReference (xyCoords, spec.dataPointNum, spec.fileFirstX, spec.fileLastX, spec.offset, freq, spec.shiftRefType);
 }if (freq != 1.7976931348623157E308 && spec.getXUnits ().toUpperCase ().equals ("HZ")) {
-var xScale = freq;
-JSV.common.Coordinate.applyScale (xyCoords, (1 / xScale), 1);
+JSV.common.Coordinate.applyScale (xyCoords, (1.0 / freq), 1);
 spec.setXUnits ("PPM");
 spec.setHZtoPPM (true);
 }if (this.errorLog.length () != errPt) {
@@ -552,7 +552,7 @@ for (var i = 0; i < table.size (); i++) if ((entry = table.get (i))[0].equals (l
 entry[1] = value;
 return;
 }
-table.addLast ([label, value, JSV.source.JDXSourceStreamTokenizer.cleanLabel (label)]);
+table.addLast ( Clazz.newArray (-1, [label, value, JSV.source.JDXSourceStreamTokenizer.cleanLabel (label)]));
 }, "JU.Lst,~S,~S");
 Clazz.defineMethod (c$, "checkCustomTags", 
  function (spectrum, label, value) {
@@ -637,6 +637,6 @@ while ((line = this.rd ()) != null && line.trim ().length == 0) {
 return line;
 });
 Clazz.defineStatics (c$,
-"VAR_LIST_TABLE", ["PEAKTABLE   XYDATA      XYPOINTS", " (XY..XY)    (X++(Y..Y)) (XY..XY)    "],
+"VAR_LIST_TABLE",  Clazz.newArray (-1, ["PEAKTABLE   XYDATA      XYPOINTS", " (XY..XY)    (X++(Y..Y)) (XY..XY)    "]),
 "ERROR_SEPARATOR", "=====================\n");
 });

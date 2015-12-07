@@ -19,7 +19,7 @@ Clazz.makeConstructor (c$,
 function () {
 });
 Clazz.defineMethod (c$, "setSymmetryInfo", 
-function (info, notionalUnitCell) {
+function (info, unitCellParams) {
 this.cellRange = info.get ("unitCellRange");
 this.periodicOriginXyz = info.get ("periodicOriginXyz");
 this.sgName = info.get ("spaceGroup");
@@ -44,10 +44,10 @@ c += " (" + JU.PT.rep (oc, "0+", "") + ")";
 if (c.length > 0) this.infoStr += "\nCentering: " + c;
 this.infoStr += s;
 }this.infoStr += "\n";
-if (notionalUnitCell == null) notionalUnitCell = info.get ("notionalUnitcell");
-if (!JU.SimpleUnitCell.isValid (notionalUnitCell)) return null;
+if (unitCellParams == null) unitCellParams = info.get ("unitCellParams");
+if (!JU.SimpleUnitCell.isValid (unitCellParams)) return null;
 this.coordinatesAreFractional = info.containsKey ("coordinatesAreFractional") ? (info.get ("coordinatesAreFractional")).booleanValue () : false;
 this.isMultiCell = (this.coordinatesAreFractional && this.symmetryOperations != null);
-return notionalUnitCell;
+return unitCellParams;
 }, "java.util.Map,~A");
 });

@@ -102,7 +102,7 @@ return list;
 Clazz.overrideMethod (c$, "setACDAssignments", 
 function (model, mytype, peakCount, acdlist, molFile) {
 try {
-if (peakCount >= 0) this.peakIndex = [peakCount];
+if (peakCount >= 0) this.peakIndex =  Clazz.newIntArray (-1, [peakCount]);
 var isMS = (mytype.indexOf ("MASS") == 0);
 var file = " file=" + JU.PT.esc (this.peakFilePath.$replace ('\\', '/'));
 model = " model=" + JU.PT.esc (model + " (assigned)");
@@ -183,7 +183,7 @@ return (type.indexOf ("HNMR") >= 0 ? 0.05 : type.indexOf ("CNMR") >= 0 ? 1 : typ
 Clazz.overrideMethod (c$, "readPeaks", 
 function (isSignals, peakCount) {
 try {
-if (peakCount >= 0) this.peakIndex = [peakCount];
+if (peakCount >= 0) this.peakIndex =  Clazz.newIntArray (-1, [peakCount]);
 var offset = (isSignals ? 1 : 0);
 var tag1 = (isSignals ? "Signals" : "Peaks");
 var tag2 = (isSignals ? "<Signal" : "<PeakData");
@@ -249,7 +249,7 @@ var stringInfo = "<PeakData " + file + " index=\"%INDEX%\"" + title + type + mod
 if (atoms != null) stringInfo = JU.PT.rep (stringInfo, "atoms=\"" + atoms + "\"", "atoms=\"%ATOMS%\"");
 var o = htSets.get (key);
 if (o == null) {
-o = [stringInfo, (atoms == null ? null :  new JU.BS ())];
+o =  Clazz.newArray (-1, [stringInfo, (atoms == null ? null :  new JU.BS ())]);
 htSets.put (key, o);
 list.addLast (o);
 }if (atoms != null) {

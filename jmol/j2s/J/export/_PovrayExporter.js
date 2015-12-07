@@ -31,6 +31,8 @@ throw e;
 }
 }
 this.output ("\n");
+this.output (this.getJmolPerspective ());
+this.output ("\n");
 this.output ("// ******************************************************\n");
 this.output ("// Declare the resolution, camera, and light sources.\n");
 this.output ("// ******************************************************\n");
@@ -45,14 +47,25 @@ this.output ("#declare showAtoms = true;\n");
 this.output ("#declare showBonds = true;\n");
 this.output ("#declare noShadows = true;\n");
 this.output ("camera{\n");
+var offsetX;
+var offsetY;
+var f;
+if (this.wasPerspective) {
+offsetX = this.vwr.tm.getTranslationXPercent () / 100 * this.screenWidth;
+offsetY = this.vwr.tm.getTranslationYPercent () / 100 * this.screenHeight;
+f = 1 / this.vwr.tm.getPerspectiveFactor ((this.vwr.tm.getCameraDepth () - 0.5) * this.vwr.getScreenDim ());
+this.output ("  perspective\n");
+this.output ("  angle " + this.aperatureAngle + "\n");
+this.output ("  right < " + this.screenWidth + ", 0, 0>\n");
+this.output ("  up < 0, " + -this.screenHeight + ", 0 >\n");
+} else {
+offsetX = offsetY = f = 0;
 this.output ("  orthographic\n");
-this.output ("  location < " + this.screenWidth / 2 + ", " + this.screenHeight / 2 + ", 0>\n" + "\n");
-this.output ("  // Negative right for a right hand coordinate system.\n");
-this.output ("\n");
-this.output ("  sky < 0, -1, 0 >\n");
-this.output ("  right < -" + this.screenWidth + ", 0, 0>\n");
+this.output ("  right < " + -this.screenWidth + ", 0, 0>\n");
 this.output ("  up < 0, " + this.screenHeight + ", 0 >\n");
-this.output ("  look_at < " + this.screenWidth / 2 + ", " + this.screenHeight / 2 + ", 1000 >\n");
+}this.output ("  sky < 0, -1, 0 >\n");
+this.output ("  location < " + (this.screenWidth / 2 + offsetX) + ", " + (this.screenHeight / 2 + offsetY) + ", 0>\n");
+this.output ("  look_at < " + (this.screenWidth / 2 + f * offsetX) + ", " + (this.screenHeight / 2 + f * offsetY) + ", 1000 >\n");
 this.output ("}\n");
 this.output ("\n");
 this.output ("background { color rgb <" + this.rgbFractionalFromColix (this.backgroundColix) + "> }\n");
@@ -130,9 +143,8 @@ Clazz.overrideMethod (c$, "outputCone",
 function (screenBase, screenTip, radius, colix, isBarb) {
 if (isBarb) {
 if (!this.haveMacros) this.writeMacros2 ();
-var plane =  new JU.P4 ();
 this.tempP1.set (screenBase.x, screenTip.y, 12345.6789);
-JU.Measure.getPlaneThroughPoints (screenBase, screenTip, this.tempP1, this.tempV1, this.tempV2, this.tempV3, plane);
+var plane = JU.Measure.getPlaneThroughPoints (screenBase, screenTip, this.tempP1, this.tempV1, this.tempV2,  new JU.P4 ());
 this.output ("barb(" + this.getTriad (screenBase) + "," + radius + "," + this.getTriad (screenTip) + ",0" + "," + this.color4 (colix) + "," + plane.x + "," + plane.y + "," + plane.z + "," + -plane.w + ")\n");
 } else {
 this.output ("b(" + this.getTriad (screenBase) + "," + radius + "," + this.getTriad (screenTip) + ",0" + "," + this.color4 (colix) + ")\n");
@@ -229,5 +241,5 @@ Clazz.overrideMethod (c$, "outputTriangle",
 function (ptA, ptB, ptC, colix) {
 if (!this.haveMacros) this.writeMacros2 ();
 this.output ("r(" + this.getTriad (ptA) + "," + this.getTriad (ptB) + "," + this.getTriad (ptC) + "," + this.color4 (colix) + ")\n");
-}, "JU.P3,JU.P3,JU.P3,~N");
+}, "JU.T3,JU.T3,JU.T3,~N");
 });

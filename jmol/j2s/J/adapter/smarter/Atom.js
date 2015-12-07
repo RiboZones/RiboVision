@@ -55,7 +55,7 @@ for (var i = this.tensors.size (); --i >= 0; ) a.tensors.addLast ((this.tensors.
 });
 Clazz.defineMethod (c$, "getElementSymbol", 
 function () {
-if (this.elementSymbol == null) if (this.atomName != null) {
+if (this.elementSymbol == null && this.atomName != null) {
 var len = this.atomName.length;
 var ichFirst = 0;
 var chFirst = String.fromCharCode (0);
@@ -92,5 +92,5 @@ c$.isValidSymChar1 = Clazz.defineMethod (c$, "isValidSymChar1",
 return (ch >= 'A' && ch <= 'Z' && J.adapter.smarter.Atom.elementCharMasks[ch.charCodeAt (0) - 65] != 0);
 }, "~S");
 Clazz.defineStatics (c$,
-"elementCharMasks", [1972292, -2147351151, -2146019271, -2130706430, 1441792, -2147348464, 25, -2147205008, -2147344384, 0, -2147352576, 1179905, 548936, -2147434213, -2147221504, -2145759221, 0, 1056947, -2147339946, -2147477097, -2147483648, -2147483648, -2147483648, 8388624, -2147483646, 139264]);
+"elementCharMasks",  Clazz.newIntArray (-1, [1972292, -2147351151, -2146019271, -2130706430, 1441792, -2147348464, 25, -2147205008, -2147344384, 0, -2147352576, 1179905, 548936, -2147434213, -2147221504, -2145759221, 0, 1056947, -2147339946, -2147477097, -2147483648, -2147483648, -2147483648, 8388624, -2147483646, 139264]));
 });

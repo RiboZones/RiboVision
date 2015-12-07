@@ -48,7 +48,7 @@ Clazz.instantialize (this, arguments);
 Clazz.prepareFields (c$, function () {
 this.htab =  Clazz.newIntArray (5003, 0);
 this.codetab =  Clazz.newIntArray (5003, 0);
-this.masks = [0x0000, 0x0001, 0x0003, 0x0007, 0x000F, 0x001F, 0x003F, 0x007F, 0x00FF, 0x01FF, 0x03FF, 0x07FF, 0x0FFF, 0x1FFF, 0x3FFF, 0x7FFF, 0xFFFF];
+this.masks =  Clazz.newIntArray (-1, [0x0000, 0x0001, 0x0003, 0x0007, 0x000F, 0x001F, 0x003F, 0x007F, 0x00FF, 0x01FF, 0x03FF, 0x07FF, 0x0FFF, 0x1FFF, 0x3FFF, 0x7FFF, 0xFFFF]);
 this.buf =  Clazz.newByteArray (256, 0);
 });
 Clazz.overrideMethod (c$, "setParams", 
@@ -187,7 +187,9 @@ var nearestCell =  new java.util.Hashtable ();
 for (var i = 0, p = 0; i < this.height; ++i) {
 var notLastRow = (i != this.height - 1);
 for (var j = 0; j < this.width; ++j, p++) {
-var pe = errors[p % w2];
+if (this.pixels[p] == this.backgroundColor) {
+continue;
+}var pe = errors[p % w2];
 if (pe == null || pe.x == 3.4028235E38) {
 lab = null;
 rgb = this.pixels[p];
@@ -615,11 +617,11 @@ Clazz.defineStatics (c$,
 "xyz2rgb", null,
 "rgb2xyz", null);
 {
-javajs.img.GifEncoder.rgb2xyz = JU.M3.newA9 ([0.4124, 0.3576, 0.1805, 0.2126, 0.7152, 0.0722, 0.0193, 0.1192, 0.9505]);
-javajs.img.GifEncoder.xyz2rgb = JU.M3.newA9 ([3.2406, -1.5372, -0.4986, -0.9689, 1.8758, 0.0415, 0.0557, -0.204, 1.0570]);
+javajs.img.GifEncoder.rgb2xyz = JU.M3.newA9 ( Clazz.newFloatArray (-1, [0.4124, 0.3576, 0.1805, 0.2126, 0.7152, 0.0722, 0.0193, 0.1192, 0.9505]));
+javajs.img.GifEncoder.xyz2rgb = JU.M3.newA9 ( Clazz.newFloatArray (-1, [3.2406, -1.5372, -0.4986, -0.9689, 1.8758, 0.0415, 0.0557, -0.204, 1.0570]));
 }Clazz.defineStatics (c$,
 "EOF", -1,
-"INTERLACE_PARAMS", [8, 8, 4, 2, 4, 2, 1, 0],
+"INTERLACE_PARAMS",  Clazz.newIntArray (-1, [8, 8, 4, 2, 4, 2, 1, 0]),
 "BITS", 12,
 "HSIZE", 5003);
 });

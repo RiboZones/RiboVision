@@ -16,7 +16,7 @@ Clazz.instantialize (this, arguments);
 Clazz.prepareFields (c$, function () {
 this.crc =  new java.util.zip.CRC32 ();
 this.tmpbuf =  Clazz.newByteArray (512, 0);
-this.byteTest = [0x20];
+this.byteTest =  Clazz.newByteArray (-1, [0x20]);
 this.$b =  Clazz.newByteArray (256, 0);
 });
 Clazz.defineMethod (c$, "ensureOpen", 

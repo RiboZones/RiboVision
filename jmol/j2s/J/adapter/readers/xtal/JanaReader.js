@@ -29,7 +29,7 @@ function () {
 this.modAxes = this.getFilter ("MODAXES=");
 this.setFractionalCoordinates (true);
 this.asc.newAtomSet ();
-this.asc.setAtomSetAuxiliaryInfo ("autoBondUsingOccupation", Boolean.TRUE);
+this.asc.setCurrentModelInfo ("autoBondUsingOccupation", Boolean.TRUE);
 });
 Clazz.overrideMethod (c$, "checkLine", 
 function () {
@@ -118,7 +118,7 @@ Clazz.defineMethod (c$, "qi",
  function () {
 var pt =  Clazz.newDoubleArray (this.modDim, 0);
 pt[this.qicount] = 1;
-var a = [this.parseFloat (), this.parseFloat (), this.parseFloat ()];
+var a =  Clazz.newDoubleArray (-1, [this.parseFloat (), this.parseFloat (), this.parseFloat ()]);
 this.parseTokenStr (this.rd ());
 for (var i = 0; i < 3; i++) a[i] += this.parseFloat ();
 
@@ -139,8 +139,6 @@ var ipt = m40File.lastIndexOf (".");
 if (ipt < 0) return;
 m40File = m40File.substring (0, ipt + 2) + "40";
 var id = m40File.substring (0, ipt);
-ipt = id.lastIndexOf ("/");
-id = id.substring (ipt + 1);
 this.reader.close ();
 this.reader = JU.Rdr.getBR (this.vwr.getLigandModel (id, m40File, "_file", "----"));
 if (this.out != null) this.out.append ("******************************* M40 DATA *******************************\n");
@@ -339,7 +337,7 @@ if (this.modDim == 0) return null;
 if (isPos && this.molHasTLS) this.readLines (4);
 var pt;
 var o_0 = (nOcc > 0 && !haveSpecialOcc ? this.parseFloatStr (this.rd ()) : 1);
-if (o_0 != 1) this.ms.addModulation (null, "J_O#0" + label, [atom.foccupancy, o_0, 0], -1);
+if (o_0 != 1) this.ms.addModulation (null, "J_O#0" + label,  Clazz.newDoubleArray (-1, [atom.foccupancy, o_0, 0]), -1);
 atom.foccupancy *= o_0;
 var wv = 0;
 var a1;
@@ -355,7 +353,7 @@ wv = j + 1;
 this.readM40Floats ();
 a1 = this.floats[0];
 a2 = this.floats[1];
-}pt = [a1, a2, 0];
+}pt =  Clazz.newDoubleArray (-1, [a1, a2, 0]);
 if (a1 != 0 || a2 != 0) this.ms.addModulation (null, "O_" + wv + "#0" + label, pt, -1);
 }
 for (var j = 0; j < nDisp; j++) {
@@ -363,7 +361,7 @@ if (haveSpecialDisp) {
 this.readM40Floats ();
 var c = this.floats[3];
 var w = this.floats[4];
-for (var k = 0; k < 3; k++) if (this.floats[k] != 0) this.ms.addModulation (null, "D_S#" + J.adapter.readers.xtal.JanaReader.XYZ[k] + label, [c, w, this.floats[k]], -1);
+for (var k = 0; k < 3; k++) if (this.floats[k] != 0) this.ms.addModulation (null, "D_S#" + J.adapter.readers.xtal.JanaReader.XYZ[k] + label,  Clazz.newDoubleArray (-1, [c, w, this.floats[k]]), -1);
 
 } else {
 this.addSinCos (j, "D_", label, isPos);
@@ -382,14 +380,14 @@ var data = this.readM40FloatLines (1, 6);
 var order = j + 1;
 var coeff = 0;
 for (var k = 0, p = 0; k < 6; k++, p += 3) {
-if ((coeff = data[0][k]) != 0) this.ms.addModulation (null, "U_L" + order + "#" + "U11U22U33U12U13U23UISO".substring (p, p + 3) + label, [coeff, order, 0], -1);
+if ((coeff = data[0][k]) != 0) this.ms.addModulation (null, "U_L" + order + "#" + "U11U22U33U12U13U23UISO".substring (p, p + 3) + label,  Clazz.newDoubleArray (-1, [coeff, order, 0]), -1);
 }
 } else {
 var data = this.readM40FloatLines (2, 6);
 for (var k = 0, p = 0; k < 6; k++, p += 3) {
 var csin = data[1][k];
 var ccos = data[0][k];
-this.ms.addModulation (null, "U_" + (j + 1) + "#" + "U11U22U33U12U13U23UISO".substring (p, p + 3) + label, [csin, ccos, 0], -1);
+this.ms.addModulation (null, "U_" + (j + 1) + "#" + "U11U22U33U12U13U23UISO".substring (p, p + 3) + label,  Clazz.newDoubleArray (-1, [csin, ccos, 0]), -1);
 }
 }}}
 }return rotData;
@@ -407,7 +405,7 @@ continue;
 }var axis = J.adapter.readers.xtal.JanaReader.XYZ[k % 3];
 if (this.modAxes != null && this.modAxes.indexOf (axis.toUpperCase ()) < 0) continue;
 var id = key + "L#" + axis + order + label;
-this.ms.addModulation (null, id, [coeff, order, 0], -1);
+this.ms.addModulation (null, id,  Clazz.newDoubleArray (-1, [coeff, order, 0]), -1);
 }
 }
 return;
@@ -421,7 +419,7 @@ csin = 1e-10;
 }var axis = J.adapter.readers.xtal.JanaReader.XYZ[k % 3];
 if (this.modAxes != null && this.modAxes.indexOf (axis.toUpperCase ()) < 0) continue;
 var id = key + (j + 1) + "#" + axis + label;
-this.ms.addModulation (null, id, [csin, ccos, 0], -1);
+this.ms.addModulation (null, id,  Clazz.newDoubleArray (-1, [csin, ccos, 0]), -1);
 }
 }, "~N,~S,~S,~B");
 Clazz.defineMethod (c$, "ensureFourier", 
@@ -436,7 +434,7 @@ this.ms.addModulation (null, "F_" + j + "_coefs_", p, -1);
 Clazz.defineMethod (c$, "readM40Floats", 
  function () {
 if ((this.line = this.rd ()) == null || this.line.indexOf ("-------") >= 0) return (this.line = null);
-if (JU.Logger.debugging) JU.Logger.debug (this.line);
+if (this.debugging) JU.Logger.debug (this.line);
 this.parseM40Floats ();
 return this.line;
 });
@@ -480,7 +478,7 @@ key = JU.PT.rep (key, label, newLabel);
 var val = e.getValue ();
 switch (key.charAt (0)) {
 case 'O':
-this.setRigidBodyPhase (key, val = [val[0], val[1], 0]);
+this.setRigidBodyPhase (key, val =  Clazz.newDoubleArray (-1, [val[0], val[1], 0]));
 break;
 case 'D':
 break;
@@ -555,11 +553,11 @@ this.setMolecularModulation (keyz, vsin.z, vcos.z);
 Clazz.defineMethod (c$, "combineModulation", 
  function (key, csin, ccos) {
 var v = this.ms.getMod (key);
-return [v[0] + csin, v[1] + ccos, 0];
+return  Clazz.newDoubleArray (-1, [v[0] + csin, v[1] + ccos, 0]);
 }, "~S,~N,~N");
 Clazz.defineMethod (c$, "setMolecularModulation", 
  function (key, csin, ccos) {
-this.ms.addModulation (null, key, this.setRigidBodyPhase (key, [csin, ccos, 0]), -1);
+this.ms.addModulation (null, key, this.setRigidBodyPhase (key,  Clazz.newDoubleArray (-1, [csin, ccos, 0])), -1);
 }, "~S,~N,~N");
 Clazz.defineStatics (c$,
 "records", "tit  cell ndim qi   lat  sym  spg  end  wma",
@@ -573,5 +571,5 @@ Clazz.defineStatics (c$,
 "END", 35,
 "WMATRIX", 40,
 "U_LIST", "U11U22U33U12U13U23UISO",
-"XYZ", ["x", "y", "z"]);
+"XYZ",  Clazz.newArray (-1, ["x", "y", "z"]));
 });

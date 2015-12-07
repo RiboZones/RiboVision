@@ -38,7 +38,7 @@ this.atomSetCollection = this.vwr.getModelAdapter ().getAtomSetCollectionFromSet
 JU.Logger.error ("file ERROR: " + this.atomSetCollection);
 return;
 }if (!this.isAppend && !this.vwr.displayLoadErrors) this.vwr.zap (false, true, false);
-this.fm.setFileInfo ([this.dataReaders == null ? "file[]" : "String[]"]);
+this.fm.setFileInfo ( Clazz.newArray (-1, [this.dataReaders == null ? this.fullPathNamesIn[0] : "String[]"]));
 });
 Clazz.overrideMethod (c$, "getBufferedReaderOrBinaryDocument", 
 function (i, forceBinary) {
@@ -46,7 +46,7 @@ if (this.dataReaders != null) return (forceBinary ? null : this.dataReaders[i].g
 var name = this.fullPathNamesIn[i];
 var subFileList = null;
 this.htParams.remove ("subFileList");
-if (name.indexOf ("|") >= 0) {
+if (name.indexOf ("|") >= 0 && !this.htParams.containsKey ("isStateScript")) {
 subFileList = JU.PT.split (name, "|");
 name = subFileList[0];
 }var t = this.fm.getUnzippedReaderOrStreamFromName (name, null, true, forceBinary, false, true, this.htParams);
@@ -54,7 +54,7 @@ if (Clazz.instanceOf (t, java.util.zip.ZipInputStream)) {
 if (subFileList != null) this.htParams.put ("subFileList", subFileList);
 var zipDirectory = this.fm.getZipDirectory (name, true, true);
 t = this.fm.getBufferedInputStreamOrErrorMessageFromName (name, this.fullPathNamesIn[i], false, false, null, false, true);
-t = this.fm.jmb.getAtomSetCollectionOrBufferedReaderFromZip (this.vwr.getModelAdapter (), t, name, zipDirectory, this.htParams, true);
+t = this.fm.getJmb ().getAtomSetCollectionOrBufferedReaderFromZip (this.vwr.getModelAdapter (), t, name, zipDirectory, this.htParams, true);
 }if (Clazz.instanceOf (t, java.io.BufferedInputStream)) {
 var jd = J.api.Interface.getInterface ("JU.BinaryDocument", this.vwr, "file");
 jd.setStream (this.vwr.getJzt (), t, true);

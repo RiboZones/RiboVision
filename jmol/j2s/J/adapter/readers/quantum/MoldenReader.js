@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.adapter.readers.quantum");
-Clazz.load (["J.adapter.readers.quantum.MopacSlaterReader", "JU.BS"], "J.adapter.readers.quantum.MoldenReader", ["java.lang.Exception", "$.Float", "java.util.Arrays", "$.Hashtable", "JU.AU", "$.Lst", "$.PT", "J.adapter.readers.quantum.BasisFunctionReader", "J.api.JmolAdapter", "JU.Logger"], function () {
+Clazz.load (["J.adapter.readers.quantum.MopacSlaterReader", "JU.BS"], "J.adapter.readers.quantum.MoldenReader", ["java.lang.Exception", "$.Float", "java.util.Arrays", "$.Hashtable", "JU.AU", "$.Lst", "$.PT", "J.adapter.readers.quantum.BasisFunctionReader", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.loadGeometries = false;
 this.loadVibrations = false;
@@ -37,7 +37,7 @@ if (!this.line.startsWith ("[")) return true;
 JU.Logger.info (this.line);
 if (this.line.indexOf ("[ATOMS]") == 0) {
 this.readAtoms ();
-this.modelAtomCount = this.asc.getFirstAtomSetAtomCount ();
+this.modelAtomCount = this.asc.atomSetAtomCounts[0];
 if (this.asc.atomSetCount == 1 && this.moData != null) this.finalizeMOData (this.moData);
 return false;
 }if (this.line.indexOf ("[GTO]") == 0) return this.readGaussianBasis ();
@@ -105,7 +105,7 @@ break;
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
 JU.Logger.error ("Molden reader could not assign shells -- abandoning MOs");
-this.asc.setAtomSetAuxiliaryInfo ("moData", null);
+this.asc.setCurrentModelInfo ("moData", null);
 } else {
 throw e;
 }
@@ -114,7 +114,7 @@ this.finalizeReaderASCR ();
 });
 Clazz.defineMethod (c$, "readAtoms", 
  function () {
-var coordUnit = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.line.$replace (']', ' '))[1];
+var coordUnit = JU.PT.getTokens (this.line.$replace (']', ' '))[1];
 var isFractional = (coordUnit.indexOf ("FRACTIONAL") >= 0);
 var isAU = (!isFractional && coordUnit.indexOf ("ANGS") < 0);
 if (isAU && coordUnit.indexOf ("AU") < 0) JU.Logger.error ("Molden atom line does not indicate units ANGS, AU, or FRACTIONAL -- AU assumed: " + this.line);
@@ -157,7 +157,7 @@ this.bsAtomOK.set (atomIndex);
 }while (this.rd () != null && (this.line = this.line.trim ()).length > 0 && this.line.charAt (0) != '[') {
 tokens = this.getTokens ();
 var shellLabel = tokens[0].toUpperCase ();
-var type = J.api.JmolAdapter.getQuantumShellTagID (shellLabel);
+var type = J.adapter.readers.quantum.BasisFunctionReader.getQuantumShellTagID (shellLabel);
 var nPrimitives = this.parseIntStr (tokens[1]);
 var slater =  Clazz.newIntArray (4, 0);
 this.nSPDF[type]++;
@@ -168,7 +168,7 @@ slater[3] = nPrimitives;
 var n = this.getDfCoefMaps ()[type].length;
 this.nCoef += n;
 for (var ip = nPrimitives; --ip >= 0; ) {
-var primTokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.rd ());
+var primTokens = JU.PT.getTokens (this.rd ());
 var nTokens = primTokens.length;
 var orbData =  Clazz.newFloatArray (nTokens, 0);
 for (var d = 0; d < nTokens; d++) orbData[d] = this.parseFloatStr (primTokens[d]);
@@ -190,7 +190,7 @@ this.moData.put ("gaussians", garray);
 JU.Logger.info (this.shells.size () + " slater shells read");
 JU.Logger.info (garray.length + " gaussian primitives read");
 JU.Logger.info (this.nCoef + " MO coefficients expected for orbital type " + this.orbitalType);
-this.asc.setAtomSetAuxiliaryInfo ("moData", this.moData);
+this.asc.setCurrentModelInfo ("moData", this.moData);
 return false;
 });
 Clazz.defineMethod (c$, "readMolecularOrbitals", 
@@ -217,16 +217,23 @@ symmetry = tokens[1];
 this.alphaBeta = tokens[1].toLowerCase ();
 }tokens = this.getMoTokens (null);
 }
+var pt = 0;
 while (tokens != null && tokens.length > 0 && this.parseIntStr (tokens[0]) != -2147483648) {
 if (tokens.length != 2) throw  new Exception ("invalid MO coefficient specification");
+var i = this.parseIntStr (tokens[0]);
+while (i > ++pt) data.addLast ("0");
+
 data.addLast (tokens[1]);
 tokens = this.getMoTokens (null);
 }
-var coefs =  Clazz.newFloatArray (data.size (), 0);
-if (this.orbitalType.equals ("") && coefs.length < this.nCoef) {
+if (this.orbitalType.equals ("") && data.size () < this.nCoef) {
 JU.Logger.info ("too few orbital coefficients for 6D");
 this.checkOrbitalType ("[5D]");
-}for (var i = data.size (); --i >= 0; ) coefs[i] = this.parseFloatStr (data.get (i));
+}while (++pt <= this.nCoef) {
+data.addLast ("0");
+}
+var coefs =  Clazz.newFloatArray (this.nCoef, 0);
+for (var i = data.size (); --i >= 0; ) coefs[i] = this.parseFloatStr (data.get (i));
 
 var l = this.line;
 this.line = "" + symmetry;
@@ -240,11 +247,11 @@ mo.put ("energy", Float.$valueOf (energy));
 if (symmetry != null) mo.put ("symmetry", symmetry);
 if (this.alphaBeta.length > 0) mo.put ("type", this.alphaBeta);
 this.setMO (mo);
-if (JU.Logger.debugging) {
+if (this.debugging) {
 JU.Logger.debug (coefs.length + " coefficients in MO " + this.orbitals.size ());
 }}this.line = l;
 }
-if (JU.Logger.debugging) JU.Logger.debug ("read " + this.orbitals.size () + " MOs");
+if (this.debugging) JU.Logger.debug ("read " + this.orbitals.size () + " MOs");
 this.setMOs ("eV");
 if (this.haveEnergy && this.doSort) this.sortMOs ();
 return false;
@@ -259,12 +266,13 @@ for (var i = 0; i < list.length; i++) this.orbitals.addLast (list[i]);
 });
 Clazz.defineMethod (c$, "getMoTokens", 
  function (line) {
-return (line == null && (line = this.rd ()) == null ? null : J.adapter.smarter.AtomSetCollectionReader.getTokensStr (line.$replace ('=', ' ')));
+return (line == null && (line = this.rd ()) == null ? null : JU.PT.getTokens (line.$replace ('=', ' ')));
 }, "~S");
 Clazz.defineMethod (c$, "checkOrbitalType", 
  function (line) {
 if (line.length > 3 && "5D 6D 7F 10 9G 15 11 21".indexOf (line.substring (1, 3)) >= 0) {
 if (this.orbitalType.indexOf (line) >= 0) return true;
+if (line.indexOf ("G") >= 0 || line.indexOf ("H") >= 0 || line.indexOf ("I") >= 0) this.appendLoadNote ("Unsupported orbital type ignored: " + line);
 this.orbitalType += line;
 JU.Logger.info ("Orbital type set to " + this.orbitalType);
 this.fixOrbitalType ();
@@ -274,17 +282,17 @@ return true;
 Clazz.defineMethod (c$, "fixOrbitalType", 
  function () {
 if (this.orbitalType.contains ("5D")) {
-this.fixSlaterTypes (J.api.JmolAdapter.SHELL_D_CARTESIAN, J.api.JmolAdapter.SHELL_D_SPHERICAL);
-this.fixSlaterTypes (J.api.JmolAdapter.SHELL_F_CARTESIAN, J.api.JmolAdapter.SHELL_F_SPHERICAL);
-this.fixSlaterTypes (J.api.JmolAdapter.SHELL_G_CARTESIAN, J.api.JmolAdapter.SHELL_G_SPHERICAL);
-this.fixSlaterTypes (J.api.JmolAdapter.SHELL_H_CARTESIAN, J.api.JmolAdapter.SHELL_H_SPHERICAL);
+this.fixSlaterTypes (4, 3);
+this.fixSlaterTypes (6, 5);
+this.fixSlaterTypes (8, 7);
+this.fixSlaterTypes (10, 9);
 }if (this.orbitalType.contains ("10F")) {
-this.fixSlaterTypes (J.api.JmolAdapter.SHELL_F_SPHERICAL, J.api.JmolAdapter.SHELL_F_CARTESIAN);
-this.fixSlaterTypes (J.api.JmolAdapter.SHELL_G_SPHERICAL, J.api.JmolAdapter.SHELL_G_CARTESIAN);
-this.fixSlaterTypes (J.api.JmolAdapter.SHELL_H_SPHERICAL, J.api.JmolAdapter.SHELL_H_CARTESIAN);
+this.fixSlaterTypes (5, 6);
+this.fixSlaterTypes (7, 8);
+this.fixSlaterTypes (9, 10);
 }if (this.orbitalType.contains ("15G")) {
-this.fixSlaterTypes (J.api.JmolAdapter.SHELL_G_SPHERICAL, J.api.JmolAdapter.SHELL_G_CARTESIAN);
-this.fixSlaterTypes (J.api.JmolAdapter.SHELL_H_SPHERICAL, J.api.JmolAdapter.SHELL_H_CARTESIAN);
+this.fixSlaterTypes (7, 8);
+this.fixSlaterTypes (9, 10);
 }});
 Clazz.defineMethod (c$, "readFreqsAndModes", 
  function () {
@@ -307,7 +315,7 @@ haveVib = true;
 this.asc.setAtomSetFrequency (null, null, "" + JU.PT.dVal (frequencies.get (nFreq)), null);
 var i0 = this.asc.getLastAtomSetAtomIndex ();
 for (var i = 0; i < this.modelAtomCount; i++) {
-tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.rd ());
+tokens = JU.PT.getTokens (this.rd ());
 this.asc.addVibrationVector (i + i0, this.parseFloatStr (tokens[0]) * 0.5291772, this.parseFloatStr (tokens[1]) * 0.5291772, this.parseFloatStr (tokens[2]) * 0.5291772);
 }
 }
@@ -356,7 +364,7 @@ this.modelAtomCount = this.asc.getLastAtomSetAtomCount ();
 return;
 }var atoms = this.asc.atoms;
 var i0 = this.asc.getLastAtomSetAtomIndex ();
-for (var i = 0; i < this.modelAtomCount; i++) this.setAtomCoordScaled (atoms[i + i0], J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.rd ()), 1, f);
+for (var i = 0; i < this.modelAtomCount; i++) this.setAtomCoordScaled (atoms[i + i0], JU.PT.getTokens (this.rd ()), 1, f);
 
 }, "~S,~B,~B");
 });

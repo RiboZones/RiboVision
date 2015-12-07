@@ -127,6 +127,7 @@ return this.getQuaternionAlpha (qType);
 }, "~S");
 Clazz.defineMethod (c$, "getQuaternionAlpha", 
 function (qType) {
+if (this.monomerIndex < 0) return null;
 var vA =  new JU.V3 ();
 var vB =  new JU.V3 ();
 var vC = null;
@@ -151,5 +152,5 @@ break;
 return JU.Quat.getQuaternionFrameV (vA, vB, vC, false);
 }, "~S");
 Clazz.defineStatics (c$,
-"alphaOffsets", [0]);
+"alphaOffsets",  Clazz.newByteArray (-1, [0]));
 });

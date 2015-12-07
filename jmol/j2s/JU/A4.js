@@ -61,8 +61,13 @@ this.x = (m21 - m12);
 this.y = (m02 - m20);
 this.z = (m10 - m01);
 var sin = 0.5 * Math.sqrt (this.x * this.x + this.y * this.y + this.z * this.z);
+if (sin == 0 && cos == 1) {
+this.x = this.y = 0;
+this.z = 1;
+this.angle = 0;
+} else {
 this.angle = Math.atan2 (sin, cos);
-}, "~N,~N,~N,~N,~N,~N,~N,~N,~N");
+}}, "~N,~N,~N,~N,~N,~N,~N,~N,~N");
 Clazz.overrideMethod (c$, "hashCode", 
 function () {
 return JU.T3.floatToIntBits0 (this.x) ^ JU.T3.floatToIntBits0 (this.y) ^ JU.T3.floatToIntBits0 (this.z) ^ JU.T3.floatToIntBits0 (this.angle);

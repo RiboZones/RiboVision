@@ -56,7 +56,7 @@ int4[3] = (n & 0xff);
 }, "~N,~A");
 Clazz.defineMethod (c$, "writeByte", 
 function (b) {
-var temp = [b];
+var temp =  Clazz.newByteArray (-1, [b]);
 this.writeBytes (temp);
 }, "~N");
 Clazz.defineMethod (c$, "writeString", 

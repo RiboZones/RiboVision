@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.quantum");
-Clazz.load (["J.api.MepCalculationInterface", "J.quantum.QuantumCalculation"], "J.quantum.MepCalculation", ["java.lang.Float", "java.util.Hashtable", "JU.PT", "$.Rdr", "J.io.JmolBinary", "JU.Logger"], function () {
+Clazz.load (["J.api.MepCalculationInterface", "J.quantum.QuantumCalculation"], "J.quantum.MepCalculation", ["java.lang.Float", "java.util.Hashtable", "JU.PT", "$.Rdr", "JU.Logger", "JV.FileManager"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.distanceMode = 0;
 this.potentials = null;
@@ -112,7 +112,7 @@ function (data, resourceName) {
 var br = null;
 this.htAtomicPotentials =  new java.util.Hashtable ();
 try {
-br = (data == null ? J.io.JmolBinary.getBufferedReaderForResource (this.vwr, this, "J/quantum/", resourceName) : JU.Rdr.getBR (data));
+br = (data == null ? JV.FileManager.getBufferedReaderForResource (this.vwr, this, "J/quantum/", resourceName) : JU.Rdr.getBR (data));
 var line;
 while ((line = br.readLine ()) != null) {
 if (line.startsWith ("#")) continue;

@@ -4,11 +4,10 @@ c$ = Clazz.decorateAsClass (function () {
 this.vwr = null;
 this.tm = null;
 this.privateKey = 0;
-this.jmolRenderer = null;
+this.export3D = null;
 this.out = null;
 this.fileName = null;
 this.commandLineOptions = null;
-this.isCartesian = false;
 this.gdata = null;
 this.backgroundColix = 0;
 this.screenWidth = 0;
@@ -30,7 +29,6 @@ this.tempP3 = null;
 this.center = null;
 this.tempV1 = null;
 this.tempV2 = null;
-this.tempV3 = null;
 this.isWebGL = false;
 this.commentChar = null;
 this.tempC = null;
@@ -46,16 +44,11 @@ this.tempP3 =  new JU.P3 ();
 this.center =  new JU.P3 ();
 this.tempV1 =  new JU.V3 ();
 this.tempV2 =  new JU.V3 ();
-this.tempV3 =  new JU.V3 ();
 this.tempC =  new JU.P3 ();
 });
 Clazz.makeConstructor (c$, 
 function () {
 });
-Clazz.defineMethod (c$, "setRenderer", 
-function (jmolRenderer) {
-this.jmolRenderer = jmolRenderer;
-}, "J.api.JmolRendererInterface");
 Clazz.defineMethod (c$, "initializeOutput", 
 function (vwr, privateKey, gdata, params) {
 return this.initOutput (vwr, privateKey, gdata, params);
@@ -68,7 +61,7 @@ this.isWebGL = params.get ("type").equals ("JS");
 this.gdata = g3d;
 this.privateKey = privateKey;
 this.backgroundColix = vwr.getObjectColix (0);
-this.center.setT (this.tm.getRotationCenter ());
+this.center.setT (this.tm.fixedRotationCenter);
 this.exportScale = vwr.getFloat (570425358);
 if ((this.screenWidth <= 0) || (this.screenHeight <= 0)) {
 this.screenWidth = vwr.getScreenWidth ();
@@ -125,18 +118,18 @@ if (this.commentChar == null) return "";
 var sb =  new JU.SB ();
 sb.append (this.commentChar).append ("Jmol perspective:");
 sb.append ("\n").append (this.commentChar).append ("screen width height dim: " + this.screenWidth + " " + this.screenHeight + " " + this.vwr.getScreenDim ());
-sb.append ("\n").append (this.commentChar).append ("perspectiveDepth: " + this.vwr.getPerspectiveDepth ());
+sb.append ("\n").append (this.commentChar).append ("perspectiveDepth: " + this.vwr.tm.perspectiveDepth);
 sb.append ("\n").append (this.commentChar).append ("cameraDistance(angstroms): " + this.cameraDistance);
 sb.append ("\n").append (this.commentChar).append ("aperatureAngle(degrees): " + this.aperatureAngle);
 sb.append ("\n").append (this.commentChar).append ("scalePixelsPerAngstrom: " + this.scalePixelsPerAngstrom);
 sb.append ("\n").append (this.commentChar).append ("light source: " + this.lightSource);
-sb.append ("\n").append (this.commentChar).append ("lighting: " + this.vwr.getSpecularState ().$replace ('\n', ' '));
+sb.append ("\n").append (this.commentChar).append ("lighting: " + this.vwr.getLightingState ().$replace ('\n', ' '));
 sb.append ("\n").append (this.commentChar).append ("center: " + this.center);
 sb.append ("\n").append (this.commentChar).append ("rotationRadius: " + this.vwr.getFloat (570425388));
 sb.append ("\n").append (this.commentChar).append ("boundboxCenter: " + this.vwr.getBoundBoxCenter ());
 sb.append ("\n").append (this.commentChar).append ("translationOffset: " + this.tm.getTranslationScript ());
-sb.append ("\n").append (this.commentChar).append ("zoom: " + this.vwr.getZoomPercentFloat ());
-sb.append ("\n").append (this.commentChar).append ("moveto command: " + this.vwr.getOrientationText (4130, null));
+sb.append ("\n").append (this.commentChar).append ("zoom: " + this.vwr.tm.zmPct);
+sb.append ("\n").append (this.commentChar).append ("moveto command: " + this.vwr.getOrientationText (4129, null));
 sb.append ("\n");
 return sb.toString ();
 });
@@ -156,7 +149,7 @@ if (this.fileName == null) return ret;
 if (ret != null) {
 JU.Logger.info (ret);
 return "ERROR EXPORTING FILE: " + ret;
-}return "OK " + this.out.getByteCount () + " " + this.jmolRenderer.getExportName () + " " + this.fileName;
+}return "OK " + this.out.getByteCount () + " " + this.export3D.getExportName () + " " + this.fileName;
 });
 Clazz.defineMethod (c$, "getExportDate", 
 function () {
@@ -166,6 +159,10 @@ Clazz.defineMethod (c$, "rgbFractionalFromColix",
 function (colix) {
 return this.rgbFractionalFromArgb (this.gdata.getColorArgbOrGray (colix));
 }, "~N");
+Clazz.defineMethod (c$, "getTriadC", 
+function (t) {
+return this.getTriad (t);
+}, "JU.T3");
 Clazz.defineMethod (c$, "getTriad", 
 function (t) {
 return J["export"].___Exporter.round (t.x) + " " + J["export"].___Exporter.round (t.y) + " " + J["export"].___Exporter.round (t.z);
@@ -176,7 +173,7 @@ var red = (argb >> 16) & 0xFF;
 var green = (argb >> 8) & 0xFF;
 var blue = argb & 0xFF;
 this.tempC.set (red == 0 ? 0 : (red + 1) / 256, green == 0 ? 0 : (green + 1) / 256, blue == 0 ? 0 : (blue + 1) / 256);
-return this.getTriad (this.tempC);
+return this.getTriadC (this.tempC);
 }, "~N");
 c$.translucencyFractionalFromColix = Clazz.defineMethod (c$, "translucencyFractionalFromColix", 
 function (colix) {
@@ -222,7 +219,7 @@ var n = Clazz.doubleToInt (360 / ndeg);
 ms.colix = colix;
 ms.vs =  new Array (ms.vc = n + 1);
 ms.pis = JU.AU.newInt2 (ms.pc = n);
-for (var i = 0; i < n; i++) ms.pis[i] = [i, (i + 1) % n, n];
+for (var i = 0; i < n; i++) ms.pis[i] =  Clazz.newIntArray (-1, [i, (i + 1) % n, n]);
 
 var d = ndeg / 180. * 3.141592653589793;
 for (var i = 0; i < n; i++) {
@@ -307,18 +304,20 @@ function (colixRing, colixFill, diameter, x, y, z) {
 if (colixRing != 0) this.drawCircle (x, y, z, diameter, colixRing, false);
 if (colixFill != 0) this.drawCircle (x, y, z, diameter, colixFill, true);
 }, "~N,~N,~N,~N,~N,~N");
+Clazz.defineMethod (c$, "fixScreenZ", 
+function (z) {
+return (z <= 3 ? z + Clazz.floatToInt (this.tm.cameraDistance) : z);
+}, "~N");
 Clazz.defineMethod (c$, "plotImage", 
 function (x, y, z, image, bgcolix, width, height) {
-if (z < 3) z = Clazz.floatToInt (this.tm.cameraDistance);
 this.outputComment ("start image " + (++this.nImage));
-this.gdata.plotImage (x, y, z, image, this.jmolRenderer, bgcolix, width, height);
+this.gdata.plotImage (x, y, z, image, this.export3D, bgcolix, width, height);
 this.outputComment ("end image " + this.nImage);
 }, "~N,~N,~N,~O,~N,~N,~N");
 Clazz.defineMethod (c$, "plotText", 
 function (x, y, z, colix, text, font3d) {
-if (z < 3) z = Clazz.floatToInt (this.tm.cameraDistance);
 this.outputComment ("start text " + (++this.nText) + ": " + text);
-this.gdata.plotText (x, y, z, this.gdata.getColorArgbOrGray (colix), 0, text, font3d, this.jmolRenderer);
+this.gdata.plotText (x, y, z, this.gdata.getColorArgbOrGray (colix), 0, text, font3d, this.export3D);
 this.outputComment ("end text " + this.nText + ": " + text);
 }, "~N,~N,~N,~N,~S,javajs.awt.Font");
 Clazz.defineStatics (c$,

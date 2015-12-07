@@ -99,11 +99,11 @@ function (ptXYZ) {
 if (this.doTransform4D && Clazz.instanceOf (ptXYZ, JU.T4)) {
 this.p4.add2 (ptXYZ, this.v1);
 this.m2_rotate.rotate (this.p4);
-this.point3fScreenTemp.setT (this.p4);
-this.m3_toScreen.rotTrans (this.point3fScreenTemp);
-this.point3fScreenTemp.z += this.zOffset;
+this.fScrPt.setT (this.p4);
+this.m3_toScreen.rotTrans (this.fScrPt);
+this.fScrPt.z += this.zOffset;
 } else {
-this.matrixTransform.rotTrans2 (ptXYZ, this.point3fScreenTemp);
+this.matrixTransform.rotTrans2 (ptXYZ, this.fScrPt);
 }}, "JU.T3");
 Clazz.defineStatics (c$,
 "MODE_3D", 0,

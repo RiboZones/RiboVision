@@ -5,7 +5,7 @@ this.modDim = -1;
 this.modScale = NaN;
 Clazz.instantialize (this, arguments);
 }, JU, "Vibration", JU.V3);
-Clazz.defineMethod (c$, "setTempPoint", 
+Clazz.defineMethod (c$, "setCalcPoint", 
 function (pt, t456, scale, modulationScale) {
 switch (this.modDim) {
 case -2:
@@ -14,6 +14,7 @@ default:
 pt.scaleAdd2 ((Math.cos (t456.x * 6.283185307179586) * scale), this, pt);
 break;
 }
+return pt;
 }, "JU.T3,JU.T3,~N,~N");
 Clazz.defineMethod (c$, "getInfo", 
 function (info) {
@@ -40,6 +41,10 @@ Clazz.defineMethod (c$, "isNonzero",
 function () {
 return this.x != 0 || this.y != 0 || this.z != 0;
 });
+Clazz.defineMethod (c$, "getOccupancy100", 
+function (isTemp) {
+return -2147483648;
+}, "~B");
 Clazz.defineStatics (c$,
 "twoPI", 6.283185307179586,
 "TYPE_VIBRATION", -1,

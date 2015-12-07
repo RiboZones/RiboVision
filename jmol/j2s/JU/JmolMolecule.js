@@ -153,7 +153,7 @@ c$.getCovalentlyConnectedBitSet = Clazz.defineMethod (c$, "getCovalentlyConnecte
  function (atoms, atom, bsToTest, allowCyclic, allowBioResidue, biobranches, bsResult) {
 var atomIndex = atom.getIndex ();
 if (!bsToTest.get (atomIndex)) return allowCyclic;
-if (!allowBioResidue && (Clazz.instanceOf (atom, JU.BNode)) && (atom).getBioStructureTypeName ().length > 0) return allowCyclic;
+if (!allowBioResidue && Clazz.instanceOf (atom, JU.BNode) && (atom).getBioStructureTypeName ().length > 0) return allowCyclic;
 bsToTest.clear (atomIndex);
 if (biobranches != null && !bsResult.get (atomIndex)) {
 for (var i = biobranches.size (); --i >= 0; ) {
@@ -174,7 +174,7 @@ var bonds = atom.getEdges ();
 if (bonds == null) return true;
 for (var i = bonds.length; --i >= 0; ) {
 var bond = bonds[i];
-if (bond.isCovalent () && !JU.JmolMolecule.getCovalentlyConnectedBitSet (atoms, bond.getOtherAtomNode (atom), bsToTest, allowCyclic, allowBioResidue, biobranches, bsResult)) return false;
+if (bond != null && bond.isCovalent () && !JU.JmolMolecule.getCovalentlyConnectedBitSet (atoms, bond.getOtherAtomNode (atom), bsToTest, allowCyclic, allowBioResidue, biobranches, bsResult)) return false;
 }
 return true;
 }, "~A,JU.Node,JU.BS,~B,~B,JU.Lst,JU.BS");
@@ -195,7 +195,7 @@ var s = mf.substring (pt, pt0).trim ();
 if (isDigit) while (i < n && Character.isDigit (mf.charAt (i))) i++;
 
 pt = i;
-map.put (s, [isDigit ? JU.PT.parseInt (mf.substring (pt0, pt)) : 1]);
+map.put (s,  Clazz.newIntArray (-1, [isDigit ? JU.PT.parseInt (mf.substring (pt0, pt)) : 1]));
 }}
 var bs =  new JU.BS ();
 for (var i = bsAtoms.nextSetBit (0); i >= 0; i = bsAtoms.nextSetBit (i + 1)) {

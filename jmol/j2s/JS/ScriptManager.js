@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JS");
-Clazz.load (["J.api.JmolScriptManager", "JU.Lst"], "JS.ScriptManager", ["java.io.BufferedReader", "java.lang.Boolean", "$.Thread", "javajs.api.ZInputStream", "JU.BS", "$.PT", "$.Rdr", "$.SB", "J.api.Interface", "JS.ScriptQueueThread", "JU.Elements", "$.Logger"], function () {
+Clazz.load (["J.api.JmolScriptManager", "JU.Lst"], "JS.ScriptManager", ["java.io.BufferedReader", "java.lang.Boolean", "$.Thread", "javajs.api.ZInputStream", "JU.AU", "$.BS", "$.PT", "$.Rdr", "$.SB", "J.api.Interface", "JS.ScriptQueueThread", "JU.Elements", "$.Logger", "JV.FileManager"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.vwr = null;
 this.eval = null;
@@ -181,7 +181,7 @@ if (strScript == null) return null;
 var str = this.checkScriptExecution (strScript, false);
 if (str != null) return str;
 var outputBuffer = (statusList == null || statusList.equals ("output") ?  new JU.SB () : null);
-var oldStatusList = this.vwr.sm.getStatusList ();
+var oldStatusList = this.vwr.sm.statusList;
 this.vwr.getStatusChanged (statusList);
 if (this.vwr.isSyntaxCheck) JU.Logger.info ("--checking script:\n" + this.eval.getScript () + "\n----\n");
 var historyDisabled = (strScript.indexOf (")") == 0);
@@ -291,14 +291,13 @@ function (eval, atomExpression) {
 if (eval == null) {
 eval = this.evalTemp;
 if (eval == null) eval = this.evalTemp = this.newScriptEvaluator ();
-}return this.vwr.excludeAtoms (eval.getAtomBitSet (atomExpression), false);
+}return this.vwr.slm.excludeAtoms (eval.getAtomBitSet (atomExpression), false);
 }, "J.api.JmolScriptEvaluator,~O");
 Clazz.overrideMethod (c$, "scriptCheckRet", 
 function (strScript, returnContext) {
 if (strScript.indexOf (")") == 0 || strScript.indexOf ("!") == 0) strScript = strScript.substring (1);
 var sc = this.newScriptEvaluator ().checkScriptSilent (strScript);
-if (returnContext || sc.errorMessage == null) return sc;
-return sc.errorMessage;
+return (returnContext || sc.errorMessage == null ? sc : sc.errorMessage);
 }, "~S,~B");
 Clazz.overrideMethod (c$, "openFileAsync", 
 function (fileName, flags) {
@@ -312,7 +311,7 @@ noScript = true;
 fileName = fileName.substring (1);
 }fileName = fileName.$replace ('\\', '/');
 var isCached = fileName.startsWith ("cache://");
-if (this.vwr.isApplet () && fileName.indexOf ("://") < 0) fileName = "file://" + (fileName.startsWith ("/") ? "" : "/") + fileName;
+if (this.vwr.isApplet && fileName.indexOf ("://") < 0) fileName = "file://" + (fileName.startsWith ("/") ? "" : "/") + fileName;
 try {
 if (fileName.endsWith (".pse")) {
 cmd = (isCached ? "" : "zap;") + "load SYNC " + JU.PT.esc (fileName) + " filter 'DORESIZE'";
@@ -323,7 +322,7 @@ return;
 }if (!fileName.toLowerCase ().endsWith (".spt")) {
 var type = this.getDragDropFileTypeName (fileName);
 if (type == null) {
-type = this.vwr.fm.jmb.determineSurfaceTypeIs (this.vwr.getBufferedInputStream (fileName));
+type = JV.FileManager.determineSurfaceTypeIs (this.vwr.getBufferedInputStream (fileName));
 if (type != null) cmd = "if (_filetype == 'Pdb') { isosurface sigma 1.0 within 2.0 {*} " + JU.PT.esc (fileName) + " mesh nofill }; else; { isosurface " + JU.PT.esc (fileName) + "}";
 return;
 } else if (type.equals ("Jmol")) {
@@ -338,7 +337,7 @@ if (cmd.toLowerCase ().startsWith ("zap") && (isCached || isAppend)) cmd = cmd.s
 if (isAppend) {
 cmd = JU.PT.rep (cmd, "load SYNC", "load append");
 }return;
-}}if (!noScript && this.vwr.scriptEditorVisible && cmd == null) this.vwr.showEditor ([fileName, this.vwr.getFileAsString3 (fileName, true, null)]);
+}}if (!noScript && this.vwr.scriptEditorVisible && cmd == null) this.vwr.showEditor ( Clazz.newArray (-1, [fileName, this.vwr.getFileAsString3 (fileName, true, null)]));
  else cmd = (cmd == null ? "script " : cmd) + JU.PT.esc (fileName);
 } finally {
 if (cmd != null) this.vwr.evalString (cmd);
@@ -355,14 +354,14 @@ if (Clazz.instanceOf (br, javajs.api.ZInputStream)) {
 var zipDirectory = this.getZipDirectoryAsString (fileName);
 if (zipDirectory.indexOf ("JmolManifest") >= 0) return "Jmol";
 return this.vwr.getModelAdapter ().getFileTypeName (JU.Rdr.getBR (zipDirectory));
-}if (JU.PT.isAS (br)) {
+}if (JU.AU.isAS (br)) {
 return (br)[0];
 }return null;
 }, "~S");
 Clazz.defineMethod (c$, "getZipDirectoryAsString", 
  function (fileName) {
 var t = this.vwr.fm.getBufferedInputStreamOrErrorMessageFromName (fileName, fileName, false, false, null, false, true);
-return JU.Rdr.getZipDirectoryAsStringAndClose (this.vwr.getJzt (), t);
+return this.vwr.getJzt ().getZipDirectoryAsStringAndClose (t);
 }, "~S");
 c$.setStateScriptVersion = Clazz.defineMethod (c$, "setStateScriptVersion", 
 function (vwr, version) {
@@ -394,11 +393,11 @@ vwr.stateScriptVersionInt = 2147483647;
 }, "JV.Viewer,~S");
 Clazz.overrideMethod (c$, "addHydrogensInline", 
 function (bsAtoms, vConnections, pts) {
-var modelIndex = this.vwr.getAtomModelIndex (bsAtoms.nextSetBit (0));
+var modelIndex = this.vwr.ms.at[bsAtoms.nextSetBit (0)].mi;
 if (modelIndex != this.vwr.ms.mc - 1) return  new JU.BS ();
 var bsA = this.vwr.getModelUndeletedAtomsBitSet (modelIndex);
 this.vwr.g.appendNew = false;
-var atomIndex = this.vwr.ms.getAtomCount ();
+var atomIndex = this.vwr.ms.ac;
 var atomno = this.vwr.ms.getAtomCountInModel (modelIndex);
 var sbConnect =  new JU.SB ();
 for (var i = 0; i < vConnections.size (); i++) {

@@ -17,10 +17,10 @@ this.list[2] = indices[1];
 this.list[3] = indices[0];
 var koop = (this.calcs).mmff.getOutOfPlaneParameter (this.list);
 if (koop == 0) return;
-var dk = [koop];
-calc.addLast ([[indices[0], i, indices[1], indices[2]], dk]);
-calc.addLast ([[indices[1], i, indices[2], indices[0]], dk]);
-calc.addLast ([[indices[2], i, indices[0], indices[1]], dk]);
+var dk =  Clazz.newDoubleArray (-1, [koop]);
+calc.addLast ( Clazz.newArray (-1, [ Clazz.newIntArray (-1, [indices[0], i, indices[1], indices[2]]), dk]));
+calc.addLast ( Clazz.newArray (-1, [ Clazz.newIntArray (-1, [indices[1], i, indices[2], indices[0]]), dk]));
+calc.addLast ( Clazz.newArray (-1, [ Clazz.newIntArray (-1, [indices[2], i, indices[0], indices[1]]), dk]));
 }, "JU.Lst,~N");
 Clazz.overrideMethod (c$, "compute", 
 function (dataIn) {

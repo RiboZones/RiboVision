@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.io");
-Clazz.load (["J.api.JmolZipUtilities"], "J.io.JmolUtil", ["java.io.BufferedInputStream", "$.BufferedReader", "java.net.URL", "java.util.Hashtable", "$.StringTokenizer", "JU.LimitedLineReader", "$.Lst", "$.OC", "$.PT", "$.Rdr", "$.SB", "J.adapter.smarter.AtomSetCollection", "J.api.Interface", "J.io.JmolBinary", "JU.Escape", "$.Logger"], function () {
+Clazz.load (["J.api.JmolZipUtilities"], "J.io.JmolUtil", ["java.io.BufferedInputStream", "$.BufferedReader", "java.net.URL", "java.util.Hashtable", "$.StringTokenizer", "JU.AU", "$.Lst", "$.OC", "$.PT", "$.Rdr", "$.SB", "J.adapter.smarter.AtomSetCollection", "J.api.Interface", "J.io.JmolBinary", "JU.Escape", "$.Logger"], function () {
 c$ = Clazz.declareType (J.io, "JmolUtil", null, J.api.JmolZipUtilities);
 Clazz.makeConstructor (c$, 
 function () {
@@ -16,7 +16,7 @@ if (!isSpartan) return null;
 var data =  new JU.SB ();
 data.append ("Zip File Directory: ").append ("\n").append (JU.Escape.eAS (zipDirectory, true)).append ("\n");
 var fileData =  new java.util.Hashtable ();
-zpt.getAllZipData (is, [], "", "Molecule", fileData);
+zpt.getAllZipData (is,  Clazz.newArray (-1, []), "", "Molecule", fileData);
 var prefix = "|";
 var outputData = fileData.get (prefix + "output");
 if (outputData == null) outputData = fileData.get ((prefix = "|" + zipDirectory[1]) + "output");
@@ -32,11 +32,11 @@ return data;
 c$.checkSpecialInZip = Clazz.defineMethod (c$, "checkSpecialInZip", 
 function (zipDirectory) {
 var name;
-return (zipDirectory.length < 2 ? null : (name = zipDirectory[1]).endsWith (".spardir/") || zipDirectory.length == 2 ? ["", (name.endsWith ("/") ? name.substring (0, name.length - 1) : name)] : null);
+return (zipDirectory.length < 2 ? null : (name = zipDirectory[1]).endsWith (".spardir/") || zipDirectory.length == 2 ?  Clazz.newArray (-1, ["", (name.endsWith ("/") ? name.substring (0, name.length - 1) : name)]) : null);
 }, "~A");
 c$.getSpartanDirs = Clazz.defineMethod (c$, "getSpartanDirs", 
  function (outputFileData) {
-if (outputFileData == null) return [];
+if (outputFileData == null) return  Clazz.newArray (-1, []);
 var v =  new JU.Lst ();
 var token;
 var lasttoken = "";
@@ -53,7 +53,7 @@ if (Clazz.exceptionOf (e, Exception)) {
 throw e;
 }
 }
-return (v.size () == 0 ? ["M0001"] : v.toArray ( new Array (v.size ())));
+return (v.size () == 0 ?  Clazz.newArray (-1, ["M0001"]) : v.toArray ( new Array (v.size ())));
 }, "~S");
 c$.getSpartanFileList = Clazz.defineMethod (c$, "getSpartanFileList", 
  function (name, dirNums) {
@@ -87,98 +87,6 @@ s = pathName.substring (pt, pt1);
 }var pt2 = pathName.lastIndexOf ("|");
 return pathName.substring (0, pt) + s + (pt2 > 0 ? pathName.substring (pt2) : "");
 }, "~S");
-Clazz.overrideMethod (c$, "cachePngjFile", 
-function (jmb, data) {
-data[0] = JU.Rdr.getZipRoot (data[0]);
-var shortName = J.io.JmolUtil.shortSceneFilename (data[0]);
-try {
-data[1] = jmb.fm.vwr.getJzt ().cacheZipContents (JU.Rdr.getPngZipStream (jmb.fm.getBufferedInputStreamOrErrorMessageFromName (data[0], null, false, false, null, false, true), true), shortName, jmb.pngjCache, false);
-} catch (e) {
-if (Clazz.exceptionOf (e, Exception)) {
-return false;
-} else {
-throw e;
-}
-}
-if (data[1] == null) return false;
-var bytes = data[1].getBytes ();
-System.out.println ("jmolutil caching " + bytes.length + " bytes as " + jmb.fm.getCanonicalName (data[0]));
-jmb.pngjCache.put (jmb.fm.getCanonicalName (data[0]), bytes);
-if (shortName.indexOf ("_scene_") >= 0) {
-jmb.pngjCache.put (J.io.JmolUtil.shortSceneFilename (data[0]), bytes);
-bytes = jmb.pngjCache.remove (shortName + "|state.spt");
-if (bytes != null) jmb.pngjCache.put (J.io.JmolUtil.shortSceneFilename (data[0] + "|state.spt"), bytes);
-}for (var key, $key = jmb.pngjCache.keySet ().iterator (); $key.hasNext () && ((key = $key.next ()) || true);) System.out.println (key);
-
-return true;
-}, "J.io.JmolBinary,~A");
-Clazz.overrideMethod (c$, "determineSurfaceFileType", 
-function (bufferedReader) {
-var line = null;
-var br = null;
-try {
-br =  new JU.LimitedLineReader (bufferedReader, 16000);
-line = br.getHeader (0);
-} catch (e) {
-if (Clazz.exceptionOf (e, Exception)) {
-} else {
-throw e;
-}
-}
-if (br == null || line == null || line.length == 0) return null;
-switch (line.charAt (0)) {
-case '@':
-if (line.indexOf ("@text") == 0) return "Kinemage";
-break;
-case '#':
-if (line.indexOf (".obj") >= 0) return "Obj";
-if (line.indexOf ("MSMS") >= 0) return "Msms";
-break;
-case '&':
-if (line.indexOf ("&plot") == 0) return "Jaguar";
-break;
-case '\r':
-case '\n':
-if (line.indexOf ("ZYX") >= 0) return "Xplor";
-break;
-}
-if (line.indexOf ("Here is your gzipped map") >= 0) return "UPPSALA" + line;
-if (line.startsWith ("4MESHC")) return "Pmesh4";
-if (line.indexOf ("! nspins") >= 0) return "CastepDensity";
-if (line.indexOf ("<jvxl") >= 0 && line.indexOf ("<?xml") >= 0) return "JvxlXml";
-if (line.indexOf ("#JVXL+") >= 0) return "Jvxl+";
-if (line.indexOf ("#JVXL") >= 0) return "Jvxl";
-if (line.indexOf ("<efvet ") >= 0) return "Efvet";
-if (line.indexOf ("usemtl") >= 0) return "Obj";
-if (line.indexOf ("# object with") == 0) return "Nff";
-if (line.indexOf ("BEGIN_DATAGRID_3D") >= 0 || line.indexOf ("BEGIN_BANDGRID_3D") >= 0) return "Xsf";
-var pt0 = line.indexOf ('\0');
-if (pt0 >= 0) {
-if (line.indexOf ("PM\u0001\u0000") == 0) return "Pmesh";
-if (line.indexOf ("\u0014\u0000\u0000\u0000") == 0) return "DelPhi";
-if (line.indexOf ("MAP ") == 208) return "Mrc";
-if (line.length > 37 && (line.charCodeAt (36) == 0 && line.charCodeAt (37) == 100 || line.charCodeAt (36) == 0 && line.charCodeAt (37) == 100)) {
-return "Dsn6";
-}}if (line.indexOf (" 0.00000e+00 0.00000e+00      0      0\n") >= 0) return "Uhbd";
-line = br.readLineWithNewline ();
-if (line.indexOf ("object 1 class gridpositions counts") == 0) return "Apbs";
-var tokens = JU.PT.getTokens (line);
-var line2 = br.readLineWithNewline ();
-if (tokens.length == 2 && JU.PT.parseInt (tokens[0]) == 3 && JU.PT.parseInt (tokens[1]) != -2147483648) {
-tokens = JU.PT.getTokens (line2);
-if (tokens.length == 3 && JU.PT.parseInt (tokens[0]) != -2147483648 && JU.PT.parseInt (tokens[1]) != -2147483648 && JU.PT.parseInt (tokens[2]) != -2147483648) return "PltFormatted";
-}var line3 = br.readLineWithNewline ();
-if (line.startsWith ("v ") && line2.startsWith ("v ") && line3.startsWith ("v ")) return "Obj";
-var nAtoms = JU.PT.parseInt (line3);
-if (nAtoms == -2147483648) return (line3.indexOf ("+") == 0 ? "Jvxl+" : null);
-if (nAtoms >= 0) return (line3.length >= 60 ? null : line3.indexOf (".") > 0 ? "VaspChgcar" : "Cube");
-nAtoms = -nAtoms;
-for (var i = 4 + nAtoms; --i >= 0; ) if ((line = br.readLineWithNewline ()) == null) return null;
-
-var nSurfaces = JU.PT.parseInt (line);
-if (nSurfaces == -2147483648) return null;
-return (nSurfaces < 0 ? "Jvxl" : "Cube");
-}, "java.io.BufferedReader");
 Clazz.overrideMethod (c$, "getAtomSetCollectionOrBufferedReaderFromZip", 
 function (vwr, adapter, is, fileName, zipDirectory, htParams, subFilePtr, asBufferedReader) {
 var doCombine = (subFilePtr == 1);
@@ -226,7 +134,7 @@ return atomSetCollection.errorMessage;
 }if (ignoreErrors) return null;
 return "unknown reader error";
 }if (Clazz.instanceOf (is, java.io.BufferedInputStream)) is = JU.Rdr.getPngZipStream (is, true);
-var zis = JU.Rdr.newZipInputStream (zpt, is);
+var zis = zpt.newZipInputStream (is);
 var ze;
 if (haveManifest) manifest = '|' + manifest.$replace ('\r', '|').$replace ('\n', '|') + '|';
 while ((ze = zis.getNextEntry ()) != null && (selectedFile <= 0 || vCollections.size () < selectedFile)) {
@@ -239,7 +147,7 @@ var bytes = JU.Rdr.getLimitedStreamBytes (zis, ze.getSize ());
 if (JU.Rdr.isGzipB (bytes)) bytes = JU.Rdr.getLimitedStreamBytes (zpt.getUnGzippedInputStream (bytes), -1);
 if (JU.Rdr.isZipB (bytes) || JU.Rdr.isPngZipB (bytes)) {
 var bis = JU.Rdr.getBIS (bytes);
-var zipDir2 = JU.Rdr.getZipDirectoryAndClose (zpt, bis, "JmolManifest");
+var zipDir2 = zpt.getZipDirectoryAndClose (bis, "JmolManifest");
 bis = JU.Rdr.getBIS (bytes);
 var atomSetCollections = this.getAtomSetCollectionOrBufferedReaderFromZip (vwr, adapter, bis, fileName + "|" + thisEntry, zipDir2, htParams, ++subFilePtr, asBufferedReader);
 if (Clazz.instanceOf (atomSetCollections, String)) {
@@ -321,23 +229,52 @@ throw e$$;
 }
 }
 }, "JV.Viewer,J.api.JmolAdapter,java.io.InputStream,~S,~A,java.util.Map,~N,~B");
+Clazz.defineMethod (c$, "clearAndCachePngjFile", 
+function (jmb, data) {
+jmb.fm.pngjCache =  new java.util.Hashtable ();
+if (data == null || data[0] == null) return false;
+data[0] = JU.Rdr.getZipRoot (data[0]);
+var shortName = J.io.JmolUtil.shortSceneFilename (data[0]);
+var cache = jmb.fm.pngjCache;
+try {
+data[1] = jmb.fm.vwr.getJzt ().cacheZipContents (JU.Rdr.getPngZipStream (jmb.fm.getBufferedInputStreamOrErrorMessageFromName (data[0], null, false, false, null, false, true), true), shortName, cache, false);
+} catch (e) {
+if (Clazz.exceptionOf (e, Exception)) {
+return false;
+} else {
+throw e;
+}
+}
+if (data[1] == null) return false;
+var bytes = data[1].getBytes ();
+System.out.println ("jmolutil caching " + bytes.length + " bytes as " + jmb.fm.getCanonicalName (data[0]));
+cache.put (jmb.fm.getCanonicalName (data[0]), bytes);
+if (shortName.indexOf ("_scene_") >= 0) {
+cache.put (J.io.JmolUtil.shortSceneFilename (data[0]), bytes);
+bytes = cache.remove (shortName + "|state.spt");
+if (bytes != null) cache.put (J.io.JmolUtil.shortSceneFilename (data[0] + "|state.spt"), bytes);
+}for (var key, $key = cache.keySet ().iterator (); $key.hasNext () && ((key = $key.next ()) || true);) System.out.println (key);
+
+return true;
+}, "J.io.JmolBinary,~A");
 Clazz.overrideMethod (c$, "getCachedPngjBytes", 
 function (jmb, pathName) {
 if (pathName.startsWith ("file:///")) pathName = "file:" + pathName.substring (7);
 JU.Logger.info ("JmolUtil checking PNGJ cache for " + pathName);
 var shortName = J.io.JmolUtil.shortSceneFilename (pathName);
-if (jmb.pngjCache == null && !jmb.clearAndCachePngjFile ([pathName, null])) return null;
+if (jmb.fm.pngjCache == null && !this.clearAndCachePngjFile (jmb,  Clazz.newArray (-1, [pathName, null]))) return null;
+var cache = jmb.fm.pngjCache;
 var isMin = (pathName.indexOf (".min.") >= 0);
 if (!isMin) {
 var cName = jmb.fm.getCanonicalName (JU.Rdr.getZipRoot (pathName));
-if (!jmb.pngjCache.containsKey (cName) && !jmb.clearAndCachePngjFile ([pathName, null])) return null;
+if (!cache.containsKey (cName) && !this.clearAndCachePngjFile (jmb,  Clazz.newArray (-1, [pathName, null]))) return null;
 if (pathName.indexOf ("|") < 0) shortName = cName;
-}if (jmb.pngjCache.containsKey (shortName)) {
+}if (cache.containsKey (shortName)) {
 JU.Logger.info ("FileManager using memory cache " + shortName);
-return jmb.pngjCache.get (shortName);
-}if (!isMin || !jmb.clearAndCachePngjFile ([pathName, null])) return null;
+return jmb.fm.pngjCache.get (shortName);
+}if (!isMin || !this.clearAndCachePngjFile (jmb,  Clazz.newArray (-1, [pathName, null]))) return null;
 JU.Logger.info ("FileManager using memory cache " + shortName);
-return jmb.pngjCache.get (shortName);
+return cache.get (shortName);
 }, "J.io.JmolBinary,~S");
 Clazz.overrideMethod (c$, "spartanFileList", 
 function (zpt, name, type) {
@@ -347,24 +284,26 @@ var sname = name.$replace ('\\', '/');
 var pt = name.lastIndexOf (".spardir");
 pt = sname.lastIndexOf ("/");
 sname = name + "|" + name.substring (pt + 1, name.length - 4);
-return ["SpartanSmol", sname, sname + "/output"];
+return  Clazz.newArray (-1, ["SpartanSmol", sname, sname + "/output"]);
 }return J.io.JmolUtil.getSpartanFileList (name, dirNums);
 }, "javajs.api.GenericZipTools,~S,~S");
 Clazz.overrideMethod (c$, "getImage", 
-function (vwr, fullPathNameOrBytes, echoName) {
+function (vwr, fullPathNameOrBytes, echoName, forceSync) {
 var image = null;
 var info = null;
 var apiPlatform = vwr.apiPlatform;
 var createImage = false;
 var fullPathName = "" + fullPathNameOrBytes;
 if (Clazz.instanceOf (fullPathNameOrBytes, String)) {
-if (fullPathName.indexOf ("|") > 0) {
-var ret = vwr.fm.getFileAsBytes (fullPathName, null, true);
-if (!JU.PT.isAB (ret)) return "" + ret;
-image = (vwr.isJS ? ret : apiPlatform.createImage (ret));
-} else if (vwr.isJS) {
+var isBMP = fullPathName.toUpperCase ().endsWith ("BMP");
+if (forceSync || fullPathName.indexOf ("|") > 0 || isBMP) {
+var ret = vwr.fm.getFileAsBytes (fullPathName, null);
+if (!JU.AU.isAB (ret)) return "" + ret;
+if (vwr.isJS) info =  Clazz.newArray (-1, [echoName, fullPathNameOrBytes, ret]);
+ else image = apiPlatform.createImage (ret);
 } else if (JU.OC.urlTypeIndex (fullPathName) >= 0) {
-try {
+if (vwr.isJS) info =  Clazz.newArray (-1, [echoName, fullPathNameOrBytes, null]);
+ else try {
 image = apiPlatform.createImage ( new java.net.URL (Clazz.castNullAs ("java.net.URL"), fullPathName, null));
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
@@ -376,24 +315,12 @@ throw e;
 } else {
 createImage = true;
 }} else if (vwr.isJS) {
-image = fullPathNameOrBytes;
+info =  Clazz.newArray (-1, [echoName, JU.Rdr.guessMimeTypeForBytes (fullPathNameOrBytes), fullPathNameOrBytes]);
 } else {
 createImage = true;
-}if (createImage) image = apiPlatform.createImage (fullPathNameOrBytes);
+}if (createImage) image = apiPlatform.createImage ("\1close".equals (fullPathNameOrBytes) ? "\1close" + echoName : fullPathNameOrBytes);
+ else if (info != null) image = apiPlatform.createImage (info);
 {
-info = [echoName, fullPathNameOrBytes];
-}try {
-if (!apiPlatform.waitForDisplay (info, image)) return null;
-{
-return null;
-}} catch (e) {
-if (Clazz.exceptionOf (e, Exception)) {
-return e.toString () + " opening " + fullPathName;
-} else {
-throw e;
-}
-}
-}, "JV.Viewer,~O,~S");
-Clazz.defineStatics (c$,
-"DELPHI_BINARY_MAGIC_NUMBER", "\24\0\0\0");
+return image;
+}}, "JV.Viewer,~O,~S,~B");
 });

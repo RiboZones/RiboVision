@@ -43,7 +43,7 @@ if (bond.isAmide) bondorder = 1.41;
 var rbc = JM.FF.CalculationsUFF.calculateR0 (this.calcs.parB.dVal[0], this.calcs.parC.dVal[0], this.calcs.parB.dVal[8], this.calcs.parC.dVal[8], bondorder);
 var rac = Math.sqrt (this.rab * this.rab + rbc * rbc - 2.0 * this.rab * rbc * cosT0);
 var ka = (2696.8016159999997) * (zi * zk / (Math.pow (rac, 5.0))) * (3.0 * this.rab * rbc * (1.0 - cosT0 * cosT0) - rac * rac * cosT0);
-calc.addLast ([[this.ia, this.ib, this.ic, coordination], [ka, theta0 * 57.29577951308232, c0 - c2, c1, 2 * c2, preliminaryMagnification * ka]]);
+calc.addLast ( Clazz.newArray (-1, [ Clazz.newIntArray (-1, [this.ia, this.ib, this.ic, coordination]),  Clazz.newDoubleArray (-1, [ka, theta0 * 57.29577951308232, c0 - c2, c1, 2 * c2, preliminaryMagnification * ka])]));
 }, "JU.Lst,~A");
 Clazz.overrideMethod (c$, "compute", 
 function (dataIn) {

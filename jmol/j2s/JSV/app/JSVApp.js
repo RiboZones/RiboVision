@@ -153,8 +153,8 @@ var coord =  new JSV.common.Coordinate ();
 var actualCoord = (this.peakCallbackFunctionName == null ? null :  new JSV.common.Coordinate ());
 if (!this.vwr.pd ().getPickedCoordinates (coord, actualCoord)) return;
 var iSpec = this.vwr.mainPanel.getCurrentPanelIndex ();
-if (actualCoord == null) this.appletFrame.callToJavaScript (this.coordCallbackFunctionName, [Double.$valueOf (coord.getXVal ()), Double.$valueOf (coord.getYVal ()), Integer.$valueOf (iSpec + 1)]);
- else this.appletFrame.callToJavaScript (this.peakCallbackFunctionName, [Double.$valueOf (coord.getXVal ()), Double.$valueOf (coord.getYVal ()), Double.$valueOf (actualCoord.getXVal ()), Double.$valueOf (actualCoord.getYVal ()), Integer.$valueOf (iSpec + 1)]);
+if (actualCoord == null) this.appletFrame.callToJavaScript (this.coordCallbackFunctionName,  Clazz.newArray (-1, [Double.$valueOf (coord.getXVal ()), Double.$valueOf (coord.getYVal ()), Integer.$valueOf (iSpec + 1)]));
+ else this.appletFrame.callToJavaScript (this.peakCallbackFunctionName,  Clazz.newArray (-1, [Double.$valueOf (coord.getXVal ()), Double.$valueOf (coord.getYVal ()), Double.$valueOf (actualCoord.getXVal ()), Double.$valueOf (actualCoord.getYVal ()), Integer.$valueOf (iSpec + 1)]));
 });
 Clazz.defineMethod (c$, "doAdvanced", 
 function (filePath) {
@@ -182,7 +182,7 @@ function (msg) {
 this.updateJSView (msg);
 if (this.syncCallbackFunctionName == null) return;
 JU.Logger.info ("JSVApp.syncToJmol JSV>Jmol " + msg);
-this.appletFrame.callToJavaScript (this.syncCallbackFunctionName, [this.vwr.fullName, msg]);
+this.appletFrame.callToJavaScript (this.syncCallbackFunctionName,  Clazz.newArray (-1, [this.vwr.fullName, msg]));
 }, "~S");
 Clazz.overrideMethod (c$, "setVisible", 
 function (b) {
@@ -286,7 +286,7 @@ break;
 }, "JSV.common.ScriptToken,~S");
 Clazz.overrideMethod (c$, "siLoaded", 
 function (value) {
-if (this.loadFileCallbackFunctionName != null) this.appletFrame.callToJavaScript (this.loadFileCallbackFunctionName, [this.vwr.appletName, value]);
+if (this.loadFileCallbackFunctionName != null) this.appletFrame.callToJavaScript (this.loadFileCallbackFunctionName,  Clazz.newArray (-1, [this.vwr.appletName, value]));
 this.updateJSView (null);
 return null;
 }, "~S");

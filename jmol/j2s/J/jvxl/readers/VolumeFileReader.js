@@ -86,6 +86,7 @@ if (this.ac == -2147483648) return 0;
 if (!this.vertexDataOnly) JU.Logger.info ("voxel grid origin:" + this.volumetricOrigin);
 var downsampleFactor = this.params.downsampleFactor;
 var downsampling = (this.canDownsample && downsampleFactor > 1);
+if (downsampleFactor > 1 && !this.canDownsample) this.jvxlData.msg += "\ncannot downsample this file type";
 if (downsampling) {
 this.downsampleRemainders =  Clazz.newIntArray (3, 0);
 JU.Logger.info ("downsample factor = " + downsampleFactor);
@@ -93,7 +94,10 @@ for (var i = 0; i < 3; ++i) {
 var n = this.voxelCounts[i];
 this.downsampleRemainders[i] = n % downsampleFactor;
 this.voxelCounts[i] /= downsampleFactor;
-this.volumetricVectors[i].scale (downsampleFactor);
+if (this.isPeriodic) {
+this.voxelCounts[i]++;
+this.downsampleRemainders[i]--;
+}this.volumetricVectors[i].scale (downsampleFactor);
 JU.Logger.info ("downsampling axis " + (i + 1) + " from " + n + " to " + this.voxelCounts[i]);
 }
 }if (!this.vertexDataOnly) for (var i = 0; i < 3; ++i) {
@@ -137,8 +141,8 @@ this.nSkipY = 0;
 this.nSkipZ = 0;
 if (this.canDownsample && this.downsampleFactor > 0) {
 this.nSkipX = this.downsampleFactor - 1;
-this.nSkipY = this.downsampleRemainders[2] + (this.downsampleFactor - 1) * (this.nSkipZ = (this.nPointsZ * this.downsampleFactor + this.downsampleRemainders[2]));
-this.nSkipZ = this.downsampleRemainders[1] * this.nSkipZ + (this.downsampleFactor - 1) * this.nSkipZ * (this.nPointsY * this.downsampleFactor + this.downsampleRemainders[1]);
+this.nSkipY = this.downsampleRemainders[2] + (this.downsampleFactor - 1) * (this.nSkipZ = ((this.nPointsZ - (this.isPeriodic ? 1 : 0)) * this.downsampleFactor + this.downsampleRemainders[2]));
+this.nSkipZ = this.downsampleRemainders[1] * this.nSkipZ + (this.downsampleFactor - 1) * this.nSkipZ * ((this.nPointsY - (this.isPeriodic ? 1 : 0)) * this.downsampleFactor + this.downsampleRemainders[1]);
 }if (this.params.thePlane != null) {
 this.params.cutoff = 0;
 } else if (this.isJvxl) {
@@ -203,12 +207,12 @@ Clazz.defineMethod (c$, "getPlaneProcessed",
 function (x) {
 var plane;
 if (this.iPlaneRaw == 0) {
-this.qpc = J.api.Interface.getOption ("quantum.NciCalculation", this.sg.getAtomDataServer (), null);
+this.qpc = J.api.Interface.getOption ("quantum.NciCalculation", this.sg.atomDataServer, null);
 var atomData =  new J.atomdata.AtomData ();
 atomData.modelIndex = -1;
 atomData.bsSelected = this.params.bsSelected;
 this.sg.fillAtomData (atomData, 1);
-this.qpc.setupCalculation (this.volumeData, this.sg.getBsSelected (), null, null, null, atomData.atomXyz, -1, null, null, null, null, null, null, this.params.isSquaredLinear, null, this.params.theProperty, true, null, this.params.parameters, this.params.testFlags);
+this.qpc.setupCalculation (this.volumeData, this.sg.params.bsSelected, null, null, null, atomData.atomXyz, -1, null, null, null, null, null, null, this.params.isSquaredLinear, null, this.params.theProperty, true, null, this.params.parameters, this.params.testFlags);
 this.iPlaneRaw = 1;
 this.qpc.setPlanes (this.yzPlanesRaw =  Clazz.newFloatArray (4, this.yzCount, 0));
 if (this.hasColorData) {

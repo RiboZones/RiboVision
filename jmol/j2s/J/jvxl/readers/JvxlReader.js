@@ -137,6 +137,7 @@ this.params.isContoured = false;
 }this.jvxlData.isJvxlPrecisionColor = (param1 == -1 && param2 == -2 || param3 < 0);
 this.params.isBicolorMap = (param1 > 0 && param2 < 0);
 this.jvxlDataIsColorMapped = (param3 != 0);
+if (this.jvxlDataIsColorMapped) this.jvxlData.colorScheme = "RGB";
 this.jvxlDataIs2dContour = (this.jvxlDataIsColorMapped && this.params.isContoured);
 if (this.params.isBicolorMap || this.params.colorBySign) this.jvxlCutoff = 0;
 this.surfaceDataCount = (param1 < -1 ? -1 - param1 : param1 > 0 ? param1 : 0);

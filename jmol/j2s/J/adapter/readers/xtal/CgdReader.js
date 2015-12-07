@@ -93,7 +93,7 @@ var name;
 var a;
 var atomEdges;
 for (var j = 0; j < this.edgeData.size (); j++) {
-this.tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.line = this.edgeData.get (j));
+this.tokens = JU.PT.getTokens (this.line = this.edgeData.get (j));
 switch (this.tokens.length) {
 case 3:
 name = this.getName (this.tokens[1]);
@@ -161,5 +161,5 @@ return null;
 }, "JU.P3");
 Clazz.defineStatics (c$,
 "SG_ALIASES", ";P2=P121;P21=P1211;C2=C121;A2=A121;I2=I121;Pm=P1m1;Pc=P1c1;Pn=P1n1;Pa=P1a1;Cm=C1m1;Am=A1m1;Im=I1m1;Cc=C1c1;An=A1n1;Ia=I1a1;Aa=A1a1;Cn=C1n1;Ic=I1c1;P2/m=P12/m1;P21/m=P121/m1;C2/m=C12/m1;A2/m=A12/m1;I2/m=I12/m1;P2/c=P12/c1;P2/n=P12/n1;P2/a=P12/a1;P21/c=P121/c1;P21/n=P121/n1;P21/a=P121/a1;C2/c=C12/c1;A2/n=A12/n1;I2/a=I12/a1;A2/a=A12/a1;C2/n=C12/n1;I2/c=I12/c1;Pm3=Pm-3;Pn3=Pn-3;Fm3=Fm-3;Fd3=Fd-3;Im3=Im-3;Pa3=Pa-3;Ia3=Ia-3;Pm3m=Pm-3m;Pn3n=Pn-3n;Pm3n=Pm-3n;Pn3m=Pn-3m;Fm3m=Fm-3m;Fm3c=Fm-3c;Fd3m=Fd-3m;Fd3c=Fd-3c;Im3m=Im-3m;Ia3d=Ia-3d;");
-c$.vecs = c$.prototype.vecs = [JU.V3.new3 (0, 0, -1), JU.V3.new3 (1, 0, -1), null, JU.V3.new3 (0, 1, -1), JU.V3.new3 (0, -1, 0), JU.V3.new3 (1, -1, 0), JU.V3.new3 (-1, 0, 0), null, JU.V3.new3 (1, 0, 0), JU.V3.new3 (-1, 1, 0), JU.V3.new3 (0, 1, 0), JU.V3.new3 (0, -1, 1), null, JU.V3.new3 (-1, 0, 1), JU.V3.new3 (0, 0, 1)];
+c$.vecs = c$.prototype.vecs =  Clazz.newArray (-1, [JU.V3.new3 (0, 0, -1), JU.V3.new3 (1, 0, -1), null, JU.V3.new3 (0, 1, -1), JU.V3.new3 (0, -1, 0), JU.V3.new3 (1, -1, 0), JU.V3.new3 (-1, 0, 0), null, JU.V3.new3 (1, 0, 0), JU.V3.new3 (-1, 1, 0), JU.V3.new3 (0, 1, 0), JU.V3.new3 (0, -1, 1), null, JU.V3.new3 (-1, 0, 1), JU.V3.new3 (0, 0, 1)]);
 });

@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.renderbio");
-Clazz.load (null, "J.renderbio.NucleicRenderer", ["JU.P3", "$.P3i", "JU.C"], function () {
+Clazz.load (null, "J.renderbio.NucleicRenderer", ["JU.P3", "JU.C"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.renderEdges = false;
 this.ladderOnly = false;
@@ -29,7 +29,7 @@ this.rPt =  new Array (10);
 this.rScr =  new Array (10);
 this.rPt5 =  new Array (5);
 this.rScr5 =  new Array (5);
-this.backboneScreen =  new JU.P3i ();
+this.backboneScreen =  new JU.P3 ();
 this.backbonePt =  new JU.P3 ();
 this.bsr = renderer;
 this.tm = renderer.vwr.tm;
@@ -43,11 +43,12 @@ this.$renderRibose = this.vwr.getBoolean (603979819);
 var isTraceAlpha = this.vwr.getBoolean (603979966);
 var bsVisible = this.bsr.bsVisible;
 for (var i = bsVisible.nextSetBit (0); i >= 0; i = bsVisible.nextSetBit (i + 1)) {
+var scr = screens[i + 1];
 if (isTraceAlpha) {
-this.backboneScreen.set (Clazz.doubleToInt ((screens[i].x + screens[i + 1].x) / 2), Clazz.doubleToInt ((screens[i].y + screens[i + 1].y) / 2), Clazz.doubleToInt ((screens[i].z + screens[i + 1].z) / 2));
+this.backboneScreen.ave (screens[i], scr);
 this.backbonePt.ave (pts[i], pts[i + 1]);
 } else {
-this.backboneScreen.setT (screens[i + 1]);
+this.backboneScreen.setT (scr);
 this.backbonePt.setT (pts[i + 1]);
 }this.bsr.renderHermiteConic (i, false, 4);
 this.colix = this.bsr.getLeadColix (i);
@@ -59,18 +60,18 @@ Clazz.defineMethod (c$, "renderNucleicBaseStep",
 var nucleotide = this.bsr.monomers[im];
 var thisMad = this.bsr.mads[im];
 if (this.rScr[0] == null) {
-for (var i = 10; --i >= 0; ) this.rScr[i] =  new JU.P3i ();
+for (var i = 10; --i >= 0; ) this.rScr[i] =  new JU.P3 ();
 
-for (var i = 5; --i >= 0; ) this.rScr5[i] =  new JU.P3i ();
+for (var i = 5; --i >= 0; ) this.rScr5[i] =  new JU.P3 ();
 
-this.baseScreen =  new JU.P3i ();
+this.baseScreen =  new JU.P3 ();
 this.basePt =  new JU.P3 ();
 this.rPt[9] =  new JU.P3 ();
 }if (this.renderEdges) {
 this.renderLeontisWesthofEdges (nucleotide);
 return;
 }nucleotide.getBaseRing6Points (this.rPt);
-this.vwr.tm.transformPoints (6, this.rPt, this.rScr);
+this.transformPoints (6, this.rPt, this.rScr);
 if (!this.ladderOnly) this.renderRing6 ();
 var stepScreen;
 var stepPt;
@@ -81,7 +82,7 @@ if (this.ladderOnly) {
 stepScreen = this.rScr[2];
 stepPt = this.rPt[2];
 } else {
-this.tm.transformPoints (5, this.rPt5, this.rScr5);
+this.transformPoints (5, this.rPt5, this.rScr5);
 this.renderRing5 ();
 stepScreen = this.rScr5[3];
 stepPt = this.rPt5[3];
@@ -91,7 +92,7 @@ stepScreen = this.rScr[pt];
 stepPt = this.rPt[pt];
 }var mad = (thisMad > 1 ? Clazz.doubleToInt (thisMad / 2) : thisMad);
 var r = mad / 2000;
-var w = Clazz.floatToInt (this.vwr.tm.scaleToScreen (this.backboneScreen.z, mad));
+var w = Clazz.floatToInt (this.vwr.tm.scaleToScreen (Clazz.floatToInt (this.backboneScreen.z), mad));
 if (this.ladderOnly || !this.$renderRibose) this.g3d.fillCylinderScreen3I (3, w, this.backboneScreen, stepScreen, this.backbonePt, stepPt, r);
 if (this.ladderOnly) return;
 this.drawEdges (this.rScr, this.rPt, 6);
@@ -106,7 +107,7 @@ c.set (0, 0, 0);
 for (var i = 0; i < 5; i++) c.add (this.rPt[i]);
 
 c.scale (0.2);
-this.tm.transformPoints (10, this.rPt, this.rScr);
+this.transformPoints (10, this.rPt, this.rScr);
 this.renderRibose ();
 this.renderEdge (this.rScr, this.rPt, 2, 5);
 this.renderEdge (this.rScr, this.rPt, 3, 6);
@@ -115,6 +116,11 @@ this.renderEdge (this.rScr, this.rPt, 7, 8);
 this.renderCyl (this.rScr[0], this.baseScreen, this.rPt[0], this.basePt);
 this.drawEdges (this.rScr, this.rPt, 5);
 }}, "~N");
+Clazz.defineMethod (c$, "transformPoints", 
+ function (count, angstroms, screens) {
+for (var i = count; --i >= 0; ) this.tm.transformPtScrT3 (angstroms[i], screens[i]);
+
+}, "~N,~A,~A");
 Clazz.defineMethod (c$, "drawEdges", 
  function (scr, pt, n) {
 for (var i = n; --i >= 0; ) scr[i].z--;
@@ -125,7 +131,7 @@ for (var i = n; --i > 0; ) this.renderEdge (scr, pt, i, i - 1);
 Clazz.defineMethod (c$, "renderLeontisWesthofEdges", 
  function (nucleotide) {
 if (!nucleotide.getEdgePoints (this.rPt)) return;
-this.tm.transformPoints (6, this.rPt, this.rScr);
+this.transformPoints (6, this.rPt, this.rScr);
 this.renderTriangle (this.rScr, this.rPt, 2, 3, 4, true);
 this.renderEdge (this.rScr, this.rPt, 0, 1);
 this.renderEdge (this.rScr, this.rPt, 1, 2);
@@ -148,11 +154,10 @@ this.renderCyl (scr[i], scr[j], pt[i], pt[j]);
 Clazz.defineMethod (c$, "renderCyl", 
  function (s1, s2, p1, p2) {
 this.g3d.fillCylinderScreen3I (3, 3, s1, s2, p1, p2, 0.005);
-}, "JU.P3i,JU.P3i,JU.P3,JU.P3");
+}, "JU.P3,JU.P3,JU.P3,JU.P3");
 Clazz.defineMethod (c$, "renderTriangle", 
  function (scr, pt, i, j, k, doShade) {
-if (doShade) this.vwr.gdata.setNoisySurfaceShade (scr[i], scr[j], scr[k]);
-this.g3d.fillTriangle3i (scr[i], scr[j], scr[k], pt[i], pt[j], pt[k]);
+this.g3d.fillTriangle3i (scr[i], scr[j], scr[k], pt[i], pt[j], pt[k], doShade);
 }, "~A,~A,~N,~N,~N,~B");
 Clazz.defineMethod (c$, "renderRing6", 
  function () {

@@ -96,7 +96,7 @@ this.setAttr ("r", radius);
 this.setAttr ("s", 4);
 this.setAttr ("nsp", 3);
 this.addConnect ();
-}, "JU.P3,~N,~N,~B");
+}, "JU.T3,~N,~N,~B");
 Clazz.overrideMethod (c$, "drawTextPixel", 
 function (argb, x, y, z) {
 }, "~N,~N,~N,~N");
@@ -108,7 +108,7 @@ function (vertices, normals, colixes, indices, polygonColixes, nVertices, nPolyg
 }, "~A,~A,~A,~A,~A,~N,~N,~N,JU.BS,~N,~N,JU.Lst,java.util.Map,JU.P3");
 Clazz.overrideMethod (c$, "outputTriangle", 
 function (pt1, pt2, pt3, colix) {
-}, "JU.P3,JU.P3,JU.P3,~N");
+}, "JU.T3,JU.T3,JU.T3,~N");
 Clazz.overrideMethod (c$, "outputCircle", 
 function (pt1, pt2, radius, colix, doFill) {
 }, "JU.P3,JU.P3,~N,~N,~B");

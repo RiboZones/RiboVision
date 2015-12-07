@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.export");
-Clazz.load (["J.api.JmolRendererInterface", "JU.P3", "$.P3i"], "J.export.Export3D", ["J.api.Interface", "J.g3d.HermiteRenderer"], function () {
+Clazz.load (["J.api.JmolRendererInterface", "JU.P3"], "J.export.Export3D", ["J.api.Interface", "J.g3d.HermiteRenderer"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.exporter = null;
 this.privateKey = 0;
@@ -9,14 +9,14 @@ this.hermite3d = null;
 this.width = 0;
 this.height = 0;
 this.slab = 0;
+this.depth = 0;
 this.exportName = null;
 this.isWebGL = false;
+this.isCartesian = false;
 this.ptA = null;
 this.ptB = null;
 this.ptC = null;
 this.ptD = null;
-this.ptAi = null;
-this.ptBi = null;
 Clazz.instantialize (this, arguments);
 }, J["export"], "Export3D", null, J.api.JmolRendererInterface);
 Clazz.prepareFields (c$, function () {
@@ -24,8 +24,6 @@ this.ptA =  new JU.P3 ();
 this.ptB =  new JU.P3 ();
 this.ptC =  new JU.P3 ();
 this.ptD =  new JU.P3 ();
-this.ptAi =  new JU.P3i ();
-this.ptBi =  new JU.P3i ();
 });
 Clazz.makeConstructor (c$, 
 function () {
@@ -35,8 +33,9 @@ function (vwr, privateKey, gdata, params) {
 this.exportName = params.get ("type");
 this.isWebGL = this.exportName.equals ("JS");
 if ((this.exporter = J.api.Interface.getOption ("export." + (this.isWebGL ? "" : "_") + this.exportName + "Exporter", vwr, "export")) == null) return null;
+this.exporter.export3D = this;
+this.isCartesian = (this.exporter.exportType == 1);
 this.gdata = gdata;
-this.exporter.setRenderer (this);
 gdata.setNewWindowParametersForExport ();
 this.slab = gdata.slab;
 this.width = gdata.width;
@@ -65,13 +64,16 @@ function (slabValue) {
 this.gdata.setSlab (slabValue);
 this.slab = this.gdata.slab;
 }, "~N");
-Clazz.overrideMethod (c$, "setDepth", 
-function (depthValue) {
+Clazz.overrideMethod (c$, "setSlabAndZShade", 
+function (slabValue, depthValue, zSlab, zDepth, zPower) {
+this.gdata.setSlab (slabValue);
+this.slab = this.gdata.slab;
 this.gdata.setDepth (depthValue);
-}, "~N");
+this.depth = this.gdata.depth;
+}, "~N,~N,~N,~N,~N");
 Clazz.overrideMethod (c$, "renderBackground", 
 function (me) {
-if (this.exporter.exportType == 2) this.gdata.renderBackground (me);
+if (!this.isCartesian) this.gdata.renderBackground (me);
 }, "J.api.JmolRendererInterface");
 Clazz.overrideMethod (c$, "drawAtom", 
 function (atom) {
@@ -122,21 +124,21 @@ if (!this.gdata.isClippedZ (z)) this.exporter.drawCircle (x, y, z, diameter, col
 Clazz.overrideMethod (c$, "fillSphereXYZ", 
 function (diameter, x, y, z) {
 this.ptA.set (x, y, z);
-this.fillSphere (diameter, this.ptA);
+this.fillSphereBits (diameter, this.ptA);
 }, "~N,~N,~N,~N");
 Clazz.overrideMethod (c$, "fillSphereI", 
 function (diameter, center) {
 this.ptA.set (center.x, center.y, center.z);
-this.fillSphere (diameter, this.ptA);
+this.fillSphereBits (diameter, this.ptA);
 }, "~N,JU.P3i");
-Clazz.overrideMethod (c$, "fillSphere", 
+Clazz.overrideMethod (c$, "fillSphereBits", 
 function (diameter, center) {
-if (diameter == 0) return;
-this.exporter.fillSphere (this.colix, diameter, center);
+if (diameter != 0) this.exporter.fillSphere (this.colix, diameter, center);
 }, "~N,JU.P3");
-Clazz.overrideMethod (c$, "fillRect", 
+Clazz.overrideMethod (c$, "fillTextRect", 
 function (x, y, z, zSlab, widthFill, heightFill) {
-if (this.gdata.isClippedZ (zSlab)) return;
+if (this.isCartesian || this.gdata.isClippedZ (zSlab)) return;
+z = this.exporter.fixScreenZ (z);
 this.ptA.set (x, y, z);
 this.ptB.set (x + widthFill, y, z);
 this.ptC.set (x + widthFill, y + heightFill, z);
@@ -157,8 +159,7 @@ this.exporter.plotText (xBaseline, yBaseline, z, this.colix, str, font3d);
 }, "~S,javajs.awt.Font,~N,~N,~N,~N");
 Clazz.overrideMethod (c$, "drawImage", 
 function (objImage, x, y, z, zSlab, bgcolix, width, height) {
-if (objImage == null || width == 0 || height == 0) return;
-if (this.gdata.isClippedZ (zSlab)) return;
+if (this.isCartesian || objImage == null || width == 0 || height == 0 || this.gdata.isClippedZ (zSlab)) return;
 z = Math.max (this.slab, z);
 this.exporter.plotImage (x, y, z, objImage, bgcolix, width, height);
 }, "~O,~N,~N,~N,~N,~N,~N,~N");
@@ -186,30 +187,32 @@ if (this.isClipped (x, y, z)) continue;
 this.exporter.drawPixel (this.colix, x, y, z, scale);
 }
 }, "~N,~A,~N");
-Clazz.overrideMethod (c$, "drawDashedLine", 
+Clazz.overrideMethod (c$, "drawDashedLineBits", 
 function (run, rise, pointA, pointB) {
-this.drawLineAB (pointA, pointB);
-}, "~N,~N,JU.P3i,JU.P3i");
-Clazz.overrideMethod (c$, "drawDottedLine", 
+this.exporter.fillCylinderScreenMad (this.colix, 2, this.exporter.lineWidthMad, pointA, pointB);
+}, "~N,~N,JU.P3,JU.P3");
+Clazz.overrideMethod (c$, "drawDottedLineBits", 
 function (pointA, pointB) {
-this.drawLineAB (pointA, pointB);
-}, "JU.P3i,JU.P3i");
+this.exporter.fillCylinderScreenMad (this.colix, 2, this.exporter.lineWidthMad, pointA, pointB);
+}, "JU.P3,JU.P3");
 Clazz.overrideMethod (c$, "drawLineXYZ", 
 function (x1, y1, z1, x2, y2, z2) {
-this.ptAi.set (x1, y1, z1);
-this.ptBi.set (x2, y2, z2);
-this.drawLineAB (this.ptAi, this.ptBi);
+this.ptA.set (x1, y1, z1);
+this.ptB.set (x2, y2, z2);
+this.exporter.fillCylinderScreenMad (this.colix, 2, this.exporter.lineWidthMad, this.ptA, this.ptB);
 }, "~N,~N,~N,~N,~N,~N");
 Clazz.overrideMethod (c$, "drawLine", 
 function (colixA, colixB, xA, yA, zA, xB, yB, zB) {
 this.fillCylinderXYZ (colixA, colixB, 2, this.exporter.lineWidthMad, xA, yA, zA, xB, yB, zB);
 }, "~N,~N,~N,~N,~N,~N,~N,~N");
+Clazz.defineMethod (c$, "drawLineBits", 
+function (colixA, colixB, pointA, pointB) {
+this.fillCylinderBits2 (colixA, colixB, 2, this.exporter.lineWidthMad, pointA, pointB);
+}, "~N,~N,JU.P3,JU.P3");
 Clazz.overrideMethod (c$, "drawLineAB", 
 function (pointA, pointB) {
-this.ptA.set (pointA.x, pointA.y, pointA.z);
-this.ptB.set (pointB.x, pointB.y, pointB.z);
-this.exporter.fillCylinderScreenMad (this.colix, 2, this.exporter.lineWidthMad, this.ptA, this.ptB);
-}, "JU.P3i,JU.P3i");
+this.exporter.fillCylinderScreenMad (this.colix, 2, this.exporter.lineWidthMad, pointA, pointB);
+}, "JU.P3,JU.P3");
 Clazz.overrideMethod (c$, "drawBond", 
 function (atomA, atomB, colixA, colixB, endcaps, mad, bondOrder) {
 if (mad == 1) mad = this.exporter.lineWidthMad;
@@ -221,20 +224,11 @@ this.ptA.set (xA, yA, zA);
 this.ptB.set (xB, yB, zB);
 this.exporter.drawCylinder (this.ptA, this.ptB, colixA, colixB, endcaps, mad, 1);
 }, "~N,~N,~N,~N,~N,~N,~N,~N,~N,~N");
-Clazz.overrideMethod (c$, "fillCylinderScreen", 
-function (endcaps, screenDiameter, xA, yA, zA, xB, yB, zB) {
-this.ptA.set (xA, yA, zA);
-this.ptB.set (xB, yB, zB);
-this.exporter.fillCylinderScreen (this.colix, endcaps, screenDiameter, this.ptA, this.ptB, null, null, 0);
-}, "~N,~N,~N,~N,~N,~N,~N,~N");
 Clazz.overrideMethod (c$, "fillCylinderScreen3I", 
 function (endcaps, diameter, pointA, pointB, pt0f, pt1f, radius) {
 if (diameter <= 0) return;
-if (!this.exporter.isCartesian) {
-this.ptA.set (pointA.x, pointA.y, pointA.z);
-this.ptB.set (pointB.x, pointB.y, pointB.z);
-}this.exporter.fillCylinderScreen (this.colix, endcaps, diameter, this.ptA, this.ptB, pt0f, pt1f, radius);
-}, "~N,~N,JU.P3i,JU.P3i,JU.P3,JU.P3,~N");
+this.exporter.fillCylinderScreen (this.colix, endcaps, diameter, pointA, pointB, pt0f, pt1f, radius);
+}, "~N,~N,JU.P3,JU.P3,JU.P3,JU.P3,~N");
 Clazz.overrideMethod (c$, "fillCylinder", 
 function (endcaps, diameter, pointA, pointB) {
 if (diameter <= 0) return;
@@ -245,32 +239,43 @@ this.exporter.fillCylinderScreenMad (this.colix, endcaps, diameter, this.ptA, th
 Clazz.overrideMethod (c$, "fillCylinderBits", 
 function (endcaps, diameter, pointA, pointB) {
 if (diameter <= 0) return;
+if (this.isCartesian) {
+this.exporter.fillCylinderScreen (this.colix, endcaps, diameter, pointA, pointB, null, null, 0);
+} else {
 this.exporter.fillCylinderScreenMad (this.colix, endcaps, diameter, pointA, pointB);
-}, "~N,~N,JU.P3,JU.P3");
-Clazz.overrideMethod (c$, "fillConeScreen", 
+}}, "~N,~N,JU.P3,JU.P3");
+Clazz.overrideMethod (c$, "fillConeScreen3f", 
 function (endcap, screenDiameter, pointBase, screenTip, isBarb) {
-this.ptA.set (pointBase.x, pointBase.y, pointBase.z);
-this.ptB.set (screenTip.x, screenTip.y, screenTip.z);
-this.exporter.fillConeScreen (this.colix, endcap, screenDiameter, this.ptA, this.ptB, isBarb);
-}, "~N,~N,JU.P3i,JU.P3i,~B");
-Clazz.overrideMethod (c$, "fillConeSceen3f", 
-function (endcap, screenDiameter, pointBase, screenTip) {
-this.exporter.fillConeScreen (this.colix, endcap, screenDiameter, pointBase, screenTip, false);
-}, "~N,~N,JU.P3,JU.P3");
+this.exporter.fillConeScreen (this.colix, endcap, screenDiameter, pointBase, screenTip, isBarb);
+}, "~N,~N,JU.P3,JU.P3,~B");
 Clazz.overrideMethod (c$, "drawHermite4", 
 function (tension, s0, s1, s2, s3) {
 this.hermite3d.renderHermiteRope (false, tension, 0, 0, 0, s0, s1, s2, s3);
-}, "~N,JU.P3i,JU.P3i,JU.P3i,JU.P3i");
+}, "~N,JU.P3,JU.P3,JU.P3,JU.P3");
 Clazz.overrideMethod (c$, "fillHermite", 
 function (tension, diameterBeg, diameterMid, diameterEnd, s0, s1, s2, s3) {
 this.hermite3d.renderHermiteRope (true, tension, diameterBeg, diameterMid, diameterEnd, s0, s1, s2, s3);
-}, "~N,~N,~N,~N,JU.P3i,JU.P3i,JU.P3i,JU.P3i");
+}, "~N,~N,~N,~N,JU.P3,JU.P3,JU.P3,JU.P3");
 Clazz.overrideMethod (c$, "drawTriangle3C", 
 function (screenA, colixA, screenB, colixB, screenC, colixC, check) {
 if ((check & 1) == 1) this.drawLine (colixA, colixB, screenA.x, screenA.y, screenA.z, screenB.x, screenB.y, screenB.z);
 if ((check & 2) == 2) this.drawLine (colixB, colixC, screenB.x, screenB.y, screenB.z, screenC.x, screenC.y, screenC.z);
 if ((check & 4) == 4) this.drawLine (colixA, colixC, screenA.x, screenA.y, screenA.z, screenC.x, screenC.y, screenC.z);
 }, "JU.P3i,~N,JU.P3i,~N,JU.P3i,~N,~N");
+Clazz.defineMethod (c$, "drawLineBits", 
+function (screenA, screenB, colixA, colixB) {
+this.exporter.drawCylinder (screenA, screenB, colixA, colixB, 2, this.exporter.lineWidthMad, 1);
+}, "JU.P3,JU.P3,~N,~N");
+Clazz.overrideMethod (c$, "fillCylinderBits2", 
+function (colixA, colixB, endcaps, mad, screenA, screenB) {
+this.exporter.drawCylinder (screenA, screenB, colixA, colixB, endcaps, mad, 1);
+}, "~N,~N,~N,~N,JU.P3,JU.P3");
+Clazz.overrideMethod (c$, "fillTriangle3CNBits", 
+function (pA, colixA, nA, pB, colixB, nB, pC, colixC, nC) {
+if (colixA != colixB || colixB != colixC) {
+return;
+}this.exporter.fillTriangle (colixA, pA, pB, pC, false);
+}, "JU.P3,~N,~N,JU.P3,~N,~N,JU.P3,~N,~N");
 Clazz.overrideMethod (c$, "fillTriangle3CN", 
 function (pointA, colixA, normixA, pointB, colixB, normixB, pointC, colixC, normixC) {
 if (colixA != colixB || colixB != colixC) {
@@ -278,51 +283,25 @@ return;
 }this.ptA.set (pointA.x, pointA.y, pointA.z);
 this.ptB.set (pointB.x, pointB.y, pointB.z);
 this.ptC.set (pointC.x, pointC.y, pointC.z);
-this.exporter.fillTriangle (colixA, this.ptA, this.ptB, this.ptC, false, false);
+this.exporter.fillTriangle (colixA, this.ptA, this.ptB, this.ptC, false);
 }, "JU.P3i,~N,~N,JU.P3i,~N,~N,JU.P3i,~N,~N");
 Clazz.overrideMethod (c$, "fillTriangleTwoSided", 
-function (normix, xpointA, ypointA, zpointA, xpointB, ypointB, zpointB, xpointC, ypointC, zpointC) {
-this.ptA.set (xpointA, ypointA, zpointA);
-this.ptB.set (xpointB, ypointB, zpointB);
-this.ptC.set (xpointC, ypointC, zpointC);
-this.exporter.fillTriangle (this.colix, this.ptA, this.ptB, this.ptC, true, false);
-}, "~N,~N,~N,~N,~N,~N,~N,~N,~N,~N");
+function (normix, a, b, c) {
+this.exporter.fillTriangle (this.colix, a, b, c, true);
+}, "~N,JU.P3,JU.P3,JU.P3");
 Clazz.overrideMethod (c$, "fillTriangle3f", 
 function (pointA, pointB, pointC, setNoisy) {
-this.exporter.fillTriangle (this.colix, pointA, pointB, pointC, false, false);
+this.exporter.fillTriangle (this.colix, pointA, pointB, pointC, false);
 }, "JU.P3,JU.P3,JU.P3,~B");
 Clazz.overrideMethod (c$, "fillTriangle3i", 
-function (screenA, screenB, screenC, ptA0, ptB0, ptC0) {
-if (this.exporter.isCartesian) {
-this.exporter.fillTriangle (this.colix, ptA0, ptB0, ptC0, true, true);
-} else {
-this.ptA.set (screenA.x, screenA.y, screenA.z);
-this.ptB.set (screenB.x, screenB.y, screenB.z);
-this.ptC.set (screenC.x, screenC.y, screenC.z);
-this.exporter.fillTriangle (this.colix, this.ptA, this.ptB, this.ptC, true, false);
-}}, "JU.P3i,JU.P3i,JU.P3i,JU.P3,JU.P3,JU.P3");
-Clazz.overrideMethod (c$, "fillTriangle", 
-function (pointA, colixA, normixA, pointB, colixB, normixB, pointC, colixC, normixC, factor) {
-this.fillTriangle3CN (pointA, colixA, normixA, pointB, colixB, normixB, pointC, colixC, normixC);
-}, "JU.P3i,~N,~N,JU.P3i,~N,~N,JU.P3i,~N,~N,~N");
-Clazz.overrideMethod (c$, "drawQuadrilateral", 
-function (colix, pointA, pointB, pointC, screenD) {
-this.setC (colix);
-this.drawLineAB (pointA, pointB);
-this.drawLineAB (pointB, pointC);
-this.drawLineAB (pointC, screenD);
-this.drawLineAB (screenD, pointA);
-}, "~N,JU.P3i,JU.P3i,JU.P3i,JU.P3i");
+function (screenA, screenB, screenC, ptA0, ptB0, ptC0, doShade) {
+this.exporter.fillTriangle (this.colix, screenA, screenB, screenC, true);
+}, "JU.P3,JU.P3,JU.P3,JU.T3,JU.T3,JU.T3,~B");
 Clazz.overrideMethod (c$, "fillQuadrilateral", 
 function (pointA, pointB, pointC, pointD) {
-this.exporter.fillTriangle (this.colix, pointA, pointB, pointC, false, false);
-this.exporter.fillTriangle (this.colix, pointA, pointC, pointD, false, false);
+this.exporter.fillTriangle (this.colix, pointA, pointB, pointC, false);
+this.exporter.fillTriangle (this.colix, pointA, pointC, pointD, false);
 }, "JU.P3,JU.P3,JU.P3,JU.P3");
-Clazz.overrideMethod (c$, "fillQuadrilateral3i", 
-function (pointA, colixA, normixA, pointB, colixB, normixB, pointC, colixC, normixC, screenD, colixD, normixD) {
-this.fillTriangle3CN (pointA, colixA, normixA, pointB, colixB, normixB, pointC, colixC, normixC);
-this.fillTriangle3CN (pointA, colixA, normixA, pointC, colixC, normixC, screenD, colixD, normixD);
-}, "JU.P3i,~N,~N,JU.P3i,~N,~N,JU.P3i,~N,~N,JU.P3i,~N,~N");
 Clazz.overrideMethod (c$, "drawSurface", 
 function (meshSurface, colix) {
 this.exporter.drawSurface (meshSurface, colix);
@@ -355,15 +334,15 @@ return true;
 }, "~N");
 Clazz.overrideMethod (c$, "isInDisplayRange", 
 function (x, y) {
-return (this.exporter.exportType == 1 || this.gdata.isInDisplayRange (x, y));
+return (this.isCartesian || this.gdata.isInDisplayRange (x, y));
 }, "~N,~N");
 Clazz.defineMethod (c$, "clipCode", 
 function (x, y, z) {
-return (this.exporter.exportType == 1 ? this.gdata.clipCode (z) : this.gdata.clipCode3 (x, y, z));
+return (this.isCartesian ? this.gdata.clipCode (z) : this.gdata.clipCode3 (x, y, z));
 }, "~N,~N,~N");
 Clazz.overrideMethod (c$, "isClippedXY", 
 function (diameter, x, y) {
-return (this.exporter.exportType != 1 && this.gdata.isClippedXY (diameter, x, y));
+return (!this.isCartesian && this.gdata.isClippedXY (diameter, x, y));
 }, "~N,~N,~N");
 Clazz.defineMethod (c$, "isClipped", 
 function (x, y, z) {
@@ -371,7 +350,7 @@ return (this.gdata.isClippedZ (z) || this.isClipped (x, y));
 }, "~N,~N,~N");
 Clazz.defineMethod (c$, "isClipped", 
 function (x, y) {
-return (this.exporter.exportType != 1 && this.gdata.isClipped (x, y));
+return (!this.isCartesian && this.gdata.isClipped (x, y));
 }, "~N,~N");
 Clazz.defineMethod (c$, "getPrivateKey", 
 function () {
@@ -392,14 +371,14 @@ function (tok) {
 if (tok == 553648147) this.hermite3d =  new J.g3d.HermiteRenderer ().set (this, this.gdata);
 }, "~N");
 Clazz.overrideMethod (c$, "plotImagePixel", 
-function (argb, x, y, z, shade, bgargb) {
+function (argb, x, y, z, shade, bgargb, width, height, pbuf, p, transpLog) {
 if (this.isWebGL) return;
 z = Math.max (this.slab, z);
 if (shade != 0) {
 var a = (shade == 8 ? 0xFF : ((8 - shade) << 4) + (8 - shade));
 argb = (argb & 0xFFFFFF) | (a << 24);
 }this.exporter.drawTextPixel (argb, x, y, z);
-}, "~N,~N,~N,~N,~N,~N");
+}, "~N,~N,~N,~N,~N,~N,~N,~N,~A,~O,~N");
 Clazz.overrideMethod (c$, "drawHermite7", 
 function (fill, border, tension, s0, s1, s2, s3, s4, s5, s6, s7, aspectRatio, colixBack) {
 if (colixBack == 0 || this.isWebGL) {
@@ -410,7 +389,7 @@ var colix = this.colix;
 this.setC (colixBack);
 this.hermite3d.renderHermiteRibbon (fill, border, tension, s0, s1, s2, s3, s4, s5, s6, s7, aspectRatio, -1);
 this.setC (colix);
-}, "~B,~B,~N,JU.P3i,JU.P3i,JU.P3i,JU.P3i,JU.P3i,JU.P3i,JU.P3i,JU.P3i,~N,~N");
+}, "~B,~B,~N,JU.P3,JU.P3,JU.P3,JU.P3,JU.P3,JU.P3,JU.P3,JU.P3,~N,~N");
 Clazz.overrideMethod (c$, "renderAllStrings", 
 function (jr) {
 if (this.isWebGL) {

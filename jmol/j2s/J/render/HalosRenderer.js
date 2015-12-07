@@ -7,15 +7,16 @@ Clazz.instantialize (this, arguments);
 Clazz.overrideMethod (c$, "render", 
 function () {
 var halos = this.shape;
-var selectDisplayTrue = this.vwr.getSelectionHaloEnabled (true);
+var showOnce = this.vwr.getShowSelectedOnce ();
+var selectDisplayTrue = (this.vwr.getSelectionHalosEnabled () || showOnce);
 var showHiddenSelections = (selectDisplayTrue && this.vwr.getBoolean (603979920));
 if (halos.mads == null && halos.bsHighlight == null && !selectDisplayTrue) return false;
 this.isAntialiased = this.g3d.isAntialiased ();
 var atoms = this.ms.at;
-var bsSelected = (selectDisplayTrue ? this.vwr.bsA () : null);
+var bsSelected = (showOnce && this.vwr.movableBitSet != null ? this.vwr.movableBitSet : selectDisplayTrue ? this.vwr.bsA () : null);
 var needTranslucent = false;
 this.g3d.addRenderer (1073741880);
-for (var i = this.ms.getAtomCount (); --i >= 0; ) {
+for (var i = this.ms.ac; --i >= 0; ) {
 var atom = atoms[i];
 if ((atom.shapeVisibilityFlags & 1) == 0) continue;
 var isHidden = this.ms.isAtomHidden (i);

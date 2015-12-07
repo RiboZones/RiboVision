@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.adapter.smarter");
-Clazz.load (["J.api.JmolAdapter"], "J.adapter.smarter.SmarterJmolAdapter", ["java.io.BufferedReader", "javajs.api.GenericBinaryDocument", "JU.Rdr", "J.adapter.smarter.AtomIterator", "$.AtomSetCollection", "$.AtomSetCollectionReader", "$.BondIterator", "$.Resolver", "$.StructureIterator", "JU.Logger"], function () {
+Clazz.load (["J.api.JmolAdapter"], "J.adapter.smarter.SmarterJmolAdapter", ["java.io.BufferedReader", "javajs.api.GenericBinaryDocument", "JU.PT", "$.Rdr", "J.adapter.smarter.AtomIterator", "$.AtomSetCollection", "$.AtomSetCollectionReader", "$.BondIterator", "$.Resolver", "$.StructureIterator", "JS.SV", "JU.Logger"], function () {
 c$ = Clazz.declareType (J.adapter.smarter, "SmarterJmolAdapter", J.api.JmolAdapter);
 Clazz.overrideMethod (c$, "getFileTypeName", 
 function (ascOrReader) {
@@ -41,7 +41,7 @@ JU.Logger.error ("" + e);
 return "" + e;
 }
 }, "~S,~S,~O,java.util.Map");
-Clazz.defineMethod (c$, "getAtomSetCollectionFromReader", 
+Clazz.overrideMethod (c$, "getAtomSetCollectionFromReader", 
 function (fname, reader, htParams) {
 var ret = J.adapter.smarter.Resolver.getAtomCollectionReader (fname, null, reader, htParams, -1);
 if (Clazz.instanceOf (ret, J.adapter.smarter.AtomSetCollectionReader)) {
@@ -95,19 +95,22 @@ var reader = null;
 if (htParams.containsKey ("concatenate")) {
 var s = "";
 for (var i = 0; i < size; i++) {
-var f = vwr.getFileAsString3 (names[i], false, null);
+var name = names[i];
+var f = vwr.getFileAsString3 (name, false, null);
 if (i > 0 && size <= 3 && f.startsWith ("{")) {
-var type = (f.contains ("/outliers/") ? "validation" : "domains");
-var x = vwr.evaluateExpressionAsVariable (f);
-if (x != null && x.getMap () != null) htParams.put (type, x);
+var type = (f.contains ("version\":\"DSSR") ? "dssr" : f.contains ("/outliers/") ? "validation" : "domains");
+var x = vwr.parseJSON (f);
+if (x != null) htParams.put (type, (type.equals ("dssr") ? x : JS.SV.getVariableMap (x)));
 continue;
-}if (names[i].indexOf ("/rna3dhub/") >= 0) {
+}if (name.indexOf ("|") >= 0) name = JU.PT.rep (name, "_", "/");
+if (i == 1) {
+if (name.indexOf ("/rna3dhub/") >= 0) {
 s += "\n_rna3d \n;" + f + "\n;\n";
 continue;
-}if (names[i].indexOf ("/dssr/") >= 0) {
+}if (name.indexOf ("/dssr/") >= 0) {
 s += "\n_dssr \n;" + f + "\n;\n";
 continue;
-}s += f;
+}}s += f;
 if (!s.endsWith ("\n")) s += "\n";
 }
 size = 1;
@@ -207,7 +210,7 @@ return (asc).collectionName;
 }, "~O");
 Clazz.overrideMethod (c$, "getAtomSetCollectionAuxiliaryInfo", 
 function (asc) {
-return (asc).ascAuxiliaryInfo;
+return (asc).atomSetInfo;
 }, "~O");
 Clazz.overrideMethod (c$, "getAtomSetCount", 
 function (asc) {

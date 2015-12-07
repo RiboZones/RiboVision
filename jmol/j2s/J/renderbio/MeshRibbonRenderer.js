@@ -20,7 +20,7 @@ this.ribbonTopScreens = this.calcScreens (offsetTop, this.mads);
 this.ribbonBottomScreens = this.calcScreens (-offsetBottom, this.mads);
 for (var i = this.bsVisible.nextSetBit (0); i >= 0; i = this.bsVisible.nextSetBit (i + 1)) this.renderHermiteRibbon (doFill, i, false);
 
-this.vwr.freeTempScreens (this.ribbonTopScreens);
-this.vwr.freeTempScreens (this.ribbonBottomScreens);
+this.vwr.freeTempPoints (this.ribbonTopScreens);
+this.vwr.freeTempPoints (this.ribbonBottomScreens);
 }, "~B,~N,~N");
 });

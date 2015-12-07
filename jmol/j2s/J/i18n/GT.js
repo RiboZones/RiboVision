@@ -61,8 +61,12 @@ if (la === la_co || "en_US".equals (la)) la = null;
 if (la_co === la_co_va) la_co = null;
 if ("en_US".equals (la_co)) return;
 if (J.i18n.GT.allowDebug && JU.Logger.debugging) JU.Logger.debug ("Instantiating gettext wrapper for " + this.language + " using files for language:" + la + " country:" + la_co + " variant:" + la_co_va);
-if (!J.i18n.GT.$ignoreApplicationBundle) this.addBundles (vwr, "Jmol", la_co_va, la_co, la);
-this.addBundles (vwr, "JmolApplet", la_co_va, la_co, la);
+if (!J.i18n.GT.$ignoreApplicationBundle) this.addBundles (vwr, "Jmol", la_co_va, null, null);
+this.addBundles (vwr, "JmolApplet", la_co_va, null, null);
+if (!J.i18n.GT.$ignoreApplicationBundle) this.addBundles (vwr, "Jmol", null, la_co, null);
+this.addBundles (vwr, "JmolApplet", null, la_co, null);
+if (!J.i18n.GT.$ignoreApplicationBundle) this.addBundles (vwr, "Jmol", null, null, la);
+this.addBundles (vwr, "JmolApplet", null, null, la);
 }, "JV.Viewer,~S");
 c$.getLanguageList = Clazz.defineMethod (c$, "getLanguageList", 
 function (gt) {
@@ -164,7 +168,7 @@ Clazz.defineMethod (c$, "getString",
  function (s) {
 var trans = null;
 if (this.doTranslate) {
-for (var bundle = this.resourceCount; --bundle >= 0; ) {
+for (var bundle = 0; bundle < this.resourceCount; bundle++) {
 trans = this.resources[bundle].getString (s);
 if (trans != null) {
 s = trans;

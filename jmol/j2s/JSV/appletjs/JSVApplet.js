@@ -21,7 +21,7 @@ Clazz.defineMethod (c$, "init",
 function () {
 this.app =  new JSV.app.JSVApp (this, true);
 this.initViewer ();
-if (this.app.appletReadyCallbackFunctionName != null && this.viewer.fullName != null) this.callToJavaScript (this.app.appletReadyCallbackFunctionName, [this.viewer.appletName, this.viewer.fullName, Boolean.TRUE, this]);
+if (this.app.appletReadyCallbackFunctionName != null && this.viewer.fullName != null) this.callToJavaScript (this.app.appletReadyCallbackFunctionName,  Clazz.newArray (-1, [this.viewer.appletName, this.viewer.fullName, Boolean.TRUE, this]));
 });
 Clazz.defineMethod (c$, "initViewer", 
 function () {
@@ -243,10 +243,6 @@ return 0;
 Clazz.overrideMethod (c$, "cachePut", 
 function (key, data) {
 }, "~S,~O");
-Clazz.overrideMethod (c$, "getGLmolView", 
-function () {
-return null;
-});
 Clazz.overrideMethod (c$, "getFullName", 
 function () {
 return this.app.vwr.fullName;
@@ -266,11 +262,7 @@ Clazz.overrideMethod (c$, "update",
 function () {
 this.app.vwr.updateJS ();
 });
-Clazz.overrideMethod (c$, "loadInlineString", 
-function (mol, script, isAppend) {
-return null;
-}, "~S,~S,~B");
-Clazz.overrideMethod (c$, "openFile", 
+Clazz.defineMethod (c$, "openFile", 
 function (fileName) {
 this.app.vwr.openFile (fileName, true);
 return null;

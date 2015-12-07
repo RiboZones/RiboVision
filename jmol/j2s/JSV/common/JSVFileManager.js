@@ -429,7 +429,7 @@ Clazz.defineStatics (c$,
 "viewer", null,
 "jsDocumentBase", "");
 c$.htCorrelationCache = c$.prototype.htCorrelationCache =  new java.util.Hashtable ();
-c$.urlPrefixes = c$.prototype.urlPrefixes = ["http:", "https:", "ftp:", "http://SIMULATION/", "file:"];
+c$.urlPrefixes = c$.prototype.urlPrefixes =  Clazz.newArray (-1, ["http:", "https:", "ftp:", "http://SIMULATION/", "file:"]);
 Clazz.defineStatics (c$,
 "URL_LOCAL", 4,
 "nciResolver", "http://cactus.nci.nih.gov/chemical/structure/%FILE/file?format=sdf&get3d=True",

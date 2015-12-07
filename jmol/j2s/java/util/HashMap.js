@@ -40,7 +40,7 @@ throw new IllegalArgumentException();
 Clazz.makeConstructor(c$,
 function(map){
 this.construct(map.size()<6?11:map.size()*2);
-Clazz.superCall(this,java.util.HashMap,"putAll",[map]);
+this.putAll(map);
 },"java.util.Map");
 Clazz.overrideMethod(c$,"clear",
 function(){
@@ -181,7 +181,10 @@ if(!map.isEmpty()){
 var capacity=this.elementCount+map.size();
 if(capacity>this.threshold){
 this.rehash(capacity);
-}Clazz.superCall(this,java.util.HashMap,"putAll",[map]);
+}
+for(var entry,$entry=map.entrySet().iterator();$entry.hasNext()&&((entry=$entry.next())||true);){
+this.put(entry.getKey(),entry.getValue());
+}
 }},"java.util.Map");
 Clazz.defineMethod(c$,"rehash",
 function(capacity){

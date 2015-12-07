@@ -12,7 +12,7 @@ this.output ("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n");
 this.output ("<!DOCTYPE X3D PUBLIC \"ISO//Web3D//DTD X3D 3.1//EN\" \"http://www.web3d.org/specifications/x3d-3.1.dtd\">\n");
 this.output ("<X3D profile=\'Immersive\' version=\'3.1\' xmlns:xsd=\'http://www.w3.org/2001/XMLSchema-instance\' xsd:noNamespaceSchemaLocation=\' http://www.web3d.org/specifications/x3d-3.1.xsd \'>\n");
 this.output ("<head>\n");
-this.output ("<meta name='title' content=" + JU.PT.esc (this.vwr.getModelSetName ()).$replace ('<', ' ').$replace ('>', ' ').$replace ('&', ' ') + "/>\n");
+this.output ("<meta name='title' content=" + JU.PT.esc (this.vwr.ms.modelSetName).$replace ('<', ' ').$replace ('>', ' ').$replace ('&', ' ') + "/>\n");
 this.output ("<meta name='description' content='Jmol rendering'/>\n");
 this.output ("<meta name='creator' content=' '/>\n");
 this.output ("<meta name='created' content='" + this.getExportDate () + "'/>\n");
@@ -192,7 +192,7 @@ this.outputAppearance (colix, false);
 this.output (child + ">");
 }this.output ("</Shape>\n");
 this.output ("</Transform>\n");
-}, "JU.P3,~N,~N");
+}, "JU.T3,~N,~N");
 Clazz.overrideMethod (c$, "outputSurface", 
 function (vertices, normals, colixes, indices, polygonColixes, nVertices, nPolygons, nFaces, bsPolygons, faceVertexMax, colix, colorList, htColixes, offset) {
 this.output ("<Shape>\n");
@@ -247,51 +247,31 @@ this.output ("'/>");
 this.output ("</IndexedFaceSet>\n");
 this.outputAppearance (colix, false);
 this.output ("\n</Shape>\n");
-}, "JU.P3,JU.P3,JU.P3,~N");
+}, "JU.T3,JU.T3,JU.T3,~N");
 Clazz.overrideMethod (c$, "outputTextPixel", 
 function (pt, argb) {
-var color = this.rgbFractionalFromArgb (argb);
-this.output ("<Transform translation='");
-this.output (pt);
-this.output ("'>\n<Shape ");
-var child = this.useTable.getDef ("p" + argb);
-if (child.charAt (0) == '_') {
-this.output ("DEF='" + child + "'>");
-this.output ("<Sphere radius='0.01'/>");
-this.output ("<Appearance><Material diffuseColor=\'0 0 0\' specularColor=\'0 0 0\' ambientIntensity=\'0.0\' shininess=\'0.0\' emissiveColor=\'" + color + "'/></Appearance>'");
-} else {
-this.output (child + ">");
-}this.output ("</Shape>\n");
-this.output ("</Transform>\n");
 }, "JU.P3,~N");
 Clazz.overrideMethod (c$, "plotText", 
 function (x, y, z, colix, text, font3d) {
-if (z < 3) z = Clazz.floatToInt (this.tm.cameraDistance);
-var useFontStyle = font3d.fontStyle.toUpperCase ();
-var preFontFace = font3d.fontFace.toUpperCase ();
-var useFontFace = (preFontFace.equals ("MONOSPACED") ? "TYPEWRITER" : preFontFace.equals ("SERIF") ? "SERIF" : "SANS");
 this.output ("<Transform translation='");
-this.tempP3.set (x, y, z);
-this.tm.unTransformPoint (this.tempP3, this.tempP1);
-this.output (this.tempP1);
+this.output (this.setFont (x, y, z, colix, text, font3d));
 this.output ("'>");
 this.output ("<Billboard ");
-var child = this.useTable.getDef ("T" + colix + useFontFace + useFontStyle + "_" + text);
-if (child.charAt (0) == '_') {
-this.output ("DEF='" + child + "' axisOfRotation='0 0 0'>" + "<Transform translation='0.0 0.0 0.0'>" + "<Shape>");
+if (this.fontChild.charAt (0) == '_') {
+this.output ("DEF='" + this.fontChild + "' axisOfRotation='0 0 0'>" + "<Transform translation='0.0 0.0 0.0'>" + "<Shape>");
 this.outputAppearance (colix, true);
 this.output ("<Text string=" + JU.PT.esc (text) + ">");
 this.output ("<FontStyle ");
-var fontstyle = this.useTable.getDef ("F" + useFontFace + useFontStyle);
+var fontstyle = this.useTable.getDef ("F" + this.fontFace + this.fontStyle);
 if (fontstyle.charAt (0) == '_') {
-this.output ("DEF='" + fontstyle + "' size='0.4' family='" + useFontFace + "' style='" + useFontStyle + "'/>");
+this.output ("DEF='" + fontstyle + "' size='" + this.fontSize + "' family='" + this.fontFace + "' style='" + this.fontStyle + "'/>");
 } else {
 this.output (fontstyle + "/>");
 }this.output ("</Text>");
 this.output ("</Shape>");
 this.output ("</Transform>");
 } else {
-this.output (child + ">");
+this.output (this.fontChild + ">");
 }this.output ("</Billboard>\n");
 this.output ("</Transform>\n");
 }, "~N,~N,~N,~N,~S,javajs.awt.Font");

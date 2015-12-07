@@ -190,7 +190,7 @@ ptemp.setT (ipt);
 uc.toFractional (ptemp, false);
 info1 += "|inversion center at " + JS.SymmetryDesc.strCoord (ptemp, op.isBio);
 }if (haveCentering) info1 += "|centering " + JS.SymmetryDesc.strCoord (op.centering, op.isBio);
-if (op.timeReversal != 0) info1 += "|spin " + (op.timeReversal == 1 ? "m" : "-m");
+if (op.timeReversal != 0 && op.getSpinOp () == -1) info1 += "|spin flipped";
 var cmds = null;
 var xyzNew = (op.isBio ? op.xyzOriginal : JS.SymmetryOperation.getXYZFromMatrix (op, false, false, false));
 if (id != null) {
@@ -198,7 +198,7 @@ var drawid;
 var opType = null;
 drawid = "\ndraw ID " + id + "_";
 var draw1 =  new JU.SB ();
-draw1.append (("// " + op.xyzOriginal + "|" + xyzNew + "|" + info1).$replace ('\n', ' ')).append ("\n").append (drawid).append ("* delete");
+draw1.append (("// " + op.xyzOriginal + "|" + xyzNew + "|" + info1).$replace ('\n', ' ')).appendC ('\n').append (drawid).append ("* delete");
 JS.SymmetryDesc.drawLine (draw1, drawid + "frame1X", 0.15, pta00, pta01, "red");
 JS.SymmetryDesc.drawLine (draw1, drawid + "frame1Y", 0.15, pta00, pta02, "green");
 JS.SymmetryDesc.drawLine (draw1, drawid + "frame1Z", 0.15, pta00, pta03, "blue");
@@ -347,8 +347,7 @@ m2.m03 += vtrans.x;
 m2.m13 += vtrans.y;
 m2.m23 += vtrans.z;
 }xyzNew = (op.isBio ? m2.toString () : op.modDim > 0 ? op.xyzOriginal : JS.SymmetryOperation.getXYZFromMatrix (m2, false, false, false));
-if (op.timeReversal != 0) xyzNew += (op.timeReversal == 1 ? ",m" : ",-m");
-return [xyzNew, op.xyzOriginal, info1, cmds, JS.SymmetryDesc.approx0 (ftrans), JS.SymmetryDesc.approx0 (trans), JS.SymmetryDesc.approx0 (ipt), JS.SymmetryDesc.approx0 (pa1), JS.SymmetryDesc.approx0 (ax1), Integer.$valueOf (ang1), m2, vtrans, op.centering];
+return  Clazz.newArray (-1, [xyzNew, op.xyzOriginal, info1, cmds, JS.SymmetryDesc.approx0 (ftrans), JS.SymmetryDesc.approx0 (trans), JS.SymmetryDesc.approx0 (ipt), JS.SymmetryDesc.approx0 (pa1), JS.SymmetryDesc.approx0 (ax1), Integer.$valueOf (ang1), m2, vtrans, op.centering]);
 }, "JS.SymmetryOperation,J.api.SymmetryInterface,JU.P3,JU.P3,~S,JM.ModelSet");
 c$.setFractional = Clazz.defineMethod (c$, "setFractional", 
  function (uc, pt00, pt01, offset) {
@@ -366,7 +365,7 @@ c$.rotTransCart = Clazz.defineMethod (c$, "rotTransCart",
  function (op, uc, pt00, vtrans) {
 var p0 = JU.P3.newP (pt00);
 uc.toFractional (p0, false);
-op.rotTrans2 (p0, p0);
+op.rotTrans (p0);
 p0.add (vtrans);
 uc.toCartesian (p0, false);
 return p0;
@@ -398,19 +397,15 @@ pt.z = JS.SymmetryOperation.approxF (pt.z);
 }, "JU.T3");
 Clazz.defineMethod (c$, "getSymmetryInfo", 
 function (sym, iModel, iAtom, uc, xyz, op, pt, pt2, id, type, modelSet) {
-if (pt2 != null) return this.getSymmetryInfoString (sym, iModel, op, pt, pt2, (id == null ? "sym" : id), type == 1826248716 ? "label" : null, modelSet);
+if (pt2 != null) return this.getSymmetryInfoString (sym, iModel, op, pt, pt2, (id == null ? "sym" : id), type == 1825200146 ? "label" : null, modelSet);
 var isBio = uc.isBio ();
 var iop = op;
 var centering = null;
 if (xyz == null) {
 var ops = uc.getSymmetryOperations ();
-if (ops == null || op == 0 || Math.abs (op) > ops.length) {
-return (type == 135176 ? "draw ID sym_* delete" : "");
-}if (op > 0) {
-xyz = ops[iop = op - 1].xyz;
-} else {
-xyz = ops[iop = -1 - op].xyz;
-}centering = ops[iop].centering;
+if (ops == null || op == 0 || Math.abs (op) > ops.length) return (type == 135176 ? "draw ID sym_* delete" : "");
+xyz = ops[iop = Math.abs (op) - 1].xyz;
+centering = ops[iop].centering;
 } else {
 iop = op = 0;
 }var symTemp = modelSet.getSymTemp (true);
@@ -421,9 +416,9 @@ var opTemp = symTemp.getSpaceGroupOperation (i);
 if (!isBio) opTemp.centering = centering;
 var info;
 if (pt != null || iAtom >= 0) pt = JU.P3.newP (pt == null ? modelSet.at[iAtom] : pt);
-if (type == 135266320) {
+if (type == 134217751) {
 if (isBio) return "";
-symTemp.setUnitCell (uc.getNotionalUnitCell (), false);
+symTemp.setUnitCell (uc.getUnitCellParams (), false);
 uc.toFractional (pt, false);
 if (Float.isNaN (pt.x)) return "";
 var sympt =  new JU.P3 ();
@@ -433,15 +428,15 @@ return sympt;
 }info = this.getDescription (opTemp, uc, pt, pt2, (id == null ? "sym" : id), modelSet);
 var ang = (info[9]).intValue ();
 switch (type) {
-case 135266306:
+case 1275068418:
 return info;
 case 1073742001:
-var sinfo = [info[0], info[1], info[2], JU.Escape.eP (info[4]), JU.Escape.eP (info[5]), JU.Escape.eP (info[6]), JU.Escape.eP (info[7]), JU.Escape.eP (info[8]), "" + info[9], "" + JU.Escape.e (info[10])];
+var sinfo =  Clazz.newArray (-1, [info[0], info[1], info[2], JU.Escape.eP (info[4]), JU.Escape.eP (info[5]), JU.Escape.eP (info[6]), JU.Escape.eP (info[7]), JU.Escape.eP (info[8]), "" + info[9], "" + JU.Escape.e (info[10])]);
 return sinfo;
 case 1073741982:
 return info[0];
 default:
-case 1826248716:
+case 1825200146:
 return info[2];
 case 135176:
 return info[3];
@@ -449,12 +444,12 @@ case 1073742178:
 return info[5];
 case 12289:
 return info[6];
-case 135266320:
+case 134217751:
 return info[7];
 case 1073741854:
-case 135266319:
-return ((ang == 0) == (type == 135266319) ? info[8] : null);
-case 135266305:
+case 134217750:
+return ((ang == 0) == (type == 134217750) ? info[8] : null);
+case 134217729:
 return info[9];
 case 12:
 return info[10];
@@ -475,10 +470,11 @@ if (infolist[i] == null || symOp >= 0 && symOp != i) continue;
 if (drawID != null) return infolist[i][3];
 if (sb.length () > 0) sb.appendC ('\n');
 if (prettyMat) {
-sb.append (JS.SymmetryOperation.cleanMatrix (infolist[i][10])).append ("\t");
+JS.SymmetryOperation.getPrettyMatrix (sb, infolist[i][10]);
+sb.appendC ('\t');
 } else if (!labelOnly) {
-if (symOp < 0) sb.appendI (i + 1).append ("\t");
-sb.append (infolist[i][0]).append ("\t");
+if (symOp < 0) sb.appendI (i + 1).appendC ('\t');
+sb.append (infolist[i][0]).appendC ('\t');
 }sb.append (infolist[i][2]);
 }
 if (sb.length () == 0 && drawID != null) sb.append ("draw " + drawID + "* delete");
@@ -513,7 +509,7 @@ if (ops == null) {
 strOperations = "\n no symmetry operations";
 } else {
 isStandard = !isBio;
-if (isBio) sym.spaceGroup = (JS.SpaceGroup.getNull (false)).set (false);
+if (isBio) sym.spaceGroup = JS.SpaceGroup.getNull (false, false, false);
  else sym.setSpaceGroup (false);
 strOperations = "\n" + ops.length + " symmetry operations:";
 infolist =  new Array (ops.length);

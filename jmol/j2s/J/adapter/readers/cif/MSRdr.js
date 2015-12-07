@@ -126,7 +126,7 @@ function () {
 if (!this.finalized && this.modDim > 0 && !this.modVib) {
 if (this.modTUV != null) this.cr.appendLoadNote ("modTUV=" + this.modTUV);
 this.cr.asc.setInfo ("modulationOn", this.modTUV == null ? Boolean.TRUE : this.modTUV);
-this.cr.addJmolScript ((this.haveOccupancy && !this.isCommensurate ? ";display occupancy >= 0.5" : ""));
+this.cr.addJmolScript ("set modulateOccupancy " + (this.haveOccupancy && !this.isCommensurate ? true : false));
 }this.finalized = true;
 });
 Clazz.defineMethod (c$, "checkKey", 
@@ -171,7 +171,7 @@ var key;
 if (this.legendres != null) this.fixLegendre ();
 this.sigma =  new JU.Matrix (null, this.modDim, 3);
 this.qs = null;
-this.modMatrices = [this.sigma, null];
+this.modMatrices =  Clazz.newArray (-1, [this.sigma, null]);
 var pt;
 for (var i = 0; i < this.modDim; i++) {
 pt = this.getMod ("W_" + (i + 1));
@@ -181,7 +181,7 @@ return;
 }this.fixDouble (pt);
 this.cr.appendLoadNote ("W_" + (i + 1) + " = " + JU.Escape.e (pt));
 this.cr.appendUunitCellInfo ("q" + (i + 1) + "=" + pt[0] + " " + pt[1] + " " + pt[2]);
-this.sigma.getArray ()[i] = [pt[0], pt[1], pt[2]];
+this.sigma.getArray ()[i] =  Clazz.newDoubleArray (-1, [pt[0], pt[1], pt[2]]);
 }
 var map =  new java.util.Hashtable ();
 for (var e, $e = this.htModulation.entrySet ().iterator (); $e.hasNext () && ((e = $e.next ()) || true);) {
@@ -277,7 +277,7 @@ if (pt1 == null) {
 JU.Logger.error ("Crenel " + key1 + " not found for legendre modulation " + key);
 pt[2] = NaN;
 } else {
-this.htModulation.put (key, [pt1[0], pt1[1], pt[0], pt[1]]);
+this.htModulation.put (key,  Clazz.newDoubleArray (-1, [pt1[0], pt1[1], pt[0], pt[1]]));
 }}}
 });
 Clazz.defineMethod (c$, "fixDouble", 
@@ -287,7 +287,7 @@ if (this.cr.fixJavaFloat) for (var i = pt.length; --i >= 0; ) pt[i] = JU.PT.fixD
 }, "~A");
 Clazz.overrideMethod (c$, "getQCoefs", 
 function (key) {
-var fn = Math.max (0, this.cr.parseIntStr (key.substring (2)));
+var fn = Math.max (0, this.cr.parseIntAt (key, 2));
 if (fn == 0) {
 if (this.qlist100 == null) {
 this.qlist100 =  Clazz.newDoubleArray (this.modDim, 0);
@@ -335,6 +335,22 @@ case 2:
 p[1] = j;
 case 1:
 p[0] = i;
+break;
+}
+return p;
+}pt.setT (this.qs[0]);
+pt.scale (1 / i);
+if (this.modDim > 1 && this.qs[1] != null) pt.scaleAdd2 (1 / j, this.qs[1], pt);
+if (this.modDim > 2 && this.qs[2] != null) pt.scaleAdd2 (1 / k, this.qs[2], pt);
+if (pt.distanceSquared (p3) < 0.0001) {
+p =  Clazz.newDoubleArray (this.modDim, 0);
+switch (this.modDim) {
+default:
+p[2] = 1 / k;
+case 2:
+p[1] = 1 / j;
+case 1:
+p[0] = 1 / i;
 break;
 }
 return p;
@@ -406,23 +422,10 @@ this.gammaE =  new JU.M3 ();
 this.getSymmetry (a).getSpaceGroupOperation (iop).getRotationScale (this.gammaE);
 }if (JU.Logger.debugging) {
 JU.Logger.debug ("setModulation iop = " + iop + " " + this.symmetry.getSpaceGroupXyz (iop, false) + " " + a.bsSymmetry);
-}var ms =  new JU.ModulationSet ().setMod (a.index + " " + a.atomName, this.getAtomR0 (this.cr.asc.atoms[a.atomSite]), this.getAtomR0 (a), this.modDim, list, this.gammaE, this.getMatrices (a), iop, this.getSymmetry (a), Clazz.instanceOf (a.vib, JU.Vibration) ? a.vib : null);
+}var ms =  new JU.ModulationSet ().setMod (a.index + " " + a.atomName, this.getAtomR0 (this.cr.asc.atoms[a.atomSite]), this.getAtomR0 (a), this.modDim, list, this.gammaE, this.getMatrices (a), this.getSymmetry (a), this.nOps, iop, Clazz.instanceOf (a.vib, JU.Vibration) ? a.vib : null, this.isCommensurate);
 ms.calculate (this.modTUV, false);
 if (!Float.isNaN (ms.vOcc)) {
-var pt = this.getMod ("J_O#0;" + a.atomName);
-var occ0 = ms.vOcc0;
-var occ;
-if (Float.isNaN (occ0)) {
-occ = ms.vOcc;
-} else if (pt == null) {
-occ = a.foccupancy + ms.vOcc;
-} else if (a.vib != null) {
-var site_mult = a.vib.x;
-var o_site = a.foccupancy * site_mult / this.nOps / pt[1];
-occ = o_site * (pt[1] + ms.vOcc);
-} else {
-occ = pt[0] * (pt[1] + ms.vOcc);
-}a.foccupancy = (occ > 0.49 && occ < 0.50 ? 0.489 : Math.min (1, Math.max (0, occ)));
+a.foccupancy = ms.setOccupancy (this.getMod ("J_O#0;" + a.atomName), a.foccupancy, (a.vib == null ? 0 : a.vib.x));
 }if (ms.htUij != null) {
 var t = (a.tensors == null ? null : a.tensors.get (0));
 if (t != null && t.parBorU != null) {
@@ -566,7 +569,7 @@ case 'A':
 case 'B':
 case 'C':
 case 'I':
-a = [0.5, 0.5, 0.5];
+a =  Clazz.newFloatArray (-1, [0.5, 0.5, 0.5]);
 if (c != 'I') a[c.charCodeAt (0) - 65] = 0;
 break;
 case 'F':

@@ -20,7 +20,7 @@ Clazz.instantialize (this, arguments);
 }, J.adapter.smarter, "Structure");
 Clazz.prepareFields (c$, function () {
 this.atomStartEnd =  Clazz.newIntArray (2, 0);
-this.modelStartEnd = [-1, -1];
+this.modelStartEnd =  Clazz.newIntArray (-1, [-1, -1]);
 });
 c$.getHelixType = Clazz.defineMethod (c$, "getHelixType", 
 function (type) {

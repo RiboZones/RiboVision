@@ -42,7 +42,7 @@ Clazz.overrideMethod (c$, "getPropertyData",
 function (property, data) {
 if (property === "checkID") {
 return (this.checkID (data[0]));
-}return false;
+}return this.getPropShape (property, data);
 }, "~S,~A");
 Clazz.defineMethod (c$, "checkID", 
  function (thisID) {
@@ -235,7 +235,7 @@ function (bsModels) {
 if (!this.isActive ()) return;
 var atoms = this.vwr.ms.at;
 this.setVis (this.simpleEllipsoids, bsModels, atoms);
-if (this.atomEllipsoids != null) for (var i = atoms.length; --i >= 0; ) atoms[i].setShapeVisibility (this.vf, false);
+if (this.atomEllipsoids != null) for (var i = atoms.length; --i >= 0; ) this.setShapeVisibility (atoms[i], false);
 
 this.setVis (this.atomEllipsoids, bsModels, atoms);
 }, "JU.BS");
@@ -250,7 +250,7 @@ var isModTensor = t.isModulated;
 var isUnmodTensor = t.isUnmodulated;
 var isModAtom = this.ms.isModulated (t.atomIndex1);
 isOK = (!isModTensor && !isUnmodTensor || isModTensor == isModAtom);
-}atoms[t.atomIndex1].setShapeVisibility (this.vf, true);
+}this.setShapeVisibility (atoms[t.atomIndex1], true);
 }e.visible = isOK && (e.modelIndex < 0 || bs.get (e.modelIndex));
 }
 }, "java.util.Map,JU.BS,~A");

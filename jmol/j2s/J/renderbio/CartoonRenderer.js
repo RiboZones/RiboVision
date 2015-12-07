@@ -21,8 +21,8 @@ this.ribbonBottomScreens = this.calcScreens (-0.5, this.mads);
 this.calcRopeMidPoints ();
 this.renderProtein ();
 this.vwr.freeTempPoints (this.cordMidPoints);
-this.vwr.freeTempScreens (this.ribbonTopScreens);
-this.vwr.freeTempScreens (this.ribbonBottomScreens);
+this.vwr.freeTempPoints (this.ribbonTopScreens);
+this.vwr.freeTempPoints (this.ribbonBottomScreens);
 }, "J.shapebio.BioShape");
 Clazz.defineMethod (c$, "renderProtein", 
  function () {

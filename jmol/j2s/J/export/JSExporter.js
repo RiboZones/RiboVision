@@ -28,16 +28,16 @@ Clazz.defineMethod (c$, "jsCylinder",
 }, "~O,~S,~B,JU.P3,JU.P3,~A");
 Clazz.defineMethod (c$, "jsSphere", 
  function (applet, id, isNew, pt, o) {
-}, "~O,~S,~B,JU.P3,~A");
+}, "~O,~S,~B,JU.T3,~A");
 Clazz.defineMethod (c$, "jsSurface", 
 function (applet, vertices, normals, indices, nVertices, nPolygons, nFaces, bsPolygons, faceVertexMax, color, vertexColors, polygonColors) {
 }, "~O,~A,~A,~A,~N,~N,~N,JU.BS,~N,~N,~A,~A");
 Clazz.defineMethod (c$, "jsTriangle", 
 function (applet, color, pt1, pt2, pt3) {
-}, "~O,~N,JU.P3,JU.P3,JU.P3");
+}, "~O,~N,JU.T3,JU.T3,JU.T3");
 Clazz.overrideMethod (c$, "outputHeader", 
 function () {
-this.html5Applet = this.vwr.getHtml5Applet ();
+this.html5Applet = this.vwr.html5Applet;
 this.useTable =  new J["export"].UseTable ("JS");
 this.htSpheresRendered.clear ();
 this.htObjects.clear ();
@@ -59,9 +59,9 @@ this.htSpheresRendered.put (check, Boolean.TRUE);
 var found = this.useTable.getDefRet ("S" + colix + "_" + iRad, this.ret);
 var o;
 if (found) o = this.htObjects.get (this.ret[0]);
- else this.htObjects.put (this.ret[0], o = [this.getColor (colix), Float.$valueOf (radius)]);
+ else this.htObjects.put (this.ret[0], o =  Clazz.newArray (-1, [this.getColor (colix), Float.$valueOf (radius)]));
 this.jsSphere (this.html5Applet, this.ret[0], !found, ptCenter, o);
-}, "JU.P3,~N,~N,~B");
+}, "JU.T3,~N,~N,~B");
 Clazz.overrideMethod (c$, "outputCylinder", 
 function (ptCenter, pt1, pt2, colix, endcaps, radius, ptX, ptY, checkRadius) {
 if (ptX != null) return false;
@@ -69,7 +69,7 @@ var length = pt1.distance (pt2);
 var found = this.useTable.getDefRet ("C" + colix + "_" + Math.round (length * 100) + "_" + radius + "_" + endcaps, this.ret);
 var o;
 if (found) o = this.htObjects.get (this.ret[0]);
- else this.htObjects.put (this.ret[0], o = [this.getColor (colix), Float.$valueOf (length), Float.$valueOf (radius)]);
+ else this.htObjects.put (this.ret[0], o =  Clazz.newArray (-1, [this.getColor (colix), Float.$valueOf (length), Float.$valueOf (radius)]));
 this.jsCylinder (this.html5Applet, this.ret[0], !found, pt1, pt2, o);
 return true;
 }, "JU.P3,JU.P3,JU.P3,~N,~N,~N,JU.P3,JU.P3,~B");
@@ -96,7 +96,7 @@ this.jsSurface (this.html5Applet, vertices, normals, indices, nVertices, nPolygo
 Clazz.overrideMethod (c$, "outputTriangle", 
 function (pt1, pt2, pt3, colix) {
 this.jsTriangle (this.html5Applet, this.gdata.getColorArgbOrGray (colix), pt1, pt2, pt3);
-}, "JU.P3,JU.P3,JU.P3,~N");
+}, "JU.T3,JU.T3,JU.T3,~N");
 Clazz.overrideMethod (c$, "outputTextPixel", 
 function (pt, argb) {
 }, "JU.P3,~N");

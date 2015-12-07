@@ -20,8 +20,8 @@ Clazz.overrideMethod (c$, "isConnectedAfter",
 function (possiblyPreviousMonomer) {
 if (possiblyPreviousMonomer == null) return true;
 for (var i = this.firstAtomIndex; i <= this.lastAtomIndex; i++) for (var j = possiblyPreviousMonomer.firstAtomIndex; j <= possiblyPreviousMonomer.lastAtomIndex; j++) {
-var a = this.chain.getAtom (i);
-var b = this.chain.getAtom (j);
+var a = this.chain.model.ms.at[i];
+var b = this.chain.model.ms.at[j];
 if (a.getElementNumber () + b.getElementNumber () == 14 && a.distanceSquared (b) < 3.24) return true;
 }
 
@@ -41,11 +41,10 @@ if (this.isCursorOnTopOf (anomericO, x, y, radiusBegin, competitor)) closest[0] 
 Clazz.overrideMethod (c$, "isConnectedPrevious", 
 function () {
 if (this.monomerIndex <= 0) return false;
-for (var i = this.firstAtomIndex; i <= this.lastAtomIndex; i++) {
-if (this.getCrossLink (i, null)) return true;
-}
+for (var i = this.firstAtomIndex; i <= this.lastAtomIndex; i++) if (this.getCrossLinkGroup (i, null, null, true, false, false)) return true;
+
 return false;
 });
 Clazz.defineStatics (c$,
-"alphaOffsets", [0]);
+"alphaOffsets",  Clazz.newByteArray (-1, [0]));
 });

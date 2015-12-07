@@ -141,7 +141,7 @@ var i0 = (isAll ? this.ac - 1 : bsSelected.nextSetBit (0));
 for (var i = i0; i >= 0; i = (isAll ? i - 1 : bsSelected.nextSetBit (i + 1))) this.bsOn.setBitTo (i, false);
 
 }for (var i = this.ac; --i >= 0; ) {
-this.atoms[i].setShapeVisibility (this.vf, this.bsOn.get (i));
+this.setShapeVisibility (this.atoms[i], this.bsOn.get (i));
 }
 if (!isVisible) return;
 if (newSet) {
@@ -172,7 +172,7 @@ var dotsConvexMaps = this.ec.getDotsConvexMaps ();
 if (dotsConvexMaps == null || this.ec.getDotsConvexMax () == 0) return "";
 var s =  new JU.SB ();
 var temp =  new java.util.Hashtable ();
-var ac = this.vwr.getAtomCount ();
+var ac = this.vwr.ms.ac;
 var type = (this.isSurface ? "geoSurface " : "dots ");
 for (var i = 0; i < ac; i++) {
 if (!this.bsOn.get (i) || dotsConvexMaps[i] == null) continue;

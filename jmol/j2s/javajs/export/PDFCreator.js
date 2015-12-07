@@ -148,7 +148,7 @@ this.os.close ();
 Clazz.defineMethod (c$, "outputHeader", 
  function () {
 this.output ("%PDF-1.3\n%");
-var b = [-1, -1, -1, -1];
+var b =  Clazz.newByteArray (-1, [-1, -1, -1, -1]);
 this.os.write (b, 0, b.length);
 this.pt += 4;
 this.output ("\n");

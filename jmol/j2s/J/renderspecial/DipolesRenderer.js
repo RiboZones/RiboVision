@@ -1,9 +1,9 @@
 Clazz.declarePackage ("J.renderspecial");
-Clazz.load (["J.render.ShapeRenderer", "JU.P3", "$.V3"], "J.renderspecial.DipolesRenderer", ["JU.P3i", "JU.C"], function () {
+Clazz.load (["J.render.ShapeRenderer", "JU.P3", "$.V3"], "J.renderspecial.DipolesRenderer", ["JU.C"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.dipoleVectorScale = 0;
 this.offset = null;
-this.screens = null;
+this.screens3f = null;
 this.points = null;
 this.cross0 = null;
 this.cross1 = null;
@@ -18,11 +18,11 @@ Clazz.instantialize (this, arguments);
 }, J.renderspecial, "DipolesRenderer", J.render.ShapeRenderer);
 Clazz.prepareFields (c$, function () {
 this.offset =  new JU.V3 ();
-this.screens =  new Array (6);
+this.screens3f =  new Array (6);
 this.points =  new Array (6);
 {
 for (var i = 0; i < 6; i++) {
-this.screens[i] =  new JU.P3i ();
+this.screens3f[i] =  new JU.P3 ();
 this.points[i] =  new JU.P3 ();
 }
 }this.cross0 =  new JU.P3 ();
@@ -99,11 +99,11 @@ this.offset.cross (this.offset, vector);
 }this.offset.scale (this.offsetSide / this.offset.length ());
 for (var i = 0; i < 6; i++) this.points[i].add (this.offset);
 
-for (var i = 0; i < 6; i++) this.tm.transformPtScr (this.points[i], this.screens[i]);
+for (var i = 0; i < 6; i++) this.tm.transformPtScrT3 (this.points[i], this.screens3f[i]);
 
 this.tm.transformPt3f (this.points[1], this.cross0);
 this.tm.transformPt3f (this.points[2], this.cross1);
-var d = this.vwr.tm.scaleToScreen (this.screens[3].z, this.mad);
+var d = this.vwr.tm.scaleToScreen (Clazz.floatToInt (this.screens3f[3].z), this.mad);
 this.diameter = Clazz.floatToInt (d);
 this.headWidthPixels = Clazz.doubleToInt (Math.floor (d * 2.0));
 if (this.headWidthPixels < this.diameter + 5) this.headWidthPixels = this.diameter + 5;
@@ -111,20 +111,20 @@ this.crossWidthPixels = this.headWidthPixels;
 this.colix = this.colixA;
 if (this.colix == this.colixB) {
 if (!this.g3d.setC (this.colix)) return true;
-this.g3d.fillCylinder (1, this.diameter, this.screens[0], this.screens[4]);
+this.g3d.fillCylinderBits (1, this.diameter, this.screens3f[0], this.screens3f[4]);
 if (!this.noCross) this.g3d.fillCylinderBits (2, this.crossWidthPixels, this.cross0, this.cross1);
-this.g3d.fillConeScreen (2, this.headWidthPixels, this.screens[4], this.screens[5], false);
+this.g3d.fillConeScreen3f (2, this.headWidthPixels, this.screens3f[4], this.screens3f[5], false);
 return false;
 }var needTranslucent = false;
 if (this.g3d.setC (this.colix)) {
-this.g3d.fillCylinder (1, this.diameter, this.screens[0], this.screens[3]);
+this.g3d.fillCylinderBits (1, this.diameter, this.screens3f[0], this.screens3f[3]);
 if (!this.noCross) this.g3d.fillCylinderBits (2, this.crossWidthPixels, this.cross0, this.cross1);
 } else {
 needTranslucent = true;
 }this.colix = this.colixB;
 if (this.g3d.setC (this.colix)) {
-this.g3d.fillCylinder (4, this.diameter, this.screens[3], this.screens[4]);
-this.g3d.fillConeScreen (2, this.headWidthPixels, this.screens[4], this.screens[5], false);
+this.g3d.fillCylinderBits (4, this.diameter, this.screens3f[3], this.screens3f[4]);
+this.g3d.fillConeScreen3f (2, this.headWidthPixels, this.screens3f[4], this.screens3f[5], false);
 } else {
 needTranslucent = true;
 }return needTranslucent;

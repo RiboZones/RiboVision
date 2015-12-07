@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JM");
-Clazz.load (["JU.BNode", "$.Point3fi", "J.c.PAL"], "JM.Atom", ["java.lang.Float", "JU.BS", "$.CU", "$.P3", "$.PT", "$.SB", "J.atomdata.RadiusData", "J.c.VDW", "JU.C", "$.Elements", "JV.JC"], function () {
+Clazz.load (["JU.BNode", "$.Point3fi", "J.c.PAL"], "JM.Atom", ["java.lang.Float", "JU.BS", "$.CU", "$.P3", "$.PT", "$.SB", "J.atomdata.RadiusData", "J.c.VDW", "JM.Group", "JU.C", "$.Elements"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.altloc = '\0';
 this.atomID = 0;
@@ -23,22 +23,6 @@ Clazz.instantialize (this, arguments);
 Clazz.prepareFields (c$, function () {
 this.paletteID = J.c.PAL.CPK.id;
 });
-Clazz.defineMethod (c$, "getAtomID", 
-function () {
-return this.atomID;
-});
-Clazz.defineMethod (c$, "getBonds", 
-function () {
-return this.bonds;
-});
-Clazz.defineMethod (c$, "setBonds", 
-function (bonds) {
-this.bonds = bonds;
-}, "~A");
-Clazz.defineMethod (c$, "getNBackbonesDisplayed", 
-function () {
-return this.nBackbonesDisplayed;
-});
 Clazz.overrideMethod (c$, "setAtom", 
 function (modelIndex, atomIndex, xyz, radius, atomSymmetry, atomSite, atomicAndIsotopeNumber, formalCharge, isHetero) {
 this.mi = modelIndex;
@@ -52,10 +36,6 @@ this.userDefinedVanDerWaalRadius = radius;
 this.setT (xyz);
 return this;
 }, "~N,~N,JU.P3,~N,JU.BS,~N,~N,~N,~B");
-Clazz.defineMethod (c$, "setAltLoc", 
-function (altLoc) {
-this.altloc = altLoc;
-}, "~S");
 Clazz.defineMethod (c$, "setShapeVisibility", 
 function (flag, isVisible) {
 if (isVisible) this.shapeVisibilityFlags |= flag;
@@ -84,11 +64,6 @@ function (stickVisibilityFlag, isVisible) {
 this.nBondsDisplayed += (isVisible ? 1 : -1);
 this.setShapeVisibility (stickVisibilityFlag, (this.nBondsDisplayed > 0));
 }, "~N,~B");
-Clazz.defineMethod (c$, "addDisplayedBackbone", 
-function (backboneVisibilityFlag, isVisible) {
-this.nBackbonesDisplayed += (isVisible ? 1 : -1);
-this.setShapeVisibility (backboneVisibilityFlag, isVisible);
-}, "~N,~B");
 Clazz.defineMethod (c$, "deleteBond", 
 function (bond) {
 if (this.bonds != null) for (var i = this.bonds.length; --i >= 0; ) if (this.bonds[i] === bond) {
@@ -110,10 +85,6 @@ for (; j < newLength; ++j) bondsNew[j] = this.bonds[j + 1];
 
 this.bonds = bondsNew;
 }, "~N");
-Clazz.defineMethod (c$, "clearBonds", 
-function () {
-this.bonds = null;
-});
 Clazz.overrideMethod (c$, "getBondedAtomIndex", 
 function (bondIndex) {
 return this.bonds[bondIndex].getOtherAtom (this).i;
@@ -203,22 +174,14 @@ Clazz.overrideMethod (c$, "getEdges",
 function () {
 return (this.bonds == null ?  new Array (0) : this.bonds);
 });
-Clazz.defineMethod (c$, "setColixAtom", 
-function (colixAtom) {
-this.colixAtom = colixAtom;
-}, "~N");
-Clazz.defineMethod (c$, "setPaletteID", 
-function (paletteID) {
-this.paletteID = paletteID;
-}, "~N");
+Clazz.overrideMethod (c$, "getBondCount", 
+function () {
+return (this.bonds == null ? 0 : this.bonds.length);
+});
 Clazz.defineMethod (c$, "setTranslucent", 
 function (isTranslucent, translucentLevel) {
 this.colixAtom = JU.C.getColixTranslucent3 (this.colixAtom, isTranslucent, translucentLevel);
 }, "~B,~N");
-Clazz.defineMethod (c$, "isTranslucent", 
-function () {
-return JU.C.isColixTranslucent (this.colixAtom);
-});
 Clazz.overrideMethod (c$, "getElementNumber", 
 function () {
 return JU.Elements.getElementNumber (this.atomicAndIsotopeNumber);
@@ -244,17 +207,6 @@ Clazz.defineMethod (c$, "getElementSymbol",
 function () {
 return this.getElementSymbolIso (true);
 });
-Clazz.defineMethod (c$, "getAlternateLocationID", 
-function () {
-return this.altloc;
-});
-Clazz.defineMethod (c$, "isAltLoc", 
-function (strPattern) {
-if (strPattern == null) return (this.altloc == '\0');
-if (strPattern.length != 1) return false;
-var ch = strPattern.charAt (0);
-return (ch == '*' || ch == '?' && this.altloc != '\0' || this.altloc == ch);
-}, "~S");
 Clazz.defineMethod (c$, "isHetero", 
 function () {
 return (this.formalChargeAndFlags & 2) != 0;
@@ -278,7 +230,12 @@ return this.formalChargeAndFlags >> 2;
 Clazz.defineMethod (c$, "getOccupancy100", 
 function () {
 var occupancies = this.group.chain.model.ms.occupancies;
-return occupancies == null ? 100 : Math.round (occupancies[this.i]);
+return (occupancies == null ? 100 : Math.round (occupancies[this.i]));
+});
+Clazz.defineMethod (c$, "isOccupied", 
+function () {
+var occupancies = this.group.chain.model.ms.occupancies;
+return (occupancies == null || occupancies[this.i] >= 50);
 });
 Clazz.defineMethod (c$, "getBfactor100", 
 function () {
@@ -289,14 +246,14 @@ return bfactor100s[this.i];
 Clazz.defineMethod (c$, "getHydrophobicity", 
  function () {
 var values = this.group.chain.model.ms.hydrophobicities;
-if (values == null) return JU.Elements.getHydrophobicity (this.group.getGroupID ());
+if (values == null) return JU.Elements.getHydrophobicity (this.group.groupID);
 return values[this.i];
 });
 Clazz.defineMethod (c$, "setRadius", 
 function (radius) {
 return !Float.isNaN (this.userDefinedVanDerWaalRadius = (radius > 0 ? radius : NaN));
 }, "~N");
-Clazz.defineMethod (c$, "deleteBonds", 
+Clazz.defineMethod (c$, "$delete", 
 function (bsBonds) {
 this.valence = -1;
 if (this.bonds != null) for (var i = this.bonds.length; --i >= 0; ) {
@@ -312,8 +269,7 @@ return (this.valence < 0);
 });
 Clazz.defineMethod (c$, "setValence", 
 function (nBonds) {
-if (this.isDeleted ()) return;
-this.valence = (nBonds < 0 ? 0 : nBonds < 0xEF ? nBonds : 0xEF);
+if (!this.isDeleted ()) this.valence = (nBonds < 0 ? 0 : nBonds < 0xEF ? nBonds : 0xEF);
 }, "~N");
 Clazz.overrideMethod (c$, "getValence", 
 function () {
@@ -400,7 +356,7 @@ return this.bonds == null ? 0 : this.bonds.length;
 });
 Clazz.defineMethod (c$, "getRadius", 
 function () {
-return Math.abs (this.madAtom / (2000.0));
+return Math.abs (this.madAtom / 2000);
 });
 Clazz.overrideMethod (c$, "getIndex", 
 function () {
@@ -410,25 +366,13 @@ Clazz.overrideMethod (c$, "getAtomSite",
 function () {
 return this.atomSite;
 });
-Clazz.defineMethod (c$, "setAtomSymmetry", 
-function (bsSymmetry) {
-this.atomSymmetry = bsSymmetry;
-}, "JU.BS");
-Clazz.defineMethod (c$, "getAtomSymmetry", 
-function () {
-return this.atomSymmetry;
-});
-Clazz.defineMethod (c$, "setGroup", 
-function (group) {
-this.group = group;
-}, "JM.Group");
 Clazz.overrideMethod (c$, "getGroupBits", 
 function (bs) {
-this.group.selectAtoms (bs);
+this.group.setAtomBits (bs);
 }, "JU.BS");
 Clazz.overrideMethod (c$, "getAtomName", 
 function () {
-return (this.atomID > 0 ? JV.JC.getSpecialAtomName (this.atomID) : this.group.chain.model.ms.atomNames[this.i]);
+return (this.atomID > 0 ? JM.Group.specialAtomNames[this.atomID] : this.group.chain.model.ms.atomNames[this.i]);
 });
 Clazz.overrideMethod (c$, "getAtomType", 
 function () {
@@ -436,7 +380,7 @@ var atomTypes = this.group.chain.model.ms.atomTypes;
 var type = (atomTypes == null ? null : atomTypes[this.i]);
 return (type == null ? this.getAtomName () : type);
 });
-Clazz.defineMethod (c$, "getAtomNumber", 
+Clazz.overrideMethod (c$, "getAtomNumber", 
 function () {
 var atomSerials = this.group.chain.model.ms.atomSerials;
 return (atomSerials == null ? this.i : atomSerials[this.i]);
@@ -504,7 +448,7 @@ pt = this.getFractionalCoordPt (fixJavaFloat, asAbsolute, pt);
 return (ch == 'X' ? pt.x : ch == 'Y' ? pt.y : pt.z);
 }, "~B,~S,~B,JU.P3");
 Clazz.defineMethod (c$, "getFractionalCoordPt", 
- function (fixJavaFloat, asAbsolute, pt) {
+function (fixJavaFloat, asAbsolute, pt) {
 var c = this.getUnitCell ();
 if (c == null) return this;
 if (pt == null) pt = JU.P3.newP (this);
@@ -556,16 +500,16 @@ function (tok, fValue, asAbsolute) {
 var c = this.getUnitCell ();
 if (c != null) c.toFractional (this, asAbsolute);
 switch (tok) {
-case 1112541191:
-case 1112541188:
+case 1111492615:
+case 1111492612:
 this.x = fValue;
 break;
-case 1112541192:
-case 1112541189:
+case 1111492616:
+case 1111492613:
 this.y = fValue;
 break;
-case 1112541193:
-case 1112541190:
+case 1111492617:
+case 1111492614:
 this.z = fValue;
 break;
 }
@@ -610,15 +554,6 @@ Clazz.defineMethod (c$, "getInfo",
 function () {
 return this.getIdentity (true);
 });
-Clazz.defineMethod (c$, "getInfoXYZ", 
-function (fixJavaFloat, useChimeFormat, pt) {
-if (useChimeFormat) {
-var group3 = this.getGroup3 (true);
-var chainID = this.getChainID ();
-pt = this.getFractionalCoordPt (fixJavaFloat, true, pt);
-return "Atom: " + (group3 == null ? this.getElementSymbol () : this.getAtomName ()) + " " + this.getAtomNumber () + (group3 != null && group3.length > 0 ? (this.isHetero () ? " Hetero: " : " Group: ") + group3 + " " + this.getResno () + (chainID != 0 && chainID != 32 ? " Chain: " + this.group.chain.getIDStr () : "") : "") + " Model: " + this.getModelNumber () + " Coordinates: " + this.x + " " + this.y + " " + this.z + (pt == null ? "" : " Fractional: " + pt.x + " " + pt.y + " " + pt.z);
-}return this.getIdentityXYZ (true, pt);
-}, "~B,~B,JU.P3");
 Clazz.defineMethod (c$, "getIdentityXYZ", 
 function (allInfo, pt) {
 pt = (this.group.chain.model.isJmolDataFrame ? this.getFractionalCoordPt (!this.group.chain.model.ms.vwr.g.legacyJavaFloat, false, pt) : this);
@@ -632,9 +567,9 @@ if (group3 != null && group3.length > 0 && !group3.equals ("UNK")) {
 info.append ("[");
 info.append (group3);
 info.append ("]");
-var seqcodeString = this.getSeqcodeString ();
+var seqcodeString = this.group.getSeqcodeString ();
 if (seqcodeString != null) info.append (seqcodeString);
-var chainID = this.getChainID ();
+var chainID = this.group.chain.chainID;
 if (chainID != 0 && chainID != 32) {
 info.append (":");
 var s = this.getChainIDStr ();
@@ -647,7 +582,7 @@ if (info.length () == 0) {
 info.append (this.getElementSymbolIso (false));
 info.append (" ");
 info.appendI (this.getAtomNumber ());
-}if (this.altloc.charCodeAt (0) != 0) {
+}if (this.altloc != '\0') {
 info.append ("%");
 info.appendC (this.altloc);
 }if (this.group.chain.model.ms.mc > 1 && !this.group.chain.model.isJmolDataFrame) {
@@ -667,25 +602,9 @@ function (c0) {
 var c = this.group.getGroup1 ();
 return (c != '\0' ? "" + c : c0 != '\0' ? "" + c0 : "");
 }, "~S");
-Clazz.overrideMethod (c$, "isProtein", 
+Clazz.overrideMethod (c$, "getBioSmilesType", 
 function () {
-return this.group.isProtein ();
-});
-Clazz.defineMethod (c$, "isCarbohydrate", 
-function () {
-return this.group.isCarbohydrate ();
-});
-Clazz.overrideMethod (c$, "isNucleic", 
-function () {
-return this.group.isNucleic ();
-});
-Clazz.overrideMethod (c$, "isDna", 
-function () {
-return this.group.isDna ();
-});
-Clazz.overrideMethod (c$, "isRna", 
-function () {
-return this.group.isRna ();
+return (this.group.isProtein () ? 'p' : this.group.isDna () ? 'd' : this.group.isRna () ? 'r' : this.group.isCarbohydrate () ? 'c' : ' ');
 });
 Clazz.overrideMethod (c$, "isPurine", 
 function () {
@@ -694,10 +613,6 @@ return this.group.isPurine ();
 Clazz.overrideMethod (c$, "isPyrimidine", 
 function () {
 return this.group.isPyrimidine ();
-});
-Clazz.defineMethod (c$, "getSeqcode", 
-function () {
-return this.group.seqcode;
 });
 Clazz.overrideMethod (c$, "getResno", 
 function () {
@@ -733,10 +648,6 @@ Clazz.overrideMethod (c$, "isLeadAtom",
 function () {
 return this.group.isLeadAtom (this.i);
 });
-Clazz.defineMethod (c$, "getGroupParameter", 
-function (tok) {
-return this.group.getGroupParameter (tok);
-}, "~N");
 Clazz.overrideMethod (c$, "getChainID", 
 function () {
 return this.group.chain.chainID;
@@ -757,46 +668,6 @@ Clazz.defineMethod (c$, "getModulation",
 function () {
 return this.group.chain.model.ms.getModulation (this.i);
 });
-Clazz.defineMethod (c$, "getVibrationCoord", 
-function (ch) {
-return this.group.chain.model.ms.getVibrationCoord (this.i, ch);
-}, "~S");
-Clazz.defineMethod (c$, "getModulationCoord", 
-function (ch) {
-return this.group.chain.model.ms.getModulationCoord (this.i, ch);
-}, "~S");
-Clazz.defineMethod (c$, "getPolymerLength", 
-function () {
-return this.group.getBioPolymerLength ();
-});
-Clazz.defineMethod (c$, "getPolymerIndexInModel", 
-function () {
-return this.group.getBioPolymerIndexInModel ();
-});
-Clazz.defineMethod (c$, "getMonomerIndex", 
-function () {
-return this.group.getMonomerIndex ();
-});
-Clazz.defineMethod (c$, "getSelectedGroupCountWithinChain", 
-function () {
-return this.group.chain.selectedGroupCount;
-});
-Clazz.defineMethod (c$, "getSelectedGroupIndexWithinChain", 
-function () {
-return this.group.getSelectedGroupIndex ();
-});
-Clazz.defineMethod (c$, "getSelectedMonomerCountWithinPolymer", 
-function () {
-return this.group.getSelectedMonomerCount ();
-});
-Clazz.defineMethod (c$, "getSelectedMonomerIndexWithinPolymer", 
-function () {
-return this.group.getSelectedMonomerIndex ();
-});
-Clazz.defineMethod (c$, "getChain", 
-function () {
-return this.group.chain;
-});
 Clazz.defineMethod (c$, "getModelNumberForLabel", 
 function () {
 return this.group.chain.model.ms.getModelNumberForAtomLabel (this.mi);
@@ -805,49 +676,9 @@ Clazz.defineMethod (c$, "getModelNumber",
 function () {
 return this.group.chain.model.ms.getModelNumber (this.mi) % 1000000;
 });
-Clazz.defineMethod (c$, "getModelFileIndex", 
-function () {
-return this.group.chain.model.fileIndex;
-});
-Clazz.defineMethod (c$, "getModelFileNumber", 
-function () {
-return this.group.chain.model.ms.getModelFileNumber (this.mi);
-});
 Clazz.overrideMethod (c$, "getBioStructureTypeName", 
 function () {
-return this.getProteinStructureType ().getBioStructureTypeName (true);
-});
-Clazz.defineMethod (c$, "getProteinStructureType", 
-function () {
-return this.group.getProteinStructureType ();
-});
-Clazz.defineMethod (c$, "getProteinStructureSubType", 
-function () {
-return this.group.getProteinStructureSubType ();
-});
-Clazz.defineMethod (c$, "getStrucNo", 
-function () {
-return this.group.getStrucNo ();
-});
-Clazz.defineMethod (c$, "getStructureId", 
-function () {
-return this.group.getStructureId ();
-});
-Clazz.defineMethod (c$, "getProteinStructureTag", 
-function () {
-return this.group.getProteinStructureTag ();
-});
-Clazz.defineMethod (c$, "getGroupID", 
-function () {
-return this.group.groupID;
-});
-Clazz.defineMethod (c$, "getSeqcodeString", 
-function () {
-return this.group.getSeqcodeString ();
-});
-Clazz.defineMethod (c$, "getInsertionCode", 
-function () {
-return this.group.getInsertionCode ();
+return this.group.getProteinStructureType ().getBioStructureTypeName (true);
 });
 Clazz.overrideMethod (c$, "equals", 
 function (obj) {
@@ -870,64 +701,66 @@ return null;
 Clazz.defineMethod (c$, "atomPropertyInt", 
 function (tokWhat) {
 switch (tokWhat) {
-case 1095763969:
+case 1094715393:
 return this.getAtomNumber ();
-case 1095761940:
+case 1094713365:
 return this.getSeqID ();
-case 1095761922:
+case 1094713346:
 return this.atomID;
-case 1095761943:
+case 1094713368:
 return Math.max (0, this.altloc.charCodeAt (0) - 32);
-case 1095761923:
+case 1094713347:
 return this.i;
-case 1095761924:
+case 1228931587:
 return this.getCovalentBondCount ();
-case 1095761927:
-return this.group.chain.index + 1;
-case 1766856708:
-return this.group.chain.model.ms.vwr.getColorArgbOrGray (this.colixAtom);
-case 1087375365:
-case 1095763978:
+case 1094713351:
+return this.group.chain.chainNo;
+case 1765808134:
+return this.group.chain.model.ms.vwr.gdata.getColorArgbOrGray (this.colixAtom);
+case 1086326789:
+case 1094715402:
 return this.getElementNumber ();
-case 1095761929:
+case 1094713353:
 return this.atomicAndIsotopeNumber;
-case 1229984263:
-return this.getModelFileIndex () + 1;
-case 1632634891:
+case 1228935687:
+return this.group.chain.model.fileIndex + 1;
+case 1631586315:
 return this.getFormalCharge ();
-case 1095761932:
-return this.getGroupID ();
-case 1095761933:
-return this.group.getGroupIndex ();
-case 1095766030:
+case 1094713356:
+return this.group.groupID;
+case 1094713357:
+return this.group.groupIndex;
+case 1094717454:
 return this.getModelNumber ();
-case -1095766030:
-return this.getModelFileNumber ();
-case 1095761935:
+case -1094717454:
+return this.group.chain.model.ms.modelFileNumbers[this.mi];
+case 1094713359:
 return this.mi;
-case 1095761936:
+case 1094713360:
 return this.getMoleculeNumber (true);
-case 1129318401:
+case 1094713361:
+return this.group.getMonomerIndex () + 1;
+case 1128269825:
 return this.getOccupancy100 ();
-case 1095761937:
+case 1094713362:
 return this.group.getBioPolymerIndexInModel () + 1;
-case 1095761938:
-return this.getPolymerLength ();
-case 1666189314:
+case 1094713363:
+return this.group.getBioPolymerLength ();
+case 1665140738:
 return this.getRasMolRadius ();
-case 1095761939:
+case 1094715412:
 return this.getResno ();
-case 1095761941:
+case 1094713366:
 return this.getAtomSite ();
-case 1641025539:
-return this.getProteinStructureType ().getId ();
-case 1238369286:
-return this.getProteinStructureSubType ().getId ();
-case 1095761942:
-return this.getStrucNo ();
-case 1297090050:
+case 1639976963:
+return this.group.getProteinStructureType ().getId ();
+case 1237320707:
+return this.group.getProteinStructureSubType ().getId ();
+case 1094713367:
+return this.group.getStrucNo ();
+case 1296041474:
 return this.getSymOp ();
-case 1095763991:
+case 1094715417:
 return this.getValence ();
 }
 return 0;
@@ -939,140 +772,144 @@ return (this.atomSymmetry == null ? 0 : this.atomSymmetry.nextSetBit (0) + 1);
 Clazz.defineMethod (c$, "atomPropertyFloat", 
 function (vwr, tokWhat, ptTemp) {
 switch (tokWhat) {
-case 1112539137:
+case 1111490561:
 return this.getADPMinMax (true);
-case 1112539138:
+case 1111490562:
 return this.getADPMinMax (false);
-case 1112541185:
-case 1112541205:
+case 1111492609:
+case 1111492629:
 return this.x;
-case 1112541186:
-case 1112541206:
+case 1111492610:
+case 1111492630:
 return this.y;
-case 1112541187:
-case 1112541207:
+case 1111492611:
+case 1111492631:
 return this.z;
-case 1115297793:
-case 1113200642:
-case 1113198595:
-case 1113198596:
-case 1113198597:
-case 1113200646:
-case 1113200647:
-case 1113200649:
-case 1113200650:
-case 1113200652:
-case 1650071565:
-case 1113200654:
+case 1114249217:
+case 1112152066:
+case 1112150019:
+case 1112150020:
+case 1112150021:
+case 1112152070:
+case 1112152071:
+case 1112152073:
+case 1112152074:
+case 1112152076:
+case 1649022989:
+case 1112152078:
 return vwr.shm.getAtomShapeValue (tokWhat, this.group, this.i);
-case 1112541194:
+case 1111492618:
 return this.getBondingRadius ();
-case 1112539139:
+case 1111490563:
 return vwr.getNMRCalculation ().getChemicalShift (this);
-case 1112539140:
+case 1111490564:
 return JU.Elements.getCovalentRadius (this.atomicAndIsotopeNumber);
-case 1112539141:
-case 1112539152:
-case 1112539150:
-return this.getGroupParameter (tokWhat);
-case 1112541188:
+case 1111490565:
+case 1111490576:
+case 1111490574:
+return this.group.getGroupParameter (tokWhat);
+case 1111492612:
 return this.getFractionalCoord (!vwr.g.legacyJavaFloat, 'X', true, ptTemp);
-case 1112541189:
+case 1111492613:
 return this.getFractionalCoord (!vwr.g.legacyJavaFloat, 'Y', true, ptTemp);
-case 1112541190:
+case 1111492614:
 return this.getFractionalCoord (!vwr.g.legacyJavaFloat, 'Z', true, ptTemp);
-case 1112541191:
+case 1111492615:
 return this.getFractionalCoord (!vwr.g.legacyJavaFloat, 'X', false, ptTemp);
-case 1112541192:
+case 1111492616:
 return this.getFractionalCoord (!vwr.g.legacyJavaFloat, 'Y', false, ptTemp);
-case 1112541193:
+case 1111492617:
 return this.getFractionalCoord (!vwr.g.legacyJavaFloat, 'Z', false, ptTemp);
-case 1114638362:
+case 1113589786:
 return this.getHydrophobicity ();
-case 1112539142:
+case 1111490566:
 return vwr.getNMRCalculation ().getMagneticShielding (this);
-case 1112539143:
+case 1111490567:
 return this.getMass ();
-case 1129318401:
+case 1128269825:
 return this.getOccupancy100 () / 100;
-case 1112541195:
+case 1111492619:
 return this.getPartialCharge ();
-case 1112539145:
-case 1112539146:
-case 1112539144:
+case 1111490569:
+case 1111490570:
+case 1111490568:
 if (this.group.chain.model.isJmolDataFrame && this.group.chain.model.jmolFrameType.startsWith ("plot ramachandran")) {
 switch (tokWhat) {
-case 1112539145:
+case 1111490569:
 return this.getFractionalCoord (!vwr.g.legacyJavaFloat, 'X', false, ptTemp);
-case 1112539146:
+case 1111490570:
 return this.getFractionalCoord (!vwr.g.legacyJavaFloat, 'Y', false, ptTemp);
-case 1112539144:
+case 1111490568:
 if (this.group.chain.model.isJmolDataFrame && this.group.chain.model.jmolFrameType.equals ("plot ramachandran")) {
 var omega = this.getFractionalCoord (!vwr.g.legacyJavaFloat, 'Z', false, ptTemp) - 180;
 return (omega < -180 ? 360 + omega : omega);
 }}
-}return this.getGroupParameter (tokWhat);
-case 1666189314:
-case 1113200651:
+}return this.group.getGroupParameter (tokWhat);
+case 1665140738:
+case 1112152075:
 return this.getRadius ();
-case 1112539147:
-return this.sX;
-case 1112539148:
-return this.group.chain.model.ms.vwr.getScreenHeight () - this.sY;
-case 1112539149:
-return this.sZ;
-case 1114638363:
-return (vwr.isAtomSelected (this.i) ? 1 : 0);
-case 1112539151:
-this.group.chain.model.ms.getSurfaceDistanceMax ();
+case 1111490571:
+return (vwr.antialiased ? Clazz.doubleToInt (this.sX / 2) : this.sX);
+case 1111490572:
+return vwr.getScreenHeight () - (vwr.antialiased ? Clazz.doubleToInt (this.sY / 2) : this.sY);
+case 1111490573:
+return (vwr.antialiased ? Clazz.doubleToInt (this.sZ / 2) : this.sZ);
+case 1113589787:
+return (vwr.slm.isAtomSelected (this.i) ? 1 : 0);
+case 1111490575:
+vwr.ms.getSurfaceDistanceMax ();
 return this.getSurfaceDistance100 () / 100;
-case 1112541196:
+case 1111492620:
 return this.getBfactor100 () / 100;
-case 1112539153:
+case 1111490577:
 return this.getFractionalUnitCoord (!vwr.g.legacyJavaFloat, 'X', ptTemp);
-case 1112539154:
+case 1111490578:
 return this.getFractionalUnitCoord (!vwr.g.legacyJavaFloat, 'Y', ptTemp);
-case 1112539155:
+case 1111490579:
 return this.getFractionalUnitCoord (!vwr.g.legacyJavaFloat, 'Z', ptTemp);
-case 1649412120:
+case 1648363544:
 return this.getVanderwaalsRadiusFloat (vwr, J.c.VDW.AUTO);
-case 1649410049:
+case 1648361473:
 var v = this.getVibrationVector ();
-return (v == null ? 0 : v.length () * vwr.getFloat (1649410049));
-case 1112541202:
-return this.getVibrationCoord ('X');
-case 1112541203:
-return this.getVibrationCoord ('Y');
-case 1112541204:
-return this.getVibrationCoord ('Z');
-case 1112539159:
-return this.getModulationCoord ('X');
-case 1112539156:
-return this.getModulationCoord ('1');
-case 1112539157:
-return this.getModulationCoord ('2');
-case 1112539158:
-return this.getModulationCoord ('3');
-case 1112539160:
-return this.getModulationCoord ('Y');
-case 1112539161:
-return this.getModulationCoord ('Z');
-case 1112539162:
-return this.getModulationCoord ('O');
-case 1313866249:
+return (v == null ? 0 : v.length () * vwr.getFloat (1648361473));
+case 1111492626:
+return this.getVib ('x');
+case 1111492627:
+return this.getVib ('y');
+case 1111492628:
+return this.getVib ('z');
+case 1111490583:
+return this.getVib ('X');
+case 1111490584:
+return this.getVib ('Y');
+case 1111490585:
+return this.getVib ('Z');
+case 1111490586:
+return this.getVib ('O');
+case 1111490580:
+return this.getVib ('1');
+case 1111490581:
+return this.getVib ('2');
+case 1111490582:
+return this.getVib ('3');
+case 1312817669:
 return this.getVolume (vwr, J.c.VDW.AUTO);
-case 1146095627:
-case 1146095629:
-case 1146093582:
-case 1146095628:
-case 1146095631:
-case 1146093584:
-case 1146095626:
+case 1145047051:
+case 1145047053:
+case 1145045006:
+case 1145047052:
+case 1145047055:
+case 1145045008:
+case 1145047050:
 var v3 = this.atomPropertyTuple (vwr, tokWhat, ptTemp);
 return (v3 == null ? -1 : v3.length ());
 }
 return this.atomPropertyInt (tokWhat);
 }, "JV.Viewer,~N,JU.P3");
+Clazz.defineMethod (c$, "getVib", 
+function (ch) {
+return this.group.chain.model.ms.getVibCoord (this.i, ch);
+}, "~S");
 Clazz.defineMethod (c$, "getMass", 
  function () {
 var mass = this.getIsotopeNumber ();
@@ -1081,45 +918,49 @@ return (mass > 0 ? mass : JU.Elements.getAtomicMass (this.getElementNumber ()));
 Clazz.defineMethod (c$, "atomPropertyString", 
 function (vwr, tokWhat) {
 var ch;
+var s;
 switch (tokWhat) {
-case 1087373315:
+case 1086324739:
 ch = this.altloc;
 return (ch == '\0' ? "" : "" + ch);
-case 1087375362:
+case 1086326786:
 return this.getAtomName ();
-case 1087375361:
+case 1086326785:
 return this.getAtomType ();
-case 1087373316:
+case 1086324740:
 return this.getChainIDStr ();
-case 1087373320:
+case 1086324744:
 return this.getGroup1 ('?');
-case 1087373319:
+case 1086324747:
+s = this.group.getSeqcodeString ();
+return (s == null ? "" : s);
+case 1086324743:
 return this.getGroup1 ('\0');
-case 1087373318:
+case 1086324742:
 return this.getGroup3 (false);
-case 1087375365:
+case 1086326789:
 return this.getElementSymbolIso (true);
-case 1087373321:
+case 1086324745:
 return this.getIdentity (true);
-case 1087373322:
-ch = this.getInsertionCode ();
+case 1086324746:
+ch = this.group.getInsertionCode ();
 return (ch == '\0' ? "" : "" + ch);
-case 1826248716:
-case 1288701959:
-var s = vwr.shm.getShapePropertyIndex (5, "label", this.i);
+case 1825200146:
+case 1287653388:
+s = vwr.shm.getShapePropertyIndex (5, "label", this.i);
 if (s == null) s = "";
 return s;
-case 1641025539:
-return this.getProteinStructureType ().getBioStructureTypeName (false);
-case 1238369286:
-return this.getProteinStructureSubType ().getBioStructureTypeName (false);
-case 1087373324:
-return this.getStructureId ();
-case 1087373323:
+case 1639976963:
+return this.group.getProteinStructureType ().getBioStructureTypeName (false);
+case 1237320707:
+return this.group.getProteinStructureSubType ().getBioStructureTypeName (false);
+case 1086324749:
+return this.group.getStructureId ();
+case 1086324748:
 return vwr.getHybridizationAndAxes (this.i, null, null, "d");
-case 1087375373:
+case 1086326798:
 return this.getElementSymbolIso (false);
-case 1089470478:
+case 1088421903:
 return this.getSymmetryOperatorList (true);
 }
 return "";
@@ -1127,30 +968,28 @@ return "";
 Clazz.defineMethod (c$, "atomPropertyTuple", 
 function (vwr, tok, ptTemp) {
 switch (tok) {
-case 1146095627:
+case 1073742329:
+return JU.P3.newP (this);
+case 1145047051:
 return this.getFractionalCoordPt (!vwr.g.legacyJavaFloat, !this.group.chain.model.isJmolDataFrame, ptTemp);
-case 1146095629:
+case 1145047053:
 return this.getFractionalCoordPt (!vwr.g.legacyJavaFloat, false, ptTemp);
-case 1146093582:
+case 1145045006:
 return (this.group.chain.model.isJmolDataFrame ? this.getFractionalCoordPt (!vwr.g.legacyJavaFloat, false, ptTemp) : this.getFractionalUnitCoordPt (!vwr.g.legacyJavaFloat, false, ptTemp));
-case 1146095628:
+case 1145047052:
 return JU.P3.new3 (this.sX, this.group.chain.model.ms.vwr.getScreenHeight () - this.sY, this.sZ);
-case 1146095631:
+case 1145047055:
 return this.getVibrationVector ();
-case 1146093584:
+case 1145045008:
 var ms = this.getModulation ();
 return (ms == null ? null : ms.getV3 ());
-case 1146095626:
+case 1145047050:
 return this;
-case 1766856708:
-return JU.CU.colorPtFromInt (this.group.chain.model.ms.vwr.getColorArgbOrGray (this.colixAtom), ptTemp);
+case 1765808134:
+return JU.CU.colorPtFromInt (this.group.chain.model.ms.vwr.gdata.getColorArgbOrGray (this.colixAtom), ptTemp);
 }
 return null;
 }, "JV.Viewer,~N,JU.P3");
-Clazz.defineMethod (c$, "isWithinStructure", 
-function (type) {
-return this.group.isWithinStructure (type);
-}, "J.c.STR");
 Clazz.overrideMethod (c$, "getOffsetResidueAtom", 
 function (name, offset) {
 return this.group.getAtomIndex (name, offset);
@@ -1159,10 +998,10 @@ Clazz.overrideMethod (c$, "isCrossLinked",
 function (node) {
 return this.group.isCrossLinked ((node).group);
 }, "JU.BNode");
-Clazz.overrideMethod (c$, "getCrossLinkLeadAtomIndexes", 
-function (vReturn) {
-return this.group.getCrossLinkLead (vReturn);
-}, "JU.Lst");
+Clazz.overrideMethod (c$, "getCrossLinkVector", 
+function (vReturn, crosslinkCovalent, crosslinkHBond) {
+return this.group.getCrossLinkVector (vReturn, crosslinkCovalent, crosslinkHBond);
+}, "JU.Lst,~B,~B");
 Clazz.overrideMethod (c$, "toString", 
 function () {
 return this.getInfo ();
@@ -1171,7 +1010,19 @@ Clazz.overrideMethod (c$, "findAtomsLike",
 function (atomExpression) {
 return this.group.chain.model.ms.vwr.getAtomBitSet (atomExpression);
 }, "~S");
+Clazz.defineMethod (c$, "getUnitID", 
+function (flags) {
+var m = this.group.getModel ();
+return (m.isBioModel ? (m).getUnitID (this, flags) : "");
+}, "~N");
 Clazz.defineStatics (c$,
+"ATOM_INFRAME", 1,
+"ATOM_VISSET", 2,
+"ATOM_VISIBLE", 4,
+"ATOM_NOTHIDDEN", 8,
+"ATOM_NOFLAGS", -64,
+"ATOM_INFRAME_NOTHIDDEN", 9,
+"ATOM_SHAPE_VIS_MASK", -10,
 "VIBRATION_VECTOR_FLAG", 1,
 "IS_HETERO_FLAG", 2,
 "FLAG_MASK", 3,

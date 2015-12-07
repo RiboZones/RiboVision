@@ -31,8 +31,8 @@ eta = JU.Measure.computeTorsion (c40, p1, c41, p2, true);
 }var theta = JU.Measure.computeTorsion (p1, c41, p2, c42, true);
 if (eta < 0) eta += 360;
 if (theta < 0) theta += 360;
-m1.setGroupParameter (1112539141, eta);
-m1.setGroupParameter (1112539152, theta);
+m1.setGroupParameter (1111490565, eta);
+m1.setGroupParameter (1111490576, theta);
 }
 return true;
 });
@@ -41,7 +41,6 @@ function (polymer, bsA, bsB, vAtoms, nMaxPerResidue, min, checkDistances, dsspIg
 var other = polymer;
 var vNorm =  new JU.V3 ();
 var vAB =  new JU.V3 ();
-var vAC =  new JU.V3 ();
 for (var i = this.monomerCount; --i >= 0; ) {
 var myNucleotide = this.monomers[i];
 if (!myNucleotide.isPurine ()) continue;
@@ -50,14 +49,13 @@ var isInA = bsA.get (myN3.i);
 if (!isInA && !bsB.get (myN3.i)) continue;
 var myN1 = myNucleotide.getN1 ();
 var myN9 = myNucleotide.getN0 ();
-var plane =  new JU.P4 ();
-JU.Measure.getPlaneThroughPoints (myN3, myN1, myN9, vNorm, vAB, vAC, plane);
+var plane = JU.Measure.getPlaneThroughPoints (myN3, myN1, myN9, vNorm, vAB,  new JU.P4 ());
 var bestN3 = null;
 var minDist2 = 25;
 var bestNucleotide = null;
 for (var j = other.monomerCount; --j >= 0; ) {
 var otherNucleotide = other.monomers[j];
-if (!otherNucleotide.isPyrimidine ()) continue;
+if (!otherNucleotide.$isPyrimidine) continue;
 var otherN3 = otherNucleotide.getN3 ();
 if (isInA ? !bsB.get (otherN3.i) : !bsA.get (otherN3.i)) continue;
 var otherN1 = otherNucleotide.getN0 ();

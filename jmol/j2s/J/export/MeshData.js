@@ -8,7 +8,7 @@ var n = Clazz.doubleToInt (360 / ndeg);
 var vertexCount = n + 1;
 var faces = JU.AU.newInt2 (n);
 for (var i = 0; i < n; i++) {
-faces[i] = [i, (i + 1) % n, n];
+faces[i] =  Clazz.newIntArray (-1, [i, (i + 1) % n, n]);
 }
 var vertexes =  new Array (vertexCount);
 var normals =  new Array (vertexCount);
@@ -24,22 +24,22 @@ return JU.MeshSurface.newMesh (false, vertexes, 0, faces, normals, 0);
 });
 c$.getTriangleData = Clazz.defineMethod (c$, "getTriangleData", 
 function (pt1, pt2, pt3) {
-var vertexes = [pt1, pt2, pt3];
+var vertexes =  Clazz.newArray (-1, [pt1, pt2, pt3]);
 var v1 = JU.V3.newVsub (pt3, pt1);
 var v2 = JU.V3.newVsub (pt2, pt1);
 v2.cross (v2, v1);
 v2.normalize ();
-var normals = [v2, v2, v2];
-var faces = [[0, 1, 2]];
+var normals =  Clazz.newArray (-1, [v2, v2, v2]);
+var faces =  Clazz.newArray (-1, [ Clazz.newIntArray (-1, [0, 1, 2])]);
 return JU.MeshSurface.newMesh (false, vertexes, 0, faces, normals, 0);
-}, "JU.P3,JU.P3,JU.P3");
+}, "JU.T3,JU.T3,JU.T3");
 c$.getConeData = Clazz.defineMethod (c$, "getConeData", 
 function () {
 var ndeg = 10;
 var n = Clazz.doubleToInt (360 / ndeg);
 var vertices =  new Array (n + 1);
 var faces = JU.AU.newInt2 (n);
-for (var i = 0; i < n; i++) faces[i] = [i, (i + 1) % n, n];
+for (var i = 0; i < n; i++) faces[i] =  Clazz.newIntArray (-1, [i, (i + 1) % n, n]);
 
 var d = ndeg / 180. * 3.141592653589793;
 for (var i = 0; i < n; i++) {
@@ -59,11 +59,11 @@ var faces = JU.AU.newInt2 (vertexCount);
 var fpt = -1;
 for (var i = 0; i < n; i++) {
 if (inSide) {
-faces[++fpt] = [i + n, (i + 1) % n, i];
-faces[++fpt] = [i + n, (i + 1) % n + n, (i + 1) % n];
+faces[++fpt] =  Clazz.newIntArray (-1, [i + n, (i + 1) % n, i]);
+faces[++fpt] =  Clazz.newIntArray (-1, [i + n, (i + 1) % n + n, (i + 1) % n]);
 } else {
-faces[++fpt] = [i, (i + 1) % n, i + n];
-faces[++fpt] = [(i + 1) % n, (i + 1) % n + n, i + n];
+faces[++fpt] =  Clazz.newIntArray (-1, [i, (i + 1) % n, i + n]);
+faces[++fpt] =  Clazz.newIntArray (-1, [(i + 1) % n, (i + 1) % n + n, i + n]);
 }}
 var vertexes =  new Array (vertexCount);
 var normals =  new Array (vertexCount);

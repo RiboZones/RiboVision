@@ -11,6 +11,9 @@ this.vTemp = null;
 this.vTemp2 = null;
 this.pt0f = null;
 this.pt0i = null;
+this.s0f = null;
+this.s1f = null;
+this.s2f = null;
 this.bsHandles = null;
 Clazz.instantialize (this, arguments);
 }, J.renderspecial, "DrawRenderer", J.render.MeshRenderer);
@@ -27,29 +30,30 @@ this.bsHandles =  new JU.BS ();
 Clazz.overrideMethod (c$, "render", 
 function () {
 this.needTranslucent = false;
-this.imageFontScaling = this.vwr.getImageFontScaling ();
+this.imageFontScaling = this.vwr.imageFontScaling;
 var draw = this.shape;
-for (var i = draw.meshCount; --i >= 0; ) if (this.renderMesh (this.dmesh = draw.meshes[i])) this.renderInfo ();
+this.isPrecision = true;
+for (var i = draw.meshCount; --i >= 0; ) {
+var mesh = this.dmesh = draw.meshes[i];
+if (mesh.connections != null) {
+if (mesh.connections[0] < 0) continue;
+mesh.vs =  new Array (4);
+mesh.vc = 4;
+var c = mesh.connections;
+for (var j = 0; j < 4; j++) mesh.vs[j] = (c[j] < 0 ? mesh.vs[j - 1] : this.vwr.ms.at[c[j]]);
 
+mesh.recalcAltVertices = true;
+}if (this.renderMesh2 (mesh)) this.renderInfo ();
+if (!this.isExport && mesh.visibilityFlags != 0 && this.vwr.getPickingMode () == 4) {
+if (!this.g3d.setC (JU.C.getColixTranslucent3 (23, true, 0.5))) this.needTranslucent = true;
+ else this.renderHandles ();
+}}
 return this.needTranslucent;
 });
 Clazz.overrideMethod (c$, "isPolygonDisplayable", 
 function (i) {
 return J.shapespecial.Draw.isPolygonDisplayable (this.dmesh, i) && (this.dmesh.modelFlags == null || this.dmesh.bsMeshesVisible.get (i));
 }, "~N");
-Clazz.overrideMethod (c$, "renderMesh", 
-function (mesh) {
-if (mesh.connections != null) {
-if (mesh.connections[0] < 0) return false;
-mesh.vs =  new Array (4);
-mesh.vc = 4;
-var c = mesh.connections;
-for (var i = 0; i < 4; i++) {
-mesh.vs[i] = (c[i] < 0 ? mesh.vs[i - 1] : this.vwr.getAtomPoint3f (c[i]));
-}
-mesh.recalcAltVertices = true;
-}return this.renderMesh2 (mesh);
-}, "J.shape.Mesh");
 Clazz.overrideMethod (c$, "render2", 
 function (isExport) {
 this.drawType = this.dmesh.drawType;
@@ -59,11 +63,9 @@ if (this.mesh.connections != null) this.getConnectionPoints ();
 if (this.mesh.lineData != null) {
 this.drawLineData (this.mesh.lineData);
 return;
-}var isDrawPickMode = (this.vwr.getPickingMode () == 4);
-var nPoints = this.vertexCount;
-var isCurved = ((this.drawType === J.shapespecial.Draw.EnumDrawType.CURVE || this.drawType === J.shapespecial.Draw.EnumDrawType.ARROW || this.drawType === J.shapespecial.Draw.EnumDrawType.ARC) && this.vertexCount >= 2);
-var isSegments = (this.drawType === J.shapespecial.Draw.EnumDrawType.LINE_SEGMENT);
-if (this.width > 0 && isCurved) {
+}var nPoints = this.vertexCount;
+var isCurved = ((this.drawType === J.shapespecial.Draw.EnumDrawType.CURVE || this.drawType === J.shapespecial.Draw.EnumDrawType.ARROW || this.drawType === J.shapespecial.Draw.EnumDrawType.ARC) && this.vertexCount > 2);
+if (this.width > 0 && isCurved || this.drawType === J.shapespecial.Draw.EnumDrawType.ARROW) {
 this.pt1f.set (0, 0, 0);
 var n = (this.drawType === J.shapespecial.Draw.EnumDrawType.ARC ? 2 : this.vertexCount);
 for (var i = 0; i < n; i++) this.pt1f.add (this.vertices[i]);
@@ -83,11 +85,11 @@ return;
 switch (this.drawType) {
 default:
 this.render2b (false);
-break;
+return;
 case J.shapespecial.Draw.EnumDrawType.CIRCULARPLANE:
 if (this.dmesh.scale > 0) this.width *= this.dmesh.scale;
 this.render2b (false);
-break;
+return;
 case J.shapespecial.Draw.EnumDrawType.CIRCLE:
 this.tm.transformPtScr (this.vertices[0], this.pt1i);
 if (this.diameter == 0 && this.width == 0) this.width = 1.0;
@@ -96,51 +98,30 @@ if (this.width > 0) this.diameter = Clazz.floatToInt (this.vwr.tm.scaleToScreen 
 if (this.diameter > 0 && (this.mesh.drawTriangles || this.mesh.fillTriangles)) {
 this.g3d.addRenderer (1073741880);
 this.g3d.drawFilledCircle (this.colix, this.mesh.fillTriangles ? this.colix : 0, this.diameter, this.pt1i.x, this.pt1i.y, this.pt1i.z);
-}break;
-case J.shapespecial.Draw.EnumDrawType.CURVE:
+}return;
 case J.shapespecial.Draw.EnumDrawType.LINE_SEGMENT:
+for (var i = 0; i < nPoints - 1; i++) this.drawEdge (i, i + 1, true, this.vertices[i], this.vertices[i + 1], this.screens[i], this.screens[i + 1]);
+
+return;
+case J.shapespecial.Draw.EnumDrawType.CURVE:
 break;
 case J.shapespecial.Draw.EnumDrawType.ARC:
+var ptRef = (this.vertexCount > 2 ? this.vertices[2] : J.shapespecial.Draw.randomPoint ());
 var nDegreesOffset = (this.vertexCount > 3 ? this.vertices[3].x : 0);
 var theta = (this.vertexCount > 3 ? this.vertices[3].y : 360);
 if (theta == 0) return;
 var fractionalOffset = (this.vertexCount > 3 ? this.vertices[3].z : 0);
-this.vTemp.sub2 (this.vertices[1], this.vertices[0]);
-this.pt1f.scaleAdd2 (fractionalOffset, this.vTemp, this.vertices[0]);
-var mat =  new JU.M3 ().setAA (JU.A4.newVA (this.vTemp, (nDegreesOffset * 3.141592653589793 / 180)));
-this.vTemp2.sub2 (this.vertexCount > 2 ? this.vertices[2] : J.shapespecial.Draw.randomPoint (), this.vertices[0]);
-this.vTemp2.cross (this.vTemp, this.vTemp2);
-this.vTemp2.cross (this.vTemp2, this.vTemp);
-this.vTemp2.normalize ();
-this.vTemp2.scale (this.dmesh.scale / 2);
-mat.rotate (this.vTemp2);
-var degrees = theta / 5;
-while (Math.abs (degrees) > 5) degrees /= 2;
-
-nPoints = Math.round (theta / degrees) + 1;
-while (nPoints < 10) {
-degrees /= 2;
-nPoints = Math.round (theta / degrees) + 1;
-}
-mat.setAA (JU.A4.newVA (this.vTemp, (degrees * 3.141592653589793 / 180)));
-this.screens = this.vwr.allocTempScreens (nPoints);
-var iBase = nPoints - (this.dmesh.scale < 2 ? 3 : 3);
-for (var i = 0; i < nPoints; i++) {
-if (i == iBase) this.pt0.setT (this.pt1);
-this.pt1.scaleAdd2 (1, this.vTemp2, this.pt1f);
-if (i == 0) this.pt2.setT (this.pt1);
-this.tm.transformPtScr (this.pt1, this.screens[i]);
-mat.rotate (this.vTemp2);
-}
+nPoints = this.setArc (this.vertices[0], this.vertices[1], ptRef, nDegreesOffset, theta, fractionalOffset, this.dmesh.scale);
 if (this.dmesh.isVector && !this.dmesh.noHead) {
 this.renderArrowHead (this.pt0, this.pt1, 0.3, false, false, this.dmesh.isBarb);
 this.tm.transformPtScr (this.pt1f, this.screens[nPoints - 1]);
+this.tm.transformPtScrT3 (this.pt1f, this.p3Screens[nPoints - 1]);
 }this.pt1f.setT (this.pt2);
 break;
 case J.shapespecial.Draw.EnumDrawType.ARROW:
-if (this.vertexCount == 2) {
+if (!isCurved) {
 this.renderArrowHead (this.vertices[0], this.vertices[1], 0, false, true, this.dmesh.isBarb);
-break;
+return;
 }var nHermites = 5;
 if (this.controlHermites == null || this.controlHermites.length < nHermites + 1) {
 this.controlHermites =  new Array (nHermites + 1);
@@ -152,15 +133,45 @@ if (this.diameter == 0) this.diameter = 3;
 if (isCurved) {
 this.g3d.addRenderer (553648147);
 for (var i = 0, i0 = 0; i < nPoints - 1; i++) {
-this.g3d.fillHermite (tension, this.diameter, this.diameter, this.diameter, this.screens[i0], this.screens[i], this.screens[i + 1], this.screens[i + (i == nPoints - 2 ? 1 : 2)]);
+this.g3d.fillHermite (tension, this.diameter, this.diameter, this.diameter, this.p3Screens[i0], this.p3Screens[i], this.p3Screens[i + 1], this.p3Screens[i + (i == nPoints - 2 ? 1 : 2)]);
 i0 = i;
 }
-} else if (isSegments) {
-for (var i = 0; i < nPoints - 1; i++) this.drawLine (i, i + 1, true, this.vertices[i], this.vertices[i + 1], this.screens[i], this.screens[i + 1]);
-
-}if (isDrawPickMode && !isExport) {
-this.renderHandles ();
+} else {
+this.render2b (false);
 }}, "~B");
+Clazz.defineMethod (c$, "setArc", 
+ function (v1, v2, ptRef, nDegreesOffset, theta, fractionalOffset, scale) {
+this.vTemp.sub2 (v2, v1);
+this.pt1f.scaleAdd2 (fractionalOffset, this.vTemp, v1);
+var mat =  new JU.M3 ().setAA (JU.A4.newVA (this.vTemp, (nDegreesOffset * 3.141592653589793 / 180)));
+this.vTemp2.sub2 (ptRef, v1);
+this.vTemp2.cross (this.vTemp, this.vTemp2);
+this.vTemp2.cross (this.vTemp2, this.vTemp);
+this.vTemp2.normalize ();
+this.vTemp2.scale (scale / 2);
+mat.rotate (this.vTemp2);
+var degrees = theta / 5;
+while (Math.abs (degrees) > 5) degrees /= 2;
+
+var nPoints = Math.round (theta / degrees) + 1;
+while (nPoints < 10) {
+degrees /= 2;
+nPoints = Math.round (theta / degrees) + 1;
+}
+mat.setAA (JU.A4.newVA (this.vTemp, (degrees * 3.141592653589793 / 180)));
+this.screens = this.vwr.allocTempScreens (nPoints);
+this.p3Screens = this.vwr.allocTempPoints (nPoints);
+var iBase = nPoints - (this.dmesh.scale < 2 ? 3 : 3);
+for (var i = 0; i < nPoints; i++) {
+if (i == iBase) this.pt0.setT (this.pt1);
+this.pt1.scaleAdd2 (1, this.vTemp2, this.pt1f);
+if (i == 0) this.pt2.setT (this.pt1);
+this.tm.transformPtScr (this.pt1, this.screens[i]);
+this.tm.transformPtScrT3 (this.pt1, this.p3Screens[i]);
+mat.rotate (this.vTemp2);
+}
+return nPoints;
+}, "JU.T3,JU.T3,JU.T3,~N,~N,~N,~N");
 Clazz.defineMethod (c$, "getConnectionPoints", 
  function () {
 this.vertexCount = 3;
@@ -223,7 +234,7 @@ for (var i = lineData.size (); --i >= 0; ) {
 var pts = lineData.get (i);
 this.tm.transformPtScr (pts[0], this.pt1i);
 this.tm.transformPtScr (pts[1], this.pt2i);
-this.drawLine (-1, -2, true, pts[0], pts[1], this.pt1i, this.pt2i);
+this.drawEdge (-1, -2, true, pts[0], pts[1], this.pt1i, this.pt2i);
 }
 }, "JU.Lst");
 Clazz.defineMethod (c$, "renderXyArrow", 
@@ -239,16 +250,18 @@ var zoomDimension = this.vwr.getScreenDim ();
 var scaleFactor = zoomDimension / 20;
 this.pt1.scaleAdd2 (this.dmesh.scale * scaleFactor, this.pt1, this.pt0);
 if (this.diameter == 0) this.diameter = 1;
-this.pt1i.set (Math.round (this.pt0.x), Math.round (this.pt0.y), Math.round (this.pt0.z));
-this.pt2i.set (Math.round (this.pt1.x), Math.round (this.pt1.y), Math.round (this.pt1.z));
-if (this.diameter < 0) this.g3d.drawDottedLine (this.pt1i, this.pt2i);
- else this.g3d.fillCylinder (2, this.diameter, this.pt1i, this.pt2i);
+if (this.diameter < 0) this.g3d.drawDottedLineBits (this.pt0, this.pt1);
+ else this.g3d.fillCylinderBits (2, this.diameter, this.pt0, this.pt1);
 this.renderArrowHead (this.pt0, this.pt1, 0, true, false, false);
 }, "~N");
 Clazz.defineMethod (c$, "renderArrowHead", 
  function (pt1, pt2, factor2, isTransformed, withShaft, isBarb) {
 if (this.dmesh.noHead) return;
-var fScale = this.getArrowScale ();
+if (this.s0f == null) {
+this.s0f =  new JU.P3 ();
+this.s1f =  new JU.P3 ();
+this.s2f =  new JU.P3 ();
+}var fScale = this.getArrowScale ();
 if (isTransformed) fScale *= 40;
 if (factor2 > 0) fScale *= factor2;
 this.pt0f.setT (pt1);
@@ -262,23 +275,23 @@ if (!withShaft) this.pt2f.add (this.vTemp);
 this.vTemp.scale (5);
 this.pt1f.sub2 (this.pt2f, this.vTemp);
 if (isTransformed) {
-this.pt1i.set (Math.round (this.pt1f.x), Math.round (this.pt1f.y), Math.round (this.pt1f.z));
-this.pt2i.set (Math.round (this.pt2f.x), Math.round (this.pt2f.y), Math.round (this.pt2f.z));
+this.s1f.setT (this.pt1f);
+this.s2f.setT (this.pt2f);
 } else {
-this.tm.transformPtScr (this.pt2f, this.pt2i);
-this.tm.transformPtScr (this.pt1f, this.pt1i);
-this.tm.transformPtScr (this.pt0f, this.pt0i);
-}if (this.pt2i.z == 1 || this.pt1i.z == 1) return;
+this.tm.transformPtScrT3 (this.pt2f, this.s2f);
+this.tm.transformPtScrT3 (this.pt1f, this.s1f);
+this.tm.transformPtScrT3 (this.pt0f, this.s0f);
+}if (this.s2f.z == 1 || this.s1f.z == 1) return;
 var headDiameter;
 if (this.diameter > 0) {
 headDiameter = this.diameter * 3;
 } else {
-this.vTemp.set (this.pt2i.x - this.pt1i.x, this.pt2i.y - this.pt1i.y, this.pt2i.z - this.pt1i.z);
+this.vTemp.set (this.s2f.x - this.s1f.x, this.s2f.y - this.s1f.y, this.s2f.z - this.s1f.z);
 headDiameter = Math.round (this.vTemp.length () * .5);
 this.diameter = Clazz.doubleToInt (headDiameter / 5);
 }if (this.diameter < 1) this.diameter = 1;
-if (headDiameter > 2) this.g3d.fillConeScreen (2, headDiameter, this.pt1i, this.pt2i, isBarb);
-if (withShaft) this.g3d.fillCylinderScreen3I (4, this.diameter, this.pt0i, this.pt1i, null, null, 0);
+if (headDiameter > 2) this.g3d.fillConeScreen3f (2, headDiameter, this.s1f, this.s2f, isBarb);
+if (withShaft) this.g3d.fillCylinderScreen3I (4, this.diameter, this.s0f, this.s1f, null, null, 0);
 }, "JU.T3,JU.T3,~N,~B,~B,~B");
 Clazz.defineMethod (c$, "getArrowScale", 
  function () {
@@ -313,7 +326,7 @@ break;
 });
 Clazz.defineMethod (c$, "renderInfo", 
  function () {
-if (this.isExport || this.mesh.title == null || this.vwr.getDrawHover () || !this.g3d.setC (this.vwr.getColixBackgroundContrast ())) return;
+if (this.isExport || this.mesh.title == null || this.vwr.getDrawHover () || !this.g3d.setC (this.vwr.cm.colixBackgroundContrast)) return;
 for (var i = this.dmesh.pc; --i >= 0; ) if (this.isPolygonDisplayable (i)) {
 var size = this.vwr.getFloat (570425356);
 if (size <= 0) size = 14;

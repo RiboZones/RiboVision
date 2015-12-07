@@ -30,7 +30,7 @@ this.br.close ();
 this.fileName = JU.PT.rep (this.fileName, ".vert", ".face");
 JU.Logger.info ("reading from file " + this.fileName);
 try {
-this.br = JU.Rdr.getBufferedReader (this.sg.getAtomDataServer ().getBufferedInputStream (this.fileName), null);
+this.br = JU.Rdr.getBufferedReader (this.sg.atomDataServer.getBufferedInputStream (this.fileName), null);
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
 JU.Logger.info ("Note: file " + this.fileName + " was not found");

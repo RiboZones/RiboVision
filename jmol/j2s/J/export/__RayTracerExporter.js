@@ -3,6 +3,7 @@ Clazz.load (["J.export.___Exporter"], "J.export.__RayTracerExporter", ["java.lan
 c$ = Clazz.decorateAsClass (function () {
 this.isSlabEnabled = false;
 this.minScreenDimension = 0;
+this.wasPerspective = false;
 Clazz.instantialize (this, arguments);
 }, J["export"], "__RayTracerExporter", J["export"].___Exporter);
 Clazz.makeConstructor (c$, 
@@ -10,6 +11,20 @@ function () {
 Clazz.superConstructor (this, J["export"].__RayTracerExporter, []);
 this.exportType = 2;
 this.lineWidthMad = 2;
+});
+Clazz.defineMethod (c$, "initOutput", 
+function (vwr, privateKey, g3d, params) {
+this.wasPerspective = vwr.tm.perspectiveDepth;
+if (Clazz.superCall (this, J["export"].__RayTracerExporter, "initOutput", [vwr, privateKey, g3d, params])) {
+vwr.tm.perspectiveDepth = false;
+if (this.wasPerspective) vwr.shm.finalizeAtoms (null, null);
+return true;
+}return false;
+}, "JV.Viewer,~N,JU.GData,java.util.Map");
+Clazz.defineMethod (c$, "finalizeOutput2", 
+function () {
+this.vwr.tm.perspectiveDepth = this.wasPerspective;
+return Clazz.superCall (this, J["export"].__RayTracerExporter, "finalizeOutput2", []);
 });
 Clazz.overrideMethod (c$, "outputVertex", 
 function (pt, offset) {
@@ -53,7 +68,7 @@ this.outputSphere (x, y, z, 0.75 * scale, colix);
 }, "~N,~N,~N,~N,~N");
 Clazz.overrideMethod (c$, "drawTextPixel", 
 function (argb, x, y, z) {
-this.outputTextPixel (x, y, z, argb);
+this.outputTextPixel (x, y, this.fixScreenZ (z), argb);
 }, "~N,~N,~N,~N");
 Clazz.overrideMethod (c$, "fillConeScreen", 
 function (colix, endcap, screenDiameter, screenBase, screenTip, isBarb) {
@@ -91,9 +106,9 @@ this.outputCylinderConical (screenA, screenB, radius1, radius2, colix);
 }, "JU.P3,JU.P3,~N,~N,~N");
 Clazz.overrideMethod (c$, "fillCylinderScreenMad", 
 function (colix, endcaps, diameter, screenA, screenB) {
+if (diameter == 0) return;
+if (diameter < 1) diameter = 1;
 var radius = diameter / 2;
-if (radius == 0) return;
-if (radius < 1) radius = 1;
 if (screenA.distance (screenB) == 0) {
 this.outputSphere (screenA.x, screenA.y, screenA.z, radius, colix);
 return;
@@ -111,9 +126,9 @@ function (colix, diameter, pt) {
 this.outputSphere (pt.x, pt.y, pt.z, diameter / 2, colix);
 }, "~N,~N,JU.P3");
 Clazz.overrideMethod (c$, "fillTriangle", 
-function (colix, ptA, ptB, ptC, twoSided, isCartesian) {
+function (colix, ptA, ptB, ptC, twoSided) {
 this.outputTriangle (ptA, ptB, ptC, colix);
-}, "~N,JU.P3,JU.P3,JU.P3,~B,~B");
+}, "~N,JU.T3,JU.T3,JU.T3,~B");
 Clazz.overrideMethod (c$, "fillEllipsoid", 
 function (center, points, colix, x, y, z, diameter, toEllipsoidal, coef, deriv, octantPoints) {
 var radius = diameter / 2;

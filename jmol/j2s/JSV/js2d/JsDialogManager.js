@@ -36,7 +36,7 @@ function (frame, spectrum) {
 var dialog =  new javajs.swing.JDialog ();
 dialog.setTitle ("Header Information");
 var rowData = spectrum.getHeaderRowDataAsArray ();
-var columnNames = ["Label", "Description"];
+var columnNames =  Clazz.newArray (-1, ["Label", "Description"]);
 var tableModel =  new JSV.js2d.DialogTableModel (columnNames, rowData, false, true);
 var table =  new javajs.swing.JTable (tableModel);
 table.setPreferredScrollableViewportSize ( new javajs.awt.Dimension (400, 195));

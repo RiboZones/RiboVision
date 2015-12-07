@@ -98,7 +98,7 @@ return (this.getInfo ("quaternion")).getEulerZXZ ();
 case 11:
 return JU.Quat.getQuaternionFrame (null, this.eigenVectors[0], this.eigenVectors[1]);
 case 12:
-return [this.modelIndex, this.atomIndex1, this.atomIndex2];
+return  Clazz.newIntArray (-1, [this.modelIndex, this.atomIndex1, this.atomIndex2]);
 case 13:
 return this.toString ();
 case 14:
@@ -302,7 +302,7 @@ break;
 });
 Clazz.defineMethod (c$, "sortAndNormalize", 
  function () {
-var o = [[JU.V3.newV (this.eigenVectors[0]), Float.$valueOf (this.eigenValues[0])], [JU.V3.newV (this.eigenVectors[1]), Float.$valueOf (this.eigenValues[1])], [JU.V3.newV (this.eigenVectors[2]), Float.$valueOf (this.eigenValues[2])]];
+var o =  Clazz.newArray (-1, [ Clazz.newArray (-1, [JU.V3.newV (this.eigenVectors[0]), Float.$valueOf (this.eigenValues[0])]),  Clazz.newArray (-1, [JU.V3.newV (this.eigenVectors[1]), Float.$valueOf (this.eigenValues[1])]),  Clazz.newArray (-1, [JU.V3.newV (this.eigenVectors[2]), Float.$valueOf (this.eigenValues[2])])]);
 java.util.Arrays.sort (o, JU.Tensor.getEigenSort ());
 for (var i = 0; i < 3; i++) {
 var pt = i;

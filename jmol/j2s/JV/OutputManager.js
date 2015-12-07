@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JV");
-Clazz.load (null, "JV.OutputManager", ["java.lang.Boolean", "java.util.Date", "$.Hashtable", "$.Map", "JU.Lst", "$.OC", "$.PT", "$.Rdr", "$.SB", "J.api.Interface", "J.i18n.GT", "J.io.JmolBinary", "JU.Logger", "JV.FileManager", "$.JC", "$.Viewer"], function () {
+Clazz.load (null, "JV.OutputManager", ["java.lang.Boolean", "java.util.Date", "$.Hashtable", "$.Map", "JU.AU", "$.Lst", "$.OC", "$.PT", "$.SB", "J.api.Interface", "J.i18n.GT", "J.io.JmolBinary", "JU.Logger", "JV.FileManager", "$.JC", "$.Viewer"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.vwr = null;
 this.privateKey = 0;
@@ -67,12 +67,17 @@ var image = (type.equals ("BINARY") || type.equals ("ZIPDATA") ? "" : rgbbuf != 
 var isOK = false;
 try {
 if (image == null) return errMsg = this.vwr.getErrorMessage ();
-if (out == null) out = this.openOutputChannel (this.privateKey, fileName, false, false);
-if (out == null) return errMsg = "ERROR: canceled";
+if (fileName != null && fileName.startsWith ("\1")) {
+isOK = true;
+var info =  new java.util.Hashtable ();
+info.put ("_IMAGE_", image);
+this.vwr.fm.loadImage (info, fileName, false);
+return errMsg = "OK - viewing " + fileName.substring (1);
+}if (out == null && (out = this.openOutputChannel (this.privateKey, fileName, false, false)) == null) return errMsg = "ERROR: canceled";
 fileName = out.getFileName ();
 var comment = null;
 var stateData = null;
-params.put ("date", this.vwr.apiPlatform.getDateFormat (null));
+params.put ("date", this.vwr.apiPlatform.getDateFormat ("8601"));
 if (type.startsWith ("JP")) {
 type = JU.PT.rep (type, "E", "");
 if (type.equals ("JPG64")) {
@@ -95,10 +100,9 @@ stateData = (this.getWrappedState (null, scripts, image, null)).getBytes ();
 }if (stateData != null) {
 params.put ("pngAppData", stateData);
 params.put ("pngAppPrefix", "Jmol Type");
-}}if (type.equals ("PNGT") || type.equals ("GIFT")) {
-params.put ("transparentColor", Integer.$valueOf (this.vwr.getBackgroundArgb ()));
-type = type.substring (0, 3);
-}if (comment != null) params.put ("comment", comment.length == 0 ? JV.Viewer.getJmolVersion () : comment);
+}}if (type.equals ("PNGT") || type.equals ("GIFT")) params.put ("transparentColor", Integer.$valueOf (this.vwr.getBackgroundArgb ()));
+if (type.length == 4) type = type.substring (0, 3);
+if (comment != null) params.put ("comment", comment.length == 0 ? JV.Viewer.getJmolVersion () : comment);
 var errRet =  new Array (1);
 isOK = this.createTheImage (image, type, out, params, errRet);
 if (closeChannel) out.closeChannel ();
@@ -110,7 +114,7 @@ if (asBytes) bytes = out.toByteArray ();
 errMsg = errRet[0];
 }} finally {
 if (releaseImage) this.vwr.releaseScreenImage ();
-params.put ("byteCount", Integer.$valueOf (bytes != null ? bytes.length : isOK ? out.getByteCount () : -1));
+if (bytes != null || out != null) params.put ("byteCount", Integer.$valueOf (bytes != null ? bytes.length : isOK ? out.getByteCount () : -1));
 if (objImage != null) {
 return fileName;
 }}
@@ -135,10 +139,15 @@ return s;
 Clazz.defineMethod (c$, "createTheImage", 
  function (objImage, type, out, params, errRet) {
 type = type.substring (0, 1) + type.substring (1).toLowerCase ();
-if (type.equals ("Zipdata") || type.equals ("Binary")) {
+var isZipData = type.equals ("Zipdata");
+if (isZipData || type.equals ("Binary")) {
 var v = params.get ("imageData");
 if (v.size () >= 2 && v.get (0).equals ("_IMAGE_")) {
-objImage = null;
+if (isZipData) {
+errRet[0] = this.writeZipFile (out, v, "OK JMOL", null);
+return true;
+}objImage = null;
+v.remove (0);
 v.remove (0);
 params.put ("pngImgData", v.remove (0));
 var oz = this.getOutputChannel (null, null);
@@ -161,8 +170,8 @@ return false;
 }var doClose = true;
 try {
 if (type.equals ("Gif") && this.vwr.getTestFlag (2)) params.put ("reducedColors", Boolean.TRUE);
-var w = objImage == null ? -1 : JU.PT.isAI (objImage) ? (params.get ("width")).intValue () : this.vwr.apiPlatform.getImageWidth (objImage);
-var h = objImage == null ? -1 : JU.PT.isAI (objImage) ? (params.get ("height")).intValue () : this.vwr.apiPlatform.getImageHeight (objImage);
+var w = objImage == null ? -1 : JU.AU.isAI (objImage) ? (params.get ("width")).intValue () : this.vwr.apiPlatform.getImageWidth (objImage);
+var h = objImage == null ? -1 : JU.AU.isAI (objImage) ? (params.get ("height")).intValue () : this.vwr.apiPlatform.getImageHeight (objImage);
 params.put ("imageWidth", Integer.$valueOf (w));
 params.put ("imageHeight", Integer.$valueOf (h));
 var pixels = this.encodeImage (w, h, objImage);
@@ -186,7 +195,7 @@ Clazz.defineMethod (c$, "encodeImage",
  function (width, height, objImage) {
 if (width < 0) return null;
 var pixels;
-if (JU.PT.isAI (objImage)) {
+if (JU.AU.isAI (objImage)) {
 pixels = objImage;
 } else {
 {
@@ -202,7 +211,7 @@ Clazz.defineMethod (c$, "getOutputChannel",
 function (fileName, fullPath) {
 if (!this.vwr.haveAccess (JV.Viewer.ACCESS.ALL)) return null;
 if (fileName != null) {
-fileName = this.getOutputFileNameFromDialog (fileName, -2147483648);
+fileName = this.getOutputFileNameFromDialog (fileName, -2147483648, null);
 if (fileName == null) return null;
 }if (fullPath != null) fullPath[0] = fileName;
 var localName = (JU.OC.isLocal (fileName) ? fileName : null);
@@ -235,7 +244,7 @@ Clazz.defineMethod (c$, "processMultiFrameOutput",
 var info = "";
 var n = 0;
 var quality = JV.OutputManager.getInt (params, "quality", -1);
-fileName = this.setFullPath (params, this.getOutputFileNameFromDialog (fileName, quality));
+fileName = this.setFullPath (params, this.getOutputFileNameFromDialog (fileName, quality, null));
 if (fileName == null) return null;
 var rootExt =  new Array (2);
 JV.OutputManager.getRootExt (fileName, rootExt, 0);
@@ -249,7 +258,7 @@ this.vwr.tm.setVibrationT (j / 20 + 0.2501);
 if (!this.writeFrame (++n, rootExt, params, sb)) return "ERROR WRITING FILE SET: \n" + info;
 }
 }
-this.vwr.setVibrationOff ();
+this.vwr.tm.setVibrationPeriod (0);
 } else {
 for (var i = bsFrames.nextSetBit (0); i >= 0; i = bsFrames.nextSetBit (i + 1)) {
 this.vwr.setCurrentModelIndex (i);
@@ -285,7 +294,7 @@ var width = JV.OutputManager.getInt (params, "width", 0);
 var height = JV.OutputManager.getInt (params, "height", 0);
 var fileName = params.get ("fileName");
 if (fileName != null) {
-fileName = this.setFullPath (params, this.getOutputFileNameFromDialog (fileName, -2147483648));
+fileName = this.setFullPath (params, this.getOutputFileNameFromDialog (fileName, -2147483648, null));
 if (fileName == null) return null;
 }this.vwr.mustRender = true;
 var saveWidth = this.vwr.dimScreen.width;
@@ -335,19 +344,19 @@ this.vwr.resizeImage (saveWidth, saveHeight, true, false, true);
 return bytes;
 }, "~S,~N,~N,~N,~A");
 Clazz.defineMethod (c$, "writeFileData", 
-function (fileName, type, modelIndex, parameters) {
+function (fileName, type, modelIndex, plotParameters) {
 var fullPath =  new Array (1);
 var out = this.getOutputChannel (fileName, fullPath);
 if (out == null) return "";
 fileName = fullPath[0];
-var pathName = (type.equals ("FILE") ? this.vwr.getFullPathName (false) : null);
+var pathName = (type.equals ("FILE") ? this.vwr.fm.getFullPathName (false) : null);
 var getCurrentFile = (pathName != null && (pathName.equals ("string") || pathName.indexOf ("[]") >= 0 || pathName.equals ("JSNode")));
 var asBytes = (pathName != null && !getCurrentFile);
 if (asBytes) {
 pathName = this.vwr.getModelSetPathName ();
 if (pathName == null) return null;
 }out.setType (type);
-var msg = (type.equals ("PDB") || type.equals ("PQR") ? this.vwr.getPdbAtomData (null, out) : type.startsWith ("PLOT") ? this.vwr.getPdbData (modelIndex, type.substring (5), null, parameters, out, true) : getCurrentFile ? out.append (this.vwr.getCurrentFileAsString ("write")).toString () : this.vwr.getFileAsBytes (pathName, out));
+var msg = (type.startsWith ("PDB") ? this.vwr.getPdbAtomData (null, out, false, false) : type.startsWith ("PLOT") ? this.vwr.getPdbData (modelIndex, type.substring (5), null, plotParameters, out, true) : getCurrentFile ? out.append (this.vwr.getCurrentFileAsString ("write")).toString () : this.vwr.fm.getFileAsBytes (pathName, out));
 out.closeChannel ();
 if (msg != null) msg = "OK " + msg + " " + fileName;
 return msg;
@@ -363,15 +372,15 @@ sb.append (msg).append ("\n");
 return msg.startsWith ("OK");
 }, "~N,~A,java.util.Map,JU.SB");
 Clazz.defineMethod (c$, "getOutputFileNameFromDialog", 
- function (fileName, quality) {
+ function (fileName, quality, params) {
 if (fileName == null || this.vwr.$isKiosk) return null;
 var useDialog = fileName.startsWith ("?");
 if (useDialog) fileName = fileName.substring (1);
-useDialog = new Boolean (useDialog | (this.vwr.isApplet () && (fileName.indexOf ("http:") < 0))).valueOf ();
+useDialog = new Boolean (useDialog | (this.vwr.isApplet && (fileName.indexOf ("http:") < 0))).valueOf ();
 fileName = JV.FileManager.getLocalPathForWritingFile (this.vwr, fileName);
-if (useDialog) fileName = this.vwr.dialogAsk (quality == -2147483648 ? "Save" : "Save Image", fileName);
+if (useDialog) fileName = this.vwr.dialogAsk (quality == -2147483648 ? "Save" : "Save Image", fileName, params);
 return fileName;
-}, "~S,~N");
+}, "~S,~N,java.util.Map");
 Clazz.defineMethod (c$, "handleOutputToFile", 
 function (params, doCheck) {
 var sret = null;
@@ -389,9 +398,10 @@ var localName = null;
 if (captureMode != null) {
 doCheck = false;
 mustRender = false;
-}if (doCheck) fileName = this.getOutputFileNameFromDialog (fileName, quality);
+}if (!fileName.startsWith ("\1")) {
+if (doCheck) fileName = this.getOutputFileNameFromDialog (fileName, quality, params);
 fileName = this.setFullPath (params, fileName);
-if (fileName == null) return null;
+}if (fileName == null) return null;
 params.put ("fileName", fileName);
 if (JU.OC.isLocal (fileName)) localName = fileName;
 var saveWidth = this.vwr.dimScreen.width;
@@ -459,7 +469,6 @@ sret = captureMsg = "capturing OFF; use CAPTURE ON/END/CANCEL to continue";
 } else {
 var count = JV.OutputManager.getInt (params, "captureCount", 0);
 params.put ("captureCount", Integer.$valueOf (++count));
-if (count == 10) System.out.println ("outman 10");
 if ((rootExt = params.get ("captureRootExt")) != null) {
 localName = JV.OutputManager.getRootExt (null, rootExt, count);
 captureMsg = null;
@@ -507,8 +516,7 @@ return sret;
 Clazz.defineMethod (c$, "setLogFile", 
 function (value) {
 var path = null;
-var logFilePath = this.vwr.getLogFilePath ();
-if (logFilePath == null || value.indexOf ("\\") >= 0) {
+if (this.vwr.logFilePath == null || value.indexOf ("\\") >= 0) {
 value = null;
 } else if (value.startsWith ("http://") || value.startsWith ("https://")) {
 path = value;
@@ -516,7 +524,7 @@ path = value;
 value = null;
 } else if (value.length > 0) {
 if (!value.startsWith ("JmolLog_")) value = "JmolLog_" + value;
-path = this.getLogPath (logFilePath + value);
+path = this.getLogPath (this.vwr.logFilePath + value);
 }if (path == null) value = null;
  else JU.Logger.info (J.i18n.GT.o (J.i18n.GT._ ("Setting log file to {0}"), path));
 if (value == null || !this.vwr.haveAccess (JV.Viewer.ACCESS.ALL)) {
@@ -524,7 +532,7 @@ JU.Logger.info (J.i18n.GT._ ("Cannot set log file path."));
 value = null;
 } else {
 this.vwr.logFileName = path;
-this.vwr.g.setO ("_logFile", this.vwr.isApplet () ? value : path);
+this.vwr.g.setO ("_logFile", this.vwr.isApplet ? value : path);
 }return value;
 }, "~S");
 Clazz.defineMethod (c$, "logToFile", 
@@ -577,15 +585,14 @@ if (isLocal || includeRemoteFiles) {
 var ptSlash = name.lastIndexOf ("/");
 newName = (name.indexOf ("?") > 0 && name.indexOf ("|") < 0 ? JU.PT.replaceAllCharacters (name, "/:?\"'=&", "_") : JV.FileManager.stripPath (name));
 newName = JU.PT.replaceAllCharacters (newName, "[]", "_");
-var spardirCache = fm.getSpardirCache ();
-var isSparDir = (spardirCache != null && spardirCache.containsKey (name));
+var isSparDir = (fm.spardirCache != null && fm.spardirCache.containsKey (name));
 if (isLocal && name.indexOf ("|") < 0 && !isSparDir) {
 v.addLast (name);
 v.addLast (newName);
 v.addLast (null);
 } else {
-var ret = (isSparDir ? spardirCache.get (name) : fm.getFileAsBytes (name, null, true));
-if (!JU.PT.isAB (ret)) return ret;
+var ret = (isSparDir ? fm.spardirCache.get (name) : fm.getFileAsBytes (name, null));
+if (!JU.AU.isAB (ret)) return ret;
 newName = this.addPngFileBytes (name, ret, iFile, crcMap, isSparDir, newName, ptSlash, v);
 }name = "$SCRIPT_PATH$" + newName;
 }crcMap.put (newName, newName);
@@ -623,7 +630,7 @@ v.addLast (bytes);
 }, "~S,~A,~B,JU.OC,~S");
 Clazz.defineMethod (c$, "addPngFileBytes", 
  function (name, ret, iFile, crcMap, isSparDir, newName, ptSlash, v) {
-var crcValue = Integer.$valueOf (JU.Rdr.getCrcValue (this.vwr.getJzt (), ret));
+var crcValue = Integer.$valueOf (this.vwr.getJzt ().getCrcValue (ret));
 if (crcMap.containsKey (crcValue)) {
 newName = crcMap.get (crcValue);
 } else {
@@ -652,7 +659,7 @@ var bos;
 {
 bos = out;
 }var fm = this.vwr.fm;
-var zos = JU.Rdr.getZipOutputStream (this.vwr.getJzt (), bos);
+var zos = this.vwr.getJzt ().getZipOutputStream (bos);
 for (var i = 0; i < fileNamesAndByteArrays.size (); i += 3) {
 var fname = fileNamesAndByteArrays.get (i);
 var bytes = null;
@@ -665,14 +672,14 @@ if (fname.length > 2 && fname.charAt (2) == ':') fname = fname.substring (1);
 fname = fname.substring (8);
 }var fnameShort = fileNamesAndByteArrays.get (i + 1);
 if (fnameShort == null) fnameShort = fname;
-if (data != null) bytes = (JU.PT.isAB (data) ? data : (data).getBytes ());
+if (data != null) bytes = (JU.AU.isAB (data) ? data : (data).getBytes ());
 if (bytes == null) bytes = fileNamesAndByteArrays.get (i + 2);
 var key = ";" + fnameShort + ";";
 if (fileList.indexOf (key) >= 0) {
 JU.Logger.info ("duplicate entry");
 continue;
 }fileList += key;
-JU.Rdr.addZipEntry (this.vwr.getJzt (), zos, fnameShort);
+this.vwr.getJzt ().addZipEntry (zos, fnameShort);
 var nOut = 0;
 if (bytes == null) {
 var $in = this.vwr.getBufferedInputStream (fname);
@@ -687,7 +694,7 @@ zos.write (bytes, 0, bytes.length);
 if (pngjName != null) this.vwr.fm.recachePngjBytes (pngjName + "|" + fnameShort, bytes);
 nOut += bytes.length;
 }nBytesOut += nOut;
-JU.Rdr.closeZipEntry (this.vwr.getJzt (), zos);
+this.vwr.getJzt ().closeZipEntry (zos);
 JU.Logger.info ("...added " + fname + " (" + nOut + " bytes)");
 }
 zos.flush ();

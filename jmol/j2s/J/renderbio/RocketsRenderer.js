@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.renderbio");
-Clazz.load (["J.renderbio.StrandsRenderer"], "J.renderbio.RocketsRenderer", ["JU.P3", "J.c.STR", "J.renderbio.RocketRenderer"], function () {
+Clazz.load (["J.renderbio.StrandsRenderer"], "J.renderbio.RocketsRenderer", ["javajs.api.Interface", "JU.P3", "J.c.STR"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.isRockets = false;
 this.helixRockets = true;
@@ -17,7 +17,7 @@ this.vwr.freeTempPoints (this.cordMidPoints);
 }, "J.shapebio.BioShape");
 Clazz.defineMethod (c$, "renderRockets", 
 function () {
-if (this.rr == null) this.rr =  new J.renderbio.RocketRenderer (this, this.isRockets);
+if (this.rr == null) this.rr = (javajs.api.Interface.getInterface ("J.renderbio.RocketRenderer")).set (this);
 this.rr.renderRockets ();
 });
 Clazz.defineMethod (c$, "setupRR", 

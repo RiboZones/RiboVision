@@ -143,12 +143,13 @@ if (!window["java.registered"])
 		"J.adapter.readers.pdb.PdbReader",
 		"J.adapter.smarter.Structure",
 		"J.api.JmolBioResolver",
-		"JMB.Resolver",
+		"JM.Resolver",
 		"$.BioModel"
  ]);
 
 
 	ClazzLoader.jarClasspath (base + "coresurface.z.js",	[
+		"JS.IsoExt",
 		"J.api.VolumeDataInterface",
 		"J.jvxl.api.VertexDataServer",
 		"$.MeshDataServer",

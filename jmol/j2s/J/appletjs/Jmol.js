@@ -115,7 +115,7 @@ for (var i = 1; i < tokens.length; i++)
 o = o[tokens[i]];
 for (var i = 0; i < data.length; i++)
 data[i] && data[i].booleanValue && (data[i] = data[i].booleanValue());
-return o(data[0],data[1],data[2],data[3],data[4],data[5],data[6],data[7]);
+return o.apply(null,data)
 } catch (e) { System.out.println(callback + " failed " + e); }
 }}return "";
 }, "~S,~A,~S");
@@ -144,6 +144,14 @@ throw e;
 }
 }
 }, "~S");
+Clazz.defineMethod (c$, "getGLmolView", 
+function () {
+return this.viewer.getGLmolView ();
+});
+Clazz.defineMethod (c$, "openFile", 
+function (fileName) {
+return this.viewer.openFile (fileName);
+}, "~S");
 Clazz.overrideMethod (c$, "cacheFileByName", 
 function (fileName, isAdd) {
 return this.viewer.cacheFileByName (fileName, isAdd);
@@ -152,10 +160,6 @@ Clazz.overrideMethod (c$, "cachePut",
 function (key, data) {
 this.viewer.cachePut (key, data);
 }, "~S,~O");
-Clazz.overrideMethod (c$, "getGLmolView", 
-function () {
-return this.viewer.getGLmolView ();
-});
 Clazz.overrideMethod (c$, "getFullName", 
 function () {
 return this.fullName;
@@ -180,10 +184,6 @@ Clazz.overrideMethod (c$, "update",
 function () {
 this.viewer.updateJS ();
 });
-Clazz.overrideMethod (c$, "openFile", 
-function (fileName) {
-return this.viewer.openFile (fileName);
-}, "~S");
 Clazz.overrideMethod (c$, "openFileAsyncSpecial", 
 function (fileName, flags) {
 this.viewer.openFileAsyncSpecial (fileName, flags);

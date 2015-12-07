@@ -25,18 +25,18 @@ return data.toString ();
 var isHeaderOnly = ("HEADERONLY".equals (msg));
 if (includeHeader) {
 JU.XmlUtil.openDocument (data);
-JU.XmlUtil.openTagAttr (data, "jvxl", ["version", "2.3", "jmolVersion", jvxlData.version, "xmlns", "http://jmol.org/jvxl_schema", "xmlns:cml", "http://www.xml-cml.org/schema"]);
+JU.XmlUtil.openTagAttr (data, "jvxl",  Clazz.newArray (-1, ["version", "2.3", "jmolVersion", jvxlData.version, "xmlns", "http://jmol.org/jvxl_schema", "xmlns:cml", "http://www.xml-cml.org/schema"]));
 if (jvxlData.jvxlFileTitle != null) JU.XmlUtil.appendCdata (data, "jvxlFileTitle", null, "\n" + jvxlData.jvxlFileTitle);
 if (jvxlData.moleculeXml != null) data.append (jvxlData.moleculeXml);
 var volumeDataXml = (vertexDataOnly ? null : jvxlData.jvxlVolumeDataXml);
 if (volumeDataXml == null) volumeDataXml = ( new J.jvxl.data.VolumeData ()).setVolumetricXml ();
 data.append (volumeDataXml);
-JU.XmlUtil.openTagAttr (data, "jvxlSurfaceSet", ["count", "" + (nSurfaces > 0 ? nSurfaces : 1)]);
+JU.XmlUtil.openTagAttr (data, "jvxlSurfaceSet",  Clazz.newArray (-1, ["count", "" + (nSurfaces > 0 ? nSurfaces : 1)]));
 if (isHeaderOnly) return data.toString ();
 }var sb;
 var type = (vertexDataOnly ? "pmesh" : jvxlData.jvxlPlane == null ? "isosurface" : "plane");
 if (jvxlData.jvxlColorData != null && jvxlData.jvxlColorData.length > 0) type = "mapped " + type;
-JU.XmlUtil.openTagAttr (data, "jvxlSurface", ["type", type]);
+JU.XmlUtil.openTagAttr (data, "jvxlSurface",  Clazz.newArray (-1, ["type", type]));
 data.append (J.jvxl.data.JvxlCoder.jvxlGetInfoData (jvxlData, vertexDataOnly));
 J.jvxl.data.JvxlCoder.jvxlAppendCommandState (data, comment, state);
 if (title != null || msg != null && msg.length > 0) {
@@ -46,7 +46,7 @@ if (title != null) for (var i = 0; i < title.length; i++) sb.append (title[i]).a
 
 JU.XmlUtil.appendCdata (data, "jvxlSurfaceTitle", null, sb.toString ());
 }sb =  new JU.SB ();
-JU.XmlUtil.openTagAttr (sb, "jvxlSurfaceData", (vertexDataOnly || jvxlData.jvxlPlane == null ? null : jvxlData.mapLattice == null ? ["plane", JU.Escape.eP4 (jvxlData.jvxlPlane)] : ["plane", JU.Escape.eP4 (jvxlData.jvxlPlane), "maplattice", JU.Escape.eP (jvxlData.mapLattice)]));
+JU.XmlUtil.openTagAttr (sb, "jvxlSurfaceData", (vertexDataOnly || jvxlData.jvxlPlane == null ? null : jvxlData.mapLattice == null ?  Clazz.newArray (-1, ["plane", JU.Escape.eP4 (jvxlData.jvxlPlane)]) :  Clazz.newArray (-1, ["plane", JU.Escape.eP4 (jvxlData.jvxlPlane), "maplattice", JU.Escape.eP (jvxlData.mapLattice)])));
 if (vertexDataOnly) {
 J.jvxl.data.JvxlCoder.appendXmlVertexOnlyData (sb, jvxlData, meshData, true);
 } else if (jvxlData.jvxlPlane == null) {
@@ -67,8 +67,8 @@ if (jvxlData.vContours != null && jvxlData.vContours.length > 0) {
 J.jvxl.data.JvxlCoder.jvxlEncodeContourData (jvxlData.vContours, data);
 }if (jvxlData.vertexColorMap != null) {
 if (jvxlData.baseColor == null) JU.XmlUtil.openTag (data, "jvxlVertexColorData");
- else JU.XmlUtil.openTagAttr (data, "jvxlVertexColorData", ["baseColor", jvxlData.baseColor]);
-for (var entry, $entry = jvxlData.vertexColorMap.entrySet ().iterator (); $entry.hasNext () && ((entry = $entry.next ()) || true);) J.jvxl.data.JvxlCoder.appendEncodedBitSetTag (data, "jvxlColorMap", entry.getValue (), -1, ["color", entry.getKey ()]);
+ else JU.XmlUtil.openTagAttr (data, "jvxlVertexColorData",  Clazz.newArray (-1, ["baseColor", jvxlData.baseColor]));
+for (var entry, $entry = jvxlData.vertexColorMap.entrySet ().iterator (); $entry.hasNext () && ((entry = $entry.next ()) || true);) J.jvxl.data.JvxlCoder.appendEncodedBitSetTag (data, "jvxlColorMap", entry.getValue (), -1,  Clazz.newArray (-1, ["color", entry.getKey ()]));
 
 jvxlData.vertexColorMap = null;
 JU.XmlUtil.closeTag (data, "jvxlVertexColorData");
@@ -85,7 +85,7 @@ if (count == 0) return;
 var sb1 =  new JU.SB ();
 sb1.append ("\n ");
 J.jvxl.data.JvxlCoder.jvxlEncodeBitSetBuffer (bs, -1, sb1);
-JU.XmlUtil.appendTagObj (sb, name, [attribs, "bsEncoding", "base90+35", "count", "" + count, "len", "" + bs.length ()], J.jvxl.data.JvxlCoder.jvxlCompressString (sb1.toString (), true));
+JU.XmlUtil.appendTagObj (sb, name,  Clazz.newArray (-1, [attribs, "bsEncoding", "base90+35", "count", "" + count, "len", "" + bs.length ()]), J.jvxl.data.JvxlCoder.jvxlCompressString (sb1.toString (), true));
 }, "JU.SB,~S,JU.BS,~N,~A");
 c$.jvxlSetCompressionRatio = Clazz.defineMethod (c$, "jvxlSetCompressionRatio", 
  function (data, jvxlData, len) {
@@ -95,7 +95,7 @@ return JU.PT.rep (s, "\"not calculated\"", (r > 0 ? "\"" + r + ":1\"" : "\"?\"")
 }, "JU.SB,J.jvxl.data.JvxlData,~N");
 c$.appendXmlEdgeData = Clazz.defineMethod (c$, "appendXmlEdgeData", 
  function (sb, jvxlData) {
-JU.XmlUtil.appendTagObj (sb, "jvxlEdgeData", ["count", "" + (jvxlData.jvxlEdgeData.length - 1), "encoding", "base90f1", "bsEncoding", "base90+35c", "isXLowToHigh", "" + jvxlData.isXLowToHigh, "data", J.jvxl.data.JvxlCoder.jvxlCompressString (jvxlData.jvxlEdgeData, true)], "\n" + J.jvxl.data.JvxlCoder.jvxlCompressString (jvxlData.jvxlSurfaceData, true));
+JU.XmlUtil.appendTagObj (sb, "jvxlEdgeData",  Clazz.newArray (-1, ["count", "" + (jvxlData.jvxlEdgeData.length - 1), "encoding", "base90f1", "bsEncoding", "base90+35c", "isXLowToHigh", "" + jvxlData.isXLowToHigh, "data", J.jvxl.data.JvxlCoder.jvxlCompressString (jvxlData.jvxlEdgeData, true)]), "\n" + J.jvxl.data.JvxlCoder.jvxlCompressString (jvxlData.jvxlSurfaceData, true));
 }, "JU.SB,J.jvxl.data.JvxlData");
 c$.jvxlAppendCommandState = Clazz.defineMethod (c$, "jvxlAppendCommandState", 
  function (data, cmd, state) {
@@ -112,7 +112,7 @@ c$.appendXmlColorData = Clazz.defineMethod (c$, "appendXmlColorData",
 var n;
 if (data == null || (n = data.length - 1) < 0) return;
 if (isPrecisionColor) n /= 2;
-JU.XmlUtil.appendTagObj (sb, "jvxlColorData", ["count", "" + n, "encoding", (isEncoded ? "base90f" + (isPrecisionColor ? "2" : "1") : "none"), "min", "" + value1, "max", "" + value2, "data", J.jvxl.data.JvxlCoder.jvxlCompressString (data, true)], null);
+JU.XmlUtil.appendTagObj (sb, "jvxlColorData",  Clazz.newArray (-1, ["count", "" + n, "encoding", (isEncoded ? "base90f" + (isPrecisionColor ? "2" : "1") : "none"), "min", "" + value1, "max", "" + value2, "data", J.jvxl.data.JvxlCoder.jvxlCompressString (data, true)]), null);
 }, "JU.SB,~S,~B,~B,~N,~N");
 c$.jvxlGetInfo = Clazz.defineMethod (c$, "jvxlGetInfo", 
 function (jvxlData) {
@@ -149,6 +149,7 @@ if (!Float.isNaN (jvxlData.pointSize)) J.jvxl.data.JvxlCoder.addAttrib (attribs,
  else if (jvxlData.diameter != 0) J.jvxl.data.JvxlCoder.addAttrib (attribs, "\n  diameter", "" + jvxlData.diameter);
 if (!jvxlData.allowVolumeRender) J.jvxl.data.JvxlCoder.addAttrib (attribs, "\n  allowVolumeRender", "false");
 if (jvxlData.jvxlPlane == null || vertexDataOnly) {
+if (jvxlData.fixedLattice != null && !vertexDataOnly) J.jvxl.data.JvxlCoder.addAttrib (attribs, "\n  fixedLattice", "" + jvxlData.fixedLattice);
 if (jvxlData.isContoured) {
 J.jvxl.data.JvxlCoder.addAttrib (attribs, "\n  contoured", "true");
 J.jvxl.data.JvxlCoder.addAttrib (attribs, "\n  colorMapped", "true");
@@ -189,7 +190,8 @@ if (jvxlData.jvxlPlane != null) J.jvxl.data.JvxlCoder.addAttrib (attribs, "\n  c
 J.jvxl.data.JvxlCoder.addAttrib (attribs, "\n  nContours", "" + jvxlData.contourValues.length);
 J.jvxl.data.JvxlCoder.addAttrib (attribs, "\n  contourValues", JU.Escape.eAF (jvxlData.contourValuesUsed == null ? jvxlData.contourValues : jvxlData.contourValuesUsed));
 J.jvxl.data.JvxlCoder.addAttrib (attribs, "\n  contourColors", jvxlData.contourColors);
-}}if (jvxlData.insideOut) J.jvxl.data.JvxlCoder.addAttrib (attribs, "\n  insideOut", "true");
+}if (jvxlData.thisContour > 0) J.jvxl.data.JvxlCoder.addAttrib (attribs, "\n  thisContour", "" + jvxlData.thisContour);
+}if (jvxlData.insideOut) J.jvxl.data.JvxlCoder.addAttrib (attribs, "\n  insideOut", "true");
 if (jvxlData.vertexDataOnly) J.jvxl.data.JvxlCoder.addAttrib (attribs, "\n  note", "vertex/face data only");
  else if (jvxlData.isXLowToHigh) J.jvxl.data.JvxlCoder.addAttrib (attribs, "\n  note", "progressive JVXL+ -- X values read from low(0) to high(" + (jvxlData.nPointsX - 1) + ")");
 J.jvxl.data.JvxlCoder.addAttrib (attribs, "\n  xyzMin", JU.Escape.eP (jvxlData.boundingBox[0]));
@@ -203,11 +205,11 @@ return info.toString ();
 }, "J.jvxl.data.JvxlData,~B");
 c$.addAttrib = Clazz.defineMethod (c$, "addAttrib", 
  function (attribs, name, value) {
-attribs.addLast ([name, value]);
+attribs.addLast ( Clazz.newArray (-1, [name, value]));
 }, "JU.Lst,~S,~S");
 c$.jvxlEncodeContourData = Clazz.defineMethod (c$, "jvxlEncodeContourData", 
  function (contours, sb) {
-JU.XmlUtil.openTagAttr (sb, "jvxlContourData", ["count", "" + contours.length]);
+JU.XmlUtil.openTagAttr (sb, "jvxlContourData",  Clazz.newArray (-1, ["count", "" + contours.length]));
 for (var i = 0; i < contours.length; i++) {
 if (contours[i].size () < 6) {
 continue;
@@ -216,7 +218,7 @@ var sb1 =  new JU.SB ();
 sb1.append ("\n");
 var bs = contours[i].get (1);
 J.jvxl.data.JvxlCoder.jvxlEncodeBitSetBuffer (bs, nPolygons, sb1);
-JU.XmlUtil.appendTagObj (sb, "jvxlContour", ["index", "" + i, "value", "" + contours[i].get (2), "color", JU.Escape.escapeColor ((contours[i].get (4))[0]), "count", "" + bs.length (), "encoding", "base90iff1", "bsEncoding", "base90+35c", "data", J.jvxl.data.JvxlCoder.jvxlCompressString (contours[i].get (5).toString (), true)], J.jvxl.data.JvxlCoder.jvxlCompressString (sb1.toString (), true));
+JU.XmlUtil.appendTagObj (sb, "jvxlContour",  Clazz.newArray (-1, ["index", "" + i, "value", "" + contours[i].get (2), "color", JU.Escape.escapeColor ((contours[i].get (4))[0]), "count", "" + bs.length (), "encoding", "base90iff1", "bsEncoding", "base90+35c", "data", J.jvxl.data.JvxlCoder.jvxlCompressString (contours[i].get (5).toString (), true)]), J.jvxl.data.JvxlCoder.jvxlCompressString (sb1.toString (), true));
 }
 JU.XmlUtil.closeTag (sb, "jvxlContourData");
 }, "~A,JU.SB");
@@ -348,8 +350,8 @@ i++;
 nTri++;
 }}
 if (list1.length () == 0) return true;
-JU.XmlUtil.appendTagObj (sb, "jvxlTriangleData", ["count", "" + nTri, "encoding", "jvxltdiff", "data", J.jvxl.data.JvxlCoder.jvxlCompressString (list1.toString (), escapeXml)], null);
-JU.XmlUtil.appendTagObj (sb, "jvxlTriangleEdgeData", ["count", "" + nTri, "encoding", "jvxlsc", "data", J.jvxl.data.JvxlCoder.jvxlCompressString (list2.toString (), escapeXml)], null);
+JU.XmlUtil.appendTagObj (sb, "jvxlTriangleData",  Clazz.newArray (-1, ["count", "" + nTri, "encoding", "jvxltdiff", "data", J.jvxl.data.JvxlCoder.jvxlCompressString (list1.toString (), escapeXml)]), null);
+JU.XmlUtil.appendTagObj (sb, "jvxlTriangleEdgeData",  Clazz.newArray (-1, ["count", "" + nTri, "encoding", "jvxlsc", "data", J.jvxl.data.JvxlCoder.jvxlCompressString (list2.toString (), escapeXml)]), null);
 return true;
 }, "JU.SB,~A,~N,JU.BS,~A,~B");
 c$.appendXmlVertexData = Clazz.defineMethod (c$, "appendXmlVertexData", 
@@ -378,8 +380,8 @@ J.jvxl.data.JvxlCoder.jvxlAppendCharacter2 (p.y, min.y, max.y, colorFractionBase
 J.jvxl.data.JvxlCoder.jvxlAppendCharacter2 (p.z, min.z, max.z, colorFractionBase, colorFractionRange, list1, list2);
 }
 list1.appendSB (list2);
-JU.XmlUtil.appendTagObj (sb, "jvxlVertexData", ["count", "" + n, "min", JU.Escape.eP (min), "max", JU.Escape.eP (max), "encoding", "base90xyz2", "data", J.jvxl.data.JvxlCoder.jvxlCompressString (list1.toString (), escapeXml)], null);
-if (polygonColorData != null) JU.XmlUtil.appendTagObj (sb, "jvxlPolygonColorData", ["encoding", "jvxlnc", "count", "" + polygonCount], "\n" + polygonColorData);
+JU.XmlUtil.appendTagObj (sb, "jvxlVertexData",  Clazz.newArray (-1, ["count", "" + n, "min", JU.Escape.eP (min), "max", JU.Escape.eP (max), "encoding", "base90xyz2", "data", J.jvxl.data.JvxlCoder.jvxlCompressString (list1.toString (), escapeXml)]), null);
+if (polygonColorData != null) JU.XmlUtil.appendTagObj (sb, "jvxlPolygonColorData",  Clazz.newArray (-1, ["encoding", "jvxlnc", "count", "" + polygonCount]), "\n" + polygonColorData);
 if (!addColorData) return;
 list1 =  new JU.SB ();
 list2 =  new JU.SB ();

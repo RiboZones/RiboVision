@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JM.FF");
-Clazz.load (null, "JM.FF.ForceField", ["java.lang.Float", "JU.PT", "J.io.JmolBinary", "JM.Util", "JU.Logger", "JV.Viewer"], function () {
+Clazz.load (null, "JM.FF.ForceField", ["java.lang.Float", "JU.PT", "JM.Util", "JU.Logger", "JV.FileManager", "$.Viewer"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.name = null;
 this.calc = null;
@@ -52,7 +52,7 @@ if (this.calc.loggingEnabled) this.calc.appendLogData (this.calc.getAtomList ("S
 this.dE = 0;
 this.calc.setPreliminary (stepMax > 0);
 this.e0 = this.energyFull (false, false);
-s = JU.PT.sprintf (" Initial " + this.name + " E = %10.3f " + this.minimizer.units + " criterion = %8.6f max steps = " + stepMax, "ff", [Float.$valueOf (this.toUserUnits (this.e0)), Float.$valueOf (this.toUserUnits (criterion))]);
+s = JU.PT.sprintf (" Initial " + this.name + " E = %10.3f " + this.minimizer.units + " criterion = %8.6f max steps = " + stepMax, "ff",  Clazz.newArray (-1, [Float.$valueOf (this.toUserUnits (this.e0)), Float.$valueOf (this.toUserUnits (criterion))]));
 this.minimizer.report (s, false);
 this.calc.appendLogData (s);
 }, "~N,~N");
@@ -77,7 +77,7 @@ var e1 = this.energyFull (false, false);
 this.dE = e1 - this.e0;
 var done = JM.Util.isNear3 (e1, this.e0, this.criterion);
 if (done || this.currentStep % 10 == 0 || this.stepMax <= this.currentStep) {
-var s = JU.PT.sprintf (this.name + " Step %-4d E = %10.6f    dE = %8.6f ", "Fi", [[e1, (this.dE), this.criterion], Integer.$valueOf (this.currentStep)]);
+var s = JU.PT.sprintf (this.name + " Step %-4d E = %10.6f    dE = %8.6f ", "Fi",  Clazz.newArray (-1, [ Clazz.newFloatArray (-1, [e1, (this.dE), this.criterion]), Integer.$valueOf (this.currentStep)]));
 this.minimizer.report (s, false);
 this.calc.appendLogData (s);
 }this.e0 = e1;
@@ -128,7 +128,7 @@ function (gradients, isSilent) {
 var energy;
 if (gradients) this.clearForces ();
 energy = this.energyBond (gradients) + this.energyAngle (gradients) + this.energyTorsion (gradients) + this.energyStretchBend (gradients) + this.energyOOP (gradients) + this.energyVDW (gradients) + this.energyES (gradients);
-if (!isSilent && this.calc.loggingEnabled) this.calc.appendLogData (JU.PT.sprintf ("\nTOTAL %s ENERGY = %8.3f %s/mol\n", "sfs", [this.name, Float.$valueOf (this.toUserUnits (energy)), this.minimizer.units]));
+if (!isSilent && this.calc.loggingEnabled) this.calc.appendLogData (JU.PT.sprintf ("\nTOTAL %s ENERGY = %8.3f %s/mol\n", "sfs",  Clazz.newArray (-1, [this.name, Float.$valueOf (this.toUserUnits (energy)), this.minimizer.units])));
 return energy;
 }, "~B,~B");
 Clazz.defineMethod (c$, "energyStretchBend", 
@@ -259,7 +259,7 @@ this.calc.appendLogData (s);
 }, "~S");
 Clazz.defineMethod (c$, "getBufferedReader", 
 function (resourceName) {
-return J.io.JmolBinary.getBufferedReaderForResource (this.minimizer.vwr, this, "JM/FF/", "data/" + resourceName);
+return JV.FileManager.getBufferedReaderForResource (this.minimizer.vwr, this, "JM/FF/", "data/" + resourceName);
 }, "~S");
 Clazz.defineStatics (c$,
 "ENERGY", (1),

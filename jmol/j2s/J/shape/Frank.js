@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.shape");
-Clazz.load (["J.shape.FontShape"], "J.shape.Frank", ["J.i18n.GT"], function () {
+Clazz.load (["J.shape.Shape"], "J.shape.Frank", ["J.i18n.GT"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.frankString = "Jmol";
 this.currentMetricsFont3d = null;
@@ -11,8 +11,10 @@ this.x = 0;
 this.y = 0;
 this.dx = 0;
 this.dy = 0;
+this.scaling = 0;
+this.font3d = null;
 Clazz.instantialize (this, arguments);
-}, J.shape, "Frank", J.shape.FontShape);
+}, J.shape, "Frank", J.shape.Shape);
 Clazz.defineMethod (c$, "initShape", 
 function () {
 Clazz.superCall (this, J.shape.Frank, "initShape", []);
@@ -22,7 +24,12 @@ this.calcMetrics ();
 });
 Clazz.overrideMethod (c$, "setProperty", 
 function (propertyName, value, bs) {
-this.setPropFS (propertyName, value);
+if ("font" === propertyName) {
+var f = value;
+if (f.fontSize >= 10) {
+this.baseFont3d = f;
+this.scaling = 0;
+}}return;
 }, "~S,~O,JU.BS");
 Clazz.overrideMethod (c$, "wasClicked", 
 function (x, y) {
@@ -42,7 +49,7 @@ return true;
 Clazz.defineMethod (c$, "calcMetrics", 
 function () {
 if (this.vwr.isJS) this.frankString = "JSmol";
- else if (this.vwr.isSignedApplet ()) this.frankString = "Jmol_S";
+ else if (this.vwr.isSignedApplet) this.frankString = "Jmol_S";
 if (this.font3d === this.currentMetricsFont3d) return;
 this.currentMetricsFont3d = this.font3d;
 this.frankWidth = this.font3d.stringWidth (this.frankString);
@@ -51,12 +58,14 @@ this.frankAscent = this.font3d.getAscent ();
 });
 Clazz.defineMethod (c$, "getFont", 
 function (imageFontScaling) {
+if (imageFontScaling != this.scaling) {
+this.scaling = imageFontScaling;
 this.font3d = this.vwr.gdata.getFont3DScaled (this.baseFont3d, imageFontScaling);
 this.calcMetrics ();
-}, "~N");
+}}, "~N");
 Clazz.overrideMethod (c$, "getShapeState", 
 function () {
-return this.vwr.getFontState (this.myType, this.font3d);
+return this.vwr.getFontState (this.myType, this.baseFont3d);
 });
 Clazz.defineStatics (c$,
 "defaultFontName", "SansSerif",

@@ -761,7 +761,7 @@ this.pin2Dy1.setY (n, this.imageView.toPixelY0 (n));
 this.setWidgetX (this.pin1Dx1, this.getScale ().maxX);
 this.setWidgetY (this.pin1Dy0, this.getScale ().minY);
 this.setWidgetY (this.pin1Dy1, this.getScale ().maxY);
-this.widgets = [this.zoomBox1D, this.zoomBox2D, this.pin1Dx0, this.pin1Dx01, this.pin1Dx1, this.pin1Dy0, this.pin1Dy01, this.pin1Dy1, this.pin2Dx0, this.pin2Dx01, this.pin2Dx1, this.pin2Dy0, this.pin2Dy01, this.pin2Dy1, this.cur2Dx0, this.cur2Dx1, this.cur2Dy, this.cur1D2x1, this.cur1D2x2];
+this.widgets =  Clazz.newArray (-1, [this.zoomBox1D, this.zoomBox2D, this.pin1Dx0, this.pin1Dx01, this.pin1Dx1, this.pin1Dy0, this.pin1Dy01, this.pin1Dy1, this.pin2Dx0, this.pin2Dx01, this.pin2Dx1, this.pin2Dy0, this.pin2Dy01, this.pin2Dy1, this.cur2Dx0, this.cur2Dx1, this.cur2Dy, this.cur1D2x1, this.cur1D2x2]);
 });
 Clazz.defineMethod (c$, "setWidgetX", 
  function (pw, x) {
@@ -2810,8 +2810,8 @@ case 3:
 f = -1;
 break;
 }
-var axPoints = [x - 5, x - 5, x + 5, x + 5, x + 8, x, x - 8];
-var ayPoints = [y + 5 * f, y - f, y - f, y + 5 * f, y + 5 * f, y + 10 * f, y + 5 * f];
+var axPoints =  Clazz.newIntArray (-1, [x - 5, x - 5, x + 5, x + 5, x + 8, x, x - 8]);
+var ayPoints =  Clazz.newIntArray (-1, [y + 5 * f, y - f, y - f, y + 5 * f, y + 5 * f, y + 10 * f, y + 5 * f]);
 switch (type) {
 case 1:
 case 2:

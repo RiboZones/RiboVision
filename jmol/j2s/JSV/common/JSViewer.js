@@ -1071,7 +1071,7 @@ if (jsvp.getTitle ().equals ("")) {
 jsvp.getPanelData ().setViewTitle (source.getFilePath ());
 jsvp.setTitle (name);
 }this.si.siSetPropertiesFromPreferences (jsvp, true);
-this.spectraTree.createTree (++this.fileCount, source, [jsvp]).getPanelNode ().isView = true;
+this.spectraTree.createTree (++this.fileCount, source,  Clazz.newArray (-1, [jsvp])).getPanelNode ().isView = true;
 var node = JSV.common.PanelNode.findNode (this.selectedPanel, this.panelNodes);
 node.setFrameTitle (name);
 node.isView = true;
@@ -1435,7 +1435,7 @@ if (url == null) return;
 this.recentOpenURL = url;
 this.load ((isAppend ? "APPEND " : "") + "\"" + url + "\"", script);
 } else {
-var userData = [Boolean.$valueOf (isAppend), script];
+var userData =  Clazz.newArray (-1, [Boolean.$valueOf (isAppend), script]);
 var file = this.fileHelper.showFileOpenDialog (this.mainPanel, userData);
 if (file != null) this.openFile (file.getFullPath (), !isAppend);
 }}, "~B,~B,~B,~S");

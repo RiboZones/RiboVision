@@ -1,7 +1,6 @@
 Clazz.declarePackage ("J.export");
 Clazz.load (["J.export.__RayTracerExporter", "$.UseTable"], "J.export._TachyonExporter", ["java.lang.Float", "JU.SB", "JV.Viewer"], function () {
 c$ = Clazz.decorateAsClass (function () {
-this.wasPerspectiveDepth = false;
 this.lighting = null;
 this.phong = null;
 this.textures = null;
@@ -131,7 +130,7 @@ this.tm.unTransformPoint (screenBase, this.tempP1);
 this.tm.unTransformPoint (screenTip, this.tempP2);
 radius = this.vwr.tm.unscaleToScreen (screenBase.z, radius);
 var matRotateScale = this.getRotationMatrix (this.tempP1, this.tempP2, radius);
-this.jmolRenderer.drawSurface (J["export"].___Exporter.getConeMesh (this.tempP1, matRotateScale, colix), colix);
+this.export3D.drawSurface (J["export"].___Exporter.getConeMesh (this.tempP1, matRotateScale, colix), colix);
 }, "JU.P3,JU.P3,~N,~N,~B");
 Clazz.overrideMethod (c$, "outputCylinder", 
 function (screenA, screenB, radius, colix, withCaps) {
@@ -224,5 +223,5 @@ this.output (" V0 " + this.triad (ptA));
 this.output (" V1 " + this.triad (ptB));
 this.output (" V2 " + this.triad (ptC));
 this.outputTextureCode ();
-}, "JU.P3,JU.P3,JU.P3,~N");
+}, "JU.T3,JU.T3,JU.T3,~N");
 });

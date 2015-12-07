@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JV");
-Clazz.load (["JU.BS", "J.c.ANIM"], "JV.AnimationManager", ["J.api.Interface", "JU.BSUtil"], function () {
+Clazz.load (["JU.BS"], "JV.AnimationManager", ["J.api.Interface", "JU.BSUtil"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.animationThread = null;
 this.vwr = null;
@@ -8,7 +8,7 @@ this.animationFps = 0;
 this.firstFrameDelayMs = 0;
 this.lastFrameDelayMs = 0;
 this.bsVisibleModels = null;
-this.animationReplayMode = null;
+this.animationReplayMode = 1073742070;
 this.bsDisplay = null;
 this.animationFrames = null;
 this.isMovie = false;
@@ -33,7 +33,6 @@ Clazz.instantialize (this, arguments);
 }, JV, "AnimationManager");
 Clazz.prepareFields (c$, function () {
 this.bsVisibleModels =  new JU.BS ();
-this.animationReplayMode = J.c.ANIM.ONCE;
 });
 Clazz.makeConstructor (c$, 
 function (vwr) {
@@ -42,7 +41,7 @@ this.vwr = vwr;
 Clazz.defineMethod (c$, "setAnimationOn", 
 function (animationOn) {
 if (animationOn == this.animationOn) return;
-if (!animationOn || !this.vwr.haveModelSet () || this.vwr.isHeadless ()) {
+if (!animationOn || this.vwr.headless) {
 this.stopThread (false);
 return;
 }if (!this.vwr.tm.spinOn) this.vwr.refresh (3, "Anim:setAnimationOn");
@@ -59,7 +58,7 @@ stopped = true;
 }this.animationPaused = isPaused;
 if (stopped && !this.vwr.tm.spinOn) this.vwr.refresh (3, "Viewer:setAnimationOff");
 this.animation (false);
-this.vwr.setStatusFrameChanged (false, true);
+this.vwr.setStatusFrameChanged (false, false);
 }, "~B");
 Clazz.defineMethod (c$, "setAnimationNext", 
 function () {
@@ -84,13 +83,14 @@ this.currentDirection = 1;
 this.cai = -1;
 this.setAnimationDirection (1);
 this.setAnimationFps (10);
-this.setAnimationReplayMode (J.c.ANIM.ONCE, 0, 0);
+this.setAnimationReplayMode (1073742070, 0, 0);
 this.initializePointers (0);
 });
 Clazz.defineMethod (c$, "getModelSpecial", 
 function (i) {
 switch (i) {
 case -1:
+if (this.animationFrames != null) return "1";
 i = this.firstFrameIndex;
 break;
 case 0:
@@ -98,6 +98,7 @@ if (this.morphCount > 0) return "-" + (1 + this.currentMorphModel);
 i = this.cmi;
 break;
 case 1:
+if (this.animationFrames != null) return "" + this.animationFrames.length;
 i = this.lastFrameIndex;
 break;
 }
@@ -191,7 +192,7 @@ this.lastFrameDelay = lastFrameDelay > 0 ? lastFrameDelay : 0;
 this.lastFrameDelayMs = Clazz.floatToInt (this.lastFrameDelay * 1000);
 this.animationReplayMode = animationReplayMode;
 this.vwr.setFrameVariables ();
-}, "J.c.ANIM,~N,~N");
+}, "~N,~N,~N");
 Clazz.defineMethod (c$, "setAnimationRange", 
 function (framePointer, framePointer2) {
 var frameCount = this.getFrameCount ();
@@ -230,7 +231,7 @@ this.animationPaused = false;
 if (this.animationThread == null) {
 this.intAnimThread++;
 this.animationThread = J.api.Interface.getOption ("thread.AnimationThread", this.vwr, "script");
-this.animationThread.setManager (this, this.vwr, [this.firstFrameIndex, this.lastFrameIndex, this.intAnimThread]);
+this.animationThread.setManager (this, this.vwr,  Clazz.newIntArray (-1, [this.firstFrameIndex, this.lastFrameIndex, this.intAnimThread]));
 this.animationThread.start ();
 }});
 Clazz.defineMethod (c$, "setAnimationLast", 
@@ -254,7 +255,7 @@ if (this.firstFrameIndex == this.lastFrameIndex || this.lastFrameIndex < 0 || th
 var i0 = Math.min (this.firstFrameIndex, this.lastFrameIndex);
 var i1 = Math.max (this.firstFrameIndex, this.lastFrameIndex);
 var nsec = 1 * (i1 - i0) / this.animationFps + this.firstFrameDelay + this.lastFrameDelay;
-for (var i = i0; i <= i1; i++) nsec += this.vwr.getFrameDelayMs (this.modelIndexForFrame (i)) / 1000;
+for (var i = i0; i <= i1; i++) nsec += this.vwr.ms.getFrameDelayMs (this.modelIndexForFrame (i)) / 1000;
 
 return nsec;
 });
@@ -274,22 +275,15 @@ this.animationFrames = null;
 }this.vwr.setBooleanProperty ("_ismovie", this.isMovie);
 this.bsDisplay = null;
 this.currentMorphModel = this.morphCount = 0;
+this.vwr.setFrameVariables ();
 }, "java.util.Map");
-Clazz.defineMethod (c$, "getAnimationFrames", 
-function () {
-return this.animationFrames;
-});
-Clazz.defineMethod (c$, "getCurrentFrameIndex", 
-function () {
-return this.caf;
-});
 Clazz.defineMethod (c$, "modelIndexForFrame", 
 function (i) {
 return (this.isMovie ? this.animationFrames[i] - 1 : i);
 }, "~N");
 Clazz.defineMethod (c$, "getFrameCount", 
 function () {
-return (this.isMovie ? this.animationFrames.length : this.vwr.getModelCount ());
+return (this.isMovie ? this.animationFrames.length : this.vwr.ms.mc);
 });
 Clazz.defineMethod (c$, "setFrame", 
 function (i) {
@@ -315,8 +309,8 @@ this.vwr.tm.setFrameOffset (this.cmi);
 if (this.cmi == -1 && clearBackgroundModel) this.setBackgroundModelIndex (-1);
 this.vwr.setTainted (true);
 this.setFrameRangeVisible ();
-this.vwr.setStatusFrameChanged (false, true);
-if (this.vwr.ms != null && !this.vwr.g.selectAllModels) this.vwr.setSelectionSubset (this.vwr.getModelUndeletedAtomsBitSet (this.cmi));
+this.vwr.setStatusFrameChanged (false, false);
+if (this.vwr.ms != null && !this.vwr.g.selectAllModels) this.vwr.slm.setSelectionSubset (this.vwr.getModelUndeletedAtomsBitSet (this.cmi));
 }, "~B");
 Clazz.defineMethod (c$, "setFrameRangeVisible", 
  function () {
@@ -363,12 +357,12 @@ isDone = this.isNotInRange (nextMorphFrame);
 isDone = this.isNotInRange (frameNext);
 }if (isDone) {
 switch (this.animationReplayMode) {
-case J.c.ANIM.ONCE:
+case 1073742070:
 return false;
-case J.c.ANIM.LOOP:
+case 528411:
 nextMorphFrame = frameNext = (this.animationDirection == this.currentDirection ? this.firstFrameIndex : this.lastFrameIndex);
 break;
-case J.c.ANIM.PALINDROME:
+case 1073742082:
 this.currentDirection = -this.currentDirection;
 frameNext -= 2 * frameStep;
 nextMorphFrame -= 2 * frameStep * morphStep;

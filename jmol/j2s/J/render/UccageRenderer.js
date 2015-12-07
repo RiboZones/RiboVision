@@ -30,12 +30,12 @@ this.draw000 = false;
 });
 Clazz.overrideMethod (c$, "render", 
 function () {
-this.imageFontScaling = this.vwr.getImageFontScaling ();
+this.imageFontScaling = this.vwr.imageFontScaling;
 this.font3d = this.vwr.gdata.getFont3DScaled ((this.shape).font3d, this.imageFontScaling);
 var mad = this.vwr.getObjectMad (5);
-if (mad == 0 || this.vwr.isJmolDataFrame () || this.tm.isNavigating () && this.vwr.getBoolean (603979888)) return false;
+if (mad == 0 || this.vwr.isJmolDataFrame () || this.tm.isNavigating () && this.vwr.getBoolean (603979890)) return false;
 this.colix = this.vwr.getObjectColix (5);
-var needTranslucent = JU.C.isColixTranslucent (this.colix);
+var needTranslucent = JU.C.renderPass2 (this.colix);
 if (!this.isExport && needTranslucent != this.vwr.gdata.isPass2) return needTranslucent;
 this.render1 (mad);
 return false;
@@ -47,7 +47,7 @@ this.unitcell = this.vwr.getCurrentUnitCell ();
 if (this.unitcell == null) return;
 this.isPolymer = this.unitcell.isPolymer ();
 this.isSlab = this.unitcell.isSlab ();
-var vertices = this.unitcell.getUnitCellVertices ();
+var vertices = this.unitcell.getUnitCellVerticesNoOffset ();
 this.offset.setT (this.unitcell.getCartesianOffset ());
 this.offsetT.setT (this.unitcell.getFractionalOrigin ());
 this.unitcell.toCartesian (this.offsetT, true);
@@ -107,7 +107,7 @@ this.renderInfo ();
 }, "~N");
 Clazz.defineMethod (c$, "renderInfo", 
  function () {
-if (this.isExport || !this.vwr.getBoolean (603979828) || this.unitcell.isPeriodic () || this.vwr.isPreviewOnly () || !this.vwr.gdata.setC (this.vwr.getColixBackgroundContrast ()) || this.vwr.gdata.getTextPosition () != 0) return;
+if (this.isExport || !this.vwr.getBoolean (603979828) || this.unitcell.isPeriodic () || this.vwr.isPreviewOnly || !this.vwr.gdata.setC (this.vwr.cm.colixBackgroundContrast) || this.vwr.gdata.getTextPosition () != 0) return;
 this.vwr.gdata.setFontFid (this.vwr.gdata.getFontFidFS ("Monospaced", 14 * this.imageFontScaling));
 this.xpos = Clazz.doubleToInt (Math.floor (5 * this.imageFontScaling));
 this.ypos = this.lineheight = Clazz.doubleToInt (Math.floor (15 * this.imageFontScaling));

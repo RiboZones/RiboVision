@@ -109,7 +109,7 @@ var list = this.getMeshList (this.lcaoID, false);
 for (var i = list.size (); --i >= 0; ) list.get (i).visible = TF;
 
 return;
-}var ac = this.vwr.getAtomCount ();
+}var ac = this.vwr.ms.ac;
 for (var i = ac; --i >= 0; ) if (this.lcaoID != null || this.thisSet.get (i)) this.setLcaoOn (i, TF);
 
 }, "~B");
@@ -124,7 +124,7 @@ Clazz.defineMethod (c$, "deleteLcaoCartoon",
 if (JU.PT.isWild (this.lcaoID)) {
 this.deleteMeshKey (this.lcaoID);
 return;
-}var ac = this.vwr.getAtomCount ();
+}var ac = this.vwr.ms.ac;
 for (var i = ac; --i >= 0; ) if (this.lcaoID != null || this.thisSet.get (i)) this.deleteLcaoCartoon (i);
 
 });
@@ -154,7 +154,7 @@ this.translucentLevel = this.lcaoTranslucentLevel;
 this.setPropI ("thisID", id, null);
 if (this.lcaoScale != null) this.setPropI ("scale", this.lcaoScale, null);
 if (isCpk) {
-this.setPropI ("colorRGB", Integer.$valueOf (this.vwr.getAtomArgb (iAtom)), null);
+this.setPropI ("colorRGB", Integer.$valueOf (this.vwr.gdata.getColorArgbOrGray (this.ms.at[iAtom].colixAtom)), null);
 } else if (this.lcaoColorNeg != null) {
 this.setPropI ("colorRGB", this.lcaoColorNeg, null);
 this.setPropI ("colorRGB", this.lcaoColorPos, null);
@@ -162,7 +162,7 @@ this.setPropI ("colorRGB", this.lcaoColorPos, null);
 if (this.cappingObject != null) this.setPropI ("cap", this.cappingObject, null);
 this.setPropI ("lcaoType", this.thisType, null);
 this.setPropI ("atomIndex", Integer.$valueOf (iAtom), null);
-var axes = [ new JU.V3 (),  new JU.V3 (), JU.V3.newV (this.ms.at[iAtom]),  new JU.V3 ()];
+var axes =  Clazz.newArray (-1, [ new JU.V3 (),  new JU.V3 (), JU.V3.newV (this.ms.at[iAtom]),  new JU.V3 ()]);
 if (this.rotationAxis != null) axes[3].setT (this.rotationAxis);
 if (this.isMolecular) {
 if (this.thisType.indexOf ("px") >= 0) {

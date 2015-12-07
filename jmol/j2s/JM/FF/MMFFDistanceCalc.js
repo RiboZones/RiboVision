@@ -12,7 +12,7 @@ this.ia = bond.data[0];
 this.ib = bond.data[1];
 var data = this.calcs.getParameterObj (bond);
 if (data == null) return;
-calc.addLast ([[this.ia, this.ib], data]);
+calc.addLast ( Clazz.newArray (-1, [ Clazz.newIntArray (-1, [this.ia, this.ib]), data]));
 }, "JU.Lst,JM.MinBond");
 Clazz.overrideMethod (c$, "compute", 
 function (dataIn) {

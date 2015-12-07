@@ -51,7 +51,7 @@ var o = this.navigationList.get (i);
 var seconds = (o[1]).floatValue ();
 var tok = (o[0]).intValue ();
 switch (tok) {
-case 135266320:
+case 134217751:
 var pt = o[2];
 if (seconds == 0) {
 this.tm.setNavigatePt (pt);
@@ -66,7 +66,7 @@ var indexStart = (o[4])[0];
 var indexEnd = (o[4])[1];
 this.navigate (seconds, null, path, theta, indexStart, indexEnd);
 break;
-case 1113200654:
+case 1112152078:
 var pathGuide = (o[2]);
 this.navigate (seconds, pathGuide, null, null, 0, 2147483647);
 break;
@@ -80,7 +80,7 @@ return;
 }this.navigateTo (seconds, rotAxis, degrees, null, NaN, NaN, NaN);
 break;
 case 4160:
-case 269484210:
+case 268435634:
 if (tok == 4160) {
 this.tm.transformPt3f (o[2], ptTemp);
 } else {
@@ -207,7 +207,7 @@ if (this.floatSecondsTotal > 0) this.vwr.setInMotion (true);
 if (this.degrees == 0) this.degrees = NaN;
 if (this.totalSteps > 0) {
 this.frameTimeMillis = Clazz.doubleToInt (1000 / fps);
-this.depthStart = this.tm.getNavigationDepthPercent ();
+this.depthStart = this.tm.navigationDepthPercent;
 this.depthDelta = this.depthPercent - this.depthStart;
 this.xTransStart = this.tm.navigationOffset.x;
 this.xTransDelta = this.xTrans - this.xTransStart;
@@ -253,7 +253,7 @@ Clazz.defineMethod (c$, "alignZX",
  function (pt0, pt1, ptVectorWing) {
 var pt0s =  new JU.P3 ();
 var pt1s =  new JU.P3 ();
-var m = this.tm.getMatrixRotate ();
+var m = this.tm.matrixRotate;
 m.rotate2 (pt0, pt0s);
 m.rotate2 (pt1, pt1s);
 var vPath = JU.V3.newVsub (pt0s, pt1s);
@@ -296,7 +296,7 @@ Clazz.overrideMethod (c$, "calcNavigationPoint",
 function () {
 this.calcNavigationDepthPercent ();
 if (!this.tm.navigating && this.tm.navMode != 1) {
-if (this.tm.navigationDepth < 100 && this.tm.navigationDepth > 0 && !Float.isNaN (this.tm.previousX) && this.tm.previousX == this.tm.fixedTranslation.x && this.tm.previousY == this.tm.fixedTranslation.y && this.tm.navMode != -1) this.tm.navMode = 3;
+if (this.tm.navigationDepthPercent < 100 && this.tm.navigationDepthPercent > 0 && !Float.isNaN (this.tm.previousX) && this.tm.previousX == this.tm.fixedTranslation.x && this.tm.previousY == this.tm.fixedTranslation.y && this.tm.navMode != -1) this.tm.navMode = 3;
  else this.tm.navMode = 0;
 }switch (this.tm.navMode) {
 case 1:
@@ -316,8 +316,7 @@ this.newNavigationCenter ();
 break;
 case -2:
 case 3:
-var pt1 =  new JU.P3 ();
-this.tm.matrixTransform.rotTrans2 (this.tm.navigationCenter, pt1);
+var pt1 = this.tm.matrixTransform.rotTrans2 (this.tm.navigationCenter,  new JU.P3 ());
 var z = pt1.z;
 this.tm.matrixTransform.rotTrans2 (this.tm.fixedRotationCenter, pt1);
 this.tm.modelCenterOffset = this.tm.referencePlaneOffset + (pt1.z - z);
@@ -330,7 +329,7 @@ this.tm.unTransformPoint (this.tm.navigationOffset, this.tm.navigationCenter);
 break;
 }
 this.tm.matrixTransform.rotTrans2 (this.tm.navigationCenter, this.tm.navigationShiftXY);
-if (this.vwr.getBoolean (603979888)) {
+if (this.vwr.getBoolean (603979890)) {
 var pt = JU.P3.newP (this.tm.navigationCenter);
 this.vwr.toUnitCell (this.tm.navigationCenter, null);
 if (pt.distance (this.tm.navigationCenter) > 0.01) {
@@ -372,11 +371,11 @@ this.tm.mode = 1;
 });
 Clazz.overrideMethod (c$, "setNavigationOffsetRelative", 
 function () {
-if (this.tm.navigationDepth < 0 && this.tm.navZ > 0 || this.tm.navigationDepth > 100 && this.tm.navZ < 0) {
+if (this.tm.navigationDepthPercent < 0 && this.tm.navZ > 0 || this.tm.navigationDepthPercent > 100 && this.tm.navZ < 0) {
 this.tm.navZ = 0;
 }this.tm.rotateXRadians (0.017453292 * -0.02 * this.tm.navY, null);
 this.tm.rotateYRadians (0.017453292 * .02 * this.tm.navX, null);
-var pt = this.tm.getNavigationCenter ();
+var pt = this.tm.navigationCenter;
 var pts =  new JU.P3 ();
 this.tm.transformPt3f (pt, pts);
 pts.z += this.tm.navZ;
@@ -428,7 +427,7 @@ break;
 this.tm.rotateXRadians (0.017453292 * -0.2 * this.multiplier, null);
 this.tm.navMode = 3;
 break;
-}this.tm.modelCenterOffset -= speed * (this.vwr.getBoolean (603979888) ? 1 : this.multiplier);
+}this.tm.modelCenterOffset -= speed * (this.vwr.getBoolean (603979890) ? 1 : this.multiplier);
 this.tm.navMode = 4;
 break;
 case 40:
@@ -450,7 +449,7 @@ break;
 this.tm.rotateXRadians (0.017453292 * .2 * this.multiplier, null);
 this.tm.navMode = 3;
 break;
-}this.tm.modelCenterOffset += speed * (this.vwr.getBoolean (603979888) ? 1 : this.multiplier);
+}this.tm.modelCenterOffset += speed * (this.vwr.getBoolean (603979890) ? 1 : this.multiplier);
 this.tm.navMode = 4;
 break;
 case 37:
@@ -499,11 +498,11 @@ this.tm.navMode = -1;
 Clazz.defineMethod (c$, "calcNavigationDepthPercent", 
  function () {
 this.tm.calcCameraFactors ();
-this.tm.navigationDepth = (this.tm.modelRadiusPixels == 0 ? 50 : 50 * (1 + (this.tm.modelCenterOffset - this.tm.referencePlaneOffset) / this.tm.modelRadiusPixels));
+this.tm.navigationDepthPercent = (this.tm.modelRadiusPixels == 0 ? 50 : 50 * (1 + (this.tm.modelCenterOffset - this.tm.referencePlaneOffset) / this.tm.modelRadiusPixels));
 });
 Clazz.overrideMethod (c$, "getNavigationState", 
 function () {
-return "# navigation state;\nnavigate 0 center " + JU.Escape.eP (this.tm.getNavigationCenter ()) + ";\nnavigate 0 translate " + this.tm.getNavigationOffsetPercent ('X') + " " + this.tm.getNavigationOffsetPercent ('Y') + ";\nset navigationDepth " + this.tm.getNavigationDepthPercent () + ";\nset navigationSlab " + this.getNavigationSlabOffsetPercent () + ";\n\n";
+return "# navigation state;\nnavigate 0 center " + JU.Escape.eP (this.tm.navigationCenter) + ";\nnavigate 0 translate " + this.tm.getNavigationOffsetPercent ('X') + " " + this.tm.getNavigationOffsetPercent ('Y') + ";\nset navigationDepth " + this.tm.navigationDepthPercent + ";\nset navigationSlab " + this.getNavigationSlabOffsetPercent () + ";\n\n";
 });
 Clazz.defineMethod (c$, "getNavigationSlabOffsetPercent", 
  function () {

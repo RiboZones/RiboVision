@@ -26,7 +26,10 @@ this.vH = null;
 Clazz.instantialize (this, arguments);
 }, J.renderbio, "RocketRenderer");
 Clazz.makeConstructor (c$, 
-function (rr, isRockets) {
+function () {
+});
+Clazz.defineMethod (c$, "set", 
+function (rr) {
 this.screenA =  new JU.P3 ();
 this.screenB =  new JU.P3 ();
 this.screenC =  new JU.P3 ();
@@ -34,8 +37,9 @@ this.vtemp =  new JU.V3 ();
 this.rr = rr;
 this.vwr = rr.vwr;
 this.tm = rr.vwr.tm;
-this.isRockets = isRockets;
-}, "J.renderbio.RocketsRenderer,~B");
+this.isRockets = rr.isRockets;
+return this;
+}, "J.renderbio.RocketsRenderer");
 Clazz.defineMethod (c$, "renderRockets", 
 function () {
 this.g3d = this.rr.g3d;
@@ -80,14 +84,14 @@ if (this.g3d.setC (this.colix)) {
 this.tm.transformPt3f (pointStart, this.screenA);
 this.tm.transformPt3f ((renderArrowHead ? pointBeforeEnd : pointEnd), this.screenB);
 var zMid = Clazz.doubleToInt (Math.floor ((this.screenA.z + this.screenB.z) / 2));
-var diameter = Clazz.floatToInt (this.vwr.tm.scaleToScreen (zMid, this.mad));
-if (pointStart !== pointBeforeEnd) this.g3d.fillCylinderBits (2, diameter, this.screenA, this.screenB);
+var diameter = (Clazz.floatToInt (this.vwr.tm.scaleToScreen (zMid, this.mad)));
+if (!renderArrowHead || pointStart !== pointBeforeEnd) this.g3d.fillCylinderBits (2, diameter, this.screenA, this.screenB);
 if (renderArrowHead) {
 this.screenA.sub2 (pointEnd, pointBeforeEnd);
 this.tm.transformPt3f (pointEnd, this.screenC);
 var coneDiameter = (this.mad << 1) - (this.mad >> 1);
 coneDiameter = Clazz.floatToInt (this.vwr.tm.scaleToScreen (Clazz.doubleToInt (Math.floor (this.screenB.z)), coneDiameter));
-this.g3d.fillConeSceen3f (2, coneDiameter, this.screenB, this.screenC);
+this.g3d.fillConeScreen3f (2, coneDiameter, this.screenB, this.screenC, false);
 } else {
 }if (this.startIndexPending == this.endIndexPending) return;
 var t = this.screenB;
@@ -160,6 +164,6 @@ this.tm.transformPt3f (corner, this.screenCorners[i]);
 }
 }, "JU.P3,JU.V3,JU.V3,JU.V3");
 Clazz.defineStatics (c$,
-"boxFaces", [0, 1, 3, 2, 0, 2, 6, 4, 0, 4, 5, 1, 7, 5, 4, 6, 7, 6, 2, 3, 7, 3, 1, 5],
-"arrowHeadFaces", [0, 1, 3, 2, 0, 4, 5, 2, 1, 4, 5, 3]);
+"boxFaces",  Clazz.newByteArray (-1, [0, 1, 3, 2, 0, 2, 6, 4, 0, 4, 5, 1, 7, 5, 4, 6, 7, 6, 2, 3, 7, 3, 1, 5]),
+"arrowHeadFaces",  Clazz.newByteArray (-1, [0, 1, 3, 2, 0, 4, 5, 2, 1, 4, 5, 3]));
 });

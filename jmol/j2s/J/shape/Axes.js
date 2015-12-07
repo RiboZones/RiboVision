@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.shape");
-Clazz.load (["J.shape.FontLineShape", "JU.P3", "$.V3"], "J.shape.Axes", ["java.lang.Boolean", "JU.PT", "$.SB", "J.c.AXES", "JU.Escape", "JV.JC"], function () {
+Clazz.load (["J.shape.FontLineShape", "JU.P3", "$.V3"], "J.shape.Axes", ["java.lang.Boolean", "JU.PT", "$.SB", "JU.Escape", "JV.JC"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.axisXY = null;
 this.scale = 0;
@@ -55,7 +55,7 @@ return;
 this.labels = null;
 return;
 }if ("labelsOff" === propertyName) {
-this.labels = ["", "", ""];
+this.labels =  Clazz.newArray (-1, ["", "", ""]);
 return;
 }if ("type" === propertyName) {
 this.axisType = value;
@@ -70,21 +70,13 @@ this.font3d = this.vwr.gdata.getFont3D (14);
 var axesMode = this.vwr.g.axesMode;
 if (this.fixedOrigin == null) this.originPoint.set (0, 0, 0);
  else this.originPoint.setT (this.fixedOrigin);
-if (axesMode === J.c.AXES.UNITCELL && this.ms.unitCells != null) {
+if (axesMode == 603979808 && this.ms.unitCells != null) {
 var unitcell = this.vwr.getCurrentUnitCell ();
 if (unitcell != null) {
-var vertices = unitcell.getUnitCellVertices ();
-var offset = unitcell.getCartesianOffset ();
-if (this.fixedOrigin == null) {
-this.originPoint.add2 (offset, vertices[0]);
-} else {
-offset = this.fixedOrigin;
-}this.scale = this.vwr.getFloat (570425346) / 2;
-this.axisPoints[0].scaleAdd2 (this.scale, vertices[4], offset);
-this.axisPoints[1].scaleAdd2 (this.scale, vertices[2], offset);
-this.axisPoints[2].scaleAdd2 (this.scale, vertices[1], offset);
+this.scale = this.vwr.getFloat (570425346) / 2;
+unitcell.setAxes (this.scale, this.axisPoints, this.fixedOrigin, this.originPoint);
 return;
-}} else if (axesMode === J.c.AXES.BOUNDBOX) {
+}} else if (axesMode == 603979810) {
 if (this.fixedOrigin == null) this.originPoint.setT (this.vwr.getBoundBoxCenter ());
 }this.setScale (this.vwr.getFloat (570425346) / 2);
 });
@@ -112,7 +104,7 @@ axisPoint.z *= this.corner.z * scale;
 }axisPoint.add (this.originPoint);
 }
 }, "~N");
-Clazz.defineMethod (c$, "getShapeState", 
+Clazz.overrideMethod (c$, "getShapeState", 
 function () {
 var sb =  new JU.SB ();
 sb.append ("  axes scale ").appendF (this.vwr.getFloat (570425346)).append (";\n");
@@ -125,7 +117,7 @@ for (var i = 0; i < this.labels.length; i++) if (this.labels[i] != null) sb.appe
 sb.append (";\n");
 }if (this.axisType != null) {
 sb.append ("  axes type " + JU.PT.esc (this.axisType));
-}return Clazz.superCall (this, J.shape.Axes, "getShapeState", []) + sb;
+}return this.getShapeStateFL () + sb;
 });
 c$.pt0 = c$.prototype.pt0 =  new JU.P3 ();
 Clazz.defineStatics (c$,

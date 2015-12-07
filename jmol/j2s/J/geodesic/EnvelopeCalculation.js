@@ -357,5 +357,5 @@ this.ac = this.atomData.ac;
 Clazz.defineStatics (c$,
 "EMPTY_SET", null);
 Clazz.defineStatics (c$,
-"power4", [1, 4, 16, 64, 256]);
+"power4",  Clazz.newIntArray (-1, [1, 4, 16, 64, 256]));
 });

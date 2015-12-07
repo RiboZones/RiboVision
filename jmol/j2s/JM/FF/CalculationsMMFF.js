@@ -129,9 +129,9 @@ var energy = this.ff.toUserUnits (c.energy);
 switch (iType) {
 case 1:
 case 2:
-return JU.PT.sprintf ("%11s  %-5s %-5s %-5s  %8.3f  %8.3f     %8.3f   %8.3f", "ssssFI", [JM.MinObject.decodeKey (c.key), this.minAtoms[c.ia].sType, this.minAtoms[c.ib].sType, this.minAtoms[c.ic].sType, [(c.theta * 57.29577951308232), c.dData[1], c.dData[0], energy], [this.minAtoms[c.ia].atom.getAtomNumber (), this.minAtoms[c.ib].atom.getAtomNumber (), this.minAtoms[c.ic].atom.getAtomNumber ()]]);
+return JU.PT.sprintf ("%11s  %-5s %-5s %-5s  %8.3f  %8.3f     %8.3f   %8.3f", "ssssFI",  Clazz.newArray (-1, [JM.MinObject.decodeKey (c.key), this.minAtoms[c.ia].sType, this.minAtoms[c.ib].sType, this.minAtoms[c.ic].sType,  Clazz.newFloatArray (-1, [(c.theta * 57.29577951308232), c.dData[1], c.dData[0], energy]),  Clazz.newIntArray (-1, [this.minAtoms[c.ia].atom.getAtomNumber (), this.minAtoms[c.ib].atom.getAtomNumber (), this.minAtoms[c.ic].atom.getAtomNumber ()])]));
 case 3:
-return JU.PT.sprintf ("%15s  %-5s %-5s %-5s %-5s  %8.3f %8.3f %8.3f %8.3f %8.3f", "sssssF", [JM.MinObject.decodeKey (c.key), this.minAtoms[c.ia].sType, this.minAtoms[c.ib].sType, this.minAtoms[c.ic].sType, this.minAtoms[c.id].sType, [(c.theta * 57.29577951308232), c.dData[0], c.dData[1], c.dData[2], energy]]);
+return JU.PT.sprintf ("%15s  %-5s %-5s %-5s %-5s  %8.3f %8.3f %8.3f %8.3f %8.3f", "sssssF",  Clazz.newArray (-1, [JM.MinObject.decodeKey (c.key), this.minAtoms[c.ia].sType, this.minAtoms[c.ib].sType, this.minAtoms[c.ic].sType, this.minAtoms[c.id].sType,  Clazz.newFloatArray (-1, [(c.theta * 57.29577951308232), c.dData[0], c.dData[1], c.dData[2], energy])]));
 default:
 return this.getDebugLineC (iType, c);
 }

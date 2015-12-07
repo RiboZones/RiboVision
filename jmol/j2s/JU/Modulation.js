@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JU");
-Clazz.load (null, "JU.Modulation", ["java.lang.Float", "java.util.Hashtable", "JU.Escape", "$.Logger"], function () {
+Clazz.load (null, "JU.Modulation", ["java.lang.Float", "java.util.Hashtable", "JU.AU", "JU.Escape", "$.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.qCoefs = null;
 this.a1 = 0;
@@ -72,10 +72,12 @@ if (JU.Logger.debuggingHigh) JU.Logger.info ("MOD " + ms.id + " " + JU.Escape.e 
 break;
 case 'L':
 case 'l':
-ms.vOcc0 = NaN;
+ms.occAbsolute = true;
 nt -= Math.floor (nt);
-if (!this.range (nt)) return;
-ms.vOcc = 1;
+if (!this.range (nt)) {
+ms.vOcc = 0;
+return;
+}ms.vOcc = 1;
 var x = (nt - this.center) / this.delta2;
 x = ((x + 1) % 2) + (x < -1 ? 1 : -1);
 var xp = 1;
@@ -90,14 +92,18 @@ xp *= x;
 v *= this.a1;
 break;
 case 'c':
+ms.occAbsolute = true;
 ms.vOcc = (this.range (nt - Math.floor (nt)) ? 1 : 0);
-ms.vOcc0 = NaN;
 return;
 case 't':
 isSpin = true;
 case 's':
+ms.occAbsolute = true;
 nt -= Math.floor (nt);
-if (!this.range (nt)) return;
+if (!this.range (nt)) {
+ms.vOcc = 0;
+return;
+}ms.vOcc = 1;
 if (this.left > this.right) {
 if (nt < this.left && this.left < this.center) nt += 1;
  else if (nt > this.right && this.right > this.center) nt -= 1;
@@ -105,7 +111,8 @@ if (nt < this.left && this.left < this.center) nt += 1;
 break;
 }
 if (isSpin) {
-var f = ms.getAxesLengths ();
+var f = ms.axesLengths;
+if (f == null) System.out.println ("Modulation.java axis error");
 switch (this.axis) {
 case 'x':
 ms.mxyz.x += v / f[0];
@@ -151,19 +158,20 @@ return info;
 });
 Clazz.defineMethod (c$, "calcLegendre", 
 function (m) {
-if (JU.Modulation.legendre != null && JU.Modulation.legendre.length > m) return;
-JU.Modulation.legendre =  Clazz.newDoubleArray (m + 5, 0);
-var pn_1 = JU.Modulation.legendre[0] = [1];
-var pn = JU.Modulation.legendre[1] = [0, 1];
-for (var n = 1; n < m + 3; n++) {
-var p = JU.Modulation.legendre[n + 1] =  Clazz.newDoubleArray (n + 2, 0);
-for (var i = 0; i <= n; i++) {
-p[i + 1] = (2 * n + 1) * pn[i] / (n + 1);
-if (i < n) p[i] += -n * pn_1[i] / (n + 1);
+var n = JU.Modulation.legendre.length;
+if (n > m) return;
+m += 3;
+var l = JU.AU.newDouble2 (m + 1);
+for (var i = 0; i < n; i++) l[i] = JU.Modulation.legendre[i];
+
+for (; n <= m; n++) {
+var p = l[n] =  Clazz.newDoubleArray (n + 1, 0);
+for (var i = 0; i < n; i++) {
+p[i + 1] = (2 * n - 1) * l[n - 1][i] / n;
+if (i < n - 1) p[i] += (1 - n) * l[n - 2][i] / n;
 }
-pn_1 = pn;
-pn = p;
 }
+JU.Modulation.legendre = l;
 }, "~N");
 Clazz.defineStatics (c$,
 "TWOPI", 6.283185307179586,
@@ -176,5 +184,5 @@ Clazz.defineStatics (c$,
 "TYPE_U_FOURIER", 'u',
 "TYPE_DISP_LEGENDRE", 'l',
 "TYPE_U_LEGENDRE", 'L',
-"legendre", null);
+"legendre",  Clazz.newArray (-1, [ Clazz.newDoubleArray (-1, [1]),  Clazz.newDoubleArray (-1, [0, 1])]));
 });

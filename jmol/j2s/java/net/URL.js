@@ -16,7 +16,23 @@ Clazz.instantialize (this, arguments);
 }, java.net, "URL", null, java.io.Serializable);
 Clazz.makeConstructor (c$, 
 function (context, spec, handler) {
-var original = spec;
+{
+switch (arguments.length) {
+case 1:
+spec = context;context = handler = null;
+break;
+case 2:
+handler = null;
+break;
+case 3:
+if (context == null || Clazz.instanceOf(context, java.net.URL))
+break;
+default:
+alert("java.net.URL constructor format not supported");
+break;
+}
+context && context.valueOf && context.valueOf() == null && (context = null);
+}var original = spec;
 var i;
 var limit;
 var c;
@@ -24,11 +40,7 @@ var start = 0;
 var newProtocol = null;
 var aRef = false;
 var isRelative = false;
-if (handler != null) {
-var sm = System.getSecurityManager ();
-if (sm != null) {
-this.checkSpecifyHandler (sm);
-}}try {
+try {
 limit = spec.length;
 while ((limit > 0) && (spec.charAt (limit - 1) <= ' ')) {
 limit--;
@@ -107,9 +119,6 @@ return false;
 }}
 return true;
 }, "~S");
-Clazz.defineMethod (c$, "checkSpecifyHandler", 
- function (sm) {
-}, "SecurityManager");
 Clazz.defineMethod (c$, "set5", 
 function (protocol, host, port, file, ref) {
 {

@@ -24,7 +24,7 @@ this.gamma = 0;
 Clazz.instantialize (this, arguments);
 }, J.adapter.readers.xml, "XmlVaspReader", J.adapter.readers.xml.XmlReader);
 Clazz.prepareFields (c$, function () {
-this.myAttributes = ["name"];
+this.myAttributes =  Clazz.newArray (-1, ["name"]);
 });
 Clazz.makeConstructor (c$, 
 function () {
@@ -41,7 +41,7 @@ this.PX (parent, saxReader);
 }, "J.adapter.readers.xml.XmlReader,~O");
 Clazz.overrideMethod (c$, "processStartElement", 
 function (localName) {
-if (JU.Logger.debugging) JU.Logger.debug ("xmlvasp: start " + localName);
+if (this.debugging) JU.Logger.debug ("xmlvasp: start " + localName);
 if (!this.parent.continuing) return;
 if ("calculation".equals (localName)) {
 this.enthalpy = null;
@@ -62,10 +62,10 @@ return;
 this.asc.doFixPeriodic = true;
 this.asc.newAtomSet ();
 if (this.enthalpy != null) {
-this.asc.setAtomSetAuxiliaryInfo ("enthalpy", Double.$valueOf (JU.PT.dVal (this.enthalpy)));
+this.asc.setCurrentModelInfo ("enthalpy", Double.$valueOf (JU.PT.dVal (this.enthalpy)));
 }if (this.gibbsEnergy != null) {
 this.asc.setAtomSetEnergy ("" + this.gibbsEnergy, this.parseFloatStr (this.gibbsEnergy));
-this.asc.setAtomSetAuxiliaryInfo ("gibbsEnergy", Double.$valueOf (JU.PT.dVal (this.gibbsEnergy)));
+this.asc.setCurrentModelInfo ("gibbsEnergy", Double.$valueOf (JU.PT.dVal (this.gibbsEnergy)));
 }if (this.enthalpy != null && this.gibbsEnergy != null) this.asc.setAtomSetName ("Enthalpy = " + this.enthalpy + " eV Gibbs Energy = " + this.gibbsEnergy + " eV");
 return;
 }if (!this.parent.doProcessLines) return;
@@ -85,7 +85,7 @@ return;
 }}, "~S");
 Clazz.overrideMethod (c$, "processEndElement", 
 function (localName) {
-if (JU.Logger.debugging) JU.Logger.debug ("xmlvasp: end " + localName);
+if (this.debugging) JU.Logger.debug ("xmlvasp: end " + localName);
 while (true) {
 if (!this.parent.doProcessLines) break;
 if (this.isE_wo_entrp) {

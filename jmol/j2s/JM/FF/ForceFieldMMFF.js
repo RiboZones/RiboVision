@@ -1,7 +1,6 @@
 Clazz.declarePackage ("JM.FF");
 Clazz.load (["JM.FF.ForceField"], "JM.FF.ForceFieldMMFF", ["java.lang.Float", "java.util.Hashtable", "JU.AU", "$.BS", "$.Lst", "$.PT", "JM.MinAtom", "$.MinObject", "JM.FF.AtomType", "$.CalculationsMMFF", "JU.BSUtil", "$.Elements", "$.Escape", "$.Logger", "JV.JmolAsyncException"], function () {
 c$ = Clazz.decorateAsClass (function () {
-this.useEmpiricalRules = true;
 this.rawAtomTypes = null;
 this.rawBondTypes = null;
 this.rawMMFF94Charges = null;
@@ -36,7 +35,7 @@ function (bsElements, elemnoMax) {
 var m = this.minimizer;
 if (!this.setArrays (m.atoms, m.bsAtoms, m.bonds, m.rawBondCount, false, false)) return false;
 this.setModelFields ();
-this.fixTypes ();
+if (!this.fixTypes ()) return false;
 this.calc =  new JM.FF.CalculationsMMFF (this, JM.FF.ForceFieldMMFF.ffParams, this.minAtoms, this.minBonds, this.minAngles, this.minTorsions, this.minPositions, this.minimizer.constraints);
 this.calc.setLoggingEnabled (true);
 return this.calc.setupCalculations ();
@@ -177,20 +176,20 @@ break;
 }
 switch (dataType) {
 case 546:
-value = [this.dval (19, 25), this.dval (13, 18)];
+value =  Clazz.newDoubleArray (-1, [this.dval (19, 25), this.dval (13, 18)]);
 break;
 case 3:
-value = [this.dval (14, 20), this.dval (25, 31)];
+value =  Clazz.newDoubleArray (-1, [this.dval (14, 20), this.dval (25, 31)]);
 break;
 case 5:
 case 21:
-value = [this.dval (19, 25), this.dval (28, 35)];
+value =  Clazz.newDoubleArray (-1, [this.dval (19, 25), this.dval (28, 35)]);
 break;
 case 34:
 value = Float.$valueOf (this.fval (10, 20));
 break;
 case 13:
-value = [this.dval (24, 30)];
+value =  Clazz.newDoubleArray (-1, [this.dval (24, 30)]);
 break;
 case 1:
 value = Float.$valueOf (this.fval (5, 15));
@@ -198,19 +197,19 @@ break;
 case 37:
 var v1 = this.dval (19, 25);
 var v2 = this.dval (28, 35);
-value = [v1, v2];
+value =  Clazz.newDoubleArray (-1, [v1, v2]);
 var key = JM.MinObject.getKey (type, a1, a2, a3, a4);
 data.put (key, value);
-value = [v2, v1];
+value =  Clazz.newDoubleArray (-1, [v2, v1]);
 var a = a1;
 a1 = a3;
 a3 = a;
 break;
 case 9:
-value = [this.dval (22, 28), this.dval (30, 36), this.dval (38, 44)];
+value =  Clazz.newDoubleArray (-1, [this.dval (22, 28), this.dval (30, 36), this.dval (38, 44)]);
 break;
 case 17:
-value = [this.dval (10, 15), this.dval (20, 25), this.dval (30, 35), this.dval (40, 45), this.line.charAt (46)];
+value =  Clazz.newDoubleArray (-1, [this.dval (10, 15), this.dval (20, 25), this.dval (30, 35), this.dval (40, 45), this.line.charAt (46)]);
 break;
 }
 var key = JM.MinObject.getKey (type, a1, a2, a3, a4);
@@ -403,8 +402,8 @@ for (var i = bsAtoms.nextSetBit (0); i >= 0; i = bsAtoms.nextSetBit (i + 1)) par
 
 var a1 = null;
 for (var i = bTypes.length; --i >= 0; ) {
-a1 = bonds[i].getAtom1 ();
-var a2 = bonds[i].getAtom2 ();
+a1 = bonds[i].atom1;
+var a2 = bonds[i].atom2;
 var ok1 = bsAtoms.get (a1.i);
 var ok2 = bsAtoms.get (a2.i);
 if (!ok1 && !ok2) continue;
@@ -487,7 +486,7 @@ var bsHydrogen =  new JU.BS ();
 var bsConnected = JU.BSUtil.copy (bsAtoms);
 for (var i = bsAtoms.nextSetBit (0); i >= 0; i = bsAtoms.nextSetBit (i + 1)) {
 var a = atoms[i];
-var bonds = a.getBonds ();
+var bonds = a.bonds;
 if (bonds != null) for (var j = bonds.length; --j >= 0; ) if (bonds[j].isCovalent ()) bsConnected.set (bonds[j].getOtherAtom (a).i);
 
 }
@@ -510,7 +509,7 @@ nUsed++;
 }
 JU.Logger.info (nUsed + " SMARTS matches used");
 try {
-smartsMatcher.getSubstructureSets (smarts, atoms, atoms.length, 20, bsConnected, bitSets, vRings);
+smartsMatcher.getSubstructureSets (smarts, atoms, atoms.length, 40, bsConnected, bitSets, vRings);
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
 JU.Logger.error (e.toString ());
@@ -528,7 +527,7 @@ for (var i = bs.nextSetBit (0); i >= 0; i = bs.nextSetBit (i + 1)) types[i] = j;
 bsDone.or (bs);
 }
 for (var i = bsHydrogen.nextSetBit (0); i >= 0; i = bsHydrogen.nextSetBit (i + 1)) {
-var bonds = atoms[i].getBonds ();
+var bonds = atoms[i].bonds;
 if (bonds != null) {
 var j = types[bonds[0].getOtherAtom (atoms[i]).i];
 if (j != 0) bsDone.set (i);
@@ -543,8 +542,8 @@ Clazz.defineMethod (c$, "setBondTypes",
  function (bonds, bondCount, bsAtoms) {
 var bTypes =  Clazz.newIntArray (bondCount, 0);
 for (var i = bondCount; --i >= 0; ) {
-var a1 = bonds[i].getAtom1 ();
-var a2 = bonds[i].getAtom2 ();
+var a1 = bonds[i].atom1;
+var a2 = bonds[i].atom2;
 var ok1 = bsAtoms.get (a1.i);
 var ok2 = bsAtoms.get (a2.i);
 if (!ok1 && !ok2) continue;
@@ -572,6 +571,7 @@ for (var i = this.minBonds.length; --i >= 0; ) {
 var bond = this.minBonds[i];
 bond.type = this.rawBondTypes[bond.rawIndex];
 bond.key = this.getKey (bond, bond.type, 3);
+if (bond.key == null) return false;
 }
 for (var i = this.minAngles.length; --i >= 0; ) {
 var angle = this.minAngles[i];
@@ -582,6 +582,7 @@ for (var i = this.minTorsions.length; --i >= 0; ) {
 var torsion = this.minTorsions[i];
 torsion.key = this.getKey (torsion, torsion.type, 9);
 }
+return true;
 });
 Clazz.defineMethod (c$, "setAngleType", 
  function (angle) {
@@ -667,7 +668,6 @@ key = JM.MinObject.getKey (type, this.typeData[0], this.typeData[1], this.typeDa
 var ddata = JM.FF.ForceFieldMMFF.ffParams.get (key);
 switch (ktype) {
 case 3:
-if (!this.useEmpiricalRules) return key;
 return (ddata != null && ddata[0] > 0 ? key : this.applyEmpiricalRules (o, ddata, 3));
 case 5:
 if (ddata != null && ddata[0] != 0) return key;
@@ -676,8 +676,7 @@ case 9:
 if (ddata == null) {
 if (!JM.FF.ForceFieldMMFF.ffParams.containsKey (key = this.getTorsionKey (type, 0, 2)) && !JM.FF.ForceFieldMMFF.ffParams.containsKey (key = this.getTorsionKey (type, 2, 0)) && !JM.FF.ForceFieldMMFF.ffParams.containsKey (key = this.getTorsionKey (type, 2, 2))) key = this.getTorsionKey (0, 2, 2);
 ddata = JM.FF.ForceFieldMMFF.ffParams.get (key);
-}if (!this.useEmpiricalRules) return key;
-return (ddata != null ? key : this.applyEmpiricalRules (o, ddata, 9));
+}return (ddata != null ? key : this.applyEmpiricalRules (o, ddata, 9));
 case 21:
 if (ddata != null) return key;
 var r1 = this.getRowFor (data[0]);
@@ -687,7 +686,6 @@ return JM.MinObject.getKey (0, r1, r2, r3, 126);
 case 13:
 if (ddata != null) return key;
 }
-if (!this.useEmpiricalRules && ddata != null) return key;
 var isSwapped = false;
 var haveKey = false;
 for (var i = 0; i < 3 && !haveKey; i++) {
@@ -717,8 +715,7 @@ break;
 }
 } else if (type != 0 && ktype == 5) {
 key = Integer.$valueOf (key.intValue () ^ 0xFF);
-}if (!this.useEmpiricalRules) return key;
-ddata = JM.FF.ForceFieldMMFF.ffParams.get (key);
+}ddata = JM.FF.ForceFieldMMFF.ffParams.get (key);
 switch (ktype) {
 case 5:
 return (ddata != null && ddata[0] != 0 ? key : this.applyEmpiricalRules (o, ddata, 5));
@@ -755,7 +752,7 @@ rr2 = rr * rr;
 var rr4 = rr2 * rr2;
 var rr6 = rr4 * rr2;
 var kb = kbref * rr6;
-o.ddata = [kb, r0];
+o.ddata =  Clazz.newDoubleArray (-1, [kb, r0]);
 return Integer.$valueOf (-1);
 case 5:
 var theta0;
@@ -816,7 +813,7 @@ var D = (r0ab - r0bc) / rr2;
 var theta2 = theta0 * 0.017453292519943295;
 theta2 *= theta2;
 var ka = (beta * za * cb * zc * Math.exp (-2 * D)) / (rr * theta2);
-o.ddata = [ka, theta0];
+o.ddata =  Clazz.newDoubleArray (-1, [ka, theta0]);
 return Integer.$valueOf (-1);
 case 9:
 var ib = o.data[1];
@@ -899,7 +896,7 @@ break out;
 if (pi_bc > 0) v2 = beta * pi_bc * Math.sqrt (ub * uc);
  else if (n_bc > 0) v3 = Math.sqrt (vb * vc) / n_bc;
  else if (wb != 0) v2 = -Math.sqrt (wb * wc);
-o.ddata = [v1, v2, v3];
+o.ddata =  Clazz.newDoubleArray (-1, [v1, v2, v3]);
 return Integer.$valueOf (-1);
 default:
 return null;
@@ -1169,7 +1166,7 @@ Clazz.defineStatics (c$,
 "atomTypes", null,
 "ffParams", null,
 "names", "END.BCI.CHG.ANG.NDK.OND.OOP.TBN.FSB.TOR.VDW.",
-"types", [0, 1, 34, 5, 546, 3, 13, 21, 37, 9, 17],
-"sbMap", [0, 1, 3, 5, 4, 6, 8, 9, 11],
-"equivalentTypes", [1, 1, 2, 1, 3, 1, 4, 1, 5, 5, 6, 6, 7, 6, 8, 8, 9, 8, 10, 8, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 15, 17, 15, 18, 15, 19, 19, 1, 1, 21, 5, 22, 1, 23, 5, 24, 5, 25, 25, 26, 25, 28, 5, 28, 5, 29, 5, 2, 1, 31, 31, 7, 6, 21, 5, 8, 8, 6, 6, 36, 5, 2, 1, 9, 8, 10, 8, 10, 8, 3, 1, 42, 8, 10, 8, 16, 15, 10, 8, 9, 8, 42, 8, 9, 8, 6, 6, 21, 5, 7, 6, 21, 5, 42, 8, 9, 8, 10, 8, 10, 8, 2, 1, 10, 8, 6, 6, 4, 1, 42, 8, 10, 8, 2, 1, 2, 1, 9, 8, 9, 8, 9, 8, 8, 8, 9, 8, 70, 70, 5, 5, 16, 15, 18, 15, 17, 15, 26, 25, 9, 8, 12, 12, 2, 1, 9, 8, 2, 1, 10, 8, 9, 8]);
+"types",  Clazz.newIntArray (-1, [0, 1, 34, 5, 546, 3, 13, 21, 37, 9, 17]),
+"sbMap",  Clazz.newIntArray (-1, [0, 1, 3, 5, 4, 6, 8, 9, 11]),
+"equivalentTypes",  Clazz.newIntArray (-1, [1, 1, 2, 1, 3, 1, 4, 1, 5, 5, 6, 6, 7, 6, 8, 8, 9, 8, 10, 8, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 15, 17, 15, 18, 15, 19, 19, 1, 1, 21, 5, 22, 1, 23, 5, 24, 5, 25, 25, 26, 25, 28, 5, 28, 5, 29, 5, 2, 1, 31, 31, 7, 6, 21, 5, 8, 8, 6, 6, 36, 5, 2, 1, 9, 8, 10, 8, 10, 8, 3, 1, 42, 8, 10, 8, 16, 15, 10, 8, 9, 8, 42, 8, 9, 8, 6, 6, 21, 5, 7, 6, 21, 5, 42, 8, 9, 8, 10, 8, 10, 8, 2, 1, 10, 8, 6, 6, 4, 1, 42, 8, 10, 8, 2, 1, 2, 1, 9, 8, 9, 8, 9, 8, 8, 8, 9, 8, 70, 70, 5, 5, 16, 15, 18, 15, 17, 15, 26, 25, 9, 8, 12, 12, 2, 1, 9, 8, 2, 1, 10, 8, 9, 8]));
 });

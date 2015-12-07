@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.renderspecial");
-Clazz.load (["J.render.ShapeRenderer", "JU.BS", "$.M3", "$.M4", "$.P3", "$.P3i", "$.V3", "JV.JC"], "J.renderspecial.EllipsoidsRenderer", ["java.lang.Float", "JU.PT", "J.shapespecial.Ellipsoid", "JU.C", "$.GData", "$.Normix"], function () {
+Clazz.load (["J.render.ShapeRenderer", "JU.BS", "$.M3", "$.M4", "$.P3", "$.V3", "JV.JC"], "J.renderspecial.EllipsoidsRenderer", ["java.lang.Float", "JU.PT", "J.shapespecial.Ellipsoid", "JU.C", "$.Normix"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.ellipsoids = null;
 this.bGlobals = null;
@@ -44,7 +44,7 @@ Clazz.instantialize (this, arguments);
 Clazz.prepareFields (c$, function () {
 this.bGlobals =  Clazz.newBooleanArray (7, false);
 this.bOptions =  Clazz.newBooleanArray (7, false);
-this.OPTS = ["dots", "arcs", "axes", "fill", "ball", "arrows", "wireframe"];
+this.OPTS =  Clazz.newArray (-1, ["dots", "arcs", "axes", "fill", "ball", "arrows", "wireframe"]);
 this.bsTemp =  new JU.BS ();
 this.mat =  new JU.M3 ();
 this.mTemp =  new JU.M3 ();
@@ -60,15 +60,15 @@ this.v2 =  new JU.V3 ();
 this.v3 =  new JU.V3 ();
 this.pt1 =  new JU.P3 ();
 this.pt2 =  new JU.P3 ();
-this.s0 =  new JU.P3i ();
-this.s1 =  new JU.P3i ();
-this.s2 =  new JU.P3i ();
+this.s0 =  new JU.P3 ();
+this.s1 =  new JU.P3 ();
+this.s2 =  new JU.P3 ();
 this.screens =  new Array (38);
 this.points =  new Array (6);
 {
 for (var i = 0; i < this.points.length; i++) this.points[i] =  new JU.P3 ();
 
-for (var i = 0; i < this.screens.length; i++) this.screens[i] =  new JU.P3i ();
+for (var i = 0; i < this.screens.length; i++) this.screens[i] =  new JU.P3 ();
 
 }});
 Clazz.overrideMethod (c$, "render", 
@@ -92,9 +92,9 @@ this.bGlobals[2] = this.vwr.getBooleanProperty ("ellipsoidAxes");
 this.bGlobals[4] = this.vwr.getBooleanProperty ("ellipsoidBall");
 this.bGlobals[0] = this.vwr.getBooleanProperty ("ellipsoidDots");
 this.bGlobals[3] = this.vwr.getBooleanProperty ("ellipsoidFill");
-this.bGlobals[6] = !this.isExport && !this.vwr.checkMotionRendering (1113198596);
+this.bGlobals[6] = !this.isExport && !this.vwr.checkMotionRendering (1112150020);
 this.diameter0 = Math.round ((this.vwr.getP ("ellipsoidAxisDiameter")).floatValue () * 1000);
-var m4 = this.tm.getMatrixtransform ();
+var m4 = this.tm.matrixTransform;
 this.mat.setRow (0, m4.m00, m4.m01, m4.m02);
 this.mat.setRow (1, m4.m10, m4.m11, m4.m12);
 this.mat.setRow (2, m4.m20, m4.m21, m4.m22);
@@ -146,7 +146,7 @@ this.colix = JU.C.getColixInherited (ellipsoid.colix, atom.colixAtom);
 }if (!this.g3d.setC (this.colix)) {
 needTranslucent = true;
 continue;
-}this.tm.transformPtScr (ellipsoid.center, this.s0);
+}this.tm.transformPtScrT3 (ellipsoid.center, this.s0);
 this.renderOne (ellipsoid);
 }
 return needTranslucent;
@@ -165,17 +165,17 @@ maxPt = i;
 this.axes = e.tensor.eigenVectors;
 this.setMatrices ();
 this.setAxes (maxPt);
-if (this.g3d.isClippedXY (this.dx + this.dx, this.s0.x, this.s0.y)) return;
+if (this.g3d.isClippedXY (this.dx + this.dx, Clazz.floatToInt (this.s0.x), Clazz.floatToInt (this.s0.y))) return;
 this.eigenSignMask = e.tensor.eigenSignMask;
 this.setOptions (e.options);
-this.diameter = Clazz.floatToInt (this.vwr.tm.scaleToScreen (this.s0.z, this.bOptions[6] ? 1 : this.diameter0));
+this.diameter = Clazz.floatToInt (this.vwr.tm.scaleToScreen (Clazz.floatToInt (this.s0.z), this.bOptions[6] ? 1 : this.diameter0));
 if (e.tensor.isIsotropic) {
 this.renderBall ();
 return;
 }if (this.bOptions[4]) {
 this.renderBall ();
 if (this.bOptions[1] || this.bOptions[2]) {
-this.g3d.setC (this.vwr.getColixBackgroundContrast ());
+this.g3d.setC (this.vwr.cm.colixBackgroundContrast);
 if (this.bOptions[2]) this.renderAxes ();
 if (this.bOptions[1]) this.renderArcs ();
 this.g3d.setC (this.colix);
@@ -195,7 +195,7 @@ this.mat.setColumnV (i, this.v1);
 this.mat.invertM (this.mat);
 this.matScreenToEllipsoid.mul2 (this.mat, this.matScreenToCartesian);
 this.matEllipsoidToScreen.invertM (this.matScreenToEllipsoid);
-this.perspectiveFactor = this.vwr.tm.scaleToPerspective (this.s0.z, 1.0);
+this.perspectiveFactor = this.vwr.tm.scaleToPerspective (Clazz.floatToInt (this.s0.z), 1.0);
 this.matScreenToEllipsoid.scale (1 / this.perspectiveFactor);
 });
 Clazz.defineMethod (c$, "setAxes", 
@@ -209,13 +209,13 @@ this.matEllipsoidToScreen.rotate (this.pt1);
 this.screens[i].set (Math.round (this.s0.x + this.pt1.x * this.perspectiveFactor), Math.round (this.s0.y + this.pt1.y * this.perspectiveFactor), Math.round (this.pt1.z + this.s0.z));
 this.screens[i + 32].set (Math.round (this.s0.x + this.pt1.x * this.perspectiveFactor * 1.05), Math.round (this.s0.y + this.pt1.y * this.perspectiveFactor * 1.05), Math.round (this.pt1.z * 1.05 + this.s0.z));
 }
-this.dx = 2 + Clazz.floatToInt (this.vwr.tm.scaleToScreen (this.s0.z, Math.round ((Float.isNaN (this.factoredLengths[maxPt]) ? 1.0 : this.factoredLengths[maxPt]) * 1000)));
+this.dx = 2 + Clazz.floatToInt (this.vwr.tm.scaleToScreen (Clazz.floatToInt (this.s0.z), Math.round ((Float.isNaN (this.factoredLengths[maxPt]) ? 1.0 : this.factoredLengths[maxPt]) * 1000)));
 }, "~N");
 Clazz.defineMethod (c$, "renderBall", 
  function () {
 this.setSelectedOctant ();
 J.shapespecial.Ellipsoid.getEquationForQuadricWithCenter (this.s0.x, this.s0.y, this.s0.z, this.matScreenToEllipsoid, this.v1, this.mTemp, this.coefs, this.mDeriv);
-this.g3d.fillEllipsoid (this.center, this.points, this.s0.x, this.s0.y, this.s0.z, this.dx + this.dx, this.matScreenToEllipsoid, this.coefs, this.mDeriv, this.selectedOctant, this.selectedOctant >= 0 ? this.selectedPoints : null);
+this.g3d.fillEllipsoid (this.center, this.points, Clazz.floatToInt (this.s0.x), Clazz.floatToInt (this.s0.y), Clazz.floatToInt (this.s0.z), this.dx + this.dx, this.matScreenToEllipsoid, this.coefs, this.mDeriv, this.selectedOctant, this.selectedOctant >= 0 ? this.selectedPoints : null);
 });
 Clazz.defineMethod (c$, "renderArrows", 
  function () {
@@ -241,7 +241,7 @@ this.s2.z -= Clazz.floatToInt (this.v1.z);
 this.s1.x -= Clazz.floatToInt (this.v1.x);
 this.s1.y -= Clazz.floatToInt (this.v1.y);
 this.s1.z -= Clazz.floatToInt (this.v1.z);
-}this.g3d.fillConeScreen (2, Clazz.floatToInt (diam), this.s1, this.s2, false);
+}this.g3d.fillConeScreen3f (2, Clazz.floatToInt (diam), this.s1, this.s2, false);
 this.s1.setT (p2);
 this.s2.setT (p2);
 if (isPositive) {
@@ -252,23 +252,23 @@ this.s2.z += Clazz.floatToInt (this.v1.z);
 this.s1.x += Clazz.floatToInt (this.v1.x);
 this.s1.y += Clazz.floatToInt (this.v1.y);
 this.s1.z += Clazz.floatToInt (this.v1.z);
-}this.g3d.fillConeScreen (2, Clazz.floatToInt (diam), this.s1, this.s2, false);
-}, "JU.P3i,JU.P3i,~B");
+}this.g3d.fillConeScreen3f (2, Clazz.floatToInt (diam), this.s1, this.s2, false);
+}, "JU.P3,JU.P3,~B");
 Clazz.defineMethod (c$, "renderAxes", 
  function () {
 if (this.bOptions[4] && this.bOptions[3]) {
-this.g3d.fillCylinder (2, this.diameter, this.s0, this.selectedPoints[0]);
-this.g3d.fillCylinder (2, this.diameter, this.s0, this.selectedPoints[1]);
-this.g3d.fillCylinder (2, this.diameter, this.s0, this.selectedPoints[2]);
+this.g3d.fillCylinderBits (2, this.diameter, this.s0, this.selectedPoints[0]);
+this.g3d.fillCylinderBits (2, this.diameter, this.s0, this.selectedPoints[1]);
+this.g3d.fillCylinderBits (2, this.diameter, this.s0, this.selectedPoints[2]);
 return;
 }if (this.bOptions[4]) {
-this.g3d.fillCylinder (2, this.diameter, this.screens[32], this.screens[33]);
-this.g3d.fillCylinder (2, this.diameter, this.screens[34], this.screens[35]);
-this.g3d.fillCylinder (2, this.diameter, this.screens[36], this.screens[37]);
+this.g3d.fillCylinderBits (2, this.diameter, this.screens[32], this.screens[33]);
+this.g3d.fillCylinderBits (2, this.diameter, this.screens[34], this.screens[35]);
+this.g3d.fillCylinderBits (2, this.diameter, this.screens[36], this.screens[37]);
 } else {
-this.g3d.fillCylinder (2, this.diameter, this.screens[0], this.screens[1]);
-this.g3d.fillCylinder (2, this.diameter, this.screens[2], this.screens[3]);
-this.g3d.fillCylinder (2, this.diameter, this.screens[4], this.screens[5]);
+this.g3d.fillCylinderBits (2, this.diameter, this.screens[0], this.screens[1]);
+this.g3d.fillCylinderBits (2, this.diameter, this.screens[2], this.screens[3]);
+this.g3d.fillCylinderBits (2, this.diameter, this.screens[4], this.screens[5]);
 }});
 Clazz.defineMethod (c$, "renderDots", 
  function () {
@@ -283,10 +283,10 @@ fz = (Math.random () > 0.5 ? -1 : 1) * fz;
 this.pt1.scaleAdd2 (fx * this.factoredLengths[0], this.axes[0], this.center);
 this.pt1.scaleAdd2 (fy * this.factoredLengths[1], this.axes[1], this.pt1);
 this.pt1.scaleAdd2 (fz * this.factoredLengths[2], this.axes[2], this.pt1);
-this.tm.transformPtScr (this.pt1, this.s1);
-this.coords[i++] = this.s1.x;
-this.coords[i++] = this.s1.y;
-this.coords[i++] = this.s1.z;
+this.tm.transformPtScrT3 (this.pt1, this.s1);
+this.coords[i++] = Clazz.floatToInt (this.s1.x);
+this.coords[i++] = Clazz.floatToInt (this.s1.y);
+this.coords[i++] = Clazz.floatToInt (this.s1.z);
 }
 this.g3d.drawPoints (this.dotCount, this.coords, this.dotScale);
 });
@@ -319,9 +319,9 @@ if (!this.fillArc && !this.bOptions[6]) this.screens[6].setT (this.s1);
 for (var i = 0, pt = 0; i < 18; i++, pt += 2) {
 this.pt2.scaleAdd2 (J.renderspecial.EllipsoidsRenderer.cossin[pt] * d1, this.v1, this.center);
 this.pt2.scaleAdd2 (J.renderspecial.EllipsoidsRenderer.cossin[pt + 1] * d2, this.v2, this.pt2);
-this.tm.transformPtScr (this.pt2, this.s2);
-if (this.fillArc) this.g3d.fillTriangle3CN (this.s0, this.colix, normix, this.s1, this.colix, normix, this.s2, this.colix, normix);
- else if (this.bOptions[6]) this.g3d.fillCylinder (2, this.diameter, this.s1, this.s2);
+this.tm.transformPtScrT3 (this.pt2, this.s2);
+if (this.fillArc) this.g3d.fillTriangle3CNBits (this.s0, this.colix, normix, this.s1, this.colix, normix, this.s2, this.colix, normix);
+ else if (this.bOptions[6]) this.g3d.fillCylinderBits (2, this.diameter, this.s1, this.s2);
  else this.screens[i + 7].setT (this.s2);
 this.pt1.setT (this.pt2);
 this.s1.setT (this.s2);
@@ -342,7 +342,7 @@ for (var i = 0; i < 8; i++) {
 var ptA = J.renderspecial.EllipsoidsRenderer.octants[i * 3];
 var ptB = J.renderspecial.EllipsoidsRenderer.octants[i * 3 + 1];
 var ptC = J.renderspecial.EllipsoidsRenderer.octants[i * 3 + 2];
-var z = this.screens[ptA].z + this.screens[ptB].z + this.screens[ptC].z;
+var z = Clazz.floatToInt (this.screens[ptA].z + this.screens[ptB].z + this.screens[ptC].z);
 if (z < zMin) {
 zMin = z;
 this.iCutout = i;
@@ -350,10 +350,14 @@ this.iCutout = i;
 this.s1.setT (this.selectedPoints[0] = this.screens[J.renderspecial.EllipsoidsRenderer.octants[this.iCutout * 3]]);
 this.s1.add (this.selectedPoints[1] = this.screens[J.renderspecial.EllipsoidsRenderer.octants[this.iCutout * 3 + 1]]);
 this.s1.add (this.selectedPoints[2] = this.screens[J.renderspecial.EllipsoidsRenderer.octants[this.iCutout * 3 + 2]]);
-this.s1.scaleAdd (-3, this.s0, this.s1);
+this.s1.scaleAdd2 (-3, this.s0, this.s1);
 this.pt1.set (this.s1.x, this.s1.y, this.s1.z);
 this.matScreenToEllipsoid.rotate (this.pt1);
-this.selectedOctant = JU.GData.getScreenOctant (this.pt1);
+var i = 0;
+if (this.pt1.x < 0) i |= 1;
+if (this.pt1.y < 0) i |= 2;
+if (this.pt1.z < 0) i |= 4;
+this.selectedOctant = i;
 }});
 Clazz.defineStatics (c$,
 "OPT_DOTS", 0,
@@ -371,8 +375,8 @@ for (var i = 5, pt = 0; i <= 90; i += 5) {
 J.renderspecial.EllipsoidsRenderer.cossin[pt++] = Math.cos (i * 0.017453292);
 J.renderspecial.EllipsoidsRenderer.cossin[pt++] = Math.sin (i * 0.017453292);
 }
-}c$.unitAxisVectors = c$.prototype.unitAxisVectors = [JV.JC.axisNX, JV.JC.axisX, JV.JC.axisNY, JV.JC.axisY, JV.JC.axisNZ, JV.JC.axisZ];
+}c$.unitAxisVectors = c$.prototype.unitAxisVectors =  Clazz.newArray (-1, [JV.JC.axisNX, JV.JC.axisX, JV.JC.axisNY, JV.JC.axisY, JV.JC.axisNZ, JV.JC.axisZ]);
 Clazz.defineStatics (c$,
-"axisPoints", [-1, 1, -2, 2, -3, 3],
-"octants", [5, 0, 3, 5, 2, 0, 4, 0, 2, 4, 3, 0, 5, 2, 1, 5, 1, 3, 4, 3, 1, 4, 1, 2]);
+"axisPoints",  Clazz.newIntArray (-1, [-1, 1, -2, 2, -3, 3]),
+"octants",  Clazz.newIntArray (-1, [5, 0, 3, 5, 2, 0, 4, 0, 2, 4, 3, 0, 5, 2, 1, 5, 1, 3, 4, 3, 1, 4, 1, 2]));
 });

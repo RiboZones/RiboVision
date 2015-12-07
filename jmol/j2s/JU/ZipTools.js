@@ -56,7 +56,7 @@ for (var i = 0; i < bytes.length; i++) ret.append (Integer.toHexString (bytes[i]
 return ret.toString ();
 }, "~A");
 Clazz.overrideMethod (c$, "getZipFileDirectory", 
-function (jzt, bis, list, listPtr, asBufferedInputStream) {
+function (bis, list, listPtr, asBufferedInputStream) {
 var ret;
 if (list == null || listPtr >= list.length) return this.getZipDirectoryAsStringAndClose (bis);
 bis = JU.Rdr.getPngZipStream (bis, true);
@@ -83,7 +83,7 @@ var bytes = (ze == null ? null : JU.Rdr.getLimitedStreamBytes (zis, ze.getSize (
 ze = null;
 zis.close ();
 if (bytes == null) return "";
-if (JU.Rdr.isZipB (bytes) || JU.Rdr.isPngZipB (bytes)) return this.getZipFileDirectory (jzt, JU.Rdr.getBIS (bytes), list, ++listPtr, asBufferedInputStream);
+if (JU.Rdr.isZipB (bytes) || JU.Rdr.isPngZipB (bytes)) return this.getZipFileDirectory (JU.Rdr.getBIS (bytes), list, ++listPtr, asBufferedInputStream);
 if (asBufferedInputStream) return JU.Rdr.getBIS (bytes);
 if (asBinaryString) {
 ret =  new JU.SB ();
@@ -99,7 +99,7 @@ return "";
 throw e;
 }
 }
-}, "javajs.api.GenericZipTools,java.io.BufferedInputStream,~A,~N,~B");
+}, "java.io.BufferedInputStream,~A,~N,~B");
 Clazz.overrideMethod (c$, "getZipFileContentsAsBytes", 
 function (bis, list, listPtr) {
 var ret =  Clazz.newByteArray (0, 0);

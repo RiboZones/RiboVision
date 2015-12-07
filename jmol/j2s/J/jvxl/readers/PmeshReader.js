@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.jvxl.readers");
-Clazz.load (["J.jvxl.readers.PolygonFileReader"], "J.jvxl.readers.PmeshReader", ["JU.P3", "J.jvxl.data.JvxlCoder", "JU.Logger"], function () {
+Clazz.load (["J.jvxl.readers.PolygonFileReader"], "J.jvxl.readers.PmeshReader", ["JU.CU", "$.P3", "J.jvxl.data.JvxlCoder", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.isBinary = false;
 this.nPolygons = 0;
@@ -156,8 +156,13 @@ if (this.onePerLine) this.iToken = 2147483647;
 if (!isOK) continue;
 if (vertexCount < 3) for (var i = vertexCount; i < 3; ++i) vertices[i] = vertices[i - 1];
 
-var color = (haveColor ? this.getInt () : 0);
-if (vertexCount == 4) {
+var color = 0;
+if (haveColor) {
+var c = this.nextToken ();
+color = this.parseIntStr (c);
+if (color == -2147483648) color = JU.CU.getArgbFromString (c);
+color |= 0xFF000000;
+}if (vertexCount == 4) {
 this.nTriangles += 2;
 this.addTriangleCheck (vertices[0], vertices[1], vertices[3], 5, 0, false, color);
 this.addTriangleCheck (vertices[1], vertices[2], vertices[3], 3, 0, false, color);
