@@ -118,11 +118,33 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 				
 				if  (customResidues){
 					ResiduePositions[speciesIndex]=[[]];
+					// Magic equation for Font_Size_SVG=x, Font_Size_Canvas = y 
+					// y = 0.8x
+					var x = customResidues[0].FontSize;
+					var y = 0.8*x;
+					rvDataSets[speciesIndex].Font_Size_SVG = x;
+					rvDataSets[speciesIndex].Font_Size_Canvas = y;
+					rvDataSets[speciesIndex].Circle_Radius = 0.55 * y; // Magic equation
+					
 					$.each(customResidues, function (i, item) {
-						item["modResName"]=item["resName"];
-						item["unModResName"]=item["resName"];
+						if (item["resName"]){
+							item["modResName"]=item["resName"];
+							item["unModResName"]=item["resName"];
+						} else if (item["unModResName"]) {
+							item["unModResName"]=item["unModResName"];
+							if (item["modResName"]) {
+								item["modResName"]=item["modResName"];
+							} else {
+								item["modResName"]=item["unModResName"];
+							}
+						} else {
+							alert("no recognized residue numbers defined")
+						}
 					});
 					processResidueData(customResidues,speciesIndex);
+					initLabels(speciesInterest,speciesIndex,customResidues);
+				} else {
+					initLabels(speciesInterest,speciesIndex);
 				}
 				//MainResidueMap Section
 				$.each(rvDataSets[speciesIndex].Residues, function (i,data){
@@ -137,7 +159,7 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 				if (!DoneLoading2) {
 					clearSelection(true);
 				}
-				initLabels(speciesInterest,speciesIndex);
+				
 				
 			} else {
 				ResiduePositions[speciesIndex]=[[]];
@@ -165,6 +187,7 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 						SpeciesTable : speciesInterest
 					}, function (species_entry2) {
 						rvDataSets[speciesIndex].addSpeciesEntry(species_entry2[0]);
+						
 						// Set offset. Right now, only side by side, two structures are allowed, so this is easy.
 						rvDataSets[speciesIndex].PageOffset[0] = (rvDataSets[speciesIndex].SpeciesEntry.Orientation == "landscape") ? 792 * rvDataSets[speciesIndex].SetNumber : 612 * rvDataSets[speciesIndex].SetNumber  ; //X direction
 						rvDataSets[speciesIndex].PageOffset[1]=0; //Y direction

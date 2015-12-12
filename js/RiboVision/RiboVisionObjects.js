@@ -244,6 +244,9 @@ function rvDataSet(DataSetName,SetNumber) {
 	this.DataDescriptions = [];
 	this.ExtraPyMOLScript ='';
 	this.ColorProteins = [];
+	this.Font_Size_SVG = [];
+	this.Font_Size_Canvas = [];
+	this.Circle_Radius = [];
 	//Methods
 	this.toJSON = function () {
 		return {
@@ -333,6 +336,10 @@ function rvDataSet(DataSetName,SetNumber) {
 		this.SpeciesEntry = SpeciesEntry;
 		this.SpeciesEntry.Molecule_Names = this.SpeciesEntry.Molecule_Names.split(":");
 		this.SpeciesEntry.Molecule_Names_rProtein = this.SpeciesEntry.Molecule_Names_rProtein.split(":");
+		// Set FontSize
+		this.Font_Size_Canvas = this.SpeciesEntry.Font_Size_Canvas;
+		this.Font_Size_SVG = this.SpeciesEntry.Font_Size_SVG;
+		this.Circle_Radius = this.SpeciesEntry.Circle_Radius;
 	};
 	this.addSelection = function (Name, rvResidues, rvColor) {
 		if (!Name) {
@@ -739,14 +746,13 @@ function rvDataSet(DataSetName,SetNumber) {
 	function refreshLayer(targetLayer) {
 		var rvds = this;
 		//var outLineMode=true;// Come back and make this optional
-		
+		if(this.Circle_Radius){
+			var CircleSize = this.Circle_Radius;
+		} else {
+			var CircleSize = 1.7;
+		}
 		if (rvds.Residues !== undefined && targetLayer.Type === "circles") {
 			targetLayer.clearCanvas();
-			if(this.SpeciesEntry.Circle_Radius){
-				var CircleSize = this.SpeciesEntry.Circle_Radius;
-			} else {
-				var CircleSize = 1.7;
-			}
 			for (var i = rvds.Residues.length - 1; i >= 0; i--) {
 				if (targetLayer.dataLayerColors[i] != undefined && targetLayer.dataLayerColors[i] != '#858585') {
 					targetLayer.CanvasContext.beginPath();
@@ -787,7 +793,8 @@ function rvDataSet(DataSetName,SetNumber) {
 							targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X3 - .05, rvds.ContourLinePoints[index].Y3 - .3);
 							targetLayer.CanvasContext.setLineDash([]);
 							targetLayer.CanvasContext.strokeStyle = '#000000';	
-							targetLayer.CanvasContext.lineWidth = targetLayer.ScaleFactor * 4.8;					
+							targetLayer.CanvasContext.lineWidth = targetLayer.ScaleFactor * 1.5 * 1.9 * CircleSize;
+							// Scale factor is to make lines different styles. 1.5 is to make the outline. 1.9 is to convert from circlesize to contourline thickness. 		
 							targetLayer.CanvasContext.stroke();
 							targetLayer.CanvasContext.closePath();
 						}
@@ -803,7 +810,7 @@ function rvDataSet(DataSetName,SetNumber) {
 						targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X3 - .05, rvds.ContourLinePoints[index].Y3 - .3);
 						targetLayer.CanvasContext.setLineDash([]);
 						targetLayer.CanvasContext.strokeStyle = targetLayer.dataLayerColors[index];	
-						targetLayer.CanvasContext.lineWidth = targetLayer.ScaleFactor * 3.2;					
+						targetLayer.CanvasContext.lineWidth = targetLayer.ScaleFactor * 1.0 * 1.9 * CircleSize;					
 						targetLayer.CanvasContext.stroke();
 						targetLayer.CanvasContext.closePath();
 					}
@@ -864,10 +871,10 @@ function rvDataSet(DataSetName,SetNumber) {
 		*/
 	}
 	function drawResidues(targetLayer, dataIndices, ColorArray, noClear) {
-		if (this.SpeciesEntry.Font_Size_Canvas){
-			var FontSize=this.SpeciesEntry.Font_Size_Canvas;
+		if (this.Font_Size_Canvas){
+			var FontSize=this.Font_Size_Canvas;
 		} else {
-		var FontSize=3.1;
+			var FontSize=3.1;
 		}
 		//var resMod = $('input[name="ptmod"][value=on]').is(':checked');
 		if (targetLayer.Type === "residues") {
@@ -915,6 +922,12 @@ function rvDataSet(DataSetName,SetNumber) {
 	function drawContourLine(targetLayer, dataIndices, ColorArray, noClear) {
 		var rvds = this;
 		//var outLineMode=true;
+		if(this.Circle_Radius){
+			var CircleSize = this.Circle_Radius;
+		} else {
+			var CircleSize = 1.7;
+		}
+		
 		if (targetLayer.Type === "contour") {
 			//targetLayer.clearCanvas();
 			if (!noClear) {
@@ -944,7 +957,7 @@ function rvDataSet(DataSetName,SetNumber) {
 							targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X3 - .05, rvds.ContourLinePoints[index].Y3 - .3);
 							targetLayer.CanvasContext.setLineDash([]);
 							targetLayer.CanvasContext.strokeStyle = '#000000';	
-							targetLayer.CanvasContext.lineWidth = targetLayer.ScaleFactor * 4.8;					
+							targetLayer.CanvasContext.lineWidth = targetLayer.ScaleFactor * 1.5 * 1.9 * CircleSize				
 							targetLayer.CanvasContext.stroke();
 							targetLayer.CanvasContext.closePath();
 						}
@@ -959,7 +972,7 @@ function rvDataSet(DataSetName,SetNumber) {
 						targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X3 - .05, rvds.ContourLinePoints[index].Y3 - .3);
 						targetLayer.CanvasContext.setLineDash([]);
 						targetLayer.CanvasContext.strokeStyle = ColorArray[dataIndices[index]];	
-						targetLayer.CanvasContext.lineWidth = targetLayer.ScaleFactor * 3.2;					
+						targetLayer.CanvasContext.lineWidth = targetLayer.ScaleFactor * 1.0 * 1.9 * CircleSize;					
 						targetLayer.CanvasContext.stroke();
 						targetLayer.CanvasContext.closePath();
 						targetLayer.dataLayerColors[index] = ColorArray[dataIndices[index]];
@@ -971,7 +984,7 @@ function rvDataSet(DataSetName,SetNumber) {
 						targetLayer.CanvasContext.lineTo(rvds.ContourLinePoints[index].X3 - .05, rvds.ContourLinePoints[index].Y3 - .3);
 						targetLayer.CanvasContext.setLineDash([]);
 						targetLayer.CanvasContext.strokeStyle = targetLayer.dataLayerColors[index];	
-						targetLayer.CanvasContext.lineWidth = targetLayer.ScaleFactor * 3.2;					
+						targetLayer.CanvasContext.lineWidth = targetLayer.ScaleFactor * 1.0 * 1.9 * CircleSize;					
 						targetLayer.CanvasContext.stroke();
 						targetLayer.CanvasContext.closePath();
 					} else 	{
@@ -993,8 +1006,8 @@ function rvDataSet(DataSetName,SetNumber) {
 		} else {
 			SelectionList[0]=SeleName;
 		}
-		if(this.SpeciesEntry.Circle_Radius){
-			var CircleSize = this.SpeciesEntry.Circle_Radius;
+		if(this.Circle_Radius){
+			var CircleSize = this.Circle_Radius;
 		} else {
 			var CircleSize = 1.7;
 		}
@@ -1031,8 +1044,8 @@ function rvDataSet(DataSetName,SetNumber) {
 				targetLayer.clearCanvas();
 				targetLayer.dataLayerColors = [];
 			}
-			if(this.SpeciesEntry.Circle_Radius){
-				var CircleSize = this.SpeciesEntry.Circle_Radius;
+			if(this.Circle_Radius){
+				var CircleSize = this.Circle_Radius;
 			} else {
 				var CircleSize = 1.7;
 			}

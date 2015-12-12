@@ -32,7 +32,7 @@ based on:
 ///////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////// Label Functions ///////////////////////////////////
-function initLabels(species,speciesIndex) {
+function initLabels(species,speciesIndex,customResidues) {
 	/*
 	var array_of_checked_values = $("#speciesList").multiselect("getChecked").map(function(){
 	return this.value;
@@ -66,10 +66,49 @@ function initLabels(species,speciesIndex) {
 		
 	} else {
 		rvDataSets[speciesIndex].clearCanvas("labels");
-		rvDataSets[speciesIndex].addLabels([], []);
+		if (customResidues){
+			var customLabels=processCustomLabels(customResidues);
+			rvDataSets[speciesIndex].addLabels(customLabels.TextLabels, customLabels.LineLabels);
+			rvDataSets[speciesIndex].drawLabels("labels");
+		} else {
+			rvDataSets[speciesIndex].addLabels([], []);
+		}
+		
 	}
 }
 
+function processCustomLabels(customResidues){
+	//alert("custom labels");
+	var customLabels=[];
+	customLabels["TextLabels"]=[];
+	customLabels["LineLabels"]=[];
+
+	
+	var labeledResidues = $.grep(customResidues, function(e){ return e.LabelX !=undefined; });
+			
+	$.each(labeledResidues, function (index, data) {
+		customLabels.TextLabels[index]=[];
+		customLabels.TextLabels[index].Fill=data.LabelColor
+		customLabels.TextLabels[index].Font="MyriadPro-Regular";
+		customLabels.TextLabels[index].FontSize=data.LabelFontSize;
+		customLabels.TextLabels[index].LabelText=data.LabelSymbol
+		customLabels.TextLabels[index].X=data.LabelX;
+		customLabels.TextLabels[index].Y=data.LabelY;
+		customLabels.TextLabels[index].id=index;
+		customLabels.LineLabels[index]=[];
+		customLabels.LineLabels[index].id=index;
+		customLabels.LineLabels[index].Fill="";
+		customLabels.LineLabels[index].Stroke=data.LineColor;
+		customLabels.LineLabels[index].StrokeLineJoin="round";
+		customLabels.LineLabels[index].StrokeMiterLimit="10.000";
+		customLabels.LineLabels[index].StrokeWidth=data.LineThickness;
+		customLabels.LineLabels[index].X1=data.LineX1;
+		customLabels.LineLabels[index].X2=data.LineX2;
+		customLabels.LineLabels[index].Y1=data.LineY1;
+		customLabels.LineLabels[index].Y2=data.LineY1;	
+	});	
+	return customLabels;
+}
 //function drawLabels(){}
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1148,13 +1187,13 @@ function mouseMoveFunction(event){
 	//mouseMoveFunction.count = mouseMoveFunction.count || 1 // mouseMoveFunction.count is undefined at first 
 	//console.log(mouseMoveFunction.count++);
 	var sel = getSelected(event);
-	if (sel[1] >=0 && rvDataSets[sel[1]].SpeciesEntry.Font_Size_Canvas){
-		var Font_Size_Canvas=rvDataSets[sel[1]].SpeciesEntry.Font_Size_Canvas;
+	if (sel[1] >=0 && rvDataSets[sel[1]].Font_Size_Canvas){
+		var Font_Size_Canvas=rvDataSets[sel[1]].Font_Size_Canvas;
 	} else {
 		var Font_Size_Canvas=3.1;
 	}
-	if (sel[1] >=0 && rvDataSets[sel[1]].SpeciesEntry.Circle_Radius){
-		var Circle_Radius=rvDataSets[sel[1]].SpeciesEntry.Circle_Radius;
+	if (sel[1] >=0 && rvDataSets[sel[1]].Circle_Radius){
+		var Circle_Radius=rvDataSets[sel[1]].Circle_Radius;
 	} else {
 		var Circle_Radius=1.7;
 	}
@@ -1231,7 +1270,7 @@ function mouseMoveFunction(event){
 							rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineTo(rvDataSets[sel[1]].ContourLinePoints[sel[0]].X2 - .05, rvDataSets[sel[1]].ContourLinePoints[sel[0]].Y2 - .3);
 							rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineTo(rvDataSets[sel[1]].ContourLinePoints[sel[0]].X3 - .05, rvDataSets[sel[1]].ContourLinePoints[sel[0]].Y3 - .3);
 							rvDataSets[sel[1]].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#MainColor").val());
-							rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineWidth = targetLayer.ScaleFactor * 3.2;					
+							rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineWidth = targetLayer.ScaleFactor * 1.0 * 1.9 * Circle_Radius;					
 							rvDataSets[sel[1]].HighlightLayer.CanvasContext.stroke();
 							rvDataSets[sel[1]].HighlightLayer.CanvasContext.closePath();
 							break;
@@ -1315,7 +1354,7 @@ function mouseMoveFunction(event){
 						rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineTo(rvDataSets[sel[1]].ContourLinePoints[sel[0]].X2 - .05, rvDataSets[sel[1]].ContourLinePoints[sel[0]].Y2 - .3);
 						rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineTo(rvDataSets[sel[1]].ContourLinePoints[sel[0]].X3 - .05, rvDataSets[sel[1]].ContourLinePoints[sel[0]].Y3 - .3);
 						rvDataSets[sel[1]].HighlightLayer.CanvasContext.strokeStyle = colorNameToHex($("#MainColor").val());
-						rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineWidth = targetLayer.ScaleFactor * 3.2;					
+						rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineWidth = targetLayer.ScaleFactor * 1.0 * 1.9 * Circle_Radius;					
 						rvDataSets[sel[1]].HighlightLayer.CanvasContext.stroke();
 						rvDataSets[sel[1]].HighlightLayer.CanvasContext.closePath();
 						break;
@@ -2433,8 +2472,8 @@ function canvasToSVG() {
 		var pageOffsetX = rvds.PageOffset[0];
 		var pageOffsetY = rvds.PageOffset[1];
 		
-		if (rvds.SpeciesEntry.Font_Size_SVG){
-			var Font_Size_SVG=parseFloat(rvds.SpeciesEntry.Font_Size_SVG);
+		if (rvds.Font_Size_SVG){
+			var Font_Size_SVG=parseFloat(rvds.Font_Size_SVG);
 		} else {
 			var Font_Size_SVG=3.9;
 		}
@@ -2452,8 +2491,8 @@ function canvasToSVG() {
 		});
 		output += '<g id="Structure_' + (SpeciesIndex + 1) + '">\n';
 		$.each(rvds.Layers, function (index, value) {
-			if (rvds.SpeciesEntry.Circle_Radius){
-				var radius=parseFloat(rvds.SpeciesEntry.Circle_Radius) * value.ScaleFactor;
+			if (rvds.Circle_Radius){
+				var radius=parseFloat(rvds.Circle_Radius) * value.ScaleFactor;
 			} else {
 				var radius= 1.7 * value.ScaleFactor;
 			}
@@ -2489,7 +2528,7 @@ function canvasToSVG() {
 									var PointColor=undefined_color;
 								}
 								
-								output = output + '<polyline fill="none" stroke-linecap="round" stroke="' + PointColor + '" stroke-opacity="' + '1' + '" stroke-width="' + value.ScaleFactor * 4.8 + 
+								output = output + '<polyline fill="none" stroke-linecap="round" stroke="' + PointColor + '" stroke-opacity="' + '1' + '" stroke-width="' + value.ScaleFactor * 1.5 * 1.9 * radius + 
 								'" stroke-linejoin="round" stroke-miterlimit="10" points="' + parseFloat(ContourLinePoint.X1).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y1).toFixed(3)
 								+ ' ' + parseFloat(ContourLinePoint.X2).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y2).toFixed(3)
 								+ ' ' + parseFloat(ContourLinePoint.X3).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y3).toFixed(3)
@@ -2500,7 +2539,7 @@ function canvasToSVG() {
 						output = output + '<g id="' + 'Main_Data' + '">\n';
 						for (var j = 0; j < rvDataSets[SpeciesIndex].ContourLinePoints.length; j++) {
 							var ContourLinePoint = rvDataSets[SpeciesIndex].ContourLinePoints[j];
-							output = output + '<polyline fill="none" stroke-linecap="round" stroke="' + value.dataLayerColors[j] + '" stroke-opacity="' + '1' + '" stroke-width="' + value.ScaleFactor * 3.2 + 
+							output = output + '<polyline fill="none" stroke-linecap="round" stroke="' + value.dataLayerColors[j] + '" stroke-opacity="' + '1' + '" stroke-width="' + value.ScaleFactor * 1.9 * radius + 
 							'" stroke-linejoin="round" stroke-miterlimit="10" points="' + parseFloat(ContourLinePoint.X1).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y1).toFixed(3)
 							+ ' ' + parseFloat(ContourLinePoint.X2).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y2).toFixed(3)
 							+ ' ' + parseFloat(ContourLinePoint.X3).toFixed(3) + ',' + parseFloat(ContourLinePoint.Y3).toFixed(3)
