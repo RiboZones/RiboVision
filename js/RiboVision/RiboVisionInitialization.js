@@ -155,6 +155,28 @@ function RiboVisionReady() {
 			$("#myJmol_object").css("visibility", "visible");
 		}
 	});
+	$("#dialog-login").dialog({
+		autoOpen : false,
+		show : {
+			effect : "blind",
+			duration : 500
+		}, //change blindin animation attributes
+		hide : {
+			effect : "blind",
+			duration : 500
+		},
+		height : 500,
+		position : {
+			my : "right top",
+			at : "right top",
+			of : $("#canvasDiv")
+		}
+	});
+	$("#loginbutton").click(function () {
+		$("#dialog-login").dialog("open");
+		return false;
+	});
+	
 	$("#clearLS").click(function(){
 		if(localStorageAvailable){
 			localStorage.clear();
@@ -720,13 +742,14 @@ function RiboVisionReady() {
 	//$("#JmolToggle").buttonset("refresh");
 	$("[name=jp]").button().change(function(event,ui){
 		if($('input[name="jp"][value=on]').is(':checked')){
+			/*
 			if($('input[name="jjsmol"][value=JS]').is(':checked')){
 				JmolInfo["use"]="HTML5";
 			} else {
 				JmolInfo["use"]="Java";
 			}
 			myJmol = Jmol.getApplet("myJmol", JmolInfo); 
-			$('#jmolDiv').html(Jmol.getAppletHtml(myJmol));
+			$('#the3DpanelDiv').html(Jmol.getAppletHtml(myJmol));
 			$('#myJmol_appletdiv').css("z-index",998);
 			if(rvDataSets[0].SpeciesEntry.Jmol_Script){
 				Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
@@ -738,9 +761,9 @@ function RiboVisionReady() {
 					return this.value;
 				}).get();
 				colorMappingLoop(undefined,array_of_checked_values);
-			}
+			}*/
 		} else {
-			$("#jmolDiv").html("");
+			$("#the3DpanelDiv").html("");
 			myJmol=null;
 		}
 		resizeElements();
@@ -772,7 +795,7 @@ function RiboVisionReady() {
 		
 		var O = Jmol.evaluate(myJmol,"script('show orientation')");
 		myJmol = Jmol.getApplet("myJmol", JmolInfo); 
-		$('#jmolDiv').html(Jmol.getAppletHtml(myJmol));
+		$('#the3DpanelDiv').html(Jmol.getAppletHtml(myJmol));
 		Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
 		var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
 		Jmol.script(myJmol, jscript);
@@ -980,7 +1003,7 @@ function RiboVisionReady() {
 			}
 		},
 		open : function () {
-			myJmol = Jmol.getApplet("myJmol", JmolInfo,true); 
+			//myJmol = Jmol.getApplet("myJmol", JmolInfo,true); 
 			//$("#myJmol_object").css("visibility", "hidden");
 			$("#JMolDisabled").attr("checked","checked");	
 			/*
@@ -999,7 +1022,8 @@ function RiboVisionReady() {
 	});
 	
 	
-	Jmol.setDocument(0);	
+	//Jmol.setDocument(0);	
+	initNGL();
 	
 	$("#JmolTypeToggle").buttonset("refresh");
 	InitLayers();

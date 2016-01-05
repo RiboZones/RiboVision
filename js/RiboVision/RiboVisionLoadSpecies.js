@@ -335,12 +335,10 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 						rvDataSets[speciesIndex].drawContourLines("contour");
 						
 						drawNavLine(); //load navLine 
-						if(myJmol!=null){
-							Jmol.script(myJmol, "script states/" + rvDataSets[speciesIndex].SpeciesEntry.Jmol_Script);
-							var jscript = "display " + rvDataSets[speciesIndex].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
-							Jmol.script(myJmol, jscript);
-							updateModel();
-						}
+						
+						load3Dstructure();
+						
+						
 						
 						if (DoneLoading2){
 							DoneLoading2.resolve();

@@ -38,7 +38,9 @@ var drag = false;
 var ResiduePositions=[];
 var MainResidueMap=[];
 var ActiveBasePairSet=[];
-var InteractionLayer;
+var InteractionLayer;	
+var stage;  // global, for development
+var Struct;  // global, for development
 
 
 // Website Settings
@@ -1854,6 +1856,7 @@ $.ajax({
 ///////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////// Initialize RiboVision Jmol  ////////////////////////
+/*
 $.holdReady(true);
 $.ajax({
 	type : "GET",
@@ -1866,7 +1869,24 @@ $.ajax({
 	error : function () {
 		alert("js load fail");
 	}
-});
+});*/
+///////////////////////////////////////////////////////////////////////////////
+
+////////////////////////// Initialize RiboVision NGL  ////////////////////////
+/*
+$.holdReady(true);
+$.ajax({
+	type : "GET",
+	crossDomain : true,
+	url : "js/RiboVision/RiboVisionNGL.js",
+	dataType : "script",
+	success : function () {
+		$.holdReady(false);
+	},
+	error : function () {
+		alert("js load fail");
+	}
+});*/
 ///////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////// Initialize RiboVision Functions  ////////////////////////
