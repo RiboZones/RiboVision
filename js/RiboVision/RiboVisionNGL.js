@@ -15,9 +15,17 @@ function initNGL(){
 	//} );
 }
 
-function load3Dstructure(){
-	if (stage.compList[0]==undefined  || stage.compList[0].name.substr(0,4)!=rvDataSets[0].SpeciesEntry.PDB_ID){
-		stage.loadFile( "rcsb://" + rvDataSets[0].SpeciesEntry.PDB_ID ).then( function( o ){	
+function load3Dstructure(structure_3d){
+	if (stage.compList[0]==undefined  || stage.compList[0].name.substr(0,4)!=structure_3d){
+		
+		if(structure_3d.indexOf(".pdb")> 0){
+			var loadstring="data://structures/pdb/" + structure_3d + ".cif";
+			
+		} else {
+			var loadstring="data://structures/mmcif/" + structure_3d;
+		}
+		
+		stage.loadFile( loadstring).then( function( o ){	
 			Struct=o;
 			Struct.addRepresentation( "cartoon");
 			Struct.addRepresentation( "licorice" );	

@@ -59,7 +59,7 @@
     <link rel="stylesheet" type="text/css" href="css/jquery.multiselect.css" />
     <link rel="stylesheet" type="text/css" href="css/jquery.multiselect.filter.css" />
     <link rel="stylesheet" type="text/css" href="css/farbtastic.css" />
-    <link rel="stylesheet" type="text/css" href="css/iosmenu.css" />
+    <!--<link rel="stylesheet" type="text/css" href="css/iosmenu.css" />//-->
     <link rel="stylesheet" type="text/css" href="css/navLine.css" />
 </head>
 <body>

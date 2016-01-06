@@ -127,6 +127,7 @@ include('includes/ngl_include.php');
             <div id="SideBarAccordian">
                 <h3><a href="#">Species/Subunit</a></h3>
                 <div id="SpeciesDiv" style="padding:0.1em">
+					<!--
 					Molecule Position:
 					<div id="SubUnitNumberToggle">
 						<input id="LoadSubunit1" type="radio" name="LoadSubunit" value="on" /><label for="LoadSubunit1">1st</label>
@@ -135,7 +136,10 @@ include('includes/ngl_include.php');
 					Built-In Structures:
 					<ul id="speciesList" style="font-size:0.9em">
                         <li class="ui-menu-item ios-menu-back-link" role="menu">No Molecule</li>
-                    </ul>
+                    </ul>//-->
+					Built-In Structures:
+					<select id="speciesList" multiple="multiple" > </select>
+					
 					<div id="ImportStrutureFileDiv" style="padding:0.1em">
 						Custom Structures:
 						Import Structure: <input type="file" id="importstructurefile" name="importstructurefile[]" accept="text/csv" /> <output id="structurefilelist"></output><br />

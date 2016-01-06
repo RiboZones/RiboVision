@@ -336,7 +336,7 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 						
 						drawNavLine(); //load navLine 
 						
-						load3Dstructure();
+						load3Dstructure(rvDataSets[speciesIndex].SpeciesEntry.StructureName);
 						
 						
 						

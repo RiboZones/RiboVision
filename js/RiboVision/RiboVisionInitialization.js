@@ -442,13 +442,19 @@ function RiboVisionReady() {
 	});
 	$("#ProtList").multiselect().multiselectfilter();
 	
-	/*
+	
 	$( "#speciesList" ).multiselect({
 		multiple: false,
-		header: "Select a Species",
-		noneSelectedText: "Select a Species",
+		header: "Select a Dataset",
+		noneSelectedText: "Select a Dataset",
 		selectedList: 1,
 		click : function (event,ui){
+			var array_of_checked_values = $("#speciesList").multiselect("getChecked").map(function(){
+			   return this.value;	
+			}).get();
+			var species_string = array_of_checked_values[0];
+			loadSpecies(species_string);
+			/*
 			var TwoD_sl = document.getElementById("2D_Struct_List");
 			TwoD_sl.options.length=0;
 			var result = $.grep(SpeciesTable, function(e){ return e.Species_Name === ui.value; });
@@ -456,10 +462,11 @@ function RiboVisionReady() {
 				TwoD_sl.options[index] = new Option(value.SS_Table, value.SS_Table);
 			});
 			$("#2D_Struct_List").multiselect("refresh");
+			*/
 		}
 	});
 	$("#speciesList").multiselect().multiselectfilter();
-
+/*
 	$( "#2D_Struct_List" ).multiselect({
 		multiple: true,
 		header: "Select 2D structure(s)",
@@ -478,9 +485,10 @@ function RiboVisionReady() {
 		selectedList: 1
 	});
 	$("#3D_Struct_List").multiselect().multiselectfilter();
-*/
-	
 	$("#speciesList").menu({});
+
+	*/
+	
 	$("#selectByDomainHelix").multiselect({
 		minWidth : 160,
 		click : function (event, ui) {
@@ -1129,6 +1137,30 @@ function InitRibovision2(noLoad,FreshState) {
 		InitRibovision3(FreshState);
 	}
 }
+function InitRibovision3(FreshState) {
+	//New version, for multiselect menu
+	$.getJSON('getData.php', {
+		FetchMasterList : true
+	}, function (MasterList) {
+		for (var i= 0; i < MasterList.length; i++) {
+			if($("#speciesList").find("optgroup[label='" + MasterList[i].DataSetType + "']").length < 1){
+				$('#speciesList').append('<optgroup label="' + MasterList[i].DataSetType + '" />');
+			} else {
+				$("#speciesList").find("optgroup[label='" + MasterList[i].DataSetType + "']").append(new Option(MasterList[i].SpeciesName, MasterList[i].LoadString));
+		}
+		$("#speciesList").multiselect("refresh");
+		};
+	});
+	
+	if(window.location.hash) {
+		var hash = window.location.hash.substring(1); //Puts hash in variable, and removes the # character
+		loadSpecies(hash);
+		// auto-load species if direct link
+	}
+	
+}
+
+/* Old ipod(ios) menu
 function InitRibovision3(FreshState) { 
 	$.getJSON('getData.php', {
 		FetchMapList : true
@@ -1232,5 +1264,5 @@ function InitRibovision3(FreshState) {
 			// auto-load species if direct link
 		}
 	});
-}
+}*/
 ///////////////////////////////////////////////////////////////////////////////
