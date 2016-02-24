@@ -6,7 +6,7 @@ Histats_variables.push("TheChad","42");
 </script>
         <!-- Histats.com  START (hidden counter)-->
 
-		<script type="text/javascript" src="js/RiboVision/js15.js">
+		<script type="text/javascript" src="js/js15.js">
 //<![CDATA[
         //document.write(unescape("%3Cscript src=%27http://s10.histats.com/js15.js%27 type=%27text/javascript%27%3E%3C/script%3E"));
         //]]>

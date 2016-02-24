@@ -32,49 +32,64 @@ based on:
 ///////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////// Label Functions ///////////////////////////////////
-function initLabels(species,speciesIndex,customResidues) {
-	/*
-	var array_of_checked_values = $("#speciesList").multiselect("getChecked").map(function(){
-	return this.value;
-	}).get();
-	var species=array_of_checked_values[0];
-	 */
-	rvDataSets[speciesIndex].addLabels([], []);
+function initLabels(speciesSplit,customResidues) {
+	$.each(speciesSplit, function (speciesIndex, species) {
+		rvDataSets[speciesIndex].addLabels([], []);
 	
-	if (species != "None" && species != "custom") {
-		$.getJSON('getData.php', {
-			TextLabels : rvDataSets[speciesIndex].SpeciesEntry.TextLabels
-		}, function (labelData2) {
-			var TextLabels = labelData2;
-			$.getJSON('getData.php', {
-				LineLabels : rvDataSets[speciesIndex].SpeciesEntry.LineLabels
-			}, function (labelLines2) {
-				var LineLabels = labelLines2;
-				rvDataSets[speciesIndex].clearCanvas("labels");
-				rvDataSets[speciesIndex].addLabels(TextLabels, LineLabels);
-				rvDataSets[speciesIndex].drawLabels("labels");
+		if (species != "None" && species != "custom") {
+			var TextLabels=[];
+			var LineLabels=[];
+			
+			$.ajax({
+				url: 'getData.php',
+                type: 'get',
+                dataType: 'json',
+				data: {TextLabels : rvDataSets[speciesIndex].SpeciesEntry.TextLabels},
+                cache: false,
+                success: function(textlabels) {
+					TextLabels = textlabels;
+				},
+                async:false,
 			});
-		});
-		
-		/*
-		$.getJSON('getData.php', {
-			FullTable : "SC_LSU_3D_Extra"
-				}, function (data) {
-				rvDataSets[speciesIndex].addLabels(undefined, undefined, data);
-				rvDataSets[speciesIndex].drawLabels("labels",true);
-		});*/
-		
-	} else {
-		rvDataSets[speciesIndex].clearCanvas("labels");
-		if (customResidues){
-			var customLabels=processCustomLabels(customResidues);
-			rvDataSets[speciesIndex].addLabels(customLabels.TextLabels, customLabels.LineLabels);
+			$.ajax({
+				url: 'getData.php',
+                type: 'get',
+                dataType: 'json',
+				data: {LineLabels : rvDataSets[speciesIndex].SpeciesEntry.LineLabels},
+                cache: false,
+                success: function(linelabels) {
+					LineLabels = linelabels;
+				},
+                async:false,
+			});
+			rvDataSets[speciesIndex].clearCanvas("labels");
+			rvDataSets[speciesIndex].addLabels(TextLabels, LineLabels);
 			rvDataSets[speciesIndex].drawLabels("labels");
+			/*
+			$.getJSON('getData.php', {
+				
+			}, function (labelData2) {
+				var TextLabels = labelData2;
+				$.getJSON('getData.php', {
+					LineLabels : rvDataSets[speciesIndex].SpeciesEntry.LineLabels
+				}, function (labelLines2) {
+					var LineLabels = labelLines2;
+					rvDataSets[speciesIndex].clearCanvas("labels");
+					rvDataSets[speciesIndex].addLabels(TextLabels, LineLabels);
+					rvDataSets[speciesIndex].drawLabels("labels");
+				});
+			});*/
 		} else {
-			rvDataSets[speciesIndex].addLabels([], []);
+			rvDataSets[speciesIndex].clearCanvas("labels");
+			if (customResidues){
+				var customLabels=processCustomLabels(customResidues);
+				rvDataSets[speciesIndex].addLabels(customLabels.TextLabels, customLabels.LineLabels);
+				rvDataSets[speciesIndex].drawLabels("labels");
+			} else {
+				rvDataSets[speciesIndex].addLabels([], []);
+			}
 		}
-		
-	}
+	});
 }
 
 function processCustomLabels(customResidues){
@@ -268,8 +283,6 @@ function getSelectedLine(event){
 	//var zoomEnabled = $('input[name="za"][value=on]').is(':checked');
 	if(ActiveBasePairSet != undefined){
 		for (var i = 0; i < ActiveBasePairSet.length; i++) {
-			//var j = rvDataSets[0].BasePairs[i].resIndex1;
-			//var k = rvDataSets[0].BasePairs[i].resIndex2;
 			var residue_i = MainResidueMap[ActiveBasePairSet[i].residue_i];
 			var residue_j = MainResidueMap[ActiveBasePairSet[i].residue_j];
 			
@@ -559,11 +572,12 @@ function colorLine(event) {
 	if(seleLine >=0 ){
 		var	targetLayer=rvDataSets[0].getLayerByType("lines");
 		var color = colorNameToHex($("#LineColor").val());
-		var j = targetLayer[0].Data[seleLine].resIndex1;
-		var k = targetLayer[0].Data[seleLine].resIndex2;
-		var grd = rvDataSets[0].HighlightLayer.CanvasContext.createLinearGradient(rvDataSets[0].Residues[j].X, rvDataSets[0].Residues[j].Y, rvDataSets[0].Residues[k].X, rvDataSets[0].Residues[k].Y);
-		grd.addColorStop(0, "rgba(" + h2d(color.slice(1, 3)) + "," + h2d(color.slice(3, 5)) + "," + h2d(color.slice(5)) + "," + targetLayer[0].Data[seleLine].opacity + ")");
-		grd.addColorStop(1, "rgba(" + h2d(color.slice(1, 3)) + "," + h2d(color.slice(3, 5)) + "," + h2d(color.slice(5)) + "," + targetLayer[0].Data[seleLine].opacity + ")");
+		var value=targetLayer[0].Data[seleLine];
+		
+		var grd = targetLayer[0].CanvasContext.createLinearGradient(MainResidueMap[value.residue_i].X, MainResidueMap[value.residue_i].Y, MainResidueMap[value.residue_j].X, MainResidueMap[value.residue_j].Y);
+		grd.addColorStop(0, "rgba(" + h2d(color.slice(1, 3)) + "," + h2d(color.slice(3, 5)) + "," + h2d(color.slice(5)) + "," + value.opacity + ")");
+		grd.addColorStop(1, "rgba(" + h2d(color.slice(1, 3)) + "," + h2d(color.slice(3, 5)) + "," + h2d(color.slice(5)) + "," + value.opacity + ")");
+								
 		targetLayer[0].Data[seleLine]["color"] = grd;		
 		ActiveBasePairSet[seleLine]["color"]=color;
 		ActiveBasePairSet[seleLine]["color_hex"]=color;
@@ -595,17 +609,15 @@ function clearColor(update3D) {
 }
 
 function colorSelection() {
-	var targetLayer=rvDataSets[0].getSelectedLayer();
-	var color = colorNameToHex($("#MainColor").val());
-	var targetSelection = rvDataSets[0].getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
-	for (var i = 0; i < targetSelection.Residues.length; i++) {
-		targetLayer.dataLayerColors[targetSelection.Residues[i].map_Index - 1] = color;
-	}
-	//rvDataSets[0].drawResidues("residues");
-	rvDataSets[0].drawDataCircles(targetLayer.LayerName,undefined,undefined,true);
-	rvDataSets[0].drawResidues(targetLayer.LayerName,undefined,undefined,true);
-	//drawLabels();
 	$.each(rvDataSets, function (index, rvds) {
+		var targetLayer=rvds.getSelectedLayer();
+		var color = colorNameToHex($("#MainColor").val());
+		var targetSelection = rvds.getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
+		for (var i = 0; i < targetSelection.Residues.length; i++) {
+			targetLayer.dataLayerColors[targetSelection.Residues[i].map_Index - 1] = color;
+		}
+		rvds.drawDataCircles(targetLayer.LayerName,undefined,undefined,true);
+		rvds.drawResidues(targetLayer.LayerName,undefined,undefined,true);
 		rvds.refreshCanvases();
 	});
 	update3Dcolors();
@@ -1181,8 +1193,8 @@ function mouseMoveFunction(event){
 					}
 				}
 			} else if ( event.ctrlKey == true && event.altKey == true) {
-				var sel = getSelectedLine(event);
-				if(sel >=0 ){
+				var seleLine = getSelectedLine(event);
+				if(seleLine >=0 ){
 					var j = ActiveBasePairSet[seleLine].residue_i;
 					var k = ActiveBasePairSet[seleLine].residue_i;
 					var residue_i = MainResidueMap[j];
@@ -1198,7 +1210,7 @@ function mouseMoveFunction(event){
 							clearTimeout(movewaitL);
 						}
 						movewaitL = setTimeout(function(){
-							createInfoWindow(sel,"lines");
+							createInfoWindow(seleLine,"lines");
 							$("#InteractionTip").css("bottom",rvViews[0].windowHeight - event.clientY);
 							$("#InteractionTip").css("left",event.clientX);
 							$("#InteractionTip").tooltip("open");},300);
@@ -2540,7 +2552,7 @@ function canvasToSVG() {
 		});
 		output = output + '</g>\n';
 	});
-	//output = output + watermark(true);
+	output = output + watermark(true);
 	output = output + '</svg>';
 	return { 'SVG': output, "PaperSize" : paperSize };
 }
@@ -2720,87 +2732,6 @@ function computeFasta(SpeciesIndex){
 }
 ///////////////////////////////////////////////////////////////////////////////
 
-
-//////////////////////////////// Jmol Functions ////////////////////////////////
-function updateModel() {
-	if($('input[name="jp"][value=off]').is(':checked')){
-		return;
-	}
-	var n;
-	var script;
-	$.each(rvDataSets, function (index, rvds) {
-		//Come back and support multiple selections?
-		var targetSelection = rvds.getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
-		if (targetSelection.Residues.length > 0){
-			if (typeof script == 'undefined'){
-				script='set hideNotSelected true;select (';
-			}
-			script += rvds.SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (";
-			for (var i = 0; i < targetSelection.Residues.length; i++) {
-				if (targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") != null) {
-					if (i > 0 || (index > 0 && i > 0)) {
-						script += " or ";
-					};
-					n = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "").match(/[A-z]/g);
-					if (n != null) {
-						r1 = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "").replace(n, "^" + n);
-					} else {
-						r1 = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-					}
-					script += r1 + ":" + targetSelection.Residues[i].ChainID;
-				}
-			}
-			if (index !== rvDataSets.length - 1){
-				script += ") or ";
-			}
-		} else {
-			refreshModel();
-		}
-	});
-	if (typeof script != 'undefined'){
-		script += "));center selected;";
-		Jmol.script(myJmol, script);
-	}
-}
-
-function refreshModel() {
-	if($('input[name="jp"][value=off]').is(':checked')){
-		return;
-	}
-	var script= "set hideNotSelected true;select (";
-	$.each(rvDataSets, function (index, rvds) {
-		if (index > 0 ){
-			script +=" or ";
-		}
-		script += rvds.SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (";
-		if (rvds.SpeciesEntry.PDB_chains){
-			for (var ii = 0; ii < rvds.SpeciesEntry.PDB_chains.length; ii++) {
-				script += ":" + rvds.SpeciesEntry.PDB_chains[ii];
-				if (ii < (rvds.SpeciesEntry.PDB_chains.length - 1)) {
-					script += " or ";
-				}
-			}
-			
-		}
-		script += ")";
-	});
-	script += "); center selected;";
-	Jmol.script(myJmol, script);
-}
-
-function resetColorState() {
-	if($('input[name="jp"][value=off]').is(':checked')){
-		return;
-	}
-	clearColor(false);
-	Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
-	var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
-	
-	Jmol.script(myJmol, jscript);
-	//commandSelect();
-	updateModel();
-}
-///////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////// Load Data Functions ///////////////////////////

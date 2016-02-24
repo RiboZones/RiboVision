@@ -1142,14 +1142,14 @@ function InitRibovision3(FreshState) {
 	$.getJSON('getData.php', {
 		FetchMasterList : true
 	}, function (MasterList) {
+		$("#speciesList").find("optgroup").remove();
 		for (var i= 0; i < MasterList.length; i++) {
 			if($("#speciesList").find("optgroup[label='" + MasterList[i].DataSetType + "']").length < 1){
 				$('#speciesList').append('<optgroup label="' + MasterList[i].DataSetType + '" />');
-			} else {
-				$("#speciesList").find("optgroup[label='" + MasterList[i].DataSetType + "']").append(new Option(MasterList[i].SpeciesName, MasterList[i].LoadString));
-		}
-		$("#speciesList").multiselect("refresh");
+			} 
+			$("#speciesList").find("optgroup[label='" + MasterList[i].DataSetType + "']").append(new Option(MasterList[i].SpeciesName, MasterList[i].LoadString));
 		};
+		$("#speciesList").multiselect("refresh");
 	});
 	
 	if(window.location.hash) {

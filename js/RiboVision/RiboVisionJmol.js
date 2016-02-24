@@ -168,3 +168,84 @@ function update3Dcolors() {
 	//jmolScript(script);
 	Jmol.script(myJmol, script);
 }
+
+//////////////////////////////// Jmol Functions ////////////////////////////////
+function updateModel() {
+	if($('input[name="jp"][value=off]').is(':checked')){
+		return;
+	}
+	var n;
+	var script;
+	$.each(rvDataSets, function (index, rvds) {
+		//Come back and support multiple selections?
+		var targetSelection = rvds.getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
+		if (targetSelection.Residues.length > 0){
+			if (typeof script == 'undefined'){
+				script='set hideNotSelected true;select (';
+			}
+			script += rvds.SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (";
+			for (var i = 0; i < targetSelection.Residues.length; i++) {
+				if (targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") != null) {
+					if (i > 0 || (index > 0 && i > 0)) {
+						script += " or ";
+					};
+					n = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "").match(/[A-z]/g);
+					if (n != null) {
+						r1 = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "").replace(n, "^" + n);
+					} else {
+						r1 = targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+					}
+					script += r1 + ":" + targetSelection.Residues[i].ChainID;
+				}
+			}
+			if (index !== rvDataSets.length - 1){
+				script += ") or ";
+			}
+		} else {
+			refreshModel();
+		}
+	});
+	if (typeof script != 'undefined'){
+		script += "));center selected;";
+		Jmol.script(myJmol, script);
+	}
+}
+
+function refreshModel() {
+	if($('input[name="jp"][value=off]').is(':checked')){
+		return;
+	}
+	var script= "set hideNotSelected true;select (";
+	$.each(rvDataSets, function (index, rvds) {
+		if (index > 0 ){
+			script +=" or ";
+		}
+		script += rvds.SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (";
+		if (rvds.SpeciesEntry.PDB_chains){
+			for (var ii = 0; ii < rvds.SpeciesEntry.PDB_chains.length; ii++) {
+				script += ":" + rvds.SpeciesEntry.PDB_chains[ii];
+				if (ii < (rvds.SpeciesEntry.PDB_chains.length - 1)) {
+					script += " or ";
+				}
+			}
+			
+		}
+		script += ")";
+	});
+	script += "); center selected;";
+	Jmol.script(myJmol, script);
+}
+
+function resetColorState() {
+	if($('input[name="jp"][value=off]').is(':checked')){
+		return;
+	}
+	clearColor(false);
+	Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
+	var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
+	
+	Jmol.script(myJmol, jscript);
+	//commandSelect();
+	updateModel();
+}
+///////////////////////////////////////////////////////////////////////////////
