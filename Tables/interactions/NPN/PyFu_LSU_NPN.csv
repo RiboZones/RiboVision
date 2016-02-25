@@ -1,4 +1,5 @@
 pairIndex,resIndex1,resIndex2,bp_type,ProteinName
+int,int,int,varchar(6),varchar(6)
 1,2250,2251,NPN,L1P
 2,2250,2296,NPN,L1P
 3,2250,2297,NPN,L1P
