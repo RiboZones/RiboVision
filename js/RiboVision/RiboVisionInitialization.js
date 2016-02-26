@@ -1029,15 +1029,10 @@ function RiboVisionReady() {
 		}
 	});
 	
-	
-	//Jmol.setDocument(0);	
-	initNGL();
-	
 	$("#JmolTypeToggle").buttonset("refresh");
 	InitLayers();
 	InitSelections();
-	
-	
+	init3D();
 	InitRibovision();
 };
 

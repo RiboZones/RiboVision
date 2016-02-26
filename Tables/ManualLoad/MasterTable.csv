@@ -5,7 +5,7 @@ id,SpeciesName,DataSetType,StructureName,LoadString
 4,Haloarcula marismortui,ribosome,4V9F,HM_SSU_3D&HM_LSU_3D
 5,Homo sapiens,ribosome,4V6X,HS_SSU_3D&HS_LSU_3D
 6,Homo sapiens,mitochondrial ribosome,3J7Y,HS_mtLSU_3D&None
-7,Pyrococcus furiosus,ribosome,4V6U,PF_SSU_3D&None
+7,Pyrococcus furiosus,ribosome,4V6U,PyFu_LSU_3D&PF_SSU_3D
 8,Saccharomyces cerevisiae,ribosome,4V88,SC_SSU_3D&SC_LSU_3D
 9,Saccharomyces cerevisiae,mitochondrial ribosome (historic),3J6B,SC_mtLSU_Phylo&None
 10,Thermus thermophilus,ribosome,1VY4,TT_SSU_3D&TT_LSU_3D

@@ -1,3 +1,6 @@
+function init3D(){
+	initNGL();
+}
 function initNGL(){
 	if( !Detector.webgl ) Detector.addGetWebGLMessage();
 

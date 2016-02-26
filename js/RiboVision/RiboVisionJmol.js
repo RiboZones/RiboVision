@@ -62,6 +62,10 @@ var JmolInfo = {
 	width: "100%"
 };	
 
+function init3D(){
+	Jmol.setDocument(0);	
+}
+
 function load3Dstructure(){
 	if(myJmol!=null){
 		Jmol.script(myJmol, "script states/" + rvDataSets[speciesIndex].SpeciesEntry.Jmol_Script);
