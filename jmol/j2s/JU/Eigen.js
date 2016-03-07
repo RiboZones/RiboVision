@@ -1,12 +1,12 @@
 Clazz.declarePackage ("JU");
-Clazz.load (null, "JU.Eigen", ["JU.V3"], function () {
+Clazz.load (["javajs.api.EigenInterface"], "JU.Eigen", ["JU.V3"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.n = 3;
 this.d = null;
 this.e = null;
 this.V = null;
 Clazz.instantialize (this, arguments);
-}, JU, "Eigen");
+}, JU, "Eigen", null, javajs.api.EigenInterface);
 Clazz.makeConstructor (c$, 
 function () {
 });
@@ -18,26 +18,33 @@ this.d =  Clazz.newDoubleArray (n, 0);
 this.e =  Clazz.newDoubleArray (n, 0);
 return this;
 }, "~N");
-c$.newM = Clazz.defineMethod (c$, "newM", 
+Clazz.overrideMethod (c$, "setM", 
 function (m) {
-var e =  new JU.Eigen ().set (m.length);
-e.calc (m);
-return e;
+this.set (m.length);
+this.calc (m);
+return this;
 }, "~A");
-c$.getUnitVectors = Clazz.defineMethod (c$, "getUnitVectors", 
-function (m, eigenVectors, eigenValues) {
-JU.Eigen.newM (m).fillArrays (eigenVectors, eigenValues);
-}, "~A,~A,~A");
-Clazz.defineMethod (c$, "fillArrays", 
+Clazz.overrideMethod (c$, "getEigenvalues", 
+function () {
+return this.d;
+});
+Clazz.overrideMethod (c$, "fillFloatArrays", 
 function (eigenVectors, eigenValues) {
-var vectors = this.getEigenvectorsFloatTransposed ();
-var lambdas = this.getRealEigenvalues ();
-for (var i = 0; i < this.n; i++) {
+for (var i = 0; i < 3; i++) {
+if (eigenVectors != null) {
 if (eigenVectors[i] == null) eigenVectors[i] =  new JU.V3 ();
-eigenVectors[i].setA (vectors[i]);
-eigenValues[i] = lambdas[i];
+eigenVectors[i].set (this.V[0][i], this.V[1][i], this.V[2][i]);
+}if (eigenValues != null) eigenValues[i] = this.d[i];
 }
 }, "~A,~A");
+Clazz.overrideMethod (c$, "getEigenvectorsFloatTransposed", 
+function () {
+var f =  Clazz.newFloatArray (this.n, this.n, 0);
+for (var i = this.n; --i >= 0; ) for (var j = this.n; --j >= 0; ) f[j][i] = this.V[i][j];
+
+
+return f;
+});
 Clazz.defineMethod (c$, "calc", 
 function (A) {
 for (var i = 0; i < this.n; i++) {
@@ -55,26 +62,6 @@ return this.d;
 Clazz.defineMethod (c$, "getImagEigenvalues", 
 function () {
 return this.e;
-});
-Clazz.defineMethod (c$, "getEigenvalues", 
-function () {
-return this.d;
-});
-Clazz.defineMethod (c$, "getEigenvectorsFloatTransposed", 
-function () {
-var f =  Clazz.newFloatArray (this.n, this.n, 0);
-for (var i = this.n; --i >= 0; ) for (var j = this.n; --j >= 0; ) f[j][i] = this.V[i][j];
-
-
-return f;
-});
-Clazz.defineMethod (c$, "getEigenVectors3", 
-function () {
-var v =  new Array (3);
-for (var i = 0; i < 3; i++) {
-v[i] = JU.V3.new3 (this.V[0][i], this.V[1][i], this.V[2][i]);
-}
-return v;
 });
 Clazz.defineMethod (c$, "tred2", 
  function () {

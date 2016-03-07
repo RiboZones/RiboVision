@@ -32,7 +32,7 @@ this.htNodes =  new java.util.Hashtable ();
 this.cylinderMatrix =  new JU.M4 ();
 this.triangleFace = JU.AU.newInt2 (1);
 {
-this.triangleFace[0] = [0, 1, 2];
+this.triangleFace[0] =  Clazz.newIntArray (-1, [0, 1, 2]);
 }});
 Clazz.makeConstructor (c$, 
 function () {
@@ -61,9 +61,8 @@ Clazz.overrideMethod (c$, "outputHeader",
 function () {
 this.output ("FILE_FORMAT \"IDTF\"\nFORMAT_VERSION 100\n");
 this.m.setIdentity ();
-var q = this.tm.getRotationQuaternion ();
-this.m.setToM3 (q.getMatrix ());
-q.transformP2 (this.referenceCenter, this.tempP1);
+this.m.setToM3 (this.tm.matrixRotate);
+this.m.rotate2 (this.referenceCenter, this.tempP1);
 this.m.m03 = -this.tempP1.x;
 this.m.m13 = -this.tempP1.y;
 this.m.m23 = -this.tempP1.z;
@@ -206,7 +205,7 @@ v =  new JU.Lst ();
 this.htNodes.put (key, v);
 this.addShader (key, colix);
 }v.addLast (this.getParentItem ("Jmol", sphereMatrix));
-}, "JU.P3,JU.M4,~N");
+}, "JU.T3,JU.M4,~N");
 Clazz.defineMethod (c$, "getSphereResource", 
  function () {
 var sb =  new JU.SB ();
@@ -216,7 +215,7 @@ var f = JU.Geodesic.getFaceVertexes (2);
 var nFaces = Clazz.doubleToInt (f.length / 3);
 var faces = JU.AU.newInt2 (nFaces);
 var fpt = -1;
-for (var i = 0; i < nFaces; i++) faces[i] = [f[++fpt], f[++fpt], f[++fpt]];
+for (var i = 0; i < nFaces; i++) faces[i] =  Clazz.newIntArray (-1, [f[++fpt], f[++fpt], f[++fpt]]);
 
 var vertexes =  new Array (vertexCount);
 for (var i = 0; i < vertexCount; i++) vertexes[i] = JU.Geodesic.getVertexVector (i);
@@ -360,11 +359,11 @@ var faces = JU.AU.newInt2 (vertexCount);
 var fpt = -1;
 for (var i = 0; i < n; i++) {
 if (inSide) {
-faces[++fpt] = [i + n, (i + 1) % n, i];
-faces[++fpt] = [i + n, (i + 1) % n + n, (i + 1) % n];
+faces[++fpt] =  Clazz.newIntArray (-1, [i + n, (i + 1) % n, i]);
+faces[++fpt] =  Clazz.newIntArray (-1, [i + n, (i + 1) % n + n, (i + 1) % n]);
 } else {
-faces[++fpt] = [i, (i + 1) % n, i + n];
-faces[++fpt] = [(i + 1) % n, (i + 1) % n + n, i + n];
+faces[++fpt] =  Clazz.newIntArray (-1, [i, (i + 1) % n, i + n]);
+faces[++fpt] =  Clazz.newIntArray (-1, [(i + 1) % n, (i + 1) % n + n, i + n]);
 }}
 var vertexes =  new Array (vertexCount);
 var normals =  new Array (vertexCount);
@@ -484,7 +483,7 @@ var ndeg = 10;
 var n = Clazz.doubleToInt (360 / ndeg);
 var vertexCount = n + 1;
 var faces = JU.AU.newInt2 (n);
-for (var i = 0; i < n; i++) faces[i] = [i, (i + 1) % n, n];
+for (var i = 0; i < n; i++) faces[i] =  Clazz.newIntArray (-1, [i, (i + 1) % n, n]);
 
 var vertexes =  new Array (vertexCount);
 var normals =  new Array (vertexCount);
@@ -502,7 +501,7 @@ Clazz.overrideMethod (c$, "outputSphere",
 function (center, radius, colix, checkRadius) {
 this.setSphereMatrix (center, radius, radius, radius, null, this.sphereMatrix);
 this.outputEllipsoid (center, this.sphereMatrix, colix);
-}, "JU.P3,~N,~N,~B");
+}, "JU.T3,~N,~N,~B");
 Clazz.overrideMethod (c$, "outputTextPixel", 
 function (pt, argb) {
 var colix = JU.C.getColix (argb);
@@ -519,15 +518,15 @@ this.addShader (key, colix);
 if (this.cylinderMatrix == null) this.cylinderMatrix =  new JU.M4 ();
 this.cylinderMatrix.setIdentity ();
 v.addLast (this.getParentItem ("Jmol", this.cylinderMatrix));
-}, "JU.P3,JU.P3,JU.P3,~N");
+}, "JU.T3,JU.T3,JU.T3,~N");
 Clazz.defineMethod (c$, "getTriangleResource", 
  function (key, pt1, pt2, pt3) {
-var vertexes = [pt1, pt2, pt3];
+var vertexes =  Clazz.newArray (-1, [pt1, pt2, pt3]);
 this.tempV1.sub2 (pt3, pt1);
 this.tempV2.sub2 (pt2, pt1);
 this.tempV2.cross (this.tempV2, this.tempV1);
 this.tempV2.normalize ();
-var normals = [this.tempV2, this.tempV2, this.tempV2];
+var normals =  Clazz.newArray (-1, [this.tempV2, this.tempV2, this.tempV2]);
 return this.getMeshData (key, this.triangleFace, vertexes, normals);
-}, "~S,JU.P3,JU.P3,JU.P3");
+}, "~S,JU.T3,JU.T3,JU.T3");
 });

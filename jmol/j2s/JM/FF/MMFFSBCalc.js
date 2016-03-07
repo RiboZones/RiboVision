@@ -12,8 +12,8 @@ if (data == null || datakat0 == null || dataij == null || datajk == null) return
 var theta0 = datakat0[1];
 var r0ij = dataij[1];
 var r0jk = datajk[1];
-calc.addLast ([angle.data, [data[0], theta0, r0ij], angle.sbKey]);
-calc.addLast ([[angle.data[2], angle.data[1], angle.data[0]], [data[1], theta0, r0jk], angle.sbKey]);
+calc.addLast ( Clazz.newArray (-1, [angle.data,  Clazz.newDoubleArray (-1, [data[0], theta0, r0ij]), angle.sbKey]));
+calc.addLast ( Clazz.newArray (-1, [ Clazz.newIntArray (-1, [angle.data[2], angle.data[1], angle.data[0]]),  Clazz.newDoubleArray (-1, [data[1], theta0, r0jk]), angle.sbKey]));
 }, "JU.Lst,JM.MinAngle");
 Clazz.overrideMethod (c$, "compute", 
 function (dataIn) {

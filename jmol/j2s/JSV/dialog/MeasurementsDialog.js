@@ -18,5 +18,5 @@ function (id, msg) {
 return this.callbackAD (id, msg);
 }, "~S,~S");
 Clazz.defineStatics (c$,
-"posXY", [-2147483648, 0]);
+"posXY",  Clazz.newIntArray (-1, [-2147483648, 0]));
 });

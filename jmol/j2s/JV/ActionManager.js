@@ -1,8 +1,9 @@
 Clazz.declarePackage ("JV");
-Clazz.load (["javajs.api.EventManager", "JU.Rectangle", "JV.MouseState"], "JV.ActionManager", ["java.lang.Character", "$.Float", "JU.P3", "$.PT", "J.api.Interface", "J.i18n.GT", "J.thread.HoverWatcherThread", "JU.BSUtil", "$.Escape", "$.Logger", "$.Point3fi", "JV.binding.Binding", "$.JmolBinding"], function () {
+Clazz.load (["javajs.api.EventManager", "J.i18n.GT", "JU.Rectangle", "JV.MouseState"], ["JV.ActionManager", "$.Gesture", "$.MotionPoint"], ["java.lang.Character", "$.Float", "JU.AU", "$.P3", "$.PT", "J.api.Interface", "J.thread.HoverWatcherThread", "JU.BSUtil", "$.Escape", "$.Logger", "$.Point3fi", "JV.binding.Binding", "$.JmolBinding"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.vwr = null;
 this.haveMultiTouchInput = false;
+this.isMultiTouch = false;
 this.b = null;
 this.jmolBinding = null;
 this.pfaatBinding = null;
@@ -12,13 +13,7 @@ this.predragBinding = null;
 this.LEFT_CLICKED = 0;
 this.LEFT_DRAGGED = 0;
 this.hoverWatcherThread = null;
-if (!Clazz.isClassDefined ("JV.ActionManager.MotionPoint")) {
-JV.ActionManager.$ActionManager$MotionPoint$ ();
-}
 this.dragGesture = null;
-if (!Clazz.isClassDefined ("JV.ActionManager.Gesture")) {
-JV.ActionManager.$ActionManager$Gesture$ ();
-}
 this.apm = 1;
 this.bondPickingMode = 0;
 this.pickingStyle = 0;
@@ -61,7 +56,6 @@ this.selectionWorking = false;
 Clazz.instantialize (this, arguments);
 }, JV, "ActionManager", null, javajs.api.EventManager);
 Clazz.prepareFields (c$, function () {
-this.dragGesture = Clazz.innerTypeInstance (JV.ActionManager.Gesture, this, null, 20);
 this.current =  new JV.MouseState ("current");
 this.moved =  new JV.MouseState ("moved");
 this.clicked =  new JV.MouseState ("clicked");
@@ -72,25 +66,23 @@ this.rectRubber =  new JU.Rectangle ();
 Clazz.defineMethod (c$, "setViewer", 
 function (vwr, commandOptions) {
 this.vwr = vwr;
+if (!vwr.isJS) this.createActions ();
 this.setBinding (this.jmolBinding =  new JV.binding.JmolBinding ());
 this.LEFT_CLICKED = JV.binding.Binding.getMouseAction (1, 16, 2);
 this.LEFT_DRAGGED = JV.binding.Binding.getMouseAction (1, 16, 1);
+this.dragGesture =  new JV.Gesture (20, vwr);
 }, "JV.Viewer,~S");
 Clazz.defineMethod (c$, "checkHover", 
 function () {
-if (!this.vwr.getInMotion (true) && !this.vwr.getSpinOn () && !this.vwr.getNavOn () && !this.vwr.checkObjectHovered (this.current.x, this.current.y)) {
+if (!this.vwr.getInMotion (true) && !this.vwr.tm.spinOn && !this.vwr.tm.navOn && !this.vwr.checkObjectHovered (this.current.x, this.current.y)) {
 var atomIndex = this.vwr.findNearestAtomIndex (this.current.x, this.current.y);
 if (atomIndex < 0) return;
-var isLabel = (this.getAtomPickingMode () == 2 && this.bnd (JV.binding.Binding.getMouseAction (this.clickedCount, this.moved.modifiers, 1), 10));
+var isLabel = (this.apm == 2 && this.bnd (JV.binding.Binding.getMouseAction (this.clickedCount, this.moved.modifiers, 1), [10]));
 this.vwr.hoverOn (atomIndex, isLabel);
 }});
 Clazz.defineMethod (c$, "processMultitouchEvent", 
 function (groupID, eventType, touchID, iData, pt, time) {
 }, "~N,~N,~N,~N,JU.P3,~N");
-Clazz.defineMethod (c$, "bnd", 
-function (mouseAction, jmolAction) {
-return this.b.isBound (mouseAction, jmolAction);
-}, "~N,~N");
 Clazz.defineMethod (c$, "bind", 
 function (desc, name) {
 var jmolAction = JV.ActionManager.getActionFromName (name);
@@ -124,6 +116,57 @@ function (i, name, info) {
 JV.ActionManager.actionInfo[i] = info;
 JV.ActionManager.actionNames[i] = name;
 }, "~N,~S,~S");
+Clazz.defineMethod (c$, "createActions", 
+function () {
+if (JV.ActionManager.actionInfo[0] != null) return;
+JV.ActionManager.newAction (0, "_assignNew", J.i18n.GT.o (J.i18n.GT._ ("assign/new atom or bond (requires {0})"), "set picking assignAtom_??/assignBond_?"));
+JV.ActionManager.newAction (1, "_center", J.i18n.GT._ ("center"));
+JV.ActionManager.newAction (2, "_clickFrank", J.i18n.GT._ ("pop up recent context menu (click on Jmol frank)"));
+JV.ActionManager.newAction (4, "_deleteAtom", J.i18n.GT.o (J.i18n.GT._ ("delete atom (requires {0})"), "set picking DELETE ATOM"));
+JV.ActionManager.newAction (5, "_deleteBond", J.i18n.GT.o (J.i18n.GT._ ("delete bond (requires {0})"), "set picking DELETE BOND"));
+JV.ActionManager.newAction (6, "_depth", J.i18n.GT.o (J.i18n.GT._ ("adjust depth (back plane; requires {0})"), "SLAB ON"));
+JV.ActionManager.newAction (7, "_dragAtom", J.i18n.GT.o (J.i18n.GT._ ("move atom (requires {0})"), "set picking DRAGATOM"));
+JV.ActionManager.newAction (8, "_dragDrawObject", J.i18n.GT.o (J.i18n.GT._ ("move whole DRAW object (requires {0})"), "set picking DRAW"));
+JV.ActionManager.newAction (9, "_dragDrawPoint", J.i18n.GT.o (J.i18n.GT._ ("move specific DRAW point (requires {0})"), "set picking DRAW"));
+JV.ActionManager.newAction (10, "_dragLabel", J.i18n.GT.o (J.i18n.GT._ ("move label (requires {0})"), "set picking LABEL"));
+JV.ActionManager.newAction (11, "_dragMinimize", J.i18n.GT.o (J.i18n.GT._ ("move atom and minimize molecule (requires {0})"), "set picking DRAGMINIMIZE"));
+JV.ActionManager.newAction (12, "_dragMinimizeMolecule", J.i18n.GT.o (J.i18n.GT._ ("move and minimize molecule (requires {0})"), "set picking DRAGMINIMIZEMOLECULE"));
+JV.ActionManager.newAction (13, "_dragSelected", J.i18n.GT.o (J.i18n.GT._ ("move selected atoms (requires {0})"), "set DRAGSELECTED"));
+JV.ActionManager.newAction (14, "_dragZ", J.i18n.GT.o (J.i18n.GT._ ("drag atoms in Z direction (requires {0})"), "set DRAGSELECTED"));
+JV.ActionManager.newAction (15, "_multiTouchSimulation", J.i18n.GT._ ("simulate multi-touch using the mouse)"));
+JV.ActionManager.newAction (16, "_navTranslate", J.i18n.GT.o (J.i18n.GT._ ("translate navigation point (requires {0} and {1})"),  Clazz.newArray (-1, ["set NAVIGATIONMODE", "set picking NAVIGATE"])));
+JV.ActionManager.newAction (17, "_pickAtom", J.i18n.GT._ ("pick an atom"));
+JV.ActionManager.newAction (3, "_pickConnect", J.i18n.GT.o (J.i18n.GT._ ("connect atoms (requires {0})"), "set picking CONNECT"));
+JV.ActionManager.newAction (18, "_pickIsosurface", J.i18n.GT.o (J.i18n.GT._ ("pick an ISOSURFACE point (requires {0}"), "set DRAWPICKING"));
+JV.ActionManager.newAction (19, "_pickLabel", J.i18n.GT.o (J.i18n.GT._ ("pick a label to toggle it hidden/displayed (requires {0})"), "set picking LABEL"));
+JV.ActionManager.newAction (20, "_pickMeasure", J.i18n.GT.o (J.i18n.GT._ ("pick an atom to include it in a measurement (after starting a measurement or after {0})"), "set picking DISTANCE/ANGLE/TORSION"));
+JV.ActionManager.newAction (21, "_pickNavigate", J.i18n.GT.o (J.i18n.GT._ ("pick a point or atom to navigate to (requires {0})"), "set NAVIGATIONMODE"));
+JV.ActionManager.newAction (22, "_pickPoint", J.i18n.GT.o (J.i18n.GT._ ("pick a DRAW point (for measurements) (requires {0}"), "set DRAWPICKING"));
+JV.ActionManager.newAction (23, "_popupMenu", J.i18n.GT._ ("pop up the full context menu"));
+JV.ActionManager.newAction (24, "_reset", J.i18n.GT._ ("reset (when clicked off the model)"));
+JV.ActionManager.newAction (25, "_rotate", J.i18n.GT._ ("rotate"));
+JV.ActionManager.newAction (26, "_rotateBranch", J.i18n.GT.o (J.i18n.GT._ ("rotate branch around bond (requires {0})"), "set picking ROTATEBOND"));
+JV.ActionManager.newAction (27, "_rotateSelected", J.i18n.GT.o (J.i18n.GT._ ("rotate selected atoms (requires {0})"), "set DRAGSELECTED"));
+JV.ActionManager.newAction (28, "_rotateZ", J.i18n.GT._ ("rotate Z"));
+JV.ActionManager.newAction (29, "_rotateZorZoom", J.i18n.GT._ ("rotate Z (horizontal motion of mouse) or zoom (vertical motion of mouse)"));
+JV.ActionManager.newAction (30, "_select", J.i18n.GT.o (J.i18n.GT._ ("select an atom (requires {0})"), "set pickingStyle EXTENDEDSELECT"));
+JV.ActionManager.newAction (31, "_selectAndDrag", J.i18n.GT.o (J.i18n.GT._ ("select and drag atoms (requires {0})"), "set DRAGSELECTED"));
+JV.ActionManager.newAction (32, "_selectAndNot", J.i18n.GT.o (J.i18n.GT._ ("unselect this group of atoms (requires {0})"), "set pickingStyle DRAG/EXTENDEDSELECT"));
+JV.ActionManager.newAction (33, "_selectNone", J.i18n.GT.o (J.i18n.GT._ ("select NONE (requires {0})"), "set pickingStyle EXTENDEDSELECT"));
+JV.ActionManager.newAction (34, "_selectOr", J.i18n.GT.o (J.i18n.GT._ ("add this group of atoms to the set of selected atoms (requires {0})"), "set pickingStyle DRAG/EXTENDEDSELECT"));
+JV.ActionManager.newAction (35, "_selectToggle", J.i18n.GT.o (J.i18n.GT._ ("toggle selection (requires {0})"), "set pickingStyle DRAG/EXTENDEDSELECT/RASMOL"));
+JV.ActionManager.newAction (36, "_selectToggleOr", J.i18n.GT.o (J.i18n.GT._ ("if all are selected, unselect all, otherwise add this group of atoms to the set of selected atoms (requires {0})"), "set pickingStyle DRAG"));
+JV.ActionManager.newAction (37, "_setMeasure", J.i18n.GT._ ("pick an atom to initiate or conclude a measurement"));
+JV.ActionManager.newAction (38, "_slab", J.i18n.GT.o (J.i18n.GT._ ("adjust slab (front plane; requires {0})"), "SLAB ON"));
+JV.ActionManager.newAction (39, "_slabAndDepth", J.i18n.GT.o (J.i18n.GT._ ("move slab/depth window (both planes; requires {0})"), "SLAB ON"));
+JV.ActionManager.newAction (40, "_slideZoom", J.i18n.GT._ ("zoom (along right edge of window)"));
+JV.ActionManager.newAction (41, "_spinDrawObjectCCW", J.i18n.GT.o (J.i18n.GT._ ("click on two points to spin around axis counterclockwise (requires {0})"), "set picking SPIN"));
+JV.ActionManager.newAction (42, "_spinDrawObjectCW", J.i18n.GT.o (J.i18n.GT._ ("click on two points to spin around axis clockwise (requires {0})"), "set picking SPIN"));
+JV.ActionManager.newAction (43, "_stopMotion", J.i18n.GT.o (J.i18n.GT._ ("stop motion (requires {0})"), "set waitForMoveTo FALSE"));
+JV.ActionManager.newAction (44, "_swipe", J.i18n.GT._ ("spin model (swipe and release button and stop motion simultaneously)"));
+JV.ActionManager.newAction (45, "_translate", J.i18n.GT._ ("translate"));
+JV.ActionManager.newAction (46, "_wheelZoom", J.i18n.GT._ ("zoom"));
+});
 c$.getActionName = Clazz.defineMethod (c$, "getActionName", 
 function (i) {
 return (i < JV.ActionManager.actionNames.length ? JV.ActionManager.actionNames[i] : null);
@@ -142,6 +185,16 @@ Clazz.defineMethod (c$, "setBinding",
 function (newBinding) {
 this.b = newBinding;
 }, "JV.binding.Binding");
+Clazz.defineMethod (c$, "bnd", 
+function (mouseAction, jmolActions) {
+for (var i = jmolActions.length; --i >= 0; ) if (this.b.isBound (mouseAction, jmolActions[i])) return true;
+
+return false;
+}, "~N,~A");
+Clazz.defineMethod (c$, "isDrawOrLabelAction", 
+ function (a) {
+return (this.drawMode && this.bnd (a, [8, 9]) || this.labelMode && this.bnd (a, [10]));
+}, "~N");
 c$.getPickingModeName = Clazz.defineMethod (c$, "getPickingModeName", 
 function (pickingMode) {
 return (pickingMode < 0 || pickingMode >= JV.ActionManager.pickingModeNames.length ? "off" : JV.ActionManager.pickingModeNames[pickingMode]);
@@ -234,14 +287,14 @@ this.pickingStyleSelect = pickingStyle;
 }this.rubberbandSelectionMode = false;
 switch (this.pickingStyleSelect) {
 case 2:
-if (!this.b.name.equals ("extendedSelect")) this.setBinding (this.pfaatBinding == null ? this.pfaatBinding = JV.binding.Binding.newBinding ("Pfaat") : this.pfaatBinding);
+if (!this.b.name.equals ("extendedSelect")) this.setBinding (this.pfaatBinding == null ? this.pfaatBinding = JV.binding.Binding.newBinding (this.vwr, "Pfaat") : this.pfaatBinding);
 break;
 case 3:
-if (!this.b.name.equals ("drag")) this.setBinding (this.dragBinding == null ? this.dragBinding = JV.binding.Binding.newBinding ("Drag") : this.dragBinding);
+if (!this.b.name.equals ("drag")) this.setBinding (this.dragBinding == null ? this.dragBinding = JV.binding.Binding.newBinding (this.vwr, "Drag") : this.dragBinding);
 this.rubberbandSelectionMode = true;
 break;
 case 1:
-if (!this.b.name.equals ("selectOrToggle")) this.setBinding (this.rasmolBinding == null ? this.rasmolBinding = JV.binding.Binding.newBinding ("Rasmol") : this.rasmolBinding);
+if (!this.b.name.equals ("selectOrToggle")) this.setBinding (this.rasmolBinding == null ? this.rasmolBinding = JV.binding.Binding.newBinding (this.vwr, "Rasmol") : this.rasmolBinding);
 break;
 default:
 if (this.b !== this.jmolBinding) this.setBinding (this.jmolBinding);
@@ -310,6 +363,10 @@ this.pressedCount = this.clickedCount = 0;
 this.dragGesture.setAction (0, 0);
 this.exitMeasurementMode (null);
 });
+Clazz.defineMethod (c$, "setDragAtomIndex", 
+function (iatom) {
+this.dragAtomIndex = iatom;
+}, "~N");
 Clazz.defineMethod (c$, "isMTClient", 
 function () {
 return this.isMultiTouchClient;
@@ -332,7 +389,7 @@ this.isAltKeyReleased = true;
 });
 Clazz.defineMethod (c$, "startHoverWatcher", 
 function (isStart) {
-if (this.vwr.isPreviewOnly ()) return;
+if (this.vwr.isPreviewOnly) return;
 try {
 if (isStart) {
 if (this.hoverWatcherThread != null) return;
@@ -379,7 +436,7 @@ break;
 }
 var action = 16 | 256 | 8192 | this.moved.modifiers;
 if (!this.labelMode && !this.b.isUserAction (action)) this.checkMotionRotateZoom (action, this.current.x, 0, 0, false);
-if (this.vwr.getBoolean (603979887)) {
+if (this.vwr.getBoolean (603979889)) {
 switch (key) {
 case 38:
 case 40:
@@ -408,7 +465,7 @@ case 17:
 this.moved.modifiers &= -3;
 }
 if (this.moved.modifiers == 0) this.vwr.setCursor (0);
-if (!this.vwr.getBoolean (603979887)) return;
+if (!this.vwr.getBoolean (603979889)) return;
 switch (key) {
 case 38:
 case 40:
@@ -420,6 +477,7 @@ break;
 }, "~N");
 Clazz.overrideMethod (c$, "mouseEnterExit", 
 function (time, x, y, isExit) {
+if (this.vwr.tm.stereoDoubleDTI) x = x << 1;
 this.setCurrent (time, x, y, 0);
 if (isExit) this.exitMeasurementMode ("mouseExit");
 }, "~N,~N,~N,~B");
@@ -433,6 +491,7 @@ Clazz.overrideMethod (c$, "mouseAction",
 function (mode, time, x, y, count, buttonMods) {
 if (!this.vwr.getMouseEnabled ()) return;
 if (JU.Logger.debuggingHigh && mode != 0) this.vwr.showString ("mouse action: " + mode + " " + buttonMods + " " + JV.binding.Binding.getMouseActionName (JV.binding.Binding.getMouseAction (count, buttonMods, mode), false), false);
+if (this.vwr.tm.stereoDoubleDTI) x = x << 1;
 switch (mode) {
 case 0:
 this.setCurrent (time, x, y, buttonMods);
@@ -448,7 +507,7 @@ return;
 return;
 case 4:
 this.setMouseMode ();
-this.pressedCount = (this.pressed.check (0, 0, 0, buttonMods, time, 700) ? this.pressedCount + 1 : 1);
+this.pressedCount = (this.pressed.check (20, x, y, buttonMods, time, 700) ? this.pressedCount + 1 : 1);
 if (this.pressedCount == 1) {
 this.vwr.checkInMotion (1);
 this.setCurrent (time, x, y, buttonMods);
@@ -467,7 +526,6 @@ var deltaX = x - this.dragged.x;
 var deltaY = y - this.dragged.y;
 this.setCurrent (time, x, y, buttonMods);
 this.dragged.setCurrent (this.current, -1);
-if (this.apm != 32) this.exitMeasurementMode (null);
 this.dragGesture.add (this.dragAction, x, y, time);
 this.checkDragWheelAction (this.dragAction, x, y, deltaX, deltaY, time, 1);
 return;
@@ -479,7 +537,7 @@ var dragRelease = !this.pressed.check (this.xyRange, x, y, buttonMods, time, 922
 this.checkReleaseAction (x, y, time, dragRelease);
 return;
 case 3:
-if (this.vwr.isApplet () && !this.vwr.hasFocus ()) return;
+if (this.vwr.isApplet && !this.vwr.hasFocus ()) return;
 this.setCurrent (time, this.current.x, this.current.y, buttonMods);
 this.checkDragWheelAction (JV.binding.Binding.getMouseAction (0, buttonMods, 3), this.current.x, this.current.y, 0, y, time, 3);
 return;
@@ -491,7 +549,7 @@ this.setCurrent (time, x, y, buttonMods);
 }this.setMouseActions (this.clickedCount, buttonMods, false);
 this.clicked.setCurrent (this.current, this.clickedCount);
 this.vwr.setFocus ();
-if (this.apm != 9 && this.bnd (JV.binding.Binding.getMouseAction (1, buttonMods, 4), 31)) return;
+if (this.apm != 9 && this.bnd (JV.binding.Binding.getMouseAction (1, buttonMods, 4), [31])) return;
 this.clickAction = JV.binding.Binding.getMouseAction (this.clickedCount, buttonMods, 2);
 this.checkClickAction (x, y, time, this.clickedCount);
 return;
@@ -500,44 +558,44 @@ return;
 Clazz.defineMethod (c$, "checkPressedAction", 
  function (x, y, time) {
 var buttonMods = JV.binding.Binding.getButtonMods (this.pressAction);
-var isSelectAndDrag = this.bnd (JV.binding.Binding.getMouseAction (1, buttonMods, 4), 31);
+var isDragSelectedAction = this.bnd (JV.binding.Binding.getMouseAction (1, buttonMods, 4), [31]);
 if (buttonMods != 0) {
 this.pressAction = this.vwr.notifyMouseClicked (x, y, this.pressAction, 4);
 if (this.pressAction == 0) return;
 buttonMods = JV.binding.Binding.getButtonMods (this.pressAction);
 }this.setMouseActions (this.pressedCount, buttonMods, false);
 if (JU.Logger.debugging) JU.Logger.debug (JV.binding.Binding.getMouseActionName (this.pressAction, false));
-if (this.drawMode && (this.bnd (this.dragAction, 8) || this.bnd (this.dragAction, 9)) || this.labelMode && this.bnd (this.dragAction, 10)) {
+if (this.isDrawOrLabelAction (this.dragAction)) {
 this.vwr.checkObjectDragged (-2147483648, 0, x, y, this.dragAction);
 return;
 }this.checkUserAction (this.pressAction, x, y, 0, 0, time, 4);
 var isBound = false;
 switch (this.apm) {
 case 32:
-isBound = this.bnd (this.clickAction, 0);
+isBound = this.bnd (this.clickAction, [0]);
 break;
 case 28:
-isBound = this.bnd (this.dragAction, 7) || this.bnd (this.dragAction, 14);
+isBound = this.bnd (this.dragAction, [7, 14]);
 break;
 case 26:
 case 36:
 case 27:
-isBound = this.bnd (this.dragAction, 7) || this.bnd (this.dragAction, 27) || this.bnd (this.dragAction, 14);
+isBound = this.bnd (this.dragAction, [7, 14, 27]);
 break;
 case 29:
-isBound = this.bnd (this.dragAction, 11) || this.bnd (this.dragAction, 14);
+isBound = this.bnd (this.dragAction, [11, 14]);
 break;
 case 30:
-isBound = this.bnd (this.dragAction, 12) || this.bnd (this.dragAction, 27) || this.bnd (this.dragAction, 14);
+isBound = this.bnd (this.dragAction, [11, 14, 27]);
 break;
 }
 if (isBound) {
 this.dragAtomIndex = this.vwr.findNearestAtomIndexMovable (x, y, true);
-if (this.dragAtomIndex >= 0 && (this.apm == 32 || this.apm == 31) && this.vwr.isAtomAssignable (this.dragAtomIndex)) {
+if (this.dragAtomIndex >= 0 && (this.apm == 32 || this.apm == 31) && this.vwr.ms.isAtomAssignable (this.dragAtomIndex)) {
 this.enterMeasurementMode (this.dragAtomIndex);
 this.mp.addPoint (this.dragAtomIndex, null, false);
 }return;
-}if (this.bnd (this.pressAction, 23)) {
+}if (this.bnd (this.pressAction, [23])) {
 var type = 'j';
 if (this.vwr.getBoolean (603979883)) {
 var t = this.vwr.checkObjectClicked (x, y, this.LEFT_CLICKED);
@@ -545,14 +603,10 @@ type = (t != null && "bond".equals (t.get ("type")) ? 'b' : this.vwr.findNearest
 }this.vwr.popupMenu (x, y, type);
 return;
 }if (this.dragSelectedMode) {
-this.haveSelection = true;
-if (isSelectAndDrag) {
-this.haveSelection = (this.vwr.findNearestAtomIndexMovable (x, y, true) >= 0);
-}if (!this.haveSelection) return;
-if (this.bnd (this.dragAction, 13) || this.bnd (this.dragAction, 14)) this.vwr.moveSelected (-2147483648, 0, -2147483648, -2147483648, -2147483648, null, false, false);
+this.haveSelection = (!isDragSelectedAction || this.vwr.findNearestAtomIndexMovable (x, y, true) >= 0);
+if (this.haveSelection && this.bnd (this.dragAction, [13, 14])) this.vwr.moveSelected (-2147483648, 0, -2147483648, -2147483648, -2147483648, null, false, false);
 return;
-}if (this.vwr.g.useArcBall) this.vwr.rotateArcBall (x, y, 0);
-this.checkMotionRotateZoom (this.dragAction, x, 0, 0, true);
+}this.checkMotionRotateZoom (this.dragAction, x, 0, 0, true);
 }, "~N,~N,~N");
 Clazz.defineMethod (c$, "checkDragWheelAction", 
  function (dragWheelAction, x, y, deltaX, deltaY, time, mode) {
@@ -567,30 +621,26 @@ this.vwr.refresh (3, "rubberBand selection");
 return;
 }if (this.checkUserAction (dragWheelAction, x, y, deltaX, deltaY, time, mode)) return;
 if (this.vwr.getRotateBondIndex () >= 0) {
-if (this.bnd (dragWheelAction, 26)) {
+if (this.bnd (dragWheelAction, [26])) {
 this.vwr.moveSelected (deltaX, deltaY, -2147483648, x, y, null, false, false);
 return;
-}if (!this.bnd (dragWheelAction, 25)) this.vwr.setRotateBondIndex (-1);
+}if (!this.bnd (dragWheelAction, [25])) this.vwr.setRotateBondIndex (-1);
 }var bs = null;
-if (this.dragAtomIndex >= 0) {
+if (this.dragAtomIndex >= 0 && this.apm != 2) {
 switch (this.apm) {
 case 26:
-this.setMotion (13, true);
-if (this.bnd (dragWheelAction, 27) && this.vwr.getBoolean (603979785)) {
-this.vwr.rotateSelected (this.getDegrees (deltaX, true), this.getDegrees (deltaY, false), null);
-} else {
-this.vwr.moveSelected (deltaX, deltaY, (this.bnd (dragWheelAction, 14) ? -deltaY : -2147483648), -2147483648, -2147483648, null, true, false);
-}return;
+this.dragSelected (dragWheelAction, deltaX, deltaY, true);
+return;
 case 36:
 case 27:
 case 30:
-bs = this.vwr.ms.getAtoms (1095761936, JU.BSUtil.newAndSetBit (this.dragAtomIndex));
+bs = this.vwr.ms.getAtoms (1094713360, JU.BSUtil.newAndSetBit (this.dragAtomIndex));
 if (this.apm == 36) bs.and (this.vwr.getAtomBitSet ("ligand"));
 case 28:
 case 29:
 if (this.dragGesture.getPointCount () == 1) this.vwr.undoMoveActionClear (this.dragAtomIndex, 2, true);
 this.setMotion (13, true);
-if (this.bnd (dragWheelAction, 27)) {
+if (this.bnd (dragWheelAction, [27])) {
 this.vwr.rotateSelected (this.getDegrees (deltaX, true), this.getDegrees (deltaY, false), bs);
 } else {
 switch (this.apm) {
@@ -600,10 +650,10 @@ case 30:
 this.vwr.select (bs, false, 0, true);
 break;
 }
-this.vwr.moveAtomWithHydrogens (this.dragAtomIndex, deltaX, deltaY, (this.bnd (dragWheelAction, 14) ? -deltaY : -2147483648), bs);
+this.vwr.moveAtomWithHydrogens (this.dragAtomIndex, deltaX, deltaY, (this.bnd (dragWheelAction, [14]) ? -deltaY : -2147483648), bs);
 }return;
 }
-}if (this.dragAtomIndex >= 0 && mode == 1 && this.bnd (this.clickAction, 0) && this.apm == 32) {
+}if (this.dragAtomIndex >= 0 && mode == 1 && this.bnd (this.clickAction, [0]) && this.apm == 32) {
 var nearestAtomIndex = this.vwr.findNearestAtomIndexMovable (x, y, false);
 if (nearestAtomIndex >= 0) {
 if (this.mp != null) {
@@ -620,33 +670,28 @@ this.mp.traceX = x;
 this.mp.traceY = y;
 this.vwr.refresh (3, "assignNew");
 return;
-}if (!this.drawMode && !this.labelMode && this.bnd (dragWheelAction, 45)) {
+}if (!this.drawMode && !this.labelMode && this.bnd (dragWheelAction, [45])) {
 this.vwr.translateXYBy (deltaX, deltaY);
 return;
-}if (this.dragSelectedMode && this.haveSelection && (this.bnd (dragWheelAction, 13) || this.bnd (dragWheelAction, 27))) {
+}if (this.dragSelectedMode && this.haveSelection && this.bnd (dragWheelAction, [13, 27])) {
 var iatom = this.vwr.bsA ().nextSetBit (0);
 if (iatom < 0) return;
 if (this.dragGesture.getPointCount () == 1) this.vwr.undoMoveActionClear (iatom, 2, true);
  else this.vwr.moveSelected (2147483647, 0, -2147483648, -2147483648, -2147483648, null, false, false);
-this.setMotion (13, true);
-if (this.bnd (dragWheelAction, 27) && this.vwr.getBoolean (603979785)) this.vwr.rotateSelected (this.getDegrees (deltaX, true), this.getDegrees (deltaY, false), null);
- else this.vwr.moveSelected (deltaX, deltaY, -2147483648, -2147483648, -2147483648, null, true, false);
+this.dragSelected (dragWheelAction, deltaX, deltaY, false);
 return;
-}if (this.drawMode && (this.bnd (dragWheelAction, 8) || this.bnd (dragWheelAction, 9)) || this.labelMode && this.bnd (dragWheelAction, 10)) {
+}if (this.isDrawOrLabelAction (dragWheelAction)) {
 this.setMotion (13, true);
 this.vwr.checkObjectDragged (this.dragged.x, this.dragged.y, x, y, dragWheelAction);
 return;
 }if (this.checkMotionRotateZoom (dragWheelAction, x, deltaX, deltaY, true)) {
-if (this.vwr.tm.slabEnabled && this.checkSlideZoom (dragWheelAction)) this.vwr.slabDepthByPixels (deltaY);
+if (this.vwr.tm.slabEnabled && this.bnd (dragWheelAction, [39])) this.vwr.slabDepthByPixels (deltaY);
  else this.vwr.zoomBy (deltaY);
 return;
-}if (this.bnd (dragWheelAction, 25)) {
-var degX = this.getDegrees (deltaX, true);
-var degY = this.getDegrees (deltaY, false);
-if (this.vwr.g.useArcBall) this.vwr.rotateArcBall (x, y, this.mouseDragFactor);
- else this.vwr.rotateXYBy (degX, degY);
+}if (this.bnd (dragWheelAction, [25])) {
+this.vwr.rotateXYBy (this.getDegrees (deltaX, true), this.getDegrees (deltaY, false));
 return;
-}if (this.bnd (dragWheelAction, 29)) {
+}if (this.bnd (dragWheelAction, [29])) {
 if (deltaX == 0 && Math.abs (deltaY) > 1) {
 this.setMotion (8, true);
 this.vwr.zoomBy (deltaY + (deltaY > 0 ? -1 : 1));
@@ -654,24 +699,30 @@ this.vwr.zoomBy (deltaY + (deltaY > 0 ? -1 : 1));
 this.setMotion (13, true);
 this.vwr.rotateZBy (-deltaX + (deltaX > 0 ? 1 : -1), 2147483647, 2147483647);
 }return;
-} else if (this.bnd (dragWheelAction, 46)) {
+}if (this.vwr.tm.slabEnabled) {
+if (this.bnd (dragWheelAction, [6])) {
+this.vwr.depthByPixels (deltaY);
+return;
+}if (this.bnd (dragWheelAction, [38])) {
+this.vwr.slabByPixels (deltaY);
+return;
+}if (this.bnd (dragWheelAction, [39])) {
+this.vwr.slabDepthByPixels (deltaY);
+return;
+}}if (this.bnd (dragWheelAction, [46])) {
 this.zoomByFactor (deltaY, 2147483647, 2147483647);
 return;
-} else if (this.bnd (dragWheelAction, 28)) {
+}if (this.bnd (dragWheelAction, [28])) {
 this.setMotion (13, true);
 this.vwr.rotateZBy (-deltaX, 2147483647, 2147483647);
 return;
-}if (this.vwr.tm.slabEnabled) {
-if (this.bnd (dragWheelAction, 6)) {
-this.vwr.depthByPixels (deltaY);
-return;
-}if (this.bnd (dragWheelAction, 38)) {
-this.vwr.slabByPixels (deltaY);
-return;
-}if (this.bnd (dragWheelAction, 39)) {
-this.vwr.slabDepthByPixels (deltaY);
-return;
-}}}, "~N,~N,~N,~N,~N,~N,~N");
+}}, "~N,~N,~N,~N,~N,~N,~N");
+Clazz.defineMethod (c$, "dragSelected", 
+ function (a, deltaX, deltaY, isPickingDrag) {
+this.setMotion (13, true);
+if (this.bnd (a, [27]) && this.vwr.getBoolean (603979785)) this.vwr.rotateSelected (this.getDegrees (deltaX, true), this.getDegrees (deltaY, false), null);
+ else this.vwr.moveSelected (deltaX, deltaY, (isPickingDrag && this.bnd (a, [14]) ? -deltaY : -2147483648), -2147483648, -2147483648, null, true, false);
+}, "~N,~N,~N,~B");
 Clazz.defineMethod (c$, "checkReleaseAction", 
  function (x, y, time, dragRelease) {
 if (JU.Logger.debugging) JU.Logger.debug (JV.binding.Binding.getMouseActionName (this.pressAction, false));
@@ -682,7 +733,7 @@ this.dragGesture.add (this.dragAction, x, y, time);
 if (dragRelease) this.vwr.setRotateBondIndex (-2147483648);
 if (this.dragAtomIndex >= 0) {
 if (this.apm == 29 || this.apm == 30) this.minimize (true);
-}if (this.apm == 32 && this.bnd (this.clickAction, 0)) {
+}if (this.apm == 32 && this.bnd (this.clickAction, [0])) {
 if (this.mp == null || this.dragAtomIndex < 0) return;
 this.assignNew (x, y);
 return;
@@ -693,13 +744,13 @@ this.rubberbandSelectionMode = (this.b.name.equals ("drag"));
 this.rectRubber.x = 2147483647;
 if (dragRelease) {
 this.vwr.notifyMouseClicked (x, y, JV.binding.Binding.getMouseAction (this.pressedCount, 0, 5), 5);
-}if (this.drawMode && (this.bnd (this.dragAction, 8) || this.bnd (this.dragAction, 9)) || this.labelMode && this.bnd (this.dragAction, 10)) {
+}if (this.isDrawOrLabelAction (this.dragAction)) {
 this.vwr.checkObjectDragged (2147483647, 0, x, y, this.dragAction);
 return;
-}if (this.dragSelectedMode && this.bnd (this.dragAction, 13) && this.haveSelection) this.vwr.moveSelected (2147483647, 0, -2147483648, -2147483648, -2147483648, null, false, false);
+}if (this.haveSelection && this.dragSelectedMode && this.bnd (this.dragAction, [13])) this.vwr.moveSelected (2147483647, 0, -2147483648, -2147483648, -2147483648, null, false, false);
 if (dragRelease && this.checkUserAction (this.pressAction, x, y, 0, 0, time, 5)) return;
 if (this.vwr.getBoolean (603979780)) {
-if (this.bnd (this.dragAction, 44)) {
+if (this.bnd (this.dragAction, [44])) {
 var speed = this.getExitRate ();
 if (speed > 0) this.vwr.spinXYBy (this.dragGesture.getDX (4, 2), this.dragGesture.getDY (4, 2), speed * 30 * this.gestureSwipeFactor);
 if (this.vwr.g.logGestures) this.vwr.log ("$NOW$ swipe " + this.dragGesture + " " + speed);
@@ -707,13 +758,12 @@ return;
 }}}, "~N,~N,~N,~B");
 Clazz.defineMethod (c$, "checkClickAction", 
  function (x, y, time, clickedCount) {
-if (!this.vwr.haveModelSet ()) return;
 if (clickedCount > 0) {
 if (this.checkUserAction (this.clickAction, x, y, 0, 0, time, 32768)) return;
 this.clickAction = this.vwr.notifyMouseClicked (x, y, this.clickAction, 32768);
 if (this.clickAction == 0) return;
 }if (JU.Logger.debugging) JU.Logger.debug (JV.binding.Binding.getMouseActionName (this.clickAction, false));
-if (this.bnd (this.clickAction, 2)) {
+if (this.bnd (this.clickAction, [2])) {
 if (this.vwr.frankClicked (x, y)) {
 this.vwr.popupMenu (-x, y, 'j');
 return;
@@ -740,23 +790,23 @@ if (this.mp.haveModified) this.vwr.setPendingMeasurement (this.mp);
 this.vwr.refresh (3, "measurementPending");
 return;
 }this.setMouseMode ();
-if (this.bnd (this.clickAction, 43)) {
+if (this.bnd (this.clickAction, [43])) {
 this.vwr.tm.stopMotion ();
-}if (this.vwr.getBoolean (603979887) && this.apm == 23 && this.bnd (this.clickAction, 21)) {
+}if (this.vwr.getBoolean (603979889) && this.apm == 23 && this.bnd (this.clickAction, [21])) {
 this.vwr.navTranslatePercent (x * 100 / this.vwr.getScreenWidth () - 50, y * 100 / this.vwr.getScreenHeight () - 50);
 return;
 }if (isBond) {
-if (this.bnd (this.clickAction, this.bondPickingMode == 34 || this.bondPickingMode == 33 ? 0 : 5)) {
+if (this.bnd (this.clickAction, [this.bondPickingMode == 34 || this.bondPickingMode == 33 ? 0 : 5])) {
 this.bondPicked ((t.get ("index")).intValue ());
 return;
 }} else if (isIsosurface) {
 return;
 } else {
-if (this.apm != 32 && this.mp != null && this.bnd (this.clickAction, 20)) {
+if (this.apm != 32 && this.mp != null && this.bnd (this.clickAction, [20])) {
 this.atomOrPointPicked (nearestAtomIndex, nearestPoint);
 if (this.addToMeasurement (nearestAtomIndex, nearestPoint, false) == 4) this.toggleMeasurement ();
 return;
-}if (this.bnd (this.clickAction, 37)) {
+}if (this.bnd (this.clickAction, [37])) {
 if (this.mp != null) {
 this.addToMeasurement (nearestAtomIndex, nearestPoint, true);
 this.toggleMeasurement ();
@@ -768,7 +818,7 @@ return;
 }}if (this.isSelectAction (this.clickAction)) {
 if (!isIsosurface) this.atomOrPointPicked (nearestAtomIndex, nearestPoint);
 return;
-}if (this.bnd (this.clickAction, 24)) {
+}if (this.bnd (this.clickAction, [24])) {
 if (nearestAtomIndex < 0) this.reset ();
 return;
 }}, "~N,~N,~N,~N");
@@ -780,7 +830,7 @@ var obj;
 var ht = this.b.getBindings ();
 var mkey = mouseAction + "\t";
 for (var key, $key = ht.keySet ().iterator (); $key.hasNext () && ((key = $key.next ()) || true);) {
-if (key.indexOf (mkey) != 0 || !JU.PT.isAS (obj = ht.get (key))) continue;
+if (key.indexOf (mkey) != 0 || !JU.AU.isAS (obj = ht.get (key))) continue;
 var script = (obj)[1];
 var nearestPoint = null;
 if (script.indexOf ("_ATOM") >= 0) {
@@ -813,24 +863,24 @@ return !passThrough;
 }, "~N,~N,~N,~N,~N,~N,~N");
 Clazz.defineMethod (c$, "checkMotionRotateZoom", 
  function (mouseAction, x, deltaX, deltaY, isDrag) {
-var isSlideZoom = this.checkSlideZoom (mouseAction);
-var isRotateXY = this.bnd (mouseAction, 25);
-var isRotateZorZoom = this.bnd (mouseAction, 29);
+var isSlideZoom = this.bnd (mouseAction, [40]) && this.isZoomArea (this.pressed.x);
+var isRotateXY = this.bnd (mouseAction, [25]);
+var isRotateZorZoom = this.bnd (mouseAction, [29]);
 if (!isSlideZoom && !isRotateXY && !isRotateZorZoom) return false;
 var isZoom = (isRotateZorZoom && (deltaX == 0 || Math.abs (deltaY) > 5 * Math.abs (deltaX)));
-var cursor = (isZoom || this.isZoomArea (this.moved.x) || this.bnd (mouseAction, 46) ? 8 : isRotateXY || isRotateZorZoom ? 13 : this.bnd (mouseAction, 1) ? 12 : 0);
+var cursor = (isZoom || this.isZoomArea (this.moved.x) || this.bnd (mouseAction, [46]) ? 8 : isRotateXY || isRotateZorZoom ? 13 : this.bnd (mouseAction, [1]) ? 12 : 0);
 this.setMotion (cursor, isDrag);
 return (isZoom || isSlideZoom);
 }, "~N,~N,~N,~N,~B");
 Clazz.defineMethod (c$, "getExitRate", 
-function () {
+ function () {
 var dt = this.dragGesture.getTimeDifference (2);
-return (dt > 10 ? 0 : this.dragGesture.getSpeedPixelsPerMillisecond (4, 2));
+return (this.isMultiTouch ? (dt > (80) ? 0 : this.dragGesture.getSpeedPixelsPerMillisecond (2, 1)) : (dt > 10 ? 0 : this.dragGesture.getSpeedPixelsPerMillisecond (4, 2)));
 });
 Clazz.defineMethod (c$, "isRubberBandSelect", 
  function (action) {
 action = action & -8193 | 32768;
-return this.rubberbandSelectionMode && (this.bnd (action, 35) || this.bnd (action, 34) || this.bnd (action, 32));
+return (this.rubberbandSelectionMode && this.bnd (action, [35, 34, 32]));
 }, "~N");
 Clazz.defineMethod (c$, "getRubberBand", 
 function () {
@@ -856,13 +906,9 @@ Clazz.defineMethod (c$, "getDegrees",
 function (delta, isX) {
 return delta / Math.min (500, isX ? this.vwr.getScreenWidth () : this.vwr.getScreenHeight ()) * 180 * this.mouseDragFactor;
 }, "~N,~B");
-Clazz.defineMethod (c$, "checkSlideZoom", 
- function (action) {
-return this.bnd (action, 40) && this.isZoomArea (this.pressed.x);
-}, "~N");
 Clazz.defineMethod (c$, "isZoomArea", 
  function (x) {
-return x > this.vwr.getScreenWidth () * (this.vwr.isStereoDouble () ? 2 : 1) * 98 / 100;
+return x > this.vwr.getScreenWidth () * (this.vwr.tm.stereoDoubleFull || this.vwr.tm.stereoDoubleDTI ? 2 : 1) * 98 / 100;
 }, "~N");
 Clazz.defineMethod (c$, "getPoint", 
  function (t) {
@@ -878,7 +924,7 @@ return (index >= 0 && (isClicked || this.mp == null) && !this.vwr.slm.isInSelect
 }, "~N,~N,JU.Point3fi,~B");
 Clazz.defineMethod (c$, "isSelectAction", 
  function (action) {
-return (this.bnd (action, 17) || !this.drawMode && !this.labelMode && this.apm == 1 && this.bnd (action, 1) || this.dragSelectedMode && (this.bnd (this.dragAction, 27) || this.bnd (this.dragAction, 13)) || this.bnd (action, 22) || this.bnd (action, 35) || this.bnd (action, 32) || this.bnd (action, 34) || this.bnd (action, 36) || this.bnd (action, 30));
+return (this.bnd (action, [17]) || !this.drawMode && !this.labelMode && this.apm == 1 && this.bnd (action, [1]) || this.dragSelectedMode && this.bnd (this.dragAction, [27, 13]) || this.bnd (action, [22, 35, 32, 34, 36, 30]));
 }, "~N");
 Clazz.defineMethod (c$, "enterMeasurementMode", 
  function (iAtom) {
@@ -890,7 +936,7 @@ this.measurementQueued = this.mp;
 }, "~N");
 Clazz.defineMethod (c$, "getMP", 
  function () {
-return (J.api.Interface.getInterface ("JM.MeasurementPending")).set (this.vwr.ms);
+return (J.api.Interface.getInterface ("JM.MeasurementPending", this.vwr, "mouse")).set (this.vwr.ms);
 });
 Clazz.defineMethod (c$, "addToMeasurement", 
  function (atomIndex, nearestPoint, dblClick) {
@@ -907,7 +953,7 @@ this.exitMeasurementMode (null);
 this.measurementQueued = this.getMP ();
 });
 Clazz.defineMethod (c$, "exitMeasurementMode", 
- function (refreshWhy) {
+function (refreshWhy) {
 if (this.mp == null) return;
 this.vwr.setPendingMeasurement (this.mp = null);
 this.vwr.setCursor (0);
@@ -919,7 +965,7 @@ var a1 = this.measurementQueued.getAtomIndex (1);
 var a2 = this.measurementQueued.getAtomIndex (2);
 if (a1 < 0 || a2 < 0) return;
 try {
-var sequence = this.vwr.getSmilesOpt (null, a1, a2, false, true, false, false, false);
+var sequence = this.vwr.getSmilesOpt (null, a1, a2, 65536);
 this.vwr.setStatusMeasuring ("measureSequence", -2, sequence, 0);
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
@@ -931,11 +977,9 @@ throw e;
 });
 Clazz.defineMethod (c$, "minimize", 
  function (dragDone) {
-this.vwr.stopMinimization ();
 var iAtom = this.dragAtomIndex;
 if (dragDone) this.dragAtomIndex = -1;
-var bs = (this.vwr.getMotionFixedAtoms ().cardinality () == 0 ? this.vwr.ms.getAtoms ((this.vwr.isAtomPDB (iAtom) ? 1087373318 : 1095761936), JU.BSUtil.newAndSetBit (iAtom)) : JU.BSUtil.setAll (this.vwr.getAtomCount ()));
-this.vwr.minimize (2147483647, 0, bs, null, 0, false, false, false, false);
+this.vwr.dragMinimizeAtom (iAtom);
 }, "~B");
 Clazz.defineMethod (c$, "queueAtom", 
  function (atomIndex, ptClicked) {
@@ -968,7 +1012,7 @@ Clazz.defineMethod (c$, "atomOrPointPicked",
  function (atomIndex, ptClicked) {
 if (atomIndex < 0) {
 this.resetMeasurement ();
-if (this.bnd (this.clickAction, 33)) {
+if (this.bnd (this.clickAction, [33])) {
 this.runScript ("select none");
 return;
 }if (this.apm != 5 && this.apm != 6) return;
@@ -984,7 +1028,7 @@ case 24:
 case 8:
 var isDelete = (this.apm == 8);
 var isStruts = (this.apm == 25);
-if (!this.bnd (this.clickAction, (isDelete ? 5 : 3))) return;
+if (!this.bnd (this.clickAction, [(isDelete ? 5 : 3)])) return;
 if (this.measurementQueued == null || this.measurementQueued.count == 0 || this.measurementQueued.count > 2) {
 this.resetMeasurement ();
 this.enterMeasurementMode (atomIndex);
@@ -1001,7 +1045,7 @@ n++;
 case 18:
 case 19:
 case 22:
-if (!this.bnd (this.clickAction, 20)) return;
+if (!this.bnd (this.clickAction, [20])) return;
 if (this.measurementQueued == null || this.measurementQueued.count == 0 || this.measurementQueued.count > n) {
 this.resetMeasurement ();
 this.enterMeasurementMode (atomIndex);
@@ -1024,7 +1068,7 @@ return;
 var mode = (this.mp != null && this.apm != 1 ? 1 : this.apm);
 switch (mode) {
 case 3:
-if (!this.bnd (this.clickAction, 17)) return;
+if (!this.bnd (this.clickAction, [17])) return;
 if (ptClicked == null) {
 this.zoomTo (atomIndex);
 } else {
@@ -1032,22 +1076,22 @@ this.runScript ("zoomTo " + JU.Escape.eP (ptClicked));
 }return;
 case 5:
 case 6:
-if (this.bnd (this.clickAction, 17)) this.checkTwoAtomAction (ptClicked, atomIndex);
+if (this.bnd (this.clickAction, [17])) this.checkTwoAtomAction (ptClicked, atomIndex);
 }
 if (ptClicked != null) return;
 var bs;
 switch (mode) {
 case 1:
-if (!this.drawMode && !this.labelMode && this.bnd (this.clickAction, 1)) this.zoomTo (atomIndex);
- else if (this.bnd (this.clickAction, 17)) this.vwr.setStatusAtomPicked (atomIndex, null, null);
+if (!this.drawMode && !this.labelMode && this.bnd (this.clickAction, [1])) this.zoomTo (atomIndex);
+ else if (this.bnd (this.clickAction, [17])) this.vwr.setStatusAtomPicked (atomIndex, null, null);
 return;
 case 2:
-if (this.bnd (this.clickAction, 19)) {
+if (this.bnd (this.clickAction, [19])) {
 this.runScript ("set labeltoggle {atomindex=" + atomIndex + "}");
 this.vwr.setStatusAtomPicked (atomIndex, null, null);
 }return;
 case 31:
-if (this.bnd (this.clickAction, 0)) {
+if (this.bnd (this.clickAction, [0])) {
 bs = this.vwr.getAtomBitSet ("connected(atomIndex=" + atomIndex + ") and !within(SMARTS,'[r50,R]')");
 var nb = bs.cardinality ();
 switch (nb) {
@@ -1080,7 +1124,7 @@ this.vwr.invertSelected (null, null, atomIndex, bs);
 this.vwr.setStatusAtomPicked (atomIndex, "inverted: " + JU.Escape.eBS (bs), null);
 }return;
 case 7:
-if (this.bnd (this.clickAction, 4)) {
+if (this.bnd (this.clickAction, [4])) {
 bs = JU.BSUtil.newAndSetBit (atomIndex);
 this.vwr.deleteAtoms (bs, false);
 this.vwr.setStatusAtomPicked (atomIndex, "deleted: " + JU.Escape.eBS (bs), null);
@@ -1165,9 +1209,9 @@ this.vwr.deleteBonds (JU.BSUtil.newAndSetBit (index));
 Clazz.defineMethod (c$, "checkTwoAtomAction", 
  function (ptClicked, atomIndex) {
 var isSpin = (this.apm == 5);
-if (this.vwr.getSpinOn () || this.vwr.getNavOn () || this.vwr.getPendingMeasurement () != null) {
+if (this.vwr.tm.spinOn || this.vwr.tm.navOn || this.vwr.getPendingMeasurement () != null) {
 this.resetMeasurement ();
-if (this.vwr.getSpinOn ()) this.runScript ("spin off");
+if (this.vwr.tm.spinOn) this.runScript ("spin off");
 return;
 }if (this.measurementQueued.count >= 2) this.resetMeasurement ();
 var queuedAtomCount = this.measurementQueued.count;
@@ -1183,7 +1227,7 @@ if (isSpin) this.vwr.scriptStatus (queuedAtomCount == 1 ? J.i18n.GT._ ("pick one
 return;
 }var s = this.measurementQueued.getMeasurementScript (" ", false);
 if (isSpin) this.runScript ("spin" + s + " " + this.vwr.getInt (553648157));
- else this.runScript ("draw symop" + s + ";show symop" + s);
+ else this.runScript ("draw symop " + s + ";show symop " + s);
 }, "JU.Point3fi,~N");
 Clazz.defineMethod (c$, "reset", 
  function () {
@@ -1193,7 +1237,7 @@ Clazz.defineMethod (c$, "selectAtoms",
  function (item) {
 if (this.mp != null || this.selectionWorking) return;
 this.selectionWorking = true;
-var s = (this.rubberbandSelectionMode || this.bnd (this.clickAction, 35) ? "selected and not (" + item + ") or (not selected) and " : this.bnd (this.clickAction, 32) ? "selected and not " : this.bnd (this.clickAction, 34) ? "selected or " : this.clickAction == 0 || this.bnd (this.clickAction, 36) ? "selected tog " : this.bnd (this.clickAction, 30) ? "" : null);
+var s = (this.rubberbandSelectionMode || this.bnd (this.clickAction, [35]) ? "selected and not (" + item + ") or (not selected) and " : this.bnd (this.clickAction, [32]) ? "selected and not " : this.bnd (this.clickAction, [34]) ? "selected or " : this.clickAction == 0 || this.bnd (this.clickAction, [36]) ? "selected tog " : this.bnd (this.clickAction, [30]) ? "" : null);
 if (s != null) {
 s += "(" + item + ")";
 try {
@@ -1213,8 +1257,8 @@ Clazz.defineMethod (c$, "selectRb",
 var bs = this.vwr.ms.findAtomsInRectangle (this.rectRubber);
 if (bs.length () > 0) {
 var s = JU.Escape.eBS (bs);
-if (this.bnd (action, 34)) this.runScript ("selectionHalos on;select selected or " + s);
- else if (this.bnd (action, 32)) this.runScript ("selectionHalos on;select selected and not " + s);
+if (this.bnd (action, [34])) this.runScript ("selectionHalos on;select selected or " + s);
+ else if (this.bnd (action, [32])) this.runScript ("selectionHalos on;select selected and not " + s);
  else this.runScript ("selectionHalos on;select selected tog " + s);
 }this.vwr.refresh (3, "mouseReleased");
 }, "~N");
@@ -1234,117 +1278,6 @@ Clazz.overrideMethod (c$, "keyTyped",
 function (keyChar, modifiers) {
 return false;
 }, "~N,~N");
-c$.$ActionManager$MotionPoint$ = function () {
-Clazz.pu$h(self.c$);
-c$ = Clazz.decorateAsClass (function () {
-Clazz.prepareCallback (this, arguments);
-this.index = 0;
-this.x = 0;
-this.y = 0;
-this.time = 0;
-Clazz.instantialize (this, arguments);
-}, JV.ActionManager, "MotionPoint");
-Clazz.defineMethod (c$, "set", 
-function (a, b, c, d) {
-this.index = a;
-this.x = b;
-this.y = c;
-this.time = d;
-}, "~N,~N,~N,~N");
-Clazz.overrideMethod (c$, "toString", 
-function () {
-return "[x = " + this.x + " y = " + this.y + " time = " + this.time + " ]";
-});
-c$ = Clazz.p0p ();
-};
-c$.$ActionManager$Gesture$ = function () {
-Clazz.pu$h(self.c$);
-c$ = Clazz.decorateAsClass (function () {
-Clazz.prepareCallback (this, arguments);
-this.action = 0;
-this.nodes = null;
-this.ptNext = 0;
-this.time0 = 0;
-Clazz.instantialize (this, arguments);
-}, JV.ActionManager, "Gesture");
-Clazz.makeConstructor (c$, 
-function (a) {
-this.nodes =  new Array (a);
-for (var b = 0; b < a; b++) this.nodes[b] = Clazz.innerTypeInstance (JV.ActionManager.MotionPoint, this, null);
-
-}, "~N");
-Clazz.defineMethod (c$, "setAction", 
-function (a, b) {
-this.action = a;
-this.ptNext = 0;
-this.time0 = b;
-for (var c = 0; c < this.nodes.length; c++) this.nodes[c].index = -1;
-
-}, "~N,~N");
-Clazz.defineMethod (c$, "add", 
-function (a, b, c, d) {
-this.action = a;
-this.getNode (this.ptNext).set (this.ptNext, b, c, d - this.time0);
-this.ptNext++;
-return this.ptNext;
-}, "~N,~N,~N,~N");
-Clazz.defineMethod (c$, "getTimeDifference", 
-function (a) {
-a = this.getPointCount2 (a, 0);
-if (a < 2) return 0;
-var b = this.getNode (this.ptNext - 1);
-var c = this.getNode (this.ptNext - a);
-return b.time - c.time;
-}, "~N");
-Clazz.defineMethod (c$, "getSpeedPixelsPerMillisecond", 
-function (a, b) {
-a = this.getPointCount2 (a, b);
-if (a < 2) return 0;
-var c = this.getNode (this.ptNext - 1 - b);
-var d = this.getNode (this.ptNext - a - b);
-var e = ((c.x - d.x)) / this.b$["JV.ActionManager"].vwr.getScreenWidth () * 360;
-var f = ((c.y - d.y)) / this.b$["JV.ActionManager"].vwr.getScreenHeight () * 360;
-return Math.sqrt (e * e + f * f) / (c.time - d.time);
-}, "~N,~N");
-Clazz.defineMethod (c$, "getDX", 
-function (a, b) {
-a = this.getPointCount2 (a, b);
-if (a < 2) return 0;
-var c = this.getNode (this.ptNext - 1 - b);
-var d = this.getNode (this.ptNext - a - b);
-return c.x - d.x;
-}, "~N,~N");
-Clazz.defineMethod (c$, "getDY", 
-function (a, b) {
-a = this.getPointCount2 (a, b);
-if (a < 2) return 0;
-var c = this.getNode (this.ptNext - 1 - b);
-var d = this.getNode (this.ptNext - a - b);
-return c.y - d.y;
-}, "~N,~N");
-Clazz.defineMethod (c$, "getPointCount", 
-function () {
-return this.ptNext;
-});
-Clazz.defineMethod (c$, "getPointCount2", 
- function (a, b) {
-if (a > this.nodes.length - b) a = this.nodes.length - b;
-var c = a + 1;
-for (; --c >= 0; ) if (this.getNode (this.ptNext - c - b).index >= 0) break;
-
-return c;
-}, "~N,~N");
-Clazz.defineMethod (c$, "getNode", 
-function (a) {
-return this.nodes[(a + this.nodes.length + this.nodes.length) % this.nodes.length];
-}, "~N");
-Clazz.overrideMethod (c$, "toString", 
-function () {
-if (this.nodes.length == 0) return "" + this;
-return JV.binding.Binding.getMouseActionName (this.action, false) + " nPoints = " + this.ptNext + " " + this.nodes[0];
-});
-c$ = Clazz.p0p ();
-};
 Clazz.defineStatics (c$,
 "ACTION_assignNew", 0,
 "ACTION_center", 1,
@@ -1396,55 +1329,7 @@ Clazz.defineStatics (c$,
 "ACTION_count", 47);
 c$.actionInfo = c$.prototype.actionInfo =  new Array (47);
 c$.actionNames = c$.prototype.actionNames =  new Array (47);
-{
-JV.ActionManager.newAction (0, "_assignNew", J.i18n.GT.o (J.i18n.GT._ ("assign/new atom or bond (requires {0})"), "set picking assignAtom_??/assignBond_?"));
-JV.ActionManager.newAction (1, "_center", J.i18n.GT._ ("center"));
-JV.ActionManager.newAction (2, "_clickFrank", J.i18n.GT._ ("pop up recent context menu (click on Jmol frank)"));
-JV.ActionManager.newAction (4, "_deleteAtom", J.i18n.GT.o (J.i18n.GT._ ("delete atom (requires {0})"), "set picking DELETE ATOM"));
-JV.ActionManager.newAction (5, "_deleteBond", J.i18n.GT.o (J.i18n.GT._ ("delete bond (requires {0})"), "set picking DELETE BOND"));
-JV.ActionManager.newAction (6, "_depth", J.i18n.GT.o (J.i18n.GT._ ("adjust depth (back plane; requires {0})"), "SLAB ON"));
-JV.ActionManager.newAction (7, "_dragAtom", J.i18n.GT.o (J.i18n.GT._ ("move atom (requires {0})"), "set picking DRAGATOM"));
-JV.ActionManager.newAction (8, "_dragDrawObject", J.i18n.GT.o (J.i18n.GT._ ("move whole DRAW object (requires {0})"), "set picking DRAW"));
-JV.ActionManager.newAction (9, "_dragDrawPoint", J.i18n.GT.o (J.i18n.GT._ ("move specific DRAW point (requires {0})"), "set picking DRAW"));
-JV.ActionManager.newAction (10, "_dragLabel", J.i18n.GT.o (J.i18n.GT._ ("move label (requires {0})"), "set picking LABEL"));
-JV.ActionManager.newAction (11, "_dragMinimize", J.i18n.GT.o (J.i18n.GT._ ("move atom and minimize molecule (requires {0})"), "set picking DRAGMINIMIZE"));
-JV.ActionManager.newAction (12, "_dragMinimizeMolecule", J.i18n.GT.o (J.i18n.GT._ ("move and minimize molecule (requires {0})"), "set picking DRAGMINIMIZEMOLECULE"));
-JV.ActionManager.newAction (13, "_dragSelected", J.i18n.GT.o (J.i18n.GT._ ("move selected atoms (requires {0})"), "set DRAGSELECTED"));
-JV.ActionManager.newAction (14, "_dragZ", J.i18n.GT.o (J.i18n.GT._ ("drag atoms in Z direction (requires {0})"), "set DRAGSELECTED"));
-JV.ActionManager.newAction (15, "_multiTouchSimulation", J.i18n.GT._ ("simulate multi-touch using the mouse)"));
-JV.ActionManager.newAction (16, "_navTranslate", J.i18n.GT.o (J.i18n.GT._ ("translate navigation point (requires {0} and {1})"), ["set NAVIGATIONMODE", "set picking NAVIGATE"]));
-JV.ActionManager.newAction (17, "_pickAtom", J.i18n.GT._ ("pick an atom"));
-JV.ActionManager.newAction (3, "_pickConnect", J.i18n.GT.o (J.i18n.GT._ ("connect atoms (requires {0})"), "set picking CONNECT"));
-JV.ActionManager.newAction (18, "_pickIsosurface", J.i18n.GT.o (J.i18n.GT._ ("pick an ISOSURFACE point (requires {0}"), "set DRAWPICKING"));
-JV.ActionManager.newAction (19, "_pickLabel", J.i18n.GT.o (J.i18n.GT._ ("pick a label to toggle it hidden/displayed (requires {0})"), "set picking LABEL"));
-JV.ActionManager.newAction (20, "_pickMeasure", J.i18n.GT.o (J.i18n.GT._ ("pick an atom to include it in a measurement (after starting a measurement or after {0})"), "set picking DISTANCE/ANGLE/TORSION"));
-JV.ActionManager.newAction (21, "_pickNavigate", J.i18n.GT.o (J.i18n.GT._ ("pick a point or atom to navigate to (requires {0})"), "set NAVIGATIONMODE"));
-JV.ActionManager.newAction (22, "_pickPoint", J.i18n.GT.o (J.i18n.GT._ ("pick a DRAW point (for measurements) (requires {0}"), "set DRAWPICKING"));
-JV.ActionManager.newAction (23, "_popupMenu", J.i18n.GT._ ("pop up the full context menu"));
-JV.ActionManager.newAction (24, "_reset", J.i18n.GT._ ("reset (when clicked off the model)"));
-JV.ActionManager.newAction (25, "_rotate", J.i18n.GT._ ("rotate"));
-JV.ActionManager.newAction (26, "_rotateBranch", J.i18n.GT.o (J.i18n.GT._ ("rotate branch around bond (requires {0})"), "set picking ROTATEBOND"));
-JV.ActionManager.newAction (27, "_rotateSelected", J.i18n.GT.o (J.i18n.GT._ ("rotate selected atoms (requires {0})"), "set DRAGSELECTED"));
-JV.ActionManager.newAction (28, "_rotateZ", J.i18n.GT._ ("rotate Z"));
-JV.ActionManager.newAction (29, "_rotateZorZoom", J.i18n.GT._ ("rotate Z (horizontal motion of mouse) or zoom (vertical motion of mouse)"));
-JV.ActionManager.newAction (30, "_select", J.i18n.GT.o (J.i18n.GT._ ("select an atom (requires {0})"), "set pickingStyle EXTENDEDSELECT"));
-JV.ActionManager.newAction (31, "_selectAndDrag", J.i18n.GT.o (J.i18n.GT._ ("select and drag atoms (requires {0})"), "set DRAGSELECTED"));
-JV.ActionManager.newAction (32, "_selectAndNot", J.i18n.GT.o (J.i18n.GT._ ("unselect this group of atoms (requires {0})"), "set pickingStyle DRAG/EXTENDEDSELECT"));
-JV.ActionManager.newAction (33, "_selectNone", J.i18n.GT.o (J.i18n.GT._ ("select NONE (requires {0})"), "set pickingStyle EXTENDEDSELECT"));
-JV.ActionManager.newAction (34, "_selectOr", J.i18n.GT.o (J.i18n.GT._ ("add this group of atoms to the set of selected atoms (requires {0})"), "set pickingStyle DRAG/EXTENDEDSELECT"));
-JV.ActionManager.newAction (35, "_selectToggle", J.i18n.GT.o (J.i18n.GT._ ("toggle selection (requires {0})"), "set pickingStyle DRAG/EXTENDEDSELECT/RASMOL"));
-JV.ActionManager.newAction (36, "_selectToggleOr", J.i18n.GT.o (J.i18n.GT._ ("if all are selected, unselect all, otherwise add this group of atoms to the set of selected atoms (requires {0})"), "set pickingStyle DRAG"));
-JV.ActionManager.newAction (37, "_setMeasure", J.i18n.GT._ ("pick an atom to initiate or conclude a measurement"));
-JV.ActionManager.newAction (38, "_slab", J.i18n.GT.o (J.i18n.GT._ ("adjust slab (front plane; requires {0})"), "SLAB ON"));
-JV.ActionManager.newAction (39, "_slabAndDepth", J.i18n.GT.o (J.i18n.GT._ ("move slab/depth window (both planes; requires {0})"), "SLAB ON"));
-JV.ActionManager.newAction (40, "_slideZoom", J.i18n.GT._ ("zoom (along right edge of window)"));
-JV.ActionManager.newAction (41, "_spinDrawObjectCCW", J.i18n.GT.o (J.i18n.GT._ ("click on two points to spin around axis counterclockwise (requires {0})"), "set picking SPIN"));
-JV.ActionManager.newAction (42, "_spinDrawObjectCW", J.i18n.GT.o (J.i18n.GT._ ("click on two points to spin around axis clockwise (requires {0})"), "set picking SPIN"));
-JV.ActionManager.newAction (43, "_stopMotion", J.i18n.GT.o (J.i18n.GT._ ("stop motion (requires {0})"), "set waitForMoveTo FALSE"));
-JV.ActionManager.newAction (44, "_swipe", J.i18n.GT._ ("spin model (swipe and release button and stop motion simultaneously)"));
-JV.ActionManager.newAction (45, "_translate", J.i18n.GT._ ("translate"));
-JV.ActionManager.newAction (46, "_wheelZoom", J.i18n.GT._ ("zoom"));
-}Clazz.defineStatics (c$,
+Clazz.defineStatics (c$,
 "PICKING_OFF", 0,
 "PICKING_IDENTIFY", 1,
 "PICKING_LABEL", 2,
@@ -1503,4 +1388,107 @@ JV.ActionManager.pickingStyleNames = "toggle selectOrToggle extendedSelect drag 
 "DEFAULT_MOUSE_DRAG_FACTOR", 1,
 "DEFAULT_MOUSE_WHEEL_FACTOR", 1.15,
 "DEFAULT_GESTURE_SWIPE_FACTOR", 1);
+c$ = Clazz.decorateAsClass (function () {
+this.index = 0;
+this.x = 0;
+this.y = 0;
+this.time = 0;
+Clazz.instantialize (this, arguments);
+}, JV, "MotionPoint");
+Clazz.defineMethod (c$, "set", 
+function (index, x, y, time) {
+this.index = index;
+this.x = x;
+this.y = y;
+this.time = time;
+}, "~N,~N,~N,~N");
+Clazz.overrideMethod (c$, "toString", 
+function () {
+return "[x = " + this.x + " y = " + this.y + " time = " + this.time + " ]";
+});
+c$ = Clazz.decorateAsClass (function () {
+this.action = 0;
+this.nodes = null;
+this.ptNext = 0;
+this.time0 = 0;
+this.vwr = null;
+Clazz.instantialize (this, arguments);
+}, JV, "Gesture");
+Clazz.makeConstructor (c$, 
+function (nPoints, vwr) {
+this.vwr = vwr;
+this.nodes =  new Array (nPoints);
+for (var i = 0; i < nPoints; i++) this.nodes[i] =  new JV.MotionPoint ();
+
+}, "~N,JV.Viewer");
+Clazz.defineMethod (c$, "setAction", 
+function (action, time) {
+this.action = action;
+this.ptNext = 0;
+this.time0 = time;
+for (var i = 0; i < this.nodes.length; i++) this.nodes[i].index = -1;
+
+}, "~N,~N");
+Clazz.defineMethod (c$, "add", 
+function (action, x, y, time) {
+this.action = action;
+this.getNode (this.ptNext).set (this.ptNext, x, y, time - this.time0);
+this.ptNext++;
+return this.ptNext;
+}, "~N,~N,~N,~N");
+Clazz.defineMethod (c$, "getTimeDifference", 
+function (nPoints) {
+nPoints = this.getPointCount2 (nPoints, 0);
+if (nPoints < 2) return 0;
+var mp1 = this.getNode (this.ptNext - 1);
+var mp0 = this.getNode (this.ptNext - nPoints);
+return mp1.time - mp0.time;
+}, "~N");
+Clazz.defineMethod (c$, "getSpeedPixelsPerMillisecond", 
+function (nPoints, nPointsPrevious) {
+nPoints = this.getPointCount2 (nPoints, nPointsPrevious);
+if (nPoints < 2) return 0;
+var mp1 = this.getNode (this.ptNext - 1 - nPointsPrevious);
+var mp0 = this.getNode (this.ptNext - nPoints - nPointsPrevious);
+var dx = ((mp1.x - mp0.x)) / this.vwr.getScreenWidth () * 360;
+var dy = ((mp1.y - mp0.y)) / this.vwr.getScreenHeight () * 360;
+return Math.sqrt (dx * dx + dy * dy) / (mp1.time - mp0.time);
+}, "~N,~N");
+Clazz.defineMethod (c$, "getDX", 
+function (nPoints, nPointsPrevious) {
+nPoints = this.getPointCount2 (nPoints, nPointsPrevious);
+if (nPoints < 2) return 0;
+var mp1 = this.getNode (this.ptNext - 1 - nPointsPrevious);
+var mp0 = this.getNode (this.ptNext - nPoints - nPointsPrevious);
+return mp1.x - mp0.x;
+}, "~N,~N");
+Clazz.defineMethod (c$, "getDY", 
+function (nPoints, nPointsPrevious) {
+nPoints = this.getPointCount2 (nPoints, nPointsPrevious);
+if (nPoints < 2) return 0;
+var mp1 = this.getNode (this.ptNext - 1 - nPointsPrevious);
+var mp0 = this.getNode (this.ptNext - nPoints - nPointsPrevious);
+return mp1.y - mp0.y;
+}, "~N,~N");
+Clazz.defineMethod (c$, "getPointCount", 
+function () {
+return this.ptNext;
+});
+Clazz.defineMethod (c$, "getPointCount2", 
+ function (nPoints, nPointsPrevious) {
+if (nPoints > this.nodes.length - nPointsPrevious) nPoints = this.nodes.length - nPointsPrevious;
+var n = nPoints + 1;
+for (; --n >= 0; ) if (this.getNode (this.ptNext - n - nPointsPrevious).index >= 0) break;
+
+return n;
+}, "~N,~N");
+Clazz.defineMethod (c$, "getNode", 
+function (i) {
+return this.nodes[(i + this.nodes.length + this.nodes.length) % this.nodes.length];
+}, "~N");
+Clazz.overrideMethod (c$, "toString", 
+function () {
+if (this.nodes.length == 0) return "" + this;
+return JV.binding.Binding.getMouseActionName (this.action, false) + " nPoints = " + this.ptNext + " " + this.nodes[0];
+});
 });

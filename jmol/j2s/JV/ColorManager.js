@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JV");
-Clazz.load (["JU.ColorEncoder"], "JV.ColorManager", ["java.lang.Float", "JU.AU", "J.c.PAL", "JU.C", "$.Elements", "$.Logger", "JV.JC"], function () {
+Clazz.load (null, "JV.ColorManager", ["java.lang.Float", "JU.AU", "J.c.PAL", "JU.C", "$.ColorEncoder", "$.Elements", "$.Logger", "JV.JC"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.ce = null;
 this.vwr = null;
@@ -12,27 +12,14 @@ this.colixRubberband = 22;
 this.colixBackgroundContrast = 0;
 Clazz.instantialize (this, arguments);
 }, JV, "ColorManager");
-Clazz.prepareFields (c$, function () {
-this.ce =  new JU.ColorEncoder (null);
-});
 Clazz.makeConstructor (c$, 
 function (vwr, gdata) {
 this.vwr = vwr;
+this.ce =  new JU.ColorEncoder (null, vwr);
 this.g3d = gdata;
 this.argbsCpk = J.c.PAL.argbsCpk;
 this.altArgbsCpk = JU.AU.arrayCopyRangeI (JV.JC.altArgbsCpk, 0, -1);
 }, "JV.Viewer,JU.GData");
-Clazz.defineMethod (c$, "clear", 
-function () {
-});
-Clazz.defineMethod (c$, "getDefaultColorRasmol", 
-function () {
-return this.isDefaultColorRasmol;
-});
-Clazz.defineMethod (c$, "resetElementColors", 
-function () {
-this.setDefaultColors (false);
-});
 Clazz.defineMethod (c$, "setDefaultColors", 
 function (isRasmol) {
 if (isRasmol) {
@@ -76,7 +63,7 @@ var lo;
 var hi;
 switch (pid) {
 case 84:
-return (this.colorData == null || atom.i >= this.colorData.length ? 12 : this.getColixForPropertyValue (this.colorData[atom.i]));
+return (this.colorData == null || atom.i >= this.colorData.length ? 12 : this.ce.getColorIndex (this.colorData[atom.i]));
 case 0:
 case 1:
 id = atom.getAtomicAndIsotopeNumber ();
@@ -102,29 +89,29 @@ lo = 0;
 hi = 10000;
 }return this.ce.getColorIndexFromPalette (atom.getBfactor100 (), lo, hi, 7, false);
 case 86:
-return this.ce.getColorIndexFromPalette (atom.getGroupParameter (1112539150), -1, 1, 7, false);
+return this.ce.getColorIndexFromPalette (atom.group.getGroupParameter (1111490574), -1, 1, 7, false);
 case 70:
 hi = this.vwr.ms.getSurfaceDistanceMax ();
 return this.ce.getColorIndexFromPalette (atom.getSurfaceDistance100 (), 0, hi, 7, false);
 case 8:
-return this.ce.getColorIndexFromPalette (atom.getGroupID (), 0, 0, 5, false);
+return this.ce.getColorIndexFromPalette (atom.group.groupID, 0, 0, 5, false);
 case 9:
-return this.ce.getColorIndexFromPalette (atom.getGroupID (), 0, 0, 4, false);
+return this.ce.getColorIndexFromPalette (atom.group.groupID, 0, 0, 4, false);
 case 75:
-return this.ce.getColorIndexFromPalette (atom.getSelectedGroupIndexWithinChain (), 0, atom.getSelectedGroupCountWithinChain () - 1, 1, false);
+return this.ce.getColorIndexFromPalette (atom.group.selectedIndex, 0, atom.group.chain.selectedGroupCount - 1, 1, false);
 case 87:
 var m = this.vwr.ms.am[atom.mi];
-return this.ce.getColorIndexFromPalette (atom.getPolymerIndexInModel (), 0, m.getBioPolymerCount () - 1, 1, false);
+return this.ce.getColorIndexFromPalette (atom.group.getBioPolymerIndexInModel (), 0, (m.isBioModel ? (m).getBioPolymerCount () : 0) - 1, 1, false);
 case 76:
-return this.ce.getColorIndexFromPalette (atom.getSelectedMonomerIndexWithinPolymer (), 0, atom.getSelectedMonomerCountWithinPolymer () - 1, 1, false);
+return this.ce.getColorIndexFromPalette (atom.group.getSelectedMonomerIndex (), 0, atom.group.getSelectedMonomerCount () - 1, 1, false);
 case 77:
-return this.ce.getColorIndexFromPalette (modelSet.getMoleculeIndex (atom.i, true), 0, modelSet.getMoleculeCountInModel (atom.getModelIndex ()) - 1, 0, false);
+return this.ce.getColorIndexFromPalette (modelSet.getMoleculeIndex (atom.i, true), 0, modelSet.getMoleculeCountInModel (atom.mi) - 1, 0, false);
 case 14:
-modelIndex = atom.getModelIndex ();
-return this.ce.getColorIndexFromPalette (modelSet.getAltLocIndexInModel (modelIndex, atom.getAlternateLocationID ()), 0, modelSet.getAltLocCountInModel (modelIndex), 0, false);
+modelIndex = atom.mi;
+return this.ce.getColorIndexFromPalette (modelSet.getAltLocIndexInModel (modelIndex, atom.altloc), 0, modelSet.getAltLocCountInModel (modelIndex), 0, false);
 case 15:
-modelIndex = atom.getModelIndex ();
-return this.ce.getColorIndexFromPalette (modelSet.getInsertionCodeIndexInModel (modelIndex, atom.getInsertionCode ()), 0, modelSet.getInsertionCountInModel (modelIndex), 0, false);
+modelIndex = atom.mi;
+return this.ce.getColorIndexFromPalette (modelSet.getInsertionCodeIndexInModel (modelIndex, atom.group.getInsertionCode ()), 0, modelSet.getInsertionCountInModel (modelIndex), 0, false);
 case 16:
 id = atom.getAtomicAndIsotopeNumber ();
 argb = this.getJmolOrRasmolArgb (id, 1073741991);
@@ -134,16 +121,23 @@ id = atom.getAtomicAndIsotopeNumber ();
 argb = this.getJmolOrRasmolArgb (id, 1073742116);
 break;
 case 7:
-argb = atom.getProteinStructureSubType ().getColor ();
+argb = atom.group.getProteinStructureSubType ().getColor ();
 break;
 case 10:
 var chain = atom.getChainID ();
-chain = ((chain < 0 ? 0 : chain >= 256 ? chain - 256 : chain) & 0x1F) % JV.JC.argbsChainAtom.length;
-argb = (atom.isHetero () ? JV.JC.argbsChainHetero : JV.JC.argbsChainAtom)[chain];
+if (JU.ColorEncoder.argbsChainAtom == null) {
+JU.ColorEncoder.argbsChainAtom = this.getArgbs (1140850689);
+JU.ColorEncoder.argbsChainHetero = this.getArgbs (1612709894);
+}chain = ((chain < 0 ? 0 : chain >= 256 ? chain - 256 : chain) & 0x1F) % JU.ColorEncoder.argbsChainAtom.length;
+argb = (atom.isHetero () ? JU.ColorEncoder.argbsChainHetero : JU.ColorEncoder.argbsChainAtom)[chain];
 break;
 }
 return (argb == 0 ? 22 : JU.C.getColix (argb));
 }, "JM.Atom,~N");
+Clazz.defineMethod (c$, "getArgbs", 
+ function (tok) {
+return this.vwr.getJBR ().getArgbs (tok);
+}, "~N");
 Clazz.defineMethod (c$, "getJmolOrRasmolArgb", 
  function (id, argb) {
 switch (argb) {
@@ -175,8 +169,7 @@ this.g3d.changeColixArgb (JU.Elements.elementNumberMax + id, argb);
 }, "~N,~N");
 Clazz.defineMethod (c$, "getPropertyColorRange", 
 function () {
-if (this.ce.isReversed) return [this.ce.hi, this.ce.lo];
-return [this.ce.lo, this.ce.hi];
+return (this.ce.isReversed ?  Clazz.newFloatArray (-1, [this.ce.hi, this.ce.lo]) :  Clazz.newFloatArray (-1, [this.ce.lo, this.ce.hi]));
 });
 Clazz.defineMethod (c$, "setPropertyColorRangeData", 
 function (data, bs) {
@@ -209,23 +202,15 @@ this.ce.currentPalette = this.ce.createColorScheme (colorScheme, true, isOverloa
 if (!isReset) this.setPropertyColorRange (range[0], range[1]);
 this.ce.isTranslucent = isTranslucent;
 }, "~S,~B,~B");
-Clazz.defineMethod (c$, "setUserScale", 
-function (scale) {
-this.ce.setUserScale (scale);
-}, "~A");
 Clazz.defineMethod (c$, "getColorSchemeList", 
 function (colorScheme) {
 var iPt = (colorScheme == null || colorScheme.length == 0) ? this.ce.currentPalette : this.ce.createColorScheme (colorScheme, true, false);
 return JU.ColorEncoder.getColorSchemeList (this.ce.getColorSchemeArray (iPt));
 }, "~S");
-Clazz.defineMethod (c$, "getColixForPropertyValue", 
-function (val) {
-return this.ce.getColorIndex (val);
-}, "~N");
 Clazz.defineMethod (c$, "getColorEncoder", 
 function (colorScheme) {
 if (colorScheme == null || colorScheme.length == 0) return this.ce;
-var c =  new JU.ColorEncoder (this.ce);
+var c =  new JU.ColorEncoder (this.ce, this.vwr);
 c.currentPalette = c.createColorScheme (colorScheme, false, true);
 return (c.currentPalette == 2147483647 ? null : c);
 }, "~S");

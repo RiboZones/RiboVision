@@ -132,11 +132,11 @@ if (iFree >= 0) this.freeEnum[iFree] = tempEnum;
 }, "~A");
 c$.getSlabWithinRange = Clazz.defineMethod (c$, "getSlabWithinRange", 
 function (min, max) {
-return [Integer.$valueOf (1073742114), [Float.$valueOf (min), Float.$valueOf (max)], Boolean.FALSE, null];
+return  Clazz.newArray (-1, [Integer.$valueOf (1073742114),  Clazz.newArray (-1, [Float.$valueOf (min), Float.$valueOf (max)]), Boolean.FALSE, null]);
 }, "~N,~N");
 c$.getSlabObjectType = Clazz.defineMethod (c$, "getSlabObjectType", 
 function (tok, data, isCap, colorData) {
-return [Integer.$valueOf (tok), data, Boolean.$valueOf (isCap), colorData];
+return  Clazz.newArray (-1, [Integer.$valueOf (tok), data, Boolean.$valueOf (isCap), colorData]);
 }, "~N,~O,~B,~O");
 Clazz.defineStatics (c$,
 "freePointsSize", 6,

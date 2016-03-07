@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JM.FF");
-Clazz.load (["JM.FF.ForceField", "JS.T"], "JM.FF.ForceFieldUFF", ["java.util.Hashtable", "JU.BS", "$.Lst", "$.PT", "JM.FF.CalculationsUFF", "$.FFParam", "JU.Elements", "$.Logger"], function () {
+Clazz.load (["JM.FF.ForceField", "JS.T"], "JM.FF.ForceFieldUFF", ["java.util.Hashtable", "JU.BS", "$.Lst", "$.PT", "JM.FF.CalculationsUFF", "$.FFParam", "JU.Elements", "$.Logger", "JV.JmolAsyncException"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.bsAromatic = null;
 Clazz.instantialize (this, arguments);
@@ -84,10 +84,10 @@ search[2].intValue = elemNo;
 var v = this.minimizer.vwr.evaluateExpression (search);
 if (!(Clazz.instanceOf (v, JU.BS))) return null;
 var bs = v;
-if (isAromatic && bs.cardinality () > 0) {
+if (isAromatic && bs.nextSetBit (0) >= 0) {
 if (this.bsAromatic == null) this.bsAromatic = this.minimizer.vwr.evaluateExpression (JM.FF.ForceFieldUFF.tokenTypes[3]);
 bs.and (this.bsAromatic);
-}if (JU.Logger.debugging && bs.cardinality () > 0) JU.Logger.debug (smarts + " minimize atoms=" + bs);
+}if (JU.Logger.debugging && bs.nextSetBit (0) >= 0) JU.Logger.debug (smarts + " minimize atoms=" + bs);
 return bs;
 }, "~S,~N,JU.BS");
 Clazz.defineMethod (c$, "getFFParameters", 
@@ -169,15 +169,23 @@ var line;
 while ((line = br.readLine ()) != null) {
 if (line.length > 4 && line.substring (0, 4).equals ("atom")) {
 var vs = JU.PT.getTokens (line);
-var info = [vs[1], vs[2]];
+var info =  Clazz.newArray (-1, [vs[1], vs[2]]);
 types.addLast (info);
 }}
 br.close ();
-} catch (e) {
-if (Clazz.exceptionOf (e, Exception)) {
+} catch (e$$) {
+if (Clazz.exceptionOf (e$$, JV.JmolAsyncException)) {
+var e = e$$;
+{
+throw  new JV.JmolAsyncException (e.getFileName ());
+}
+} else if (Clazz.exceptionOf (e$$, Exception)) {
+var e = e$$;
+{
 System.err.println ("Exception " + e.toString () + " in getResource " + fileName);
+}
 } else {
-throw e;
+throw e$$;
 }
 }
 JU.Logger.info (types.size () + " UFF parameters read");
@@ -195,5 +203,5 @@ Clazz.defineStatics (c$,
 "PT_ELEMENT", 2,
 "PT_CHARGE", 5,
 "PT_CONNECT", 6);
-c$.tokenTypes = c$.prototype.tokenTypes = [[JS.T.tokenExpressionBegin, JS.T.n (269484436, 1095763978), JS.T.i (0), JS.T.tokenExpressionEnd], [JS.T.tokenExpressionBegin, JS.T.n (269484436, 1095763978), JS.T.i (0), JS.T.tokenAnd, JS.T.n (269484436, 1632634891), JS.T.i (0), JS.T.tokenExpressionEnd], [JS.T.tokenExpressionBegin, JS.T.n (269484436, 1095763978), JS.T.i (0), JS.T.tokenAnd, JS.T.tokenConnected, JS.T.tokenLeftParen, JS.T.i (0), JS.T.tokenRightParen, JS.T.tokenExpressionEnd], [JS.T.tokenExpressionBegin, JS.T.o (1073741824, "flatring"), JS.T.tokenExpressionEnd], [JS.T.tokenExpressionBegin, JS.T.n (269484436, 1095763978), JS.T.i (0), JS.T.tokenAnd, JS.T.tokenLeftParen, JS.T.tokenConnected, JS.T.tokenLeftParen, JS.T.i (1), JS.T.tokenComma, JS.T.o (4, "triple"), JS.T.tokenRightParen, JS.T.tokenOr, JS.T.tokenConnected, JS.T.tokenLeftParen, JS.T.i (2), JS.T.tokenComma, JS.T.o (4, "double"), JS.T.tokenRightParen, JS.T.tokenRightParen, JS.T.tokenExpressionEnd], [JS.T.tokenExpressionBegin, JS.T.n (269484436, 1095763978), JS.T.i (0), JS.T.tokenAnd, JS.T.o (135266310, "connected"), JS.T.tokenLeftParen, JS.T.i (1), JS.T.tokenComma, JS.T.o (4, "double"), JS.T.tokenRightParen, JS.T.tokenExpressionEnd], [JS.T.tokenExpressionBegin, JS.T.n (269484436, 1095763978), JS.T.i (0), JS.T.tokenAnd, JS.T.tokenConnected, JS.T.tokenLeftParen, JS.T.i (3), JS.T.tokenRightParen, JS.T.tokenAnd, JS.T.tokenConnected, JS.T.tokenLeftParen, JS.T.tokenConnected, JS.T.tokenLeftParen, JS.T.o (4, "double"), JS.T.tokenRightParen, JS.T.tokenRightParen, JS.T.tokenExpressionEnd]];
+c$.tokenTypes = c$.prototype.tokenTypes =  Clazz.newArray (-1, [ Clazz.newArray (-1, [JS.T.tokenExpressionBegin, JS.T.n (268435860, 1094715402), JS.T.i (0), JS.T.tokenExpressionEnd]),  Clazz.newArray (-1, [JS.T.tokenExpressionBegin, JS.T.n (268435860, 1094715402), JS.T.i (0), JS.T.tokenAnd, JS.T.n (268435860, 1631586315), JS.T.i (0), JS.T.tokenExpressionEnd]),  Clazz.newArray (-1, [JS.T.tokenExpressionBegin, JS.T.n (268435860, 1094715402), JS.T.i (0), JS.T.tokenAnd, JS.T.tokenConnected, JS.T.tokenLeftParen, JS.T.i (0), JS.T.tokenRightParen, JS.T.tokenExpressionEnd]),  Clazz.newArray (-1, [JS.T.tokenExpressionBegin, JS.T.o (1073741824, "flatring"), JS.T.tokenExpressionEnd]),  Clazz.newArray (-1, [JS.T.tokenExpressionBegin, JS.T.n (268435860, 1094715402), JS.T.i (0), JS.T.tokenAnd, JS.T.tokenLeftParen, JS.T.tokenConnected, JS.T.tokenLeftParen, JS.T.i (1), JS.T.tokenComma, JS.T.o (4, "triple"), JS.T.tokenRightParen, JS.T.tokenOr, JS.T.tokenConnected, JS.T.tokenLeftParen, JS.T.i (2), JS.T.tokenComma, JS.T.o (4, "double"), JS.T.tokenRightParen, JS.T.tokenRightParen, JS.T.tokenExpressionEnd]),  Clazz.newArray (-1, [JS.T.tokenExpressionBegin, JS.T.n (268435860, 1094715402), JS.T.i (0), JS.T.tokenAnd, JS.T.o (134217736, "connected"), JS.T.tokenLeftParen, JS.T.i (1), JS.T.tokenComma, JS.T.o (4, "double"), JS.T.tokenRightParen, JS.T.tokenExpressionEnd]),  Clazz.newArray (-1, [JS.T.tokenExpressionBegin, JS.T.n (268435860, 1094715402), JS.T.i (0), JS.T.tokenAnd, JS.T.tokenConnected, JS.T.tokenLeftParen, JS.T.i (3), JS.T.tokenRightParen, JS.T.tokenAnd, JS.T.tokenConnected, JS.T.tokenLeftParen, JS.T.tokenConnected, JS.T.tokenLeftParen, JS.T.o (4, "double"), JS.T.tokenRightParen, JS.T.tokenRightParen, JS.T.tokenExpressionEnd])]);
 });

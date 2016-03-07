@@ -374,7 +374,7 @@ posXY[0] = 0;
 posXY[1] = -20;
 }var pt = this.manager.getLocationOnScreen (panel);
 var height = panel.getHeight ();
-this.loc = [Math.max (0, pt[0] + posXY[0]), Math.max (0, pt[1] + height + posXY[1])];
+this.loc =  Clazz.newIntArray (-1, [Math.max (0, pt[0] + posXY[0]), Math.max (0, pt[1] + height + posXY[1])]);
 this.dialog.setIntLocation (this.loc);
 }}, "JSV.api.JSVPanel,~A");
 Clazz.defineMethod (c$, "saveDialogPosition", 
@@ -557,14 +557,14 @@ if (this.xyData == null) this.createData ();
 this.iSelected = -1;
 data = (this.xyData).getMeasurementListArray (null);
 header = this.xyData.getDataHeader ();
-widths = [40, 65, 65, 50];
+widths =  Clazz.newIntArray (-1, [40, 65, 65, 50]);
 this.createTable (data, header, widths);
 break;
 case JSV.common.Annotation.AType.Measurements:
 if (this.xyData == null) return;
 data = this.xyData.getMeasurementListArray (this.dialog.getSelectedItem (this.combo1).toString ());
 header = this.xyData.getDataHeader ();
-widths = [40, 65, 65, 50];
+widths =  Clazz.newIntArray (-1, [40, 65, 65, 50]);
 this.createTable (data, header, widths);
 break;
 case JSV.common.Annotation.AType.NONE:
@@ -573,14 +573,14 @@ case JSV.common.Annotation.AType.PeakList:
 if (this.xyData == null) this.createData ();
 data = (this.xyData).getMeasurementListArray (null);
 header = (this.xyData).getDataHeader ();
-widths = [40, 65, 50, 50, 50, 50, 50];
+widths =  Clazz.newIntArray (-1, [40, 65, 50, 50, 50, 50, 50]);
 this.createTable (data, header, widths);
 this.setTableSelectionEnabled (true);
 break;
 case JSV.common.Annotation.AType.OverlayLegend:
-header = ["No.", "Plot Color", "Title"];
+header =  Clazz.newArray (-1, ["No.", "Plot Color", "Title"]);
 data = this.vwr.selectedPanel.getPanelData ().getOverlayLegendData ();
-widths = [30, 60, 250];
+widths =  Clazz.newIntArray (-1, [30, 60, 250]);
 this.createTable (data, header, widths);
 this.setTableSelectionEnabled (true);
 break;

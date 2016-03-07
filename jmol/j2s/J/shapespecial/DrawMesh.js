@@ -1,6 +1,7 @@
 Clazz.declarePackage ("J.shapespecial");
-Clazz.load (["J.shape.Mesh", "JU.BS", "$.V3", "J.shapespecial.Draw"], "J.shapespecial.DrawMesh", ["JU.AU", "$.P3", "JU.BSUtil"], function () {
+Clazz.load (["J.shape.Mesh"], "J.shapespecial.DrawMesh", ["JU.AU", "$.BS", "$.P3", "$.V3", "J.shapespecial.Draw", "JU.BSUtil"], function () {
 c$ = Clazz.decorateAsClass (function () {
+this.bsMeshesVisible = null;
 this.modelFlags = null;
 this.drawType = null;
 this.drawTypes = null;
@@ -16,19 +17,15 @@ this.noHead = false;
 this.isBarb = false;
 this.scale = 1;
 this.isScaleSet = false;
-this.bsMeshesVisible = null;
 Clazz.instantialize (this, arguments);
 }, J.shapespecial, "DrawMesh", J.shape.Mesh);
-Clazz.prepareFields (c$, function () {
+Clazz.makeConstructor (c$, 
+function (vwr, thisID, colix, index) {
 this.drawType = J.shapespecial.Draw.EnumDrawType.NONE;
 this.axis = JU.V3.new3 (1, 0, 0);
 this.bsMeshesVisible =  new JU.BS ();
-});
-Clazz.makeConstructor (c$, 
-function (thisID, colix, index) {
-Clazz.superConstructor (this, J.shapespecial.DrawMesh, []);
-this.mesh1 (thisID, colix, index);
-}, "~S,~N,~N");
+this.mesh1 (vwr, thisID, colix, index);
+}, "JV.Viewer,~S,~N,~N");
 Clazz.overrideMethod (c$, "clear", 
 function (meshType) {
 this.clearMesh (meshType);

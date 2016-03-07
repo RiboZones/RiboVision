@@ -8,7 +8,7 @@ this.points = null;
 this.mustBeConnected = false;
 this.mustNotBeConnected = false;
 this.tickInfo = null;
-this.tokAction = 1060866;
+this.tokAction = 12290;
 this.radiusData = null;
 this.strFormat = null;
 this.note = null;
@@ -134,7 +134,7 @@ return;
 }var haveNext = false;
 for (var i = bs.nextSetBit (0), pt = 0; i >= 0; i = bs.nextSetBit (i + 1), pt++) {
 if (i == thisAtomIndex) continue;
-var modelIndex = this.atoms[i].getModelIndex ();
+var modelIndex = this.atoms[i].mi;
 if (thisModel >= 0 && this.justOneModel) {
 if (thispt == 0) thisModel = modelIndex;
  else if (thisModel != modelIndex) continue;

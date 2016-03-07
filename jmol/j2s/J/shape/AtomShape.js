@@ -20,7 +20,7 @@ return null;
 Clazz.overrideMethod (c$, "initModelSet", 
 function () {
 this.atoms = this.ms.at;
-this.ac = this.ms.getAtomCount ();
+this.ac = this.ms.ac;
 if (this.mads != null) this.mads = JU.AU.arrayCopyShort (this.mads, this.ac);
 if (this.colixes != null) this.colixes = JU.AU.arrayCopyShort (this.colixes, this.ac);
 if (this.paletteIDs != null) this.paletteIDs = JU.AU.arrayCopyByte (this.paletteIDs, this.ac);
@@ -108,7 +108,7 @@ return;
 }if (propertyName === "deleteModelAtoms") {
 this.atoms = (value)[1];
 var info = (value)[2];
-this.ac = this.ms.getAtomCount ();
+this.ac = this.ms.ac;
 var firstAtomDeleted = info[1];
 var nAtomsDeleted = info[2];
 this.mads = JU.AU.deleteElements (this.mads, firstAtomDeleted, nAtomsDeleted);
@@ -130,7 +130,7 @@ this.colixes[atomIndex] = colix = this.getColixI (colix, paletteID, atomIndex);
 this.bsColixSet.setBitTo (atomIndex, colix != 0);
 this.paletteIDs[atomIndex] = paletteID;
 }, "~N,~N,~N");
-Clazz.overrideMethod (c$, "setModelClickability", 
+Clazz.overrideMethod (c$, "setAtomClickability", 
 function () {
 if (!this.isActive) return;
 for (var i = this.ac; --i >= 0; ) {

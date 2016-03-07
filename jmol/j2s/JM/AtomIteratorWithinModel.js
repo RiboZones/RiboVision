@@ -116,4 +116,8 @@ if (this.cubeIterator != null) {
 this.cubeIterator.release ();
 this.cubeIterator = null;
 }});
+Clazz.overrideMethod (c$, "getPosition", 
+function () {
+return null;
+});
 });

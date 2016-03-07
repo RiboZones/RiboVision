@@ -277,18 +277,18 @@ if (this.observedFreq != 1.7976931348623157E308) n++;
 if (this.observedNucl !== "") n++;
 var rowData = this.getHeaderRowDataAsArray (true, n);
 var i = rowData.length - n;
-if (this.observedFreq != 1.7976931348623157E308) rowData[i++] = ["##.OBSERVE FREQUENCY", "" + this.observedFreq];
-if (this.observedNucl !== "") rowData[i++] = ["##.OBSERVE NUCLEUS", this.observedNucl];
-rowData[i++] = ["##XUNITS", this.$isHZtoPPM ? "HZ" : this.xUnits];
-rowData[i++] = ["##YUNITS", this.yUnits];
+if (this.observedFreq != 1.7976931348623157E308) rowData[i++] =  Clazz.newArray (-1, ["##.OBSERVE FREQUENCY", "" + this.observedFreq]);
+if (this.observedNucl !== "") rowData[i++] =  Clazz.newArray (-1, ["##.OBSERVE NUCLEUS", this.observedNucl]);
+rowData[i++] =  Clazz.newArray (-1, ["##XUNITS", this.$isHZtoPPM ? "HZ" : this.xUnits]);
+rowData[i++] =  Clazz.newArray (-1, ["##YUNITS", this.yUnits]);
 var x = (this.xIncreases ? this.getFirstX () : this.getLastX ());
-rowData[i++] = ["##FIRSTX", String.valueOf (this.isHZtoPPM () ? x * this.observedFreq : x)];
+rowData[i++] =  Clazz.newArray (-1, ["##FIRSTX", String.valueOf (this.isHZtoPPM () ? x * this.observedFreq : x)]);
 x = (this.xIncreases ? this.getLastX () : this.getFirstX ());
-rowData[i++] = ["##FIRSTY", String.valueOf (this.xIncreases ? this.getFirstY () : this.getLastY ())];
-rowData[i++] = ["##LASTX", String.valueOf (this.isHZtoPPM () ? x * this.observedFreq : x)];
-rowData[i++] = ["##XFACTOR", String.valueOf (this.getXFactor ())];
-rowData[i++] = ["##YFACTOR", String.valueOf (this.getYFactor ())];
-rowData[i++] = ["##NPOINTS", String.valueOf (this.xyCoords.length)];
+rowData[i++] =  Clazz.newArray (-1, ["##FIRSTY", String.valueOf (this.xIncreases ? this.getFirstY () : this.getLastY ())]);
+rowData[i++] =  Clazz.newArray (-1, ["##LASTX", String.valueOf (this.isHZtoPPM () ? x * this.observedFreq : x)]);
+rowData[i++] =  Clazz.newArray (-1, ["##XFACTOR", String.valueOf (this.getXFactor ())]);
+rowData[i++] =  Clazz.newArray (-1, ["##YFACTOR", String.valueOf (this.getYFactor ())]);
+rowData[i++] =  Clazz.newArray (-1, ["##NPOINTS", String.valueOf (this.xyCoords.length)]);
 return rowData;
 });
 Clazz.defineMethod (c$, "getDefaultUnitPrecision", 
@@ -414,15 +414,15 @@ var s2;
 var isNMR = this.isNMR ();
 switch (type) {
 case JSV.common.Annotation.AType.Integration:
-return [null, [1], null];
+return  Clazz.newArray (-1, [null,  Clazz.newIntArray (-1, [1]), null]);
 case JSV.common.Annotation.AType.Measurements:
-s1 = (isNMR ? ["Hz", "ppm"] : [""]);
-s2 = (this.isHNMR () ? [1, 4] : [1, 3]);
-return [s1, s2, Integer.$valueOf (0)];
+s1 = (isNMR ?  Clazz.newArray (-1, ["Hz", "ppm"]) :  Clazz.newArray (-1, [""]));
+s2 = (this.isHNMR () ?  Clazz.newIntArray (-1, [1, 4]) :  Clazz.newIntArray (-1, [1, 3]));
+return  Clazz.newArray (-1, [s1, s2, Integer.$valueOf (0)]);
 case JSV.common.Annotation.AType.PeakList:
-s1 = (isNMR ? ["Hz", "ppm"] : [""]);
-s2 = (this.isHNMR () ? [1, 2] : [1, 1]);
-return [s1, s2, Integer.$valueOf (isNMR ? 1 : 0)];
+s1 = (isNMR ?  Clazz.newArray (-1, ["Hz", "ppm"]) :  Clazz.newArray (-1, [""]));
+s2 = (this.isHNMR () ?  Clazz.newIntArray (-1, [1, 2]) :  Clazz.newIntArray (-1, [1, 1]));
+return  Clazz.newArray (-1, [s1, s2, Integer.$valueOf (isNMR ? 1 : 0)]);
 case JSV.common.Annotation.AType.NONE:
 case JSV.common.Annotation.AType.OverlayLegend:
 break;
@@ -443,8 +443,8 @@ last[1] = dx;
 var dddx = ddx + last[2];
 last[2] = ddx;
 if (this.isNMR ()) {
-return [x, y, x * this.observedFreq, (dx * this.observedFreq > 20 ? 0 : dx * this.observedFreq), (ddx * this.observedFreq > 20 ? 0 : ddx * this.observedFreq), (dddx * this.observedFreq > 20 ? 0 : dddx * this.observedFreq)];
-}return [x, y];
+return  Clazz.newDoubleArray (-1, [x, y, x * this.observedFreq, (dx * this.observedFreq > 20 ? 0 : dx * this.observedFreq), (ddx * this.observedFreq > 20 ? 0 : ddx * this.observedFreq), (dddx * this.observedFreq > 20 ? 0 : dddx * this.observedFreq)]);
+}return  Clazz.newDoubleArray (-1, [x, y]);
 }, "JSV.common.Measurement,~A,~N");
 Clazz.defineStatics (c$,
 "ERROR", 1.7976931348623157E308,
@@ -452,5 +452,5 @@ Clazz.defineStatics (c$,
 "SCALE_TOP", 1,
 "SCALE_BOTTOM", 2,
 "SCALE_TOP_BOTTOM", 3,
-"gyroData", [1, 42.5774806, 2, 6.53590131, 3, 45.4148, 3, 32.436, 6, 6.2661, 7, 16.5483, 9, 5.9842, 10, 4.5752, 11, 13.663, 13, 10.70839657, 14, 3.07770646, 15, 4.31726570, 17, 5.7742, 19, 40.07757016, 21, 3.3631, 23, 11.26952167, 25, 2.6083, 27, 11.1031, 29, 8.4655, 31, 17.25144090, 33, 3.2717, 35, 4.1765, 37, 3.4765, 37, 5.819, 39, 3.46, 39, 1.9893, 40, 2.4737, 41, 1.0919, 43, 2.8688, 45, 10.3591, 47, 2.4041, 49, 2.4048, 50, 4.2505, 51, 11.2133, 53, 2.4115, 55, 10.5763, 57, 1.3816, 59, 10.077, 61, 3.8114, 63, 11.2982, 65, 12.103, 67, 2.6694, 69, 10.2478, 71, 13.0208, 73, 1.4897, 75, 7.315, 77, 8.1571, 79, 10.7042, 81, 11.5384, 83, 1.6442, 85, 4.1254, 87, 13.9811, 87, 1.8525, 89, 2.0949, 91, 3.9748, 93, 10.4523, 95, 2.7874, 97, 2.8463, 99, 9.6294, 99, 1.9553, 101, 2.1916, 103, 1.3477, 105, 1.957, 107, 1.7331, 109, 1.9924, 111, 9.0692, 113, 9.4871, 113, 9.3655, 115, 9.3856, 115, 14.0077, 117, 15.261, 119, 15.966, 121, 10.2551, 123, 5.5532, 123, 11.2349, 125, 13.5454, 127, 8.5778, 129, 11.8604, 131, 3.5159, 133, 5.6234, 135, 4.2582, 137, 4.7634, 138, 5.6615, 139, 6.0612, 137, 4.88, 139, 5.39, 141, 2.37, 141, 13.0359, 143, 2.319, 145, 1.429, 143, 11.59, 147, 5.62, 147, 1.7748, 149, 14631, 151, 10.5856, 153, 4.6745, 155, 1.312, 157, 1.72, 159, 10.23, 161, 1.4654, 163, 2.0508, 165, 9.0883, 167, 1.2281, 169, 3.531, 171, 7.5261, 173, 2.073, 175, 4.8626, 176, 3.451, 177, 1.7282, 179, 1.0856, 180, 4.087, 181, 5.1627, 183, 1.7957, 185, 9.7176, 187, 9.817, 187, 0.9856, 189, 3.3536, 191, 0.7658, 191, 0.8319, 195, 9.2922, 197, 0.7406, 199, 7.7123, 201, 2.8469, 203, 24.7316, 205, 24.9749, 207, 9.034, 209, 6.963, 209, 11.7, 211, 9.16, 223, 5.95, 223, 1.3746, 225, 11.187, 227, 5.6, 229, 1.4, 231, 10.2, 235, 0.83, 237, 9.57, 239, 3.09, 243, 4.6, 1E100]);
+"gyroData",  Clazz.newDoubleArray (-1, [1, 42.5774806, 2, 6.53590131, 3, 45.4148, 3, 32.436, 6, 6.2661, 7, 16.5483, 9, 5.9842, 10, 4.5752, 11, 13.663, 13, 10.70839657, 14, 3.07770646, 15, 4.31726570, 17, 5.7742, 19, 40.07757016, 21, 3.3631, 23, 11.26952167, 25, 2.6083, 27, 11.1031, 29, 8.4655, 31, 17.25144090, 33, 3.2717, 35, 4.1765, 37, 3.4765, 37, 5.819, 39, 3.46, 39, 1.9893, 40, 2.4737, 41, 1.0919, 43, 2.8688, 45, 10.3591, 47, 2.4041, 49, 2.4048, 50, 4.2505, 51, 11.2133, 53, 2.4115, 55, 10.5763, 57, 1.3816, 59, 10.077, 61, 3.8114, 63, 11.2982, 65, 12.103, 67, 2.6694, 69, 10.2478, 71, 13.0208, 73, 1.4897, 75, 7.315, 77, 8.1571, 79, 10.7042, 81, 11.5384, 83, 1.6442, 85, 4.1254, 87, 13.9811, 87, 1.8525, 89, 2.0949, 91, 3.9748, 93, 10.4523, 95, 2.7874, 97, 2.8463, 99, 9.6294, 99, 1.9553, 101, 2.1916, 103, 1.3477, 105, 1.957, 107, 1.7331, 109, 1.9924, 111, 9.0692, 113, 9.4871, 113, 9.3655, 115, 9.3856, 115, 14.0077, 117, 15.261, 119, 15.966, 121, 10.2551, 123, 5.5532, 123, 11.2349, 125, 13.5454, 127, 8.5778, 129, 11.8604, 131, 3.5159, 133, 5.6234, 135, 4.2582, 137, 4.7634, 138, 5.6615, 139, 6.0612, 137, 4.88, 139, 5.39, 141, 2.37, 141, 13.0359, 143, 2.319, 145, 1.429, 143, 11.59, 147, 5.62, 147, 1.7748, 149, 14631, 151, 10.5856, 153, 4.6745, 155, 1.312, 157, 1.72, 159, 10.23, 161, 1.4654, 163, 2.0508, 165, 9.0883, 167, 1.2281, 169, 3.531, 171, 7.5261, 173, 2.073, 175, 4.8626, 176, 3.451, 177, 1.7282, 179, 1.0856, 180, 4.087, 181, 5.1627, 183, 1.7957, 185, 9.7176, 187, 9.817, 187, 0.9856, 189, 3.3536, 191, 0.7658, 191, 0.8319, 195, 9.2922, 197, 0.7406, 199, 7.7123, 201, 2.8469, 203, 24.7316, 205, 24.9749, 207, 9.034, 209, 6.963, 209, 11.7, 211, 9.16, 223, 5.95, 223, 1.3746, 225, 11.187, 227, 5.6, 229, 1.4, 231, 10.2, 235, 0.83, 237, 9.57, 239, 3.09, 243, 4.6, 1E100]));
 });

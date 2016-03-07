@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JV");
-Clazz.load (["J.api.JmolDataManager", "java.util.Hashtable"], "JV.DataManager", ["java.lang.Boolean", "JU.AU", "$.BS", "$.PT", "$.SB", "J.c.VDW", "JS.T", "JU.BSUtil", "$.Elements", "$.Escape", "$.Logger", "$.Parser"], function () {
+Clazz.load (["J.api.JmolDataManager", "java.util.Hashtable"], "JV.DataManager", ["JU.AU", "$.BS", "$.PT", "$.SB", "J.c.VDW", "JS.T", "JU.BSUtil", "$.Elements", "$.Escape", "$.Logger", "$.Parser"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.dataValues = null;
 this.vwr = null;
@@ -38,14 +38,19 @@ JU.Parser.parseFloatArrayFromMatchAndField (stringData, this.vwr.bsUserVdws, 1, 
 for (var i = this.vwr.userVdws.length; --i >= 0; ) this.vwr.userVdwMars[i] = Clazz.doubleToInt (Math.floor (this.vwr.userVdws[i] * 1000));
 
 return;
-}if (data[2] != null && arrayCount > 0) {
+}var depth = this.getType (data);
+var val = data[1];
+if (depth == -1) data[3] = Integer.$valueOf (depth = (Clazz.instanceOf (val, String) ? 0 : JU.AU.isAF (val) ? 1 : JU.AU.isAFF (val) ? 2 : JU.AU.isAFFF (val) ? 3 : -1));
+if (data[2] != null && arrayCount > 0) {
 var createNew = (matchField != 0 || field != -2147483648 && field != 2147483647);
 var oldData = this.dataValues.get (type);
 var bs;
 var f = (oldData == null || createNew ?  Clazz.newFloatArray (actualAtomCount, 0) : JU.AU.ensureLengthA ((oldData[1]), actualAtomCount));
-var depth = (data[3]).intValue ();
-var stringData = (depth == 0 ? data[1] : null);
-var floatData = (depth == 1 ? data[1] : null);
+if (depth == -1) {
+JU.Logger.error ("Cannot determine data type for " + val);
+return;
+}var stringData = (depth == 0 ? val : null);
+var floatData = (depth == 1 ? val : null);
 var strData = null;
 if (field == -2147483648 && (strData = JU.PT.getTokens (stringData)).length > 1) field = 0;
 if (field == -2147483648) {
@@ -54,11 +59,14 @@ JV.DataManager.setSelectedFloats (JU.PT.parseFloat (stringData), bs, f);
 } else if (field == 0 || field == 2147483647) {
 bs = data[2];
 if (floatData != null) {
-if (floatData.length == bs.cardinality ()) for (var i = bs.nextSetBit (0), pt = 0; i >= 0; i = bs.nextSetBit (i + 1), pt++) f[i] = floatData[pt];
-
- else for (var i = bs.nextSetBit (0); i >= 0; i = bs.nextSetBit (i + 1)) f[i] = floatData[i];
+var n = floatData.length;
+if (n == bs.cardinality ()) {
+for (var i = bs.nextSetBit (0), pt = 0; i >= 0; i = bs.nextSetBit (i + 1), pt++) f[i] = floatData[pt];
 
 } else {
+for (var i = bs.nextSetBit (0); i >= 0 && i < n; i = bs.nextSetBit (i + 1)) f[i] = floatData[i];
+
+}} else {
 JU.Parser.parseFloatArrayBsData (strData == null ? JU.PT.getTokens (stringData) : strData, bs, f);
 }} else if (matchField <= 0) {
 bs = data[2];
@@ -86,6 +94,10 @@ this.vwr.setAtomProperty (bs, tok, 0, 0, null, fValues, null);
 return;
 }}this.dataValues.put (type, data);
 }, "~S,~A,~N,~N,~N,~N,~N,~N");
+Clazz.defineMethod (c$, "getType", 
+ function (data) {
+return (data[3]).intValue ();
+}, "~A");
 c$.setSelectedFloats = Clazz.defineMethod (c$, "setSelectedFloats", 
  function (f, bs, data) {
 var isAll = (bs == null);
@@ -94,47 +106,31 @@ for (var i = i0; i >= 0 && i < data.length; i = (isAll ? i + 1 : bs.nextSetBit (
 
 }, "~N,JU.BS,~A");
 Clazz.overrideMethod (c$, "getData", 
-function (type) {
-if (this.dataValues.size () == 0 || type == null) return null;
-if (!type.equalsIgnoreCase ("types")) return this.dataValues.get (type);
+function (label, bsSelected, dataType) {
+if (this.dataValues.size () == 0 || label == null) return null;
+label = label.toLowerCase ();
+switch (dataType) {
+case -1:
+case -2:
+if (!label.equals ("types")) return this.dataValues.get (label);
 var info =  new Array (2);
 info[0] = "types";
 info[1] = "";
-var n = 0;
-for (var name, $name = this.dataValues.keySet ().iterator (); $name.hasNext () && ((name = $name.next ()) || true);) info[1] += (n++ > 0 ? "\n" : "") + name;
+var nv = 0;
+for (var name, $name = this.dataValues.keySet ().iterator (); $name.hasNext () && ((name = $name.next ()) || true);) info[1] += (nv++ > 0 ? "\n" : "") + name;
 
 return info;
-}, "~S");
-Clazz.overrideMethod (c$, "getDataFloatA", 
-function (label) {
-if (this.dataValues.size () == 0) return null;
-var data = this.getData (label);
-if (data == null || (data[3]).intValue () != 1) return null;
-return data[1];
-}, "~S");
-Clazz.overrideMethod (c$, "getDataFloat", 
-function (label, atomIndex) {
-if (this.dataValues.size () > 0) {
-var data = this.getData (label);
-if (data != null && (data[3]).intValue () == 1) {
+default:
+var data = this.dataValues.get (label);
+if (data == null || this.getType (data) != dataType) return null;
+if (bsSelected == null) return data[1];
 var f = data[1];
-if (atomIndex < f.length) return f[atomIndex];
-}}return NaN;
-}, "~S,~N");
-Clazz.overrideMethod (c$, "getDataFloat2D", 
-function (label) {
-if (this.dataValues.size () == 0) return null;
-var data = this.getData (label);
-if (data == null || (data[3]).intValue () != 2) return null;
-return data[1];
-}, "~S");
-Clazz.overrideMethod (c$, "getDataFloat3D", 
-function (label) {
-if (this.dataValues.size () == 0) return null;
-var data = this.getData (label);
-if (data == null || (data[3]).intValue () != 3) return null;
-return data[1];
-}, "~S");
+var fnew =  Clazz.newFloatArray (bsSelected.cardinality (), 0);
+for (var i = 0, n = f.length, p = bsSelected.nextSetBit (0); p >= 0 && i < n; p = bsSelected.nextSetBit (p + 1)) fnew[i++] = f[p];
+
+return fnew;
+}
+}, "~S,JU.BS,~N");
 Clazz.overrideMethod (c$, "deleteModelAtoms", 
 function (firstAtomIndex, nAtoms, bsDeleted) {
 if (this.dataValues.size () == 0) return;
@@ -142,16 +138,7 @@ for (var name, $name = this.dataValues.keySet ().iterator (); $name.hasNext () &
 if (name.indexOf ("property_") == 0) {
 var obj = this.dataValues.get (name);
 JU.BSUtil.deleteBits (obj[2], bsDeleted);
-switch ((obj[3]).intValue ()) {
-case 1:
 obj[1] = JU.AU.deleteElements (obj[1], firstAtomIndex, nAtoms);
-break;
-case 2:
-obj[1] = JU.AU.deleteElements (obj[1], firstAtomIndex, nAtoms);
-break;
-default:
-break;
-}
 }}
 }, "~N,~N,JU.BS");
 Clazz.overrideMethod (c$, "getDefaultVdwNameOrData", 
@@ -172,36 +159,31 @@ var haveData = false;
 for (var name, $name = this.dataValues.keySet ().iterator (); $name.hasNext () && ((name = $name.next ()) || true);) {
 if (name.indexOf ("property_") == 0) {
 var obj = this.dataValues.get (name);
-if (obj.length > 4 && obj[4] === Boolean.FALSE) continue;
+if (obj.length > 4 && !(obj[4]).booleanValue ()) continue;
 haveData = true;
 var data = obj[1];
-if (data != null && (obj[3]).intValue () == 1) {
-sc.getAtomicPropertyStateBuffer (sb, 14, obj[2], name, data);
+if (data != null && this.getType (obj) == 1) {
+sc.getAtomicPropertyStateBuffer (sb, 16, obj[2], name, data);
 sb.append ("\n");
 } else {
-sb.append ("\n").append (JU.Escape.encapsulateData (name, data, 0));
-}} else if (name.indexOf ("data2d") == 0) {
+sb.append ("\n").append (JU.Escape.encapsulateData (name, data, -1));
+}continue;
+}var type = (name.indexOf ("data2d") == 0 ? 2 : name.indexOf ("data3d") == 0 ? 3 : -1);
+if (type == -1) continue;
 var obj = this.dataValues.get (name);
 var data = obj[1];
-if (data != null && (obj[3]).intValue () == 2) {
+if (data != null && this.getType (obj) == type) {
 haveData = true;
-sb.append ("\n").append (JU.Escape.encapsulateData (name, data, 2));
-}} else if (name.indexOf ("data3d") == 0) {
-var obj = this.dataValues.get (name);
-var data = obj[1];
-if (data != null && (obj[3]).intValue () == 3) {
-haveData = true;
-sb.append ("\n").append (JU.Escape.encapsulateData (name, data, 3));
-}}}
+sb.append ("\n").append (JU.Escape.encapsulateData (name, data, type));
+}}
 return haveData;
 }, "JV.JmolStateCreator,JU.SB");
-Clazz.defineStatics (c$,
-"DATA_TYPE_STRING", 0,
-"DATA_TYPE_AF", 1,
-"DATA_ARRAY_FF", 2,
-"DATA_ARRAY_FFF", 3,
-"DATA_VALUE", 1,
-"DATA_SELECTION_MAP", 2,
-"DATA_TYPE", 3,
-"DATA_SAVE_IN_STATE", 4);
+Clazz.overrideMethod (c$, "createFileData", 
+function (strModel) {
+var o =  new Array (4);
+o[0] = "model";
+o[1] = strModel;
+o[3] = Integer.$valueOf (0);
+return o;
+}, "~S");
 });

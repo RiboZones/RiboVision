@@ -18,7 +18,7 @@ this.sheetOffsets = null;
 Clazz.instantialize (this, arguments);
 }, J.dssx, "DSSP", null, J.api.DSSPInterface);
 Clazz.prepareFields (c$, function () {
-this.sheetOffsets = [[0, -1, 1, 0, 1, 0, 0, -1], [0, 0, 0, 0, 1, -1, 1, -1]];
+this.sheetOffsets =  Clazz.newArray (-1, [ Clazz.newIntArray (-1, [0, -1, 1, 0, 1, 0, 0, -1]),  Clazz.newIntArray (-1, [0, 0, 0, 0, 1, -1, 1, -1])]);
 });
 Clazz.makeConstructor (c$, 
 function () {
@@ -37,10 +37,10 @@ for (var i = 0; i < bioPolymerCount; i++) if (Clazz.instanceOf (this.bioPolymers
 if (bsAmino.isEmpty ()) return "";
 var m = this.bioPolymers[0].model;
 var sb =  new JU.SB ();
-sb.append ("Jmol ").append (JV.Viewer.getJmolVersion ()).append (" DSSP analysis for model ").append (m.getModelNumberDotted ()).append (" - ").append (m.getModelTitle ()).append ("\n");
+sb.append ("Jmol ").append (JV.Viewer.getJmolVersion ()).append (" DSSP analysis for model ").append (m.ms.getModelNumberDotted (m.modelIndex)).append (" - ").append (m.ms.getModelTitle (m.modelIndex)).append ("\n");
 if (m.modelIndex == 0) sb.append ("\nW. Kabsch and C. Sander, Biopolymers, vol 22, 1983, pp 2577-2637\n").append ("\nWe thank Wolfgang Kabsch and Chris Sander for writing the DSSP software,\n").append ("and we thank the CMBI for maintaining it to the extent that it was easy to\n").append ("re-engineer for our purposes. At this point in time, we make no guarantee\n").append ("that this code gives precisely the same analysis as the code available via license\n").append ("from CMBI at http://swift.cmbi.ru.nl/gv/dssp\n");
 if (setStructure && m.modelIndex == 0) sb.append ("\nAll bioshapes have been deleted and must be regenerated.\n");
-if (m.nAltLocs > 0) sb.append ("\nNote: This model contains alternative locations. Use  'CONFIGURATION 1' to be consistent with CMBI DSSP.\n");
+if (m.altLocCount > 0) sb.append ("\nNote: This model contains alternative locations. Use  'CONFIGURATION 1' to be consistent with CMBI DSSP.\n");
 this.labels =  Clazz.newCharArray (bioPolymerCount, '\0');
 this.done =  new Array (bioPolymerCount);
 this.bsBad =  new JU.BS ();
@@ -99,7 +99,7 @@ return min;
 });
 Clazz.defineMethod (c$, "getBridges", 
  function (min) {
-var atoms = this.bioPolymers[0].model.getModelSet ().at;
+var atoms = this.bioPolymers[0].model.ms.at;
 var bridge = null;
 var htTemp =  new java.util.Hashtable ();
 for (var p1 = 0; p1 < min.length; p1++) if (Clazz.instanceOf (this.bioPolymers[p1], JM.AminoPolymer)) {
@@ -206,7 +206,7 @@ for (var i = 0; i < n; i++) this.checkBulge (bridges.get (i), isAntiparallel, 1)
 }, "JU.Lst,~B");
 Clazz.defineMethod (c$, "checkBridge", 
  function (bridge, isAntiparallel, n1, n2) {
-var b = this.htBridges.get (bridge.a.getOffsetResidueAtom ("0", n1) + "-" + bridge.b.getOffsetResidueAtom ("0", n2));
+var b = this.htBridges.get (bridge.a.getOffsetResidueAtom ("\0", n1) + "-" + bridge.b.getOffsetResidueAtom ("\0", n2));
 return (b != null && bridge.addBridge (b, this.htLadders));
 }, "J.dssx.Bridge,~B,~N,~N");
 Clazz.defineMethod (c$, "checkBulge", 

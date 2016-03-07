@@ -3,17 +3,17 @@ c$ = Clazz.declareType (JU, "BC");
 Clazz.makeConstructor (c$, 
 function () {
 });
-Clazz.defineMethod (c$, "bytesToFloat", 
+c$.bytesToFloat = Clazz.defineMethod (c$, "bytesToFloat", 
 function (bytes, j, isBigEndian) {
-return this.intToFloat (this.bytesToInt (bytes, j, isBigEndian));
+return JU.BC.intToFloat (JU.BC.bytesToInt (bytes, j, isBigEndian));
 }, "~A,~N,~B");
-Clazz.defineMethod (c$, "bytesToInt", 
+c$.bytesToInt = Clazz.defineMethod (c$, "bytesToInt", 
 function (bytes, j, isBigEndian) {
 var n = (isBigEndian ? (bytes[j + 3] & 0xff) | (bytes[j + 2] & 0xff) << 8 | (bytes[j + 1] & 0xff) << 16 | (bytes[j] & 0xff) << 24 : (bytes[j++] & 0xff) | (bytes[j++] & 0xff) << 8 | (bytes[j++] & 0xff) << 16 | (bytes[j++] & 0xff) << 24);
 {
 return (n > 0x7FFFFFFF ? n - 0x100000000 : n);
 }}, "~A,~N,~B");
-Clazz.defineMethod (c$, "intToFloat", 
+c$.intToFloat = Clazz.defineMethod (c$, "intToFloat", 
 function (x) {
 {
 if (x == 0) return 0;
@@ -23,7 +23,7 @@ o.setFracIEEE();
 var m = ((x & 0x7F800000) >> 23);
 return ((x & 0x80000000) == 0 ? 1 : -1) * o.shiftIEEE((x & 0x7FFFFF) | 0x800000, m - 149);
 }}, "~N");
-Clazz.defineMethod (c$, "bytesToDoubleToFloat", 
+c$.bytesToDoubleToFloat = Clazz.defineMethod (c$, "bytesToDoubleToFloat", 
 function (bytes, j, isBigEndian) {
 {
 if (JU.BC.fracIEEE == null) JU.BC.setFracIEEE ();

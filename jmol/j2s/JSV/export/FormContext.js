@@ -316,7 +316,7 @@ Clazz.defineStatics (c$,
 "VT_END", 4,
 "VT_FOREACH", 5,
 "VT_SET", 6,
-"ops", ["==", "!=", "="],
+"ops",  Clazz.newArray (-1, ["==", "!=", "="]),
 "OP_EEQ", 0,
 "OP_NE", 1,
 "OP_EQ", 2);

@@ -14,7 +14,7 @@ Clazz.superConstructor (this, JM.MinBond, []);
 this.rawIndex = rawIndex;
 this.index = index;
 this.type = type;
-this.data = [atomIndex1, atomIndex2];
+this.data =  Clazz.newIntArray (-1, [atomIndex1, atomIndex2]);
 this.order = order;
 this.key = key;
 }, "~N,~N,~N,~N,~N,~N,Integer");

@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.jvxl.readers");
-Clazz.load (["J.jvxl.readers.VolumeDataReader", "JU.P3"], "J.jvxl.readers.IsoShapeReader", ["java.lang.Float", "java.util.Random", "JU.SB", "$.V3", "J.jvxl.data.JvxlCoder", "JU.Logger", "$.Measure", "$.MeshSurface"], function () {
+Clazz.load (["J.jvxl.readers.VolumeDataReader", "JU.P3"], "J.jvxl.readers.IsoShapeReader", ["java.lang.Float", "java.util.Random", "JU.Measure", "$.SB", "$.V3", "J.jvxl.data.JvxlCoder", "JU.Logger", "$.MeshSurface"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.psi_n = 2;
 this.psi_l = 1;
@@ -56,7 +56,7 @@ function (isMapData) {
 this.volumeData.sr = this;
 this.precalculateVoxelData = false;
 this.isQuiet = true;
-if (this.center.x == 3.4028235E38) this.center.set (0, 0, 0);
+if (Float.isNaN (this.center.x)) this.center.set (0, 0, 0);
 var type = "sphere";
 switch (this.dataType) {
 case 1294:

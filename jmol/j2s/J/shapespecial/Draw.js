@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.shapespecial");
-Clazz.load (["java.lang.Enum", "J.shape.MeshCollection", "JU.P3i", "$.V3"], "J.shapespecial.Draw", ["java.lang.Boolean", "$.Float", "java.util.Hashtable", "JU.AU", "$.BS", "$.Lst", "$.P3", "$.PT", "$.SB", "J.shapespecial.DrawMesh", "JU.BSUtil", "$.C", "$.Escape", "$.Logger", "$.Measure", "$.MeshSurface", "$.Txt"], function () {
+Clazz.load (["java.lang.Enum", "J.shape.MeshCollection", "JU.P3i", "$.V3"], "J.shapespecial.Draw", ["java.lang.Boolean", "$.Float", "java.util.Hashtable", "JU.AU", "$.BS", "$.Lst", "$.Measure", "$.P3", "$.PT", "$.SB", "J.shapespecial.DrawMesh", "JU.BSUtil", "$.C", "$.Escape", "$.Logger", "$.MeshSurface"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.dmeshes = null;
 this.thisMesh = null;
@@ -38,7 +38,6 @@ this.boundBox = null;
 this.lineData = null;
 this.slabData = null;
 this.vAB = null;
-this.vAC = null;
 this.ptXY = null;
 Clazz.instantialize (this, arguments);
 }, J.shapespecial, "Draw", J.shape.MeshCollection);
@@ -46,7 +45,6 @@ Clazz.prepareFields (c$, function () {
 this.dmeshes =  new Array (4);
 this.offset =  new JU.V3 ();
 this.vAB =  new JU.V3 ();
-this.vAC =  new JU.V3 ();
 this.ptXY =  new JU.P3i ();
 });
 Clazz.makeConstructor (c$, 
@@ -58,7 +56,7 @@ Clazz.overrideMethod (c$, "allocMesh",
 function (thisID, m) {
 var index = this.meshCount++;
 this.meshes = this.dmeshes = JU.AU.ensureLength (this.dmeshes, this.meshCount * 2);
-this.currentMesh = this.thisMesh = this.dmeshes[index] = (m == null ?  new J.shapespecial.DrawMesh (thisID, this.colix, index) : m);
+this.currentMesh = this.thisMesh = this.dmeshes[index] = (m == null ?  new J.shapespecial.DrawMesh (this.vwr, thisID, this.colix, index) : m);
 this.currentMesh.color = this.color;
 this.currentMesh.index = index;
 if (thisID != null && thisID !== "+PREVIOUS_MESH+" && this.htObjects != null) this.htObjects.put (thisID.toUpperCase (), this.currentMesh);
@@ -96,26 +94,32 @@ if (meshIndex < 0) {
 return;
 }var m = this.meshes[meshIndex];
 if (m.checkByteCount != 1) return;
-this.slabData = JU.MeshSurface.newSlab (m.vs, m.vc,  Clazz.newFloatArray (m.vc, 0), m.pis, m.pc, 1);
-return;
+var ms =  new JU.MeshSurface ();
+ms.vs = m.vs;
+ms.vvs =  Clazz.newFloatArray (m.vc, 0);
+ms.vc = m.vc;
+ms.pis = m.pis;
+ms.pc = m.pc;
+ms.dataOnly = true;
+this.slabData = ms;
 }if ("lineData" === propertyName) {
 this.lineData =  new JU.Lst ();
 if (this.indicatedModelIndex < 0) this.indicatedModelIndex = this.vwr.am.cmi;
 var fdata = value;
 var n = Clazz.doubleToInt (fdata.length / 6);
-for (var i = 0, pt = 0; i < n; i++) this.lineData.addLast ([JU.P3.new3 (fdata[pt++], fdata[pt++], fdata[pt++]), JU.P3.new3 (fdata[pt++], fdata[pt++], fdata[pt++])]);
+for (var i = 0, pt = 0; i < n; i++) this.lineData.addLast ( Clazz.newArray (-1, [JU.P3.new3 (fdata[pt++], fdata[pt++], fdata[pt++]), JU.P3.new3 (fdata[pt++], fdata[pt++], fdata[pt++])]));
 
 return;
 }if ("modelIndex" === propertyName) {
 this.indicatedModelIndex = (value).intValue ();
-if (this.indicatedModelIndex < 0 || this.indicatedModelIndex >= this.vwr.getModelCount ()) return;
-this.vData.addLast ([Integer.$valueOf (4), (this.modelInfo = [this.indicatedModelIndex, 0])]);
+if (this.indicatedModelIndex < 0 || this.indicatedModelIndex >= this.vwr.ms.mc) return;
+this.vData.addLast ( Clazz.newArray (-1, [Integer.$valueOf (4), (this.modelInfo =  Clazz.newIntArray (-1, [this.indicatedModelIndex, 0]))]));
 return;
 }if ("planedef" === propertyName) {
 this.plane = value;
 if (this.intersectID != null || this.boundBox != null || this.slabData != null) return;
 if (this.isCircle || this.isArc) this.isPlane = true;
-this.vData.addLast ([Integer.$valueOf (1), JU.P3.new3 (NaN, NaN, NaN)]);
+this.vData.addLast ( Clazz.newArray (-1, [Integer.$valueOf (1), JU.P3.new3 (NaN, NaN, NaN)]));
 return;
 }if ("perp" === propertyName) {
 this.isPerpendicular = true;
@@ -189,7 +193,7 @@ return;
 var thisID = value;
 var meshIndex = this.getIndexFromName (thisID);
 if (meshIndex >= 0) {
-this.vData.addLast ([Integer.$valueOf (2), [meshIndex, this.isReversed ? 1 : 0, this.isVertices ? 1 : 0]]);
+this.vData.addLast ( Clazz.newArray (-1, [Integer.$valueOf (2),  Clazz.newIntArray (-1, [meshIndex, this.isReversed ? 1 : 0, this.isVertices ? 1 : 0])]));
 this.isReversed = this.isVertices = false;
 } else {
 JU.Logger.error ("draw identifier " + value + " not found");
@@ -200,7 +204,7 @@ this.polygon = value;
 if (this.polygon == null) this.polygon =  new JU.Lst ();
 return;
 }if ("coord" === propertyName) {
-this.vData.addLast ([Integer.$valueOf (1), value]);
+this.vData.addLast ( Clazz.newArray (-1, [Integer.$valueOf (1), value]));
 if (this.indicatedModelIndex >= 0) this.modelInfo[1]++;
 return;
 }if ("offset" === propertyName) {
@@ -210,11 +214,11 @@ return;
 }if ("atomSet" === propertyName) {
 if (JU.BSUtil.cardinalityOf (value) == 0) return;
 var bsAtoms = value;
-this.vData.addLast ([Integer.$valueOf (3), bsAtoms]);
+this.vData.addLast ( Clazz.newArray (-1, [Integer.$valueOf (3), bsAtoms]));
 if (this.isCircle && this.diameter == 0 && this.width == 0) this.width = this.vwr.ms.calcRotationRadiusBs (bsAtoms) * 2.0;
 return;
 }if ("modelBasedPoints" === propertyName) {
-this.vData.addLast ([Integer.$valueOf (5), value]);
+this.vData.addLast ( Clazz.newArray (-1, [Integer.$valueOf (5), value]));
 return;
 }if ("set" === propertyName) {
 if (this.thisMesh == null) {
@@ -297,7 +301,11 @@ this.htObjects.put (m.thisID.toUpperCase (), m);
 });
 Clazz.overrideMethod (c$, "getPropertyData", 
 function (property, data) {
-if (property === "getCenter") {
+if (property === "keys") {
+var keys = (Clazz.instanceOf (data[1], JU.Lst) ? data[1] :  new JU.Lst ());
+data[1] = keys;
+keys.addLast ("getSpinAxis");
+}if (property === "getCenter") {
 var id = data[0];
 var index = (data[1]).intValue ();
 var modelIndex = (data[2]).intValue ();
@@ -312,9 +320,11 @@ return (data[2] != null);
 }, "~S,~A");
 Clazz.overrideMethod (c$, "getProperty", 
 function (property, index) {
-if (property === "command") return this.getCommand (this.thisMesh);
-if (property === "type") return Integer.$valueOf (this.thisMesh == null ? J.shapespecial.Draw.EnumDrawType.NONE.id : this.thisMesh.drawType.id);
-return this.getPropMC (property);
+var m = this.thisMesh;
+if (index >= 0 && (index >= this.meshCount || (m = this.meshes[index]) == null)) return null;
+if (property === "command") return this.getCommand (m);
+if (property === "type") return Integer.$valueOf (m == null ? J.shapespecial.Draw.EnumDrawType.NONE.id : m.drawType.id);
+return this.getPropMC (property, index);
 }, "~S,~N");
 Clazz.defineMethod (c$, "getSpinCenter", 
  function (axisID, vertexIndex, modelIndex) {
@@ -351,10 +361,23 @@ if (this.thisMesh == null) this.allocMesh (null, null);
 this.thisMesh.clear ("draw");
 this.thisMesh.diameter = this.diameter;
 this.thisMesh.width = this.width;
-if (this.intersectID != null || this.boundBox != null) this.setIntersectData ();
- else if (this.slabData != null) this.setSlabData ();
-if (this.polygon == null && (this.lineData != null ? this.lineData.size () == 0 : (this.vData.size () == 0) == (connections == null)) || !this.isArrow && connections != null) return false;
-var modelCount = this.vwr.getModelCount ();
+if (this.intersectID != null || this.boundBox != null) {
+if (this.boundBox != null) {
+if (this.plane == null) {
+}} else if (this.plane != null && this.intersectID != null) {
+var vData =  new JU.Lst ();
+var data =  Clazz.newArray (-1, [this.intersectID, this.plane, vData, null]);
+this.vwr.shm.getShapePropertyData (24, "intersectPlane", data);
+if (vData.size () > 0) {
+this.indicatedModelIndex = (data[3]).intValue ();
+this.lineData = vData;
+}}} else if (this.slabData != null && this.plane != null) {
+this.slabData.getMeshSlicer ().getIntersection (0, this.plane, null, null, null, null, null, false, true, 134217750, false);
+this.polygon =  new JU.Lst ();
+this.polygon.addLast (this.slabData.vs);
+this.polygon.addLast (this.slabData.pis);
+}if (this.polygon == null && (this.lineData != null ? this.lineData.size () == 0 : (this.vData.size () == 0) == (connections == null)) || !this.isArrow && connections != null) return false;
+var modelCount = this.vwr.ms.mc;
 if (this.polygon != null || this.lineData != null || this.indicatedModelIndex < 0 && (this.isFixed || this.isArrow || this.isCurve || this.isCircle || this.isCylinder || modelCount == 1)) {
 this.thisMesh.modelIndex = (this.lineData == null ? this.vwr.am.cmi : this.indicatedModelIndex);
 this.thisMesh.isFixed = (this.isFixed || this.lineData == null && this.thisMesh.modelIndex < 0 && modelCount > 1);
@@ -371,7 +394,7 @@ this.thisMesh.isTriangleSet = true;
 this.thisMesh.vs = this.polygon.get (0);
 this.thisMesh.pis = this.polygon.get (1);
 this.thisMesh.drawVertexCount = this.thisMesh.vc = this.thisMesh.vs.length;
-this.thisMesh.pc = this.thisMesh.pis.length;
+this.thisMesh.pc = (this.thisMesh.pis == null ? -1 : this.thisMesh.pis.length);
 for (var i = 0; i < this.thisMesh.pc; i++) {
 for (var j = 0; j < 3; j++) if (this.thisMesh.pis[i][j] >= this.thisMesh.vc) return false;
 
@@ -431,26 +454,6 @@ function () {
 for (var i = this.meshCount; --i >= 0; ) if (this.meshes[i] == null || this.meshes[i].vc == 0 && this.meshes[i].connections == null && this.meshes[i].lineData == null) this.deleteMeshI (i);
 
 });
-Clazz.defineMethod (c$, "setIntersectData", 
- function () {
-if (this.boundBox != null) {
-if (this.plane == null) {
-}} else if (this.plane != null && this.intersectID != null) {
-var vData =  new JU.Lst ();
-var data = [this.intersectID, this.plane, vData, null];
-this.vwr.shm.getShapePropertyData (24, "intersectPlane", data);
-if (vData.size () == 0) return;
-this.indicatedModelIndex = (data[3]).intValue ();
-this.lineData = vData;
-}});
-Clazz.defineMethod (c$, "setSlabData", 
- function () {
-if (this.plane != null) {
-this.slabData.getIntersection (0, this.plane, null, null, null, null, null, false, true, 135266319, false);
-this.polygon =  new JU.Lst ();
-this.polygon.addLast (this.slabData.vs);
-this.polygon.addLast (this.slabData.pis);
-}});
 Clazz.defineMethod (c$, "addPoint", 
  function (newPt, iModel) {
 var isOK = (iModel < 0 || this.bsAllModels.get (iModel));
@@ -528,8 +531,8 @@ if (iModel < 0 || m.ptCenters == null || m.ptCenters[iModel] == null) this.addPo
 case 5:
 var modelBasedPoints = info[1];
 if (this.bsAllModels == null) this.bsAllModels =  new JU.BS ();
-for (var j = 0; j < modelBasedPoints.length; j++) if (iModel < 0 || j == iModel) {
-var point = JU.Escape.uABsM (modelBasedPoints[j]);
+for (var j = 0; j < modelBasedPoints.size (); j++) if (iModel < 0 || j == iModel) {
+var point = modelBasedPoints.get (j);
 this.bsAllModels.set (j);
 if (Clazz.instanceOf (point, JU.P3)) {
 this.addPoint (point, j);
@@ -580,15 +583,15 @@ this.ptList[1].add (this.ptList[0]);
 if (this.isArc || this.plane != null && this.isCircle) {
 if (this.plane != null) {
 dist = JU.Measure.distanceToPlane (this.plane, this.ptList[0]);
-this.vAC.set (-this.plane.x, -this.plane.y, -this.plane.z);
-this.vAC.normalize ();
-if (dist < 0) this.vAC.scale (-1);
+var vAC = JU.V3.new3 (-this.plane.x, -this.plane.y, -this.plane.z);
+vAC.normalize ();
+if (dist < 0) vAC.scale (-1);
 if (this.isCircle) {
-this.vAC.scale (0.005);
-this.ptList[0].sub (this.vAC);
-this.vAC.scale (2);
-}this.vAC.add (this.ptList[0]);
-this.ptList[1] = JU.P3.newP (this.vAC);
+vAC.scale (0.005);
+this.ptList[0].sub (vAC);
+vAC.scale (2);
+}vAC.add (this.ptList[0]);
+this.ptList[1] = JU.P3.newP (vAC);
 drawType = (this.isArrow ? J.shapespecial.Draw.EnumDrawType.ARROW : this.isArc ? J.shapespecial.Draw.EnumDrawType.ARC : J.shapespecial.Draw.EnumDrawType.CIRCULARPLANE);
 }if (this.isArc) {
 dist = Math.abs (dist);
@@ -623,7 +626,7 @@ this.ptList[2].add (pt);
 this.ptList[3].sub (pt);
 nVertices = 4;
 } else if (nVertices >= 3 && !this.isPlane && this.isPerpendicular) {
-JU.Measure.calcNormalizedNormal (this.ptList[0], this.ptList[1], this.ptList[2], normal, this.vAB, this.vAC);
+JU.Measure.calcNormalizedNormal (this.ptList[0], this.ptList[1], this.ptList[2], normal, this.vAB);
 center =  new JU.P3 ();
 JU.Measure.calcAveragePointN (this.ptList, nVertices, center);
 dist = (this.length == 3.4028235E38 ? this.ptList[0].distance (center) : this.length);
@@ -643,7 +646,7 @@ this.ptList[2] = JU.P3.newP (center);
 this.ptList[2].sub (normal);
 pt = JU.P3.newP (center);
 pt.add (normal);
-JU.Measure.calcNormalizedNormal (this.ptList[0], this.ptList[1], this.ptList[2], normal, this.vAB, this.vAC);
+JU.Measure.calcNormalizedNormal (this.ptList[0], this.ptList[1], this.ptList[2], normal, this.vAB);
 normal.scale (dist);
 this.ptList[3] = JU.P3.newP (center);
 this.ptList[3].add (normal);
@@ -665,7 +668,7 @@ normal.sub2 (this.ptList[1], center);
 normal.scale (0.5 / normal.length () * (this.length == 0 ? 0.01 : this.length));
 if (this.length == 0) center.setT (this.ptList[0]);
 this.ptList[0].sub2 (center, normal);
-this.ptList[1].add2 (this.ptList[0], normal);
+this.ptList[1].add2 (center, normal);
 }if (nVertices > 4) nVertices = 4;
 switch (nVertices) {
 case -2:
@@ -705,6 +708,7 @@ if (dmesh.isRenderScalable ()) return;
 var diff =  new JU.V3 ();
 var iptlast = -1;
 var ipt = 0;
+try {
 for (var i = dmesh.pc; --i >= 0; ) {
 var center = (dmesh.isVector ? dmesh.vs[0] : dmesh.ptCenters == null ? dmesh.ptCenter : dmesh.ptCenters[i]);
 if (center == null) return;
@@ -718,6 +722,14 @@ diff.sub2 (dmesh.vs[ipt], center);
 diff.scale (f);
 diff.add (center);
 dmesh.vs[ipt].setT (diff);
+}
+}
+} catch (e) {
+if (Clazz.exceptionOf (e, Exception)) {
+JU.Logger.info ("Error executing DRAW command: " + e);
+dmesh.isValid = false;
+} else {
+throw e;
 }
 }
 }, "J.shape.Mesh,~N");
@@ -735,14 +747,14 @@ if (p == null || p.length == 0) {
 m.axes[i].sub2 (m.vs[p[0]], m.vs[p[1]]);
 n++;
 } else {
-JU.Measure.calcNormalizedNormal (m.vs[p[0]], m.vs[p[1]], m.vs[p[2]], m.axes[i], m.vAB, m.vAC);
+JU.Measure.calcNormalizedNormal (m.vs[p[0]], m.vs[p[1]], m.vs[p[2]], m.axes[i], m.vAB);
 n++;
 }m.axis.add (m.axes[i]);
 }
 if (n == 0) return;
 m.axis.scale (1 / n);
 }, "J.shapespecial.DrawMesh");
-Clazz.overrideMethod (c$, "setVisibilityFlags", 
+Clazz.overrideMethod (c$, "setModelVisibilityFlags", 
 function (bsModels) {
 for (var i = 0; i < this.meshCount; i++) {
 var m = this.dmeshes[i];
@@ -786,7 +798,7 @@ function (x, y, bsVisible) {
 if (!this.vwr.getDrawHover ()) return false;
 if (JU.C.isColixTranslucent (this.colix)) return false;
 if (!this.findPickedObject (x, y, false, bsVisible)) return false;
-if (this.gdata.isDisplayAntialiased ()) {
+if (this.vwr.gdata.antialiasEnabled) {
 x <<= 1;
 y <<= 1;
 }var s = (this.pickedMesh.title == null ? this.pickedMesh.thisID : this.pickedMesh.title[0]);
@@ -813,7 +825,7 @@ return true;
 Clazz.defineMethod (c$, "move2D", 
  function (mesh, vertexes, iVertex, x, y, moveAll) {
 if (vertexes == null || vertexes.length == 0) return;
-if (this.gdata.isAntialiased ()) {
+if (this.vwr.gdata.isAntialiased ()) {
 x <<= 1;
 y <<= 1;
 }var pt =  new JU.P3 ();
@@ -841,7 +853,7 @@ mesh.setCenters ();
 Clazz.defineMethod (c$, "findPickedObject", 
  function (x, y, isPicking, bsVisible) {
 var dmin2 = 100;
-if (this.gdata.isAntialiased ()) {
+if (this.vwr.gdata.isAntialiased ()) {
 x <<= 1;
 y <<= 1;
 dmin2 <<= 1;
@@ -851,7 +863,7 @@ this.pickedMesh = null;
 for (var i = 0; i < this.meshCount; i++) {
 var m = this.dmeshes[i];
 if (m.visibilityFlags != 0) {
-var mCount = (m.isTriangleSet ? m.pc : m.modelFlags == null ? 1 : this.vwr.getModelCount ());
+var mCount = (m.isTriangleSet ? m.pc : m.modelFlags == null ? 1 : this.vwr.ms.mc);
 for (var iModel = mCount; --iModel >= 0; ) {
 if (m.modelFlags != null && !m.modelFlags.get (iModel) || m.pis == null || !m.isTriangleSet && (iModel >= m.pis.length || m.pis[iModel] == null)) continue;
 for (var iVertex = (m.isTriangleSet ? 3 : m.pis[iModel].length); --iVertex >= 0; ) {
@@ -881,20 +893,20 @@ Clazz.defineMethod (c$, "getCommand",
 function (mesh) {
 if (mesh != null) return this.getCommand2 (mesh, mesh.modelIndex);
 var sb =  new JU.SB ();
-var key = (this.explicitID && this.previousMeshID != null && JU.Txt.isWild (this.previousMeshID) ? this.previousMeshID.toUpperCase () : null);
-if (key != null && key.length == 0) key = null;
-for (var i = 0; i < this.meshCount; i++) {
-var m = this.meshes[i];
-if (key == null || JU.Txt.isMatch (m.thisID.toUpperCase (), key, true, true)) sb.append (this.getCommand2 (m, m.modelIndex));
+var key = (this.explicitID && this.previousMeshID != null && JU.PT.isWild (this.previousMeshID) ? this.previousMeshID : null);
+var list = this.getMeshList (key, false);
+for (var i = list.size (); --i >= 0; ) {
+var m = list.get (i);
+sb.append (this.getCommand2 (m, m.modelIndex));
 }
 return sb.toString ();
 }, "J.shape.Mesh");
 Clazz.defineMethod (c$, "getCommand2", 
 function (mesh, iModel) {
 var dmesh = mesh;
-if (dmesh.drawType === J.shapespecial.Draw.EnumDrawType.NONE && dmesh.lineData == null && dmesh.drawVertexCount == 0 && dmesh.drawVertexCounts == null) return "";
+if (!dmesh.isValid || dmesh.drawType === J.shapespecial.Draw.EnumDrawType.NONE && dmesh.lineData == null && dmesh.drawVertexCount == 0 && dmesh.drawVertexCounts == null) return "";
 var str =  new JU.SB ();
-var modelCount = this.vwr.getModelCount ();
+var modelCount = this.vwr.ms.mc;
 if (!dmesh.isFixed && iModel >= 0 && modelCount > 1) J.shape.Shape.appendCmd (str, "frame " + this.vwr.getModelNumberDotted (iModel));
 str.append ("  draw ID ").append (JU.PT.esc (dmesh.thisID));
 if (dmesh.isFixed) str.append (" fixed");
@@ -1027,6 +1039,7 @@ for (var i = 0; i < this.meshCount; i++) {
 var mesh = this.dmeshes[i];
 if (mesh.vc == 0) continue;
 var info =  new java.util.Hashtable ();
+info.put ("visible", mesh.visible ? Boolean.TRUE : Boolean.FALSE);
 info.put ("fixed", mesh.ptCenters == null ? Boolean.TRUE : Boolean.FALSE);
 info.put ("ID", (mesh.thisID == null ? "<noid>" : mesh.thisID));
 info.put ("drawType", mesh.drawType.$$name);
@@ -1035,7 +1048,7 @@ if (mesh.width != 0) info.put ("width", Float.$valueOf (mesh.width));
 info.put ("scale", Float.$valueOf (mesh.scale));
 if (mesh.drawType === J.shapespecial.Draw.EnumDrawType.MULTIPLE) {
 var m =  new JU.Lst ();
-var modelCount = this.vwr.getModelCount ();
+var modelCount = this.vwr.ms.mc;
 for (var k = 0; k < modelCount; k++) {
 if (mesh.ptCenters[k] == null) continue;
 var mInfo =  new java.util.Hashtable ();

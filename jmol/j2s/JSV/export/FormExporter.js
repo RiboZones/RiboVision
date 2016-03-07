@@ -15,7 +15,7 @@ Clazz.defineMethod (c$, "initForm",
 function (viewer, out) {
 this.vwr = viewer;
 this.out = out;
-this.currentTime = viewer.apiPlatform.getDateFormat (false);
+this.currentTime = viewer.apiPlatform.getDateFormat (null);
 }, "JSV.common.JSViewer,JU.OC");
 Clazz.defineMethod (c$, "writeForm", 
 function (templateFile) {

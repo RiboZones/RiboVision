@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.shapesurface");
-Clazz.load (["J.shapesurface.Isosurface", "JU.P3", "$.V3", "J.atomdata.RadiusData", "J.c.VDW"], "J.shapesurface.Contact", ["java.lang.Boolean", "$.Double", "$.Float", "java.util.Hashtable", "JU.BS", "$.CU", "$.Lst", "J.atomdata.AtomData", "J.c.HB", "J.jvxl.data.MeshData", "$.VolumeData", "JS.T", "JU.BSUtil", "$.ContactPair", "$.Escape", "$.Logger", "$.Measure", "$.TempArray"], function () {
+Clazz.load (["J.shapesurface.Isosurface", "JU.P3", "$.V3", "J.atomdata.RadiusData", "J.c.VDW"], "J.shapesurface.Contact", ["java.lang.Boolean", "$.Double", "$.Float", "java.util.Hashtable", "JU.BS", "$.CU", "$.Lst", "$.Measure", "J.atomdata.AtomData", "J.c.HB", "J.jvxl.data.MeshData", "$.VolumeData", "JS.T", "JU.BSUtil", "$.ContactPair", "$.Escape", "$.Logger", "$.TempArray"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.atoms = null;
 this.ac = 0;
@@ -44,27 +44,28 @@ var bsB = value[5];
 var rd = value[6];
 var saProbeRadius = (value[7]).floatValue ();
 var parameters = value[8];
-var command = value[9];
+var modelIndex = (value[9]).intValue ();
+var command = value[10];
 if (Float.isNaN (saProbeRadius)) saProbeRadius = 0;
 if (rd == null) rd =  new J.atomdata.RadiusData (null, saProbeRadius, J.atomdata.RadiusData.EnumType.OFFSET, J.c.VDW.AUTO);
 if (colorDensity) {
 switch (displayType) {
 case 1073741961:
-case 1276117512:
-case 135266319:
-displayType = 1276117512;
+case 1275068932:
+case 134217750:
+displayType = 1275068932;
 break;
 case 4106:
 case 1073742036:
-case 3145756:
+case 2097180:
 case 1073742135:
 break;
-case 1074790451:
+case 1073741875:
 colorDensity = false;
 break;
 }
 }var bs;
-this.ac = this.vwr.getAtomCount ();
+this.ac = this.vwr.ms.ac;
 this.atoms = this.vwr.ms.at;
 var intramolecularMode = Clazz.floatToInt (parameters == null || parameters.length < 2 ? 0 : parameters[1]);
 var ptSize = (colorDensity && parameters != null && parameters[0] < 0 ? Math.abs (parameters[0]) : 0.15);
@@ -76,55 +77,52 @@ JU.Logger.debug ("Contacts to " + bsB.cardinality () + ": " + JU.Escape.eBS (bsB
 this.thisMesh.setMerged (true);
 this.thisMesh.nSets = 0;
 this.thisMesh.info = null;
-var params = this.sg.getParams ();
 var func = null;
 switch (displayType) {
 case 1073741961:
 func = "(a>b?a:b)";
 break;
-case 135266319:
-case 1074790451:
+case 134217750:
+case 1073741875:
 func = "a-b";
 break;
 case 4106:
 func = "a+b";
 break;
 }
-var volumeData;
 switch (displayType) {
 case 1073742036:
 colorByType = false;
 bs = JU.BSUtil.copy (bsA);
 bs.or (bsB);
 if (parameters[0] < 0) parameters[0] = 0;
-params.colorDensity = colorDensity;
-params.bsSelected = bs;
-params.bsSolvent = bsB;
-this.sg.setParameter ("parameters", parameters);
+this.sg.params.colorDensity = colorDensity;
+this.sg.params.bsSelected = bs;
+this.sg.params.bsSolvent = bsB;
+this.sg.setProp ("parameters", parameters, null);
 this.setPropI ("nci", Boolean.TRUE, null);
 break;
 case 1073742135:
-case 3145756:
+case 2097180:
 colorByType = false;
 this.thisMesh.nSets = 1;
-this.newSurface (3145756, null, bsA, bsB, rd, null, null, colorDensity, null, saProbeRadius);
+this.newSurface (2097180, null, bsA, bsB, rd, null, null, colorDensity, null, saProbeRadius);
 break;
-case 1074790451:
+case 1073741875:
 colorByType = false;
 this.thisMesh.nSets = 1;
 this.newSurface (554176565, null, bsA, bsB, rd, null, null, false, null, 0);
-volumeData = this.sg.getVolumeData ();
 this.sg.initState ();
-this.newSurface (135266319, null, bsA, bsB, rd, parameters, func, colorDensity, volumeData, 0);
+this.newSurface (134217750, null, bsA, bsB, rd, parameters, func, colorDensity, this.sg.volumeDataTemp, 0);
 this.mergeMesh (null);
 break;
 case 1073741961:
-case 1276117512:
+case 1275068932:
 colorByType = false;
-this.newSurface (1276117512, null, bsA, bsB, rd, null, null, colorDensity, null, 0);
+this.newSurface (1275068932, null, bsA, bsB, rd, null, null, colorDensity, null, 0);
 if (displayType == 1073741961) {
 this.sg.initState ();
-this.newSurface (1276117512, null, bsB, bsA, rd, parameters, func, colorDensity, null, 0);
+this.newSurface (1275068932, null, bsB, bsA, rd, parameters, func, colorDensity, null, 0);
 this.mergeMesh (null);
 } else {
 var meshData =  new J.jvxl.data.MeshData ();
@@ -133,7 +131,7 @@ meshData.getSurfaceSet ();
 this.fillMeshData (meshData, 3, null);
 }break;
 case 4106:
-case 135266319:
+case 134217750:
 var volume = 0;
 var pairs = this.getPairs (bsA, bsB, rd, intramolecularMode, doEditCpList);
 this.thisMesh.info = pairs;
@@ -143,6 +141,7 @@ this.mergeMesh (null);
 break;
 }
 this.thisMesh.setMerged (false);
+if (modelIndex != -2147483648) this.thisMesh.modelIndex = modelIndex;
 this.thisMesh.jvxlData.vertexDataOnly = true;
 this.thisMesh.reinitializeLightingAndColor (this.vwr);
 if (contactType != 1073742036) {
@@ -160,13 +159,13 @@ this.thisMesh.polygonCount0 = -1;
 }this.discardTempData (true);
 var defaultColor = null;
 switch (contactType) {
-case 1612189718:
+case 1613238294:
 defaultColor = "lightgreen";
 break;
 case 1073741881:
 defaultColor = "yellow";
 break;
-case 3145756:
+case 2097180:
 defaultColor = "skyblue";
 break;
 }
@@ -190,19 +189,19 @@ Clazz.defineMethod (c$, "combineSurfaces",
 var volumeData =  new J.jvxl.data.VolumeData ();
 var logLevel = JU.Logger.getLogLevel ();
 JU.Logger.setLogLevel (0);
-var resolution = this.sg.getParams ().resolution;
+var resolution = this.sg.params.resolution;
 var nContacts = pairs.size ();
 var volume = 0;
 if (displayType == 1073741961 && resolution == 3.4028235E38) resolution = (nContacts > 1000 ? 3 : 10);
 for (var i = nContacts; --i >= 0; ) {
 var cp = pairs.get (i);
 var oldScore = cp.score;
-var isVdwClash = (displayType == 135266319 && (contactType == 1649412120 || contactType == 0) && cp.setForVdwClash (true));
+var isVdwClash = (displayType == 134217750 && (contactType == 1648363544 || contactType == 0) && cp.setForVdwClash (true));
 if (isVdwClash) cp.score = 0;
 if (contactType != 0 && cp.contactType != contactType) continue;
 var nV = this.thisMesh.vc;
 this.thisMesh.nSets++;
-if (contactType != 0 || cp.contactType != 1649412120) volume += cp.volume;
+if (contactType != 0 || cp.contactType != 1648363544) volume += cp.volume;
 this.setVolumeData (displayType, volumeData, cp, resolution, nContacts);
 switch (displayType) {
 case 1073741961:
@@ -210,8 +209,8 @@ this.newSurface (displayType, cp, null, null, null, null, func, isColorDensity, 
 cp.switchAtoms ();
 this.newSurface (displayType, cp, null, null, null, null, null, isColorDensity, volumeData, 0);
 break;
-case 1276117512:
-case 135266319:
+case 1275068932:
+case 134217750:
 case 4106:
 this.newSurface (displayType, cp, null, null, null, parameters, func, isColorDensity, volumeData, 0);
 if (isVdwClash && cp.setForVdwClash (false)) {
@@ -225,7 +224,7 @@ if (i > 0 && (i % 1000) == 0 && logLevel == 4) {
 JU.Logger.setLogLevel (4);
 JU.Logger.info ("contact..." + i);
 JU.Logger.setLogLevel (0);
-}if (colorByType) this.setColorByScore ((cp.contactType == 1612189718 ? 4 : cp.score), nV);
+}if (colorByType) this.setColorByScore ((cp.contactType == 1613238294 ? 4 : cp.score), nV);
 }
 JU.Logger.setLogLevel (logLevel);
 return volume;
@@ -245,7 +244,9 @@ var bs = JU.BSUtil.copy (bsA);
 bs.or (bsB);
 if (bs.isEmpty ()) return list;
 ad.bsSelected = bs;
-var isMultiModel = (this.atoms[bs.nextSetBit (0)].mi != this.atoms[bs.length () - 1].mi);
+var iModel = this.atoms[bs.nextSetBit (0)].mi;
+var isMultiModel = (iModel != this.atoms[bs.length () - 1].mi);
+ad.modelIndex = (isMultiModel ? -1 : iModel);
 var isSelf = bsA.equals (bsB);
 this.vwr.fillAtomData (ad, 2 | (isMultiModel ? 16 : 0) | 4);
 var maxRadius = 0;
@@ -262,7 +263,7 @@ var ib = iter.next ();
 if (isMultiModel && !bsB.get (ib)) continue;
 var atomB = this.atoms[ib];
 var isSameMolecule = (ad.atomMolecule[ia] == ad.atomMolecule[ib]);
-if (ia == ib || isSameMolecule && atomA.isWithinFourBonds (atomB)) continue;
+if (ia == ib || isSameMolecule && this.isWithinFourBonds (atomA, atomB)) continue;
 switch (intramolecularMode) {
 case 0:
 break;
@@ -282,7 +283,7 @@ var typeB = (typeA === J.c.HB.NOT ? J.c.HB.NOT : J.c.HB.getType (atomB));
 var isHBond = J.c.HB.isPossibleHBond (typeA, typeB);
 var hbondCutoff = (atomA.getElementNumber () == 1 || atomB.getElementNumber () == 1 ? -1.2 : -1.0);
 if (isHBond && cp.score < hbondCutoff) isHBond = false;
-if (isHBond && cp.score < 0) cp.contactType = 1612189718;
+if (isHBond && cp.score < 0) cp.contactType = 1613238294;
 list.addLast (cp);
 }
 }
@@ -317,6 +318,20 @@ if (JU.Logger.debugging) for (var i = 0; i < list.size (); i++) JU.Logger.debug 
 JU.Logger.info ("Contact pairs: " + list.size ());
 return list;
 }, "JU.BS,JU.BS,J.atomdata.RadiusData,~N,~B");
+Clazz.defineMethod (c$, "isWithinFourBonds", 
+ function (atomA, atomB) {
+if (atomA.mi != atomB.mi) return false;
+if (atomA.isCovalentlyBonded (atomB)) return true;
+var bondsOther = atomB.bonds;
+var bonds = atomA.bonds;
+for (var i = 0; i < bondsOther.length; i++) {
+var atom2 = bondsOther[i].getOtherAtom (atomB);
+if (atomA.isCovalentlyBonded (atom2)) return true;
+for (var j = 0; j < bonds.length; j++) if (bonds[j].getOtherAtom (atomA).isCovalentlyBonded (atom2)) return true;
+
+}
+return false;
+}, "JM.Atom,JM.Atom");
 c$.checkCp = Clazz.defineMethod (c$, "checkCp", 
  function (cp1, cp2, i1, i2) {
 if (cp1.myAtoms[i1] !== cp2.myAtoms[i2]) return 0;
@@ -326,7 +341,7 @@ return (!clash1 && !clash2 ? 0 : cp1.score > cp2.score ? 1 : 2);
 }, "JU.ContactPair,JU.ContactPair,~N,~N");
 Clazz.defineMethod (c$, "newSurface", 
  function (displayType, cp, bs1, bs2, rd, parameters, func, isColorDensity, volumeData, sasurfaceRadius) {
-var params = this.sg.getParams ();
+var params = this.sg.params;
 params.isSilent = true;
 if (cp == null) {
 bs2.andNot (bs1);
@@ -338,20 +353,20 @@ var iSlab1 = 0;
 this.sg.initState ();
 switch (displayType) {
 case 1073742135:
-case 3145756:
+case 2097180:
 case 554176565:
-case 1276117512:
+case 1275068932:
 case 1073741961:
 var rdA;
 var rdB;
-if (displayType == 3145756) {
+if (displayType == 2097180) {
 rdA = J.shapesurface.Contact.rdVDW;
 rdB =  new J.atomdata.RadiusData (null, (rd.factorType === J.atomdata.RadiusData.EnumType.OFFSET ? rd.value * 2 : (rd.value - 1) * 2 + 1), rd.factorType, rd.vdwType);
 } else {
 rdA = rdB = rd;
 }params.colorDensity = isColorDensity;
 if (isColorDensity) {
-this.setPropI ("cutoffRange", [-100.0, 0], null);
+this.setPropI ("cutoffRange",  Clazz.newFloatArray (-1, [-100.0, 0]), null);
 }if (cp == null) {
 params.atomRadiusData = rdA;
 params.bsIgnore = JU.BSUtil.copyInvert (bs1, this.ac);
@@ -368,37 +383,37 @@ params.bsSelected = bs2;
 this.setPropI ("sasurface", Float.$valueOf (sasurfaceRadius), null);
 switch (displayType) {
 case 1073741961:
-case 1276117512:
+case 1275068932:
 iSlab0 = -100;
 break;
 case 1073742135:
-case 3145756:
+case 2097180:
 if (isColorDensity) iSlab0 = -100;
 break;
 case 554176565:
 iSlab1 = -100;
 }
 break;
-case 135266319:
+case 134217750:
 case 4106:
-if (displayType == 4106) this.sg.setParameter ("parameters", parameters);
+if (displayType == 4106) this.sg.setProp ("parameters", parameters, null);
 if (cp == null) {
 params.atomRadiusData = rd;
 params.bsIgnore = JU.BSUtil.copyInvert (bs2, this.ac);
 params.bsIgnore.andNot (bs1);
 }params.func = func;
-params.intersection = [bs1, bs2];
+params.intersection =  Clazz.newArray (-1, [bs1, bs2]);
 params.volumeData = volumeData;
 params.colorDensity = isColorDensity;
-if (isColorDensity) this.setPropI ("cutoffRange", [-5.0, 0], null);
+if (isColorDensity) this.setPropI ("cutoffRange",  Clazz.newFloatArray (-1, [-5.0, 0]), null);
 this.setPropI ("sasurface", Float.$valueOf (0), null);
 this.setPropI ("map", Boolean.TRUE, null);
 params.volumeData = volumeData;
 this.setPropI ("sasurface", Float.$valueOf (0), null);
 if (displayType != 4106) iSlab0 = -100;
 }
-if (iSlab0 != iSlab1) this.thisMesh.slabPolygons (JU.TempArray.getSlabWithinRange (iSlab0, iSlab1), false);
-if (displayType != 3145756) this.thisMesh.setMerged (true);
+if (iSlab0 != iSlab1) this.thisMesh.getMeshSlicer ().slabPolygons (JU.TempArray.getSlabWithinRange (iSlab0, iSlab1), false);
+if (displayType != 2097180) this.thisMesh.setMerged (true);
 }, "~N,JU.ContactPair,JU.BS,JU.BS,J.atomdata.RadiusData,~A,~O,~B,J.jvxl.data.VolumeData,~N");
 Clazz.defineMethod (c$, "setVolumeData", 
  function (type, volumeData, cp, resolution, nPairs) {

@@ -1,6 +1,7 @@
 Clazz.declarePackage ("JS");
-Clazz.load (["JU.P3", "$.V3"], "JS.PointGroup", ["java.lang.Float", "java.util.Hashtable", "JU.Lst", "$.Quat", "$.SB", "JU.BSUtil", "$.Escape", "$.Logger", "$.Txt"], function () {
+Clazz.load (["JU.V3"], "JS.PointGroup", ["java.lang.Float", "java.util.Hashtable", "JU.Lst", "$.P3", "$.PT", "$.Quat", "$.SB", "JU.BSUtil", "$.Escape", "$.Logger", "$.Node", "$.Point3fi"], function () {
 c$ = Clazz.decorateAsClass (function () {
+this.isAtoms = false;
 this.drawInfo = null;
 this.info = null;
 this.textInfo = null;
@@ -11,7 +12,7 @@ this.nAxes = null;
 this.axes = null;
 this.nAtoms = 0;
 this.radius = 0;
-this.distanceTolerance = 0.2;
+this.distanceTolerance = 0.25;
 this.linearTolerance = 8;
 this.cosTolerance = 0.99;
 this.name = "C_1?";
@@ -22,9 +23,10 @@ this.centerAtomIndex = -1;
 this.haveInversionCenter = false;
 this.center = null;
 this.points = null;
-this.atoms = null;
 this.elements = null;
 this.bsAtoms = null;
+this.haveVibration = false;
+this.localEnvOnly = false;
 this.maxElement = 0;
 this.eCounts = null;
 this.nOps = 0;
@@ -37,45 +39,48 @@ Clazz.prepareFields (c$, function () {
 this.nAxes =  Clazz.newIntArray (JS.PointGroup.maxAxis, 0);
 this.axes =  new Array (JS.PointGroup.maxAxis);
 this.vTemp =  new JU.V3 ();
-this.center =  new JU.P3 ();
 });
 Clazz.defineMethod (c$, "getName", 
 function () {
 return this.name;
 });
 c$.getPointGroup = Clazz.defineMethod (c$, "getPointGroup", 
-function (pgLast, atomset, bsAtoms, haveVibration, distanceTolerance, linearTolerance) {
+function (pgLast, center, atomset, bsAtoms, haveVibration, distanceTolerance, linearTolerance, localEnvOnly) {
 var pg =  new JS.PointGroup ();
-return (pg.set (pgLast, atomset, bsAtoms, haveVibration, distanceTolerance, linearTolerance) ? pg : pgLast);
-}, "JS.PointGroup,~A,JU.BS,~B,~N,~N");
+pg.distanceTolerance = distanceTolerance;
+pg.linearTolerance = linearTolerance;
+pg.isAtoms = (bsAtoms != null);
+pg.bsAtoms = (bsAtoms == null ? JU.BSUtil.newBitSet2 (0, atomset.length) : bsAtoms);
+pg.haveVibration = haveVibration;
+pg.center = center;
+pg.localEnvOnly = localEnvOnly;
+return (pg.set (pgLast, atomset) ? pg : pgLast);
+}, "JS.PointGroup,JU.T3,~A,JU.BS,~B,~N,~N,~B");
 Clazz.makeConstructor (c$, 
  function () {
 });
 Clazz.defineMethod (c$, "isEqual", 
  function (pg) {
 if (pg == null) return false;
-if (this.linearTolerance != pg.linearTolerance || this.distanceTolerance != pg.distanceTolerance || this.nAtoms != pg.nAtoms || !this.bsAtoms.equals (pg.bsAtoms)) return false;
+if (this.linearTolerance != pg.linearTolerance || this.distanceTolerance != pg.distanceTolerance || this.nAtoms != pg.nAtoms || this.localEnvOnly != pg.localEnvOnly || this.haveVibration != pg.haveVibration || this.bsAtoms == null ? pg.bsAtoms != null : !this.bsAtoms.equals (pg.bsAtoms)) return false;
 for (var i = 0; i < this.nAtoms; i++) {
-if (this.elements[i] != pg.elements[i] || this.points[i].distance (pg.points[i]) != 0) return false;
+if (this.elements[i] != pg.elements[i] || !this.points[i].equals (pg.points[i])) return false;
 }
 return true;
 }, "JS.PointGroup");
 Clazz.defineMethod (c$, "set", 
- function (pgLast, atomset, bsAtoms, haveVibration, distanceTolerance, linearTolerance) {
-this.distanceTolerance = distanceTolerance;
-this.linearTolerance = linearTolerance;
-this.bsAtoms = bsAtoms;
-this.cosTolerance = (Math.cos (linearTolerance / 180 * 3.141592653589793));
-if (!this.getAtomsAndElements (atomset, bsAtoms)) {
+ function (pgLast, atomset) {
+this.cosTolerance = (Math.cos (this.linearTolerance / 180 * 3.141592653589793));
+if (!this.getPointsAndElements (atomset)) {
 JU.Logger.error ("Too many atoms for point group calculation");
 this.name = "point group not determined -- ac > 100 -- select fewer atoms and try again.";
 return true;
 }this.getElementCounts ();
-if (haveVibration) {
+if (this.haveVibration) {
 var atomVibs =  new Array (this.points.length);
 for (var i = this.points.length; --i >= 0; ) {
 atomVibs[i] = JU.P3.newP (this.points[i]);
-var v = this.atoms[i].getVibrationVector ();
+var v = (this.points[i]).getVibrationVector ();
 if (v != null) atomVibs[i].add (v);
 }
 this.points = atomVibs;
@@ -157,7 +162,7 @@ if (n < 14) n /= 2;
  else n -= 14;
 this.name = "C" + n + "h";
 }}return true;
-}, "JS.PointGroup,~A,JU.BS,~B,~N,~N");
+}, "JS.PointGroup,~A");
 Clazz.defineMethod (c$, "setPrincipalAxis", 
  function (n, nPlanes) {
 var principalPlane = this.setPrincipalPlane (n, nPlanes);
@@ -188,30 +193,33 @@ this.axes[0][i] = o;
 
 return null;
 }, "~N,~N");
-Clazz.defineMethod (c$, "getAtomsAndElements", 
- function (atomset, bsAtoms) {
-var ac = JU.BSUtil.cardinalityOf (bsAtoms);
-if (ac > 100) return false;
+Clazz.defineMethod (c$, "getPointsAndElements", 
+ function (atomset) {
+var ac = JU.BSUtil.cardinalityOf (this.bsAtoms);
+if (this.isAtoms && ac > 100) return false;
 this.points =  new Array (ac);
-this.atoms =  new Array (ac);
 this.elements =  Clazz.newIntArray (ac, 0);
 if (ac == 0) return true;
 this.nAtoms = 0;
-for (var i = bsAtoms.nextSetBit (0); i >= 0; i = bsAtoms.nextSetBit (i + 1)) {
-this.points[this.nAtoms] = JU.P3.newP (atomset[i]);
-this.atoms[this.nAtoms] = atomset[i];
-var bondIndex = 1 + Math.max (3, atomset[i].getCovalentBondCount ());
-this.elements[this.nAtoms] = atomset[i].getElementNumber () * bondIndex;
-this.center.add (this.points[this.nAtoms++]);
+var needCenter = (this.center == null);
+if (needCenter) this.center =  new JU.P3 ();
+for (var i = this.bsAtoms.nextSetBit (0); i >= 0; i = this.bsAtoms.nextSetBit (i + 1), this.nAtoms++) {
+var p = this.points[this.nAtoms] = atomset[i];
+if (Clazz.instanceOf (p, JU.Node)) {
+var bondIndex = (this.localEnvOnly ? 1 : 1 + Math.max (3, (p).getCovalentBondCount ()));
+this.elements[this.nAtoms] = (p).getElementNumber () * bondIndex;
+} else if (Clazz.instanceOf (p, JU.Point3fi)) {
+this.elements[this.nAtoms] = (p).sD;
+}if (needCenter) this.center.add (this.points[this.nAtoms]);
 }
-this.center.scale (1 / this.nAtoms);
+if (needCenter) this.center.scale (1 / this.nAtoms);
 for (var i = this.nAtoms; --i >= 0; ) {
 var r = this.center.distance (this.points[i]);
-if (r < this.distanceTolerance) this.centerAtomIndex = i;
+if (this.isAtoms && r < this.distanceTolerance) this.centerAtomIndex = i;
 this.radius = Math.max (this.radius, r);
 }
 return true;
-}, "~A,JU.BS");
+}, "~A");
 Clazz.defineMethod (c$, "findInversionCenter", 
  function () {
 this.haveInversionCenter = this.checkOperation (null, this.center, -1);
@@ -231,7 +239,7 @@ var a1 = this.points[i];
 var e1 = this.elements[i];
 if (q != null) {
 pt.sub2 (a1, center);
-q.transformP2 (pt, pt).add (center);
+q.transform2 (pt, pt).add (center);
 } else {
 pt.setT (a1);
 }if (isInversion) {
@@ -241,7 +249,7 @@ pt.scaleAdd2 (2, this.vTemp, pt);
 nFound++;
 continue;
 }for (var j = this.points.length; --j >= 0; ) {
-if (j == i || this.elements[j] != e1) continue;
+if (j == i || j == this.centerAtomIndex || this.elements[j] != e1) continue;
 var a2 = this.points[j];
 if (pt.distance (a2) < this.distanceTolerance) {
 nFound++;
@@ -249,7 +257,7 @@ continue out;
 }}
 }
 return nFound == this.points.length;
-}, "JU.Quat,JU.P3,~N");
+}, "JU.Quat,JU.T3,~N");
 Clazz.defineMethod (c$, "isLinear", 
  function (atoms) {
 var v1 = null;
@@ -441,7 +449,7 @@ this.addAxis (18, v);
 break;
 }
 return true;
-}, "~N,JU.V3,JU.P3");
+}, "~N,JU.V3,JU.T3");
 Clazz.defineMethod (c$, "addAxis", 
  function (iOrder, v) {
 if (this.haveAxis (iOrder, v)) return;
@@ -608,16 +616,16 @@ sb.append ("\n").append (this.name).append ("\tE\t  1\t  1");
 n = (this.haveInversionCenter ? 1 : 0);
 sb.append ("\n").append (this.name).append ("\tCi\t  ").appendI (n).append ("\t  ").appendI (n);
 sb.append ("\n").append (this.name).append ("\tCs\t");
-JU.Txt.rightJustify (sb, "    ", this.nAxes[0] + "\t");
-JU.Txt.rightJustify (sb, "    ", this.nAxes[0] + "\n");
+JU.PT.rightJustify (sb, "    ", this.nAxes[0] + "\t");
+JU.PT.rightJustify (sb, "    ", this.nAxes[0] + "\n");
 sb.append (this.name).append ("\tCn\t");
-JU.Txt.rightJustify (sb, "    ", nType[1][0] + "\t");
-JU.Txt.rightJustify (sb, "    ", nType[1][1] + "\n");
+JU.PT.rightJustify (sb, "    ", nType[1][0] + "\t");
+JU.PT.rightJustify (sb, "    ", nType[1][1] + "\n");
 sb.append (this.name).append ("\tSn\t");
-JU.Txt.rightJustify (sb, "    ", nType[2][0] + "\t");
-JU.Txt.rightJustify (sb, "    ", nType[2][1] + "\n");
+JU.PT.rightJustify (sb, "    ", nType[2][0] + "\t");
+JU.PT.rightJustify (sb, "    ", nType[2][1] + "\n");
 sb.append (this.name).append ("\t\tTOTAL\t");
-JU.Txt.rightJustify (sb, "    ", nTotal + "\n");
+JU.PT.rightJustify (sb, "    ", nTotal + "\n");
 this.textInfo = sb.toString ();
 return this.textInfo;
 }this.info.put ("name", this.name);
@@ -685,8 +693,8 @@ return "C" + this.order;
 c$ = Clazz.p0p ();
 };
 Clazz.defineStatics (c$,
-"axesMaxN", [15, 0, 0, 1, 3, 1, 10, 0, 1, 0, 6, 0, 1, 0, 0, 0, 15, 10, 6, 6, 10, 0, 1],
-"nUnique", [1, 0, 0, 2, 2, 4, 2, 0, 4, 0, 4, 0, 4, 0, 0, 0, 1, 2, 2, 4, 2, 0, 4],
+"axesMaxN",  Clazz.newIntArray (-1, [15, 0, 0, 1, 3, 1, 10, 0, 1, 0, 6, 0, 1, 0, 0, 0, 15, 10, 6, 6, 10, 0, 1]),
+"nUnique",  Clazz.newIntArray (-1, [1, 0, 0, 2, 2, 4, 2, 0, 4, 0, 4, 0, 4, 0, 0, 0, 1, 2, 2, 4, 2, 0, 4]),
 "s3", 3,
 "s4", 4,
 "s5", 5,
@@ -708,5 +716,5 @@ Clazz.defineStatics (c$,
 "OPERATION_PROPER_AXIS", 1,
 "OPERATION_IMPROPER_AXIS", 2,
 "OPERATION_INVERSION_CENTER", 3,
-"typeNames", ["plane", "proper axis", "improper axis", "center of inversion"]);
+"typeNames",  Clazz.newArray (-1, ["plane", "proper axis", "improper axis", "center of inversion"]));
 });

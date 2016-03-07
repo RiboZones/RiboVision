@@ -21,7 +21,7 @@ this.continuing = false;
 });
 Clazz.defineMethod (c$, "getScaling", 
  function (s) {
-var xyz = s[0].$plit (":");
+var xyz = JU.PT.split (s[0], ":");
 this.scale = JU.P3.new3 (1, 1, 1);
 for (var j = 0; j < xyz.length; j += 2) if (xyz[j].length == 1) switch (xyz[j].charAt (0)) {
 case 'x':
@@ -48,7 +48,7 @@ return JU.PT.split (data, "{");
 Clazz.defineMethod (c$, "readAtoms", 
  function (atoms) {
 for (var i = 0; i < atoms.length; ++i) {
-var lxyz = atoms[i].$plit (":");
+var lxyz = JU.PT.split (atoms[i], ":");
 var atom = this.asc.addNewAtom ();
 var x = 0;
 var y = 0;
@@ -80,7 +80,7 @@ atom.elementSymbol = l;
 Clazz.defineMethod (c$, "readBonds", 
  function (bonds) {
 for (var i = 0; i < bonds.length; ++i) {
-var beo = bonds[i].$plit (":");
+var beo = JU.PT.split (bonds[i], ":");
 var b = 0;
 var e = 0;
 var order = 1;

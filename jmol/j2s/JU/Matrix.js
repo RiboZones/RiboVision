@@ -139,7 +139,7 @@ return this.getSubmatrix (0, this.n - 1, this.m - 1, 1);
 });
 c$.newT = Clazz.defineMethod (c$, "newT", 
 function (r, asColumn) {
-return (asColumn ?  new JU.Matrix ([[r.x], [r.y], [r.z]], 3, 1) :  new JU.Matrix ([[r.x, r.y, r.z]], 1, 3));
+return (asColumn ?  new JU.Matrix ( Clazz.newArray (-1, [ Clazz.newDoubleArray (-1, [r.x]),  Clazz.newDoubleArray (-1, [r.y]),  Clazz.newDoubleArray (-1, [r.z])]), 3, 1) :  new JU.Matrix ( Clazz.newArray (-1, [ Clazz.newDoubleArray (-1, [r.x, r.y, r.z])]), 1, 3));
 }, "JU.T3,~B");
 Clazz.overrideMethod (c$, "toString", 
 function () {

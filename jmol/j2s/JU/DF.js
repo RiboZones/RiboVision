@@ -32,11 +32,13 @@ n = JU.PT.parseInt (s.substring (i + 1)) + n;
 return (i < 0 ? "" + value : JU.DF.formatDecimal (JU.PT.parseFloat (s.substring (0, i)), decimalDigits - 1) + "E" + (n >= 0 ? "+" : "") + n);
 }if (decimalDigits >= JU.DF.formattingStrings.length) decimalDigits = JU.DF.formattingStrings.length - 1;
 var s1 = ("" + value).toUpperCase ();
-var isNeg = s1.startsWith ("-");
-if (isNeg) s1 = s1.substring (1);
 var pt = s1.indexOf (".");
 if (pt < 0) return s1 + JU.DF.formattingStrings[decimalDigits].substring (1);
-var pt1 = s1.indexOf ("E-");
+var isNeg = s1.startsWith ("-");
+if (isNeg) {
+s1 = s1.substring (1);
+pt--;
+}var pt1 = s1.indexOf ("E-");
 if (pt1 > 0) {
 n = JU.PT.parseInt (s1.substring (pt1 + 1));
 s1 = "0." + "0000000000000000000000000000000000000000".substring (0, -n - 1) + s1.substring (0, 1) + s1.substring (2, pt1);
@@ -69,8 +71,8 @@ while (m >= 0 && str.charAt (m) == zero) m--;
 return str.substring (0, m + 1);
 }, "~N,~N");
 Clazz.defineStatics (c$,
-"formattingStrings", ["0", "0.0", "0.00", "0.000", "0.0000", "0.00000", "0.000000", "0.0000000", "0.00000000", "0.000000000"],
+"formattingStrings",  Clazz.newArray (-1, ["0", "0.0", "0.00", "0.000", "0.0000", "0.00000", "0.000000", "0.0000000", "0.00000000", "0.000000000"]),
 "zeros", "0000000000000000000000000000000000000000",
-"formatAdds", [0.5, 0.05, 0.005, 0.0005, 0.00005, 0.000005, 0.0000005, 0.00000005, 0.000000005, 0.0000000005]);
-c$.useNumberLocalization = c$.prototype.useNumberLocalization = [Boolean.TRUE];
+"formatAdds",  Clazz.newFloatArray (-1, [0.5, 0.05, 0.005, 0.0005, 0.00005, 0.000005, 0.0000005, 0.00000005, 0.000000005, 0.0000000005]));
+c$.useNumberLocalization = c$.prototype.useNumberLocalization =  Clazz.newArray (-1, [Boolean.TRUE]);
 });

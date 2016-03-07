@@ -51,6 +51,6 @@ for (var i = this.requests.size (); --i >= 0; ) if (this.requests.get (i)[0].equ
 this.requests.get (i)[1] = value;
 return;
 }
-this.requests.addLast ([key, value]);
+this.requests.addLast ( Clazz.newArray (-1, [key, value]));
 }, "~S,~S");
 });

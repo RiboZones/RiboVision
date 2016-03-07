@@ -140,5 +140,5 @@ Clazz.defineStatics (c$,
 "BLUE", null,
 "WHITE", null);
 c$.defaultPlotColors = c$.prototype.defaultPlotColors =  new Array (8);
-c$.defaultPlotColorNames = c$.prototype.defaultPlotColorNames = ["black", "darkGreen", "darkred", "orange", "magenta", "cyan", "maroon", "darkGray"];
+c$.defaultPlotColorNames = c$.prototype.defaultPlotColorNames =  Clazz.newArray (-1, ["black", "darkGreen", "darkred", "orange", "magenta", "cyan", "maroon", "darkGray"]);
 });

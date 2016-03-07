@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.shape");
-Clazz.load (["JU.MeshSurface", "JU.P3", "$.V3"], "J.shape.Mesh", ["java.lang.Boolean", "$.Float", "java.util.Hashtable", "JU.AU", "$.BS", "$.M3", "$.M4", "$.PT", "$.SB", "JS.T", "JU.BSUtil", "$.C", "$.Escape", "$.Measure", "$.Normix"], function () {
+Clazz.load (["JU.MeshSurface"], "J.shape.Mesh", ["java.lang.Boolean", "$.Float", "java.util.Hashtable", "JU.AU", "$.BS", "$.M3", "$.M4", "$.Measure", "$.P3", "$.PT", "$.SB", "$.V3", "JS.T", "JU.BSUtil", "$.C", "$.Escape", "$.Normix"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.title = null;
 this.meshColix = 0;
@@ -21,6 +21,8 @@ this.width = 0;
 this.ptCenter = null;
 this.linkedMesh = null;
 this.vertexColorMap = null;
+this.vAB = null;
+this.vTemp = null;
 this.color = 0;
 this.useColix = true;
 this.unitCell = null;
@@ -40,9 +42,6 @@ this.frontOnly = false;
 this.isTwoSided = true;
 this.havePlanarContours = false;
 this.bsTemp = null;
-this.vAB = null;
-this.vAC = null;
-this.vTemp = null;
 this.colorDensity = false;
 this.cappingObject = null;
 this.slabbingObject = null;
@@ -52,28 +51,22 @@ this.recalcAltVertices = false;
 this.symopColixes = null;
 Clazz.instantialize (this, arguments);
 }, J.shape, "Mesh", JU.MeshSurface);
-Clazz.prepareFields (c$, function () {
-this.ptCenter = JU.P3.new3 (0, 0, 0);
-this.vAB =  new JU.V3 ();
-this.vAC =  new JU.V3 ();
-this.vTemp =  new JU.V3 ();
-});
 Clazz.defineMethod (c$, "setVisibilityFlags", 
 function (n) {
 this.visibilityFlags = n;
 }, "~N");
-Clazz.makeConstructor (c$, 
-function () {
-Clazz.superConstructor (this, J.shape.Mesh, []);
-});
 Clazz.defineMethod (c$, "mesh1", 
-function (thisID, colix, index) {
+function (vwr, thisID, colix, index) {
 if ("+PREVIOUS_MESH+".equals (thisID)) thisID = null;
+this.vwr = vwr;
 this.thisID = thisID;
 this.colix = colix;
 this.index = index;
+this.ptCenter =  new JU.P3 ();
+this.vAB =  new JU.V3 ();
+this.vTemp =  new JU.V3 ();
 return this;
-}, "~S,~N,~N");
+}, "JV.Viewer,~S,~N,~N");
 Clazz.defineMethod (c$, "clear", 
 function (meshType) {
 this.clearMesh (meshType);
@@ -86,7 +79,6 @@ this.bsSlabDisplay = null;
 this.bsSlabGhost = null;
 this.symops = null;
 this.symopColixes = null;
-this.bsTransPolygons = null;
 this.cappingObject = null;
 this.colix = 23;
 this.colorDensity = false;
@@ -103,7 +95,6 @@ this.lattice = null;
 this.mat4 = null;
 this.normixes = null;
 this.pis = null;
-this.polygonTranslucencies = null;
 this.scale3d = 0;
 this.showContourLines = false;
 this.showPoints = false;
@@ -117,6 +108,7 @@ this.unitCell = null;
 this.useColix = true;
 this.vertexCount0 = this.polygonCount0 = this.vc = this.pc = 0;
 this.vs = null;
+this.vertexSource = null;
 this.volumeRenderPointSize = 0.15;
 this.meshType = meshType;
 }, "~S");
@@ -131,6 +123,7 @@ this.setLighting (lighting);
 }, "~N,~A,JU.P4");
 Clazz.defineMethod (c$, "setNormixes", 
 function (normals) {
+if (normals == null) return (this.normixes = null);
 this.normixes =  Clazz.newShortArray (this.normixCount, 0);
 if (this.bsTemp == null) this.bsTemp = JU.Normix.newVertexBitSet ();
 if (this.haveXyPoints) for (var i = this.normixCount; --i >= 0; ) this.normixes[i] = 9999;
@@ -142,6 +135,7 @@ return this.normixes;
 Clazz.defineMethod (c$, "getNormals", 
 function (vertices, plane) {
 this.normixCount = (this.isTriangleSet ? this.pc : this.vc);
+if (this.normixCount < 0) return null;
 var normals =  new Array (this.normixCount);
 for (var i = this.normixCount; --i >= 0; ) normals[i] =  new JU.V3 ();
 
@@ -181,29 +175,30 @@ this.colix = JU.C.getColixTranslucent3 (this.colix, isTranslucent, iLevel);
 }, "~B,~N");
 Clazz.defineMethod (c$, "sumVertexNormals", 
 function (vertices, normals) {
-this.sumVertexNormals2 (vertices, normals);
+J.shape.Mesh.sumVertexNormals2 (this, vertices, normals);
 }, "~A,~A");
-Clazz.defineMethod (c$, "sumVertexNormals2", 
-function (vertices, normals) {
-var adjustment = this.checkByteCount;
-var min = this.getMinDistance2ForVertexGrouping ();
-for (var i = this.pc; --i >= 0; ) {
+c$.sumVertexNormals2 = Clazz.defineMethod (c$, "sumVertexNormals2", 
+function (m, vertices, normals) {
+var adjustment = m.checkByteCount;
+var min = m.getMinDistance2ForVertexGrouping ();
+for (var i = m.pc; --i >= 0; ) {
 try {
-if (!this.setABC (i)) continue;
-var vA = vertices[this.iA];
-var vB = vertices[this.iB];
-var vC = vertices[this.iC];
+var face = m.setABC (i);
+if (face == null) continue;
+var vA = vertices[face[0]];
+var vB = vertices[face[1]];
+var vC = vertices[face[2]];
 if (vA.distanceSquared (vB) < min || vB.distanceSquared (vC) < min || vA.distanceSquared (vC) < min) continue;
-JU.Measure.calcNormalizedNormal (vA, vB, vC, this.vTemp, this.vAB, this.vAC);
-if (this.isTriangleSet) {
-normals[i].setT (this.vTemp);
-continue;
-}var l = this.vTemp.length ();
-if (l > 0.9 && l < 1.1) for (var j = this.pis[i].length - adjustment; --j >= 0; ) {
-var k = this.pis[i][j];
-normals[k].add (this.vTemp);
+JU.Measure.calcNormalizedNormal (vA, vB, vC, m.vTemp, m.vAB);
+if (m.isTriangleSet) {
+normals[i].setT (m.vTemp);
+} else {
+var l = m.vTemp.length ();
+if (l > 0.9 && l < 1.1) for (var j = face.length - adjustment; --j >= 0; ) {
+var k = face[j];
+normals[k].add (m.vTemp);
 }
-} catch (e) {
+}} catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
 System.out.println (e);
 } else {
@@ -211,7 +206,7 @@ throw e;
 }
 }
 }
-}, "~A,~A");
+}, "J.shape.Mesh,~A,~A");
 Clazz.defineMethod (c$, "getMinDistance2ForVertexGrouping", 
 function () {
 return 1e-8;
@@ -219,17 +214,18 @@ return 1e-8;
 Clazz.defineMethod (c$, "getState", 
 function (type) {
 var s =  new JU.SB ();
+if (this.isValid) {
 s.append (type);
-if (!type.equals ("mo")) s.append (" ID ").append (JU.PT.esc (this.thisID));
+if (!type.equals ("mo") && !type.equals ("nbo")) s.append (" ID ").append (JU.PT.esc (this.thisID));
 if (this.lattice != null) s.append (" lattice ").append (JU.Escape.eP (this.lattice));
 if (this.meshColix != 0) s.append (" color mesh ").append (JU.C.getHexCode (this.meshColix));
 s.append (this.getRendering ());
 if (!this.visible) s.append (" hidden");
 if (this.bsDisplay != null) {
 s.append (";\n  ").append (type);
-if (!type.equals ("mo")) s.append (" ID ").append (JU.PT.esc (this.thisID));
+if (!type.equals ("mo") && !type.equals ("nbo")) s.append (" ID ").append (JU.PT.esc (this.thisID));
 s.append (" display " + JU.Escape.eBS (this.bsDisplay));
-}return s.toString ();
+}}return s.toString ();
 }, "~S");
 Clazz.defineMethod (c$, "getRendering", 
 function () {
@@ -319,8 +315,8 @@ case 1073741964:
 this.setLighting (tokProp);
 return;
 case 1073742042:
-case 1113198595:
-this.showPoints = (tokProp == 1113198595 ? bProp : !bProp);
+case 1112150019:
+this.showPoints = (tokProp == 1112150019 ? bProp : !bProp);
 return;
 case 1073742052:
 case 1073742018:
@@ -348,10 +344,15 @@ info.put ("vertexCount", Integer.$valueOf (this.vc));
 info.put ("polygonCount", Integer.$valueOf (this.pc));
 info.put ("haveQuads", Boolean.$valueOf (this.haveQuads));
 info.put ("haveValues", Boolean.$valueOf (this.vvs != null));
-if (this.vc > 0 && isAll) info.put ("vertices", JU.AU.arrayCopyPt (this.vs, this.vc));
-if (this.vvs != null && isAll) info.put ("vertexValues", JU.AU.arrayCopyF (this.vvs, this.vc));
-if (this.pc > 0 && isAll) info.put ("polygons", JU.AU.arrayCopyII (this.pis, this.pc));
-return info;
+if (isAll) {
+if (this.vc > 0) {
+info.put ("vertices", JU.AU.arrayCopyPt (this.vs, this.vc));
+if (this.bsSlabDisplay != null) info.put ("bsVertices", this.getVisibleVBS ());
+}if (this.vvs != null) info.put ("vertexValues", JU.AU.arrayCopyF (this.vvs, this.vc));
+if (this.pc > 0) {
+info.put ("polygons", JU.AU.arrayCopyII (this.pis, this.pc));
+if (this.bsSlabDisplay != null) info.put ("bsPolygons", this.bsSlabDisplay);
+}}return info;
 }, "~B");
 Clazz.defineMethod (c$, "getBoundingBox", 
 function () {

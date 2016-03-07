@@ -6,9 +6,6 @@ this.y = 0;
 this.z = 0;
 Clazz.instantialize (this, arguments);
 }, JU, "T3", null, [javajs.api.JSONEncodable, java.io.Serializable]);
-Clazz.makeConstructor (c$, 
-function () {
-});
 Clazz.defineMethod (c$, "set", 
 function (x, y, z) {
 this.x = x;
@@ -74,6 +71,12 @@ this.x += a;
 this.y += b;
 this.z += c;
 }, "~N,~N,~N");
+Clazz.defineMethod (c$, "scaleT", 
+function (p) {
+this.x *= p.x;
+this.y *= p.y;
+this.z *= p.z;
+}, "JU.T3");
 Clazz.defineMethod (c$, "scaleAdd2", 
 function (s, t1, t2) {
 this.x = s * t1.x + t2.x;

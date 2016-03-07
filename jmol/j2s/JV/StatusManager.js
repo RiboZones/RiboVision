@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JV");
-Clazz.load (["java.util.Hashtable"], "JV.StatusManager", ["java.lang.Boolean", "$.Float", "javajs.awt.Dimension", "JU.Lst", "$.PT", "J.api.Interface", "J.c.CBK", "JU.Logger"], function () {
+Clazz.load (["java.util.Hashtable"], "JV.StatusManager", ["java.lang.Boolean", "$.Float", "JU.Lst", "$.PT", "J.api.Interface", "J.c.CBK", "JS.SV", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.vwr = null;
 this.jsl = null;
@@ -9,6 +9,7 @@ this.allowStatusReporting = false;
 this.messageQueue = null;
 this.statusPtr = 0;
 this.jmolScriptCallbacks = null;
+this.imageMap = null;
 this.minSyncRepeatMs = 100;
 this.syncingScripts = false;
 this.syncingMouse = false;
@@ -29,18 +30,6 @@ Clazz.makeConstructor (c$,
 function (vwr) {
 this.vwr = vwr;
 }, "JV.Viewer");
-Clazz.defineMethod (c$, "setAllowStatusReporting", 
-function (TF) {
-this.allowStatusReporting = TF;
-}, "~B");
-Clazz.defineMethod (c$, "getStatusList", 
-function () {
-return this.statusList;
-});
-Clazz.defineMethod (c$, "getMessageQueue", 
-function () {
-return this.messageQueue;
-});
 Clazz.defineMethod (c$, "recordStatus", 
  function (statusName) {
 return (this.allowStatusReporting && this.statusList.length > 0 && (this.statusList.equals ("all") || this.statusList.indexOf (statusName) >= 0));
@@ -80,15 +69,6 @@ this.messageQueue.clear ();
 this.statusPtr = 0;
 return list;
 }, "~S");
-Clazz.defineMethod (c$, "setJmolStatusListener", 
-function (jmolStatusListener, jmolCallbackListener) {
-this.jsl = jmolStatusListener;
-this.cbl = (jmolCallbackListener == null ? jmolStatusListener : jmolCallbackListener);
-}, "J.api.JmolStatusListener,J.api.JmolCallbackListener");
-Clazz.defineMethod (c$, "setJmolCallbackListener", 
-function (jmolCallbackListener) {
-this.cbl = jmolCallbackListener;
-}, "J.api.JmolCallbackListener");
 Clazz.defineMethod (c$, "jmolScriptCallback", 
  function (callback) {
 var s = this.jmolScriptCallbacks.get (callback);
@@ -98,6 +78,7 @@ return s;
 Clazz.defineMethod (c$, "setCallbackFunction", 
 function (callbackType, callbackFunction) {
 var callback = J.c.CBK.getCallback (callbackType);
+System.out.println ("callback set for " + callbackType + " " + callbackFunction + " " + callback);
 if (callback != null) {
 var pt = (callbackFunction == null ? 0 : callbackFunction.length > 7 && callbackFunction.toLowerCase ().indexOf ("script:") == 0 ? 7 : callbackFunction.length > 11 && callbackFunction.toLowerCase ().indexOf ("jmolscript:") == 0 ? 11 : 0);
 if (pt == 0) this.jmolScriptCallbacks.remove (callback);
@@ -105,50 +86,78 @@ if (pt == 0) this.jmolScriptCallbacks.remove (callback);
 }if (this.cbl != null) this.cbl.setCallbackFunction (callbackType, callbackFunction);
 }, "~S,~S");
 Clazz.defineMethod (c$, "notifyEnabled", 
- function (type) {
+function (type) {
 return this.cbl != null && this.cbl.notifyEnabled (type);
 }, "J.c.CBK");
 Clazz.defineMethod (c$, "setStatusAppletReady", 
 function (htmlName, isReady) {
 var sJmol = (isReady ? this.jmolScriptCallback (J.c.CBK.APPLETREADY) : null);
-if (this.notifyEnabled (J.c.CBK.APPLETREADY)) this.cbl.notifyCallback (J.c.CBK.APPLETREADY, [sJmol, htmlName, Boolean.$valueOf (isReady), null]);
+if (this.notifyEnabled (J.c.CBK.APPLETREADY)) this.cbl.notifyCallback (J.c.CBK.APPLETREADY,  Clazz.newArray (-1, [sJmol, htmlName, Boolean.$valueOf (isReady), null]));
 }, "~S,~B");
 Clazz.defineMethod (c$, "setStatusAtomMoved", 
 function (bsMoved) {
 var sJmol = this.jmolScriptCallback (J.c.CBK.ATOMMOVED);
 this.setStatusChanged ("atomMoved", -1, bsMoved, false);
-if (this.notifyEnabled (J.c.CBK.ATOMMOVED)) this.cbl.notifyCallback (J.c.CBK.ATOMMOVED, [sJmol, bsMoved]);
+if (this.notifyEnabled (J.c.CBK.ATOMMOVED)) this.cbl.notifyCallback (J.c.CBK.ATOMMOVED,  Clazz.newArray (-1, [sJmol, bsMoved]));
 }, "JU.BS");
 Clazz.defineMethod (c$, "setStatusAtomPicked", 
 function (atomIndex, strInfo, map) {
 var sJmol = this.jmolScriptCallback (J.c.CBK.PICK);
 JU.Logger.info ("setStatusAtomPicked(" + atomIndex + "," + strInfo + ")");
 this.setStatusChanged ("atomPicked", atomIndex, strInfo, false);
-if (this.notifyEnabled (J.c.CBK.PICK)) this.cbl.notifyCallback (J.c.CBK.PICK, [sJmol, strInfo, Integer.$valueOf (atomIndex), map]);
+if (this.notifyEnabled (J.c.CBK.PICK)) this.cbl.notifyCallback (J.c.CBK.PICK,  Clazz.newArray (-1, [sJmol, strInfo, Integer.$valueOf (atomIndex), map]));
 }, "~N,~S,java.util.Map");
 Clazz.defineMethod (c$, "setStatusClicked", 
 function (x, y, action, clickCount, mode) {
 var sJmol = this.jmolScriptCallback (J.c.CBK.CLICK);
 if (!this.notifyEnabled (J.c.CBK.CLICK)) return action;
-var m = [action, mode];
-this.cbl.notifyCallback (J.c.CBK.CLICK, [sJmol, Integer.$valueOf (x), Integer.$valueOf (y), Integer.$valueOf (action), Integer.$valueOf (clickCount), m]);
+var m =  Clazz.newIntArray (-1, [action, mode]);
+this.cbl.notifyCallback (J.c.CBK.CLICK,  Clazz.newArray (-1, [sJmol, Integer.$valueOf (x), Integer.$valueOf (y), Integer.$valueOf (action), Integer.$valueOf (clickCount), m]));
 return m[0];
 }, "~N,~N,~N,~N,~N");
 Clazz.defineMethod (c$, "setStatusResized", 
 function (width, height) {
 var sJmol = this.jmolScriptCallback (J.c.CBK.RESIZE);
-if (this.notifyEnabled (J.c.CBK.RESIZE)) this.cbl.notifyCallback (J.c.CBK.RESIZE, [sJmol, Integer.$valueOf (width), Integer.$valueOf (height)]);
+if (this.notifyEnabled (J.c.CBK.RESIZE)) this.cbl.notifyCallback (J.c.CBK.RESIZE,  Clazz.newArray (-1, [sJmol, Integer.$valueOf (width), Integer.$valueOf (height)]));
 }, "~N,~N");
+Clazz.defineMethod (c$, "haveHoverCallback", 
+function () {
+return (this.jmolScriptCallbacks.containsKey (J.c.CBK.HOVER) || this.notifyEnabled (J.c.CBK.HOVER));
+});
 Clazz.defineMethod (c$, "setStatusAtomHovered", 
 function (iatom, strInfo) {
 var sJmol = this.jmolScriptCallback (J.c.CBK.HOVER);
-if (this.notifyEnabled (J.c.CBK.HOVER)) this.cbl.notifyCallback (J.c.CBK.HOVER, [sJmol, strInfo, Integer.$valueOf (iatom)]);
+if (this.notifyEnabled (J.c.CBK.HOVER)) this.cbl.notifyCallback (J.c.CBK.HOVER,  Clazz.newArray (-1, [sJmol, strInfo, Integer.$valueOf (iatom)]));
 }, "~N,~S");
 Clazz.defineMethod (c$, "setStatusObjectHovered", 
 function (id, strInfo, pt) {
 var sJmol = this.jmolScriptCallback (J.c.CBK.HOVER);
-if (this.notifyEnabled (J.c.CBK.HOVER)) this.cbl.notifyCallback (J.c.CBK.HOVER, [sJmol, strInfo, Integer.$valueOf (-1), id, Float.$valueOf (pt.x), Float.$valueOf (pt.y), Float.$valueOf (pt.z)]);
+if (this.notifyEnabled (J.c.CBK.HOVER)) this.cbl.notifyCallback (J.c.CBK.HOVER,  Clazz.newArray (-1, [sJmol, strInfo, Integer.$valueOf (-1), id, Float.$valueOf (pt.x), Float.$valueOf (pt.y), Float.$valueOf (pt.z)]));
 }, "~S,~S,JU.T3");
+Clazz.defineMethod (c$, "showImage", 
+function (title, image) {
+var a = JU.PT.split (title, "\1");
+title = (a.length < 3 || a[2].equals ("null") ? a[1].substring (a[1].lastIndexOf ("/") + 1) : a[2]);
+var sJmol = this.jmolScriptCallback (J.c.CBK.IMAGE);
+if (this.notifyEnabled (J.c.CBK.IMAGE)) this.cbl.notifyCallback (J.c.CBK.IMAGE,  Clazz.newArray (-1, [sJmol, title, image]));
+if (Boolean.TRUE.equals (image)) {
+if (this.imageMap == null) return;
+var lst =  new JU.Lst ();
+for (var key, $key = this.imageMap.keySet ().iterator (); $key.hasNext () && ((key = $key.next ()) || true);) lst.addLast (key);
+
+for (var i = lst.size (); --i >= 0; ) this.imageMap.get (lst.get (i)).closeMe ();
+
+return;
+}if (this.imageMap == null) this.imageMap =  new java.util.Hashtable ();
+var d = this.imageMap.get (title);
+if (Boolean.FALSE.equals (image)) {
+if (d != null) d.closeMe ();
+return;
+}if (d == null && image != null) d = this.vwr.apiPlatform.getImageDialog (title, this.imageMap);
+if (d == null) return;
+if (image == null) d.closeMe ();
+ else d.setImage (image);
+}, "~S,~O");
 Clazz.defineMethod (c$, "setFileLoadStatus", 
 function (fullPathName, fileName, modelName, errorMsg, ptLoad, doCallback, isAsync) {
 if (fullPathName == null && "resetUndo".equals (fileName)) {
@@ -161,7 +170,7 @@ var sJmol = this.jmolScriptCallback (J.c.CBK.LOADSTRUCT);
 if (doCallback && this.notifyEnabled (J.c.CBK.LOADSTRUCT)) {
 var name = this.vwr.getP ("_smilesString");
 if (name.length != 0) fileName = name;
-this.cbl.notifyCallback (J.c.CBK.LOADSTRUCT, [sJmol, fullPathName, fileName, modelName, errorMsg, Integer.$valueOf (ptLoad), this.vwr.getP ("_modelNumber"), this.vwr.getModelNumberDotted (this.vwr.getModelCount () - 1), isAsync]);
+this.cbl.notifyCallback (J.c.CBK.LOADSTRUCT,  Clazz.newArray (-1, [sJmol, fullPathName, fileName, modelName, errorMsg, Integer.$valueOf (ptLoad), this.vwr.getP ("_modelNumber"), this.vwr.getModelNumberDotted (this.vwr.ms.mc - 1), isAsync]));
 }}, "~S,~S,~S,~S,~N,~B,Boolean");
 Clazz.defineMethod (c$, "setStatusFrameChanged", 
 function (fileNo, modelNo, firstNo, lastNo, currentFrame, currentMorphModel, entryName) {
@@ -170,15 +179,23 @@ var animating = this.vwr.am.animationOn;
 var frameNo = (animating ? -2 - currentFrame : currentFrame);
 this.setStatusChanged ("frameChanged", frameNo, (currentFrame >= 0 ? this.vwr.getModelNumberDotted (currentFrame) : ""), false);
 var sJmol = this.jmolScriptCallback (J.c.CBK.ANIMFRAME);
-if (this.notifyEnabled (J.c.CBK.ANIMFRAME)) this.cbl.notifyCallback (J.c.CBK.ANIMFRAME, [sJmol, [frameNo, fileNo, modelNo, firstNo, lastNo, currentFrame], entryName, Float.$valueOf (currentMorphModel)]);
-if (this.vwr.jmolpopup != null && !animating) this.vwr.jmolpopup.jpiUpdateComputedMenus ();
+if (this.notifyEnabled (J.c.CBK.ANIMFRAME)) this.cbl.notifyCallback (J.c.CBK.ANIMFRAME,  Clazz.newArray (-1, [sJmol,  Clazz.newIntArray (-1, [frameNo, fileNo, modelNo, firstNo, lastNo, currentFrame]), entryName, Float.$valueOf (currentMorphModel)]));
+if (!animating) this.vwr.checkMenuUpdate ();
 }, "~N,~N,~N,~N,~N,~N,~S");
+Clazz.defineMethod (c$, "setStatusDragDropped", 
+function (mode, x, y, fileName) {
+this.setStatusChanged ("dragDrop", 0, "", false);
+var sJmol = this.jmolScriptCallback (J.c.CBK.DRAGDROP);
+if (!this.notifyEnabled (J.c.CBK.DRAGDROP)) return false;
+this.cbl.notifyCallback (J.c.CBK.DRAGDROP,  Clazz.newArray (-1, [sJmol, Integer.$valueOf (mode), Integer.$valueOf (x), Integer.$valueOf (y), fileName]));
+return true;
+}, "~N,~N,~N,~S");
 Clazz.defineMethod (c$, "setScriptEcho", 
 function (strEcho, isScriptQueued) {
 if (strEcho == null) return;
 this.setStatusChanged ("scriptEcho", 0, strEcho, false);
 var sJmol = this.jmolScriptCallback (J.c.CBK.ECHO);
-if (this.notifyEnabled (J.c.CBK.ECHO)) this.cbl.notifyCallback (J.c.CBK.ECHO, [sJmol, strEcho, Integer.$valueOf (isScriptQueued ? 1 : 0)]);
+if (this.notifyEnabled (J.c.CBK.ECHO)) this.cbl.notifyCallback (J.c.CBK.ECHO,  Clazz.newArray (-1, [sJmol, strEcho, Integer.$valueOf (isScriptQueued ? 1 : 0)]));
 }, "~S,~B");
 Clazz.defineMethod (c$, "setStatusMeasuring", 
 function (status, intInfo, strMeasure, value) {
@@ -190,17 +207,17 @@ sJmol = this.jmolScriptCallback (J.c.CBK.MEASURE);
 } else if (status.equals ("measurePicked")) {
 this.setStatusChanged ("measurePicked", intInfo, strMeasure, false);
 JU.Logger.info ("measurePicked " + intInfo + " " + strMeasure);
-}if (this.notifyEnabled (J.c.CBK.MEASURE)) this.cbl.notifyCallback (J.c.CBK.MEASURE, [sJmol, strMeasure, Integer.$valueOf (intInfo), status, Float.$valueOf (value)]);
+}if (this.notifyEnabled (J.c.CBK.MEASURE)) this.cbl.notifyCallback (J.c.CBK.MEASURE,  Clazz.newArray (-1, [sJmol, strMeasure, Integer.$valueOf (intInfo), status, Float.$valueOf (value)]));
 }, "~S,~N,~S,~N");
 Clazz.defineMethod (c$, "notifyError", 
 function (errType, errMsg, errMsgUntranslated) {
 var sJmol = this.jmolScriptCallback (J.c.CBK.ERROR);
-if (this.notifyEnabled (J.c.CBK.ERROR)) this.cbl.notifyCallback (J.c.CBK.ERROR, [sJmol, errType, errMsg, this.vwr.getShapeErrorState (), errMsgUntranslated]);
+if (this.notifyEnabled (J.c.CBK.ERROR)) this.cbl.notifyCallback (J.c.CBK.ERROR,  Clazz.newArray (-1, [sJmol, errType, errMsg, this.vwr.getShapeErrorState (), errMsgUntranslated]));
 }, "~S,~S,~S");
 Clazz.defineMethod (c$, "notifyMinimizationStatus", 
 function (minStatus, minSteps, minEnergy, minEnergyDiff, ff) {
 var sJmol = this.jmolScriptCallback (J.c.CBK.MINIMIZATION);
-if (this.notifyEnabled (J.c.CBK.MINIMIZATION)) this.cbl.notifyCallback (J.c.CBK.MINIMIZATION, [sJmol, minStatus, minSteps, minEnergy, minEnergyDiff, ff]);
+if (this.notifyEnabled (J.c.CBK.MINIMIZATION)) this.cbl.notifyCallback (J.c.CBK.MINIMIZATION,  Clazz.newArray (-1, [sJmol, minStatus, minSteps, minEnergy, minEnergyDiff, ff]));
 }, "~S,Integer,Float,Float,~S");
 Clazz.defineMethod (c$, "setScriptStatus", 
 function (strStatus, statusMessage, msWalltime, strErrorMessageUntranslated) {
@@ -216,18 +233,13 @@ if (this.recordStatus ("script")) {
 var isError = (strErrorMessageUntranslated != null);
 this.setStatusChanged ((isError ? "scriptError" : "scriptStatus"), 0, strStatus, false);
 if (isError || isScriptCompletion) this.setStatusChanged ("scriptTerminated", 1, "Jmol script terminated" + (isError ? " unsuccessfully: " + strStatus : " successfully"), false);
-}var data;
-if (isScriptCompletion && this.vwr.getBoolean (603979880) && this.vwr.getBoolean (603979825)) {
-data = [null, "script <exiting>", statusMessage, Integer.$valueOf (-1), strErrorMessageUntranslated];
-if (this.notifyEnabled (J.c.CBK.SCRIPT)) this.cbl.notifyCallback (J.c.CBK.SCRIPT, data);
-this.processScript (data);
-strStatus = "Jmol script completed.";
-}data = [sJmol, strStatus, statusMessage, Integer.$valueOf (isScriptCompletion ? -1 : msWalltime), strErrorMessageUntranslated];
+}if (isScriptCompletion && this.vwr.getBoolean (603979880) && this.vwr.getBoolean (603979825)) strStatus = this.vwr.getChimeMessenger ().scriptCompleted (this, statusMessage, strErrorMessageUntranslated);
+var data =  Clazz.newArray (-1, [sJmol, strStatus, statusMessage, Integer.$valueOf (isScriptCompletion ? -1 : msWalltime), strErrorMessageUntranslated]);
 if (this.notifyEnabled (J.c.CBK.SCRIPT)) this.cbl.notifyCallback (J.c.CBK.SCRIPT, data);
 this.processScript (data);
 }, "~S,~S,~N,~S");
 Clazz.defineMethod (c$, "processScript", 
- function (data) {
+function (data) {
 var msWalltime = (data[3]).intValue ();
 if (this.vwr.scriptEditor != null) {
 if (msWalltime > 0) {
@@ -285,13 +297,30 @@ if (JU.Logger.debugging) {
 JU.Logger.debug (this.vwr.appletName + " sync mode=" + syncMode + "; synced? " + this.isSynced + "; driving? " + this.drivingSync + "; disabled? " + this.syncDisabled);
 }}, "~N");
 Clazz.defineMethod (c$, "syncSend", 
-function (script, appletName, port) {
-if (port != 0 || this.notifyEnabled (J.c.CBK.SYNC)) this.cbl.notifyCallback (J.c.CBK.SYNC, [null, script, appletName, Integer.$valueOf (port)]);
-}, "~S,~S,~N");
+function (script, appletNameOrProp, port) {
+if (port != 0 || this.notifyEnabled (J.c.CBK.SYNC)) {
+var o =  Clazz.newArray (-1, [null, script, appletNameOrProp, Integer.$valueOf (port)]);
+this.cbl.notifyCallback (J.c.CBK.SYNC, o);
+return o[0];
+}return null;
+}, "~S,~O,~N");
 Clazz.defineMethod (c$, "modifySend", 
 function (atomIndex, modelIndex, mode, msg) {
-if (this.notifyEnabled (J.c.CBK.STRUCTUREMODIFIED)) this.cbl.notifyCallback (J.c.CBK.STRUCTUREMODIFIED, [null, Integer.$valueOf (mode), Integer.$valueOf (atomIndex), Integer.$valueOf (modelIndex), msg]);
+var sJmol = this.jmolScriptCallback (J.c.CBK.STRUCTUREMODIFIED);
+if (this.notifyEnabled (J.c.CBK.STRUCTUREMODIFIED)) this.cbl.notifyCallback (J.c.CBK.STRUCTUREMODIFIED,  Clazz.newArray (-1, [sJmol, Integer.$valueOf (mode), Integer.$valueOf (atomIndex), Integer.$valueOf (modelIndex), msg]));
 }, "~N,~N,~N,~S");
+Clazz.defineMethod (c$, "processService", 
+function (info) {
+var s = info.get ("service");
+if (s == null) return null;
+if (Clazz.instanceOf (s, JS.SV)) {
+var m =  new java.util.Hashtable ();
+for (var e, $e = info.entrySet ().iterator (); $e.hasNext () && ((e = $e.next ()) || true);) m.put (e.getKey (), JS.SV.oValue (e.getValue ()));
+
+info = m;
+}if (this.notifyEnabled (J.c.CBK.SERVICE)) this.cbl.notifyCallback (J.c.CBK.SERVICE,  Clazz.newArray (-1, [null, info]));
+return info;
+}, "java.util.Map");
 Clazz.defineMethod (c$, "getSyncMode", 
 function () {
 return (!this.isSynced ? 0 : this.drivingSync ? 1 : 2);
@@ -327,9 +356,9 @@ function () {
 return (this.jsl == null ? null : this.jsl.getRegistryInfo ());
 });
 Clazz.defineMethod (c$, "dialogAsk", 
-function (type, fileName) {
+function (type, fileName, params) {
 var isImage = type.equals ("Save Image");
-var sd = J.api.Interface.getOption ("dialog.Dialog");
+var sd = J.api.Interface.getOption ("dialog.Dialog", this.vwr, "status");
 if (sd == null) return null;
 sd.setupUI (false);
 if (isImage) sd.setImageInfo (this.qualityJPG, this.qualityPNG, this.imageType);
@@ -338,16 +367,20 @@ if (isImage && outputFileName != null) {
 this.qualityJPG = sd.getQuality ("JPG");
 this.qualityPNG = sd.getQuality ("PNG");
 var sType = sd.getType ();
-if (sType != null) this.imageType = sType;
+if (params != null) {
+params.put ("qualityJPG", Integer.$valueOf (this.qualityJPG));
+params.put ("qualityPNG", Integer.$valueOf (this.qualityPNG));
+if (sType != null) params.put ("dialogImageType", sType);
+}if (sType != null) this.imageType = sType;
 }return outputFileName;
-}, "~S,~S");
+}, "~S,~S,java.util.Map");
 Clazz.defineMethod (c$, "getJspecViewProperties", 
 function (myParam) {
 return (this.jsl == null ? null : this.jsl.getJSpecViewProperty (myParam == null || myParam.length == 0 ? "" : ":" + myParam));
 }, "~S");
 Clazz.defineMethod (c$, "resizeInnerPanel", 
 function (width, height) {
-return (this.jsl == null ?  new javajs.awt.Dimension (width, height) : this.jsl.resizeInnerPanel ("preferredWidthHeight " + width + " " + height + ";"));
+return (this.jsl == null ?  Clazz.newIntArray (-1, [width, height]) : this.jsl.resizeInnerPanel ("preferredWidthHeight " + width + " " + height + ";"));
 }, "~N,~N");
 Clazz.defineStatics (c$,
 "MAXIMUM_QUEUE_LENGTH", 16,

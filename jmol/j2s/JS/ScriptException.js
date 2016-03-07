@@ -9,7 +9,6 @@ Clazz.instantialize (this, arguments);
 }, JS, "ScriptException", Exception);
 Clazz.makeConstructor (c$, 
 function (se, msg, untranslated, isError) {
-Clazz.superConstructor (this, JS.ScriptException, []);
 this.eval = se;
 this.message = msg;
 this.isError = isError;
@@ -19,6 +18,10 @@ this.eval.setException (this, msg, untranslated);
 Clazz.defineMethod (c$, "getErrorMessageUntranslated", 
 function () {
 return this.untranslated;
+});
+Clazz.overrideMethod (c$, "getMessage", 
+function () {
+return this.message;
 });
 Clazz.overrideMethod (c$, "toString", 
 function () {

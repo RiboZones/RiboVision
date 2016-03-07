@@ -75,7 +75,7 @@ return ret;
 Clazz.overrideMethod (c$, "showMessage", 
 function (msg, title) {
 JU.Logger.info (msg);
-var applet = this.vwr.applet;
+var applet = this.vwr.html5Applet;
 {
 applet._showStatus(msg, title);
 }this.getFocusNow (true);
@@ -116,7 +116,7 @@ this.vwr.repaintDone ();
 Clazz.overrideMethod (c$, "printPanel", 
 function (pl, os, title) {
 pl.title = title;
-pl.date = this.apiPlatform.getDateFormat (true);
+pl.date = this.apiPlatform.getDateFormat ("8824");
 this.pd.setPrint (pl, "Helvetica");
 try {
 (JSV.common.JSViewer.getInterface ("JSV.common.PDFWriter")).createPdfDocument (this, pl, os);

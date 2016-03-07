@@ -85,11 +85,8 @@ this.translation.rotationShift12ths += t.rotationShift12ths;
 this.translation.vectorShift12ths.add (t.vectorShift12ths);
 }}
 this.primitiveCode = (this.isImproper ? "-" : "") + this.primitiveCode + this.translationString;
-if (this.isImproper) {
-this.seitzMatrix12ths.setM4 (this.rotation.seitzMatrixInv);
-} else {
-this.seitzMatrix12ths.setM4 (this.rotation.seitzMatrix);
-}this.seitzMatrix12ths.m03 = this.translation.vectorShift12ths.x;
+this.seitzMatrix12ths.setM4 (this.isImproper ? this.rotation.seitzMatrixInv : this.rotation.seitzMatrix);
+this.seitzMatrix12ths.m03 = this.translation.vectorShift12ths.x;
 this.seitzMatrix12ths.m13 = this.translation.vectorShift12ths.y;
 this.seitzMatrix12ths.m23 = this.translation.vectorShift12ths.z;
 switch (this.axisType) {
@@ -127,7 +124,7 @@ sb.append ("; axisType: ").appendC (this.axisType);
 if (this.diagonalReferenceAxis != '\0') sb.appendC (this.diagonalReferenceAxis);
 }if (this.translationString.length > 0) sb.append ("; translation: ").append (this.translationString);
 if (vectorCode.length > 0) sb.append ("; vector offset: ").append (vectorCode);
-if (this.rotation != null) sb.append ("\noperator: ").append (this.getXYZ (this.allPositive)).append ("\nSeitz matrix:\n").append (JS.SymmetryOperation.dumpSeitz (this.seitzMatrix12ths));
+if (this.rotation != null) sb.append ("\noperator: ").append (this.getXYZ (this.allPositive)).append ("\nSeitz matrix:\n").append (JS.SymmetryOperation.dumpSeitz (this.seitzMatrix12ths, false));
 return sb.toString ();
 }, "~S");
 Clazz.defineMethod (c$, "getXYZ", 

@@ -9,12 +9,6 @@ this.sZ = 0;
 this.sD = -1;
 Clazz.instantialize (this, arguments);
 }, JU, "Point3fi", JU.P3, Cloneable);
-c$.set2 = Clazz.defineMethod (c$, "set2", 
-function (p3f, p3i) {
-p3f.x = p3i.x;
-p3f.y = p3i.y;
-p3f.z = p3i.z;
-}, "JU.P3,JU.P3i");
 Clazz.defineMethod (c$, "copy", 
 function () {
 try {

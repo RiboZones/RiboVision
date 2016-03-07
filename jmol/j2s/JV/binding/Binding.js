@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JV.binding");
-Clazz.load (["java.util.Hashtable"], "JV.binding.Binding", ["java.lang.Boolean", "java.util.Arrays", "JU.Lst", "$.PT", "$.SB", "J.api.Interface", "JU.Escape", "$.Logger", "$.Txt"], function () {
+Clazz.load (["java.util.Hashtable"], "JV.binding.Binding", ["java.lang.Boolean", "java.util.Arrays", "JU.AU", "$.Lst", "$.PT", "$.SB", "J.api.Interface", "JU.Escape", "$.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.name = null;
 this.bindings = null;
@@ -119,12 +119,12 @@ function () {
 });
 Clazz.defineMethod (c$, "bindAction", 
 function (mouseAction, jmolAction) {
-this.addBinding (mouseAction + "\t" + jmolAction, [mouseAction, jmolAction]);
+this.addBinding (mouseAction + "\t" + jmolAction,  Clazz.newIntArray (-1, [mouseAction, jmolAction]));
 }, "~N,~N");
 Clazz.defineMethod (c$, "bindName", 
 function (mouseAction, name) {
 this.addBinding (mouseAction + "\t", Boolean.TRUE);
-this.addBinding (mouseAction + "\t" + name, [JV.binding.Binding.getMouseActionName (mouseAction, false), name]);
+this.addBinding (mouseAction + "\t" + name,  Clazz.newArray (-1, [JV.binding.Binding.getMouseActionName (mouseAction, false), name]));
 }, "~N,~S");
 Clazz.defineMethod (c$, "unbindAction", 
 function (mouseAction, jmolAction) {
@@ -189,16 +189,17 @@ var qlow = (qualifiers == null || qualifiers.equalsIgnoreCase ("all") ? null : q
 var names =  new Array (actionInfo.length);
 var user =  new JU.Lst ();
 for (var obj, $obj = this.bindings.values ().iterator (); $obj.hasNext () && ((obj = $obj.next ()) || true);) {
-if (JU.PT.isAI (obj)) {
+if (Clazz.instanceOf (obj, Boolean)) {
+} else if (JU.AU.isAS (obj)) {
+var action = (obj)[0];
+var script = (obj)[1];
+if (qlow == null || qlow.indexOf ("user") >= 0 || action.indexOf (qlow) >= 0 || script.indexOf (qlow) >= 0) user.addLast (obj);
+} else {
 var info = obj;
 var i = info[1];
 if (names[i] == null) names[i] =  new JU.Lst ();
 var name = JV.binding.Binding.getMouseActionName (info[0], true);
 if (qlow == null || (actionNames[i] + ";" + actionInfo[i] + ";" + name).toLowerCase ().indexOf (qlow) >= 0) names[i].addLast (name);
-} else if (JU.PT.isAS (obj)) {
-var action = (obj)[0];
-var script = (obj)[1];
-if (qlow == null || qlow.indexOf ("user") >= 0 || action.indexOf (qlow) >= 0 || script.indexOf (qlow) >= 0) user.addLast (obj);
 }}
 for (var i = 0; i < actionInfo.length; i++) {
 var n;
@@ -207,14 +208,14 @@ this.addInfo (sb, names[i].toArray ( new Array (n)), actionNames[i], actionInfo[
 }
 for (var i = 0; i < user.size (); i++) {
 var info = user.get (i);
-this.addInfo (sb, ["USER:::" + info[0]], "user-defined", info[1]);
+this.addInfo (sb,  Clazz.newArray (-1, ["USER:::" + info[0]]), "user-defined", info[1]);
 }
 return sb.toString ();
 }, "~A,~A,~S");
 Clazz.defineMethod (c$, "addInfo", 
  function (sb, list, name, info) {
 java.util.Arrays.sort (list);
-JU.Txt.leftJustify (sb, "                      ", name);
+JU.PT.leftJustify (sb, "                      ", name);
 sb.append ("\t");
 var sep = "";
 var len = sb.length ();
@@ -231,9 +232,9 @@ c$.includes = Clazz.defineMethod (c$, "includes",
 return ((mouseAction & mod) == mod);
 }, "~N,~N");
 c$.newBinding = Clazz.defineMethod (c$, "newBinding", 
-function (name) {
-return J.api.Interface.getInterface ("JV.binding." + name + "Binding");
-}, "~S");
+function (vwr, name) {
+return J.api.Interface.getInterface ("JV.binding." + name + "Binding", vwr, "script");
+}, "JV.Viewer,~S");
 Clazz.defineStatics (c$,
 "LEFT", 16,
 "MIDDLE", 8,

@@ -11,7 +11,7 @@ this.calcs.parA = this.calcs.getParameter (this.calcs.minAtoms[ia].sType);
 this.calcs.parB = this.calcs.getParameter (this.calcs.minAtoms[ib].sType);
 this.r0 = JM.FF.CalculationsUFF.calculateR0 (this.calcs.parA.dVal[0], this.calcs.parB.dVal[0], this.calcs.parA.dVal[8], this.calcs.parB.dVal[8], bondOrder);
 this.kb = 1390.2842991599998 * this.calcs.parA.dVal[5] * this.calcs.parB.dVal[5] / (this.r0 * this.r0 * this.r0);
-calc.addLast ([[ia, ib], [this.r0, this.kb, bondOrder]]);
+calc.addLast ( Clazz.newArray (-1, [ Clazz.newIntArray (-1, [ia, ib]),  Clazz.newDoubleArray (-1, [this.r0, this.kb, bondOrder])]));
 }, "JU.Lst,~N,~N,~N");
 Clazz.overrideMethod (c$, "compute", 
 function (dataIn) {

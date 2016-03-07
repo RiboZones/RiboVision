@@ -14,7 +14,7 @@ Clazz.defineMethod (c$, "addUniqueControls",
 function () {
 this.txt1 = this.dialog.addTextField ("txtThreshold", "Threshold", null, "", "", true);
 this.setThreshold (NaN);
-this.combo1 = this.dialog.addSelectOption ("cmbInterpolation", "Interpolation", ["parabolic", "none"], 0, true);
+this.combo1 = this.dialog.addSelectOption ("cmbInterpolation", "Interpolation",  Clazz.newArray (-1, ["parabolic", "none"]), 0, true);
 });
 Clazz.overrideMethod (c$, "callback", 
 function (id, msg) {
@@ -22,5 +22,5 @@ if (id.equals ("cmbInterpolation") || id.equals ("txtThreshold")) id = "btnApply
 return this.callbackAD (id, msg);
 }, "~S,~S");
 Clazz.defineStatics (c$,
-"posXY", [-2147483648, 0]);
+"posXY",  Clazz.newIntArray (-1, [-2147483648, 0]));
 });

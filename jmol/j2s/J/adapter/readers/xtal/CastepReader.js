@@ -3,6 +3,7 @@ Clazz.load (["J.adapter.smarter.AtomSetCollectionReader"], "J.adapter.readers.xt
 c$ = Clazz.decorateAsClass (function () {
 this.tokens = null;
 this.isPhonon = false;
+this.isTS = false;
 this.isOutput = false;
 this.isCell = false;
 this.a = 0;
@@ -22,6 +23,7 @@ this.desiredQ = null;
 this.chargeType = "MULL";
 this.isAllQ = false;
 this.haveCharges = false;
+this.tsType = null;
 Clazz.instantialize (this, arguments);
 }, J.adapter.readers.xtal, "CastepReader", J.adapter.smarter.AtomSetCollectionReader);
 Clazz.prepareFields (c$, function () {
@@ -35,6 +37,7 @@ if (this.chargeType != null && this.chargeType.length > 4) this.chargeType = thi
 this.filter = this.filter.$replace ('(', '{').$replace (')', '}');
 this.filter = JU.PT.rep (this.filter, "  ", " ");
 this.isAllQ = this.checkFilterKey ("Q=ALL");
+this.tsType = this.getFilter ("TSTYPE=");
 if (!this.isAllQ && this.filter.indexOf ("{") >= 0) this.setDesiredQpt (this.filter.substring (this.filter.indexOf ("{")));
 this.filter = JU.PT.rep (this.filter, "-PT", "");
 }this.continuing = this.readFileData ();
@@ -109,7 +112,7 @@ this.setFractionalCoordinates (false);
 this.readPositionsAbs ();
 continue;
 }}
-if (this.isPhonon || this.isOutput) {
+if (this.isPhonon || this.isOutput || this.isTS) {
 if (this.isPhonon) {
 this.isTrajectory = (this.desiredVibrationNumber <= 0);
 this.asc.allowMultiple = false;
@@ -129,11 +132,11 @@ this.readOutputCharges ();
 } else if (this.doProcessLines && this.line.contains ("Born Effective Charges")) {
 this.readOutputBornChargeTensors ();
 } else if (this.line.contains ("Final energy ")) {
-this.readEnergy (3);
+this.readEnergy (3, null);
 } else if (this.line.contains ("Dispersion corrected final energy*")) {
-this.readEnergy (5);
+this.readEnergy (5, null);
 } else if (this.line.contains ("Total energy corrected")) {
-this.readEnergy (8);
+this.readEnergy (8, null);
 }return true;
 }if (this.line.contains ("<-- E")) {
 this.readPhononTrajectories ();
@@ -152,6 +155,7 @@ return true;
 Clazz.defineMethod (c$, "readOutputUnitCell", 
  function () {
 this.applySymmetryAndSetTrajectory ();
+this.asc.newAtomSetClear (false);
 this.setFractionalCoordinates (true);
 this.abc = this.read3Vectors (false);
 this.setLatticeVectors ();
@@ -169,13 +173,14 @@ this.setAtomCoordTokens (atom, this.tokens, 3);
 }
 });
 Clazz.defineMethod (c$, "readEnergy", 
- function (pt) {
+ function (pt, prefix) {
+if (this.isTrajectory) this.applySymmetryAndSetTrajectory ();
 this.tokens = this.getTokens ();
 try {
 var energy = Double.$valueOf (Double.parseDouble (this.tokens[pt]));
-this.asc.setAtomSetName ("Energy = " + energy + " eV");
+this.asc.setAtomSetName (prefix + "Energy = " + energy + " eV");
 this.asc.setAtomSetEnergy ("" + energy, energy.floatValue ());
-this.asc.setAtomSetAuxiliaryInfo ("Energy", energy);
+this.asc.setCurrentModelInfo ("Energy", energy);
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
 this.appendLoadNote ("CASTEP Energy could not be read: " + this.line);
@@ -183,16 +188,17 @@ this.appendLoadNote ("CASTEP Energy could not be read: " + this.line);
 throw e;
 }
 }
-this.applySymmetryAndSetTrajectory ();
-this.asc.newAtomSetClear (false);
-this.setLatticeVectors ();
-}, "~N");
+}, "~N,~S");
 Clazz.defineMethod (c$, "readPhononTrajectories", 
  function () {
-this.isTrajectory = (this.desiredVibrationNumber <= 0);
+if (!this.isTS) this.isTrajectory = (this.desiredVibrationNumber <= 0);
+if (this.isTrajectory) this.asc.setTrajectory ();
 this.doApplySymmetry = true;
 while (this.line != null && this.line.contains ("<-- E")) {
+var skip = (this.isTS && this.tsType != null && this.prevline.indexOf (this.tsType) < 0);
+if (!skip) {
 this.asc.newAtomSetClear (false);
+if (this.isTS) this.readEnergy (0, JU.PT.getTokens (this.prevline + " -")[0] + " ");
 this.discardLinesUntilContains ("<-- h");
 this.setSpaceGroupName ("P1");
 this.abc = this.read3Vectors (true);
@@ -205,12 +211,12 @@ this.setAtomCoordScaled (null, this.tokens, 2, 0.5291772).elementSymbol = this.t
 this.rd ();
 }
 this.applySymmetryAndSetTrajectory ();
-this.discardLinesUntilContains ("<-- E");
+}this.discardLinesUntilContains ("<-- E");
 }
 });
-Clazz.overrideMethod (c$, "finalizeReader", 
+Clazz.overrideMethod (c$, "finalizeSubclassReader", 
 function () {
-if (this.isPhonon || this.isOutput) {
+if (this.isPhonon || this.isOutput || this.isTS) {
 this.isTrajectory = false;
 } else {
 this.doApplySymmetry = true;
@@ -323,6 +329,10 @@ if (!this.isCell) {
 if (this.line.startsWith ("%")) {
 this.isCell = true;
 break;
+}if (this.line.startsWith ("LST")) {
+this.isTS = true;
+JU.Logger.info ("reading CASTEP .ts file");
+return -1;
 }if (this.line.startsWith ("BEGIN header")) {
 this.isPhonon = true;
 JU.Logger.info ("reading CASTEP .phonon file");
@@ -345,7 +355,7 @@ while (this.rd ().indexOf ('=') < 0) this.getTensor (atoms[this.readOutputAtomIn
 });
 Clazz.defineMethod (c$, "readOutputAtomIndex", 
  function () {
-this.tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.line);
+this.tokens = this.getTokens ();
 return this.asc.getAtomIndex (this.tokens[0] + this.tokens[1]);
 });
 Clazz.defineMethod (c$, "getTensor", 
@@ -369,19 +379,17 @@ this.readLines (2);
 var haveSpin = (this.line.indexOf ("Spin") >= 0);
 this.rd ();
 var atoms = this.asc.atoms;
-var spins = (haveSpin ?  new Array (atoms.length) : null);
-if (spins != null) for (var i = 0; i < spins.length; i++) spins[i] = "0";
+var spins = (haveSpin ?  Clazz.newFloatArray (atoms.length, 0) : null);
+if (spins != null) for (var i = 0; i < spins.length; i++) spins[i] = 0;
 
 while (this.rd () != null && this.line.indexOf ('=') < 0) {
 var index = this.readOutputAtomIndex ();
 var charge = this.parseFloatStr (this.tokens[haveSpin ? this.tokens.length - 2 : this.tokens.length - 1]);
 atoms[index].partialCharge = charge;
-if (haveSpin) spins[index] = this.tokens[this.tokens.length - 1];
+if (haveSpin) spins[index] = this.parseFloatStr (this.tokens[this.tokens.length - 1]);
 }
-if (haveSpin) {
-var data = JU.PT.join (spins, '\n', 0);
-this.asc.setAtomSetAtomProperty ("spin", data, -1);
-}});
+if (haveSpin) this.asc.setAtomProperties ("spin", spins, -1, false);
+});
 Clazz.defineMethod (c$, "readPhononUnitCell", 
  function () {
 this.abc = this.read3Vectors (this.line.indexOf ("bohr") >= 0);
@@ -424,8 +432,9 @@ if (!isOK) return;
 var nx = 1;
 var ny = 1;
 var nz = 1;
+var xSym = this.asc.getXSymmetry ();
 if (this.ptSupercell != null && !isOK && !isSecond) {
-this.asc.getXSymmetry ().setSupercellFromPoint (this.ptSupercell);
+xSym.setSupercellFromPoint (this.ptSupercell);
 nx = this.ptSupercell.x;
 ny = this.ptSupercell.y;
 nz = this.ptSupercell.z;
@@ -470,9 +479,7 @@ for (var j = 0; j < this.ac; j++) {
 this.fillFloatArray (null, 0, data);
 for (var k = iatom++; k < aCount; k++) if (atoms[k].atomSite == j) {
 t.sub2 (atoms[k], atoms[atoms[k].atomSite]);
-t.x *= nx;
-t.y *= ny;
-t.z *= nz;
+xSym.rotateToSuperCell (t);
 this.setPhononVector (data, atoms[k], t, qvec, v);
 this.asc.addVibrationVectorWithSymmetry (k, v.x, v.y, v.z, true);
 }
@@ -505,7 +512,7 @@ v.z = (cosph * data[6] - sinph * data[7]);
 }, "~A,J.adapter.smarter.Atom,JU.V3,JU.V3,JU.V3");
 Clazz.defineStatics (c$,
 "RAD_TO_DEG", (57.29577951308232),
-"lengthUnitIds", ["bohr", "m", "cm", "nm", "ang", "a0"],
-"lengthUnitFactors", [0.5291772, 1E10, 1E8, 1E1, 1.0, 0.5291772],
+"lengthUnitIds",  Clazz.newArray (-1, ["bohr", "m", "cm", "nm", "ang", "a0"]),
+"lengthUnitFactors",  Clazz.newFloatArray (-1, [0.5291772, 1E10, 1E8, 1E1, 1.0, 0.5291772]),
 "TWOPI", 6.283185307179586);
 });

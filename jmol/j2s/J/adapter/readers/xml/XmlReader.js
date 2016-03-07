@@ -43,12 +43,12 @@ var thisReader = null;
 var pt = this.readerName.indexOf ("(");
 var name = (pt < 0 ? this.readerName : this.readerName.substring (0, pt));
 className = J.adapter.smarter.Resolver.getReaderClassBase (name);
-if ((thisReader = J.api.Interface.getInterface (className)) == null) return "File reader was not found: " + className;
+if ((thisReader = this.getInterface (className)) == null) return "File reader was not found: " + className;
 try {
 thisReader.processXml (this, saxReader);
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
-return "Error reading XML: " + (this.parent.vwr.isJS ? e : e.getMessage ());
+return "Error reading XML: " + ((this.parent == null ? this.vwr : this.parent.vwr).isJS ? e : e.getMessage ());
 } else {
 throw e;
 }
@@ -76,14 +76,48 @@ var data = null;
 o = this.reader.lock.lock; if (o.$in) data = o.$in.buf;
 }if (Clazz.instanceOf (o, java.io.BufferedInputStream)) o = JU.Rdr.StreamToUTF8String (JU.Rdr.getBIS (data));
 {
-this.domObj[0] =
-parent.vwr.applet._createDomNode("xmlReader",o);
-this.walkDOMTree();
-parent.vwr.applet._createDomNode("xmlReader",null);
+this.domObj[0] = this.createDomNodeJS("xmlReader",o);
+this.walkDOMTree(); this.createDomNodeJS("xmlReader",null);
 }} else {
-var saxHandler = J.api.Interface.getOption ("adapter.readers.xml.XmlHandler");
-saxHandler.parseXML (this, saxReader, this.reader);
+(J.api.Interface.getOption ("adapter.readers.xml.XmlHandler", this.vwr, "file")).parseXML (this, saxReader, this.reader);
 }}, "J.adapter.readers.xml.XmlReader,~O");
+Clazz.defineMethod (c$, "createDomNodeJS", 
+function (id, data) {
+var applet = this.parent.vwr.html5Applet;
+{
+id = applet._id + "_" + id;
+var d = document.getElementById(id);
+if (d)
+document.body.removeChild(d);
+if (!data)
+return;
+if (data.indexOf("<?") == 0)
+data = data.substring(data.indexOf("<", 1));
+if (data.indexOf("/>") >= 0) {
+var D = data.split("/>");
+for (var i = D.length - 1; --i >= 0;) {
+var s = D[i];
+var pt = s.lastIndexOf("<") + 1;
+var pt2 = pt;
+var len = s.length;
+var name = "";
+while (++pt2 < len) {
+if (" \t\n\r".indexOf(s.charAt(pt2))>= 0) {
+var name = s.substring(pt, pt2);
+D[i] = s + "></"+name+">";
+break;
+}
+}
+}
+data = D.join('');
+}
+d = document.createElement("_xml");
+d.id = id;
+d.innerHTML = data;
+d.style.display = "none";
+document.body.appendChild(d);
+return d;
+}}, "~S,~O");
 Clazz.overrideMethod (c$, "applySymmetryAndSetTrajectory", 
 function () {
 try {
@@ -100,12 +134,12 @@ throw e;
 });
 Clazz.overrideMethod (c$, "processDOM", 
 function (DOMNode) {
-this.domObj = [DOMNode];
+this.domObj =  Clazz.newArray (-1, [DOMNode]);
 this.setMyError (this.selectReaderAndGo (null));
 }, "~O");
 Clazz.defineMethod (c$, "getDOMAttributes", 
 function () {
-return ["id"];
+return  Clazz.newArray (-1, ["id"]);
 });
 Clazz.defineMethod (c$, "processStartElement", 
 function (localName) {
@@ -122,8 +156,8 @@ Clazz.defineMethod (c$, "walkDOMTree",
  function () {
 var localName;
 {
-localName = this.jsObjectGetMember(this.domObj,
-"nodeName").toLowerCase();
+localName = this.jsObjectGetMember(this.domObj, "nodeName").toLowerCase();
+localName = localName.substring(localName.lastIndexOf(":") + 1);
 }if (localName.equals ("#text")) {
 if (this.keepChars) this.chars = this.jsObjectGetMember (this.domObj, "data");
 return;
@@ -163,10 +197,13 @@ if (attValue != null) this.atts.put (name, attValue);
 }, "~A");
 Clazz.defineMethod (c$, "jsObjectCall", 
  function (jsObject, method, args) {
-return this.parent.vwr.getJsObjectInfo (jsObject, method, args == null ? this.nullObj : args);
+return this.parent.vwr.apiPlatform.getJsObjectInfo (jsObject, method, args == null ? this.nullObj : args);
 }, "~A,~S,~A");
 Clazz.defineMethod (c$, "jsObjectGetMember", 
  function (jsObject, name) {
-return this.parent.vwr.getJsObjectInfo (jsObject, name, null);
+return this.parent.vwr.apiPlatform.getJsObjectInfo (jsObject, name, null);
 }, "~A,~S");
+Clazz.defineMethod (c$, "endDocument", 
+function () {
+});
 });

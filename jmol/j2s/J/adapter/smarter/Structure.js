@@ -6,21 +6,21 @@ this.substructureType = null;
 this.structureID = null;
 this.serialID = 0;
 this.strandCount = 0;
+this.startSequenceNumber = 0;
 this.startChainID = 0;
 this.startChainStr = null;
 this.startInsertionCode = '\0';
+this.endSequenceNumber = 0;
 this.endChainID = 0;
 this.endChainStr = null;
 this.endInsertionCode = '\0';
-this.startSequenceNumber = 0;
-this.endSequenceNumber = 0;
 this.atomStartEnd = null;
 this.modelStartEnd = null;
 Clazz.instantialize (this, arguments);
 }, J.adapter.smarter, "Structure");
 Clazz.prepareFields (c$, function () {
 this.atomStartEnd =  Clazz.newIntArray (2, 0);
-this.modelStartEnd = [-1, -1];
+this.modelStartEnd =  Clazz.newIntArray (-1, [-1, -1]);
 });
 c$.getHelixType = Clazz.defineMethod (c$, "getHelixType", 
 function (type) {

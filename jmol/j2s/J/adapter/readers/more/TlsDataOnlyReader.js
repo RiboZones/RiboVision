@@ -20,7 +20,7 @@ var ranges = null;
 var range = null;
 tlsGroups =  new JU.Lst ();
 while (this.rd () != null) {
-var tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.line.$replace ('\'', ' '));
+var tokens = JU.PT.getTokens (this.line.$replace ('\'', ' '));
 if (tokens.length == 0) continue;
 if (tokens[0].equals ("TLS")) {
 tlsGroup =  new java.util.Hashtable ();
@@ -37,7 +37,7 @@ var res2 = JU.PT.parseInt (tokens[4]);
 if (chain1 == chain2) {
 range.put ("chains", "" + chain1 + chain2);
 if (res1 <= res2) {
-range.put ("residues", [res1, res2]);
+range.put ("residues",  Clazz.newIntArray (-1, [res1, res2]));
 ranges.addLast (range);
 } else {
 this.tlsAddError (" TLS group residues are not in order (range ignored)");
@@ -79,6 +79,6 @@ Clazz.defineMethod (c$, "tlsAddError",
 if (this.sbTlsErrors == null) this.sbTlsErrors =  new JU.SB ();
 this.sbTlsErrors.append (this.fileName).appendC ('\t').append ("TLS group ").appendI (this.tlsGroupID).appendC ('\t').append (error).appendC ('\n');
 }, "~S");
-c$.TLnn = c$.prototype.TLnn = ["11", "22", "33", "12", "13", "23"];
-c$.Snn = c$.prototype.Snn = ["22", "11", "12", "13", "23", "21", "31", "32"];
+c$.TLnn = c$.prototype.TLnn =  Clazz.newArray (-1, ["11", "22", "33", "12", "13", "23"]);
+c$.Snn = c$.prototype.Snn =  Clazz.newArray (-1, ["22", "11", "12", "13", "23", "21", "31", "32"]);
 });

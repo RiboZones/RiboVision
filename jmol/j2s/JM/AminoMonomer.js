@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JM");
-Clazz.load (["JM.AlphaMonomer"], "JM.AminoMonomer", ["JU.A4", "$.M3", "$.P3", "$.Quat", "$.V3", "J.c.STR", "JU.Escape", "$.Logger", "$.Txt"], function () {
+Clazz.load (["JM.AlphaMonomer"], "JM.AminoMonomer", ["JU.A4", "$.BS", "$.M3", "$.P3", "$.PT", "$.Quat", "$.V3", "J.c.STR", "JU.Escape", "$.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.nhChecked = false;
 this.ptTemp = null;
@@ -93,15 +93,14 @@ Clazz.defineMethod (c$, "getExplicitNH",
 function () {
 var nitrogen = this.getNitrogenAtom ();
 var h = null;
-var bonds = nitrogen.getBonds ();
-if (bonds == null) return null;
-for (var i = 0; i < bonds.length; i++) if ((h = bonds[i].getOtherAtom (nitrogen)).getElementNumber () == 1) return h;
+var bonds = nitrogen.bonds;
+if (bonds != null) for (var i = 0; i < bonds.length; i++) if ((h = bonds[i].getOtherAtom (nitrogen)).getElementNumber () == 1) return h;
 
 return null;
 });
 Clazz.defineMethod (c$, "getNHPoint", 
 function (aminoHydrogenPoint, vNH, jmolHPoint, dsspIgnoreHydrogens) {
-if (this.monomerIndex == 0 || this.groupID == 15) return false;
+if (this.monomerIndex <= 0 || this.groupID == 15) return false;
 var nitrogenPoint = this.getNitrogenAtom ();
 var nhPoint = this.getNitrogenHydrogenPoint ();
 if (nhPoint != null && !dsspIgnoreHydrogens) {
@@ -127,6 +126,7 @@ return true;
 }, "JU.P3,JU.V3,~B,~B");
 Clazz.overrideMethod (c$, "getQuaternionFrameCenter", 
 function (qType) {
+if (this.monomerIndex < 0) return null;
 switch (qType) {
 default:
 case 'a':
@@ -141,7 +141,7 @@ case 'P':
 return this.getCarbonylCarbonAtom ();
 case 'q':
 if (this.monomerIndex == this.bioPolymer.monomerCount - 1) return null;
-var mNext = (this.bioPolymer.getGroups ()[this.monomerIndex + 1]);
+var mNext = (this.bioPolymer.monomers[this.monomerIndex + 1]);
 var pt =  new JU.P3 ();
 pt.ave (this.getCarbonylCarbonAtom (), mNext.getNitrogenAtom ());
 return pt;
@@ -149,6 +149,7 @@ return pt;
 }, "~S");
 Clazz.overrideMethod (c$, "getQuaternion", 
 function (qType) {
+if (this.monomerIndex < 0) return null;
 var ptC = this.getCarbonylCarbonAtom ();
 var ptCa = this.getLeadAtom ();
 var vA =  new JU.V3 ();
@@ -176,11 +177,11 @@ case 'p':
 case 'x':
 if (this.monomerIndex == this.bioPolymer.monomerCount - 1) return null;
 vA.sub2 (ptCa, ptC);
-vB.sub2 ((this.bioPolymer.getGroups ()[this.monomerIndex + 1]).getNitrogenAtom (), ptC);
+vB.sub2 ((this.bioPolymer.monomers[this.monomerIndex + 1]).getNitrogenAtom (), ptC);
 break;
 case 'q':
 if (this.monomerIndex == this.bioPolymer.monomerCount - 1) return null;
-var mNext = (this.bioPolymer.getGroups ()[this.monomerIndex + 1]);
+var mNext = (this.bioPolymer.monomers[this.monomerIndex + 1]);
 vB.sub2 (mNext.getLeadAtom (), mNext.getNitrogenAtom ());
 vA.sub2 (ptCa, ptC);
 break;
@@ -198,17 +199,37 @@ Clazz.overrideMethod (c$, "getProteinStructureTag",
 function () {
 if (this.proteinStructure == null || this.proteinStructure.structureID == null) return null;
 var tag = "%3N %3ID";
-tag = JU.Txt.formatStringI (tag, "N", this.proteinStructure.serialID);
-tag = JU.Txt.formatStringS (tag, "ID", this.proteinStructure.structureID);
-if (this.proteinStructure.type === J.c.STR.SHEET) tag += JU.Txt.formatStringI ("%2SC", "SC", this.proteinStructure.strandCount);
+tag = JU.PT.formatStringI (tag, "N", this.proteinStructure.serialID);
+tag = JU.PT.formatStringS (tag, "ID", this.proteinStructure.structureID);
+if (this.proteinStructure.type === J.c.STR.SHEET) tag += JU.PT.formatStringI ("%2SC", "SC", this.proteinStructure.strandCount);
 return tag;
 });
+Clazz.overrideMethod (c$, "getBSSideChain", 
+function () {
+var bs =  new JU.BS ();
+this.setAtomBits (bs);
+this.clear (bs, this.getLeadAtom (), true);
+this.clear (bs, this.getCarbonylCarbonAtom (), false);
+this.clear (bs, this.getCarbonylOxygenAtom (), false);
+this.clear (bs, this.getNitrogenAtom (), true);
+return bs;
+});
+Clazz.defineMethod (c$, "clear", 
+ function (bs, a, andH) {
+if (a == null) return;
+bs.clear (a.i);
+if (!andH) return;
+var b = a.bonds;
+var h;
+for (var j = b.length; --j >= 0; ) if ((h = b[j].getOtherAtom (a)).getElementNumber () == 1) bs.clear (h.i);
+
+}, "JU.BS,JM.Atom,~B");
 Clazz.defineStatics (c$,
 "CA", 0,
 "O", 1,
 "N", 2,
 "C", 3,
 "OT", 4,
-"interestingAminoAtomIDs", [2, -5, 1, 3, -65],
+"interestingAminoAtomIDs",  Clazz.newByteArray (-1, [2, -5, 1, 3, -65]),
 "beta", (0.29670597283903605));
 });

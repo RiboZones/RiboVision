@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JSV.appletjs");
-Clazz.load (["JSV.api.AppletFrame", "$.JSVAppletInterface"], "JSV.appletjs.JSVApplet", ["java.lang.Boolean", "java.net.URL", "java.util.Hashtable", "JU.PT", "JSV.app.JSVApp", "JSV.common.JSVersion", "JSV.js2d.JsMainPanel", "$.JsPanel", "JU.Logger"], function () {
+Clazz.load (["javajs.api.JSInterface", "JSV.api.AppletFrame", "$.JSVAppletInterface"], "JSV.appletjs.JSVApplet", ["java.lang.Boolean", "java.net.URL", "java.util.Hashtable", "JU.PT", "JSV.app.JSVApp", "JSV.common.JSVersion", "JSV.js2d.JsMainPanel", "$.JsPanel", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.app = null;
 this.viewer = null;
@@ -7,7 +7,7 @@ this.isStandalone = false;
 this.viewerOptions = null;
 this.htParams = null;
 Clazz.instantialize (this, arguments);
-}, JSV.appletjs, "JSVApplet", null, [JSV.api.JSVAppletInterface, JSV.api.AppletFrame]);
+}, JSV.appletjs, "JSVApplet", null, [JSV.api.JSVAppletInterface, JSV.api.AppletFrame, javajs.api.JSInterface]);
 Clazz.makeConstructor (c$, 
 function (viewerOptions) {
 if (viewerOptions == null) viewerOptions =  new java.util.Hashtable ();
@@ -21,7 +21,7 @@ Clazz.defineMethod (c$, "init",
 function () {
 this.app =  new JSV.app.JSVApp (this, true);
 this.initViewer ();
-if (this.app.appletReadyCallbackFunctionName != null && this.viewer.fullName != null) this.callToJavaScript (this.app.appletReadyCallbackFunctionName, [this.viewer.appletID, this.viewer.fullName, Boolean.TRUE, this]);
+if (this.app.appletReadyCallbackFunctionName != null && this.viewer.fullName != null) this.callToJavaScript (this.app.appletReadyCallbackFunctionName,  Clazz.newArray (-1, [this.viewer.appletName, this.viewer.fullName, Boolean.TRUE, this]));
 });
 Clazz.defineMethod (c$, "initViewer", 
 function () {
@@ -69,7 +69,7 @@ Clazz.overrideMethod (c$, "finalize",
 function () {
 System.out.println ("JSpecView " + this + " finalized");
 });
-Clazz.defineMethod (c$, "destroy", 
+Clazz.overrideMethod (c$, "destroy", 
 function () {
 this.app.dispose ();
 this.app = null;
@@ -232,4 +232,51 @@ Clazz.overrideMethod (c$, "getApp",
 function () {
 return this.app;
 });
+Clazz.overrideMethod (c$, "setStatusDragDropped", 
+function (mode, x, y, fileName) {
+return true;
+}, "~N,~N,~N,~S");
+Clazz.overrideMethod (c$, "cacheFileByName", 
+function (fileName, isAdd) {
+return 0;
+}, "~S,~B");
+Clazz.overrideMethod (c$, "cachePut", 
+function (key, data) {
+}, "~S,~O");
+Clazz.overrideMethod (c$, "getFullName", 
+function () {
+return this.app.vwr.fullName;
+});
+Clazz.overrideMethod (c$, "processMouseEvent", 
+function (id, x, y, modifiers, time) {
+return this.app.vwr.processMouseEvent (id, x, y, modifiers, time);
+}, "~N,~N,~N,~N,~N");
+Clazz.overrideMethod (c$, "setDisplay", 
+function (canvas) {
+this.app.vwr.setDisplay (canvas);
+}, "~O");
+Clazz.overrideMethod (c$, "startHoverWatcher", 
+function (enable) {
+}, "~B");
+Clazz.overrideMethod (c$, "update", 
+function () {
+this.app.vwr.updateJS ();
+});
+Clazz.defineMethod (c$, "openFile", 
+function (fileName) {
+this.app.vwr.openFile (fileName, true);
+return null;
+}, "~S");
+Clazz.overrideMethod (c$, "openFileAsyncSpecial", 
+function (fileName, flags) {
+this.app.vwr.openFileAsyncSpecial (fileName, flags);
+}, "~S,~N");
+Clazz.overrideMethod (c$, "processTwoPointGesture", 
+function (touches) {
+this.app.vwr.processTwoPointGesture (touches);
+}, "~A");
+Clazz.overrideMethod (c$, "setScreenDimension", 
+function (width, height) {
+this.app.vwr.setScreenDimension (width, height);
+}, "~N,~N");
 });

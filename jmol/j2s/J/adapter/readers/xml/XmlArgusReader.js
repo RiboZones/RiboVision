@@ -15,7 +15,7 @@ Clazz.superConstructor (this, J.adapter.readers.xml.XmlArgusReader, []);
 });
 Clazz.overrideMethod (c$, "getDOMAttributes", 
 function () {
-return ["order"];
+return  Clazz.newArray (-1, ["order"]);
 });
 Clazz.overrideMethod (c$, "processStartElement", 
 function (localName) {
@@ -118,7 +118,7 @@ this.setKeepChars (false);
 return;
 }}, "~S");
 Clazz.defineStatics (c$,
-"keepCharsList", ["name", "x", "y", "z", "formalchg", "atomkey", "atsym", "e00", "e01", "e02", "e03", "e10", "e11", "e12", "e13", "e20", "e21", "e22", "e23", "e30", "e31", "e32", "e33"],
+"keepCharsList",  Clazz.newArray (-1, ["name", "x", "y", "z", "formalchg", "atomkey", "atsym", "e00", "e01", "e02", "e03", "e10", "e11", "e12", "e13", "e20", "e21", "e22", "e23", "e30", "e31", "e32", "e33"]),
 "UNSET", 0,
 "MOLECULE", 1,
 "ATOM", 2,

@@ -1,9 +1,11 @@
 Clazz.declarePackage ("J.render");
-Clazz.load (["J.render.ShapeRenderer", "JU.P3", "$.P3i", "$.V3"], "J.render.FontLineShapeRenderer", ["java.lang.Float", "J.c.AXES", "JU.Txt"], function () {
+Clazz.load (["J.render.ShapeRenderer", "JU.P3", "$.P3i", "$.V3"], "J.render.FontLineShapeRenderer", ["java.lang.Float", "JU.PT"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.imageFontScaling = 0;
-this.atomA = null;
-this.atomB = null;
+this.tickA = null;
+this.tickB = null;
+this.tickAs = null;
+this.tickBs = null;
 this.font3d = null;
 this.pt0i = null;
 this.pt1i = null;
@@ -20,6 +22,8 @@ this.tickInfo = null;
 this.draw000 = true;
 this.width = 0;
 this.endcap = 3;
+this.pt0 = null;
+this.pt1 = null;
 this.colixA = 0;
 this.colixB = 0;
 this.dotsOrDashes = false;
@@ -39,6 +43,8 @@ this.pointT3 =  new JU.P3 ();
 this.vectorT =  new JU.V3 ();
 this.vectorT2 =  new JU.V3 ();
 this.vectorT3 =  new JU.V3 ();
+this.pt0 =  new JU.P3 ();
+this.pt1 =  new JU.P3 ();
 });
 Clazz.defineMethod (c$, "getDiameter", 
 function (z, madOrPixels) {
@@ -46,11 +52,11 @@ var diameter;
 var isMad = (madOrPixels > 20);
 switch (this.exportType) {
 case 1:
-diameter = (isMad ? madOrPixels : Clazz.doubleToInt (Math.floor (this.vwr.unscaleToScreen (z, madOrPixels * 2) * 1000)));
+diameter = (isMad ? madOrPixels : Clazz.doubleToInt (Math.floor (this.vwr.tm.unscaleToScreen (z, madOrPixels * 2) * 1000)));
 break;
 default:
 if (isMad) {
-diameter = Clazz.floatToInt (this.vwr.scaleToScreen (z, madOrPixels));
+diameter = Clazz.floatToInt (this.vwr.tm.scaleToScreen (z, madOrPixels));
 } else {
 if (this.g3d.isAntialiased ()) madOrPixels += madOrPixels;
 diameter = madOrPixels;
@@ -58,37 +64,40 @@ diameter = madOrPixels;
 return diameter;
 }, "~N,~N");
 Clazz.defineMethod (c$, "renderLine", 
-function (p0, p1, diameter, pt0, pt1, drawTicks) {
-pt0.set (Clazz.doubleToInt (Math.floor (p0.x)), Clazz.doubleToInt (Math.floor (p0.y)), Clazz.doubleToInt (Math.floor (p0.z)));
-pt1.set (Clazz.doubleToInt (Math.floor (p1.x)), Clazz.doubleToInt (Math.floor (p1.y)), Clazz.doubleToInt (Math.floor (p1.z)));
-if (diameter < 0) this.g3d.drawDottedLine (pt0, pt1);
- else this.g3d.fillCylinder (this.endcap, diameter, pt0, pt1);
+function (p0, p1, diameter, drawTicks) {
+if (diameter < 0) this.g3d.drawDottedLineBits (p0, p1);
+ else this.g3d.fillCylinderBits (this.endcap, diameter, p0, p1);
 if (!drawTicks || this.tickInfo == null) return;
-this.atomA.sX = pt0.x;
-this.atomA.sY = pt0.y;
-this.atomA.sZ = pt0.z;
-this.atomB.sX = pt1.x;
-this.atomB.sY = pt1.y;
-this.atomB.sZ = pt1.z;
-this.drawTicks (this.atomA, this.atomB, diameter, true);
-}, "JU.P3,JU.P3,~N,JU.P3i,JU.P3i,~B");
+this.checkTickTemps ();
+this.tickAs.setT (p0);
+this.tickBs.setT (p1);
+this.drawTicks (diameter, true);
+}, "JU.P3,JU.P3,~N,~B");
+Clazz.defineMethod (c$, "checkTickTemps", 
+function () {
+if (this.tickA == null) {
+this.tickA =  new JU.P3 ();
+this.tickB =  new JU.P3 ();
+this.tickAs =  new JU.P3 ();
+this.tickBs =  new JU.P3 ();
+}});
 Clazz.defineMethod (c$, "drawTicks", 
-function (pt1, pt2, diameter, withLabels) {
+function (diameter, withLabels) {
 if (Float.isNaN (this.tickInfo.first)) this.tickInfo.first = 0;
-this.drawTicks2 (pt1, pt2, this.tickInfo.ticks.x, 8, diameter, (!withLabels ? null : this.tickInfo.tickLabelFormats == null ? ["%0.2f"] : this.tickInfo.tickLabelFormats));
-this.drawTicks2 (pt1, pt2, this.tickInfo.ticks.y, 4, diameter, null);
-this.drawTicks2 (pt1, pt2, this.tickInfo.ticks.z, 2, diameter, null);
-}, "JU.Point3fi,JU.Point3fi,~N,~B");
+this.drawTicks2 (this.tickInfo.ticks.x, 8, diameter, (!withLabels ? null : this.tickInfo.tickLabelFormats == null ?  Clazz.newArray (-1, ["%0.2f"]) : this.tickInfo.tickLabelFormats));
+this.drawTicks2 (this.tickInfo.ticks.y, 4, diameter, null);
+this.drawTicks2 (this.tickInfo.ticks.z, 2, diameter, null);
+}, "~N,~B");
 Clazz.defineMethod (c$, "drawTicks2", 
- function (ptA, ptB, dx, length, diameter, formats) {
+ function (dx, length, diameter, formats) {
 if (dx == 0) return;
 if (this.g3d.isAntialiased ()) length *= 2;
-this.vectorT2.set (ptB.sX, ptB.sY, 0);
-this.vectorT.set (ptA.sX, ptA.sY, 0);
+this.vectorT2.set (this.tickBs.x, this.tickBs.y, 0);
+this.vectorT.set (this.tickAs.x, this.tickAs.y, 0);
 this.vectorT2.sub (this.vectorT);
 if (this.vectorT2.length () < 50) return;
 var signFactor = this.tickInfo.signFactor;
-this.vectorT.sub2 (ptB, ptA);
+this.vectorT.sub2 (this.tickB, this.tickA);
 var d0 = this.vectorT.length ();
 if (this.tickInfo.scale != null) {
 if (Float.isNaN (this.tickInfo.scale.x)) {
@@ -100,19 +109,19 @@ this.vectorT.set (this.vectorT.x * this.tickInfo.scale.x, this.vectorT.y * this.
 if (d < dx) return;
 var f = dx / d * d0 / d;
 this.vectorT.scale (f);
-var dz = (ptB.sZ - ptA.sZ) / (d / dx);
+var dz = (this.tickBs.z - this.tickAs.z) / (d / dx);
 d += this.tickInfo.first;
 var p = (Clazz.doubleToInt (Math.floor (this.tickInfo.first / dx))) * dx - this.tickInfo.first;
-this.pointT.scaleAdd2 (p / dx, this.vectorT, ptA);
+this.pointT.scaleAdd2 (p / dx, this.vectorT, this.tickA);
 p += this.tickInfo.first;
-var z = ptA.sZ;
+var z = this.tickAs.z;
 if (diameter < 0) diameter = 1;
 this.vectorT2.set (-this.vectorT2.y, this.vectorT2.x, 0);
 this.vectorT2.scale (length / this.vectorT2.length ());
 var ptRef = this.tickInfo.reference;
 if (ptRef == null) {
 this.pointT3.setT (this.vwr.getBoundBoxCenter ());
-if (this.vwr.g.axesMode === J.c.AXES.BOUNDBOX) {
+if (this.vwr.g.axesMode == 603979810) {
 this.pointT3.add3 (1, 1, 1);
 }} else {
 this.pointT3.setT (ptRef);
@@ -133,29 +142,29 @@ this.tm.transformPt3f (this.pointT2, this.pointT2);
 this.drawLine (Clazz.doubleToInt (Math.floor (this.pointT2.x)), Clazz.doubleToInt (Math.floor (this.pointT2.y)), Clazz.floatToInt (z), (x = Clazz.doubleToInt (Math.floor (this.pointT2.x + this.vectorT2.x))), (y = Clazz.doubleToInt (Math.floor (this.pointT2.y + this.vectorT2.y))), Clazz.floatToInt (z), diameter);
 if (drawLabel && (this.draw000 || p != 0)) {
 val[0] = Float.$valueOf ((p == 0 ? 0 : p * signFactor));
-var s = JU.Txt.sprintf (formats[i % formats.length], "f", val);
+var s = JU.PT.sprintf (formats[i % formats.length], "f", val);
 this.drawString (x, y, Clazz.floatToInt (z), 4, rightJustify, centerX, centerY, Clazz.doubleToInt (Math.floor (this.pointT2.y)), s);
 }}this.pointT.add (this.vectorT);
 p += dx;
 z += dz;
 i++;
 }
-}, "JU.Point3fi,JU.Point3fi,~N,~N,~N,~A");
+}, "~N,~N,~N,~A");
 Clazz.defineMethod (c$, "drawLine", 
 function (x1, y1, z1, x2, y2, z2, diameter) {
 return this.drawLine2 (x1, y1, z1, x2, y2, z2, diameter);
 }, "~N,~N,~N,~N,~N,~N,~N");
 Clazz.defineMethod (c$, "drawLine2", 
 function (x1, y1, z1, x2, y2, z2, diameter) {
-this.pt0i.set (x1, y1, z1);
-this.pt1i.set (x2, y2, z2);
+this.pt0.set (x1, y1, z1);
+this.pt1.set (x2, y2, z2);
 if (this.dotsOrDashes) {
 if (this.dashDots != null) this.drawDashed (x1, y1, z1, x2, y2, z2, this.dashDots);
 } else {
 if (diameter < 0) {
-this.g3d.drawDashedLine (4, 2, this.pt0i, this.pt1i);
+this.g3d.drawDashedLineBits (4, 2, this.pt0, this.pt1);
 return 1;
-}this.g3d.fillCylinder (2, diameter, this.pt0i, this.pt1i);
+}this.g3d.fillCylinderBits (2, diameter, this.pt0, this.pt1);
 }return Clazz.doubleToInt ((diameter + 1) / 2);
 }, "~N,~N,~N,~N,~N,~N,~N");
 Clazz.defineMethod (c$, "drawString", 
@@ -225,10 +234,10 @@ if (this.asLineOnly) this.g3d.drawLine (colixA, colixB, xA, yA, zA, xB, yB, zB);
  else this.g3d.fillCylinderXYZ (colixA, colixB, endcaps, (!this.isExport || this.mad == 1 ? diameter : this.mad), xA, yA, zA, xB, yB, zB);
 }, "~N,~N,~N,~N,~N,~N,~N,~N,~N,~N");
 Clazz.defineStatics (c$,
-"dashes", [12, 0, 0, 2, 5, 7, 10],
-"hDashes", [10, 7, 6, 1, 3, 4, 6, 7, 9],
-"ndots", [0, 3, 1000],
-"sixdots", [12, 3, 6, 1, 3, 5, 7, 9, 11],
-"fourdots", [13, 3, 5, 2, 5, 8, 11],
-"twodots", [12, 3, 4, 3, 9]);
+"dashes",  Clazz.newIntArray (-1, [12, 0, 0, 2, 5, 7, 10]),
+"hDashes",  Clazz.newIntArray (-1, [10, 7, 6, 1, 3, 4, 6, 7, 9]),
+"ndots",  Clazz.newIntArray (-1, [0, 3, 1000]),
+"sixdots",  Clazz.newIntArray (-1, [12, 3, 6, 1, 3, 5, 7, 9, 11]),
+"fourdots",  Clazz.newIntArray (-1, [13, 3, 5, 2, 5, 8, 11]),
+"twodots",  Clazz.newIntArray (-1, [12, 3, 4, 3, 9]));
 });

@@ -4,7 +4,7 @@ c$ = Clazz.declareType (JM.FF, "MMFFESCalc", JM.FF.Calculation);
 Clazz.overrideMethod (c$, "setData", 
 function (calc, ia, ib, d) {
 if (this.calcs.minAtoms[ia].partialCharge == 0 || this.calcs.minAtoms[ib].partialCharge == 0) return;
-calc.addLast ([[ia, ib], [this.calcs.minAtoms[ia].partialCharge, this.calcs.minAtoms[ib].partialCharge, (this.calcs.minAtoms[ia].bs14.get (ib) ? 249.0537 : 332.0716)]]);
+calc.addLast ( Clazz.newArray (-1, [ Clazz.newIntArray (-1, [ia, ib]),  Clazz.newDoubleArray (-1, [this.calcs.minAtoms[ia].partialCharge, this.calcs.minAtoms[ib].partialCharge, (this.calcs.minAtoms[ia].bs14.get (ib) ? 249.0537 : 332.0716)])]));
 }, "JU.Lst,~N,~N,~N");
 Clazz.overrideMethod (c$, "compute", 
 function (dataIn) {

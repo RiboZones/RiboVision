@@ -13,7 +13,7 @@ function (sg, brNull) {
 var fileName = (sg.getReaderData ())[0];
 this.init2MFR (sg, this.br);
 this.binarydoc = this.newBinaryDocument ();
-this.binarydoc.setStream (sg.getAtomDataServer ().getBufferedInputStream (fileName), true);
+this.setStream (fileName, true);
 this.nSurfaces = 1;
 if (this.params.thePlane == null) this.params.insideOut = !this.params.insideOut;
 this.allowSigma = true;
@@ -29,7 +29,7 @@ var rmsDeviation;
 var nlabel;
 this.nx = this.binarydoc.readInt ();
 if (this.nx < 0 || this.nx > 256) {
-this.binarydoc.setStream (null, false);
+this.setStream (null, false);
 this.nx = this.binarydoc.swapBytesI (this.nx);
 if (this.params.thePlane == null) this.params.insideOut = !this.params.insideOut;
 if (this.nx < 0 || this.nx > 1000) {
@@ -40,7 +40,7 @@ throw  new Exception ("MRC file type not readable");
 this.nz = this.binarydoc.readInt ();
 this.mode = this.binarydoc.readInt ();
 if (this.mode < 0 || this.mode > 6) {
-this.binarydoc.setStream (null, false);
+this.setStream (null, false);
 this.nx = this.binarydoc.swapBytesI (this.nx);
 this.ny = this.binarydoc.swapBytesI (this.ny);
 this.nz = this.binarydoc.swapBytesI (this.nz);
@@ -64,7 +64,12 @@ this.c = this.binarydoc.readFloat ();
 this.alpha = this.binarydoc.readFloat ();
 this.beta = this.binarydoc.readFloat ();
 this.gamma = this.binarydoc.readFloat ();
-this.mapc = this.binarydoc.readInt ();
+if (this.alpha == 0) {
+this.alpha = this.beta = this.gamma = 90;
+JU.Logger.info ("MRC header: alpha,beta,gamma 0 changed to 90,90,90");
+JU.Logger.info ("MRC header: alpha,beta,gamma 0 reversing insideOut sense");
+if (this.params.thePlane == null) this.params.insideOut = !this.params.insideOut;
+}this.mapc = this.binarydoc.readInt ();
 this.mapr = this.binarydoc.readInt ();
 this.maps = this.binarydoc.readInt ();
 JU.Logger.info ("MRC header: mapc mapr maps: " + this.mapc + " " + this.mapr + " " + this.maps);
@@ -141,6 +146,7 @@ voxelValue = this.binarydoc.readUnsignedShort ();
 break;
 }
 this.nBytes = this.binarydoc.getPosition ();
+if (voxelValue > 1000) System.out.println (this.nBytes + " " + voxelValue);
 return voxelValue;
 });
 Clazz.overrideMethod (c$, "skipData", 

@@ -25,8 +25,8 @@ function () {
 return this.proteinStructure;
 });
 Clazz.defineMethod (c$, "setStructure", 
-function (proteinStructure) {
-if ((this.proteinStructure = proteinStructure) == null) this.nitrogenHydrogenPoint = null;
+function (ps) {
+if ((this.proteinStructure = ps) == null) this.nitrogenHydrogenPoint = null;
 }, "JM.ProteinStructure");
 Clazz.overrideMethod (c$, "setStrucNo", 
 function (n) {
@@ -127,6 +127,7 @@ return this.getQuaternionAlpha (qType);
 }, "~S");
 Clazz.defineMethod (c$, "getQuaternionAlpha", 
 function (qType) {
+if (this.monomerIndex < 0) return null;
 var vA =  new JU.V3 ();
 var vB =  new JU.V3 ();
 var vC = null;
@@ -151,5 +152,5 @@ break;
 return JU.Quat.getQuaternionFrameV (vA, vB, vC, false);
 }, "~S");
 Clazz.defineStatics (c$,
-"alphaOffsets", [0]);
+"alphaOffsets",  Clazz.newByteArray (-1, [0]));
 });

@@ -1,22 +1,20 @@
 Clazz.declarePackage ("JV");
-Clazz.load (["JU.BS"], "JV.ShapeManager", ["java.lang.Boolean", "JU.P3", "J.api.Interface", "J.c.PAL", "$.VDW", "JM.Atom", "JU.BSUtil", "JV.JC"], function () {
+Clazz.load (null, "JV.ShapeManager", ["java.lang.Boolean", "JU.BS", "$.P3", "J.api.Interface", "J.c.PAL", "$.VDW", "JM.Atom", "JU.BSUtil", "JV.JC"], function () {
 c$ = Clazz.decorateAsClass (function () {
-this.gdata = null;
 this.ms = null;
 this.shapes = null;
 this.vwr = null;
 this.bsRenderableAtoms = null;
-this.navigationCrossHairMinMax = null;
+this.navMinMax = null;
 Clazz.instantialize (this, arguments);
 }, JV, "ShapeManager");
 Clazz.prepareFields (c$, function () {
-this.bsRenderableAtoms =  new JU.BS ();
-this.navigationCrossHairMinMax =  Clazz.newIntArray (4, 0);
+this.navMinMax =  Clazz.newIntArray (4, 0);
 });
 Clazz.makeConstructor (c$, 
 function (vwr) {
 this.vwr = vwr;
-this.gdata = vwr.gdata;
+this.bsRenderableAtoms =  new JU.BS ();
 }, "JV.Viewer");
 Clazz.defineMethod (c$, "findNearestShapeAtomIndex", 
 function (x, y, closest, bsNot) {
@@ -45,7 +43,7 @@ return result;
 }, "~N,~S,~A");
 Clazz.defineMethod (c$, "getShapeIdFromObjectName", 
 function (objectName) {
-if (this.shapes != null) for (var i = 16; i < 29; ++i) if (this.shapes[i] != null && this.shapes[i].getIndexFromName (objectName) >= 0) return i;
+if (this.shapes != null) for (var i = 16; i < 30; ++i) if (this.shapes[i] != null && this.shapes[i].getIndexFromName (objectName) >= 0) return i;
 
 return -1;
 }, "~S");
@@ -64,17 +62,17 @@ if (this.shapes[shapeID] != null) return this.shapes[shapeID];
 if (shapeID == 2 || shapeID == 3 || shapeID == 4) return null;
 var className = JV.JC.getShapeClassName (shapeID, false);
 var shape;
-if ((shape = J.api.Interface.getInterface (className)) == null) return null;
+if ((shape = J.api.Interface.getInterface (className, this.vwr, "shape")) == null) return null;
 this.vwr.setShapeErrorState (shapeID, "allocate");
-shape.initializeShape (this.vwr, this.gdata, this.ms, shapeID);
+shape.initializeShape (this.vwr, this.ms, shapeID);
 this.vwr.setShapeErrorState (-1, null);
 return this.shapes[shapeID] = shape;
 }, "~N");
-Clazz.defineMethod (c$, "refreshShapeTrajectories", 
+Clazz.defineMethod (c$, "notifyAtomPositionsChanged", 
 function (baseModel, bs, mat) {
 var Imodel = Integer.$valueOf (baseModel);
 var bsModelAtoms = this.vwr.getModelUndeletedAtomsBitSet (baseModel);
-for (var i = 0; i < 36; i++) if (this.shapes[i] != null) this.setShapePropertyBs (i, "refreshTrajectories", [Imodel, bs, mat], bsModelAtoms);
+for (var i = 0; i < 37; i++) if (this.shapes[i] != null) this.setShapePropertyBs (i, "refreshTrajectories",  Clazz.newArray (-1, [Imodel, bs, mat]), bsModelAtoms);
 
 }, "~N,JU.BS,JU.M4");
 Clazz.defineMethod (c$, "releaseShape", 
@@ -83,7 +81,7 @@ if (this.shapes != null) this.shapes[shapeID] = null;
 }, "~N");
 Clazz.defineMethod (c$, "resetShapes", 
 function () {
-if (!this.vwr.noGraphicsAllowed ()) this.shapes =  new Array (36);
+if (!this.vwr.noGraphicsAllowed) this.shapes =  new Array (37);
 });
 Clazz.defineMethod (c$, "setShapeSizeBs", 
 function (shapeID, size, rd, bsSelected) {
@@ -115,7 +113,7 @@ this.vwr.setShapeErrorState (-1, null);
 }, "~N,~S,~O,JU.BS");
 Clazz.defineMethod (c$, "checkFrankclicked", 
 function (x, y) {
-var frankShape = this.shapes[35];
+var frankShape = this.shapes[36];
 return (frankShape != null && frankShape.wasClicked (x, y));
 }, "~N,~N");
 Clazz.defineMethod (c$, "checkObjectClicked", 
@@ -130,7 +128,7 @@ return null;
 Clazz.defineMethod (c$, "checkObjectDragged", 
 function (prevX, prevY, x, y, modifiers, bsVisible, iShape) {
 var found = false;
-var n = (iShape > 0 ? iShape + 1 : 36);
+var n = (iShape > 0 ? iShape + 1 : 37);
 for (var i = iShape; !found && i < n; ++i) if (this.shapes[i] != null) found = this.shapes[i].checkObjectDragged (prevX, prevY, x, y, modifiers, bsVisible);
 
 return found;
@@ -147,7 +145,7 @@ return false;
 }, "~N,~N,JU.BS,~B");
 Clazz.defineMethod (c$, "deleteShapeAtoms", 
 function (value, bs) {
-if (this.shapes != null) for (var j = 0; j < 36; j++) if (this.shapes[j] != null) this.setShapePropertyBs (j, "deleteModelAtoms", value, bs);
+if (this.shapes != null) for (var j = 0; j < 37; j++) if (this.shapes[j] != null) this.setShapePropertyBs (j, "deleteModelAtoms", value, bs);
 
 }, "~A,JU.BS");
 Clazz.defineMethod (c$, "deleteVdwDependentShapes", 
@@ -166,11 +164,17 @@ if ((group.shapeVisibilityFlags & this.shapes[iShape].vf) == 0) return 0;
 mad = this.shapes[iShape].getSizeG (group);
 }return mad / 2000;
 }, "~N,JM.Group,~N");
+Clazz.defineMethod (c$, "replaceGroup", 
+function (g0, g1) {
+if (this.shapes == null) return;
+for (var i = 9; i < 16; i++) if (this.shapes[i] != null) this.shapes[i].replaceGroup (g0, g1);
+
+}, "JM.Group,JM.Group");
 Clazz.defineMethod (c$, "getObjectMap", 
 function (map, withDollar) {
 if (this.shapes == null) return;
 var bDollar = Boolean.$valueOf (withDollar);
-for (var i = 16; i < 29; ++i) this.getShapePropertyData (i, "getNames", [map, bDollar]);
+for (var i = 16; i < 30; ++i) this.getShapePropertyData (i, "getNames",  Clazz.newArray (-1, [map, bDollar]));
 
 }, "java.util.Map,~B");
 Clazz.defineMethod (c$, "getProperty", 
@@ -178,10 +182,6 @@ function (paramInfo) {
 if (paramInfo.equals ("getShapes")) return this.shapes;
 return null;
 }, "~O");
-Clazz.defineMethod (c$, "getRenderableBitSet", 
-function () {
-return this.bsRenderableAtoms;
-});
 Clazz.defineMethod (c$, "getShape", 
 function (i) {
 return (this.shapes == null ? null : this.shapes[i]);
@@ -206,37 +206,38 @@ this.shapes[i].setProperty ("color", J.c.PAL.NONE, bsAllAtoms);
 }, "JU.BS");
 Clazz.defineMethod (c$, "setAtomLabel", 
 function (strLabel, i) {
-if (this.shapes == null) return;
-this.loadShape (5);
-this.shapes[5].setProperty ("label:" + strLabel, Integer.$valueOf (i), null);
+if (this.shapes != null) this.shapes[5].setProperty ("label:" + strLabel, Integer.$valueOf (i), null);
 }, "~S,~N");
 Clazz.defineMethod (c$, "setModelVisibility", 
 function () {
 var shapes = this.shapes;
 if (shapes == null || shapes[0] == null) return;
 var bs = this.vwr.getVisibleFramesBitSet ();
-for (var i = 1; i < 36; i++) if (shapes[i] != null) shapes[i].setVisibilityFlags (bs);
+for (var i = 8; i < 33; i++) if (shapes[i] != null) shapes[i].setModelVisibilityFlags (bs);
 
 var showHydrogens = this.vwr.getBoolean (603979922);
-var bsDeleted = this.vwr.getDeletedAtoms ();
+var bsDeleted = this.vwr.slm.bsDeleted;
 var atoms = this.ms.at;
-var flag0 = -48;
+this.ms.clearVisibleSets ();
+if (atoms.length > 0) {
 for (var i = this.ms.ac; --i >= 0; ) {
 var atom = atoms[i];
-atom.shapeVisibilityFlags &= flag0;
-if (bsDeleted != null && bsDeleted.get (i) || !showHydrogens && atom.getElementNumber () == 1) continue;
-var modelIndex = atom.getModelIndex ();
-if (bs.get (modelIndex)) {
+atom.shapeVisibilityFlags &= -64;
+if (bsDeleted != null && bsDeleted.get (i)) continue;
+if (bs.get (atom.mi)) {
 var f = 1;
-if (!this.ms.isAtomHidden (i)) {
+if (!this.ms.isAtomHidden (i) && (showHydrogens || atom.getElementNumber () != 1)) {
 f |= 8;
 if (atom.madAtom != 0) f |= 16;
 atom.setShapeVisibility (f, true);
 }}}
-shapes[0].setVisibilityFlags (bs);
-for (var i = 0; i < 36; ++i) {
-var shape = shapes[i];
-if (shape != null) shape.setModelClickability ();
+}this.setShapeVis ();
+});
+Clazz.defineMethod (c$, "setShapeVis", 
+ function () {
+for (var i = 0; i < 37; ++i) {
+var shape = this.shapes[i];
+if (shape != null) shape.setAtomClickability ();
 }
 });
 Clazz.defineMethod (c$, "finalizeAtoms", 
@@ -244,7 +245,6 @@ function (bsAtoms, ptOffset) {
 var vwr = this.vwr;
 var tm = vwr.tm;
 var bs = this.bsRenderableAtoms;
-var gdata = this.gdata;
 if (bsAtoms != null) {
 var ptCenter = this.ms.getAtomSetCenter (bsAtoms);
 var pt =  new JU.P3 ();
@@ -254,25 +254,36 @@ tm.unTransformPoint (pt, pt);
 pt.sub (ptCenter);
 vwr.setAtomCoordsRelative (pt, bsAtoms);
 ptOffset.set (0, 0, 0);
-}this.ms.getRenderable (bs);
+}this.ms.getAtomsInFrame (bs);
 var vibrationVectors = this.ms.vibrations;
-var atoms = this.ms.at;
 var vibs = (vibrationVectors != null && tm.vibrationOn);
+var checkOccupancy = (this.ms.bsModulated != null && this.ms.occupancies != null);
+var atoms = this.ms.at;
+var occ;
+var haveMods = false;
 for (var i = bs.nextSetBit (0); i >= 0; i = bs.nextSetBit (i + 1)) {
 var atom = atoms[i];
-var screen = (vibs && atom.hasVibration () ? tm.transformPtVib (atom, vibrationVectors[i], NaN) : tm.transformPt (atom));
+var screen = (vibs && atom.hasVibration () ? tm.transformPtVib (atom, vibrationVectors[i]) : tm.transformPt (atom));
 atom.sX = screen.x;
 atom.sY = screen.y;
 atom.sZ = screen.z;
 var d = Math.abs (atom.madAtom);
-if (d == JM.Atom.MAD_GLOBAL) d = Clazz.floatToInt (vwr.getFloat (1141899265) * 2000);
-atom.sD = Clazz.floatToShort (vwr.scaleToScreen (screen.z, d));
-}
+if (d == JM.Atom.MAD_GLOBAL) d = Clazz.floatToInt (vwr.getFloat (1140850689) * 2000);
+atom.sD = Clazz.floatToShort (vwr.tm.scaleToScreen (screen.z, d));
+if (checkOccupancy && vibrationVectors[i] != null && (occ = vibrationVectors[i].getOccupancy100 (vibs)) != -2147483648) {
+haveMods = true;
+atom.setShapeVisibility (2, false);
+if (occ >= 0 && occ < 50) atom.setShapeVisibility (24, false);
+ else atom.setShapeVisibility (8 | (atom.madAtom > 0 ? 16 : 0), true);
+this.ms.occupancies[atom.i] = Math.abs (occ);
+}}
+if (haveMods) this.setShapeVis ();
+var gdata = vwr.gdata;
 if (tm.slabEnabled) {
 var slabByMolecule = vwr.getBoolean (603979940);
-var slabByAtom = vwr.getBoolean (603979938);
-var minZ = gdata.getSlab ();
-var maxZ = gdata.getDepth ();
+var slabByAtom = vwr.getBoolean (603979939);
+var minZ = gdata.slab;
+var maxZ = gdata.depth;
 if (slabByMolecule) {
 var molecules = this.ms.getMolecules ();
 var moleculeCount = this.ms.getMoleculeCountInModel (-1);
@@ -290,7 +301,7 @@ bs.clear (pt);
 atoms[pt++].sZ = 0;
 }
 }}
-}for (var i = bs.nextSetBit (0); i >= 0; i = this.bsRenderableAtoms.nextSetBit (i + 1)) {
+}for (var i = bs.nextSetBit (0); i >= 0; i = bs.nextSetBit (i + 1)) {
 var atom = atoms[i];
 if (gdata.isClippedZ (atom.sZ - (slabByAtom ? atoms[i].sD >> 1 : 0))) {
 atom.setClickable (0);
@@ -298,7 +309,7 @@ var r = Clazz.doubleToInt ((slabByAtom ? -1 : 1) * atom.sD / 2);
 if (atom.sZ + r < minZ || atom.sZ - r > maxZ || !gdata.isInDisplayRange (atom.sX, atom.sY)) {
 bs.clear (i);
 }}}
-}if (this.ms.getAtomCount () == 0 || !vwr.getShowNavigationPoint ()) return null;
+}if (this.ms.ac == 0 || !vwr.getShowNavigationPoint ()) return null;
 var minX = 2147483647;
 var maxX = -2147483648;
 var minY = 2147483647;
@@ -310,11 +321,11 @@ if (atom.sX > maxX) maxX = atom.sX;
 if (atom.sY < minY) minY = atom.sY;
 if (atom.sY > maxY) maxY = atom.sY;
 }
-this.navigationCrossHairMinMax[0] = minX;
-this.navigationCrossHairMinMax[1] = maxX;
-this.navigationCrossHairMinMax[2] = minY;
-this.navigationCrossHairMinMax[3] = maxY;
-return this.navigationCrossHairMinMax;
+this.navMinMax[0] = minX;
+this.navMinMax[1] = maxX;
+this.navMinMax[2] = minY;
+this.navMinMax[3] = maxY;
+return this.navMinMax;
 }, "JU.BS,JU.P3");
 Clazz.defineMethod (c$, "setModelSet", 
 function (modelSet) {
@@ -327,17 +338,17 @@ this.setShapePropertyBs (24, "remapInherited", null, null);
 });
 Clazz.defineMethod (c$, "restrictSelected", 
 function (isBond, doInvert) {
-var bsSelected = this.vwr.getSelectedAtomsNoSubset ();
+var bsSelected = this.vwr.slm.getSelectedAtomsNoSubset ();
 if (doInvert) {
-this.vwr.invertSelection ();
-var bsSubset = this.vwr.getSelectionSubset ();
+this.vwr.slm.invertSelection ();
+var bsSubset = this.vwr.slm.bsSubset;
 if (bsSubset != null) {
-bsSelected = this.vwr.getSelectedAtomsNoSubset ();
+bsSelected = this.vwr.slm.getSelectedAtomsNoSubset ();
 bsSelected.and (bsSubset);
 this.vwr.select (bsSelected, false, 0, true);
-JU.BSUtil.invertInPlace (bsSelected, this.vwr.getAtomCount ());
+JU.BSUtil.invertInPlace (bsSelected, this.vwr.ms.ac);
 bsSelected.and (bsSubset);
-}}JU.BSUtil.andNot (bsSelected, this.vwr.getDeletedAtoms ());
+}}JU.BSUtil.andNot (bsSelected, this.vwr.slm.bsDeleted);
 var bondmode = this.vwr.getBoolean (603979812);
 if (!isBond) this.vwr.setBooleanProperty ("bondModeOr", true);
 this.setShapeSizeBs (1, 0, null, null);
@@ -347,12 +358,12 @@ this.setShapePropertyBs (1, "type", Integer.$valueOf (1023), null);
 var bs = this.vwr.bsA ();
 for (var iShape = 21; --iShape >= 0; ) if (iShape != 6 && this.getShape (iShape) != null) this.setShapeSizeBs (iShape, 0, null, bs);
 
-if (this.getShape (21) != null) this.setShapePropertyBs (21, "delete", bs, null);
+if (this.getShape (21) != null) this.setShapePropertyBs (21, "off", bs, null);
 this.setLabel (null, bs);
 if (!isBond) this.vwr.setBooleanProperty ("bondModeOr", bondmode);
 this.vwr.select (bsSelected, false, 0, true);
 }, "~B,~B");
 Clazz.defineStatics (c$,
-"hoverable", [30, 25, 24, 22, 35]);
+"hoverable",  Clazz.newIntArray (-1, [31, 25, 24, 29, 22, 36]));
 c$.clickableMax = c$.prototype.clickableMax = JV.ShapeManager.hoverable.length - 1;
 });

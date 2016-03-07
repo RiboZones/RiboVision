@@ -917,7 +917,7 @@ JU.Deflate.config_table[7] =  new JU.Deflate.Config (8, 32, 128, 256, 2);
 JU.Deflate.config_table[8] =  new JU.Deflate.Config (32, 128, 258, 1024, 2);
 JU.Deflate.config_table[9] =  new JU.Deflate.Config (32, 258, 258, 4096, 2);
 }Clazz.defineStatics (c$,
-"z_errmsg", ["need dictionary", "stream end", "", "file error", "stream error", "data error", "insufficient memory", "buffer error", "incompatible version", ""],
+"z_errmsg",  Clazz.newArray (-1, ["need dictionary", "stream end", "", "file error", "stream error", "data error", "insufficient memory", "buffer error", "incompatible version", ""]),
 "NeedMore", 0,
 "BlockDone", 1,
 "FinishStarted", 2,

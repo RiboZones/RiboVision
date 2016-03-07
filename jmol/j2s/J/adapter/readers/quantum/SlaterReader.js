@@ -33,7 +33,7 @@ for (var i = 0; i < this.slaterArray.length; i++) this.slaterArray[i] = this.sla
 }if (doScale) for (var i = 0; i < this.slaterArray.length; i++) {
 var sd = this.slaterArray[i];
 sd.coef *= this.scaleSlater (sd.x, sd.y, sd.z, sd.r, sd.zeta);
-if (JU.Logger.debugging) {
+if (this.debugging) {
 JU.Logger.debug ("SlaterReader " + i + ": " + sd.iAtom + " " + sd.x + " " + sd.y + " " + sd.z + " " + sd.r + " " + sd.zeta + " " + sd.coef);
 }}
 if (doSort) {
@@ -43,7 +43,7 @@ for (var i = 0; i < this.slaterArray.length; i++) pointers[i] = this.slaterArray
 
 this.sortOrbitalCoefficients (pointers);
 }this.moData.put ("slaters", this.slaterArray);
-this.asc.setAtomSetAuxiliaryInfo ("moData", this.moData);
+this.asc.setCurrentModelInfo ("moData", this.moData);
 }, "~B,~B");
 Clazz.defineMethod (c$, "setMOs", 
 function (units) {
@@ -123,6 +123,6 @@ c$ = Clazz.p0p ();
 };
 Clazz.defineStatics (c$,
 "_1_4pi", 0.07957747154594767,
-"fact1", [1.0, 2.0, 24.0, 720.0, 40320.0, 362880.0, 87178291200.0],
-"dfact2", [1, 1, 3, 15, 105]);
+"fact1",  Clazz.newDoubleArray (-1, [1.0, 2.0, 24.0, 720.0, 40320.0, 362880.0, 87178291200.0]),
+"dfact2",  Clazz.newDoubleArray (-1, [1, 1, 3, 15, 105]));
 });

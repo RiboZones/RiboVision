@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.render");
-Clazz.load (["J.api.JmolRepaintManager", "JU.BS"], "J.render.RepaintManager", ["J.api.Interface", "JU.Logger", "JV.JC"], function () {
+Clazz.load (["J.api.JmolRepaintManager", "JU.BS"], "J.render.RepaintManager", ["java.lang.NullPointerException", "J.api.Interface", "JU.Logger", "JV.JC"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.vwr = null;
 this.shapeManager = null;
@@ -10,7 +10,7 @@ this.repaintPending = false;
 Clazz.instantialize (this, arguments);
 }, J.render, "RepaintManager", null, J.api.JmolRepaintManager);
 Clazz.prepareFields (c$, function () {
-this.bsTranslucent = JU.BS.newN (36);
+this.bsTranslucent = JU.BS.newN (37);
 });
 Clazz.makeConstructor (c$, 
 function () {
@@ -41,7 +41,7 @@ Clazz.overrideMethod (c$, "requestRepaintAndWait",
 function (why) {
 {
 if (typeof Jmol != "undefined" && Jmol._repaint)
-Jmol._repaint(this.vwr.applet, false);
+Jmol._repaint(this.vwr.html5Applet, false);
 this.repaintDone();
 }}, "~S");
 Clazz.overrideMethod (c$, "repaintIfReady", 
@@ -54,10 +54,8 @@ return true;
 Clazz.defineMethod (c$, "repaintNow", 
  function (why) {
 if (!this.vwr.haveDisplay) return;
-{
-if (typeof Jmol != "undefined" && Jmol._repaint)
-Jmol._repaint(this.vwr.applet,true);
-}}, "~S");
+this.vwr.apiPlatform.repaint (this.vwr.display);
+}, "~S");
 Clazz.overrideMethod (c$, "repaintDone", 
 function () {
 this.repaintPending = false;
@@ -67,7 +65,7 @@ Clazz.overrideMethod (c$, "clear",
 function (iShape) {
 if (this.renderers == null) return;
 if (iShape >= 0) this.renderers[iShape] = null;
- else for (var i = 0; i < 36; ++i) this.renderers[i] = null;
+ else for (var i = 0; i < 37; ++i) this.renderers[i] = null;
 
 }, "~N");
 Clazz.defineMethod (c$, "getRenderer", 
@@ -75,24 +73,26 @@ Clazz.defineMethod (c$, "getRenderer",
 if (this.renderers[shapeID] != null) return this.renderers[shapeID];
 var className = JV.JC.getShapeClassName (shapeID, true) + "Renderer";
 var renderer;
-if ((renderer = J.api.Interface.getInterface (className)) == null) return null;
+if ((renderer = J.api.Interface.getInterface (className, this.vwr, "render")) == null) return null;
 renderer.setViewerG3dShapeID (this.vwr, shapeID);
 return this.renderers[shapeID] = renderer;
 }, "~N");
 Clazz.overrideMethod (c$, "render", 
-function (gdata, modelSet, isFirstPass, minMax) {
-var logTime = this.vwr.getBoolean (603979934);
-try {
+function (gdata, modelSet, isFirstPass, navMinMax) {
 var g3d = gdata;
+if (this.renderers == null) this.renderers =  new Array (37);
+this.getAllRenderers ();
+try {
+var logTime = this.vwr.getBoolean (603979934);
 g3d.renderBackground (null);
 if (isFirstPass) {
 this.bsTranslucent.clearAll ();
-if (minMax != null) g3d.renderCrossHairs (minMax, this.vwr.getScreenWidth (), this.vwr.getScreenHeight (), this.vwr.tm.getNavigationOffset (), this.vwr.tm.getNavigationDepthPercent ());
+if (navMinMax != null) g3d.renderCrossHairs (navMinMax, this.vwr.getScreenWidth (), this.vwr.getScreenHeight (), this.vwr.tm.getNavigationOffset (), this.vwr.tm.navigationDepthPercent);
 var band = this.vwr.getRubberBandSelection ();
 if (band != null && g3d.setC (this.vwr.cm.colixRubberband)) g3d.drawRect (band.x, band.y, 0, 0, band.width, band.height);
-}if (this.renderers == null) this.renderers =  new Array (36);
-var msg = null;
-for (var i = 0; i < 36 && g3d.currentlyRendering (); ++i) {
+this.vwr.noFrankEcho = true;
+}var msg = null;
+for (var i = 0; i < 37 && gdata.currentlyRendering; ++i) {
 var shape = this.shapeManager.getShape (i);
 if (shape == null) continue;
 if (logTime) {
@@ -105,16 +105,25 @@ g3d.renderAllStrings (null);
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
 if (!this.vwr.isJS) e.printStackTrace ();
+if (this.vwr.async && "Interface".equals (e.getMessage ())) throw  new NullPointerException ();
 JU.Logger.error ("rendering error? " + e);
 } else {
 throw e;
 }
 }
 }, "JU.GData,JM.ModelSet,~B,~A");
+Clazz.defineMethod (c$, "getAllRenderers", 
+ function () {
+var isOK = true;
+for (var i = 0; i < 37; ++i) {
+if (this.shapeManager.getShape (i) == null || this.getRenderer (i) != null) continue;
+isOK = this.repaintPending = !this.vwr.async;
+}
+if (!isOK) throw  new NullPointerException ();
+});
 Clazz.overrideMethod (c$, "renderExport", 
 function (gdata, modelSet, params) {
 var isOK;
-var logTime = this.vwr.getBoolean (603979934);
 this.vwr.finalizeTransformParameters ();
 this.shapeManager.finalizeAtoms (null, null);
 var exporter3D = this.vwr.initializeExporter (params);
@@ -122,10 +131,13 @@ isOK = (exporter3D != null);
 if (!isOK) {
 JU.Logger.error ("Cannot export " + params.get ("type"));
 return null;
-}exporter3D.renderBackground (exporter3D);
-if (this.renderers == null) this.renderers =  new Array (36);
+}if (this.renderers == null) this.renderers =  new Array (37);
+this.getAllRenderers ();
 var msg = null;
-for (var i = 0; i < 36; ++i) {
+try {
+var logTime = this.vwr.getBoolean (603979934);
+exporter3D.renderBackground (exporter3D);
+for (var i = 0; i < 37; ++i) {
 var shape = this.shapeManager.getShape (i);
 if (shape == null) continue;
 if (logTime) {
@@ -135,6 +147,15 @@ JU.Logger.startTimer (msg);
 if (logTime) JU.Logger.checkTimer (msg, false);
 }
 exporter3D.renderAllStrings (exporter3D);
-return exporter3D.finalizeOutput ();
+msg = exporter3D.finalizeOutput ();
+} catch (e) {
+if (Clazz.exceptionOf (e, Exception)) {
+if (!this.vwr.isJS) e.printStackTrace ();
+JU.Logger.error ("rendering error? " + e);
+} else {
+throw e;
+}
+}
+return msg;
 }, "JU.GData,JM.ModelSet,java.util.Map");
 });

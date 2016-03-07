@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.adapter.readers.quantum");
-Clazz.load (["J.adapter.readers.quantum.MOReader"], "J.adapter.readers.quantum.JaguarReader", ["java.lang.Boolean", "$.Float", "java.util.Hashtable", "JU.AU", "$.Lst", "J.api.JmolAdapter", "JU.Logger"], function () {
+Clazz.load (["J.adapter.readers.quantum.MOReader"], "J.adapter.readers.quantum.JaguarReader", ["java.lang.Boolean", "$.Float", "java.util.Hashtable", "JU.AU", "$.Lst", "$.PT", "J.adapter.readers.quantum.BasisFunctionReader", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.moCount = 0;
 this.lumoEnergy = 3.4028235E38;
@@ -15,7 +15,7 @@ return true;
 this.readCharges ();
 return true;
 }if (this.line.startsWith ("  number of basis functions....")) {
-this.moCount = this.parseIntStr (this.line.substring (32).trim ());
+this.moCount = this.parseIntAt (this.line, 32);
 return true;
 }if (this.line.startsWith ("  basis set:")) {
 this.moData.put ("energyUnits", "");
@@ -41,7 +41,7 @@ return false;
 });
 Clazz.defineMethod (c$, "readAtoms", 
  function () {
-this.asc.discardPreviousAtoms ();
+this.discardPreviousAtoms ();
 this.readLines (2);
 while (this.rd () != null && this.line.length >= 60 && this.line.charAt (2) != ' ') {
 var tokens = this.getTokens ();
@@ -86,11 +86,11 @@ sdata[iFunc][2] = 0;
 sdata[iFunc][3] = 0;
 sgdata[iFunc] =  new JU.Lst ();
 }var factor = 1;
-sgdata[iFunc].addLast ([this.parseFloatStr (tokens[6]), this.parseFloatStr (tokens[8]) * factor]);
+sgdata[iFunc].addLast ( Clazz.newFloatArray (-1, [this.parseFloatStr (tokens[6]), this.parseFloatStr (tokens[8]) * factor]));
 this.gaussianCount += jCont;
 for (var i = jCont - 1; --i >= 0; ) {
-tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.rd ());
-sgdata[iFunc].addLast ([this.parseFloatStr (tokens[6]), this.parseFloatStr (tokens[8]) * factor]);
+tokens = JU.PT.getTokens (this.rd ());
+sgdata[iFunc].addLast ( Clazz.newFloatArray (-1, [this.parseFloatStr (tokens[6]), this.parseFloatStr (tokens[8]) * factor]));
 }
 }}
 var garray = JU.AU.newFloat2 (this.gaussianCount);
@@ -107,7 +107,7 @@ sarray.addLast (sdata[i]);
 }
 this.moData.put ("shells", sarray);
 this.moData.put ("gaussians", garray);
-if (JU.Logger.debugging) {
+if (this.debugging) {
 JU.Logger.debug (sarray.size () + " slater shells read");
 JU.Logger.debug (this.gaussianCount + " gaussian primitives read");
 }});
@@ -131,11 +131,11 @@ continue;
 }if (!tokens[0].equals (lastAtom)) iAtom++;
 lastAtom = tokens[0];
 id = tokens[2];
-var iType = J.api.JmolAdapter.getQuantumShellTagID (id);
+var iType = J.adapter.readers.quantum.BasisFunctionReader.getQuantumShellTagID (id);
 iFunc = this.parseIntStr (tokens[3]) - 1;
 if (iFunc == iFuncLast) {
 } else {
-sdata = [iAtom, iType, this.gaussianCount, 0];
+sdata =  Clazz.newIntArray (-1, [iAtom, iType, this.gaussianCount, 0]);
 sarray.addLast (sdata);
 iFuncLast = iFunc;
 }this.gaussianCount++;
@@ -143,14 +143,14 @@ sdata[3]++;
 var z = this.parseFloatStr (tokens[4]);
 var rCoef = this.parseFloatStr (tokens[5]);
 if (id.equals ("XX")) rCoef *= 1.7320508;
-gdata.addLast ([z, rCoef]);
+gdata.addLast ( Clazz.newFloatArray (-1, [z, rCoef]));
 }
 var garray = JU.AU.newFloat2 (this.gaussianCount);
 for (var i = gdata.size (); --i >= 0; ) garray[i] = gdata.get (i);
 
 this.moData.put ("shells", sarray);
 this.moData.put ("gaussians", garray);
-if (JU.Logger.debugging) {
+if (this.debugging) {
 JU.Logger.debug (sarray.size () + " slater shells read");
 JU.Logger.debug (this.gaussianCount + " gaussian primitives read");
 }this.moData.put ("isNormalized", Boolean.TRUE);
@@ -170,6 +170,7 @@ if (this.line == null || this.line.indexOf ("eigenvalues-") < 0) break;
 var eigenValues = this.getTokens ();
 var n = eigenValues.length - 1;
 this.fillDataBlock (dataBlock, 0);
+var occ = 2;
 for (var iOrb = 0; iOrb < n; iOrb++) {
 var coefs =  Clazz.newFloatArray (this.moCount, 0);
 var mo =  new java.util.Hashtable ();
@@ -178,7 +179,9 @@ mo.put ("energy", Float.$valueOf (energy));
 if (Math.abs (energy - this.lumoEnergy) < 0.0001) {
 this.moData.put ("HOMO", Integer.$valueOf (nMo));
 this.lumoEnergy = 3.4028235E38;
-}nMo++;
+occ = 0;
+}mo.put ("occupancy", Float.$valueOf (occ));
+nMo++;
 for (var i = 0, pt = 0; i < this.moCount; i++) {
 coefs[pt++] = this.parseFloatStr (dataBlock[i][iOrb + 3]);
 }

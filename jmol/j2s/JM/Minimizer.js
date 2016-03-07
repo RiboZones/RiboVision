@@ -142,7 +142,7 @@ if (this.pFF == null) {
 JU.Logger.error (J.i18n.GT.o (J.i18n.GT._ ("Could not get class for force field {0}"), ff));
 return false;
 }JU.Logger.info ("minimize: initializing " + this.pFF.name + " (steps = " + steps + " criterion = " + crit + ") ...");
-if (bsSelected.cardinality () == 0) {
+if (bsSelected.nextSetBit (0) < 0) {
 JU.Logger.error (J.i18n.GT._ ("No atoms selected -- nothing to do!"));
 return false;
 }this.atoms = this.vwr.ms.at;
@@ -161,7 +161,7 @@ return false;
 }if (steps > 0) {
 this.bsTaint = JU.BSUtil.copy (this.bsAtoms);
 JU.BSUtil.andNot (this.bsTaint, bsFixed);
-this.vwr.setTaintedAtoms (this.bsTaint, 2);
+this.vwr.ms.setTaintedAtoms (this.bsTaint, 2);
 }if (bsFixed != null) this.bsFixed = bsFixed;
 this.setAtomPositions ();
 if (this.constraints != null) {
@@ -201,7 +201,7 @@ this.atomMap[i] = pt;
 var atomicNo = this.atoms[i].getElementNumber ();
 this.elemnoMax = Math.max (this.elemnoMax, atomicNo);
 bsElements.set (atomicNo);
-this.minAtoms[pt] =  new JM.MinAtom (pt, atom, [atom.x, atom.y, atom.z], this.ac);
+this.minAtoms[pt] =  new JM.MinAtom (pt, atom,  Clazz.newDoubleArray (-1, [atom.x, atom.y, atom.z]), this.ac);
 this.minAtoms[pt].sType = atom.getAtomName ();
 }
 JU.Logger.info (J.i18n.GT.i (J.i18n.GT._ ("{0} atoms will be minimized."), this.ac));
@@ -243,13 +243,15 @@ var i1;
 var i2;
 for (var i = 0; i < this.rawBondCount; i++) {
 var bond = this.bonds[i];
-if (!this.bsAtoms.get (i1 = bond.getAtomIndex1 ()) || !this.bsAtoms.get (i2 = bond.getAtomIndex2 ())) continue;
+if (!this.bsAtoms.get (i1 = bond.atom1.i) || !this.bsAtoms.get (i2 = bond.atom2.i)) continue;
 if (i2 < i1) {
 var ii = i1;
 i1 = i2;
 i2 = ii;
 }var bondOrder = bond.getCovalentOrder ();
 switch (bondOrder) {
+case 0:
+continue;
 case 1:
 case 2:
 case 3:
@@ -285,13 +287,13 @@ var ib = bond.data[1];
 if (this.minAtoms[ib].nBonds > 1) {
 atomList = this.minAtoms[ib].getBondedAtomIndexes ();
 for (var j = atomList.length; --j >= 0; ) if ((ic = atomList[j]) > ia) {
-vAngles.addLast ( new JM.MinAngle ([ia, ib, ic, i, this.minAtoms[ib].getBondIndex (j)]));
+vAngles.addLast ( new JM.MinAngle ( Clazz.newIntArray (-1, [ia, ib, ic, i, this.minAtoms[ib].getBondIndex (j)])));
 this.minAtoms[ia].bsVdw.clear (ic);
 }
 }if (this.minAtoms[ia].nBonds > 1) {
 atomList = this.minAtoms[ia].getBondedAtomIndexes ();
 for (var j = atomList.length; --j >= 0; ) if ((ic = atomList[j]) < ib && ic > ia) {
-vAngles.addLast ( new JM.MinAngle ([ic, ia, ib, this.minAtoms[ia].getBondIndex (j), i]));
+vAngles.addLast ( new JM.MinAngle ( Clazz.newIntArray (-1, [ic, ia, ib, this.minAtoms[ia].getBondIndex (j), i])));
 this.minAtoms[ic].bsVdw.clear (ib);
 }
 }}
@@ -313,7 +315,7 @@ atomList = this.minAtoms[ic].getBondedAtomIndexes ();
 for (var j = 0; j < atomList.length; j++) {
 id = atomList[j];
 if (id != ia && id != ib) {
-vTorsions.addLast ( new JM.MinTorsion ([ia, ib, ic, id, angle[3], angle[4], this.minAtoms[ic].getBondIndex (j)]));
+vTorsions.addLast ( new JM.MinTorsion ( Clazz.newIntArray (-1, [ia, ib, ic, id, angle[3], angle[4], this.minAtoms[ic].getBondIndex (j)])));
 this.minAtoms[Math.min (ia, id)].bs14.set (Math.max (ia, id));
 }}
 }if (ia > ib && this.minAtoms[ia].nBonds != 1) {
@@ -321,7 +323,7 @@ atomList = this.minAtoms[ia].getBondedAtomIndexes ();
 for (var j = 0; j < atomList.length; j++) {
 id = atomList[j];
 if (id != ic && id != ib) {
-vTorsions.addLast ( new JM.MinTorsion ([ic, ib, ia, id, angle[4], angle[3], this.minAtoms[ia].getBondIndex (j)]));
+vTorsions.addLast ( new JM.MinTorsion ( Clazz.newIntArray (-1, [ic, ib, ia, id, angle[4], angle[3], this.minAtoms[ia].getBondIndex (j)])));
 this.minAtoms[Math.min (ic, id)].bs14.set (Math.max (ic, id));
 }}
 }}
@@ -480,7 +482,7 @@ Clazz.overrideMethod (c$, "calculatePartialCharges",
 function (bonds, bondCount, atoms, bsAtoms) {
 var ff =  new JM.FF.ForceFieldMMFF (this);
 ff.setArrays (atoms, bsAtoms, bonds, bondCount, true, true);
-this.vwr.setAtomProperty (bsAtoms, 1087375361, 0, 0, null, null, ff.getAtomTypeDescriptions ());
-this.vwr.setAtomProperty (bsAtoms, 1112541196, 0, 0, null, ff.getPartialCharges (), null);
+this.vwr.setAtomProperty (bsAtoms, 1086326785, 0, 0, null, null, ff.getAtomTypeDescriptions ());
+this.vwr.setAtomProperty (bsAtoms, 1111492619, 0, 0, null, ff.getPartialCharges (), null);
 }, "~A,~N,~A,JU.BS");
 });

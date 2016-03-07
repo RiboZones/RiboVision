@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.quantum");
-Clazz.load (["J.api.MOCalculationInterface", "J.quantum.QuantumCalculation"], "J.quantum.MOCalculation", ["J.c.QS", "JU.Logger"], function () {
+Clazz.load (["J.api.MOCalculationInterface", "J.quantum.QuantumCalculation"], "J.quantum.MOCalculation", ["J.quantum.QS", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.CX = null;
 this.CY = null;
@@ -29,7 +29,7 @@ this.sum = -1;
 this.c = 1;
 this.nGaussians = 0;
 this.doShowShellType = false;
-this.basisType = null;
+this.warned = null;
 this.coeffs = null;
 this.map = null;
 this.integration = 0;
@@ -37,8 +37,7 @@ this.isSquaredLinear = false;
 Clazz.instantialize (this, arguments);
 }, J.quantum, "MOCalculation", J.quantum.QuantumCalculation, J.api.MOCalculationInterface);
 Clazz.prepareFields (c$, function () {
-this.dfCoefMaps = [ Clazz.newIntArray (1, 0),  Clazz.newIntArray (3, 0),  Clazz.newIntArray (4, 0),  Clazz.newIntArray (5, 0),  Clazz.newIntArray (6, 0),  Clazz.newIntArray (7, 0),  Clazz.newIntArray (10, 0)];
-this.coeffs =  Clazz.newDoubleArray (10, 0);
+this.dfCoefMaps =  Clazz.newArray (-1, [ Clazz.newIntArray (1, 0),  Clazz.newIntArray (3, 0),  Clazz.newIntArray (4, 0),  Clazz.newIntArray (5, 0),  Clazz.newIntArray (6, 0),  Clazz.newIntArray (7, 0),  Clazz.newIntArray (10, 0)]);
 });
 Clazz.makeConstructor (c$, 
 function () {
@@ -52,6 +51,7 @@ this.firstAtomOffset = firstAtomOffset;
 this.shells = shells;
 this.gaussians = gaussians;
 if (dfCoefMaps != null) this.dfCoefMaps = dfCoefMaps;
+this.coeffs =  Clazz.newDoubleArray (this.dfCoefMaps[this.dfCoefMaps.length - 1].length, 0);
 this.slaters = slaters;
 this.moCoefficients = moCoefficients;
 this.linearCombination = linearCombination;
@@ -144,11 +144,11 @@ Clazz.defineMethod (c$, "normalizeShell",
  function (iShell) {
 var c = 0;
 var shell = this.shells.get (iShell);
-this.basisType = J.c.QS.getItem (shell[1]);
+var basisType = shell[1];
 this.gaussianPtr = shell[2];
 this.nGaussians = shell[3];
 this.doShowShellType = this.doDebug;
-if (!this.setCoeffs (false)) return 0;
+if (!this.setCoeffs (basisType, false)) return 0;
 for (var i = this.map.length; --i >= 0; ) c += this.coeffs[i] * this.coeffs[i];
 
 return c;
@@ -158,38 +158,42 @@ Clazz.defineMethod (c$, "processShell",
 var lastAtom = this.atomIndex;
 var shell = this.shells.get (iShell);
 this.atomIndex = shell[0] + this.firstAtomOffset;
-this.basisType = J.c.QS.getItem (shell[1]);
+var basisType = shell[1];
 this.gaussianPtr = shell[2];
 this.nGaussians = shell[3];
 this.doShowShellType = this.doDebug;
 if (this.atomIndex != lastAtom && (this.thisAtom = this.qmAtoms[this.atomIndex]) != null) this.thisAtom.setXYZ (this, true);
-if (!this.setCoeffs (true)) return;
+if (!this.setCoeffs (shell[1], true)) return;
 if (this.havePoints) this.setMinMax (-1);
-switch (this.basisType) {
-case J.c.QS.S:
+switch (basisType) {
+case 0:
 this.addDataS ();
 break;
-case J.c.QS.P:
+case 1:
 this.addDataP ();
 break;
-case J.c.QS.SP:
+case 2:
 this.addDataSP ();
 break;
-case J.c.QS.D_SPHERICAL:
+case 3:
 this.addData5D ();
 break;
-case J.c.QS.D_CARTESIAN:
+case 4:
 this.addData6D ();
 break;
-case J.c.QS.F_SPHERICAL:
+case 5:
 this.addData7F ();
 break;
-case J.c.QS.F_CARTESIAN:
+case 6:
 this.addData10F ();
 break;
 default:
-JU.Logger.warn (" Unsupported basis type for atomno=" + (this.atomIndex + 1) + ": " + this.basisType.tag);
-break;
+if (this.warned == null) this.warned = "";
+var key = "=" + (this.atomIndex + 1) + ": " + J.quantum.QS.getQuantumShellTag (basisType);
+if (this.warned.indexOf (key) < 0) {
+this.warned += key;
+JU.Logger.warn (" Unsupported basis type for atomno" + key);
+}break;
 }
 }, "~N");
 Clazz.defineMethod (c$, "addValuesSquared", 
@@ -231,19 +235,18 @@ if (JU.Logger.debugging) JU.Logger.debug ("\t\t\tnormalization for l=" + el + " 
 return sum;
 }, "~N,~N");
 Clazz.defineMethod (c$, "setCoeffs", 
- function (isProcess) {
+ function (type, isProcess) {
 var isOK = false;
-var mapType = this.basisType.id;
-this.map = this.dfCoefMaps[mapType];
+this.map = this.dfCoefMaps[type];
 if (isProcess && this.thisAtom == null) {
 this.moCoeff += this.map.length;
 return false;
 }for (var i = 0; i < this.map.length; i++) isOK = new Boolean (isOK | ((this.coeffs[i] = this.moCoefficients[this.map[i] + this.moCoeff++]) != 0)).valueOf ();
 
 isOK = new Boolean (isOK & (this.coeffs[0] != -2147483648)).valueOf ();
-if (isOK && this.doDebug && isProcess) this.dumpInfo (mapType);
+if (isOK && this.doDebug && isProcess) this.dumpInfo (type);
 return isOK;
-}, "~B");
+}, "~N,~B");
 Clazz.defineMethod (c$, "addDataS", 
  function () {
 var norm;
@@ -875,7 +878,7 @@ return true;
 Clazz.defineMethod (c$, "dumpInfo", 
  function (shell) {
 if (this.doShowShellType) {
-JU.Logger.debug ("\n\t\t\tprocessShell: " + shell + " type=" + J.c.QS.getQuantumShellTag (shell) + " nGaussians=" + this.nGaussians + " atom=" + this.atomIndex);
+JU.Logger.debug ("\n\t\t\tprocessShell: " + shell + " type=" + J.quantum.QS.getQuantumShellTag (shell) + " nGaussians=" + this.nGaussians + " atom=" + this.atomIndex);
 this.doShowShellType = false;
 }if (JU.Logger.isActiveLevel (6)) for (var ig = 0; ig < this.nGaussians; ig++) {
 var alpha = this.gaussians[this.gaussianPtr + ig][0];
@@ -884,8 +887,9 @@ JU.Logger.debug ("\t\t\tGaussian " + (ig + 1) + " alpha=" + alpha + " c=" + c1);
 }
 var so = J.quantum.MOCalculation.getShellOrder (shell);
 for (var i = 0; i < this.map.length; i++) {
+var n = this.map[i] + this.moCoeff - this.map.length + i + 1;
 var c = this.coeffs[i];
-JU.Logger.debug ("MO coeff " + (so == null ? "?" : so[i]) + " " + (this.map[i] + this.moCoeff - this.map.length + i + 1) + "\t" + c + "\t" + this.thisAtom.atom);
+JU.Logger.debug ("MO coeff " + (so == null ? "?" : so[i]) + " " + n + "\t" + c + "\t" + this.thisAtom.atom);
 }
 }, "~N");
 c$.getShellOrder = Clazz.defineMethod (c$, "getShellOrder", 
@@ -908,5 +912,5 @@ JU.Logger.info ("Integrated density = " + this.integration);
 Clazz.defineStatics (c$,
 "CUT", -50,
 "ROOT3", 1.73205080756887729,
-"shellOrder", [["S"], ["X", "Y", "Z"], ["S", "X", "Y", "Z"], ["d0/z2", "d1+/xz", "d1-/yz", "d2+/x2-y2", "d2-/xy"], ["XX", "YY", "ZZ", "XY", "XZ", "YZ"], ["f0/2z3-3x2z-3y2z", "f1+/4xz2-x3-xy2", "f1-/4yz2-x2y-y3", "f2+/x2z-y2z", "f2-/xyz", "f3+/x3-3xy2", "f3-/3x2y-y3"], ["XXX", "YYY", "ZZZ", "XYY", "XXY", "XXZ", "XZZ", "YZZ", "YYZ", "XYZ"]]);
+"shellOrder",  Clazz.newArray (-1, [ Clazz.newArray (-1, ["S"]),  Clazz.newArray (-1, ["X", "Y", "Z"]),  Clazz.newArray (-1, ["S", "X", "Y", "Z"]),  Clazz.newArray (-1, ["d0/z2", "d1+/xz", "d1-/yz", "d2+/x2-y2", "d2-/xy"]),  Clazz.newArray (-1, ["XX", "YY", "ZZ", "XY", "XZ", "YZ"]),  Clazz.newArray (-1, ["f0/2z3-3x2z-3y2z", "f1+/4xz2-x3-xy2", "f1-/4yz2-x2y-y3", "f2+/x2z-y2z", "f2-/xyz", "f3+/x3-3xy2", "f3-/3x2y-y3"]),  Clazz.newArray (-1, ["XXX", "YYY", "ZZZ", "XYY", "XXY", "XXZ", "XZZ", "YZZ", "YYZ", "XYZ"])]));
 });
