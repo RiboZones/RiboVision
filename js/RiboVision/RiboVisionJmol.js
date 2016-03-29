@@ -63,15 +63,52 @@ var JmolInfo = {
 };	
 
 function init3D(){
-	Jmol.setDocument(0);	
-}
+	Jmol.setDocument(0);
+	Jmol.getApplet("myJmol", JmolInfo);
+	$("#the3DpanelDiv").html(Jmol.getAppletHtml("myJmol", JmolInfo));
 
-function load3Dstructure(){
+}
+function waitFor3Dinit(dataStructure){
+    if(typeof myJmol !== "undefined"){
+        //variable exists, do what you want
+		load3Dstructure(dataStructure.JmolState);
+    }
+    else{
+        setTimeout(function(){
+            waitFor3Dinit(dataStructure);
+        },250);
+    }
+}
+function waitFor3Dload(){
+    if(typeof myJmol !== "undefined"){
+        //variable exists, do what you want
+		init3dStructures();
+    }
+    else{
+        setTimeout(function(){
+            waitFor3Dload();
+        },250);
+    }
+}
+function init3dStructures() {
+	var jscript = "display " + rvDataSets[speciesIndex].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
+	Jmol.script(myJmol, jscript);
+	updateModel();
+	
+	// if (rvDataSets[1]) {
+		// var rna_chains = ":" + rvDataSets[0].SpeciesEntry.New_PDB_Chains.replace(/:/,' or :') + " or :" + rvDataSets[1].SpeciesEntry.New_PDB_Chains.replace(/:/,' or :');
+	// } else {
+		// var rna_chains = ":" + rvDataSets[0].SpeciesEntry.New_PDB_Chains.replace(/:/,' or :');
+	// }
+	
+	// var sele="rna and (" + rna_chains + ")";
+	// Struct.setSelection(sele);
+	// Struct.centerView(true);
+	
+}
+function load3Dstructure(JmolState){
 	if(myJmol!=null){
-		Jmol.script(myJmol, "script states/" + rvDataSets[speciesIndex].SpeciesEntry.Jmol_Script);
-		var jscript = "display " + rvDataSets[speciesIndex].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
-		Jmol.script(myJmol, jscript);
-		updateModel();
+		Jmol.script(myJmol, "script states/" + JmolState + ".spt");
 	}
 }
 

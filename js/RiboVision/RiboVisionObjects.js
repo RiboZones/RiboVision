@@ -1038,17 +1038,17 @@ function rvDataSet(DataSetName,SetNumber) {
 			}
 		}
 		//Temp draw box
-		targetLayer.CanvasContext.beginPath();
-					//targetLayer.CanvasContext.arc(parseFloat(targetSelection.Residues[j].X) + this.PageOffset[0], targetSelection.Residues[j].Y, (targetLayer.ScaleFactor * CircleSize), 0, 2 * Math.PI, false);
-					//targetLayer.CanvasContext.closePath();
-					targetLayer.CanvasContext.strokeStyle = 'orange';
-					targetLayer.CanvasContext.rect(108-18,16,490+18,722);
-					targetLayer.CanvasContext.lineWidth = 4;
-					targetLayer.CanvasContext.stroke();
-					targetLayer.CanvasContext.strokeStyle = 'green';
-					targetLayer.CanvasContext.rect(108+612-18-36,16,490+18,722);
-					targetLayer.CanvasContext.lineWidth = 4;
-					targetLayer.CanvasContext.stroke();
+		//targetLayer.CanvasContext.beginPath();
+		//targetLayer.CanvasContext.arc(parseFloat(targetSelection.Residues[j].X) + this.PageOffset[0], targetSelection.Residues[j].Y, (targetLayer.ScaleFactor * CircleSize), 0, 2 * Math.PI, false);
+		//targetLayer.CanvasContext.closePath();
+		//targetLayer.CanvasContext.strokeStyle = 'orange';
+		//targetLayer.CanvasContext.rect(108-18,16,490+18,722);
+		//targetLayer.CanvasContext.lineWidth = 4;
+		//targetLayer.CanvasContext.stroke();
+		//targetLayer.CanvasContext.strokeStyle = 'green';
+		//targetLayer.CanvasContext.rect(108+612-18-36,16,490+18,722);
+		//targetLayer.CanvasContext.lineWidth = 4;
+		//targetLayer.CanvasContext.stroke();
 		
 		
 	}

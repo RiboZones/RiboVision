@@ -18,14 +18,14 @@ function initNGL(){
 	//} );
 }
 
-function waitFor3Dinit(structureName){
+function waitFor3Dinit(dataStructure){
     if(typeof stage !== "undefined"){
         //variable exists, do what you want
-		load3Dstructure(structureName);
+		load3Dstructure(dataStructure.StructureName);
     }
     else{
         setTimeout(function(){
-            waitFor3Dinit(structureName);
+            waitFor3Dinit(dataStructure);
         },250);
     }
 }

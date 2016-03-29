@@ -1,7 +1,7 @@
 <?php
-$dsn = "mysql:host=localhost;dbname=Ribosome_View2;charset=utf8";
-$username = "Chad";
-$password = "U74HvFKd7cxb8Bx4";
+$dsn = "mysql:host=localhost;dbname=Ribosome_View1;charset=utf8";
+$username = "username";
+$password = "password";
 $pdo = new PDO($dsn, $username, $password);
 
 $filename = $argv[1];
@@ -34,7 +34,7 @@ if(($handle = fopen($filename, "r")) !== FALSE) {
 	$loadquery = 'LOAD DATA LOCAL INFILE \'' . $filename .
     '\' INTO TABLE ' . $tablename . 
 	' FIELDS TERMINATED BY \',\' OPTIONALLY ENCLOSED BY \'"\' LINES TERMINATED BY \'\r\n\' IGNORE 2 LINES' . ' (' . implode(",",$columnNames) . ');';
-	
+
 	$stmt = $pdo->query($loadquery);
 	//echo $loadquery;
 	echo "COMPLETE!\n";

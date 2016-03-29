@@ -56,9 +56,9 @@ function _setFileState() {
   set percentVdwAtom 23;
   set smallMoleculeMaxAtoms 80000;
   set smartAromatic true;
-  load "./pdb/PyFu_LSU_rRNA.pdb";
-  load append  "./pdb/PyFu_LSU_rProteins.pdb";
-  load append  "./pdb/PyFu_SSU.pdb";
+  load "./structures/pdb/PyFu_LSU_rRNA.pdb";
+  load append  "./structures/pdb/PyFu_LSU_rProteins.pdb";
+  load append  "./structures/pdb/PyFu_SSU.pdb";
  
 }
 
