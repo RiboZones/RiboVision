@@ -106,8 +106,8 @@ $title = 'Demo';
 //include header template
 require('layout/header.php');
 
-include('includes/ngl_include.php');
-//include('includes/jmol_include.php');
+//include('includes/ngl_include.php');
+include('includes/jmol_include.php');
 
 ?>
 

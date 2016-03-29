@@ -1,8 +1,8 @@
 <?php
-$dsn = "mysql:host=localhost;dbname=Ribosome_View1;charset=utf8";
-$username = "RVU";
-$password = "DBcrystal84";
-$pdo = new PDO($dsn, $username, $password);
+$dsn = "mysql:host=localhost;dbname=RiboVisionDevel;charset=utf8";
+$username = "username";
+$password = "password";
+$pdo = new PDO($dsn, $username, $password, array(PDO::MYSQL_ATTR_LOCAL_INFILE => true));
 
 $filename = $argv[1];
 $start = strrpos($filename, "/");
@@ -23,6 +23,7 @@ if(($handle = fopen($filename, "r")) !== FALSE) {
 			$createquery = $createquery . ",";
 		}
 		$createquery = $createquery . $columnNames[$i] . " " . $columnTypes[$i];
+		//echo "\n" . $columnTypes[$i];
 	}
 	$createquery = $createquery . ");";
 	$stmt = $pdo->query($createquery);
@@ -33,10 +34,10 @@ if(($handle = fopen($filename, "r")) !== FALSE) {
 	
 	$loadquery = 'LOAD DATA LOCAL INFILE \'' . $filename .
     '\' INTO TABLE ' . $tablename . 
-	' FIELDS TERMINATED BY \',\' OPTIONALLY ENCLOSED BY \'"\' LINES TERMINATED BY \'\r\n\' IGNORE 2 LINES' . ' (' . implode(",",$columnNames) . ');';
-
+	' FIELDS TERMINATED BY \',\' OPTIONALLY ENCLOSED BY \'"\' LINES TERMINATED BY \'\n\' IGNORE 2 LINES' . ' (' . implode(",",$columnNames) . ');';
+	
 	$stmt = $pdo->query($loadquery);
-	//echo $loadquery;
+//	echo $loadquery;
 	echo "COMPLETE!\n";
 
 ?>
