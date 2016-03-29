@@ -74,7 +74,7 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 	$.getJSON('getData.php', {
 		StructureLookup : species
 		}, function (data) {
-			waitFor3Dinit(data[0].StructureName);
+			waitFor3Dinit(data[0]);
 	});
 	
 	// get data description table
