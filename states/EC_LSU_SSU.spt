@@ -56,10 +56,10 @@ function _setFileState() {
   set percentVdwAtom 23;
   set smallMoleculeMaxAtoms 40000;
   set smartAromatic true;
- #load "pdb/EC_50S.pdb";
-  #load append "./pdb/EC_30S.pdb";
- 	load =3R8S;
-	load append =4GD1;
+  load "./structures/pdb/EC_50S.pdb";
+  load append "./structures/pdb/EC_30S.pdb";
+  #load =3R8S;
+  #load append =4GD1;
 }
 
 function _setVariableState() {

@@ -57,9 +57,9 @@ function _setFileState() {
   set smallMoleculeMaxAtoms 40000;
   set smartAromatic true;
   load "./pdb/DM_60S_rRNA.pdb";
-  load append "./pdb/DM_40S_rRNA.pdb";
-  load append  "./pdb/DM_60S_rProteins.pdb";
-  load append  "./pdb/DM_40S_rProteins.pdb";
+  load append "./structures/pdb/DM_40S_rRNA.pdb";
+  load append  "./structures/pdb/DM_60S_rProteins.pdb";
+  load append  "./structures/pdb/DM_40S_rProteins.pdb";
  
 }
 

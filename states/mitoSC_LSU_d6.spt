@@ -56,8 +56,8 @@ function _setFileState() {
   set percentVdwAtom 23;
   set smallMoleculeMaxAtoms 40000;
   set smartAromatic true;
-  load "./pdb/mitoSC_LSU_rRNA.pdb";
-  load append "./pdb/mitoSC_LSU_rProteins.pdb";
+  load "./structures/pdb/mitoSC_LSU_rRNA.pdb";
+  load append "./structures/pdb/mitoSC_LSU_rProteins.pdb";
  
 }
 

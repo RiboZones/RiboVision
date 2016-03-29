@@ -56,10 +56,10 @@ function _setFileState() {
   set percentVdwAtom 23;
   set smallMoleculeMaxAtoms 40000;
   set smartAromatic true;
-  load "./pdb/HS_60S_rRNA.pdb";
-  load append "./pdb/HS_40S_rRNA.pdb";
-  load append  "./pdb/HS_60S_rProteins.pdb";
-  load append  "./pdb/HS_40S_rProteins.pdb";
+  load "./structures/pdb/HS_60S_rRNA.pdb";
+  load append "./structures/pdb/HS_40S_rRNA.pdb";
+  load append  "./structures/pdb/HS_60S_rProteins.pdb";
+  load append  "./structures/pdb/HS_40S_rProteins.pdb";
  
 }
 

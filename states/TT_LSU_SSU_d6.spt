@@ -56,8 +56,8 @@ function _setFileState() {
   set percentVdwAtom 23;
   set smallMoleculeMaxAtoms 40000;
   set smartAromatic true;
-  load "./pdb/TT_50S.pdb";
-  load append "./pdb/TT_30S.pdb";
+  load "./structures/pdb/TT_50S.pdb";
+  load append "./structures/pdb/TT_30S.pdb";
 
 }
 
