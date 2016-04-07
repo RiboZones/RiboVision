@@ -7,7 +7,7 @@
 
     <title>RiboVision: Ribosome Visualization Suite.</title>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.js">
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.js">
 </script>
     <script type="text/javascript">
 //<![CDATA[

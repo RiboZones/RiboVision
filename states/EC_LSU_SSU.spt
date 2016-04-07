@@ -56,8 +56,9 @@ function _setFileState() {
   set percentVdwAtom 23;
   set smallMoleculeMaxAtoms 40000;
   set smartAromatic true;
-  load "./structures/pdb/EC_50S.pdb";
-  load append "./structures/pdb/EC_30S.pdb";
+  load "./structures/mmcif/4V9D.cif";
+  #load "./structures/pdb/EC_50S.pdb";
+  #load append "./structures/pdb/EC_30S.pdb";
   #load =3R8S;
   #load append =4GD1;
 }
@@ -249,49 +250,49 @@ function _setModelState() {
   measures delete;
   select *; set measures nanometers;
   font measures 15 SansSerif Plain;
-select :0 or :9;
+  select :0 or :9;
   wireframe off;
   Cartoon on;
   spacefill off;
   
   
 
-  select (1.1 and (562-586:A or 1251-1270:A or 1648-1678:A or 1990-2057:A or 2611-2625:A));
+  select (562-586:CA or 1251-1270:CA or 1648-1678:CA or 1990-2057:CA or 2611-2625:CA);
   color Cartoon opaque [xffd4a2];
   
-  select (1.1 and (1-561:A or  2895-2905:A));
+  select (1-561:CA or  2895-2905:CA);
   color Cartoon opaque [xa999fb];
   
-  select (1.1 and 587-1250:A);
+  select (587-1250:CA);
   color Cartoon opaque [x3aa7ff];
   
-  select (1.1 and 1271-1647:A);
+  select (1271-1647:CA);
   color Cartoon opaque [xcc99cc];
   
-  select (1.1 and 1679-1989:A);
+  select (1679-1989:CA);
   color Cartoon opaque [xf0ff00];
   
-  select (1.1 and 2058-2610:A);
+  select (2058-2610:CA);
   color Cartoon opaque [xff99cc];
   
-  select (1.1 and 2626-2894:A);
+  select (2626-2894:CA);
   color Cartoon opaque [x0ba34a];
   
-  select (1.1 and 1-124:B);
+  select (1-124:CB);
   color Cartoon opaque [x8ec640];  
 
 
 
-  select (2.1 and (1-561:A or 913-920:A));
+  select (1-561:AA or 913-920:AA);
   color Cartoon opaque [x3aa7ff];
   
-  select (2.1 and 562-912:A);
+  select (562-912:AA);
   color Cartoon opaque [xb27643];
   
-  select (2.1 and 921-1396:A);
+  select (921-1396:AA);
   color Cartoon opaque [xff99cc];
   
-  select (2.1 and 1397-1542:A);
+  select (1397-1542:AA);
   color Cartoon opaque [x0ba34a];
 
   
@@ -339,9 +340,9 @@ function _setPerspectiveState() {
 
 function _setSelectionState() {
   frame all;
-  select   *:A or *:B;
-  display (1.1 and (:A or :B));
-  display (2.1 and :A);
+  select   *:CA or *:CB or *:AA;
+  display (:CA or :CB);
+  display (:AA);
   set hideNotSelected true;
   center selected;
   spacefill off;

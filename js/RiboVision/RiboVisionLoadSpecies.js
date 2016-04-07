@@ -367,10 +367,11 @@ function processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2){
 					if (DoneLoading2){
 						DoneLoading2.resolve();
 					} 
-						
+					$(".oneLayerGroup[name='" + targetLayer[0].LayerName + "']").find(".mappingRadioBtn").prop("checked", true);
+					$(".oneLayerGroup[name='" + targetLayer[0].LayerName + "']").find(".mappingRadioBtn").trigger("change");
 				})
 			}
-
+			
 				
 		} else {
 			rvDataSets[speciesIndex].addResidues([]);
