@@ -911,18 +911,18 @@ function colorMapping(targetLayer,ChoiceList, ManualCol, OverRideColors, indexMo
 	}
 }
 
-function colorNameToHex(color) {
+function colorNameToHex(color,prefix='#') {
 	var colors = SupportedColors //Global Variable to save time.
 	if (color) {
 		var newcolorH = color.match(/#[\dABCDEFabcdef]{6,6}$/);
 		if ((newcolorH  !=null) && newcolorH[0].length === 7){
-			return newcolorH[0];
+			return newcolorH[0].replace('#',prefix);
 		} else if (typeof colors[color.toLowerCase().replace(/\s+/g, '')] != 'undefined'){
-			return colors[color.toLowerCase().replace(/\s+/g, '')];
+			return prefix + colors[color.toLowerCase().replace(/\s+/g, '')];
 		} else {
 			console.log('Unrecognized color "' + color + '"');
 			//return false;
-			return '#868686';
+			return prefix + '868686';
 		}
 	} else {
 		return false;

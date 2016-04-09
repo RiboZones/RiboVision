@@ -81,9 +81,9 @@ function update3DProteinsLow(newcolor){
 }	
 
 function colorMappingLoop3DLow(changeProteins){
-	
+	changeProteins;
 }
-
+/*
 function update3Dcolors() {
 	if($('input[name="jp"][value=off]').is(':checked')){
 		return;
@@ -105,11 +105,9 @@ function update3Dcolors() {
 	m;
 	$.each(rvDataSets, function (index, rvds) {
 		if (rvds.Residues[0] == undefined){return};
-		//r0=rvds.Residues[0].resNum.replace(/[^:]*:/g,"");
 		r0 = rvds.Residues[0].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
 		curr_chain = rvds.Residues[0].ChainID;
 		var targetLayer=rvds.getLinkedLayer();
-		//rvds.Residues[0].CurrentData=targetLayer.Data[0];
 
 		curr_color = colorNameToHex(targetLayer.dataLayerColors[0]);
 		
@@ -120,7 +118,6 @@ function update3Dcolors() {
 			var residue = rvds.Residues[i];
 			var residueLast = rvds.Residues[i - 1];
 			var residueLastColor = targetLayer.dataLayerColors[i - 1];
-			//rvds.Residues[i].CurrentData=targetLayer.Data[i];
 			
 			if (!residueLastColor){
 				residueLastColor = '#858585';
@@ -152,17 +149,7 @@ function update3Dcolors() {
 						if (n != undefined) {
 							r1 = r1.replace(n, "^" + n);
 						}
-						//if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
-							//script += "select " + (SubunitNames.indexOf(rvds.SpeciesEntry.Subunit) + 1) + ".1 and :" + curr_chain + " and (" + r0 + " - " + r1 + "); color Cartoon opaque [x" + curr_color + "]; ";
-							//script += "select " + rvds.SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and " + r0 + " - " + r1 + ":" + curr_chain + "; color Cartoon opaque [x" + curr_color + "]; ";
-							//script += "select " + rvds.SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and " + r0 + " - " + r1 + ":" + curr_chain + "; color opaque [x" + curr_color + "]; ";
-
-						//} else {
-							selection_scheme.push([curr_color,r0 + "-" + r1 + ":" + curr_chain]);
-							//script += "select " + rvds.SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and " + r0 + " - " + r1 + ":" + curr_chain + "; color Cartoon opaque [" + curr_color.replace("#", "x") + "]; ";
-							//script += "select " + rvds.SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and " + r0 + " - " + r1 + ":" + curr_chain + "; color opaque [" + curr_color.replace("#", "x") + "]; ";
-
-						//}
+						selection_scheme.push([curr_color,r0 + "-" + r1 + ":" + curr_chain]);
 						r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""); ;
 						m = r0.match(/[A-z]/g);
 						if (m != undefined) {
@@ -182,38 +169,40 @@ function update3Dcolors() {
 		selection_scheme.push([curr_color,r0 + "-" + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + ":" + curr_chain]);
 	});
 	
-	//if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
-		//script += "select " + (rvds.SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and "  + r0 + " - " + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + ":" + curr_chain + "; color Cartoon opaque [x" + curr_color + "]; ";
-		//script += "select " + (rvds.SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and "  + r0 + " - " + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + ":" + curr_chain + "; color opaque [x" + curr_color + "]; ";
-	//} else {
-	//	script += "select " + (rvds.SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and "  + r0 + " - " + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + ":" + curr_chain + "; color Cartoon opaque [" + curr_color.replace("#", "x") + "]; ";
-	//	script += "select " + (rvds.SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and "  + r0 + " - " + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + ":" + curr_chain + "; color opaque [" + curr_color.replace("#", "x") + "]; ";
-//}
-	//updateSelectionDiv();
-	//jmolScript(script);
-	//Jmol.script(myJmol, script);
-	
-	//var ccc=0;
 	stage.eachRepresentation(function (repr){
 		var mySelectionScheme = NGL.ColorMakerRegistry.addSelectionScheme( selection_scheme );
-		/*
-		// color residues 1 to 100 in red, 101-200 in blue and the remaining in white
-		var mySelectionScheme = NGL.ColorMakerRegistry.addSelectionScheme( [
-			[ "red", "1-100" ],
-			[ "blue", "101-200" ],
-			[ "green", "1000-2000" ],
-			[ "purple", "2001-3000"],
-			[ "white", "*" ]
-		] );*/
-		// apply colorscheme to an existing representation
 		repr.setParameters( { colorScheme: mySelectionScheme } )
-		//ccc++;
-		//console.log(ccc);
 	})
-	
+}*/
 
-
+function update3Dcolors() {
+	if($('input[name="jp"][value=off]').is(':checked')){
+		return;
+	}
+	if(typeof Struct == "undefined"){
+        setTimeout(function(){
+            update3Dcolors();
+        },250);
+		return;
+    }
+	var total_color_list=[];
+	$.each(rvDataSets, function (index, rvds) {
+		if (rvds.Residues[0] == undefined){return};
+		var targetLayer=rvds.getLinkedLayer();
+		total_color_list=total_color_list.concat(targetLayer.dataLayerColors);
+	});
+	var myScheme = NGL.ColorMakerRegistry.addScheme( function( params ){
+		this.atomColor = function( atom ){
+			// the residue index is zero-based, same order as in the loaded file
+			return colorNameToHex(total_color_list[ atom.residue.index ],'0x');
+		};
+	} );
 	
+	stage.eachRepresentation(function (repr){
+		//var mySelectionScheme = NGL.ColorMakerRegistry.addSelectionScheme( selection_scheme );
+		repr.setParameters( { colorScheme: myScheme } )
+	})
+
 }
 
 function updateModel() {
