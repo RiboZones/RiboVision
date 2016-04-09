@@ -91,8 +91,8 @@ function waitFor3Dload(){
     }
 }
 function init3dStructures() {
-	var jscript = "display " + rvDataSets[speciesIndex].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
-	Jmol.script(myJmol, jscript);
+	//var jscript = "display " + rvDataSets[speciesIndex].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
+	//Jmol.script(myJmol, jscript);
 	updateModel();
 	
 	// if (rvDataSets[1]) {
@@ -112,6 +112,37 @@ function load3Dstructure(JmolState){
 	}
 }
 
+function update3DProteinsLow(newcolor){
+	var JscriptP = "set hideNotSelected false;";
+	for (var i = 0; i < newcolor.length; i++) {
+		JscriptP += "select (" + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + 
+		rvDataSets[0].SpeciesEntry.SubunitProtChains[1][rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(seleProt[i])] +
+		"); color Cartoon opaque [" + newcolor[i].replace("#", "x") + "];";
+	}
+	//JscriptP+="display " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA ) + ".1, " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein ) + ".1;";
+	//jmolScript(JscriptP);
+	Jmol.script(myJmol, JscriptP);
+}
+
+function colorMappingLoop3DLow(changeProteins){
+	var Jscript = "display (selected), (";
+	var JscriptP = "set hideNotSelected false;";
+	//Jscript += rvds.SpeciesEntry.Jmol_Model_Num_rProtein + ".1 and (";
+	//Jscript += " or ";
+	
+	for (var i = 0; i < changeProteins.length; i++) {
+		Jscript += ":" + changeProteins[i].foundProt + " or ";
+		JscriptP += "select (" +  ":" + changeProteins[i].foundProt + 
+			"); color Cartoon opaque [" + changeProteins[i].newcolor.replace("#", "x") + "];spacefill off;";
+	}
+	Jscript=Jscript.slice(0,-4);
+	Jscript += ")";
+		
+	Jmol.script(myJmol, Jscript);
+	Jmol.script(myJmol, JscriptP);
+				
+}
+
 function update3Dcolors() {
 	if($('input[name="jp"][value=off]').is(':checked')){
 		return;
@@ -127,23 +158,23 @@ function update3Dcolors() {
 	$.each(rvDataSets, function (index, rvds) {
 
 	
-		if (rvDataSets[0].Residues[0] == undefined){return};
-		//r0=rvDataSets[0].Residues[0].resNum.replace(/[^:]*:/g,"");
-		r0 = rvDataSets[0].Residues[0].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-		curr_chain = rvDataSets[0].Residues[0].ChainID;
-		var targetLayer=rvDataSets[0].getLinkedLayer();
-		//rvDataSets[0].Residues[0].CurrentData=targetLayer.Data[0];
+		if (rvds.Residues[0] == undefined){return};
+		//r0=rvds.Residues[0].resNum.replace(/[^:]*:/g,"");
+		r0 = rvds.Residues[0].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
+		curr_chain = rvds.Residues[0].ChainID;
+		var targetLayer=rvds.getLinkedLayer();
+		//rvds.Residues[0].CurrentData=targetLayer.Data[0];
 
 		curr_color = colorNameToHex(targetLayer.dataLayerColors[0]);
 		
 		if (!curr_color || curr_color === '#000000') {
 			curr_color = '#858585';
 		}
-		for (var i = 1; i < rvDataSets[0].Residues.length; i++) {
-			var residue = rvDataSets[0].Residues[i];
-			var residueLast = rvDataSets[0].Residues[i - 1];
+		for (var i = 1; i < rvds.Residues.length; i++) {
+			var residue = rvds.Residues[i];
+			var residueLast = rvds.Residues[i - 1];
 			var residueLastColor = targetLayer.dataLayerColors[i - 1];
-			//rvDataSets[0].Residues[i].CurrentData=targetLayer.Data[i];
+			//rvds.Residues[i].CurrentData=targetLayer.Data[i];
 			
 			if (!residueLastColor){
 				residueLastColor = '#858585';
@@ -169,22 +200,23 @@ function update3Dcolors() {
 					} else {
 						compare_color = colorNameToHex(targetLayer.dataLayerColors[i]);
 					}
-					if (((compare_color != colorNameToHex(residueLastColor)) || (curr_chain != residue.ChainID)) || (i == (rvDataSets[0].Residues.length - 1))) {
+					if (((compare_color != colorNameToHex(residueLastColor)) || (curr_chain != residue.ChainID)) || (i == (rvds.Residues.length - 1))) {
 						r1 = residueLast.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""); ;
 						n = r1.match(/[A-z]/g);
 						if (n != undefined) {
 							r1 = r1.replace(n, "^" + n);
 						}
-						if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
-							//script += "select " + (SubunitNames.indexOf(rvDataSets[0].SpeciesEntry.Subunit) + 1) + ".1 and :" + curr_chain + " and (" + r0 + " - " + r1 + "); color Cartoon opaque [x" + curr_color + "]; ";
-							script += "select " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and " + r0 + " - " + r1 + ":" + curr_chain + "; color Cartoon opaque [x" + curr_color + "]; ";
-							script += "select " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and " + r0 + " - " + r1 + ":" + curr_chain + "; color opaque [x" + curr_color + "]; ";
+						//if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
+							//script += "select " + (SubunitNames.indexOf(rvds.SpeciesEntry.Subunit) + 1) + ".1 and :" + curr_chain + " and (" + r0 + " - " + r1 + "); color Cartoon opaque [x" + curr_color + "]; ";
+							//script += "select " + rvds.SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and " + r0 + " - " + r1 + ":" + curr_chain + "; color Cartoon opaque [x" + curr_color + "]; ";
+							//script += "select " + rvds.SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and " + r0 + " - " + r1 + ":" + curr_chain + "; color opaque [x" + curr_color + "]; ";
 
-						} else {
-							script += "select " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and " + r0 + " - " + r1 + ":" + curr_chain + "; color Cartoon opaque [" + curr_color.replace("#", "x") + "]; ";
-							script += "select " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and " + r0 + " - " + r1 + ":" + curr_chain + "; color opaque [" + curr_color.replace("#", "x") + "]; ";
-
-						}
+						//} else {
+							//script += "select " + rvds.SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and " + r0 + " - " + r1 + ":" + curr_chain + "; color Cartoon opaque [" + curr_color.replace("#", "x") + "]; ";
+							//script += "select " + rvds.SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and " + r0 + " - " + r1 + ":" + curr_chain + "; color opaque [" + curr_color.replace("#", "x") + "]; ";
+							script += "select " + r0 + " - " + r1 + ":" + curr_chain + "; color Cartoon opaque [" + curr_color.replace("#", "x") + "]; ";
+							script += "select " + r0 + " - " + r1 + ":" + curr_chain + "; color opaque [" + curr_color.replace("#", "x") + "]; ";
+						//}
 						r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""); ;
 						m = r0.match(/[A-z]/g);
 						if (m != undefined) {
@@ -201,13 +233,15 @@ function update3Dcolors() {
 				}
 			}
 		}
-		if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
-			script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and "  + r0 + " - " + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + ":" + curr_chain + "; color Cartoon opaque [x" + curr_color + "]; ";
-			script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and "  + r0 + " - " + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + ":" + curr_chain + "; color opaque [x" + curr_color + "]; ";
-		} else {
-			script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and "  + r0 + " - " + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + ":" + curr_chain + "; color Cartoon opaque [" + curr_color.replace("#", "x") + "]; ";
-			script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and "  + r0 + " - " + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + ":" + curr_chain + "; color opaque [" + curr_color.replace("#", "x") + "]; ";
-		}
+		//if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
+			//script += "select " + (rvds.SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and "  + r0 + " - " + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + ":" + curr_chain + "; color Cartoon opaque [x" + curr_color + "]; ";
+			//script += "select " + (rvds.SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and "  + r0 + " - " + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + ":" + curr_chain + "; color opaque [x" + curr_color + "]; ";
+		//} else {
+			//script += "select " + (rvds.SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and "  + r0 + " - " + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + ":" + curr_chain + "; color Cartoon opaque [" + curr_color.replace("#", "x") + "]; ";
+			//script += "select " + (rvds.SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and "  + r0 + " - " + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + ":" + curr_chain + "; color opaque [" + curr_color.replace("#", "x") + "]; ";
+			script += "select " + r0 + " - " + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + ":" + curr_chain + "; color Cartoon opaque [" + curr_color.replace("#", "x") + "]; ";
+			script += "select " + r0 + " - " + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + ":" + curr_chain + "; color opaque [" + curr_color.replace("#", "x") + "]; ";
+		//}
 		//updateSelectionDiv();
 		//jmolScript(script);
 	})
@@ -226,9 +260,9 @@ function updateModel() {
 		var targetSelection = rvds.getSelection($('input:radio[name=selectedRadioS]').filter(':checked').parent().parent().attr('name'));
 		if (targetSelection.Residues.length > 0){
 			if (typeof script == 'undefined'){
-				script='set hideNotSelected true;select (';
+				//script='set hideNotSelected true;select (';
 			}
-			script += rvds.SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (";
+			//script += rvds.SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (";
 			for (var i = 0; i < targetSelection.Residues.length; i++) {
 				if (targetSelection.Residues[i].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") != null) {
 					if (i > 0 || (index > 0 && i > 0)) {
@@ -265,11 +299,13 @@ function refreshModel() {
 		if (index > 0 ){
 			script +=" or ";
 		}
-		script += rvds.SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (";
+		//script += rvds.SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (";
+		script += "(";
 		if (rvds.SpeciesEntry.PDB_chains){
-			for (var ii = 0; ii < rvds.SpeciesEntry.PDB_chains.length; ii++) {
-				script += ":" + rvds.SpeciesEntry.PDB_chains[ii];
-				if (ii < (rvds.SpeciesEntry.PDB_chains.length - 1)) {
+			var psplit=rvds.SpeciesEntry.PDB_chains.split(";");
+			for (var ii = 0; ii < psplit.length; ii++) {
+				script += ":" + psplit[ii];
+				if (ii < (psplit.length - 1)) {
 					script += " or ";
 				}
 			}

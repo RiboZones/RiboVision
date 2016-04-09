@@ -800,12 +800,12 @@ function colorMappingLoopCanvas(targetLayer,seleProt,seleProtNames,colors2){
 }
 
 function colorMappingLoop3D(seleProt,colors2){
-	var Jscript = "display (selected), (";
-	var JscriptP = "set hideNotSelected false;";
 	var numProteinsList=[];
+	var changeProteins=[];
+	
 	$.each(rvDataSets, function (index, rvds){
 		numProteinsList[index]=0;
-		//Jmol Part
+
 		var foundProt;
 		for (var i = 0; i < seleProt.length; i++) {
 			if (seleProt.length > 1) {
@@ -817,32 +817,26 @@ function colorMappingLoop3D(seleProt,colors2){
 			var newcolor = (val < 0 || val >= colors2.length) ? "#000000" : colors2[val];	
 			foundProt=rvds.SpeciesEntry.SubunitProtChains[1][rvds.SpeciesEntry.SubunitProtChains[2].indexOf(seleProt[i])];
 			if (foundProt){
+				/*
 				numProteinsList[index]+=1;
 				if (numProteinsList[index] === 1){
 					if (index > 0 && numProteinsList.slice(0,-1).reduce(function(a,b){return a+b}) > 0){
 						Jscript += " or ";
 					}
-					Jscript += rvds.SpeciesEntry.Jmol_Model_Num_rProtein + ".1 and (";
-				}
-				Jscript += ":" + foundProt + " or ";
-				JscriptP += "select (" + (rvds.SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + foundProt + 
-				"); color Cartoon opaque [" + newcolor.replace("#", "x") + "];spacefill off;";
+				}*/
+				changeProteins.push({"foundProt" : foundProt,"newcolor" : newcolor});
 			}
 			
 		}
-		if (numProteinsList[index] > 0){
-			Jscript=Jscript.slice(0,-4);
-			Jscript += ")";
-		}
+		
 
 	});
-	Jscript += ");";
+	//Jscript += ");";
 	if($('input[name="jp"][value=on]').is(':checked')){
 		update3Dcolors();
 		refreshModel();
-		Jmol.script(myJmol, Jscript);
-		Jmol.script(myJmol, JscriptP);
 	}
+	colorMappingLoop3DLow(changeProteins);
 }
 
 function update3DProteins(seleProt, OverRideColors) {
@@ -854,22 +848,18 @@ function update3DProteins(seleProt, OverRideColors) {
 	} else {
 		var colors2 = RainBowColors;
 	}
-	
-	var JscriptP = "set hideNotSelected false;";
-	
+	var newcolor=[];
+		
 	for (var i = 0; i < seleProt.length; i++) {
 		if (seleProt.length > 1) {
 			var val = Math.round((i / (seleProt.length - 1)) * (colors2.length - 1));
 		} else {
 			var val = 0;
 		}
-		var newcolor = (val < 0 || val >= colors2.length) ? "#000000" : colors2[val];
-		
-		JscriptP += "select (" + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + rvDataSets[0].SpeciesEntry.SubunitProtChains[1][rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(seleProt[i])] + "); color Cartoon opaque [" + newcolor.replace("#", "x") + "];";
+		newcolor[i] = (val < 0 || val >= colors2.length) ? "#000000" : colors2[val];
 	}
-	//JscriptP+="display " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA ) + ".1, " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein ) + ".1;";
-	//jmolScript(JscriptP);
-	Jmol.script(myJmol, JscriptP);
+	
+	update3DProteinsLow(newcolor);
 }
 
 function colorMapping(targetLayer,ChoiceList, ManualCol, OverRideColors, indexMode, rePlaceData) {

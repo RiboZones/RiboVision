@@ -250,7 +250,7 @@ function _setModelState() {
   measures delete;
   select *; set measures nanometers;
   font measures 15 SansSerif Plain;
-  select :0 or :9;
+ # select :0 or :9;
   wireframe off;
   Cartoon on;
   spacefill off;
@@ -340,10 +340,10 @@ function _setPerspectiveState() {
 
 function _setSelectionState() {
   frame all;
-  select   *:CA or *:CB or *:AA;
-  display (:CA or :CB);
-  display (:AA);
+  display (:CA or :CB or :AA);
+  select (:CA or :CB or :AA);
   set hideNotSelected true;
+  
   center selected;
   spacefill off;
 

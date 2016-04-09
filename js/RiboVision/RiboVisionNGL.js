@@ -75,7 +75,14 @@ function init3dStructures() {
 	Struct.centerView(true);
 
 }
+
+function update3DProteinsLow(newcolor){
 	
+}	
+
+function colorMappingLoop3DLow(changeProteins){
+	
+}
 
 function update3Dcolors() {
 	if($('input[name="jp"][value=off]').is(':checked')){
