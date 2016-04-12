@@ -833,11 +833,12 @@ function colorMappingLoop3D(seleProt,colors2){
 	});
 	//Jscript += ");";
 	if($('input[name="jp"][value=on]').is(':checked')){
-		update3Dcolors();
-		refreshModel();
+		//update3Dcolors();
+		//refreshModel();
 	}
 	colorMappingLoop3DLow(changeProteins);
 }
+
 
 function update3DProteins(seleProt, OverRideColors) {
 	if($('input[name="jp"][value=off]').is(':checked')){
@@ -911,7 +912,7 @@ function colorMapping(targetLayer,ChoiceList, ManualCol, OverRideColors, indexMo
 	}
 }
 
-function colorNameToHex(color,prefix='#') {
+function colorNameToHex(color,prefix='#',nullcolor=false) {
 	var colors = SupportedColors //Global Variable to save time.
 	if (color) {
 		var newcolorH = color.match(/#[\dABCDEFabcdef]{6,6}$/);
@@ -925,7 +926,7 @@ function colorNameToHex(color,prefix='#') {
 			return prefix + '868686';
 		}
 	} else {
-		return false;
+		return nullcolor;
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////
@@ -1895,26 +1896,7 @@ function saveNavLine() {
 	}
 	checkSavePrivacyStatus();
 }
-function saveJmolImg(SpeciesIndex) {
-	AgreeFunction = function () {
-		if($('input[name="jp"][value=off]').is(':checked')){
-			return;
-		}
-		var jmlImgB64 = Jmol.getPropertyAsString(myJmol,'image');
-		var form = document.createElement("form");
-		form.setAttribute("method", "post");
-		form.setAttribute("action", "saveJmolImg.php");
-		form.setAttribute("target", "_blank");
-		var hiddenField = document.createElement("input");
-		hiddenField.setAttribute("type", "hidden");
-		hiddenField.setAttribute("name", "content");
-		hiddenField.setAttribute("value", jmlImgB64);
-		form.appendChild(hiddenField);
-		document.body.appendChild(form);
-		form.submit();
-	}
-	checkSavePrivacyStatus();
-}
+
 function retrieveRvState(filename) {
 	SaveStateFileName=filename;
 	$.post('retrieveRvState.php', {

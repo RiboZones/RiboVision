@@ -224,13 +224,15 @@ function processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2){
 						var uResName=rvDataSets[speciesIndex].SpeciesEntry.Molecule_Names[rvDataSets[speciesIndex].SpeciesEntry.PDB_chains.indexOf(data.ChainID)] + ":" + data.resNum.replace(/[^:]*:/g, "");
 						//Overwrite resNum with molecule:number style, here. This will hold things over until the database is updated to only have that style. 
 						data.resNum=uResName;
-
-						MainResidueMap[uResName]={};
-						MainResidueMap[uResName].index=i;
-						MainResidueMap[uResName].rvds_index=speciesIndex;
-						MainResidueMap[uResName].X=parseFloat(ResiduePositions[speciesIndex][i]["X"]);
-						MainResidueMap[uResName].Y=parseFloat(ResiduePositions[speciesIndex][i]["Y"]);
 						
+						MainResidueMap[uResName] = {};
+						MainResidueMap[uResName].index = i;
+						MainResidueMap[uResName].rvds_index = speciesIndex;
+						MainResidueMap[uResName].X = parseFloat(ResiduePositions[speciesIndex][i]["X"]);
+						MainResidueMap[uResName].Y = parseFloat(ResiduePositions[speciesIndex][i]["Y"]);
+						
+						var cResName = data.ChainID + ":" + data.resNum.replace(/[^:]*:/g, "");
+						MainResidueMap[cResName] = uResName;
 						//console.log(MainResidueMap[uResName]);
 					});
 					

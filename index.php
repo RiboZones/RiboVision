@@ -582,8 +582,8 @@ include('includes/jmol_include.php');
 				<div id="JmolExport" class="ui-widget-content ExportDiv3">
 					<h3 class="ui-widget-header3">3D Panel</h3>
 					<p>Jmol has built-in image saving capabilities.</p>
-					<p>Alternatively, quick save the 3D Panel as a JPG.</p>
-					<input id="saveJmolImg-btn" type="button" value="Save as JPG" /><br />
+					<p>Alternatively, quick save the 3D Panel as a PNG.</p>
+					<input id="save3dImg-btn" type="button" value="Save as PNG" /><br />
 					<p>Additionally, you may export a PyMOL Script for further processing in PyMOL.</p>
 					<input id="savePML-btn" type="button" value="PyMOL Script" />
 				</div>

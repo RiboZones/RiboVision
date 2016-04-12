@@ -551,10 +551,12 @@ function RiboVisionReady() {
 		//});
 	});
 	
-	$("#saveJmolImg-btn").button().click(function(){
+	$("#save3dImg-btn").button().click(function(){
+		save3dImg();
+		/*
 		$.each(rvDataSets, function(SpeciesIndex,rvds){
-			setTimeout(function(){saveJmolImg(SpeciesIndex)}, 3000 * SpeciesIndex);
-		});
+			setTimeout(function(){save3dImg(SpeciesIndex)}, 3000 * SpeciesIndex);
+		});*/
 	});	
 	
 	$("#savePML-btn").button().click(function(){
