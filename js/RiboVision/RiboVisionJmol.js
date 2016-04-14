@@ -329,4 +329,27 @@ function resetColorState() {
 	//commandSelect();
 	updateModel();
 }
+
+function save3dImgJmol() {
+	if($('input[name="jp"][value=off]').is(':checked')){
+		return;
+	}
+	var jmlImgB64 = Jmol.getPropertyAsString(myJmol,'image');
+	var form = document.createElement("form");
+	form.setAttribute("method", "post");
+	form.setAttribute("action", "saveJmolImg.php");
+	form.setAttribute("target", "_blank");
+	var hiddenField = document.createElement("input");
+	hiddenField.setAttribute("type", "hidden");
+	hiddenField.setAttribute("name", "content");
+	hiddenField.setAttribute("value", jmlImgB64);
+	form.appendChild(hiddenField);
+	document.body.appendChild(form);
+	form.submit();
+}
+
+function save3dImg() {
+	AgreeFunction = save3dImgJmol();
+	checkSavePrivacyStatus();
+}
 ///////////////////////////////////////////////////////////////////////////////

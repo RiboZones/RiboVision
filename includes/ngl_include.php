@@ -1,8 +1,11 @@
 
         <!-- THREE <meta name="NGLviewPort" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">-->
 
-
-        <!-- THREE -->
+		<link rel="stylesheet" href="css/font-awesome.min.css" />
+        <link rel="stylesheet" href="css/ngl_main.css" />
+        <link rel="stylesheet" href="css/light.css" id="theme" />
+        
+		<!-- THREE -->
         <script src="js/three/three.js"></script>
         <script src="js/three/Detector.js"></script>
         <script src="js/three/controls/TrackballControls.js"></script>
@@ -43,5 +46,14 @@
         <script src="js/ngl/buffer.js"></script>
         <script src="js/ngl/representation.js"></script>
         <script src="js/ngl/stage.js"></script>
+		<!--<script src="js/ngl/gui.js"></script> LIB -->
+		
+        <!-- UI -->
+        <script src="js/lib/tether.min.js"></script>
+        <script src="js/lib/colorpicker.js"></script>
+        <script src="js/lib/ui/ui.js"></script>
+        <script src="js/lib/ui/ui.extra.js"></script>
+        <script src="js/lib/ui/ui.ngl.js"></script>
+        <script src="js/ngl/gui.js"></script>
 		
 		<script src="js/RiboVision/RiboVisionNGL.js"></script>
