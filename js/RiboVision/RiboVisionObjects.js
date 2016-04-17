@@ -334,8 +334,10 @@ function rvDataSet(DataSetName,SetNumber) {
 	};
 	this.addSpeciesEntry = function (SpeciesEntry) {
 		this.SpeciesEntry = SpeciesEntry;
-		this.SpeciesEntry.Molecule_Names = this.SpeciesEntry.Molecule_Names.split(":");
-		this.SpeciesEntry.Molecule_Names_rProtein = this.SpeciesEntry.Molecule_Names_rProtein.split(":");
+		this.SpeciesEntry.Molecule_Names = this.SpeciesEntry.Molecule_Names.split(";");
+		this.SpeciesEntry.Molecule_Names_rProtein = this.SpeciesEntry.Molecule_Names_rProtein.split(";");
+		this.SpeciesEntry.PDB_chains = this.SpeciesEntry.PDB_chains.split(";");
+
 		// Set FontSize
 		this.Font_Size_Canvas = this.SpeciesEntry.Font_Size_Canvas;
 		this.Font_Size_SVG = this.SpeciesEntry.Font_Size_SVG;

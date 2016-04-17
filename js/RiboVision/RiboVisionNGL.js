@@ -52,7 +52,7 @@ function load3Dstructure(structure_3d){
 			var loadstring="../structures/mmcif/" + structure_3d + ".cif";
 		}
 		
-		stage.loadFile( loadstring).then( function( o ){	
+		stage.loadFile( loadstring, {assembly: "BU1"}).then( function( o ){	
 			Struct=o;
 			//Struct.addRepresentation( "cartoon");
 			//Struct.addRepresentation( "licorice" );	

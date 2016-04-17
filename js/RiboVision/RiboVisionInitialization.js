@@ -80,6 +80,19 @@ function RiboVisionReady() {
 			$("#myJmol_object").css("visibility", "visible");
 		}
 	});
+	$("#dialog-extra3Dmenus").dialog({
+		resizable : false,
+		autoOpen : false,
+		height : 800,
+		width : 1000,
+		modal : false,
+		open : function () {
+			$("#myJmol_object").css("visibility", "hidden");
+		},
+		close : function () { 
+			$("#myJmol_object").css("visibility", "visible");
+		}
+	});
 	$("#LayerDialog").dialog({
 		autoOpen : false,
 		show : {
@@ -560,9 +573,11 @@ function RiboVisionReady() {
 	});	
 	
 	$("#savePML-btn").button().click(function(){
+		savePML();
+		/*
 		$.each(rvDataSets, function(SpeciesIndex,rvds){
 			setTimeout(function(){savePML(SpeciesIndex)}, 3000 * SpeciesIndex);
-		});
+		});*/
 	});	
 	
 	$("#selectByDomainHelix").multiselect().multiselectfilter();
@@ -669,6 +684,13 @@ function RiboVisionReady() {
 		text : false,
 		icons : {
 			primary : "ui-icon-pin-w"
+		}
+	});
+	
+	$("#Extra3Dmenus").button({
+		text : false,
+		icons : {
+			primary : "ui-icon-lightbulb"
 		}
 	});
 
@@ -966,13 +988,11 @@ function RiboVisionReady() {
 	
 	$("#SelectionMode").click(function () {
 	});
-	/*
-	$("#New3DTestButton").button().click(function(){
-		Jmol.script(myJmol, "script states/" + "3OFR_23s_supNone_state8_d6.spt");
-		var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
-		Jmol.script(myJmol, jscript);
-		updateModel();
-	});*/
+	
+	$("#Extra3Dmenus").click(function () {
+		$("#dialog-extra3Dmenus").dialog("open");
+	});
+	
 	
 	$("#JmolTypeToggle2").buttonset();
 	$("#SetDefaultJmolType").button().click(function() {

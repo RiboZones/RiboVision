@@ -29,7 +29,11 @@ $zip->open($file2, ZipArchive::OVERWRITE);
 //$zip->addFromString('pdbfile.pdb', $var);
 $zip->addFile($file . ".pml", 'RiboVision.pml');
 foreach ($pdb_files as $v) {
-	$zip->addFile("pdb/" . $v , $v);
+	if (strpos($v, '.pdb') !== false) {
+		$zip->addFile("structures/pdb/" . $v , $v);
+	} else {
+		$zip->addFile("structures/mmcif/" . $v , $v);
+	}
 }
 
 // Close and send to users

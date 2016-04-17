@@ -23,17 +23,17 @@ NGL.StageWidget = function( stage ){
 
     //
 
-    var viewport = new NGL.ViewportWidget( stage ).setId( 'viewport' );
-    document.body.appendChild( viewport.dom );
+    var viewport = document.getElementById('NGLviewPort');
+    //$("#dialog-extra3Dmenus").append( viewport.dom );
 
     var toolbar = new NGL.ToolbarWidget( stage ).setId( 'toolbar' );
-    document.body.appendChild( toolbar.dom );
+    $("#dialog-extra3Dmenus").append( toolbar.dom );
 
     var menubar = new NGL.MenubarWidget( stage ).setId( 'menubar' );
-    document.body.appendChild( menubar.dom );
+    $("#dialog-extra3Dmenus").append( menubar.dom );
 
     var sidebar = new NGL.SidebarWidget( stage ).setId( 'sidebar' );
-    document.body.appendChild( sidebar.dom );
+	$("#dialog-extra3Dmenus").append( sidebar.dom );
 
     //
 
@@ -41,10 +41,10 @@ NGL.StageWidget = function( stage ){
 
         var cssPath;
 
-        if( value === "light" ){
-            cssPath = NGL.cssDirectory + "light.css";
-        }else{
+        if( value === "dark" ){
             cssPath = NGL.cssDirectory + "dark.css";
+        }else{
+            cssPath = NGL.cssDirectory + "light.css";
         }
 
         // FIXME element must be created by a Widget
@@ -52,7 +52,7 @@ NGL.StageWidget = function( stage ){
 
     } );
 
-    stage.preferences.setTheme();
+    stage.preferences.setTheme("light");
 
     //
 
@@ -611,7 +611,7 @@ NGL.MenubarHelpWidget = function( stage ){
 
     var overviewWidget = new NGL.OverviewWidget( stage )
         .setDisplay( "none" )
-        .attach();
+        .attach(document.getElementById('dialog-extra3Dmenus'));
 
     if( stage.preferences.getKey( "overview" ) ){
         onOverviewOptionClick();

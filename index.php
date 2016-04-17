@@ -296,6 +296,7 @@ include('includes/ngl_include.php');
         <button id="openSelectionBtn" class="toolBarBtn" title="Open Selection Manager"></button><br />
         <button id="openColorBtn" class="toolBarBtn" title="Open Color Picker"></button><br />
         <button id="SelectionMode" class="toolBarBtn" title="No function yet"></button><br />
+		<button id="Extra3Dmenus" class="toolBarBtn" title="Additional 3D Panel Options"></button><br />
         <button id="RiboVisionSettings" class="toolBarBtn" title="RiboVision Settings"></button><br />
         <button id="RiboVisionSaveManager" class="toolBarBtn" title="RiboVision Save/Restore Manager"></button><br />
         <button id="openInteractionSettingBtn" class="toolBarBtn" title="Interaction Setting"></button><br />
@@ -705,6 +706,9 @@ include('includes/ngl_include.php');
             <div id="selectionColorPicker2"></div>
         </div>
     </div>
+	<div id="dialog-extra3Dmenus" title="Extra 3D Panel Features">
+	 
+	</div>
 	<div id="dialog-login" title="Sign in for Advanced Features">
 	<div class="container">
 
