@@ -34,59 +34,61 @@ based on:
 /////////////////////////// Label Functions ///////////////////////////////////
 function initLabels(speciesSplit,customResidues) {
 	$.each(speciesSplit, function (speciesIndex, species) {
-		rvDataSets[speciesIndex].addLabels([], []);
-	
-		if (species != "None" && species != "custom") {
-			var TextLabels=[];
-			var LineLabels=[];
-			
-			$.ajax({
-				url: 'getData.php',
-                type: 'get',
-                dataType: 'json',
-				data: {TextLabels : rvDataSets[speciesIndex].SpeciesEntry.TextLabels},
-                cache: false,
-                success: function(textlabels) {
-					TextLabels = textlabels;
-				},
-                async:false,
-			});
-			$.ajax({
-				url: 'getData.php',
-                type: 'get',
-                dataType: 'json',
-				data: {LineLabels : rvDataSets[speciesIndex].SpeciesEntry.LineLabels},
-                cache: false,
-                success: function(linelabels) {
-					LineLabels = linelabels;
-				},
-                async:false,
-			});
-			rvDataSets[speciesIndex].clearCanvas("labels");
-			rvDataSets[speciesIndex].addLabels(TextLabels, LineLabels);
-			rvDataSets[speciesIndex].drawLabels("labels");
-			/*
-			$.getJSON('getData.php', {
+		if (rvDataSets[speciesIndex] != undefined){
+			rvDataSets[speciesIndex].addLabels([], []);
+		
+			if (species != "None" && species != "custom") {
+				var TextLabels=[];
+				var LineLabels=[];
 				
-			}, function (labelData2) {
-				var TextLabels = labelData2;
-				$.getJSON('getData.php', {
-					LineLabels : rvDataSets[speciesIndex].SpeciesEntry.LineLabels
-				}, function (labelLines2) {
-					var LineLabels = labelLines2;
-					rvDataSets[speciesIndex].clearCanvas("labels");
-					rvDataSets[speciesIndex].addLabels(TextLabels, LineLabels);
-					rvDataSets[speciesIndex].drawLabels("labels");
+				$.ajax({
+					url: 'getData.php',
+					type: 'get',
+					dataType: 'json',
+					data: {TextLabels : rvDataSets[speciesIndex].SpeciesEntry.TextLabels},
+					cache: false,
+					success: function(textlabels) {
+						TextLabels = textlabels;
+					},
+					async:false,
 				});
-			});*/
-		} else {
-			rvDataSets[speciesIndex].clearCanvas("labels");
-			if (customResidues){
-				var customLabels=processCustomLabels(customResidues);
-				rvDataSets[speciesIndex].addLabels(customLabels.TextLabels, customLabels.LineLabels);
+				$.ajax({
+					url: 'getData.php',
+					type: 'get',
+					dataType: 'json',
+					data: {LineLabels : rvDataSets[speciesIndex].SpeciesEntry.LineLabels},
+					cache: false,
+					success: function(linelabels) {
+						LineLabels = linelabels;
+					},
+					async:false,
+				});
+				rvDataSets[speciesIndex].clearCanvas("labels");
+				rvDataSets[speciesIndex].addLabels(TextLabels, LineLabels);
 				rvDataSets[speciesIndex].drawLabels("labels");
+				/*
+				$.getJSON('getData.php', {
+					
+				}, function (labelData2) {
+					var TextLabels = labelData2;
+					$.getJSON('getData.php', {
+						LineLabels : rvDataSets[speciesIndex].SpeciesEntry.LineLabels
+					}, function (labelLines2) {
+						var LineLabels = labelLines2;
+						rvDataSets[speciesIndex].clearCanvas("labels");
+						rvDataSets[speciesIndex].addLabels(TextLabels, LineLabels);
+						rvDataSets[speciesIndex].drawLabels("labels");
+					});
+				});*/
 			} else {
-				rvDataSets[speciesIndex].addLabels([], []);
+				rvDataSets[speciesIndex].clearCanvas("labels");
+				if (customResidues){
+					var customLabels=processCustomLabels(customResidues);
+					rvDataSets[speciesIndex].addLabels(customLabels.TextLabels, customLabels.LineLabels);
+					rvDataSets[speciesIndex].drawLabels("labels");
+				} else {
+					rvDataSets[speciesIndex].addLabels([], []);
+				}
 			}
 		}
 	});
@@ -353,8 +355,10 @@ function expandSelection(command, SelectionName,SpeciesIndex) {
 					var end_ind = MainResidueMap[end].index;
 					
 					for (var j = start_ind; j <= end_ind; j++) {
-						
-						targetSelection.Residues.push(rvds.Residues[j]);
+						var res = rvds.Residues[j];
+						if (res != undefined){
+							targetSelection.Residues.push(res);
+						}
 					}
 				}
 			} else {
@@ -501,7 +505,9 @@ function updateSelectionDiv(SeleName,SpeciesIndex) {
 		res = targetSelection.Residues[i];
 		//text = text + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(res.ChainID)] + ":" + res.resNum.replace(/[^:]*:/g, "") + "( " + res.CurrentData + " ); ";
 		//text[index] = text + rvds.SpeciesEntry.Molecule_Names[rvds.SpeciesEntry.PDB_chains.indexOf(res.ChainID)] + ":" + res.resNum.replace(/[^:]*:/g, "") + "; ";
-		updateSelectionDiv.text[SpeciesIndex] = updateSelectionDiv.text[SpeciesIndex] + res.resNum + "; ";
+		if (res != undefined){
+			updateSelectionDiv.text[SpeciesIndex] = updateSelectionDiv.text[SpeciesIndex] + res.resNum + "; ";
+		}
 	}
 	//$("#selectDiv").html(text)
 	$("[name=" + SeleName + "]").find(".selectionContent").find("[name=selectDiv]").text(updateSelectionDiv.text[SpeciesIndex]);
@@ -1470,12 +1476,21 @@ function ImportStructureFileSelect(event) {
 			if( typeof d.species_array == 'undefined' ) {
 				d.species_array = ['',''];
 			}
+			/* Old way
 			if($('input[name="LoadSubunit"][value=on]').is(':checked')){
 				d.species_array[0]="custom";
 			} else {
 				d.species_array[1]="custom";
 			}
-			loadSpecies(d.species_array.join("&"),customStructure);
+			loadSpecies(d.species_array.join("&"),customStructure);*/
+			
+			// New two structure mode. Custom mode put structure in first slot.
+			//No two structure custom mode yet
+			loadSpecies("custom",customStructure);
+			
+			
+			
+			
 		}
 	}
 }
@@ -1658,7 +1673,7 @@ function customDataProcess(ui,targetLayer){
 			rvDataSets[targetLayer.SetNumber].refreshResiduesExpanded(targetLayer.LayerName);
 			update3Dcolors();
 		}
-		if ($.inArray("TwoColorMode", customkeys) >= 0 && $.inArray("SwitchPoint", customkeys) >= 0) {
+		if ($.inArray("TwoColorMode", customkeys) >= 0 & $.inArray("SwitchPoint", customkeys) >= 0) {
 			var SwitchPoint=parseFloat(rvDataSets[targetLayer.SetNumber].CustomData[0]["SwitchPoint"]);
 		} else if ($.inArray("TwoColorMode", customkeys) >= 0){
 			var SwitchPoint=0;
@@ -1711,28 +1726,8 @@ function CustomProcessProteins(colors){
 	$.each(dataIndices, function (index,value){
 		ColorProteins[index]["Color"] = colors[value];
 	});
-	ColorProteinsJmol(ColorProteins);
+	ColorProteins3D(ColorProteins);
 	rvDataSets[0].ColorProteins = rvDataSets[0].ColorProteins.concat(ColorProteins);
-}
-function ColorProteinsJmol(ColorProteins){
-	if($('input[name="jp"][value=off]').is(':checked')){
-		return;
-	}
-	if (rvDataSets[0].Residues[0] == undefined){return};
-	
-	var script = "set hideNotSelected false;";
-	$.each(ColorProteins, function (index,value){
-		var ressplit = value.ResNum.split("_");
-		if (ressplit[0] !== "undefined"){
-			if (colorNameToHex(value.Color).indexOf("#") == -1) {
-				script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + ressplit[0] + " and " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "; color Cartoon opaque [x" + value.Color + "]; ";
-			} else {
-				script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + ressplit[0] + " and " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "; color Cartoon opaque [" + value.Color.replace("#", "x") + "]; ";
-			}
-		}
-	});
-	
-	Jmol.script(myJmol, script);
 }
 
 function ColorProteinsPyMOL(PDB_Obj_Names){
@@ -2668,9 +2663,9 @@ function saveSeqDataTable(SpeciesIndex){
 	checkSavePrivacyStatus(SpeciesIndex);
 }
 
-function saveFasta(SpeciesIndex){
+function saveFasta(){
 	AgreeFunction = function () {
-		var FA = computeFasta(SpeciesIndex);
+		var FA = computeFasta();
 		var form = document.createElement("form");
 		form.setAttribute("method", "post");
 		form.setAttribute("action", "saveFasta.php");
@@ -2683,26 +2678,28 @@ function saveFasta(SpeciesIndex){
 		document.body.appendChild(form);
 		form.submit();
 	}
-	checkSavePrivacyStatus(SpeciesIndex);
+	checkSavePrivacyStatus();
 }
-function computeFasta(SpeciesIndex){
+function computeFasta(){
 	var WholeSet="";
 	var OutputString="";
-	OutputString+=">" + rvDataSets[SpeciesIndex].Name + "\n";
-	
-	$.each(rvDataSets[SpeciesIndex].Residues, function (index,residue) {
-		OutputString+= residue.resName;
-	});
-	OutputString+="\n\n"
-	
-	$.each(rvDataSets[SpeciesIndex].Selections, function (index, selection) {
-		if (selection.Residues.length >0){
-			OutputString+=">" + selection.Name + "\n";
-			$.each(selection.Residues, function (index, residue) {
-				OutputString+= residue.resName;
-			});
-			OutputString+="\n\n"
-		}
+	$.each(rvDataSets, function(index, rvds){
+		OutputString+=">" + rvds.Name + "\n";
+		
+		$.each(rvds.Residues, function (index,residue) {
+			OutputString+= residue.resName;
+		});
+		OutputString+="\n\n"
+		
+		$.each(rvds.Selections, function (index, selection) {
+			if (selection.Residues.length >0){
+				OutputString+=">" + selection.Name + "\n";
+				$.each(selection.Residues, function (index, residue) {
+					OutputString+= residue.resName;
+				});
+				OutputString+="\n\n"
+			}
+		});
 	});
 	return OutputString;
 }

@@ -71,7 +71,9 @@ function init3D(){
 function waitFor3Dinit(dataStructure){
     if(typeof myJmol !== "undefined"){
         //variable exists, do what you want
-		load3Dstructure(dataStructure.JmolState);
+		if (dataStructure & dataStructure.StructureName != undefined){
+			load3Dstructure(dataStructure.JmolState);
+		}
     }
     else{
         setTimeout(function(){
@@ -351,5 +353,26 @@ function save3dImgJmol() {
 function save3dImg() {
 	AgreeFunction = save3dImgJmol();
 	checkSavePrivacyStatus();
+}
+
+function ColorProteins3D(ColorProteins){
+	if($('input[name="jp"][value=off]').is(':checked')){
+		return;
+	}
+	if (rvDataSets[0].Residues[0] == undefined){return};
+	
+	var script = "set hideNotSelected false;";
+	$.each(ColorProteins, function (index,value){
+		var ressplit = value.ResNum.split("_");
+		if (ressplit[0] !== "undefined"){
+			if (colorNameToHex(value.Color).indexOf("#") == -1) {
+				script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + ressplit[0] + " and " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "; color Cartoon opaque [x" + value.Color + "]; ";
+			} else {
+				script += "select " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + ressplit[0] + " and " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "; color Cartoon opaque [" + value.Color.replace("#", "x") + "]; ";
+			}
+		}
+	});
+	
+	Jmol.script(myJmol, script);
 }
 ///////////////////////////////////////////////////////////////////////////////

@@ -331,6 +331,15 @@ function rvDataSet(DataSetName,SetNumber) {
 		rvds.CustomData = $.grep(CustomData, function(value,index){
 			return 	$.inArray(value.resNum,rvds.ResidueList) >=0;
 		})
+		// Copy extra parameters to customdata to support multiple datasets
+		if (rvds.CustomData[0].SwitchPoint != undefined & rvds.CustomData[0].SwitchPoint == ""){
+			rvds.CustomData[0].SwitchPoint = CustomData[0].SwitchPoint;
+		}
+		if (rvds.CustomData[0].TwoColorMode != undefined & rvds.CustomData[0].TwoColorMode == ""){
+			rvds.CustomData[0].TwoColorMode = CustomData[0].TwoColorMode;
+			rvds.CustomData[1].TwoColorMode = CustomData[1].TwoColorMode;
+		}
+		
 	};
 	this.addSpeciesEntry = function (SpeciesEntry) {
 		this.SpeciesEntry = SpeciesEntry;
