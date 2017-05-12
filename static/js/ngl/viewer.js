@@ -24,35 +24,35 @@ NGL.Resources = {
     // 'img/spark1.png': 'image',
     'static/images/radial.png': 'image',
 
-    // static/shaders
-    'static/shader/CylinderImpostor.vert': null,
-    'static/shader/CylinderImpostor.frag': null,
-    'static/shader/HyperballStickImpostor.vert': null,
-    'static/shader/HyperballStickImpostor.frag': null,
-    'static/shader/Line.vert': null,
-    'static/shader/Line.frag': null,
-    'static/shader/LineSprite.vert': null,
-    'static/shader/LineSprite.frag': null,
-    'static/shader/Mesh.vert': null,
-    'static/shader/Mesh.frag': null,
-    'static/shader/ParticleSprite.vert': null,
-    'static/shader/ParticleSprite.frag': null,
-    'static/shader/Quad.vert': null,
-    'static/shader/Quad.frag': null,
-    'static/shader/Ribbon.vert': null,
-    'static/shader/Ribbon.frag': null,
-    'static/shader/SDFFont.vert': null,
-    'static/shader/SDFFont.frag': null,
-    'static/shader/SphereHalo.vert': null,
-    'static/shader/SphereHalo.frag': null,
-    'static/shader/SphereImpostor.vert': null,
-    'static/shader/SphereImpostor.frag': null,
+    // shaders
+    'shader/CylinderImpostor.vert': null,
+    'shader/CylinderImpostor.frag': null,
+    'shader/HyperballStickImpostor.vert': null,
+    'shader/HyperballStickImpostor.frag': null,
+    'shader/Line.vert': null,
+    'shader/Line.frag': null,
+    'shader/LineSprite.vert': null,
+    'shader/LineSprite.frag': null,
+    'shader/Mesh.vert': null,
+    'shader/Mesh.frag': null,
+    'shader/ParticleSprite.vert': null,
+    'shader/ParticleSprite.frag': null,
+    'shader/Quad.vert': null,
+    'shader/Quad.frag': null,
+    'shader/Ribbon.vert': null,
+    'shader/Ribbon.frag': null,
+    'shader/SDFFont.vert': null,
+    'shader/SDFFont.frag': null,
+    'shader/SphereHalo.vert': null,
+    'shader/SphereHalo.frag': null,
+    'shader/SphereImpostor.vert': null,
+    'shader/SphereImpostor.frag': null,
 
-    // static/shader chunks
-    'static/shader/chunk/fog.glsl': null,
-    'static/shader/chunk/fog_params.glsl': null,
-    'static/shader/chunk/light.glsl': null,
-    'static/shader/chunk/light_params.glsl': null,
+    // shader chunks
+    'shader/chunk/fog.glsl': null,
+    'shader/chunk/fog_params.glsl': null,
+    'shader/chunk/light.glsl': null,
+    'shader/chunk/light_params.glsl': null,
 
 };
 
@@ -626,7 +626,7 @@ NGL.initResources = function( onLoad ){
 };
 
 
-NGL.getshader = function(){
+NGL.getShader = function(){
 
     var re = /^(?!\/\/)\s*#include\s+(\S+)/gmi;
     var cache = {};

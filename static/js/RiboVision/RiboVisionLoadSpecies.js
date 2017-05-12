@@ -71,8 +71,7 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 	var speciesSplit=species.split("&");
 	
 	// Start loading 3D
-	$.getJSON('getData.php', {
-		StructureLookup : species
+	$.getJSON('/fetchStructure/'+species, {
 		}, function (data) {
 			waitFor3Dinit(data[0]);
 	});
@@ -85,7 +84,33 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 	});
 	
 	//load SpeciesEntry
-	$.getJSON('getData.php', {
+	$.ajax({
+            type: 'POST',
+			contentType: 'application/json',
+			url: '/speciesTable',
+            data: JSON.stringify(speciesSplit),
+            success: function(data) {
+				$.each(data, function (index, value) {
+					speciesIndex=$.inArray(value.SS_Table,speciesSplit);
+					prepare_rvDataSet(speciesIndex);
+					rvDataSets[speciesIndex].selectLayer($('input:radio[name=selectedRadioL]').filter(':checked').parent().parent().attr('name'));
+					rvDataSets[speciesIndex].linkLayer($('input:radio[name=mappingRadioL]').filter(':checked').parent().parent().attr('name'));
+					rvDataSets[speciesIndex].addSpeciesEntry(value);
+					// Set offset. Right now, only side by side, two structures are allowed, so this is easy.
+					rvDataSets[speciesIndex].PageOffset[0] = (rvDataSets[speciesIndex].SpeciesEntry.Orientation == "landscape") ? 792 * rvDataSets[speciesIndex].SetNumber : 612 * rvDataSets[speciesIndex].SetNumber  ; //X direction
+					rvDataSets[speciesIndex].PageOffset[1]=0; //Y direction
+				})	
+				initLabels(speciesSplit,customResidues);
+				resizeElements(true);
+				waitFor3Dload();
+				processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2);            
+				},
+            error: function(error) {
+                console.log(error);
+            }
+        });
+	
+	/* $.getJSON('/speciesTable', {
 		SpeciesTable : JSON.stringify(speciesSplit)
 		}, function (data) {
 			$.each(data, function (index, value) {
@@ -102,7 +127,7 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 			resizeElements(true);
 			waitFor3Dload();
 			processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2);
-	});
+	}); */
 	
 	//ResiduePositions=[[]];
 	MainResidueMap=[[]];
@@ -197,8 +222,7 @@ function processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2){
 				
 			} else {
 				ResiduePositions[speciesIndex]=[[]];
-				$.getJSON('getData.php', {
-					Residues : speciesInterest
+				$.getJSON('/fetchResidues/'+ speciesInterest, {
 				}, function (db_residues) {
 					processResidueData(db_residues,speciesIndex);
 					var targetLayer = rvDataSets[speciesIndex].getLayerByType("residues");
