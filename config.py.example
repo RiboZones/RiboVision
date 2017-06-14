@@ -1,0 +1,11 @@
+import os
+
+class SQLConfig:
+    USER_ID = 'root'
+    PASSWORD = 'amma123'
+    IP = 'localhost'
+    DB = 'ribovision'
+
+class HostConfig:
+    IP = 'localhost'
+

@@ -71,7 +71,7 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 	var speciesSplit=species.split("&");
 	
 	// Start loading 3D
-	$.getJSON('/fetchStructure/'+species, {
+	$.getJSON('RiboVision/v1.0/fetchStructure/'+species, {
 		}, function (data) {
 			waitFor3Dinit(data[0]);
 	});
@@ -222,7 +222,7 @@ function processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2){
 				
 			} else {
 				ResiduePositions[speciesIndex]=[[]];
-				$.getJSON('/fetchResidues/'+ speciesInterest, {
+				$.getJSON('RiboVision/v1.0/fetchResidues/'+ speciesInterest, {
 				}, function (db_residues) {
 					processResidueData(db_residues,speciesIndex);
 					var targetLayer = rvDataSets[speciesIndex].getLayerByType("residues");
