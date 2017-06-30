@@ -42,7 +42,7 @@ function initLabels(speciesSplit,customResidues) {
 				var LineLabels=[];
 				
 				$.ajax({
-					url: 'getData.php',
+					url: '/RiboVision/v1.0/textLabels',
 					type: 'get',
 					dataType: 'json',
 					data: {TextLabels : rvDataSets[speciesIndex].SpeciesEntry.TextLabels},
@@ -53,7 +53,7 @@ function initLabels(speciesSplit,customResidues) {
 					async:false,
 				});
 				$.ajax({
-					url: 'getData.php',
+					url: '/RiboVision/v1.0/lineLabels',
 					type: 'get',
 					dataType: 'json',
 					data: {LineLabels : rvDataSets[speciesIndex].SpeciesEntry.LineLabels},
@@ -984,7 +984,7 @@ function refreshBasePairs(BasePairTable) {
 		if (BasePairTable != "clear_lines") {
 			var p = BasePairTable.indexOf("_NPN");
 			if (p < 0) {
-				$.getJSON('getData.php', {
+				$.getJSON('RiboVision/v1.0/basePairs', {
 					BasePairs : value
 				}, function (basePairs2) {					
 					$.each(basePairs2, function (ind, item) {
