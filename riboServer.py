@@ -1,6 +1,10 @@
-import sys
+# Vishva Natarajan
+# Summer Internship 2017 @GaTech - RiboVision project
+#ammavishva@gmail.com
+
 
 # import modules required
+import sys
 from flask import Flask,render_template
 from flask_restful import Resource, Api, reqparse
 from sqlalchemy import create_engine

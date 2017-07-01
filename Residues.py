@@ -1,3 +1,7 @@
+# Vishva Natarajan
+# Summer Internship 2017 @GaTech - RiboVision project
+#ammavishva@gmail.com
+
 from flask import Flask
 from flask_restful import Resource,reqparse
 from sqlalchemy import create_engine
