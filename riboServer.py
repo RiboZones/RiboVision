@@ -1,6 +1,6 @@
 # Vishva Natarajan
 # Summer Internship 2017 @GaTech - RiboVision project
-#ammavishva@gmail.com
+# ammavishva@gmail.com
 
 
 # import modules required
@@ -60,7 +60,7 @@ api.add_resource(TextLabels, '/RiboVision/v1.0/textLabels', resource_class_kwarg
 api.add_resource(LineLabels, '/RiboVision/v1.0/lineLabels', resource_class_kwargs={ 'db': db });
 api.add_resource(BasePairs, '/RiboVision/v1.0/basePairs', resource_class_kwargs={ 'db': db });
 api.add_resource(FullTable, '/RiboVision/v1.0/fullTable', resource_class_kwargs={ 'db': db });
-#api.add_resource(Test, '/RiboVision/v1.0/test', resource_class_kwargs={ 'db': db });
+api.add_resource(Test, '/RiboVision/v1.0/test', resource_class_kwargs={ 'db': db });
 
 
 @app.route('/')

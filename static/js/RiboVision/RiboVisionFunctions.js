@@ -953,7 +953,7 @@ function colorNameToHex(color,prefix='#',nullcolor=false) {
 function appendBasePairs(BasePairTable, colName) {
 	var p = BasePairTable.indexOf("_NPN");
 	if (p < 0) {
-		$.getJSON('getData.php', {
+		$.getJSON('RiboVision/v1.0/basePairs', {
 			BasePairs : BasePairTable
 		}, function (basePairs2) {
 			ActiveBasePairSet=ActiveBasePairSet.concat(basePairs2);
@@ -964,7 +964,7 @@ function appendBasePairs(BasePairTable, colName) {
 	} else {
 		//var dd = document.getElementById("ProtList");
 		//var colName = dd.options[dd.selectedIndex].value;
-		$.getJSON('getData.php', {
+		$.getJSON('RiboVision/v1.0/basePairs', {
 			ProtBasePairs : BasePairTable,
 			ProtChain : colName
 		}, function (basePairs2) {

@@ -1,6 +1,6 @@
 # Vishva Natarajan
 # Summer Internship 2017 @GaTech - RiboVision project
-#ammavishva@gmail.com
+# ammavishva@gmail.com
 
 
 from flask import Flask
@@ -17,12 +17,19 @@ class BasePairs(Resource):
 	    #parse input arguments BasePairs
             parser = reqparse.RequestParser()
             parser.add_argument('BasePairs', type=str)
-            args = parser.parse_args();
-            _BasePairs = args['BasePairs'];
+            parser.add_argument('ProtChain', type=str)
+            args = parser.parse_args();   
             
+            _ProtChain = args['ProtChain'];
+            _BasePairs = args['BasePairs'];
+
+            if _ProtChain is None:
+              SQLStatement = 'SELECT * FROM %s' % (_BasePairs)
+            else:
+              SQLStatement = 'SELECT %s FROM %s' % (_ProtChain,_BasePairs)
+
+            print('***SQLStatement='+ SQLStatement) 
             cur= self.conn.cursor();
-            SQLStatement = 'SELECT * FROM %s' % (_BasePairs)
-            print(SQLStatement)
             cur.execute(SQLStatement)
             r = [dict((cur.description[i][0], value)
                for i, value in enumerate(row)) for row in cur.fetchall()]
