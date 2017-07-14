@@ -47,6 +47,8 @@ api.add_resource(FetchMasterList, '/RiboVision/v1.0/fetchMasterList', resource_c
 api.add_resource(StructureLookup, '/RiboVision/v1.0/fetchStructure', resource_class_kwargs={ 'db': db });
 
 @app.route('/')
+def main():
+	return render_template('index.html')
 def root():
     return app.send_static_file('index.html')
 
