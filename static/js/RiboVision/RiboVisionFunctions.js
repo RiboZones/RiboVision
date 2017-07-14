@@ -42,7 +42,7 @@ function initLabels(speciesSplit,customResidues) {
 				var LineLabels=[];
 				
 				$.ajax({
-					url: 'getData.php',
+					url: '/RiboVision/v1.0/textLabels',
 					type: 'get',
 					dataType: 'json',
 					data: {TextLabels : rvDataSets[speciesIndex].SpeciesEntry.TextLabels},
@@ -53,7 +53,7 @@ function initLabels(speciesSplit,customResidues) {
 					async:false,
 				});
 				$.ajax({
-					url: 'getData.php',
+					url: '/RiboVision/v1.0/lineLabels',
 					type: 'get',
 					dataType: 'json',
 					data: {LineLabels : rvDataSets[speciesIndex].SpeciesEntry.LineLabels},
@@ -953,7 +953,7 @@ function colorNameToHex(color,prefix='#',nullcolor=false) {
 function appendBasePairs(BasePairTable, colName) {
 	var p = BasePairTable.indexOf("_NPN");
 	if (p < 0) {
-		$.getJSON('getData.php', {
+		$.getJSON('RiboVision/v1.0/basePairs', {
 			BasePairs : BasePairTable
 		}, function (basePairs2) {
 			ActiveBasePairSet=ActiveBasePairSet.concat(basePairs2);
@@ -964,7 +964,7 @@ function appendBasePairs(BasePairTable, colName) {
 	} else {
 		//var dd = document.getElementById("ProtList");
 		//var colName = dd.options[dd.selectedIndex].value;
-		$.getJSON('getData.php', {
+		$.getJSON('RiboVision/v1.0/basePairs', {
 			ProtBasePairs : BasePairTable,
 			ProtChain : colName
 		}, function (basePairs2) {
@@ -984,7 +984,7 @@ function refreshBasePairs(BasePairTable) {
 		if (BasePairTable != "clear_lines") {
 			var p = BasePairTable.indexOf("_NPN");
 			if (p < 0) {
-				$.getJSON('getData.php', {
+				$.getJSON('RiboVision/v1.0/basePairs', {
 					BasePairs : value
 				}, function (basePairs2) {					
 					$.each(basePairs2, function (ind, item) {

@@ -77,7 +77,7 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 	});
 	
 	// get data description table
-	$.getJSON('getData.php', {
+	$.getJSON('RiboVision/v1.0/fullTable', {
 		FullTable : "DataDescriptions"
 		}, function (data) {
 		rvDataSets[0].DataDescriptions=data;
@@ -87,7 +87,7 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 	$.ajax({
             type: 'POST',
 			contentType: 'application/json',
-			url: '/speciesTable',
+			url: 'RiboVision/v1.0/speciesTable',
             data: JSON.stringify(speciesSplit),
             success: function(data) {
 				$.each(data, function (index, value) {
@@ -268,7 +268,7 @@ function processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2){
 					}
 					//initLabels(speciesInterest,speciesIndex);
 					// Get conservation table
-					$.getJSON('getData.php', {
+					$.getJSON('RiboVision/v1.0/fullTable', {
 						FullTable : rvDataSets[speciesIndex].SpeciesEntry.ConservationTable
 						}, function (ConservationTable) {
 							rvDataSets[speciesIndex].ConservationTable=ConservationTable;
