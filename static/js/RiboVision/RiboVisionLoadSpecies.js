@@ -222,7 +222,7 @@ function processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2){
 				
 			} else {
 				ResiduePositions[speciesIndex]=[[]];
-				$.getJSON('RiboVision/v1.0/fetchResidues/'+ speciesInterest, {
+				$.getJSON('RiboVision/v1.0/fetchResidues', {
 					structure_hash : speciesInterest
 				}, function (db_residues) {
 					processResidueData(db_residues,speciesIndex);
