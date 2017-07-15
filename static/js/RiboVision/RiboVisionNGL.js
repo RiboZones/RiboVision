@@ -49,10 +49,12 @@ function load3Dstructure(structure_3d){
 	if (stage.compList[0]==undefined  || stage.compList[0].name.substr(0,4)!=structure_3d){
 		
 		if(structure_3d.indexOf(".pdb")> 0){
-			var loadstring="/structures/pdb/" + structure_3d ;
+			var loadstring="/static/structures/pdb/" + structure_3d ;
 			
+		} else if(structure_3d.indexOf(".cif")> 0){
+			var loadstring="/static/structures/mmcif/" + structure_3d + ".cif";	
 		} else {
-			var loadstring="/structures/mmcif/" + structure_3d + ".cif";
+			var loadstring="/static/structures/mmtf/" + structure_3d + ".mmtf";
 		}
 		
 		stage.loadFile( loadstring, {assembly: "BU1"}).then( function( o ){	

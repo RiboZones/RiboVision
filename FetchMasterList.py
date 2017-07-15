@@ -18,6 +18,7 @@ class FetchMasterList(Resource):
             cur.execute(SQLStatement)
             r = [dict((cur.description[i][0], value) \
                for i, value in enumerate(row)) for row in cur.fetchall()]
+            cur.close()
             return jsonify(r)  
         
         except Exception as e:

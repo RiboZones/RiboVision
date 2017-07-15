@@ -4,15 +4,12 @@
 
 
 # import modules required
-import sys
 from flask import Flask,render_template
 from flask_restful import Resource, Api, reqparse
 from sqlalchemy import create_engine
 from flask_cors import CORS, cross_origin
 from json2html import *
 from flaskext.mysql import MySQL
-import os,sys
-from flask import *
 
 # import modules written for this project
 from Residues import Residues
@@ -31,7 +28,7 @@ from test import Test
 # create database engine (SQLAlchemy db pool)
 sql_string = 'mysql://' + SQLConfig.USER_ID + ':' + SQLConfig.PASSWORD + '@' + SQLConfig.IP + '/' + SQLConfig.DB;
 print sql_string
-db = create_engine(sql_string);
+db = create_engine(sql_string, pool_recycle=270);
 
 # Create instance of Flask class. 
 app = Flask(__name__)
@@ -40,8 +37,6 @@ CORS(app)
 
 @app.route('/<path:path>')
 def redirect(path):
-    cwd = os.getcwd()
-    print cwd
     return send_from_directory('./', path)
 
 # Create instance of API from flask-restful
