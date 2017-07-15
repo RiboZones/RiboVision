@@ -2,7 +2,7 @@
 # Summer Internship 2017 @GaTech - RiboVision project
 # ammavishva@gmail.com
 
-from flask import Flask
+from flask import Flask, jsonify, request
 from flask_restful import Resource,reqparse
 from sqlalchemy import create_engine
 from flaskext.mysql import MySQL
@@ -13,19 +13,22 @@ class SpeciesTable(Resource):
         self.conn = self.db.raw_connection();
     
       def post(self):
-        try:
-                   
+        try:     
            # Parse the arguments
-           parser = reqparse.RequestParser();
-           parser.add_argument('content', type=str);
-           args = parser.parse_args();
-           _content = args['content'];
+           # parser = reqparse.RequestParser();
+           # parser.add_argument('content', type=str);
+           # args = parser.parse_args();
+           _content = request.get_json(force=True)
 
-           cur= self.conn.cursor();
+           # _content = args['content'];
+
+           cur = self.conn.cursor();
            SQLStatement = 'SELECT * FROM SpeciesTables2 WHERE SS_Table = %s OR SS_Table = %s'
-           cur.execute(SQLStatement,content)
+           cur.execute(SQLStatement,_content)
            r = [dict((cur.description[i][0], value) \
-                for i, value in enumerate(row)) for row in cur.fetchall()]
+               for i, value in enumerate(row)) for row in cur.fetchall()]
+           # return SQLStatement
+           cur.close()
            return jsonify(r)    
         except Exception as e:
-            return {'error': str(e)}
+            return repr(e)
