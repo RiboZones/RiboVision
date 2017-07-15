@@ -22,6 +22,7 @@ class StructureLookup(Resource):
            
             cur= self.conn.cursor();
 	    SQLStatement = 'SELECT StructureName, JmolState FROM MasterTable WHERE LoadString = %s' % (_structure_hash)
+	    print("chad")
             cur.execute(SQLStatement)
             r = [dict((cur.description[i][0], value) \
                for i, value in enumerate(row)) for row in cur.fetchall()]

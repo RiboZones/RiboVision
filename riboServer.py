@@ -66,8 +66,8 @@ api.add_resource(Test, '/RiboVision/v1.0/test', resource_class_kwargs={ 'db': db
 @app.route('/')
 def main():
 	return render_template('index.html')
-def root():
-    return app.send_static_file('index.html')
+#def root():
+ #   return app.send_static_file('index.html')
 
 # Start Server 
 if __name__ == '__main__':
