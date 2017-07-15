@@ -223,6 +223,7 @@ function processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2){
 			} else {
 				ResiduePositions[speciesIndex]=[[]];
 				$.getJSON('RiboVision/v1.0/fetchResidues/'+ speciesInterest, {
+					structure_hash : speciesInterest
 				}, function (db_residues) {
 					processResidueData(db_residues,speciesIndex);
 					var targetLayer = rvDataSets[speciesIndex].getLayerByType("residues");
