@@ -71,7 +71,8 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 	var speciesSplit=species.split("&");
 	
 	// Start loading 3D
-	$.getJSON('RiboVision/v1.0/fetchStructure/'+species, {
+	$.getJSON('RiboVision/v1.0/fetchStructure', {
+		structure_hash : species
 		}, function (data) {
 			waitFor3Dinit(data[0]);
 	});
