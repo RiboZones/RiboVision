@@ -68,7 +68,7 @@ function processResidueData(ResidueData,speciesIndex){
 
 
 function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
-	var speciesSplit=species.split("&");
+	var speciesSplit=species.split("|");
 	
 	// Start loading 3D
 	$.getJSON('RiboVision/v1.0/fetchStructure', {
@@ -87,7 +87,8 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 	//load SpeciesEntry
 	$.ajax({
             type: 'POST',
-			contentType: 'application/json',
+			contentType: 'application/json', 
+			accept: 'application/json',
 			url: 'RiboVision/v1.0/speciesTable',
             data: JSON.stringify(speciesSplit),
             success: function(data) {

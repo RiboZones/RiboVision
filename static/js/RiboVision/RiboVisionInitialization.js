@@ -1289,7 +1289,7 @@ function InitRibovision3(FreshState) {
 			} else {
 				this.species_array[1]=$(ui.item).data("ss_table");
 			}
-			loadSpecies(this.species_array.join("&"));
+			loadSpecies(this.species_array.join("|"));
 		});
 		if (FreshState){
 			list.iosMenu().data("iosMenu")._insertBackButtons();

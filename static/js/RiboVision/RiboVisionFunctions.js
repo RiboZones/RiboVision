@@ -49,8 +49,10 @@ function initLabels(speciesSplit,customResidues) {
 					cache: false,
 					success: function(textlabels) {
 						TextLabels = textlabels;
-					},
-					async:false,
+						rvDataSets[speciesIndex].clearCanvas("labels");
+						rvDataSets[speciesIndex].addLabels(TextLabels, LineLabels);
+						rvDataSets[speciesIndex].drawLabels("labels");
+					}
 				});
 				$.ajax({
 					url: '/RiboVision/v1.0/lineLabels',
@@ -60,26 +62,12 @@ function initLabels(speciesSplit,customResidues) {
 					cache: false,
 					success: function(linelabels) {
 						LineLabels = linelabels;
-					},
-					async:false,
-				});
-				rvDataSets[speciesIndex].clearCanvas("labels");
-				rvDataSets[speciesIndex].addLabels(TextLabels, LineLabels);
-				rvDataSets[speciesIndex].drawLabels("labels");
-				/*
-				$.getJSON('getData.php', {
-					
-				}, function (labelData2) {
-					var TextLabels = labelData2;
-					$.getJSON('getData.php', {
-						LineLabels : rvDataSets[speciesIndex].SpeciesEntry.LineLabels
-					}, function (labelLines2) {
-						var LineLabels = labelLines2;
 						rvDataSets[speciesIndex].clearCanvas("labels");
 						rvDataSets[speciesIndex].addLabels(TextLabels, LineLabels);
 						rvDataSets[speciesIndex].drawLabels("labels");
-					});
-				});*/
+					}
+				});
+				
 			} else {
 				rvDataSets[speciesIndex].clearCanvas("labels");
 				if (customResidues){
