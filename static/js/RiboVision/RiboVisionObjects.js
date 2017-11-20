@@ -164,7 +164,6 @@ function RvLayer(rvds,LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Co
 				this.clearData();
 				drawNavLine();
 				rvds.clearCanvas(this.LayerName);
-				update3Dcolors();
 				break;
 			case "contour":
 				this.DataLabel = "None";
@@ -172,7 +171,6 @@ function RvLayer(rvds,LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Co
 				this.clearData();
 				drawNavLine();
 				rvds.clearCanvas(this.LayerName);
-				update3Dcolors();
 				break;	
 			case "residues":
 				this.DataLabel = "None";
@@ -180,7 +178,6 @@ function RvLayer(rvds,LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Co
 				this.clearData();
 				clearColor(false);
 				drawNavLine();
-				update3Dcolors();
 				break;
 			case "lines":
 				this.DataLabel = "None";
@@ -332,20 +329,23 @@ function rvDataSet(DataSetName,SetNumber) {
 			return 	$.inArray(value.resNum,rvds.ResidueList) >=0;
 		})
 		// Copy extra parameters to customdata to support multiple datasets
-		if (rvds.CustomData[0].SwitchPoint != undefined & rvds.CustomData[0].SwitchPoint == ""){
-			rvds.CustomData[0].SwitchPoint = CustomData[0].SwitchPoint;
+		if (rvds.CustomData[0]){
+			if (rvds.CustomData[0].SwitchPoint & rvds.CustomData[0].SwitchPoint == ""){
+				rvds.CustomData[0].SwitchPoint = CustomData[0].SwitchPoint;
+			}
+			if (rvds.CustomData[0].TwoColorMode & rvds.CustomData[0].TwoColorMode == ""){
+				rvds.CustomData[0].TwoColorMode = CustomData[0].TwoColorMode;
+				rvds.CustomData[1].TwoColorMode = CustomData[1].TwoColorMode;
+			}
 		}
-		if (rvds.CustomData[0].TwoColorMode != undefined & rvds.CustomData[0].TwoColorMode == ""){
-			rvds.CustomData[0].TwoColorMode = CustomData[0].TwoColorMode;
-			rvds.CustomData[1].TwoColorMode = CustomData[1].TwoColorMode;
-		}
-		
 	};
 	this.addSpeciesEntry = function (SpeciesEntry) {
 		this.SpeciesEntry = SpeciesEntry;
-		this.SpeciesEntry.Molecule_Names = this.SpeciesEntry.Molecule_Names.split(";");
-		this.SpeciesEntry.Molecule_Names_rProtein = this.SpeciesEntry.Molecule_Names_rProtein.split(";");
+		this.SpeciesEntry.Molecule_Names = this.SpeciesEntry.Molecule_Names.split(";");		
 		this.SpeciesEntry.PDB_chains = this.SpeciesEntry.PDB_chains.split(";");
+		this.SpeciesEntry.PDB_chains_rProtein = this.SpeciesEntry.PDB_chains_rProtein.split(";");
+		this.SpeciesEntry.Molecule_Names_rProtein = this.SpeciesEntry.Molecule_Names_rProtein.split(";");
+		this.SpeciesEntry.internal_protein_names = this.SpeciesEntry.internal_protein_names.split(";");
 
 		// Set FontSize
 		this.Font_Size_Canvas = this.SpeciesEntry.Font_Size_Canvas;

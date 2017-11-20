@@ -2,24 +2,14 @@ function init3D(){
 	initNGL();
 }
 function initNGL(){
-	if( !Detector.webgl ) Detector.addGetWebGLMessage();
-
-
-	NGL.mainScriptFilePath = "static/js/ngl/core.js";
-	NGL.cssDirectory = "static/css/";
 	$("#the3DpanelDiv").append("<div id='NGLviewPort' style='height:100%;width:100%'></div>");
-	function onInit(){
-		stage = new NGL.Stage( "NGLviewPort" );
-		stage.setTheme("light");
-		NGL.StageWidget( stage );
-
-	}
-
-	//document.addEventListener( "DOMContentLoaded", function() {
-		NGL.init( onInit );
-	//} );
+	stage = new NGL.Stage( "NGLviewPort", { backgroundColor: "white" , quality: "auto"} );
+	resizeElements()
+	resize3D()
 }
-
+function resize3D(){
+	stage.handleResize()
+}
 function waitFor3Dinit(dataStructure){
     if(typeof stage !== "undefined"){
         //variable exists, do what you want
@@ -30,18 +20,19 @@ function waitFor3Dinit(dataStructure){
     else{
         setTimeout(function(){
             waitFor3Dinit(dataStructure);
-        },250);
+        },100);
     }
 }
 function waitFor3Dload(){
-    if(typeof Struct !== "undefined"){
+    
+	if(typeof Struct !== "undefined"){
         //variable exists, do what you want
 		init3dStructures();
     }
     else{
         setTimeout(function(){
             waitFor3Dload();
-        },250);
+        },100);
     }
 }
 
@@ -49,15 +40,15 @@ function load3Dstructure(structure_3d){
 	if (stage.compList[0]==undefined  || stage.compList[0].name.substr(0,4)!=structure_3d){
 		
 		if(structure_3d.indexOf(".pdb")> 0){
-			var loadstring="/static/structures/pdb/" + structure_3d ;
+			var loadstring="static/structures/pdb/" + structure_3d ;
 			
 		} else if(structure_3d.indexOf(".cif")> 0){
-			var loadstring="/static/structures/mmcif/" + structure_3d + ".cif";	
+			var loadstring="static/structures/mmcif/" + structure_3d + ".cif";	
 		} else {
-			var loadstring="/static/structures/mmtf/" + structure_3d + ".mmtf";
+			var loadstring="static/structures/mmtf/" + structure_3d + ".mmtf";
 		}
-		
-		stage.loadFile( loadstring, {assembly: "BU1"}).then( function( o ){	
+		//Assume BU2 for today. Fix for BU1 during database update.
+		stage.loadFile( loadstring, {assembly: "BU2"}).then( function( o ){	
 			Struct=o;
 			//Struct.addRepresentation( "cartoon");
 			//Struct.addRepresentation( "licorice" );	
@@ -65,12 +56,12 @@ function load3Dstructure(structure_3d){
 		} );
 	}
 }
-	
+
 function init3dStructures() {
 	if (rvDataSets[1]) {
-		var rna_chains = ":" + rvDataSets[0].SpeciesEntry.New_PDB_Chains.replace(/:/,' or :') + " or :" + rvDataSets[1].SpeciesEntry.New_PDB_Chains.replace(/:/,' or :');
+		var rna_chains = ":" + rvDataSets[0].SpeciesEntry.PDB_chains.join(' or :') + " or :" + rvDataSets[1].SpeciesEntry.PDB_chains.join(' or :');
 	} else {
-		var rna_chains = ":" + rvDataSets[0].SpeciesEntry.New_PDB_Chains.replace(/:/,' or :');
+		var rna_chains = ":" + rvDataSets[0].SpeciesEntry.PDB_chains.join(' or :');
 	}
 	
 	var rna_sele = "rna and (" + rna_chains + ")";
@@ -83,7 +74,7 @@ function init3dStructures() {
 	//Struct.setSelection(rna_sele);
 	
 	update3Dcolors();
-	Struct.centerView(true);
+	Struct.autoView(rna_sele);
 
 }
 
@@ -112,7 +103,7 @@ function colorMappingLoop3DLow(changeProteins){
 	$.each(changeProteins, function (index,value){
 		selection_scheme.push([colorNameToHex(value.newcolor,'#',"0x858585"),":" + value.foundProt]);
 	});
-	var mySelectionScheme = NGL.ColorMakerRegistry.addSelectionScheme( selection_scheme );
+	var mySelectionScheme = NGL.ColormakerRegistry.addSelectionScheme( selection_scheme );
 	
 	repr.setParameters( { colorScheme: mySelectionScheme } )
 	repr.setSelection(sele_protein.foundProt);
@@ -125,12 +116,7 @@ function update3Dcolors() {
 	if($('input[name="jp"][value=off]').is(':checked')){
 		return;
 	}
-	if(typeof Struct == "undefined"){
-        setTimeout(function(){
-            update3Dcolors();
-        },250);
-		return;
-    }
+	
 	var targetLayer=[];
 	$.each(rvDataSets, function (index, rvds) {
 		if (rvds.Residues[0] == undefined){return};
@@ -138,11 +124,12 @@ function update3Dcolors() {
 	});
 	
 	
-	var myScheme = NGL.ColorMakerRegistry.addScheme( function( params ){
+	var myScheme = NGL.ColormakerRegistry.addScheme( function( params ){
 		this.atomColor = function( atom ){
 			try {
 				var uResName = MainResidueMap[atom.chainname + ":" + atom.resno];
-				return colorNameToHex(targetLayer[MainResidueMap[uResName].rvds_index].dataLayerColors[MainResidueMap[uResName].index],'0x',"0x858585");
+				var color = targetLayer[MainResidueMap[uResName].rvds_index].dataLayerColors[MainResidueMap[uResName].index];
+				return colorNameToHex(color,'0x',"0x858585");
 			} catch (e) {
 				return "#858585";
 			}
@@ -169,7 +156,14 @@ function resetColorState() {
 
 function save3dImg() {
 	AgreeFunction = function () {
-		stage.exportImage(2,true,true,true);
+		stage.makeImage({
+			factor: 2,
+			antialias: true,
+			trim: true,
+			transparent: false
+		}).then(function (blob) {
+			  NGL.download(blob, 'RiboVisionFigure3D.png')
+		})
 	}
 	checkSavePrivacyStatus();
 }

@@ -118,7 +118,7 @@ function update3DProteinsLow(newcolor){
 	var JscriptP = "set hideNotSelected false;";
 	for (var i = 0; i < newcolor.length; i++) {
 		JscriptP += "select (" + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + 
-		rvDataSets[0].SpeciesEntry.SubunitProtChains[1][rvDataSets[0].SpeciesEntry.SubunitProtChains[2].indexOf(seleProt[i])] +
+		rvDataSets[0].SpeciesEntry.PDB_chains_rProtein[1][rvDataSets[0].SpeciesEntry.PDB_chains_rProtein[2].indexOf(seleProt[i])] +
 		"); color Cartoon opaque [" + newcolor[i].replace("#", "x") + "];";
 	}
 	//JscriptP+="display " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA ) + ".1, " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein ) + ".1;";

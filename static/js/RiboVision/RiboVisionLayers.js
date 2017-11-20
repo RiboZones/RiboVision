@@ -56,7 +56,11 @@ function InitLayers() {
 	$("#clearLayer").click(function () {
 		$.each(rvDataSets, function (index, rvds) {
 			var targetLayer = rvds.getSelectedLayer();
+			var linkedLayer = rvds.getLinkedLayer();
 			targetLayer.clearAll();
+			if (targetLayer == linkedLayer){
+				update3Dcolors();
+			}
 		});
 		
 		drawNavLine();

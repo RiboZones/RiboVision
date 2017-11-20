@@ -68,7 +68,7 @@ function processResidueData(ResidueData,speciesIndex){
 
 
 function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
-	var speciesSplit=species.split("!");
+	var speciesSplit=species.split("&");
 	
 	// Start loading 3D
 	$.getJSON('RiboVision/v1.0/fetchStructure', {
@@ -104,8 +104,8 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 				})	
 				initLabels(speciesSplit,customResidues);
 				resizeElements(true);
-				waitFor3Dload();
-				processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2);            
+				processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2);        
+				waitFor3Dload();    
 				},
             error: function(error) {
                 console.log(error);
@@ -278,114 +278,8 @@ function processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2){
 					});
 					$("#TemplateLink").attr("href", "./Templates/" + speciesInterest + "_UserDataTemplate.csv")
 
-					// Set Selection Menu
-					populateDomainHelixMenu(speciesIndex);
-					
-					//Set Protein Menu
-					populateProteinMenu(speciesIndex);
-					$("#ProteinBubbles").append($('<h3 class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom" style="text-align:center;padding:0.2em">')
-						.text("Protein Contacts").attr('name',"All_Proteins").attr('title',title));
 					
 					
-					//Set Alignment Menu
-					var AlnList = rvDataSets[speciesIndex].SpeciesEntry.AlnMenu.split(";");
-					if (AlnList[0] != "") {
-						for (var ii = 0; ii < AlnList.length; ii++) {
-							var NewAlnPair = AlnList[ii].split(":");
-							var ColName = NewAlnPair[1].match(/[^\'\\,]+/);
-							var result = $.grep(rvDataSets[speciesIndex].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
-							if (result[0]){
-								var title = NewAlnPair[0] + ": " + result[0].Description;
-							} else {
-								var title = "Data Description is missing.";
-							}
-							$("#AlnBubbles").append($('<h3 class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom" style="text-align:center;padding:0.2em">')
-							.text(NewAlnPair[0]).attr('name',NewAlnPair[1]).attr('title',title));
-						}
-					}
-									
-					//Set StructData Menu
-					populateStructDataMenu(speciesIndex);
-					
-					var SDList = rvDataSets[speciesIndex].SpeciesEntry.StructDataMenu.split(";");
-					if (SDList[0] != "") {
-						for (var ii = 0; ii < SDList.length; ii++) {
-							var NewSDPair = SDList[ii].split(":");
-							var ColName = NewSDPair[1].match(/[^\'\\,]+/);
-							var result = $.grep(rvDataSets[speciesIndex].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
-							if (ColName[0] && result[0]){
-								var title = NewSDPair[0] + ": " + result[0].Description;
-							} else if (ColName[0]=='""'){
-								var title = "None: This clears circles and makes letters black.";
-							} else {
-								var title = "Data Description is missing.";
-							}
-							$("#StructDataBubbles").append($('<h3 class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom" style="text-align:center;padding:0.2em">')
-							.text(NewSDPair[0]).attr('name',NewSDPair[1]).attr('title',title));
-						}
-						
-					}
-					
-					//$("#StructDataList").multiselect("refresh");
-					
-					//Set interaction Menu	
-					var il = document.getElementById("PrimaryInteractionList");
-					var BPList = rvDataSets[speciesIndex].SpeciesEntry.InterActionMenu.split(";");
-					if (speciesIndex == 0 && BPList[0] != ""){
-						for (var iii = 0; iii < BPList.length; iii++) {
-							var NewBPair = BPList[iii].split(":");
-							if (il.options[iii + 1]) {
-								il.options[iii + 1].value = NewBPair[1] + ';' + il.options[iii + 1].value;
-							} else {
-								il.options[iii + 1] = new Option(NewBPair[0], NewBPair[1]);
-							}
-						}
-					} else if (BPList[0] != ""){
-						for (var iii = 0; iii < BPList.length; iii++) {
-							var NewBPair = BPList[iii].split(":");
-							if (il.options[iii + 1]) {
-								il.options[iii + 1].value = il.options[iii + 1].value + ';' + NewBPair[1];
-							} else {
-								il.options[iii + 1] = new Option(NewBPair[0], NewBPair[1]);
-							}
-						}
-					}
-					
-					$("#PrimaryInteractionList").multiselect("refresh");
-					
-					
-					
-					//Set sortable to imply draggable
-					$("#StructDataDiv").sortable({
-						update : function (event, ui) {
-							/*$("#LayerPanel .layerContent").each(function (e, f) {
-								var tl = rvDataSets[speciesIndex].getLayer($(this).parent().attr("name"));
-								tl.updateZIndex(rvDataSets[speciesIndex].LastLayer - e);
-								});
-							rvDataSets[speciesIndex].sort();*/
-						},
-						items : ".dataBubble"
-					});
-					$("#AlnDiv").sortable({
-						update : function (event, ui) {
-							/*$("#LayerPanel .layerContent").each(function (e, f) {
-								var tl = rvDataSets[speciesIndex].getLayer($(this).parent().attr("name"));
-								tl.updateZIndex(rvDataSets[speciesIndex].LastLayer - e);
-								});
-							rvDataSets[speciesIndex].sort();*/
-						},
-						items : ".dataBubble"
-					});
-					$("#ProtDiv").sortable({
-						update : function (event, ui) {
-							/*$("#LayerPanel .layerContent").each(function (e, f) {
-								var tl = rvDataSets[speciesIndex].getLayer($(this).parent().attr("name"));
-								tl.updateZIndex(rvDataSets[speciesIndex].LastLayer - e);
-								});
-							rvDataSets[speciesIndex].sort();*/
-						},
-						items : ".dataBubble"
-					});
 					ProcessBubble($("#StructDataBubbles").find(".dataBubble:contains('Domains')"),targetLayer[0].LayerName)
 					//rvDataSets[speciesIndex].drawResidues("residues");
 					rvDataSets[speciesIndex].drawLabels("labels");
@@ -399,9 +293,9 @@ function processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2){
 					$(".oneLayerGroup[name='" + targetLayer[0].LayerName + "']").find(".mappingRadioBtn").prop("checked", true);
 					$(".oneLayerGroup[name='" + targetLayer[0].LayerName + "']").find(".mappingRadioBtn").trigger("change");
 				})
+				
 			}
 			
-				
 		} else {
 			rvDataSets[speciesIndex].addResidues([]);
 			rvDataSets[speciesIndex].SpeciesEntry = [];
@@ -410,7 +304,9 @@ function processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2){
 			rvDataSets[speciesIndex].SpeciesEntry.Molecule_Names = [];
 			rvDataSets[speciesIndex].SpeciesEntry.TextLabels = [];
 			rvDataSets[speciesIndex].SpeciesEntry.LineLabels = [];
-			rvDataSets[speciesIndex].SpeciesEntry["SubunitProtChains"] = [];
+			rvDataSets[speciesIndex].SpeciesEntry.PDB_chains_rProtein = [];
+			rvDataSets[speciesIndex].SpeciesEntry.Molecule_Names_rProtein =[];
+			rvDataSets[speciesIndex].SpeciesEntry.internal_protein_names =[];
 			rvDataSets[speciesIndex].SpeciesEntry.MapType = "None";
 			
 			//initLabels(speciesInterest,speciesIndex);
@@ -440,5 +336,58 @@ function processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2){
 		}
 		//rvDataSets[speciesIndex].BasePairs = [];
 	});
+	populateMenus()
+}
+
+function populateMenus(){
+	// Set Selection Menu
+	populateDomainHelixMenu();
 	
+	//Set Protein Menu
+	var title = populateProteinMenu();
+	$("#ProteinBubbles").append($('<h3 class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom" style="text-align:center;padding:0.2em">')
+		.text("Protein Contacts").attr('name',"All_Proteins").attr('title',title));
+	
+	//Set Alignment Menu
+	populateAlignmentMenu()
+					
+	//Set StructData Menu
+	populateStructDataMenu();
+	$("#StructDataList").multiselect("refresh");
+	
+	//Set interaction Menu	
+	populateInteractionMenu()
+	$("#PrimaryInteractionList").multiselect("refresh");
+	
+	//Set sortable to imply draggable
+	$("#StructDataDiv").sortable({
+		update : function (event, ui) {
+			/*$("#LayerPanel .layerContent").each(function (e, f) {
+				var tl = rvDataSets[speciesIndex].getLayer($(this).parent().attr("name"));
+				tl.updateZIndex(rvDataSets[speciesIndex].LastLayer - e);
+				});
+			rvDataSets[speciesIndex].sort();*/
+		},
+		items : ".dataBubble"
+	});
+	$("#AlnDiv").sortable({
+		update : function (event, ui) {
+			/*$("#LayerPanel .layerContent").each(function (e, f) {
+				var tl = rvDataSets[speciesIndex].getLayer($(this).parent().attr("name"));
+				tl.updateZIndex(rvDataSets[speciesIndex].LastLayer - e);
+				});
+			rvDataSets[speciesIndex].sort();*/
+		},
+		items : ".dataBubble"
+	});
+	$("#ProtDiv").sortable({
+		update : function (event, ui) {
+			/*$("#LayerPanel .layerContent").each(function (e, f) {
+				var tl = rvDataSets[speciesIndex].getLayer($(this).parent().attr("name"));
+				tl.updateZIndex(rvDataSets[speciesIndex].LastLayer - e);
+				});
+			rvDataSets[speciesIndex].sort();*/
+		},
+		items : ".dataBubble"
+	});
 }
