@@ -325,15 +325,17 @@ function rvDataSet(DataSetName,SetNumber) {
 	};*/
 	this.addCustomData = function (CustomData) {
 		var rvds=this;
+		var molecules_names = rvds.SpeciesEntry.Molecule_Names.concat(rvds.SpeciesEntry.Molecule_Names_rProtein)
 		rvds.CustomData = $.grep(CustomData, function(value,index){
-			return 	$.inArray(value.resNum,rvds.ResidueList) >=0;
+			//var mol_name = value.resNum.split(':')[0];
+			return $.inArray(value.resNum.split(':')[0],molecules_names) >=0;
 		})
 		// Copy extra parameters to customdata to support multiple datasets
-		if (rvds.CustomData[0]){
-			if (rvds.CustomData[0].SwitchPoint & rvds.CustomData[0].SwitchPoint == ""){
+		if(rvds.CustomData.length > 0){
+			if (rvds.CustomData[0].SwitchPoint != undefined & rvds.CustomData[0].SwitchPoint == ""){
 				rvds.CustomData[0].SwitchPoint = CustomData[0].SwitchPoint;
 			}
-			if (rvds.CustomData[0].TwoColorMode & rvds.CustomData[0].TwoColorMode == ""){
+			if (rvds.CustomData[0].TwoColorMode != undefined & rvds.CustomData[0].TwoColorMode == ""){
 				rvds.CustomData[0].TwoColorMode = CustomData[0].TwoColorMode;
 				rvds.CustomData[1].TwoColorMode = CustomData[1].TwoColorMode;
 			}

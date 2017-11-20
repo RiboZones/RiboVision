@@ -371,9 +371,10 @@ function expandSelection(command, SelectionName,SpeciesIndex) {
 				}
 			} else {
 				// Single residue detected
-				var alone_ind = MainResidueMap[ comsplit[0] + ":" + comsplit[1]].index;
-				if (alone_ind >=0){
-					targetSelection.Residues.push(rvds.Residues[alone_ind]);
+				var check_residue = MainResidueMap[ comsplit[0] + ":" + comsplit[1]];
+
+				if (check_residue){
+					targetSelection.Residues.push(rvds.Residues[check_residue.index]);
 				} else {
 					var chainID = rvds.SpeciesEntry.PDB_chains_rProtein[rvds.SpeciesEntry.Molecule_Names_rProtein.indexOf(comsplit[0])];
 					var aloneRes = chainID + "_" + comsplit[1];
@@ -1535,7 +1536,11 @@ function ImportDataFileSelect(event) {
 				$.each(rvDataSets, function (SpeciesIndex,rvds) {
 					//Process File
 					rvds.addCustomData($.csv.toObjects(result));
-					var customkeys = Object.keys(rvds.CustomData[0]);
+					if(rvds.CustomData.length >0){
+						var customkeys = Object.keys(rvds.CustomData[0]);
+					} else {
+						var customkeys =[];
+					}
 					if ($.inArray("DataDescription", customkeys) >= 0) {
 						$("#ImportDataFileDiv").find(".DataDescription").html(rvds.CustomData[0]["DataDescription"]);
 						$("#CustomDataBubbles").find(".dataBubble").attr("title",rvds.CustomData[0]["DataDescription"].replace(/(<([^>]+)>)/ig,""));
@@ -1633,7 +1638,11 @@ function customDataProcess(ui,targetLayer){
 	$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text("User File:").append($("<br>")).append(targetLayer.DataLabel);
 	targetLayer.clearData();
 	
-	var customkeys = Object.keys(rvDataSets[targetLayer.SetNumber].CustomData[0]);
+	if(rvDataSets[targetLayer.SetNumber].CustomData.length >0){
+		var customkeys = Object.keys(rvDataSets[targetLayer.SetNumber].CustomData[0]);
+	} else {
+		var customkeys =[];
+	}
 
 	NewData = CustomDataExpand(targetLayer);
 	targetLayer.Data = NewData.IncludeData;
@@ -1697,7 +1706,7 @@ function customDataProcess(ui,targetLayer){
 		} else if ($.inArray("FontWeight", customkeys) >= 0){
 			//Do nothing, maybe need more here later;
 		} else {
-			alert("No recognized columns found. Please check input.");
+			//alert("No recognized columns found. Please check input.");
 		}
 	}
 
@@ -1709,56 +1718,74 @@ function customDataProcess(ui,targetLayer){
 }
 
 function CustomProcessProteins(colors){
-	var rProtein=undefined;
-	var customkeys = Object.keys(rvDataSets[0].CustomData[0]);
-	var NewData = [];
-	var ColorProteins=new Array;
-	for (var ii = 0; ii < rvDataSets[0].CustomData.length; ii++) {
-		var command = rvDataSets[0].CustomData[ii]["resNum"];
-		var targetSelection = rvDataSets[0].Selections[0];
-		var rProtein = expandSelection([command], targetSelection.Name,0);
-		if (rProtein){
-			if ($.inArray("DataCol", customkeys) >= 0) {
-				ColorProteins.push({ResNum : rProtein, Color : undefined});
-				if (isNaN(parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]))){
-					NewData.push(rvDataSets[0].CustomData[ii]["DataCol"]);
-				} else {
-					NewData.push(parseFloat(rvDataSets[0].CustomData[ii]["DataCol"]));
+	//var rProtein=undefined;
+
+	$.each(rvDataSets, function(index,rvds){
+		var NewData = [];
+		var ColorProteins=new Array;
+		for (var ii = 0; ii < rvds.CustomData.length; ii++) {
+			var customkeys = Object.keys(rvds.CustomData[ii]);
+			// Assume proteins are single. Come back and add range support sometime.
+			//var command = rvds.CustomData[ii]["resNum"];
+
+			//var rProtein = expandSelection([command], targetSelection.Name,0);
+
+			var targetSelection = rvds.Selections[0];
+			var rProtein = rvds.CustomData[ii]["resNum"];
+			if (rProtein){
+				if ($.inArray("DataCol", customkeys) >= 0) {
+					ColorProteins.push({ResNum : rProtein, Color : undefined});
+					if (isNaN(parseFloat(rvds.CustomData[ii]["DataCol"]))){
+						NewData.push(rvds.CustomData[ii]["DataCol"]);
+					} else {
+						NewData.push(parseFloat(rvds.CustomData[ii]["DataCol"]));
+					}
+				} else if ($.inArray("ColorCol", customkeys) >= 0) {
+					ColorProteins.push({ResNum : rProtein, Color : rvds.CustomData[ii]["ColorCol"]});
 				}
-			} else if ($.inArray("ColorCol", customkeys) >= 0) {
-				ColorProteins.push({ResNum : rProtein, Color : rvDataSets[0].CustomData[ii]["ColorCol"]});
 			}
 		}
-	}
-	var dataIndices = colorProcess(NewData,undefined,undefined,colors,undefined,true);
-	$.each(dataIndices, function (index,value){
-		ColorProteins[index]["Color"] = colors[value];
-	});
-	ColorProteins3D(ColorProteins);
-	rvDataSets[0].ColorProteins = rvDataSets[0].ColorProteins.concat(ColorProteins);
+		var dataIndices = colorProcess(NewData,undefined,undefined,colors,undefined,true);
+		$.each(dataIndices, function (index,value){
+			ColorProteins[index]["Color"] = colors[value];
+		});
+		ColorProteins3D(ColorProteins);
+		rvds.ColorProteins = rvds.ColorProteins.concat(ColorProteins);
+	})
 }
 
-function ColorProteinsPyMOL(PDB_Obj_Names){
-	var ColorProteins = rvDataSets[0].ColorProteins;
-	if (rvDataSets[0].Residues[0] == undefined){return};
-	
+function ColorProteinsPyMOL(){
 	var script = "";
 	
-	// Protein Section
-	for (var jj = 0; jj < rvDataSets[0].SpeciesEntry.Molecule_Names_rProtein.length; jj++) {
-		script += "copy " + rvDataSets[0].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[0].SpeciesEntry.Molecule_Names_rProtein[jj].replace(/\(/g, "_").replace(/\)/g, "") + "_custom, " + rvDataSets[0].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[0].SpeciesEntry.Molecule_Names_rProtein[jj].replace(/\(/g, "_").replace(/\)/g, "") + "\n";
-	}
-	
-	$.each(ColorProteins, function (index,value){
-		var ressplit = value.ResNum.split("_");
-		if (ressplit[0] !== "undefined"){
-			var curr_color = value.Color;
-				var h = rvDataSets[0].SpeciesEntry.PDB_chains_rProtein.indexOf(ressplit[0]);
-					script += "color " + curr_color.replace("#", "0x") + ", " + rvDataSets[0].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[0].SpeciesEntry.Molecule_Names_rProtein[h].replace(/\(/g,"_").replace(/\)/g,"") + "_custom" +
-						" and resi " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "\n";
+	$.each(rvDataSets, function(index,rvds){
+		var ColorProteins = rvds.ColorProteins;
+		if (rvds.Residues[0] == undefined){return};
+		
+		
+		
+		// Protein Section
+		for (var jj = 0; jj < rvds.SpeciesEntry.Molecule_Names_rProtein.length; jj++) {
+			script += "copy " + rvds.SpeciesEntry.Species_Abr + "_rp_" 
+				+ rvds.SpeciesEntry.Molecule_Names_rProtein[jj].replace(/\(/g, "_").replace(/\)/g, "") 
+				+ "_custom, " + rvds.SpeciesEntry.Species_Abr + "_rp_" 
+				+ rvds.SpeciesEntry.Molecule_Names_rProtein[jj].replace(/\(/g, "_").replace(/\)/g, "") 
+				+ "\n";
 		}
-	});
-	
+		
+		$.each(ColorProteins, function (index,value){
+			var ressplit = value.ResNum.split(":");
+			if (ressplit[0] !== "undefined"){
+				var curr_color = value.Color;
+				//var h = rvds.SpeciesEntry.Molecule_Names_rProtein.indexOf(ressplit[0]);
+				script += "color " + curr_color.replace("#", "0x") + ", " 
+					+ rvds.SpeciesEntry.Species_Abr + "_rp_" 
+					+ ressplit[0].replace(/\(/g,"_").replace(/\)/g,"") 
+					+ "_custom" 
+					+ " and resi " + ressplit[1].replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') + "\n";
+			}
+		});
+	})
+
 	script += "\ndisable *rp*\n";
 	return script;
 }
@@ -1779,7 +1806,11 @@ function CustomDataExpand(targetLayer){
 	});
 
 	var ExtraData = [];
-	var customkeys = Object.keys(rvDataSets[targetLayer.SetNumber].CustomData[0]);
+	if(rvDataSets[targetLayer.SetNumber].CustomData.length >0){
+		var customkeys = Object.keys(rvDataSets[targetLayer.SetNumber].CustomData[0]);
+	} else {
+		var customkeys =[];
+	}
 	if($.inArray("resNum", customkeys) >= 0){
 		for (var ii = 0; ii < rvDataSets[targetLayer.SetNumber].CustomData.length; ii++) {
 			var command = rvDataSets[targetLayer.SetNumber].CustomData[ii]["resNum"].split(";");
@@ -2078,14 +2109,22 @@ function savePDF() {
 function savePML() {
 	AgreeFunction = function () {
 		var script = "";
-		var PDB_Obj_Names = [];
-		var PDB_files =[];
+		var structureName = rvDataSets[0].SpeciesEntry.Species_Abr
+		//var PDB_Obj_Names = [];
+		//var PDB_files =[];
 		
 		//Default option
 		script += "set bg_rgb, white\n";
+		//mmCif File. Assume first and second structure (subunits) come from the same cif file. 
+		script += "load " + rvDataSets[0].SpeciesEntry.StructureName + ".cif, " + structureName + "\n";
+		//script += "as cartoon, " + PDB_Obj_Names[0] + "\n";
+		script += "disable " + structureName + "\n";
+		
 		$.each(rvDataSets, function(SpeciesIndex,rvds){
-			//PDB Files
+
+			/*
 			var pdb_files = [rvds.SpeciesEntry.PDB_File_rRNA, rvds.SpeciesEntry.PDB_File_rProtein];
+			
 			if (pdb_files[1] === pdb_files[0]) {
 				PDB_Obj_Names[0] = rvds.SpeciesEntry.Species_Abr + "_" + rvds.SpeciesEntry.Subunit + "_Full";
 				PDB_Obj_Names[1] = PDB_Obj_Names[0];
@@ -2103,25 +2142,26 @@ function savePML() {
 				script += "disable " + PDB_Obj_Names[1] + "\n";
 			}
 			PDB_files=PDB_files.concat(pdb_files);
+			*/
 			script += "\n";
 			// Layers to PyMOL
 			var dsLayers = rvds.getLayerByType(["residues","circles","contour","selected"]);
 			$.each(dsLayers, function (key, value) {
-				script += layerToPML(PDB_Obj_Names,value,SpeciesIndex);
+				script += layerToPML(structureName,value,SpeciesIndex);
 			});
 			script += "\n";
 			
 			//Proteins to PyMOL
-			script += proteinsToPML(PDB_Obj_Names,SpeciesIndex);
+			script += proteinsToPML(structureName,SpeciesIndex);
 			script += "\n";
 			
 			//Proteins to PyMOL (Custom)
-			script += ColorProteinsPyMOL(PDB_Obj_Names);
+			script += ColorProteinsPyMOL();
 			script += "\n";
 			
 			//Selection to PyMOL
 			$.each(rvds.Selections, function (key, value) {
-				script += selectionToPML(PDB_Obj_Names,value,SpeciesIndex);
+				script += selectionToPML(structureName,value,SpeciesIndex);
 			});
 			script += "\ndisable RV_Sele_*\n";
 			
@@ -2140,13 +2180,13 @@ function savePML() {
 		hiddenField.setAttribute("value", script);
 		form.appendChild(hiddenField);
 		
-		PDB_filesU = $.grep(PDB_files, function (v, k) {
-			return $.inArray(v, PDB_files) === k;
-		});
+		// PDB_filesU = $.grep(PDB_files, function (v, k) {
+			// return $.inArray(v, PDB_files) === k;
+		// });
 		var hiddenField2 = document.createElement("input");
 		hiddenField2.setAttribute("type", "hidden");
 		hiddenField2.setAttribute("name", "pdbfiles");
-		hiddenField2.setAttribute("value", PDB_filesU);
+		hiddenField2.setAttribute("value",  rvDataSets[0].SpeciesEntry.StructureName + '.cif');
 		form.appendChild(hiddenField2);
 		
 		document.body.appendChild(form);
@@ -2245,22 +2285,26 @@ function layerToPML(PDB_Obj_Names,targetLayer,SpeciesIndex) {
 	return script;
 }
 
-function proteinsToPML(PDB_Obj_Names,SpeciesIndex){
+function proteinsToPML(structureName,SpeciesIndex){
 	var script = "";
 	var curr_color;
 	// Protein Section
 	for (var jj = 0; jj < rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names_rProtein.length; jj++) {
-		script += "create " + rvDataSets[SpeciesIndex].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names_rProtein[jj].replace(/\(/g, "_").replace(/\)/g, "") + ", " + PDB_Obj_Names[1] + " and chain " + rvDataSets[SpeciesIndex].SpeciesEntry.PDB_chains_rProtein[jj].replace(/\(/g, "_").replace(/\)/g, "") + "\n";
+
+		script += "create " + rvDataSets[SpeciesIndex].SpeciesEntry.Species_Abr + "_rp_" 
+		+ rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names_rProtein[jj].replace(/\(/g, "_").replace(/\)/g, "") 
+		+ ", " + structureName + " and chain " + rvDataSets[SpeciesIndex].SpeciesEntry.PDB_chains_rProtein[jj].replace(/\(/g, "_").replace(/\)/g, "") 
+		+ "\n";
 	}
-	script += "\ndisable *rp*\n";
-	script += "color wheat, *rp*\n";
+	script += "\ndisable *_rp_*\n";
+	script += "color wheat, *_rp_*\n";
 	
 	var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
 			return this.value;
 		}).get();
 	
 	for (jjj = 0; jjj < array_of_checked_values.length; jjj++) {
-		var h = rvDataSets[SpeciesIndex].SpeciesEntry.internal_protein_names.indexOf(array_of_checked_values[jjj]);
+		var h = rvDataSets[SpeciesIndex].SpeciesEntry.SubunitProtChains[2].indexOf(array_of_checked_values[jjj]);
 		var ProtName = $.grep($("#ProtList").multiselect("getChecked"), function(e) {
 			return e.value == array_of_checked_values[jjj];
 		});
@@ -2271,14 +2315,14 @@ function proteinsToPML(PDB_Obj_Names,SpeciesIndex){
 			} else {
 				curr_color = curr_color.replace("#", "0x");
 			}
-			script += "color " + curr_color + ", " + rvDataSets[SpeciesIndex].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names_rProtein[h].replace(/\(/g,"_").replace(/\)/g,"") + "\n";
-			script += "enable " + rvDataSets[SpeciesIndex].SpeciesEntry.Species_Abr + "_" + "rp" + rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names_rProtein[h].replace(/\(/g,"_").replace(/\)/g,"") + "\n";
+			script += "color " + curr_color + ", " + rvDataSets[SpeciesIndex].SpeciesEntry.Species_Abr + "_rp_" + rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names_rProtein[h].replace(/\(/g,"_").replace(/\)/g,"") + "\n";
+			script += "enable " + rvDataSets[SpeciesIndex].SpeciesEntry.Species_Abr + "_rp_" + rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names_rProtein[h].replace(/\(/g,"_").replace(/\)/g,"") + "\n";
 		}
 	}
 	return script;
 }
 
-function selectionToPML(PDB_Obj_Names,targetSelection,SpeciesIndex){
+function selectionToPML(structureName,targetSelection,SpeciesIndex){
 	var script = "";
 	var PyMOL_obj = "RV_Sele_" + targetSelection.Name;
 	var r0,r1,curr_chain;
@@ -2315,9 +2359,9 @@ function selectionToPML(PDB_Obj_Names,targetSelection,SpeciesIndex){
 					}
 					
 					if (r0 === r1){
-						script += "create " + PyMOL_obj + ", " + PyMOL_obj + " or (" + PDB_Obj_Names[0] + " and chain " + curr_chain + " and resi " + r0 + ")\n";
+						script += "create " + PyMOL_obj + ", " + PyMOL_obj + " or (" + structureName + " and chain " + curr_chain + " and resi " + r0 + ")\n";
 					} else {
-						script += "create " + PyMOL_obj + ", " + PyMOL_obj + " or (" + PDB_Obj_Names[0] + " and chain " + curr_chain + " and resi " + r0 + "-" + r1 + ")\n";
+						script += "create " + PyMOL_obj + ", " + PyMOL_obj + " or (" + structureName + " and chain " + curr_chain + " and resi " + r0 + "-" + r1 + ")\n";
 					}
 											
 					r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
@@ -2329,7 +2373,7 @@ function selectionToPML(PDB_Obj_Names,targetSelection,SpeciesIndex){
 		}
 	}
 	if(!DoneNow){
-		script += "create " + PyMOL_obj + ", " + PyMOL_obj + " or (" + PDB_Obj_Names[0] + " and chain " + curr_chain + " and resi " + r0 + ")\n";
+		script += "create " + PyMOL_obj + ", " + PyMOL_obj + " or (" + structureName + " and chain " + curr_chain + " and resi " + r0 + ")\n";
 	}
 	script += "color " + targetSelection.Color.replace("#", "0x") + ", " + PyMOL_obj + "\n\n";
 	return script;
