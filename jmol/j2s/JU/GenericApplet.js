@@ -299,12 +299,12 @@ return (this.b$.get (type) != null);
 }, "J.c.CBK");
 Clazz.defineMethod (c$, "notifyCallback", 
 function (type, data) {
-var callback = this.b$.get (type);
-var doCallback = (callback != null && (data == null || data[0] == null));
+var callback = (type == null ? null : this.b$.get (type));
+var doCallback = (type == null || callback != null && (data == null || data[0] == null));
 var toConsole = false;
 if (data != null) data[0] = this.htmlName;
 var strInfo = (data == null || data[1] == null ? null : data[1].toString ());
-switch (type) {
+if (type != null) switch (type) {
 case J.c.CBK.APPLETREADY:
 data[3] = this.appletObject;
 break;
@@ -405,7 +405,10 @@ throw e;
 }, "J.c.CBK,~A");
 Clazz.defineMethod (c$, "sendScript", 
  function (script, appletName, isSync, doCallback) {
-if (doCallback) {
+if ("audio:" === appletName) {
+this.playAudio (script);
+return "";
+}if (doCallback) {
 script = this.notifySync (script, appletName);
 if (script == null || script.length == 0 || script.equals ("0")) return "";
 }var apps =  new JU.Lst ();
@@ -441,6 +444,11 @@ throw e;
 }
 return (isSync ? "" : sb.toString ());
 }, "~S,~S,~B,~B");
+Clazz.defineMethod (c$, "playAudio", 
+function (fileOrDataURI) {
+{
+Jmol._playAudio(fileNameOrDataURI);
+}}, "~S");
 Clazz.defineMethod (c$, "notifySync", 
  function (info, appletName) {
 var syncCallback = this.b$.get (J.c.CBK.SYNC);

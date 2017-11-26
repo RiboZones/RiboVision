@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JU");
-Clazz.load (null, "JU.JSJSONParser", ["java.lang.Boolean", "$.Float", "java.util.HashMap", "$.Hashtable", "JU.JSONException", "$.Lst", "$.SB"], function () {
+Clazz.load (null, "JU.JSJSONParser", ["java.lang.Boolean", "$.Float", "java.util.Hashtable", "JU.JSONException", "$.Lst", "$.SB"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.str = null;
 this.index = 0;

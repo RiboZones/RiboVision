@@ -72,9 +72,9 @@ return true;
 }if (this.line.startsWith ("[CELLAXES]")) {
 var f =  Clazz.newFloatArray (9, 0);
 this.fillFloatArray (null, 0, f);
-this.addPrimitiveLatticeVector (0, f, 0);
-this.addPrimitiveLatticeVector (1, f, 3);
-this.addPrimitiveLatticeVector (2, f, 6);
+this.addExplicitLatticeVector (0, f, 0);
+this.addExplicitLatticeVector (1, f, 3);
+this.addExplicitLatticeVector (2, f, 6);
 return true;
 }return false;
 });

@@ -1,4 +1,5 @@
 (function(Clazz
+,Clazz_getClassName
 ,Clazz_newLongArray
 ,Clazz_doubleToByte
 ,Clazz_doubleToInt
@@ -42,6 +43,7 @@
 ,Clazz_getInheritedLevel
 ,Clazz_getParamsType
 ,Clazz_isAF
+,Clazz_isAB
 ,Clazz_isAI
 ,Clazz_isAS
 ,Clazz_isASS
@@ -134,7 +136,7 @@ return false;
 Clazz_defineMethod (c$, "deleteIntegral", 
  function () {
 if (!this.checkSelectedIntegral ()) return;
-this.xyData.remove (this.iSelected);
+this.xyData.removeItemAt (this.iSelected);
 this.iSelected = -1;
 this.iRowColSelected = -1;
 this.applyFromFields ();
@@ -157,6 +159,7 @@ return JSV.dialog.PeakListDialog.posXY;
 Clazz_defineMethod (c$, "addUniqueControls", 
 function () {
 this.txt1 = this.dialog.addTextField ("txtThreshold", "Threshold", null, "", "", true);
+this.dialog.setPreferredSize (780, 350);
 this.setThreshold (NaN);
 this.combo1 = this.dialog.addSelectOption ("cmbInterpolation", "Interpolation",  Clazz_newArray (-1, ["parabolic", "none"]), 0, true);
 });
@@ -243,7 +246,7 @@ this.viewSelectedButton = this.dialog.addButton ("btnViewSelected", "View Select
 this.combineSelectedButton = this.dialog.addButton ("btnCombineSelected", "Combine Selected");
 this.closeSelectedButton = this.dialog.addButton ("btnCloseSelected", "Close Selected");
 this.dialog.addButton ("btnDone", "Done");
-this.dialog.setPreferredSize (500, 350);
+this.dialog.setPreferredSize (800, 350);
 this.txt1 = this.dialog.addCheckBox (null, null, 0, false);
 this.addCheckBoxes (this.vwr.spectraTree.getRootNode (), 0, true);
 this.addCheckBoxes (this.vwr.spectraTree.getRootNode (), 0, false);
@@ -427,6 +430,7 @@ var scrollPane =  new javajs.swing.JScrollPane (table);
 dialog.getContentPane ().add (scrollPane);
 dialog.pack ();
 dialog.setVisible (true);
+dialog.toFront ();
 }, "~O,JSV.common.Spectrum");
 Clazz_overrideMethod (c$, "showMessage", 
 function (frame, text, title) {
@@ -443,6 +447,7 @@ pane.setText (text);
 }dialog.getContentPane ().add (pane);
 dialog.pack ();
 dialog.setVisible (true);
+dialog.toFront ();
 }, "~O,~S,~S");
 Clazz_defineMethod (c$, "actionPerformed", 
 function (eventId) {
@@ -495,18 +500,18 @@ if (currentSource == null) {
 this.showMessageDialog (frame, "Please Select a Spectrum.", "Select Spectrum", 2);
 return;
 }var errorLog = currentSource.getErrorLog ();
-if (errorLog != null && errorLog.length > 0) this.showMessage (frame, errorLog, currentSource.getFilePath ());
+if (errorLog != null && errorLog.length > 0) this.showMessage (frame, errorLog, JSV.dialog.DialogManager.fixTitle (currentSource.getFilePath ()));
  else this.showMessageDialog (frame, "No errors found.", "Error Log", 1);
 }, "~O,JSV.source.JDXSource");
 Clazz_defineMethod (c$, "showSource", 
-function (frame, f) {
-if (f == null) {
+function (frame, filePath) {
+if (filePath == null) {
 this.showMessageDialog (frame, "Please Select a Spectrum", "Select Spectrum", 2);
 return;
 }try {
-var s = JSV.common.JSVFileManager.getFileAsString (f);
+var s = JSV.common.JSVFileManager.getFileAsString (filePath);
 if (this.vwr.isJS) s = JU.PT.rep (s, "<", "&lt;");
-this.showMessage (null, s, f);
+this.showMessage (null, s, JSV.dialog.DialogManager.fixTitle (filePath));
 } catch (ex) {
 if (Clazz_exceptionOf (ex, Exception)) {
 this.showMessageDialog (frame, "File Not Found", "SHOWSOURCE", 0);
@@ -545,6 +550,10 @@ function () {
 if (this.options == null) this.options =  new java.util.Hashtable ();
 return this.options;
 });
+c$.fixTitle = Clazz_defineMethod (c$, "fixTitle", 
+function (title) {
+return (title.length > 50 ? title.substring (0, 50) + "..." : title);
+}, "~S");
 Clazz_defineStatics (c$,
 "PLAIN_MESSAGE", -1,
 "ERROR_MESSAGE", 0,
@@ -654,7 +663,6 @@ this.tableCellAlignLeft = false;
 this.haveTwoPanels = true;
 this.buttonInsets = null;
 this.panelInsets = null;
-this.$defaultHeight = 350;
 this.selectedRow = -1;
 Clazz_instantialize (this, arguments);
 }, JSV.js2d, "JsDialog", javajs.swing.JDialog, JSV.api.PlatformDialog);
@@ -665,6 +673,7 @@ this.panelInsets =  new javajs.swing.Insets (0, 0, 2, 2);
 Clazz_makeConstructor (c$, 
 function (manager, jsvDialog, registryKey) {
 Clazz_superConstructor (this, JSV.js2d.JsDialog);
+this.defaultHeight = 350;
 this.manager = manager;
 this.registryKey = registryKey;
 this.optionKey = jsvDialog.optionKey;
@@ -672,22 +681,17 @@ this.type = jsvDialog.getAType ();
 this.options = jsvDialog.options;
 if (this.options == null) this.options =  new java.util.Hashtable ();
 this.getContentPane ().setBackground (javajs.awt.Color.get3 (230, 230, 230));
-this.setFront ();
+this.toFront ();
 }, "JSV.dialog.DialogManager,JSV.dialog.JSVDialog,~S");
 Clazz_defineMethod (c$, "onFocus", 
 function () {
-this.setFront ();
+this.toFront ();
 });
 Clazz_overrideMethod (c$, "setFocus", 
 function (tf) {
 if (tf) {
-this.setFront ();
+this.toFront ();
 }}, "~B");
-Clazz_defineMethod (c$, "setFront", 
- function () {
-{
-SwingController.setFront(this);
-}});
 Clazz_overrideMethod (c$, "addButton", 
 function (name, text) {
 var btn =  new javajs.swing.JButton ();
@@ -750,7 +754,7 @@ this.addPanelLine (name, label, obj, units);
 Clazz_overrideMethod (c$, "createTable", 
 function (data, header, widths) {
 try {
-var scrollPane =  new javajs.swing.JScrollPane (this.dataTable = this.getDataTable (data, header, widths, (this.leftPanel == null ? this.$defaultHeight : this.leftPanel.getHeight () - 50)));
+var scrollPane =  new javajs.swing.JScrollPane (this.dataTable = this.getDataTable (data, header, widths, (this.leftPanel == null ? this.defaultHeight : this.leftPanel.getHeight () - 50)));
 if (this.mainSplitPane == null) {
 this.getContentPane ().add (scrollPane);
 } else {
@@ -880,6 +884,7 @@ return this.tableCellAlignLeft ? 2 : column == 0 ? 0 : 4;
 Clazz_declarePackage ("JSV.api");
 Clazz_declareInterface (JSV.api, "PlatformDialog");
 })(Clazz
+,Clazz.getClassName
 ,Clazz.newLongArray
 ,Clazz.doubleToByte
 ,Clazz.doubleToInt
@@ -923,6 +928,7 @@ Clazz_declareInterface (JSV.api, "PlatformDialog");
 ,Clazz.getInheritedLevel
 ,Clazz.getParamsType
 ,Clazz.isAF
+,Clazz.isAB
 ,Clazz.isAI
 ,Clazz.isAS
 ,Clazz.isASS

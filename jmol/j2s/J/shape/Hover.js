@@ -57,10 +57,6 @@ this.atomFormats = JU.AU.deleteElements (this.atomFormats, firstAtomDeleted, nAt
 return;
 }this.setPropTS (propertyName, value, null);
 }, "~S,~O,JU.BS");
-Clazz.overrideMethod (c$, "getShapeState", 
-function () {
-return this.vwr.getShapeState (this);
-});
 Clazz.defineStatics (c$,
 "FONTFACE", "SansSerif",
 "FONTSTYLE", "Plain",

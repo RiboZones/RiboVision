@@ -45,6 +45,7 @@ Clazz.defineMethod (c$, "setVisible",
 function (tf) {
 if (tf && this.html == null) this.setDialog ();
 Clazz.superCall (this, javajs.swing.JDialog, "setVisible", [tf]);
+if (tf) this.toFront ();
 }, "~B");
 Clazz.defineMethod (c$, "dispose", 
 function () {
@@ -64,9 +65,9 @@ SwingController.setDialog(this);
 }});
 Clazz.overrideMethod (c$, "toHTML", 
 function () {
-this.renderWidth = this.getSubcomponentWidth ();
+this.renderWidth = Math.max (this.width, this.getSubcomponentWidth ());
 if (this.renderWidth == 0) this.renderWidth = this.defaultWidth;
-this.renderHeight = this.contentPane.getSubcomponentHeight ();
+this.renderHeight = Math.max (this.height, this.contentPane.getSubcomponentHeight ());
 if (this.renderHeight == 0) this.renderHeight = this.defaultHeight;
 var h = this.renderHeight - 25;
 var sb =  new JU.SB ();
@@ -77,6 +78,11 @@ sb.append (this.contentPane.toHTML ());
 sb.append ("\n</div></div>\n");
 return sb.toString ();
 });
+Clazz.defineMethod (c$, "toFront", 
+function () {
+{
+SwingController.setFront(this);
+}});
 Clazz.defineStatics (c$,
 "headerHeight", 25);
 });

@@ -44,9 +44,7 @@ Clazz.instantialize (this, arguments);
 }, JSV.source, "JDXDataObject", JSV.source.JDXHeader);
 Clazz.defineMethod (c$, "setFilePath", 
 function (filePath) {
-if (filePath == null) return;
-this.filePath = filePath.trim ();
-this.filePathForwardSlash = this.filePath.$replace ('\\', '/');
+if (filePath != null) this.filePathForwardSlash = (this.filePath = filePath.trim ()).$replace ('\\', '/');
 }, "~S");
 Clazz.defineMethod (c$, "getFilePath", 
 function () {
@@ -327,6 +325,16 @@ Clazz.defineMethod (c$, "setXYCoords",
 function (coords) {
 this.xyCoords = coords;
 }, "~A");
+Clazz.defineMethod (c$, "invertYAxis", 
+function () {
+for (var i = this.xyCoords.length; --i >= 0; ) {
+this.xyCoords[i].setYVal (-this.xyCoords[i].getYVal ());
+}
+var d = this.minY;
+this.minY = -this.maxY;
+this.maxY = -d;
+return this;
+});
 Clazz.defineMethod (c$, "getFirstX", 
 function () {
 return this.xyCoords[0].getXVal ();

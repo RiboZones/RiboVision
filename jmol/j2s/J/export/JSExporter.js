@@ -61,7 +61,7 @@ var o;
 if (found) o = this.htObjects.get (this.ret[0]);
  else this.htObjects.put (this.ret[0], o =  Clazz.newArray (-1, [this.getColor (colix), Float.$valueOf (radius)]));
 this.jsSphere (this.html5Applet, this.ret[0], !found, ptCenter, o);
-}, "JU.T3,~N,~N,~B");
+}, "JU.P3,~N,~N,~B");
 Clazz.overrideMethod (c$, "outputCylinder", 
 function (ptCenter, pt1, pt2, colix, endcaps, radius, ptX, ptY, checkRadius) {
 if (ptX != null) return false;
@@ -88,10 +88,10 @@ Clazz.defineMethod (c$, "getColor",
 return Integer.$valueOf (this.gdata.getColorArgbOrGray (colix));
 }, "~N");
 Clazz.overrideMethod (c$, "outputSurface", 
-function (vertices, normals, vertexColixes, indices, polygonColixes, nVertices, nPolygons, nFaces, bsPolygons, faceVertexMax, colix, colorList, htColixes, offset) {
+function (vertices, normals, vertexColixes, indices, polygonColixes, nVertices, nPolygons, nTriangles, bsPolygons, faceVertexMax, colix, colorList, htColixes, offset) {
 var vertexColors = this.getColors (vertexColixes);
 var polygonColors = this.getColors (polygonColixes);
-this.jsSurface (this.html5Applet, vertices, normals, indices, nVertices, nPolygons, nFaces, bsPolygons, faceVertexMax, this.gdata.getColorArgbOrGray (colix), vertexColors, polygonColors);
+this.jsSurface (this.html5Applet, vertices, normals, indices, nVertices, nPolygons, nTriangles, bsPolygons, faceVertexMax, this.gdata.getColorArgbOrGray (colix), vertexColors, polygonColors);
 }, "~A,~A,~A,~A,~A,~N,~N,~N,JU.BS,~N,~N,JU.Lst,java.util.Map,JU.P3");
 Clazz.overrideMethod (c$, "outputTriangle", 
 function (pt1, pt2, pt3, colix) {

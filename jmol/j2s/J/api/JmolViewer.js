@@ -34,6 +34,10 @@ c$.getJmolVersion = Clazz.defineMethod (c$, "getJmolVersion",
 function () {
 return JV.Viewer.getJmolVersion ();
 });
+Clazz.defineMethod (c$, "openReader", 
+function (fullPathName, reader) {
+return this.openReader (fullPathName == null ? "String" : fullPathName, null, reader);
+}, "~S,~O");
 Clazz.defineMethod (c$, "openFileAsync", 
 function (fileName) {
 this.openFileAsyncSpecial (fileName, 0);
@@ -42,6 +46,10 @@ Clazz.defineMethod (c$, "renderScreenImage",
 function (g, currentSize, rectClip) {
 this.apiPlatform.renderScreenImage (g, currentSize);
 }, "~O,~O,~O");
+Clazz.defineMethod (c$, "runScriptCautiously", 
+function (script) {
+return null;
+}, "~S");
 Clazz.defineMethod (c$, "dispose", 
 function () {
 });

@@ -78,6 +78,7 @@ this.vib = v;
 this.vib.modScale = 1;
 this.mxyz =  new JU.V3 ();
 this.axesLengths = symmetry.getUnitCellParams ();
+if (this.axesLengths == null) this.axesLengths = symmetry.getUnitCellParams ();
 }var vR00 = JU.Matrix.newT (r00, true);
 var vR0 = JU.Matrix.newT (r0, true);
 this.rsvs = symmetry.getOperationRsVs (iop);
@@ -85,7 +86,6 @@ this.gammaIinv = this.rsvs.getSubmatrix (3, 3, d, d).inverse ();
 var gammaM = this.rsvs.getSubmatrix (3, 0, d, 3);
 var sI = this.rsvs.getSubmatrix (3, 3 + d, d, 1);
 this.spinOp = symmetry.getSpinOp (iop);
-System.out.println ("spinOp " + iop + " " + this.strop + " " + this.spinOp);
 this.tau = this.gammaIinv.mul (this.sigma.mul (vR0).sub (gammaM.mul (vR00)).sub (sI));
 if (JU.Logger.debuggingHigh) JU.Logger.debug ("MODSET create " + id + " r0=" + JU.Escape.eP (r0) + " tau=" + this.tau);
 return this;
@@ -162,19 +162,19 @@ this.ptTemp.scale (this.$scale * scale);
 if (a != null) {
 this.symmetry.toCartesian (this.ptTemp, true);
 a.add (this.ptTemp);
-}if (this.mxyz != null) this.setVib (isReset);
+}if (this.mxyz != null) this.setVib (isReset, scale);
 }, "JU.T3,~N");
 Clazz.defineMethod (c$, "setVib", 
- function (isReset) {
+ function (isReset, scale) {
 this.vib.setT (this.v0);
 if (isReset) return;
 this.ptTemp.setT (this.mxyz);
-this.ptTemp.scale (this.$scale * this.$scale);
+this.ptTemp.scale (this.$scale * scale);
 this.symmetry.toCartesian (this.ptTemp, true);
 JU.PT.fixPtFloats (this.ptTemp, 10000.0);
 this.ptTemp.scale (this.vib.modScale);
 this.vib.add (this.ptTemp);
-}, "~B");
+}, "~B,~N");
 Clazz.overrideMethod (c$, "getState", 
 function () {
 var s = "";

@@ -15,6 +15,7 @@ this.convertedSpectrum = null;
 this.userYFactor = 1;
 this.exportXAxisLeftToRight = false;
 this.fillColor = null;
+this.imageView = null;
 Clazz.instantialize (this, arguments);
 }, JSV.common, "Spectrum", JSV.source.JDXDataObject);
 Clazz.prepareFields (c$, function () {
@@ -136,7 +137,12 @@ return (this.selectedPeak != null ? this.selectedPeak.getTitle () : this.highlig
 Clazz.defineMethod (c$, "getTitleLabel", 
 function () {
 var type = (this.peakList == null || this.peakList.size () == 0 ? this.getQualifiedDataType () : this.peakList.get (0).getType ());
-return (type != null && type.length > 0 ? type + " " : "") + this.getTitle ();
+if (type != null && type.startsWith ("NMR")) {
+if (this.nucleusY != null && !this.nucleusY.equals ("?")) {
+type = "2D" + type;
+} else {
+type = this.nucleusX + type;
+}}return (type != null && type.length > 0 ? type + " " : "") + this.getTitle ();
 });
 Clazz.defineMethod (c$, "setNextPeak", 
 function (coord, istep) {
@@ -305,10 +311,13 @@ var info =  new java.util.Hashtable ();
 if ("id".equalsIgnoreCase (key)) {
 info.put (key, this.id);
 return info;
+}var keys = null;
+if ("".equals (key)) {
+keys = "id specShift header";
 }info.put ("id", this.id);
 JSV.common.Parameters.putInfo (key, info, "specShift", Double.$valueOf (this.specShift));
 var justHeader = ("header".equals (key));
-if (!justHeader && key != null) {
+if (!justHeader && key != null && keys == null) {
 for (var i = this.headerTable.size (); --i >= 0; ) {
 var entry = this.headerTable.get (i);
 if (entry[0].equalsIgnoreCase (key) || entry[2].equalsIgnoreCase (key)) {
@@ -319,7 +328,10 @@ return info;
 var list = this.getHeaderRowDataAsArray ();
 for (var i = 0; i < list.length; i++) {
 var label = JSV.source.JDXSourceStreamTokenizer.cleanLabel (list[i][0]);
-if (key != null && !justHeader && !label.equals (key)) continue;
+if (keys != null) {
+keys += " " + label;
+continue;
+}if (key != null && !justHeader && !label.equals (key)) continue;
 var val = JSV.common.Spectrum.fixInfoValue (list[i][1]);
 if (key == null) {
 var data =  new java.util.Hashtable ();
@@ -331,11 +343,15 @@ info.put (label, val);
 }}
 if (head.size () > 0) info.put ("header", head);
 if (!justHeader) {
+if (keys != null) {
+keys += "  titleLabel type isHZToPPM subSpectrumCount";
+} else {
 JSV.common.Parameters.putInfo (key, info, "titleLabel", this.getTitleLabel ());
 JSV.common.Parameters.putInfo (key, info, "type", this.getDataType ());
 JSV.common.Parameters.putInfo (key, info, "isHZToPPM", Boolean.$valueOf (this.$isHZtoPPM));
 JSV.common.Parameters.putInfo (key, info, "subSpectrumCount", Integer.$valueOf (this.subSpectra == null ? 0 : this.subSpectra.size ()));
-}return info;
+}}if (keys != null) info.put ("KEYS", keys);
+return info;
 }, "~S");
 c$.fixInfoValue = Clazz.defineMethod (c$, "fixInfoValue", 
  function (info) {

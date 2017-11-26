@@ -9,7 +9,6 @@ this.faceMap = null;
 this.v3temp = null;
 this.scrTemp = null;
 this.dotScale = 0;
-this.testRadiusAdjust = 0;
 Clazz.instantialize (this, arguments);
 }, J.renderspecial, "DotsRenderer", J.render.ShapeRenderer);
 Clazz.prepareFields (c$, function () {
@@ -42,8 +41,11 @@ var atom = this.ms.at[i];
 var map = maps[i];
 if (map == null || !this.isVisibleForMe (atom) || !this.g3d.isInDisplayRange (atom.sX, atom.sY)) continue;
 try {
-var radius = dots.ec.getAppropriateRadius (i) + this.testRadiusAdjust;
-var nPoints = 0;
+var radius = dots.ec.getAppropriateRadius (i);
+if (this.iShowSolid && this.exportType == 1) {
+this.g3d.drawAtom (atom, radius);
+continue;
+}var nPoints = 0;
 var j = 0;
 var iDot = Math.min (map.size (), this.screenDotCount);
 while (--iDot >= 0) {

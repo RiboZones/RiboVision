@@ -36,18 +36,18 @@ if (currentSource == null) {
 this.showMessageDialog (frame, "Please Select a Spectrum.", "Select Spectrum", 2);
 return;
 }var errorLog = currentSource.getErrorLog ();
-if (errorLog != null && errorLog.length > 0) this.showMessage (frame, errorLog, currentSource.getFilePath ());
+if (errorLog != null && errorLog.length > 0) this.showMessage (frame, errorLog, JSV.dialog.DialogManager.fixTitle (currentSource.getFilePath ()));
  else this.showMessageDialog (frame, "No errors found.", "Error Log", 1);
 }, "~O,JSV.source.JDXSource");
 Clazz.defineMethod (c$, "showSource", 
-function (frame, f) {
-if (f == null) {
+function (frame, filePath) {
+if (filePath == null) {
 this.showMessageDialog (frame, "Please Select a Spectrum", "Select Spectrum", 2);
 return;
 }try {
-var s = JSV.common.JSVFileManager.getFileAsString (f);
+var s = JSV.common.JSVFileManager.getFileAsString (filePath);
 if (this.vwr.isJS) s = JU.PT.rep (s, "<", "&lt;");
-this.showMessage (null, s, f);
+this.showMessage (null, s, JSV.dialog.DialogManager.fixTitle (filePath));
 } catch (ex) {
 if (Clazz.exceptionOf (ex, Exception)) {
 this.showMessageDialog (frame, "File Not Found", "SHOWSOURCE", 0);
@@ -86,6 +86,10 @@ function () {
 if (this.options == null) this.options =  new java.util.Hashtable ();
 return this.options;
 });
+c$.fixTitle = Clazz.defineMethod (c$, "fixTitle", 
+function (title) {
+return (title.length > 50 ? title.substring (0, 50) + "..." : title);
+}, "~S");
 Clazz.defineStatics (c$,
 "PLAIN_MESSAGE", -1,
 "ERROR_MESSAGE", 0,

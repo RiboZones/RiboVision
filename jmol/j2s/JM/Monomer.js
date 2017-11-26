@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JM");
-Clazz.load (["JM.Group"], "JM.Monomer", ["java.lang.Float", "JU.Measure", "$.P3", "$.Quat", "J.c.STR", "JM.ProteinStructure", "$.Resolver", "JU.Escape", "$.Logger", "JV.JC"], function () {
+Clazz.load (["JM.Group"], "JM.Monomer", ["java.lang.Float", "JU.Measure", "$.P3", "$.Quat", "J.c.STR", "JM.BioResolver", "$.ProteinStructure", "JU.Escape", "$.Logger", "JV.JC"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.bioPolymer = null;
 this.offsets = null;
@@ -10,6 +10,7 @@ this.omega = NaN;
 this.straightness = NaN;
 this.mu = NaN;
 this.theta = NaN;
+this.backboneBlockVis = false;
 Clazz.instantialize (this, arguments);
 }, JM, "Monomer", JM.Group);
 Clazz.makeConstructor (c$, 
@@ -342,7 +343,7 @@ return NaN;
 }, "~N");
 Clazz.overrideMethod (c$, "getGroup1", 
 function () {
-return (this.groupID < JM.Resolver.predefinedGroup1Names.length ? JM.Resolver.predefinedGroup1Names[this.groupID] : this.group1.charCodeAt (0) > 1 ? this.group1 : this.group1.charCodeAt (0) == 1 ? '?' : (this.group1 = this.getGroup1b ()));
+return (this.groupID < JM.BioResolver.predefinedGroup1Names.length ? JM.BioResolver.predefinedGroup1Names[this.groupID] : this.group1.charCodeAt (0) > 1 ? this.group1 : this.group1.charCodeAt (0) == 1 ? '?' : (this.group1 = this.getGroup1b ()));
 });
 Clazz.defineMethod (c$, "getGroup1b", 
 function () {
@@ -350,6 +351,6 @@ return '?';
 });
 Clazz.overrideMethod (c$, "setGroupID", 
 function (group3) {
-this.groupID = JM.Resolver.getGroupIdFor (group3);
+this.groupID = JM.BioResolver.getGroupIdFor (group3);
 }, "~S");
 });

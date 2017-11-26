@@ -83,6 +83,10 @@ Clazz.defineMethod (c$, "setID",
 function (id) {
 this.jdxSpectra.get (0).sourceID = id;
 }, "~S");
+Clazz.defineMethod (c$, "matchesFilePath", 
+function (filePath) {
+return this.filePath.equals (filePath) || this.filePath.$replace ('\\', '/').equals (filePath);
+}, "~S");
 Clazz.defineStatics (c$,
 "TYPE_VIEW", -2,
 "TYPE_UNKNOWN", -1,

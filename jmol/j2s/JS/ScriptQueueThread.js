@@ -13,7 +13,7 @@ this.scriptManager = scriptManager;
 this.vwr = vwr;
 this.startedByCommandThread = startedByCommandThread;
 this.pt = pt;
-}, "J.api.JmolScriptManager,JV.Viewer,~B,~N");
+}, "JS.ScriptManager,JV.Viewer,~B,~N");
 Clazz.overrideMethod (c$, "run1", 
 function (mode) {
 while (true) switch (mode) {
@@ -44,7 +44,7 @@ var returnType = scriptItem.get (2);
 var isQuiet = (scriptItem.get (3)).booleanValue ();
 if (JU.Logger.debugging) {
 JU.Logger.debug ("Queue[" + this.pt + "][" + queue.size () + "] scripts; running: " + script);
-}queue.remove (0);
+}queue.removeItemAt (0);
 this.vwr.evalStringWaitStatusQueued (returnType, script, statusList, isQuiet, true);
 if (queue.size () == 0) {
 return false;

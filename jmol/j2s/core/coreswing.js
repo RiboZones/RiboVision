@@ -1,4 +1,5 @@
 (function(Clazz
+,Clazz_getClassName
 ,Clazz_newLongArray
 ,Clazz_doubleToByte
 ,Clazz_doubleToInt
@@ -42,6 +43,7 @@
 ,Clazz_getInheritedLevel
 ,Clazz_getParamsType
 ,Clazz_isAF
+,Clazz_isAB
 ,Clazz_isAI
 ,Clazz_isAS
 ,Clazz_isASS
@@ -75,7 +77,7 @@ Clazz_defineStatics (c$,
 Clazz_declarePackage ("javajs.awt");
 Clazz_load (null, "javajs.awt.Component", ["JU.CU"], function () {
 c$ = Clazz_decorateAsClass (function () {
-this.visible = false;
+this._visible = false;
 this.enabled = true;
 this.text = null;
 this.name = null;
@@ -153,11 +155,11 @@ SwingController.setEnabled(this);
 }}, "~B");
 Clazz_defineMethod (c$, "isVisible", 
 function () {
-return this.visible;
+return this._visible;
 });
 Clazz_defineMethod (c$, "setVisible", 
 function (visible) {
-this.visible = visible;
+this._visible = visible;
 {
 SwingController.setVisible(this);
 }}, "~B");
@@ -236,7 +238,7 @@ return component;
 }, "javajs.awt.Component,~N");
 Clazz_defineMethod (c$, "remove", 
 function (i) {
-var c = this.list.remove (i);
+var c = this.list.removeItemAt (i);
 c.parent = null;
 this.cList = null;
 }, "~N");
@@ -678,6 +680,7 @@ Clazz_defineMethod (c$, "setVisible",
 function (tf) {
 if (tf && this.html == null) this.setDialog ();
 Clazz_superCall (this, javajs.swing.JDialog, "setVisible", [tf]);
+if (tf) this.toFront ();
 }, "~B");
 Clazz_defineMethod (c$, "dispose", 
 function () {
@@ -697,9 +700,9 @@ SwingController.setDialog(this);
 }});
 Clazz_overrideMethod (c$, "toHTML", 
 function () {
-this.renderWidth = this.getSubcomponentWidth ();
+this.renderWidth = Math.max (this.width, this.getSubcomponentWidth ());
 if (this.renderWidth == 0) this.renderWidth = this.defaultWidth;
-this.renderHeight = this.contentPane.getSubcomponentHeight ();
+this.renderHeight = Math.max (this.height, this.contentPane.getSubcomponentHeight ());
 if (this.renderHeight == 0) this.renderHeight = this.defaultHeight;
 var h = this.renderHeight - 25;
 var sb =  new JU.SB ();
@@ -710,6 +713,11 @@ sb.append (this.contentPane.toHTML ());
 sb.append ("\n</div></div>\n");
 return sb.toString ();
 });
+Clazz_defineMethod (c$, "toFront", 
+function () {
+{
+SwingController.setFront(this);
+}});
 Clazz_defineStatics (c$,
 "headerHeight", 25);
 });
@@ -1637,6 +1645,7 @@ return this.buttonGroup;
 Clazz_declarePackage ("J.popup");
 Clazz_declareInterface (J.popup, "PopupHelper");
 })(Clazz
+,Clazz.getClassName
 ,Clazz.newLongArray
 ,Clazz.doubleToByte
 ,Clazz.doubleToInt
@@ -1680,6 +1689,7 @@ Clazz_declareInterface (J.popup, "PopupHelper");
 ,Clazz.getInheritedLevel
 ,Clazz.getParamsType
 ,Clazz.isAF
+,Clazz.isAB
 ,Clazz.isAI
 ,Clazz.isAS
 ,Clazz.isASS

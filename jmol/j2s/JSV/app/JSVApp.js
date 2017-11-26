@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JSV.app");
-Clazz.load (["JSV.api.JSVAppInterface", "$.PanelListener"], "JSV.app.JSVApp", ["java.lang.Double", "JU.Lst", "$.PT", "JSV.common.Coordinate", "$.JSVFileManager", "$.JSViewer", "$.PeakPickEvent", "$.ScriptToken", "$.SubSpecChangeEvent", "$.ZoomEvent", "JU.Logger"], function () {
+Clazz.load (["JSV.api.JSVAppInterface", "$.PanelListener"], "JSV.app.JSVApp", ["java.lang.Double", "JU.Lst", "$.PT", "JSV.common.Coordinate", "$.JSVFileManager", "$.JSVersion", "$.JSViewer", "$.PeakPickEvent", "$.ScriptToken", "$.SubSpecChangeEvent", "$.ZoomEvent", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.appletFrame = null;
 this.isNewWindow = false;
@@ -221,7 +221,7 @@ this.appletFrame.newWindow (isSelected);
 Clazz.overrideMethod (c$, "siValidateAndRepaint", 
 function (isAll) {
 var pd = this.vwr.pd ();
-if (pd != null) pd.taintedAll = true;
+if (pd != null) pd.setTaintedAll ();
 this.appletFrame.validate ();
 this.repaint ();
 }, "~B");
@@ -295,7 +295,7 @@ function (b) {
 }, "~B");
 Clazz.overrideMethod (c$, "siExecScriptComplete", 
 function (msg, isOK) {
-this.vwr.showMessage (msg);
+if (!isOK) this.vwr.showMessage (msg);
 this.siValidateAndRepaint (false);
 }, "~S,~B");
 Clazz.overrideMethod (c$, "siUpdateBoolean", 
@@ -358,4 +358,14 @@ Clazz.overrideMethod (c$, "print",
 function (fileName) {
 return this.vwr.print (fileName);
 }, "~S");
+Clazz.overrideMethod (c$, "checkScript", 
+function (script) {
+return this.vwr.checkScript (script);
+}, "~S");
+c$.getAppletInfo = Clazz.defineMethod (c$, "getAppletInfo", 
+function () {
+return "JSpecView Applet " + JSV.common.JSVersion.VERSION + "\n\n" + "Authors:\nProf. Robert M. Hanson,\nD. Facey, K. Bryan, C. Walters, Prof. Robert J. Lancashire and\nvolunteer developers through sourceforge.";
+});
+Clazz.defineStatics (c$,
+"CREDITS", "Authors:\nProf. Robert M. Hanson,\nD. Facey, K. Bryan, C. Walters, Prof. Robert J. Lancashire and\nvolunteer developers through sourceforge.");
 });

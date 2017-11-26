@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JSV.js2d");
-Clazz.load (["JSV.api.JSVPanel"], "JSV.js2d.JsPanel", ["javajs.awt.Font", "JSV.common.JSViewer", "$.PanelData", "JU.Logger"], function () {
+Clazz.load (["JSV.api.JSVPanel"], "JSV.js2d.JsPanel", ["javajs.awt.Font", "JU.Base64", "JSV.common.ExportType", "$.JSViewer", "$.PanelData", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.apiPlatform = null;
 this.pd = null;
@@ -91,7 +91,7 @@ return javajs.awt.Font.getFontFaceID ("SansSerif");
 Clazz.overrideMethod (c$, "doRepaint", 
 function (andTaintAll) {
 if (this.pd == null) return;
-this.pd.taintedAll = new Boolean (this.pd.taintedAll | andTaintAll).valueOf ();
+if (andTaintAll) this.pd.setTaintedAll ();
 if (!this.pd.isPrinting) this.vwr.requestRepaint ();
 }, "~B");
 Clazz.overrideMethod (c$, "paintComponent", 
@@ -131,9 +131,28 @@ this.pd.setPrint (null, null);
 }
 }, "JSV.common.PrintLayout,java.io.OutputStream,~S");
 Clazz.overrideMethod (c$, "saveImage", 
-function (type, file) {
-return null;
-}, "~S,javajs.api.GenericFileInterface");
+function (type, file, out) {
+var fname = file.getName ();
+var isPNG = type.equals (JSV.common.ExportType.PNG);
+var s = (isPNG ? "png" : "jpeg");
+{
+s = viewer.display.toDataURL(s);
+if (!isPNG && s.contains("/png"))
+fname = fname.split('.jp')[0] + ".png";
+}try {
+out = this.vwr.getOutputChannel (fname, true);
+var data = JU.Base64.decodeBase64 (s);
+out.write (data, 0, data.length);
+out.closeChannel ();
+return "OK " + out.getByteCount () + " bytes";
+} catch (e) {
+if (Clazz.exceptionOf (e, Exception)) {
+return e.toString ();
+} else {
+throw e;
+}
+}
+}, "~S,javajs.api.GenericFileInterface,JU.OC");
 Clazz.overrideMethod (c$, "hasFocus", 
 function () {
 return false;
@@ -143,7 +162,12 @@ function () {
 });
 Clazz.overrideMethod (c$, "setToolTipText", 
 function (s) {
-}, "~S");
+var x = this.pd.mouseX;
+var y = this.pd.mouseY;
+var applet = this.vwr.html5Applet;
+{
+applet._showTooltip && applet._showTooltip(s, x, y);
+}}, "~S");
 Clazz.overrideMethod (c$, "getHeight", 
 function () {
 return this.vwr.getHeight ();

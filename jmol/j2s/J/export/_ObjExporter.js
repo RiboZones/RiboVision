@@ -19,7 +19,6 @@ this.surfaceNum = 1;
 this.currentVertexOrigin = 1;
 this.currentNormalOrigin = 1;
 this.currentTextureOrigin = 1;
-this.pixelSize = 0;
 this.ptTemp = null;
 Clazz.instantialize (this, arguments);
 }, J["export"], "_ObjExporter", J["export"].__CartesianExporter);
@@ -118,7 +117,7 @@ this.debugPrint ("  radius=" + radius);
 this.debugPrint ("  Not done owing to surfacesOnly");
 return;
 }this.outputEllipsoid1 (center, radius, radius, radius, null, colix);
-}, "JU.T3,~N,~N,~B");
+}, "JU.P3,~N,~N,~B");
 Clazz.overrideMethod (c$, "outputTextPixel", 
 function (pt, argb) {
 }, "JU.P3,~N");
@@ -131,7 +130,7 @@ return;
 Clazz.overrideMethod (c$, "outputHeader", 
 function () {
 this.debugPrint ("outputHeader");
-this.output ("# Created by Jmol " + JV.Viewer.getJmolVersion () + "\n");
+this.output ("#obj Created by Jmol " + JV.Viewer.getJmolVersion () + "\n");
 });
 Clazz.defineMethod (c$, "output", 
 function (pt) {
@@ -208,8 +207,7 @@ var retVal = this.initOutput (vwr, privateKey, gdata, params);
 if (!retVal) {
 this.debugPrint ("End initializeOutput (error in super):");
 return false;
-}this.pixelSize = 0.5 / this.scalePixelsPerAngstrom;
-var dot = this.fileName.lastIndexOf (".");
+}var dot = this.fileName.lastIndexOf (".");
 if (dot < 0) {
 this.debugPrint ("End initializeOutput (Error creating .mtl file):");
 return false;

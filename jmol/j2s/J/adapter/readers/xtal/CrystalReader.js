@@ -2,10 +2,10 @@ Clazz.declarePackage ("J.adapter.readers.xtal");
 Clazz.load (["J.adapter.smarter.AtomSetCollectionReader", "JU.P3"], "J.adapter.readers.xtal.CrystalReader", ["java.lang.Character", "$.Double", "java.util.Arrays", "JU.BS", "$.DF", "$.Lst", "$.M3", "$.PT", "$.Quat", "$.SB", "$.V3", "JU.Logger", "$.Tensor"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.isVersion3 = false;
-this.isPrimitive = false;
+this.$isPrimitive = false;
 this.isPolymer = false;
 this.isSlab = false;
-this.isMolecular = false;
+this.$isMolecular = false;
 this.haveCharges = false;
 this.inputOnly = false;
 this.isLongMode = false;
@@ -35,9 +35,9 @@ Clazz.overrideMethod (c$, "initializeReader",
 function () {
 this.doProcessLines = false;
 this.inputOnly = this.checkFilterKey ("INPUT");
-this.isPrimitive = !this.inputOnly && !this.checkFilterKey ("CONV");
+this.$isPrimitive = !this.inputOnly && !this.checkFilterKey ("CONV");
 this.addVibrations = new Boolean (this.addVibrations & !this.inputOnly).valueOf ();
-this.getLastConventional = (!this.isPrimitive && this.desiredModelNumber == 0);
+this.getLastConventional = (!this.$isPrimitive && this.desiredModelNumber == 0);
 this.setFractionalCoordinates (this.readHeader ());
 this.asc.checkLatticeOnly = true;
 });
@@ -46,14 +46,14 @@ function () {
 if (this.line.startsWith (" LATTICE PARAMETER")) {
 var isConvLattice = (this.line.indexOf ("- CONVENTIONAL") >= 0);
 if (isConvLattice) {
-if (this.isPrimitive) return true;
+if (this.$isPrimitive) return true;
 this.readLatticeParams (true);
-} else if (!this.isPrimitive && !this.havePrimitiveMapping && !this.getLastConventional) {
+} else if (!this.$isPrimitive && !this.havePrimitiveMapping && !this.getLastConventional) {
 this.readLines (3);
 this.readPrimitiveMapping ();
 if (this.setPrimitiveMapping ()) return true;
 }this.readLatticeParams (true);
-if (!this.isPrimitive) {
+if (!this.$isPrimitive) {
 this.discardLinesUntilContains (" TRANSFORMATION");
 this.readTransformationMatrix ();
 this.discardLinesUntilContains (" CRYSTALLOGRAPHIC");
@@ -67,7 +67,7 @@ this.createAtomsFromCoordLines ();
 this.vCoords = null;
 this.checkLastModel ();
 }}}return true;
-}if (!this.isPrimitive) {
+}if (!this.$isPrimitive) {
 if (this.line.startsWith (" SHIFT OF THE ORIGIN")) return this.readShift ();
 if (this.line.startsWith (" INPUT COORDINATES")) {
 this.readCoordLines ();
@@ -84,11 +84,11 @@ this.isPolymer = true;
 this.isSlab = false;
 return true;
 }if (this.line.indexOf ("* CLUSTER CALCULATION") >= 0) {
-this.isMolecular = true;
+this.$isMolecular = true;
 this.isSlab = false;
 this.isPolymer = false;
 return true;
-}if (((this.isPrimitive || this.isMolecular) && this.line.startsWith (" ATOMS IN THE ASYMMETRIC UNIT")) || this.isProperties && this.line.startsWith ("   ATOM N.AT.")) {
+}if (((this.$isPrimitive || this.$isMolecular) && this.line.startsWith (" ATOMS IN THE ASYMMETRIC UNIT")) || this.isProperties && this.line.startsWith ("   ATOM N.AT.")) {
 if (!this.doGetModel (++this.modelNumber, null)) return this.checkLastModel ();
 return this.readAtoms ();
 }if (this.line.startsWith (" * SUPERCELL OPTION")) {
@@ -136,7 +136,7 @@ var isBohr = (this.line.indexOf ("(BOHR") >= 0);
 this.directLatticeVectors = this.read3Vectors (isBohr);
 var a =  new JU.V3 ();
 var b =  new JU.V3 ();
-if (this.isPrimitive) {
+if (this.$isPrimitive) {
 a = this.directLatticeVectors[0];
 b = this.directLatticeVectors[1];
 } else {
@@ -196,17 +196,17 @@ this.isPolymer = (type.equals ("POLYMER CALCULATION"));
 this.isSlab = (type.equals ("SLAB CALCULATION"));
 }this.asc.setCollectionName (name + (!this.isProperties && this.desiredModelNumber == 0 ? " (optimized)" : ""));
 this.asc.setInfo ("symmetryType", type);
-if ((this.isPolymer || this.isSlab) && !this.isPrimitive) {
+if ((this.isPolymer || this.isSlab) && !this.$isPrimitive) {
 JU.Logger.error ("Cannot use FILTER \"conventional\" with POLYMER or SLAB");
-this.isPrimitive = true;
-}this.asc.setInfo ("unitCellType", (this.isPrimitive ? "primitive" : "conventional"));
+this.$isPrimitive = true;
+}this.asc.setInfo ("unitCellType", (this.$isPrimitive ? "primitive" : "conventional"));
 if (type.indexOf ("MOLECULAR") >= 0) {
-this.isMolecular = this.doProcessLines = true;
+this.$isMolecular = this.doProcessLines = true;
 this.rd ();
 this.asc.setInfo ("molecularCalculationPointGroup", this.line.substring (this.line.indexOf (" OR ") + 4).trim ());
 return false;
 }this.spaceGroupName = "P1";
-if (!this.isPrimitive) {
+if (!this.$isPrimitive) {
 this.discardLinesUntilContains2 ("SPACE GROUP", "****");
 pt = this.line.indexOf (":");
 if (pt >= 0) this.spaceGroupName = this.line.substring (pt + 1).trim ();
@@ -217,7 +217,7 @@ Clazz.defineMethod (c$, "readLatticeParams",
  function (isNewSet) {
 var f = (this.line.indexOf ("(BOHR") >= 0 ? 0.5291772 : 1);
 if (isNewSet) this.newAtomSet ();
-if (this.isPolymer && !this.isPrimitive) {
+if (this.isPolymer && !this.$isPrimitive) {
 this.setUnitCell (this.parseFloatStr (this.line.substring (this.line.indexOf ("CELL") + 4)) * f, -1, -1, 90, 90, 90);
 } else {
 while (this.rd ().indexOf ("GAMMA") < 0) if (this.line.indexOf ("VOLUME=") >= 0) {
@@ -226,7 +226,7 @@ this.primitiveDensity = this.parseFloatStr (this.line.substring (66));
 }
 var tokens = JU.PT.getTokens (this.rd ());
 if (this.isSlab) {
-if (this.isPrimitive) this.setUnitCell (this.parseFloatStr (tokens[0]) * f, this.parseFloatStr (tokens[1]) * f, -1, this.parseFloatStr (tokens[3]), this.parseFloatStr (tokens[4]), this.parseFloatStr (tokens[5]));
+if (this.$isPrimitive) this.setUnitCell (this.parseFloatStr (tokens[0]) * f, this.parseFloatStr (tokens[1]) * f, -1, this.parseFloatStr (tokens[3]), this.parseFloatStr (tokens[4]), this.parseFloatStr (tokens[5]));
  else this.setUnitCell (this.parseFloatStr (tokens[0]) * f, this.parseFloatStr (tokens[1]) * f, -1, 90, 90, this.parseFloatStr (tokens[2]));
 } else if (this.isPolymer) {
 this.setUnitCell (this.parseFloatStr (tokens[0]) * f, -1, -1, this.parseFloatStr (tokens[3]), this.parseFloatStr (tokens[4]), this.parseFloatStr (tokens[5]));
@@ -263,7 +263,7 @@ if (indexToPrimitive[iAtom] < 0) {
 indexToPrimitive[iAtom] = nPrim++;
 }}
 }
-if (bsInputAtomsIgnore.nextSetBit (0) >= 0) for (var i = n; --i >= 0; ) if (bsInputAtomsIgnore.get (i)) this.vCoords.remove (i);
+if (bsInputAtomsIgnore.nextSetBit (0) >= 0) for (var i = n; --i >= 0; ) if (bsInputAtomsIgnore.get (i)) this.vCoords.removeItemAt (i);
 
 this.ac = this.vCoords.size ();
 JU.Logger.info (nPrim + " primitive atoms and " + this.ac + " conventionalAtoms");
@@ -279,17 +279,17 @@ return true;
 });
 Clazz.defineMethod (c$, "readAtoms", 
  function () {
-if (this.isMolecular) this.newAtomSet ();
+if (this.$isMolecular) this.newAtomSet ();
 this.vCoords = null;
 while (this.rd () != null && this.line.indexOf ("*") < 0) {
 if (this.line.indexOf ("X(ANGSTROM") >= 0) {
 this.setFractionalCoordinates (false);
-this.isMolecular = true;
+this.$isMolecular = true;
 }}
 var i = this.atomIndexLast;
 var doNormalizePrimitive = false;
 this.atomIndexLast = this.asc.ac;
-while (this.rd () != null && this.line.length > 0 && this.line.indexOf (this.isPrimitive ? "*" : "=") < 0) {
+while (this.rd () != null && this.line.length > 0 && this.line.indexOf (this.$isPrimitive ? "*" : "=") < 0) {
 var atom = this.asc.addNewAtom ();
 var tokens = this.getTokens ();
 var pt = (this.isProperties ? 1 : 2);

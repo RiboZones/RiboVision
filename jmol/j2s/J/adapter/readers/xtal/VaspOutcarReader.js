@@ -20,6 +20,7 @@ this.elementNames =  new JU.Lst ();
 });
 Clazz.overrideMethod (c$, "initializeReader", 
 function () {
+this.isPrimitive = true;
 this.setSpaceGroupName ("P1");
 this.setFractionalCoordinates (true);
 this.inputOnly = this.checkFilterKey ("INPUT");
@@ -78,7 +79,7 @@ this.setSymmetry ();
 this.asc.newAtomSet ();
 this.setAtomSetInfo ();
 }var f =  Clazz.newFloatArray (3, 0);
-for (var i = 0; i < 3; i++) this.addPrimitiveLatticeVector (i, this.fillFloatArray (this.fixMinus (this.rd ()), 0, f), 0);
+for (var i = 0; i < 3; i++) this.addExplicitLatticeVector (i, this.fillFloatArray (this.fixMinus (this.rd ()), 0, f), 0);
 
 });
 Clazz.defineMethod (c$, "fixMinus", 

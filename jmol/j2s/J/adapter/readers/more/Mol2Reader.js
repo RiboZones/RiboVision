@@ -35,6 +35,7 @@ this.rd ();
 this.line += " 0 0 0 0 0 0";
 this.ac = this.parseIntStr (this.line);
 var bondCount = this.parseInt ();
+if (bondCount == 0) this.asc.setNoAutoBond ();
 var resCount = this.parseInt ();
 this.rd ();
 this.rd ();
@@ -74,9 +75,14 @@ for (var i = 0; i < ac; ++i) {
 var atom = this.asc.addNewAtom ();
 var tokens = JU.PT.getTokens (this.rd ());
 var atomType = tokens[5];
-atom.atomName = tokens[1] + '\0' + atomType;
+var name = tokens[1];
 var pt = atomType.indexOf (".");
-atom.elementSymbol = (pt == 0 ? atom.atomName : pt > 0 ? atomType.substring (0, pt) : atomType);
+if (pt >= 0) {
+atom.elementSymbol = atomType.substring (0, pt);
+} else {
+atom.atomName = name;
+atom.elementSymbol = atom.getElementSymbol ();
+}atom.atomName = name + '\0' + atomType;
 atom.set (this.parseFloatStr (tokens[2]), this.parseFloatStr (tokens[3]), this.parseFloatStr (tokens[4]));
 if (tokens.length > 6) {
 atom.sequenceNumber = this.parseIntStr (tokens[6]);

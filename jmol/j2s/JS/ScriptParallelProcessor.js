@@ -36,7 +36,7 @@ if (inParallel) {
 sm =  new JV.ShapeManager (vwr);
 sm.setParallel ();
 vShapeManagers.addLast (sm);
-}this.runProcess (this.processes.remove (0), sm);
+}this.runProcess (this.processes.removeItemAt (0), sm);
 }
 {
 while (this.counter > 0) {
@@ -92,7 +92,7 @@ this.processes.addLast ( new JS.ScriptProcess (name, context));
 Clazz.defineMethod (c$, "runProcess", 
  function (process, shapeManager) {
 var r =  new JS.ScriptProcessRunnable (this, process, this.lock, shapeManager);
-var exec = (shapeManager == null ? null : this.vwr.getExecutor ());
+var exec = (shapeManager == null ? null : this.getMyExecutor ());
 if (exec != null) {
 exec.execute (r);
 } else {
@@ -102,4 +102,27 @@ Clazz.defineMethod (c$, "eval",
 function (context, shapeManager) {
 this.vwr.evalParallel (context, shapeManager);
 }, "JS.ScriptContext,JV.ShapeManager");
+Clazz.defineMethod (c$, "getMyExecutor", 
+ function () {
+if (this.vwr.executor != null || JV.Viewer.nProcessors < 2) return this.vwr.executor;
+try {
+this.vwr.executor = this.getExecutor ();
+} catch (e$$) {
+if (Clazz.exceptionOf (e$$, Exception)) {
+var e = e$$;
+{
+this.vwr.executor = null;
+}
+} else if (Clazz.exceptionOf (e$$, Error)) {
+var er = e$$;
+{
+this.vwr.executor = null;
+}
+} else {
+throw e$$;
+}
+}
+if (this.vwr.executor == null) JU.Logger.error ("parallel processing is not available");
+return this.vwr.executor;
+});
 });

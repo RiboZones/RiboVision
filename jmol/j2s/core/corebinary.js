@@ -1,4 +1,5 @@
 (function(Clazz
+,Clazz_getClassName
 ,Clazz_newLongArray
 ,Clazz_doubleToByte
 ,Clazz_doubleToInt
@@ -42,6 +43,7 @@
 ,Clazz_getInheritedLevel
 ,Clazz_getParamsType
 ,Clazz_isAF
+,Clazz_isAB
 ,Clazz_isAI
 ,Clazz_isAS
 ,Clazz_isASS
@@ -87,7 +89,7 @@ if (this.pos < this.buf.length) {
 return this.buf[this.pos++] & 0xff;
 }return this.$in.readByteAsInt ();
 });
-Clazz_overrideMethod (c$, "read", 
+Clazz_defineMethod (c$, "read", 
 function (b, off, len) {
 this.ensureOpen ();
 if (b == null) {
@@ -180,7 +182,7 @@ this.bytearr =  Clazz_newByteArray (80, 0);
 this.chararr =  Clazz_newCharArray (80, '\0');
 this.readBuffer =  Clazz_newByteArray (8, 0);
 });
-Clazz_overrideMethod (c$, "read", 
+Clazz_defineMethod (c$, "read", 
 function (b, off, len) {
 return this.$in.read (b, off, len);
 }, "~A,~N,~N");
@@ -380,12 +382,22 @@ c$.bytesToFloat = Clazz_defineMethod (c$, "bytesToFloat",
 function (bytes, j, isBigEndian) {
 return JU.BC.intToFloat (JU.BC.bytesToInt (bytes, j, isBigEndian));
 }, "~A,~N,~B");
+c$.bytesToShort = Clazz_defineMethod (c$, "bytesToShort", 
+function (bytes, j, isBigEndian) {
+var n = (isBigEndian ? (bytes[j + 1] & 0xff) | (bytes[j] & 0xff) << 8 : (bytes[j++] & 0xff) | (bytes[j++] & 0xff) << 8);
+return (n > 0x7FFF ? n - 0x10000 : n);
+}, "~A,~N,~B");
 c$.bytesToInt = Clazz_defineMethod (c$, "bytesToInt", 
 function (bytes, j, isBigEndian) {
 var n = (isBigEndian ? (bytes[j + 3] & 0xff) | (bytes[j + 2] & 0xff) << 8 | (bytes[j + 1] & 0xff) << 16 | (bytes[j] & 0xff) << 24 : (bytes[j++] & 0xff) | (bytes[j++] & 0xff) << 8 | (bytes[j++] & 0xff) << 16 | (bytes[j++] & 0xff) << 24);
 {
 return (n > 0x7FFFFFFF ? n - 0x100000000 : n);
 }}, "~A,~N,~B");
+c$.intToSignedInt = Clazz_defineMethod (c$, "intToSignedInt", 
+function (n) {
+{
+return (n > 0x7FFFFFFF ? n - 0x100000000 : n);
+}}, "~N");
 c$.intToFloat = Clazz_defineMethod (c$, "intToFloat", 
 function (x) {
 {
@@ -442,10 +454,10 @@ c$ = Clazz_decorateAsClass (function () {
 this.stream = null;
 this.isRandom = false;
 this.isBigEndian = true;
-this.jzt = null;
-this.t8 = null;
+this.bis = null;
 this.nBytes = 0;
 this.out = null;
+this.t8 = null;
 Clazz_instantialize (this, arguments);
 }, JU, "BinaryDocument", JU.BC, javajs.api.GenericBinaryDocument);
 Clazz_prepareFields (c$, function () {
@@ -456,7 +468,7 @@ function () {
 if (this.stream != null) try {
 this.stream.close ();
 } catch (e) {
-if (Clazz_exceptionOf (e, Exception)) {
+if (Clazz_exceptionOf (e, java.io.IOException)) {
 } else {
 throw e;
 }
@@ -464,16 +476,26 @@ throw e;
 if (this.out != null) this.out.closeChannel ();
 });
 Clazz_overrideMethod (c$, "setStream", 
-function (jzt, bis, isBigEndian) {
-if (jzt != null) this.jzt = jzt;
-if (bis != null) this.stream =  new java.io.DataInputStream (bis);
-this.isBigEndian = isBigEndian;
-}, "javajs.api.GenericZipTools,java.io.BufferedInputStream,~B");
+function (bis, isBigEndian) {
+this.bis = bis;
+if (bis != null) {
+this.stream =  new java.io.DataInputStream (bis);
+}this.isBigEndian = isBigEndian;
+return this;
+}, "java.io.BufferedInputStream,~B");
+Clazz_overrideMethod (c$, "getInputStream", 
+function () {
+return this.bis;
+});
 Clazz_overrideMethod (c$, "setStreamData", 
 function (stream, isBigEndian) {
 if (stream != null) this.stream = stream;
 this.isBigEndian = isBigEndian;
 }, "java.io.DataInputStream,~B");
+Clazz_overrideMethod (c$, "setOutputChannel", 
+function (out) {
+this.out = out;
+}, "javajs.api.GenericOutputChannel");
 Clazz_defineMethod (c$, "setRandom", 
 function (TF) {
 this.isRandom = TF;
@@ -483,12 +505,25 @@ function () {
 this.nBytes++;
 return this.ioReadByte ();
 });
+Clazz_overrideMethod (c$, "readUInt8", 
+function () {
+this.nBytes++;
+var b = this.stream.readUnsignedByte ();
+if (this.out != null) this.out.writeByteAsInt (b);
+return b;
+});
 Clazz_defineMethod (c$, "ioReadByte", 
  function () {
 var b = this.stream.readByte ();
 if (this.out != null) this.out.writeByteAsInt (b);
 return b;
 });
+Clazz_overrideMethod (c$, "readBytes", 
+function (n) {
+var b =  Clazz_newByteArray (n, 0);
+this.readByteArray (b, 0, n);
+return b;
+}, "~N");
 Clazz_overrideMethod (c$, "readByteArray", 
 function (b, off, len) {
 var n = this.ioRead (b, off, len);
@@ -501,16 +536,12 @@ var m = 0;
 while (len > 0) {
 var n = this.stream.read (b, off, len);
 m += n;
-if (n > 0 && this.out != null) this.writeBytes (b, off, n);
+if (n > 0 && this.out != null) this.out.write (b, off, n);
 if (n >= len) break;
 off += n;
 len -= n;
 }
 return m;
-}, "~A,~N,~N");
-Clazz_defineMethod (c$, "writeBytes", 
-function (b, off, n) {
-this.out.write (b, off, n);
 }, "~A,~N,~N");
 Clazz_overrideMethod (c$, "readString", 
 function (nChar) {
@@ -528,14 +559,9 @@ return (n > 0x7FFF ? n - 0x10000 : n);
 Clazz_defineMethod (c$, "ioReadShort", 
  function () {
 var b = this.stream.readShort ();
-if (this.out != null) this.writeShort (b);
+if (this.out != null) this.out.writeShort (b);
 return b;
 });
-Clazz_defineMethod (c$, "writeShort", 
-function (i) {
-this.out.writeByteAsInt (i >> 8);
-this.out.writeByteAsInt (i);
-}, "~N");
 Clazz_overrideMethod (c$, "readIntLE", 
 function () {
 this.nBytes += 4;
@@ -549,16 +575,9 @@ return (this.isBigEndian ? this.ioReadInt () : this.readLEInt ());
 Clazz_defineMethod (c$, "ioReadInt", 
  function () {
 var i = this.stream.readInt ();
-if (this.out != null) this.writeInt (i);
+if (this.out != null) this.out.writeInt (i);
 return i;
 });
-Clazz_defineMethod (c$, "writeInt", 
-function (i) {
-this.out.writeByteAsInt (i >> 24);
-this.out.writeByteAsInt (i >> 16);
-this.out.writeByteAsInt (i >> 8);
-this.out.writeByteAsInt (i);
-}, "~N");
 Clazz_overrideMethod (c$, "swapBytesI", 
 function (n) {
 return (((n >> 24) & 0xff) | ((n >> 16) & 0xff) << 8 | ((n >> 8) & 0xff) << 16 | (n & 0xff) << 24);
@@ -582,14 +601,9 @@ return (this.isBigEndian ? this.ioReadLong () : (((this.ioReadByte ()) & 0xff) |
 Clazz_defineMethod (c$, "ioReadLong", 
  function () {
 var b = this.stream.readLong ();
-if (this.out != null) this.writeLong (b);
+if (this.out != null) this.out.writeLong (b);
 return b;
 });
-Clazz_defineMethod (c$, "writeLong", 
-function (b) {
-this.writeInt (((b >> 32) & 0xFFFFFFFF));
-this.writeInt ((b & 0xFFFFFFFF));
-}, "~N");
 Clazz_defineMethod (c$, "readLEInt", 
  function () {
 this.ioRead (this.t8, 0, 4);
@@ -608,7 +622,7 @@ return this.bytesToDoubleToFloat(this.t8, 0, this.isBigEndian);
 Clazz_defineMethod (c$, "ioReadDouble", 
  function () {
 var d = this.stream.readDouble ();
-if (this.out != null) this.writeLong (Double.doubleToRawLongBits (d));
+if (this.out != null) this.out.writeLong (Double.doubleToRawLongBits (d));
 return d;
 });
 Clazz_defineMethod (c$, "readLELong", 
@@ -631,7 +645,7 @@ this.stream.skipBytes (offset);
 this.readByteArray ( Clazz_newByteArray (offset, 0), 0, offset);
 }this.nBytes += offset;
 } catch (e) {
-if (Clazz_exceptionOf (e, Exception)) {
+if (Clazz_exceptionOf (e, java.io.IOException)) {
 System.out.println (e.toString ());
 } else {
 throw e;
@@ -642,10 +656,6 @@ Clazz_overrideMethod (c$, "getPosition",
 function () {
 return this.nBytes;
 });
-Clazz_overrideMethod (c$, "setOutputChannel", 
-function (out) {
-this.out = out;
-}, "JU.OC");
 Clazz_overrideMethod (c$, "getAllDataFiles", 
 function (binaryFileList, firstFile) {
 return null;
@@ -655,6 +665,7 @@ function (replace, string, fileData) {
 }, "~S,~S,java.util.Map");
 });
 })(Clazz
+,Clazz.getClassName
 ,Clazz.newLongArray
 ,Clazz.doubleToByte
 ,Clazz.doubleToInt
@@ -698,6 +709,7 @@ function (replace, string, fileData) {
 ,Clazz.getInheritedLevel
 ,Clazz.getParamsType
 ,Clazz.isAF
+,Clazz.isAB
 ,Clazz.isAI
 ,Clazz.isAS
 ,Clazz.isASS

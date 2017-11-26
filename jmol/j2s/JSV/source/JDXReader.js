@@ -148,7 +148,7 @@ JU.Logger.info ("Failed to create peak data: " + e);
 throw e;
 }
 }
-}if (this.acdMolFile != null) JSV.common.JSVFileManager.htCorrelationCache.put ("mol", this.acdMolFile);
+}if (this.acdMolFile != null) JSV.common.JSVFileManager.cachePut ("mol", this.acdMolFile);
 }if (!Float.isNaN (this.nmrMaxY)) spectrum.doNormalize (this.nmrMaxY);
  else if (spectrum.getMaxY () >= 10000) spectrum.doNormalize (1000);
 if (this.isSimulation) spectrum.setSimulated (this.filePath);
@@ -385,6 +385,7 @@ spectrum.shiftRefType = 2;
 return false;
 }if (label.equals ("##.SHIFTREFERENCE ")) {
 if (!(spectrum.dataType.toUpperCase ().contains ("SPECTRUM"))) return true;
+value = JU.PT.replaceAllCharacters (value, ")(", "");
 var srt =  new java.util.StringTokenizer (value, ",");
 if (srt.countTokens () != 4) return true;
 try {

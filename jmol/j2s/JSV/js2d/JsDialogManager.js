@@ -44,6 +44,7 @@ var scrollPane =  new javajs.swing.JScrollPane (table);
 dialog.getContentPane ().add (scrollPane);
 dialog.pack ();
 dialog.setVisible (true);
+dialog.toFront ();
 }, "~O,JSV.common.Spectrum");
 Clazz.overrideMethod (c$, "showMessage", 
 function (frame, text, title) {
@@ -60,6 +61,7 @@ pane.setText (text);
 }dialog.getContentPane ().add (pane);
 dialog.pack ();
 dialog.setVisible (true);
+dialog.toFront ();
 }, "~O,~S,~S");
 Clazz.defineMethod (c$, "actionPerformed", 
 function (eventId) {

@@ -163,7 +163,7 @@ if (obj.length > 4 && !(obj[4]).booleanValue ()) continue;
 haveData = true;
 var data = obj[1];
 if (data != null && this.getType (obj) == 1) {
-sc.getAtomicPropertyStateBuffer (sb, 16, obj[2], name, data);
+sc.getAtomicPropertyStateBuffer (sb, 17, obj[2], name, data);
 sb.append ("\n");
 } else {
 sb.append ("\n").append (JU.Escape.encapsulateData (name, data, -1));

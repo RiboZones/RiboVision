@@ -39,9 +39,9 @@ this.asc.newAtomSet ();
 if (this.totE != null) this.setEnergy ();
 this.doApplySymmetry = true;
 if (this.unitCellData != null) {
-this.addPrimitiveLatticeVector (0, this.unitCellData, 0);
-this.addPrimitiveLatticeVector (1, this.unitCellData, 3);
-this.addPrimitiveLatticeVector (2, this.unitCellData, 6);
+this.addExplicitLatticeVector (0, this.unitCellData, 0);
+this.addExplicitLatticeVector (1, this.unitCellData, 3);
+this.addExplicitLatticeVector (2, this.unitCellData, 6);
 this.setSpaceGroupName ("P1");
 }this.setFractionalCoordinates (false);
 });

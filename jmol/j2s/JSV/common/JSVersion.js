@@ -1,6 +1,6 @@
-Jmol.___JSVDate="$Date: 2015-01-05 17:28:27 -0600 (Mon, 05 Jan 2015) $"
-Jmol.___JSVSvnRev="$LastChangedRevision: 1681 $"
-Jmol.___JSVVersion="14.2.7"
+Jmol.___JSVDate="$Date: 2017-04-14 11:34:29 -0500 (Fri, 14 Apr 2017) $"
+Jmol.___JSVSvnRev="$LastChangedRevision: 1764 $"
+Jmol.___JSVVersion="14.2.8"
 Clazz.declarePackage ("JSV.common");
 c$ = Clazz.declareType (JSV.common, "JSVersion");
 Clazz.defineStatics (c$,

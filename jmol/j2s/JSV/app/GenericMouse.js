@@ -23,9 +23,9 @@ function (id, x, y, modifiers, time) {
 if (this.pd == null) {
 if (!this.disposed && id == 501 && (modifiers & 4) != 0) this.jsvp.showMenu (x, y);
 return true;
-}if (id != -1) modifiers = JSV.app.GenericMouse.applyLeftMouse (modifiers);
+}if (id != 507) modifiers = JSV.app.GenericMouse.applyLeftMouse (modifiers);
 switch (id) {
-case -1:
+case 507:
 this.wheeled (time, x, modifiers | 32);
 break;
 case 501:

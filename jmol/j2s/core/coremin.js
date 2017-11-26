@@ -1,4 +1,5 @@
 (function(Clazz
+,Clazz_getClassName
 ,Clazz_newLongArray
 ,Clazz_doubleToByte
 ,Clazz_doubleToInt
@@ -42,6 +43,7 @@
 ,Clazz_getInheritedLevel
 ,Clazz_getParamsType
 ,Clazz_isAF
+,Clazz_isAB
 ,Clazz_isAI
 ,Clazz_isAS
 ,Clazz_isASS
@@ -62,10 +64,8 @@
 ){
 var $t$;
 //var c$;
-Clazz_declarePackage ("J.api");
-Clazz_declareInterface (J.api, "MinimizerInterface");
 Clazz_declarePackage ("JM");
-Clazz_load (["J.api.MinimizerInterface"], "JM.Minimizer", ["java.lang.Float", "java.util.Hashtable", "JU.AU", "$.BS", "$.Lst", "J.i18n.GT", "JM.MinAngle", "$.MinAtom", "$.MinBond", "$.MinTorsion", "$.MinimizationThread", "JM.FF.ForceFieldMMFF", "$.ForceFieldUFF", "JU.BSUtil", "$.Escape", "$.Logger"], function () {
+Clazz_load (null, "JM.Minimizer", ["java.lang.Float", "java.util.Hashtable", "JU.AU", "$.BS", "$.Lst", "J.i18n.GT", "JM.MinAngle", "$.MinAtom", "$.MinBond", "$.MinTorsion", "$.MinimizationThread", "JM.FF.ForceFieldMMFF", "$.ForceFieldUFF", "JU.BSUtil", "$.Escape", "$.Logger"], function () {
 c$ = Clazz_decorateAsClass (function () {
 this.vwr = null;
 this.atoms = null;
@@ -99,11 +99,11 @@ this.$minimizationOn = false;
 this.minimizationThread = null;
 this.coordSaved = null;
 Clazz_instantialize (this, arguments);
-}, JM, "Minimizer", null, J.api.MinimizerInterface);
+}, JM, "Minimizer");
 Clazz_makeConstructor (c$, 
 function () {
 });
-Clazz_overrideMethod (c$, "setProperty", 
+Clazz_defineMethod (c$, "setProperty", 
 function (propertyName, value) {
 switch (("ff        cancel    clear     constraintfixed     stop      vwr    ").indexOf (propertyName)) {
 case 0:
@@ -134,7 +134,7 @@ break;
 }
 return this;
 }, "~S,~O");
-Clazz_overrideMethod (c$, "getProperty", 
+Clazz_defineMethod (c$, "getProperty", 
 function (propertyName, param) {
 if (propertyName.equals ("log")) {
 return (this.pFF == null ? "" : this.pFF.getLogData ());
@@ -187,7 +187,7 @@ this.constraints = null;
 this.constraintMap = null;
 this.pFF = null;
 });
-Clazz_overrideMethod (c$, "minimize", 
+Clazz_defineMethod (c$, "minimize", 
 function (steps, crit, bsSelected, bsFixed, haveFixed, forceSilent, ff) {
 this.isSilent = (forceSilent || this.vwr.getBooleanProperty ("minimizationSilent"));
 var val;
@@ -411,11 +411,11 @@ ff = "UFF";
 this.vwr.setStringProperty ("_minimizationForceField", ff);
 }return this.pFF;
 }, "~S");
-Clazz_overrideMethod (c$, "minimizationOn", 
+Clazz_defineMethod (c$, "minimizationOn", 
 function () {
 return this.$minimizationOn;
 });
-Clazz_overrideMethod (c$, "getThread", 
+Clazz_defineMethod (c$, "getThread", 
 function () {
 return this.minimizationThread;
 });
@@ -444,7 +444,7 @@ Clazz_defineMethod (c$, "reportEnergy",
  function () {
 this.vwr.setFloatProperty ("_minimizationEnergy", this.pFF.toUserUnits (this.pFF.getEnergy ()));
 });
-Clazz_overrideMethod (c$, "startMinimization", 
+Clazz_defineMethod (c$, "startMinimization", 
 function () {
 try {
 JU.Logger.info ("minimizer: startMinimization");
@@ -468,7 +468,7 @@ throw e;
 this.$minimizationOn = true;
 return true;
 });
-Clazz_overrideMethod (c$, "stepMinimization", 
+Clazz_defineMethod (c$, "stepMinimization", 
 function () {
 if (!this.$minimizationOn) return false;
 var doRefresh = (!this.isSilent && this.vwr.getBooleanProperty ("minimizationRefresh"));
@@ -484,7 +484,7 @@ this.updateAtomXYZ ();
 this.vwr.refresh (3, "minimization step " + currentStep);
 }return going;
 });
-Clazz_overrideMethod (c$, "endMinimization", 
+Clazz_defineMethod (c$, "endMinimization", 
 function () {
 this.updateAtomXYZ ();
 this.setMinimizationOn (false);
@@ -544,13 +544,13 @@ if (this.isSilent) JU.Logger.info (msg);
  else if (isEcho) this.vwr.showString (msg, false);
  else this.vwr.scriptEcho (msg);
 }, "~S,~B");
-Clazz_overrideMethod (c$, "calculatePartialCharges", 
-function (bonds, bondCount, atoms, bsAtoms) {
+Clazz_defineMethod (c$, "calculatePartialCharges", 
+function (ms, bsAtoms) {
 var ff =  new JM.FF.ForceFieldMMFF (this);
-ff.setArrays (atoms, bsAtoms, bonds, bondCount, true, true);
+ff.setArrays (ms.at, bsAtoms, ms.bo, ms.bondCount, true, true);
 this.vwr.setAtomProperty (bsAtoms, 1086326785, 0, 0, null, null, ff.getAtomTypeDescriptions ());
 this.vwr.setAtomProperty (bsAtoms, 1111492619, 0, 0, null, ff.getPartialCharges (), null);
-}, "~A,~N,~A,JU.BS");
+}, "JM.ModelSet,JU.BS");
 });
 Clazz_declarePackage ("JM");
 c$ = Clazz_decorateAsClass (function () {
@@ -1298,7 +1298,7 @@ Clazz_defineStatics (c$,
 "R3", 0,
 "R4", 1,
 "R5", 2,
-"R56", 3);
+"Raromatic", 3);
 });
 Clazz_declarePackage ("JM.FF");
 Clazz_load (["JM.FF.ForceField"], "JM.FF.ForceFieldMMFF", ["java.lang.Float", "java.util.Hashtable", "JU.AU", "$.BS", "$.Lst", "$.PT", "JM.MinAtom", "$.MinObject", "JM.FF.AtomType", "$.CalculationsMMFF", "JU.BSUtil", "$.Elements", "$.Escape", "$.Logger", "JV.JmolAsyncException"], function () {
@@ -1811,7 +1811,7 @@ nUsed++;
 }
 JU.Logger.info (nUsed + " SMARTS matches used");
 try {
-smartsMatcher.getSubstructureSets (smarts, atoms, atoms.length, 40, bsConnected, bitSets, vRings);
+smartsMatcher.getMMFF94AtomTypes (smarts, atoms, atoms.length, bsConnected, bitSets, vRings);
 } catch (e) {
 if (Clazz_exceptionOf (e, Exception)) {
 JU.Logger.error (e.toString ());
@@ -2981,20 +2981,21 @@ this.appendLogData ("---------------------\n");
 });
 Clazz_defineMethod (c$, "getAtomList", 
 function (title) {
-var trailer = "-----------------------------------------------------------------------------------------------\n";
+var trailer = "--------------------------------------------------------------------------------------------------\n";
 var sb =  new JU.SB ();
-sb.append ("\n" + title + "\n\n" + " ATOM    X        Y        Z    TYPE     GRADX    GRADY    GRADZ  " + "---------BONDED ATOMS--------\n" + trailer);
+sb.append ("\n" + title + "\n\n" + " ATOM    X        Y        Z    TYPE       GRADX    GRADY    GRADZ  " + "---------BONDED ATOMS--------\n" + trailer);
 for (var i = 0; i < this.ac; i++) {
 var atom = this.minAtoms[i];
 var others = atom.getBondedAtomIndexes ();
-var iVal =  Clazz_newIntArray (others.length + 1, 0);
+var iVal =  Clazz_newIntArray (others.length + 2, 0);
 iVal[0] = atom.atom.getAtomNumber ();
+iVal[1] = (atom.ffAtomType == null ? 0 : atom.ffAtomType.mmType);
 var s = "   ";
 for (var j = 0; j < others.length; j++) {
 s += " %3d";
-iVal[j + 1] = this.minAtoms[others[j]].atom.getAtomNumber ();
+iVal[j + 2] = this.minAtoms[others[j]].atom.getAtomNumber ();
 }
-sb.append (JU.PT.sprintf ("%3d %8.3f %8.3f %8.3f  %-5s %8.3f %8.3f %8.3f" + s + "\n", "sFI",  Clazz_newArray (-1, [atom.sType,  Clazz_newFloatArray (-1, [atom.coord[0], atom.coord[1], atom.coord[2], atom.force[0], atom.force[1], atom.force[2]]), iVal])));
+sb.append (JU.PT.sprintf ("%3d %8.3f %8.3f %8.3f %-5s %2d %8.3f %8.3f %8.3f" + s + "\n", "sFI",  Clazz_newArray (-1, [atom.sType,  Clazz_newFloatArray (-1, [atom.coord[0], atom.coord[1], atom.coord[2], atom.force[0], atom.force[1], atom.force[2]]), iVal])));
 }
 sb.append (trailer + "\n\n");
 return sb.toString ();
@@ -4051,6 +4052,7 @@ if (this.minimizer.minimizationOn ()) JU.Logger.error (e.toString ());
 }, "Exception");
 });
 })(Clazz
+,Clazz.getClassName
 ,Clazz.newLongArray
 ,Clazz.doubleToByte
 ,Clazz.doubleToInt
@@ -4094,6 +4096,7 @@ if (this.minimizer.minimizationOn ()) JU.Logger.error (e.toString ());
 ,Clazz.getInheritedLevel
 ,Clazz.getParamsType
 ,Clazz.isAF
+,Clazz.isAB
 ,Clazz.isAI
 ,Clazz.isAS
 ,Clazz.isASS

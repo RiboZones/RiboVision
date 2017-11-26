@@ -1,3 +1,6 @@
+//BH 12/18/2015 7:30:28 AM using slice for toArray()
+//BH 7/4/2016 3:16:31 PM adding _removeItemAt and _removeObject
+
 Clazz.load(["java.util.AbstractList","$.List","$.RandomAccess"],"java.util.ArrayList",["java.lang.IllegalArgumentException","$.IndexOutOfBoundsException","java.lang.reflect.Array","java.util.Arrays"],function(){
 c$=Clazz.decorateAsClass(function(){
 this.firstIndex=0;
@@ -310,6 +313,11 @@ return i-this.firstIndex;
 },"~O");
 Clazz.overrideMethod(c$,"remove",
 function(location){
+return (typeof location == "number" ? this._removeItemAt(location) : this._removeObject(location));
+},"~N"); 
+
+Clazz.overrideMethod(c$,"_removeItemAt",
+function(location){
 var result;
 var size=this.size();
 if(0<=location&&location<size){
@@ -334,10 +342,10 @@ throw new IndexOutOfBoundsException();
 return result;
 },"~N"); 
 
-Clazz.defineMethod(c$, "removeObject", function(o) {
+Clazz.defineMethod(c$, "_removeObject", function(o) {
 	var i = this.indexOf(o);
 	if (i < 0)return null;
-	return this.remove(i);
+	return this._removeItemAt(i);
 }, "~O");
 
 Clazz.overrideMethod(c$,"removeRange",
@@ -386,12 +394,14 @@ return result;
 Clazz.overrideMethod(c$,"toArray",
 function(contents){
 var size=this.size();
-if(!contents || size>contents.length)
-	contents= new Array(size);
+if(!contents || size>contents.length) {
+  return this.array.slice(this.firstIndex, this.firstIndex + size);
+}
 System.arraycopy(this.array,this.firstIndex,contents,0,size);
 if(size<contents.length){
 contents[size]=null;
-}return contents;
+}
+return contents;
 },"~O");
 Clazz.defineMethod(c$,"trimToSize",
 function(){

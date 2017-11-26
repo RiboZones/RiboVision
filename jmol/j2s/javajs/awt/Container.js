@@ -42,7 +42,7 @@ return component;
 }, "javajs.awt.Component,~N");
 Clazz.defineMethod (c$, "remove", 
 function (i) {
-var c = this.list.remove (i);
+var c = this.list.removeItemAt (i);
 c.parent = null;
 this.cList = null;
 }, "~N");

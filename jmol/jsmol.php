@@ -3,6 +3,9 @@
 // jsmol.php
 // Bob Hanson hansonr@stolaf.edu 1/11/2013
 //
+// 31 MAR 2016 -- https://cactus -> https://cactus
+// 09 Nov 2015 -- bug fix for www.pdb --> www.rcsb
+// 23 Mar 2015 -- checking for missing :// in queries
 // 2 Feb 2014 -- stripped of any exec calls and image options-- this was for JSmol image option - abandoned
 // 30 Oct 2013 -- saveFile should not convert " to _
 // 30 Sep 2013 -- adjusted error handling to only report E_ERROR not E_WARNING
@@ -88,9 +91,9 @@ if ($_GET['isform']=="true") {
 }
 $encoding = getValueSimple($values, "encoding", "");
 $call = getValueSimple($values, "call", "getRawDataFromDatabase");
-$query = getValueSimple($values, "query", "http://cactus.nci.nih.gov/chemical/structure/ethanol/file?format=sdf&get3d=True");
+$query = getValueSimple($values, "query", "https://cactus.nci.nih.gov/chemical/structure/ethanol/file?format=sdf&get3d=True");
 $database = getValueSimple($values, "database", "_");
-
+$test = getValueSimple($values,"test","");
 $imagedata = "";
 $contentType = "";
 $output = "";
@@ -98,9 +101,10 @@ $isBinary = false;
 $filename = "";
 
 if ($call == "getInfoFromDatabase") {
+  // TODO: add PDBe annotation business here
 	if ($database == '=') {
-		$restQueryUrl = "http://www.pdb.org/pdb/rest/search";
-		$restReportUrl = "http://www.pdb.org/pdb/rest/customReport";
+		$restQueryUrl = "http://www.rcsb.org/pdb/rest/search";
+		$restReportUrl = "http://www.rcsb.org/pdb/rest/customReport";
 		$xml = "<orgPdbQuery><queryType>org.pdb.query.simple.AdvancedKeywordQuery</queryType><description>Text Search</description><keywords>$query</keywords></orgPdbQuery>";
 		$context = stream_context_create(array('http' => array(
 			'method' => 'POST',
@@ -134,7 +138,9 @@ if ($call == "getInfoFromDatabase") {
 	$isBinary = (strpos(".gz", $query) >= 0);
 		if ($database != "_")
 			$query = $database.$query;
-		if (strpos($query, '?POST?') > 0) {
+		if (strpos($query, '://') == 0) {
+      $output = "";
+    } else if (strpos($query, '?POST?') > 0) {
 			list($query,$data) = explode('?POST?', $query, 2);
 			$context = stream_context_create(array('http' => array(
 				'method' => 'POST',
@@ -143,7 +149,10 @@ if ($call == "getInfoFromDatabase") {
 			);
 			$output = file_get_contents($query, false, $context);
 		} else {
-			$output = file_get_contents($query);
+  		$output = file_get_contents($query);
+      if ($test != "") {
+        $output = $query."<br>".$output;
+      }
 		}
 } else if ($call == "saveFile") {
 	$imagedata = $_REQUEST["data"];//getValueSimple($values, "data", ""); don't want to convert " to _ here
@@ -177,6 +186,8 @@ ob_start();
   	header('Access-Control-Allow-Origin: *');
   	if ($isBinary) {
   		header('Content-Type: text/plain; charset=x-user-defined');
+    } else if (strpos($output, '<html') > 0) {
+      header('Content-type: text/html; charset=utf-8');
   	} else {
   		header('Content-Type: application/json');
   	}

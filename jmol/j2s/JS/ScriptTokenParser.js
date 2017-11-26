@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JS");
-Clazz.load (null, "JS.ScriptTokenParser", ["java.lang.Float", "JU.Lst", "$.P3", "$.PT", "J.i18n.GT", "JS.ScriptParam", "$.T", "JU.Logger", "$.SimpleUnitCell"], function () {
+Clazz.load (null, "JS.ScriptTokenParser", ["java.lang.Boolean", "$.Float", "JU.Lst", "$.P3", "$.PT", "J.i18n.GT", "JS.ScriptParam", "$.T", "JU.Logger", "$.SimpleUnitCell"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.vwr = null;
 this.script = null;
@@ -20,6 +20,7 @@ this.nTokens = 0;
 this.tokCommand = 0;
 this.ptNewSetModifier = 0;
 this.isNewSet = false;
+this.haveMacro = false;
 this.logMessages = true;
 this.atokenInfix = null;
 this.itokenInfix = 0;
@@ -57,7 +58,10 @@ if (this.isNewSet) {
 if (size == 1) {
 this.atokenInfix[0] = JS.T.tv (134320141, 0, this.atokenInfix[0].value);
 this.isNewSet = false;
-}}return ((this.isNewSet || this.isSetBrace) && size < this.ptNewSetModifier + 2 ? this.commandExpected () : size == 1 || !JS.T.tokAttr (this.tokCommand, 262144) ? true : this.error (0));
+}}if ((this.isNewSet || this.isSetBrace) && size < this.ptNewSetModifier + 2) {
+if (!this.isNewSet || !this.haveMacro) return this.commandExpected ();
+this.htUserFunctions.put (this.atokenInfix[0].value, Boolean.TRUE);
+}return (size == 1 || !JS.T.tokAttr (this.tokCommand, 262144) ? true : this.error (0));
 });
 Clazz.defineMethod (c$, "compileExpression", 
 function () {
@@ -218,7 +222,7 @@ if (token == null) return false;
 if (this.logMessages) JU.Logger.debug ("addTokenToPostfix" + token);
 if (token.tok == 268435520 && (this.lastToken.tok == 1073742336 || this.lastToken.tok == 1073742337)) {
 var ipt = this.ltokenPostfix.size () - 1;
-this.ltokenPostfix.remove (ipt);
+this.ltokenPostfix.removeItemAt (ipt);
 this.ltokenPostfix.addLast (JS.T.tokenRightParen);
 var pcount = 0;
 var tok;
@@ -378,7 +382,7 @@ this.addNextToken ();
 if (isHash) {
 isImplicitExpression = false;
 this.returnToken ();
-this.ltokenPostfix.remove (this.ltokenPostfix.size () - 1);
+this.ltokenPostfix.removeItemAt (this.ltokenPostfix.size () - 1);
 this.addNextToken ();
 var nBrace = 1;
 while (nBrace != 0) {
@@ -472,7 +476,7 @@ break;
 if (isWithin && distance == 3.4028235E38) switch (tok0) {
 case 12290:
 break;
-case 1073741916:
+case 1111490587:
 case 1073742128:
 case 134218756:
 case 134218757:
@@ -502,13 +506,13 @@ case 1073742328:
 allowComma = false;
 case 1086326785:
 case 1086326786:
-case 1073741864:
+case 1073741863:
 case 1678381065:
-case 1086324740:
+case 1086326788:
 case 1073742329:
 case 1086326789:
 case 1086324742:
-case 1747587102:
+case 1814695966:
 case 136314895:
 case 1094717454:
 case 1094713360:
@@ -561,7 +565,7 @@ done = true;
 break;
 case 1086324742:
 case 1648363544:
-case 1747587102:
+case 1814695966:
 this.getToken ();
 this.addTokenToPostfix (4, JS.T.nameOf (tok));
 break;

@@ -25,9 +25,9 @@ return true;
 Clazz.defineMethod (c$, "setCell", 
  function () {
 this.fillFloatArray (null, 0, this.unitCellData);
-this.addPrimitiveLatticeVector (0, this.unitCellData, 0);
-this.addPrimitiveLatticeVector (1, this.unitCellData, 3);
-this.addPrimitiveLatticeVector (2, this.unitCellData, 6);
+this.addExplicitLatticeVector (0, this.unitCellData, 0);
+this.addExplicitLatticeVector (1, this.unitCellData, 3);
+this.addExplicitLatticeVector (2, this.unitCellData, 6);
 });
 Clazz.defineMethod (c$, "readCellThenAtomsCartesian", 
  function () {

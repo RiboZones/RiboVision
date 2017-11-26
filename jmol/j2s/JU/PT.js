@@ -466,9 +466,7 @@ s = info;
 {
 if (typeof s == "undefined") s = "null"
 }if (s.indexOf ("{\"") != 0) {
-s = JU.PT.rep (s, "\"", "\\\"");
-s = JU.PT.rep (s, "\n", "\\n");
-s = "\"" + s + "\"";
+s = JU.PT.esc (s);
 }break;
 }if (Clazz.instanceOf (info, javajs.api.JSONEncodable)) {
 if ((s = (info).toJSON ()) == null) s = "null";
@@ -521,9 +519,7 @@ return JU.PT.packageJSON (infoType, (s == null ? sb.toString () : s));
 c$.nonArrayString = Clazz.defineMethod (c$, "nonArrayString", 
 function (x) {
 {
-var s = x.constructor.toString();
-var pt = s.indexOf("Array(");
-return (pt <= 0 || pt >= s.indexOf("{") ? x.toString() : null);
+return (x.constructor == Array || x.BYTES_PER_ELEMENT ? null : x.toString());
 }}, "~O");
 c$.byteArrayToJSON = Clazz.defineMethod (c$, "byteArrayToJSON", 
 function (data) {
@@ -547,6 +543,7 @@ url = JU.PT.rep (url, "\n", "");
 url = JU.PT.rep (url, "%", "%25");
 url = JU.PT.rep (url, "#", "%23");
 url = JU.PT.rep (url, "[", "%5B");
+url = JU.PT.rep (url, "\\", "%5C");
 url = JU.PT.rep (url, "]", "%5D");
 url = JU.PT.rep (url, " ", "%20");
 return url;

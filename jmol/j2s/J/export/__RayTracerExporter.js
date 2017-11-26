@@ -17,7 +17,7 @@ function (vwr, privateKey, g3d, params) {
 this.wasPerspective = vwr.tm.perspectiveDepth;
 if (Clazz.superCall (this, J["export"].__RayTracerExporter, "initOutput", [vwr, privateKey, g3d, params])) {
 vwr.tm.perspectiveDepth = false;
-if (this.wasPerspective) vwr.shm.finalizeAtoms (null, null);
+if (this.wasPerspective) vwr.shm.finalizeAtoms (null, false);
 return true;
 }return false;
 }, "JV.Viewer,~N,JU.GData,java.util.Map");
@@ -50,9 +50,9 @@ this.isSlabEnabled = this.tm.slabEnabled;
 this.minScreenDimension = Math.min (this.screenWidth, this.screenHeight);
 });
 Clazz.overrideMethod (c$, "drawAtom", 
-function (atom) {
+function (atom, radius) {
 this.outputSphere (atom.sX, atom.sY, atom.sZ, atom.sD / 2, atom.colixAtom);
-}, "JM.Atom");
+}, "JM.Atom,~N");
 Clazz.overrideMethod (c$, "drawCircle", 
 function (x, y, z, diameter, colix, doFill) {
 var radius = diameter / 2;

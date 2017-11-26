@@ -17,7 +17,7 @@ Clazz.superConstructor (this, J.jvxl.readers.SurfaceFileReader, []);
 });
 Clazz.defineMethod (c$, "setStream", 
 function (fileName, isBigEndian) {
-this.binarydoc.setStream ((this.sg.atomDataServer).getJzt (), fileName == null ? null : this.sg.atomDataServer.getBufferedInputStream (fileName), isBigEndian);
+this.binarydoc.setStream (fileName == null ? null : this.sg.atomDataServer.getBufferedInputStream (fileName), isBigEndian);
 }, "~S,~B");
 Clazz.overrideMethod (c$, "init", 
 function (sg) {

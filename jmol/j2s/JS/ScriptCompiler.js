@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JS");
-Clazz.load (["JS.ScriptTokenParser", "JU.Lst"], "JS.ScriptCompiler", ["java.lang.Boolean", "$.Float", "java.util.Hashtable", "JU.AU", "$.BS", "$.M34", "$.M4", "$.PT", "$.SB", "J.api.Interface", "J.i18n.GT", "J.io.JmolBinary", "JM.BondSet", "$.Group", "JS.ContextToken", "$.SV", "$.ScriptContext", "$.ScriptError", "$.ScriptFlowContext", "$.ScriptFunction", "$.ScriptManager", "$.ScriptParam", "$.T", "JU.Escape", "$.Logger", "JV.Viewer"], function () {
+Clazz.load (["JS.ScriptTokenParser", "JU.Lst"], "JS.ScriptCompiler", ["java.lang.Boolean", "$.Float", "java.util.Hashtable", "JU.AU", "$.BS", "$.M34", "$.M4", "$.PT", "$.SB", "J.api.Interface", "J.i18n.GT", "JM.BondSet", "$.Group", "JS.ContextToken", "$.SV", "$.ScriptContext", "$.ScriptError", "$.ScriptFlowContext", "$.ScriptFunction", "$.ScriptManager", "$.ScriptParam", "$.T", "JU.Escape", "$.Logger", "JV.FileManager", "$.Viewer"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.filename = null;
 this.isSilent = false;
@@ -129,7 +129,7 @@ this.scriptExtensions = script.substring (pt + 1);
 script = script.substring (0, pt);
 this.allowMissingEnd = (this.scriptExtensions.indexOf ("##noendcheck") >= 0);
 }this.haveComments = (script.indexOf ("#") >= 0);
-return J.io.JmolBinary.getEmbeddedScript (script);
+return JV.FileManager.getEmbeddedScript (script);
 }, "~S");
 Clazz.defineMethod (c$, "addTokenToPrefix", 
  function (token) {
@@ -454,7 +454,7 @@ this.thisFunction.cmdpt0 = this.iCommand;
 }if (n == 1 && this.braceCount == 1) {
 if (this.lastFlowCommand == null) {
 this.parenCount = this.setBraceCount = this.braceCount = 0;
-this.ltoken.remove (0);
+this.ltoken.removeItemAt (0);
 var t = JS.ContextToken.newContext (true);
 this.addTokenToPrefix (this.setCommand (t));
 this.pushContext (t);
@@ -462,7 +462,7 @@ this.addBrace (this.tokenCommand);
 } else {
 this.parenCount = this.setBraceCount = 0;
 this.setCommand (this.lastFlowCommand);
-if (this.lastFlowCommand.tok != 102439 && (this.tokAt (0) == 1073742332)) this.ltoken.remove (0);
+if (this.lastFlowCommand.tok != 102439 && (this.tokAt (0) == 1073742332)) this.ltoken.removeItemAt (0);
 this.lastFlowCommand = null;
 this.forceFlowContext = this.flowContext;
 }}if (this.bracketCount > 0 || this.setBraceCount > 0 || this.parenCount > 0 || this.braceCount == 1 && !this.checkFlowStartBrace (true)) {
@@ -478,7 +478,7 @@ case 4:
 case 12290:
 break;
 default:
-var t = this.ltoken.remove (2);
+var t = this.ltoken.removeItemAt (2);
 this.ltoken.add (2, JS.T.o (4, t.tok == 2 ? "" + t.intValue : t.value.toString ()));
 }
 }if (this.ltoken.size () > 0) {
@@ -638,7 +638,7 @@ this.implicitString = JS.T.tokAttr (this.tokCommand, 20480);
 }, "JS.T");
 Clazz.defineMethod (c$, "replaceCommand", 
  function (token) {
-this.ltoken.remove (0);
+this.ltoken.removeItemAt (0);
 this.ltoken.add (0, this.setCommand (token));
 }, "JS.T");
 Clazz.defineMethod (c$, "getPrefixToken", 
@@ -656,7 +656,14 @@ this.theToken = null;
 if ((this.theToken = JS.T.getTokenFromName (this.ident)) == null && (this.theToken = JS.T.getTokenFromName (this.identLC)) != null) this.theToken = JS.T.tv (this.theToken.tok, this.theToken.intValue, this.ident);
 } else {
 this.theToken = JS.T.getTokenFromName (this.identLC);
-if (this.theToken != null && (this.lastToken.tok == 1073742336 || this.lastToken.tok == 268435520)) this.theToken = JS.T.o (this.theToken.tok, this.ident);
+if (isUserVar && this.theToken != null && !this.theToken.value.toString ().equalsIgnoreCase (this.identLC)) {
+this.theToken = null;
+}if (this.theToken != null) switch (this.lastToken.tok) {
+case 1073742336:
+case 268435520:
+case 268435504:
+this.theToken = JS.T.o (this.theToken.tok, this.ident);
+}
 }if (this.theToken == null) {
 this.theToken = JS.SV.newSV ((this.identLC.indexOf ("property_") == 0 ? 1715472409 : 1073741824), 2147483647, this.ident).setName (myName);
 }return this.theTok = this.theToken.tok;
@@ -718,20 +725,34 @@ default:
 this.lastToken = JS.T.tokenMinus;
 return 2;
 }
-}}}switch (this.tokCommand) {
+}}}out : switch (this.tokCommand) {
 case 134222350:
-if (this.nTokens == 2) {
-if (this.lastToken.tok == 4120 || this.lastToken.tok == 1715472409) this.iHaveQuotedString = true;
-} else if (!this.iHaveQuotedString && this.lastToken.tok != 1073741925 && this.lastToken.tok != 1073742189) {
-return 0;
-}case 134222849:
+switch (this.lastToken.tok) {
+case 4120:
+case 1296041986:
+case 1715472409:
+case 1073877010:
+if (this.nTokens == 2) this.iHaveQuotedString = true;
+break;
+case 1073741925:
+case 1073742189:
+break;
+default:
+if (!this.iHaveQuotedString && this.nTokens != 2) return 0;
+break;
+}
+case 134222849:
 case 134222850:
 case 4124:
 case 1275072526:
 if (this.script.charAt (this.ichToken) == '@') {
 this.iHaveQuotedString = true;
 return 0;
-}if (this.tokCommand == 134222849) {
+}switch (this.tokCommand) {
+case 4124:
+this.haveMacro = true;
+break out;
+case 134222849:
 if (this.nTokens == 1 || this.nTokens == 2 && (this.tokAt (1) == 1073741839)) {
 var isDataBase = JV.Viewer.isDatabaseCode (this.charAt (this.ichToken));
 if (this.lookingAtLoadFormat (isDataBase)) {
@@ -753,6 +774,7 @@ case 1094717454:
 case 134218757:
 case 536870926:
 case 1073741849:
+case 1073741851:
 this.addTokenToPrefix (token);
 break;
 default:
@@ -762,12 +784,14 @@ this.addTokenToPrefix (JS.T.o (tok, strFormat));
 this.iHaveQuotedString = (tok == 4);
 }}
 return 2;
-}}var bs;
-if (this.script.charAt (this.ichToken) == '{' || this.parenCount > 0) break;
+}break;
+}var bs;
+if (this.script.charAt (this.ichToken) == '{' || this.parenCount > 0) break out;
 if ((bs = this.lookingAtBitset ()) != null) {
 this.addTokenToPrefix (JS.T.o (10, bs));
 return 2;
-}}if (!this.iHaveQuotedString && this.lookingAtImpliedString (this.tokCommand == 134222350, this.tokCommand == 134222849, this.nTokens > 1 || this.tokCommand != 134222850 && this.tokCommand != 4124)) {
+}}
+if (!this.iHaveQuotedString && this.lookingAtImpliedString (this.tokCommand == 134222350, this.tokCommand == 134222849, this.nTokens > 1 || this.tokCommand != 134222850 && this.tokCommand != 4124)) {
 var str = this.script.substring (this.ichToken, this.ichToken + this.cchToken);
 if (this.tokCommand == 134222850) {
 if (str.startsWith ("javascript:")) {
@@ -851,8 +875,7 @@ if (this.nTokens != 1) return this.ERROR (0);
 var f = (this.flowContext == null ? null : this.flowContext.getBreakableContext (val = Math.abs (val)));
 if (f == null) return this.ERROR (1, this.tokenCommand.value);
 this.tokenAt (0).intValue = f.pt0;
-}if (val == 0 && intString.equals ("-0")) this.addTokenToPrefix (JS.T.tokenMinus);
-this.addNumber (2, val, intString);
+}this.addNumber (2, val, intString);
 return 2;
 }if (!this.isMathExpressionCommand && this.parenCount == 0 || this.lastToken.tok != 1073741824 && !JS.ScriptTokenParser.tokenAttr (this.lastToken, 134217728)) {
 var isBondOrMatrix = (this.script.charAt (this.ichToken) == '[');
@@ -932,32 +955,6 @@ this.tokenAndEquals = JS.T.getTokenFromName (this.ident.substring (0, 1));
 this.setEqualPt = this.ichToken;
 return 0;
 }return 2;
-case 102409:
-if (this.tokCommand == 135174 || this.tokCommand == 4103 && this.nTokens == 1) return 0;
-if (!this.haveENDIF) return 5;
-case 364548:
-if (this.flowContext != null) this.flowContext.forceEndIf = false;
-case 364547:
-if (this.nTokens > 0) {
-this.isEndOfCommand = true;
-this.cchToken = 0;
-return 2;
-}break;
-case 134320648:
-if (this.bracketCount > 0) break;
-case 102411:
-case 102413:
-case 102402:
-case 134320649:
-case 102410:
-case 102406:
-case 102412:
-if (this.nTokens > 1 && this.tokCommand != 36867 && this.nSemiSkip == 0) {
-this.isEndOfCommand = true;
-if (this.flowContext != null) this.flowContext.forceEndIf = true;
-this.cchToken = 0;
-return 2;
-}break;
 case 268435649:
 case 268435650:
 if (this.afterWhite == this.ichToken || this.afterMath == this.ichToken) this.theToken = JS.T.tv (this.theToken.tok, -1, this.theToken.value);
@@ -1032,6 +1029,40 @@ this.isDotDot = true;
 this.addTokenToPrefix (JS.T.tokenArrayOpen);
 return 2;
 }
+switch (this.lastToken.tok) {
+case 1073742336:
+case 1073742337:
+case 268435504:
+case 268435520:
+return 0;
+}
+switch (tok) {
+case 102409:
+if (this.tokCommand == 135174 || this.tokCommand == 4103 && this.nTokens == 1) return 0;
+if (!this.haveENDIF) return 5;
+case 364548:
+if (this.flowContext != null) this.flowContext.forceEndIf = false;
+case 364547:
+if (this.nTokens > 0) {
+this.isEndOfCommand = true;
+this.cchToken = 0;
+return 2;
+}break;
+case 134320648:
+case 102411:
+case 102413:
+case 102402:
+case 134320649:
+case 102410:
+case 102406:
+case 102412:
+if (this.nTokens > 1 && this.tokCommand != 36867 && this.nSemiSkip == 0) {
+this.isEndOfCommand = true;
+if (this.flowContext != null) this.flowContext.forceEndIf = true;
+this.cchToken = 0;
+return 2;
+}break;
+}
 return 0;
 });
 Clazz.defineMethod (c$, "tokenizePlusPlus", 
@@ -1090,7 +1121,7 @@ this.fixFlowAddLine (this.flowContext);
 if (this.lltoken.get (this.iCommand - 1)[0].tok == 102409 && this.forceFlowContext != null && this.forceFlowContext.forceEndIf && this.forceFlowContext.addLine > 0 && this.isFlowIfContextOK (this.forceFlowContext)) {
 this.flowContext = this.forceFlowContext;
 this.flowContext.forceEndIf = true;
-this.lltoken.remove (--this.iCommand);
+this.lltoken.removeItemAt (--this.iCommand);
 } else if (this.flowContext != null && this.flowContext.addLine > 0) {
 while (this.flowContext != null && !this.isFlowIfContextOK (this.flowContext)) {
 if (this.flowContext.checkForceEndIf (0)) {
@@ -1111,12 +1142,13 @@ case 2:
 return 2;
 case 5:
 return 5;
-}
+case 0:
 this.theToken = this.tokenCommand;
 if (this.theTok == 102411) {
 this.addTokenToPrefix (this.tokenCommand);
 this.theToken = JS.T.tokenLeftParen;
 }return 0;
+}
 }if (this.flowContext != null && !this.haveENDIF && this.flowContext.addLine > 0) {
 this.fixFlowAddLine (this.flowContext);
 while (this.flowContext != null) {
@@ -1129,6 +1161,7 @@ this.theTok = this.theToken.tok;
 break;
 }}
 }if (this.theTok == 1073742338) {
+this.forceFlowContext = null;
 this.addBrace (this.tokenCommand);
 this.tokCommand = 0;
 return 2;
@@ -1191,7 +1224,8 @@ this.tokenCommand.value = this.ident;
 return 2;
 }if (this.nTokens == 1) {
 if (this.thisFunction != null) this.vFunctionStack.add (0, this.thisFunction);
-this.thisFunction = (this.tokCommand == 102436 ? JS.ScriptCompiler.newScriptParallelProcessor (this.ident, this.tokCommand) :  new JS.ScriptFunction (this.ident, this.tokCommand));
+this.thisFunction = (this.tokCommand == 102436 ? J.api.Interface.getInterface ("JS.ScriptParallelProcessor", null, null) :  new JS.ScriptFunction (this.ident, this.tokCommand));
+this.thisFunction.set (this.ident, this.tokCommand);
 this.htUserFunctions.put (this.ident, Boolean.TRUE);
 this.flowContext.setFunction (this.thisFunction);
 break;
@@ -1328,12 +1362,6 @@ break;
 }
 return 0;
 }, "~N,~B");
-c$.newScriptParallelProcessor = Clazz.defineMethod (c$, "newScriptParallelProcessor", 
- function (name, tok) {
-var jpp = J.api.Interface.getInterface ("JS.ScriptParallelProcessor", null, null);
-jpp.set (name, tok);
-return jpp;
-}, "~S,~N");
 Clazz.defineMethod (c$, "setNewSetCommand", 
  function (isSetBrace, ident) {
 this.tokCommand = 36867;
@@ -1381,13 +1409,13 @@ return false;
 Clazz.defineMethod (c$, "checkFlowEndBrace", 
  function () {
 if (this.iBrace <= 0 || this.vBraces.get (this.iBrace - 1).tok != 1073742338) return 0;
-this.vBraces.remove (--this.iBrace);
-var token = this.vBraces.remove (--this.iBrace);
+this.vBraces.removeItemAt (--this.iBrace);
+var token = this.vBraces.removeItemAt (--this.iBrace);
 if (this.theTok == 1073742332) {
 this.braceCount--;
 this.parenCount--;
 }if (token.tok == 1275335685) {
-this.vPush.remove (--this.pushCount);
+this.vPush.removeItemAt (--this.pushCount);
 this.addTokenToPrefix (this.setCommand (JS.ContextToken.newContext (false)));
 this.isEndOfCommand = true;
 return 2;
@@ -1461,7 +1489,8 @@ if (f == null) {
 this.errorStr (1, ident);
 return 4;
 }this.setCommand (JS.T.tv (this.tokCommand, f.pt0, ident));
-return 0;
+this.theToken = this.tokenCommand;
+return 1;
 case 134320141:
 case 102436:
 if (this.flowContext != null) {
@@ -1501,7 +1530,7 @@ switch (this.tokCommand) {
 case 364558:
 this.flowContext =  new JS.ScriptFlowContext (this, ct, pt, this.flowContext, this.ichCurrentCommand, this.lineCurrent);
 if (this.thisFunction != null) this.vFunctionStack.add (0, this.thisFunction);
-this.thisFunction = JS.ScriptCompiler.newScriptParallelProcessor ("", this.tokCommand);
+this.thisFunction =  new JS.ScriptFunction ("", 364558);
 this.flowContext.setFunction (this.thisFunction);
 this.pushContext (ct);
 break;
@@ -1568,7 +1597,7 @@ case 102412:
 case 134320648:
 case 102439:
 case 102406:
-if (!isExplicitEnd) this.vPush.remove (--this.pushCount);
+if (!isExplicitEnd) this.vPush.removeItemAt (--this.pushCount);
 break;
 case 102436:
 case 134320141:
@@ -1576,9 +1605,9 @@ case 364558:
 if (!this.isCheckOnly) {
 this.addTokenToPrefix (JS.T.o (tok, this.thisFunction));
 JS.ScriptFunction.setFunction (this.thisFunction, this.script, pt1, this.lltoken.size (), this.lineNumbers, this.lineIndices, this.lltoken);
-}this.thisFunction = (this.vFunctionStack.size () == 0 ? null : this.vFunctionStack.remove (0));
+}this.thisFunction = (this.vFunctionStack.size () == 0 ? null : this.vFunctionStack.removeItemAt (0));
 this.tokenCommand.intValue = 0;
-if (tok == 364558) this.vPush.remove (--this.pushCount);
+if (tok == 364558) this.vPush.removeItemAt (--this.pushCount);
 break;
 default:
 return this.errorStr (19, "end " + ident);
@@ -1692,13 +1721,16 @@ if (isFileName) {
 var s = this.script.substring (this.ichToken + 1, this.ichToken + this.cchToken - 1);
 if (s.indexOf ("\\u") >= 0) s = JU.Escape.unescapeUnicode (s);
 if (s.indexOf (";base64,") != 0) return s;
-}var sb = JU.SB.newN (this.cchToken - 2);
-var ichMax = this.ichToken + this.cchToken - 1;
-var ich = this.ichToken + 1;
+}return JS.ScriptCompiler.unescapeString (this.script, this.ichToken + 1, this.cchToken - 2);
+}, "~B");
+c$.unescapeString = Clazz.defineMethod (c$, "unescapeString", 
+function (script, ich, nChar) {
+var sb = JU.SB.newN (nChar);
+var ichMax = ich + nChar;
 while (ich < ichMax) {
-var ch = this.script.charAt (ich++);
+var ch = script.charAt (ich++);
 if (ch == '\\' && ich < ichMax) {
-ch = this.script.charAt (ich++);
+ch = script.charAt (ich++);
 switch (ch) {
 case 'n':
 ch = '\n';
@@ -1718,7 +1750,7 @@ var digitCount = ch == 'x' ? 2 : 4;
 if (ich < ichMax) {
 var unicode = 0;
 for (var k = digitCount; --k >= 0 && ich < ichMax; ) {
-var chT = this.script.charAt (ich);
+var chT = script.charAt (ich);
 var hexit = JU.Escape.getHexitValue (chT);
 if (hexit < 0) break;
 unicode <<= 4;
@@ -1730,7 +1762,7 @@ ch = String.fromCharCode (unicode);
 }sb.appendC (ch);
 }
 return sb.toString ();
-}, "~B");
+}, "~S,~N,~N");
 Clazz.defineMethod (c$, "lookingAtLoadFormat", 
  function (allchar) {
 var ichT = this.ichToken;
@@ -1830,8 +1862,8 @@ var ch;
 while (JU.PT.isDigit (ch = this.charAt (ichT++))) digitSeen = true;
 
 if (ch != '.') return false;
-var ch1;
-if (!this.eol (ch1 = this.charAt (ichT))) {
+var ch1 = this.charAt (ichT);
+if (!JS.ScriptCompiler.isSpaceOrTab (ch1) && !this.eol (ch1)) {
 if (JU.PT.isLetter (ch1) || ch1 == '?' || ch1 == '*' || ch1 == '_') return false;
 if (JU.PT.isLetter (ch1 = this.charAt (ichT + 1)) || ch1 == '?') return false;
 }while (JU.PT.isDigit (this.charAt (ichT))) {
@@ -1954,6 +1986,7 @@ case '}':
 break;
 case '.':
 if (this.charAt (ichT) == '.') ++ichT;
+this.tokLastMath = 1;
 break;
 case '@':
 case '{':

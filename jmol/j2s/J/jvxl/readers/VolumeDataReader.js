@@ -107,7 +107,7 @@ Clazz.defineMethod (c$, "setVoxelRange",
 function (index, min, max, ptsPerAngstrom, gridMax, minPointsPerAngstrom) {
 var nGrid;
 var d;
-if (min >= max) {
+if (min - max >= -1.0E-4) {
 min = -10;
 max = 10;
 }var range = max - min;

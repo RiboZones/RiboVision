@@ -1,13 +1,13 @@
 Clazz.declarePackage ("J.adapter.readers.cif");
-Clazz.load (["J.adapter.readers.cif.MSRdr"], "J.adapter.readers.cif.MSCifRdr", ["java.lang.Character", "$.Double", "JU.M3", "$.Matrix", "$.PT"], function () {
+Clazz.load (["J.adapter.readers.cif.MSRdr"], "J.adapter.readers.cif.MSCifParser", ["java.lang.Character", "$.Double", "JU.M3", "$.Matrix", "$.PT"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.field = null;
 this.comSSMat = null;
 Clazz.instantialize (this, arguments);
-}, J.adapter.readers.cif, "MSCifRdr", J.adapter.readers.cif.MSRdr);
+}, J.adapter.readers.cif, "MSCifParser", J.adapter.readers.cif.MSRdr);
 Clazz.makeConstructor (c$, 
 function () {
-Clazz.superConstructor (this, J.adapter.readers.cif.MSCifRdr, []);
+Clazz.superConstructor (this, J.adapter.readers.cif.MSCifParser, []);
 });
 Clazz.defineMethod (c$, "processEntry", 
 function () {
@@ -32,7 +32,7 @@ if (!key.startsWith ("_cell_wave") && !key.contains ("fourier") && !key.contains
 if (key.contains ("crenel_ortho")) cr.appendLoadNote ("WARNING: Orthogonalized non-Legendre functions not supported.\nThe following block has been ignored. Use Legendre functions instead.\n\n" + cr.parser.skipLoop (true) + "=================================\n");
 return 0;
 }if (cr.asc.iSet < 0) cr.asc.newAtomSet ();
-cr.parseLoopParametersFor ("_atom_site", J.adapter.readers.cif.MSCifRdr.modulationFields);
+cr.parseLoopParametersFor ("_atom_site", J.adapter.readers.cif.MSCifParser.modulationFields);
 var tok;
 if (cr.key2col[8] != -1) {
 cr.key2col[5] = cr.key2col[6] = cr.key2col[7] = -1;
@@ -83,7 +83,7 @@ case 13:
 case 25:
 case 50:
 case 35:
-type_id = Character.toUpperCase (J.adapter.readers.cif.MSCifRdr.modulationFields[tok].charAt (11)) + "_";
+type_id = Character.toUpperCase (J.adapter.readers.cif.MSCifParser.modulationFields[tok].charAt (11)) + "_";
 break;
 }
 type_id += this.field;

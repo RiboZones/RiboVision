@@ -66,7 +66,7 @@ this.Special =  new JU.Lst ();
 this.SymmetryOnly =  new JU.Lst ();
 this.ChargesOnly =  new JU.Lst ();
 this.TemperatureOnly =  new JU.Lst ();
-this.noZapped =  Clazz.newArray (-1, ["surfaceMenu", "measureMenu", "pickingMenu", "computationMenu", "saveMenu", "exportMenu", "SIGNEDJAVAcaptureMenuSPECIAL"]);
+this.noZapped =  Clazz.newArray (-1, ["surfaceMenu", "measureMenu", "pickingMenu", "computationMenu", "SIGNEDJAVAcaptureMenuSPECIAL"]);
 });
 Clazz.defineMethod (c$, "initialize", 
 function (vwr, bundle, title) {

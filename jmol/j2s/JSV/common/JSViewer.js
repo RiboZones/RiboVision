@@ -1,5 +1,5 @@
 Clazz.declarePackage ("JSV.common");
-Clazz.load (["javajs.api.BytePoster", "$.PlatformViewer", "javajs.awt.Dimension", "JSV.common.Spectrum"], "JSV.common.JSViewer", ["java.io.File", "java.lang.Boolean", "$.Double", "$.Float", "$.Thread", "java.net.URL", "java.util.Hashtable", "JU.CU", "$.Lst", "$.OC", "$.PT", "$.SB", "JSV.common.Annotation", "$.ExportType", "$.JSVFileManager", "$.PanelData", "$.PanelNode", "$.Parameters", "$.PeakInfo", "$.PrintLayout", "$.RepaintManager", "$.ScriptToken", "$.ScriptTokenizer", "JSV.source.JDXReader", "$.JDXSource", "JSV.tree.SimpleTree", "JU.Logger"], function () {
+Clazz.load (["javajs.api.BytePoster", "$.PlatformViewer", "javajs.awt.Dimension", "JSV.common.Spectrum"], "JSV.common.JSViewer", ["java.io.File", "java.lang.Boolean", "$.Character", "$.Double", "$.Float", "$.Thread", "java.net.URL", "java.util.Arrays", "$.Hashtable", "JU.CU", "$.Lst", "$.OC", "$.PT", "$.SB", "JSV.common.Annotation", "$.ExportType", "$.JSVFileManager", "$.PanelData", "$.PanelNode", "$.Parameters", "$.PeakInfo", "$.PrintLayout", "$.RepaintManager", "$.ScriptToken", "$.ScriptTokenizer", "JSV.source.JDXReader", "$.JDXSource", "JSV.tree.SimpleTree", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.si = null;
 this.g2d = null;
@@ -115,6 +115,7 @@ throw e;
 }, "~N,~N");
 Clazz.defineMethod (c$, "runScriptNow", 
 function (script) {
+System.out.println (this.checkScript (script));
 this.scriptLevelCount++;
 if (script == null) script = "";
 script = script.trim ();
@@ -174,6 +175,9 @@ case JSV.common.ScriptToken.GETPROPERTY:
 var info = (this.selectedPanel == null ? null : this.getPropertyAsJavaObject (value));
 if (info != null) this.selectedPanel.showMessage (JU.PT.toJSON (null, info), value);
 break;
+case JSV.common.ScriptToken.HELP:
+this.execHelp (value);
+break;
 case JSV.common.ScriptToken.HIDDEN:
 this.si.siExecHidden (JSV.common.Parameters.isTrue (value));
 break;
@@ -188,6 +192,9 @@ case JSV.common.ScriptToken.INTEGRALOFFSET:
 case JSV.common.ScriptToken.INTEGRALRANGE:
 this.execSetIntegralParameter (st, Double.parseDouble (value));
 break;
+case JSV.common.ScriptToken.INVERTY:
+this.execZoom ("invertY");
+break;
 case JSV.common.ScriptToken.JMOL:
 this.si.syncToJmol (value);
 break;
@@ -198,7 +205,7 @@ case JSV.common.ScriptToken.LOAD:
 if (value.length == 0) {
 if (this.defaultLoadScript != null) this.runScriptNow (this.defaultLoadScript);
 break;
-}this.load (value, (this.defaultLoadScript == null ? "" : this.defaultLoadScript + ";") + commandTokens.getRemainingScript ());
+}this.execLoad (value, (this.defaultLoadScript == null ? "" : this.defaultLoadScript + ";") + commandTokens.getRemainingScript ());
 msg = (this.selectedPanel == null ? null : this.si.siLoaded (value));
 commandTokens = null;
 break;
@@ -296,13 +303,9 @@ case JSV.common.ScriptToken.PRINT:
 msg = this.execWrite (null);
 break;
 case JSV.common.ScriptToken.SETPEAK:
-this.pd ().shiftSpectrum (NaN, value.equalsIgnoreCase ("NONE") ? 1.7976931348623157E308 : value.equalsIgnoreCase ("?") ? 4.9E-324 : Double.parseDouble (value));
-break;
 case JSV.common.ScriptToken.SETX:
-this.pd ().shiftSpectrum (4.9E-324, Double.parseDouble (value));
-break;
 case JSV.common.ScriptToken.SHIFTX:
-this.pd ().shiftSpectrum (value.equalsIgnoreCase ("NONE") ? 1.7976931348623157E308 : Double.parseDouble (value), NaN);
+this.execShiftSpectrum (st, token);
 break;
 case JSV.common.ScriptToken.SHOWERRORS:
 this.show ("errors");
@@ -358,6 +361,41 @@ this.scriptLevelCount--;
 this.si.siExecScriptComplete (msg, true);
 return isOK;
 }, "~S");
+Clazz.defineMethod (c$, "execShiftSpectrum", 
+ function (st, script) {
+var tokens = JSV.common.ScriptToken.getTokens (script);
+var xOld = NaN;
+var xNew = NaN;
+switch (tokens.size ()) {
+case 2:
+var value = tokens.get (1);
+if (value.equals ("")) value = "?";
+xNew = value.equalsIgnoreCase ("NONE") ? 1.7976931348623157E308 : value.equalsIgnoreCase ("?") ? NaN : Double.parseDouble (value);
+break;
+case 3:
+xOld = Double.parseDouble (tokens.get (1));
+xNew = Double.parseDouble (tokens.get (2));
+break;
+default:
+Double.parseDouble ("");
+}
+var mode = 0;
+switch (st) {
+case JSV.common.ScriptToken.SETPEAK:
+mode = 1;
+break;
+case JSV.common.ScriptToken.SETX:
+mode = 2;
+break;
+case JSV.common.ScriptToken.SHIFTX:
+mode = 3;
+if (Double.isNaN (xNew)) Double.parseDouble ("");
+break;
+default:
+return;
+}
+this.pd ().shiftSpectrum (mode, xOld, xNew);
+}, "JSV.common.ScriptToken,~S");
 Clazz.defineMethod (c$, "execClose", 
  function (value) {
 var fromScript = (!value.startsWith ("!"));
@@ -372,7 +410,7 @@ return (value.equalsIgnoreCase ("single") || value.equalsIgnoreCase ("overlay"))
 Clazz.defineMethod (c$, "execPeak", 
  function (value) {
 try {
-var tokens = JSV.common.ScriptToken.getTokens (value);
+var tokens = JSV.common.ScriptToken.getTokens (JU.PT.rep (value, "#", "INDEX="));
 value = " type=\"" + tokens.get (0).toUpperCase () + "\" _match=\"" + JU.PT.trimQuotes (tokens.get (1).toUpperCase ()) + "\"";
 if (tokens.size () > 2 && tokens.get (2).equalsIgnoreCase ("all")) value += " title=\"ALL\"";
 this.processPeakPickEvent ( new JSV.common.PeakInfo (value), false);
@@ -391,23 +429,27 @@ if (value.indexOf ("=") < 0) {
 if (!this.isClosed ()) this.pd ().getPeakListing (null, b);
 } else {
 var tokens = JSV.common.ScriptToken.getTokens (value);
+var threshold = p.peakListThreshold;
+var interp = p.peakListInterpolation;
+try {
 for (var i = tokens.size (); --i >= 0; ) {
 var token = tokens.get (i);
 var pt = token.indexOf ("=");
 if (pt <= 0) continue;
 var key = token.substring (0, pt);
 value = token.substring (pt + 1);
-try {
 if (key.startsWith ("thr")) {
-p.peakListThreshold = Double.$valueOf (value).doubleValue ();
+threshold = Double.$valueOf (value).doubleValue ();
 } else if (key.startsWith ("int")) {
-p.peakListInterpolation = (value.equalsIgnoreCase ("none") ? "NONE" : "parabolic");
-}if (!this.isClosed ()) this.pd ().getPeakListing (p, Boolean.TRUE);
+interp = (value.equalsIgnoreCase ("none") ? "NONE" : "parabolic");
+}}
+p.peakListThreshold = threshold;
+p.peakListInterpolation = interp;
+if (!this.isClosed ()) this.pd ().getPeakListing (p, Boolean.TRUE);
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
 } else {
 throw e;
-}
 }
 }
 }}, "~S");
@@ -474,11 +516,22 @@ this.pd ().previousView ();
 this.pd ().resetView ();
 } else if (value.equalsIgnoreCase ("clear")) {
 this.pd ().clearAllView ();
+} else if (value.equalsIgnoreCase ("invertY")) {
+this.pd ().getCurrentGraphSet ().invertYAxis ();
 }return true;
 case 2:
 x1 = Double.parseDouble (tokens.get (0));
 x2 = Double.parseDouble (tokens.get (1));
 break;
+case 3:
+var xy = tokens.get (0);
+if (xy.equalsIgnoreCase ("X")) {
+x1 = Double.parseDouble (tokens.get (1));
+x2 = Double.parseDouble (tokens.get (2));
+} else if (xy.equalsIgnoreCase ("Y")) {
+y1 = Double.parseDouble (tokens.get (1));
+y2 = Double.parseDouble (tokens.get (2));
+}break;
 case 4:
 x1 = Double.parseDouble (tokens.get (0));
 y1 = Double.parseDouble (tokens.get (1));
@@ -768,13 +821,14 @@ if ("SOURCEID".equalsIgnoreCase (key)) {
 map.put (key, (this.pd () == null ? "" : this.pd ().getSpectrum ().sourceID));
 return map;
 }if (key != null && key.startsWith ("DATA_")) {
-map.put (key, "" + JSV.common.JSVFileManager.htCorrelationCache.get (key.substring (5)));
+map.put (key, "" + JSV.common.JSVFileManager.cacheGet (key.substring (5)));
 return map;
 }var isAll = false;
 if (key != null && key.toUpperCase ().startsWith ("ALL ") || "all".equalsIgnoreCase (key)) {
 key = key.substring (3).trim ();
 isAll = true;
 }if ("".equals (key)) key = null;
+if ("NAMES".equalsIgnoreCase (key) || "KEYS".equalsIgnoreCase (key)) key = "";
 var map0 = this.pd ().getInfo (true, key);
 if (!isAll && map0 != null) return map0;
 if (map0 != null) map.put ("current", map0);
@@ -978,7 +1032,7 @@ if (combine) {
 this.combineSpectra ((isView ? strUrl : null));
 } else {
 this.splitSpectra ();
-}this.pd ().taintedAll = true;
+}this.pd ().setTaintedAll ();
 if (!isView) this.si.siUpdateRecentMenus (filePath);
 return 0;
 }, "~O,~S,JU.Lst,~S,~N,~N,~B,~S");
@@ -1023,7 +1077,7 @@ if (source != null) list.addLast (source);
 
 if (this.selectedPanel == null && this.panelNodes.size () > 0) this.si.siSetSelectedPanel (JSV.common.PanelNode.getLastFileFirstNode (this.panelNodes));
 }, "~S");
-Clazz.defineMethod (c$, "load", 
+Clazz.defineMethod (c$, "execLoad", 
 function (value, script) {
 var applet = this.html5Applet;
 var tokens = JSV.common.ScriptToken.getTokens (value);
@@ -1040,31 +1094,44 @@ if (isAppend || isCheck) pt++;
 if (pt > 0) filename = tokens.get (pt);
 if (script == null) script = this.defaultLoadScript;
 if (filename.equals ("?")) {
-this.openFileFromDialog (isAppend, false, false, script);
+this.openFileFromDialog (isAppend, false, null, script);
 return;
 }if (filename.equals ("http://?")) {
-this.openFileFromDialog (isAppend, true, false, null);
+this.openFileFromDialog (isAppend, true, null, null);
 return;
-}if (filename.equals ("$?")) {
-this.openFileFromDialog (isAppend, true, true, null);
+}if (filename.equals ("$?") || filename.equals ("$H1?")) {
+this.openFileFromDialog (isAppend, true, "H1", null);
 return;
-}var isMOL = filename.equalsIgnoreCase ("MOL");
-if (isMOL) filename = "http://SIMULATION/" + "MOL=" + JU.PT.trimQuotes (tokens.get (++pt));
+}if (filename.equals ("$C13?")) {
+this.openFileFromDialog (isAppend, true, "C13", null);
+return;
+}var isH1 = filename.equalsIgnoreCase ("MOL") || filename.equalsIgnoreCase ("H1");
+var isC13 = filename.equalsIgnoreCase ("C13");
+if (isH1 || isC13) filename = "http://SIMULATION/" + (isH1 ? "H1/" : "C13/") + "MOL=" + JU.PT.trimQuotes (tokens.get (++pt));
 if (!isCheck && !isAppend) {
 if (filename.equals ("\"\"") && this.currentSource != null) filename = this.currentSource.getFilePath ();
 this.close ("all");
 }filename = JU.PT.trimQuotes (filename);
-if (filename.startsWith ("$")) {
-isMOL = true;
+var isSimulation = filename.startsWith ("$");
+if (isSimulation) {
+if (!filename.startsWith ("$H1") && !filename.startsWith ("$C13")) filename = "$H1/" + filename.substring (1);
 filename = "http://SIMULATION/" + filename.substring (1);
 }var firstSpec = (pt + 1 < tokens.size () ? Integer.$valueOf (tokens.get (++pt)).intValue () : -1);
 var lastSpec = (pt + 1 < tokens.size () ? Integer.$valueOf (tokens.get (++pt)).intValue () : firstSpec);
 this.si.siOpenDataOrFile (null, null, null, filename, firstSpec, lastSpec, isAppend, script, id);
-}, "~S,~S");
+if (isSimulation) {
+this.close ("views");
+this.execView ("*", true);
+}}, "~S,~S");
 Clazz.defineMethod (c$, "combineSpectra", 
 function (name) {
 var source = this.currentSource;
 var specs = source.getSpectra ();
+var haveSimulation = false;
+for (var i = specs.size (); --i >= 0; ) if (specs.get (i).isSimulation) {
+haveSimulation = true;
+break;
+}
 var jsvp = this.si.siGetNewJSVPanel2 (specs);
 jsvp.setTitle (source.getTitle ());
 if (jsvp.getTitle ().equals ("")) {
@@ -1077,6 +1144,7 @@ node.setFrameTitle (name);
 node.isView = true;
 if (this.autoShowLegend && this.pd ().getNumberOfGraphSets () == 1) node.setLegend (this.getDialog (JSV.common.Annotation.AType.OverlayLegend, null));
 this.si.siSetMenuEnables (node, false);
+if (haveSimulation) this.pd ().splitStack (true);
 }, "~S");
 Clazz.defineMethod (c$, "closeSource", 
 function (source) {
@@ -1086,7 +1154,8 @@ var toDelete =  new JU.Lst ();
 var enume = rootNode.children ();
 while (enume.hasMoreElements ()) {
 var node = enume.nextElement ();
-if (fileName == null || node.getPanelNode ().source.getFilePath ().equals (fileName)) {
+if (fileName == null || node.getPanelNode ().source.matchesFilePath (fileName)) {
+JU.Logger.info ("Closing " + node.getPanelNode ().source.getFilePath ());
 for (var e = node.children (); e.hasMoreElements (); ) {
 var childNode = e.nextElement ();
 toDelete.addLast (childNode);
@@ -1111,7 +1180,7 @@ if (f >= max + 1) max = Clazz.doubleToInt (Math.floor (f));
 }
 this.fileCount = max;
 System.gc ();
-JU.Logger.checkMemory ();
+if (JU.Logger.debugging) JU.Logger.checkMemory ();
 this.si.siSourceClosed (source);
 }, "JSV.source.JDXSource");
 Clazz.defineMethod (c$, "setFrameAndTreeNode", 
@@ -1180,7 +1249,7 @@ this.jsvpPopupMenu.jpiDispose ();
 this.jsvpPopupMenu = null;
 }if (this.panelNodes != null) for (var i = this.panelNodes.size (); --i >= 0; ) {
 this.panelNodes.get (i).dispose ();
-this.panelNodes.remove (i);
+this.panelNodes.removeItemAt (i);
 }
 });
 Clazz.defineMethod (c$, "runScript", 
@@ -1271,7 +1340,8 @@ function (fileName, flags) {
 var ans = (this.currentSource == null ? "NO" : this.getDialogManager ().getDialogInput (this, "Do you want to append this file? (Answer NO to replace.)", "Drag/Drop Action", 3, null, null, "YES"));
 if (ans == null) return;
 var pre = (ans.toLowerCase ().startsWith ("y") ? "append" : "");
-this.runScript ("load " + pre + " \"" + fileName + "\"");
+var post = (pre === "" ? "" : "; view *");
+this.runScript ("load " + pre + " \"" + fileName + "\"" + post);
 }, "~S,~N");
 Clazz.defineMethod (c$, "getHeight", 
 function () {
@@ -1347,7 +1417,7 @@ if (Clazz.exceptionOf (e, Exception)) {
 throw e;
 }
 }
-return  new JSV.common.PrintLayout ();
+return  new JSV.common.PrintLayout (this.pd ());
 }, "~B");
 Clazz.defineMethod (c$, "setIRmode", 
 function (mode) {
@@ -1381,7 +1451,7 @@ var nMax = pd.getNumberOfSpectraInCurrentSet ();
 if (n < -1 || n >= nMax) return "Maximum spectrum index (0-based) is " + (nMax - 1) + ".";
 var spec = (n < 0 ? pd.getSpectrum () : pd.getSpectrumAt (n));
 try {
-return (JSV.common.JSViewer.getInterface ("JSV.export.Exporter")).exportTheSpectrum (this, JSV.common.ExportType.getType (type), null, spec, 0, spec.getXYCoords ().length - 1, null, false);
+return (JSV.common.JSViewer.getInterface ("JSV.export.Exporter")).exportTheSpectrum (this, JSV.common.ExportType.getType (type), null, spec, 0, spec.getXYCoords ().length - 1, null, type.equalsIgnoreCase ("PDF"));
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
 JU.Logger.error (e.toString ());
@@ -1422,23 +1492,23 @@ function (msg) {
 if (this.selectedPanel != null && msg != null) this.selectedPanel.showMessage (msg, null);
 }, "~S");
 Clazz.defineMethod (c$, "openFileFromDialog", 
-function (isAppend, isURL, isSimulation, script) {
+function (isAppend, isURL, simulationType, script) {
 var url = null;
-if (isSimulation) {
+if (simulationType != null) {
 url = this.fileHelper.getUrlFromDialog ("Enter the name or identifier of a compound", this.recentSimulation);
 if (url == null) return;
 this.recentSimulation = url;
-this.load ((isAppend ? "APPEND " : "") + "\"$" + url + "\"", script);
+url = "$" + simulationType + "/" + url;
 } else if (isURL) {
 url = this.fileHelper.getUrlFromDialog ("Enter the URL of a JCAMP-DX File", this.recentURL == null ? this.recentOpenURL : this.recentURL);
 if (url == null) return;
 this.recentOpenURL = url;
-this.load ((isAppend ? "APPEND " : "") + "\"" + url + "\"", script);
 } else {
 var userData =  Clazz.newArray (-1, [Boolean.$valueOf (isAppend), script]);
 var file = this.fileHelper.showFileOpenDialog (this.mainPanel, userData);
-if (file != null) this.openFile (file.getFullPath (), !isAppend);
-}}, "~B,~B,~B,~S");
+if (file != null) url = file.getFullPath ();
+}if (url != null) this.runScriptNow ("load " + (isAppend ? "APPEND " : "") + "\"" + url + "\"" + (script == null ? "" : ";" + script));
+}, "~B,~B,~S,~S");
 Clazz.defineMethod (c$, "openFile", 
 function (fileName, closeFirst) {
 if (closeFirst && this.panelNodes != null) {
@@ -1544,6 +1614,77 @@ function (asFit) {
 var pt = JU.CU.colorPtFromInt (this.getSolutionColor (asFit), null);
 return Clazz.floatToInt (pt.x) + "," + Clazz.floatToInt (pt.y) + "," + Clazz.floatToInt (pt.z);
 }, "~B");
+Clazz.defineMethod (c$, "checkCommandLineForTip", 
+function (c, cmd, oneLineOnly) {
+var isHelp = (c == '\1');
+if (!isHelp && c != '\0') {
+if (c != '\t' && (c == '\n' || c.charCodeAt (0) < 32 || c.charCodeAt (0) > 126)) return null;
+cmd += (Character.isISOControl (c) ? "" : "" + c);
+}var tip;
+if (cmd.indexOf (";") >= 0) cmd = cmd.substring (cmd.lastIndexOf (";") + 1);
+var ret = null;
+while (cmd.startsWith (" ")) cmd = cmd.substring (1);
+
+if (cmd.length == 0 && !isHelp) {
+tip = "";
+} else {
+var tokens = JSV.common.ScriptToken.getTokens (cmd);
+if (tokens.size () == 0 && !isHelp) return "";
+var isExact = (cmd.endsWith (" ") || tokens.size () > 1 && oneLineOnly);
+var list = JSV.common.ScriptToken.getScriptTokenList (tokens.size () == 0 ? null : tokens.get (0), isExact);
+switch (list.size ()) {
+case 0:
+tip = "?";
+break;
+case 1:
+var st = list.get (0);
+tip = st.getTip ();
+try {
+if (tip.indexOf ("TRUE") >= 0) tip = " (" + this.parameters.getBoolean (st) + ")";
+ else if (st.name ().indexOf ("COLOR") >= 0) tip = " (" + JU.CU.toRGBHexString (this.parameters.getElementColor (st)) + ")";
+ else tip = "";
+} catch (e) {
+if (Clazz.exceptionOf (e, Exception)) {
+return null;
+} else {
+throw e;
+}
+}
+if (c == '\t' || isExact || !oneLineOnly) {
+tip = st.name () + " " + st.getTip () + tip + " " + st.getDescription ();
+if (c == '\t') ret = st.name () + " ";
+break;
+}tip = st.name () + " " + tip;
+break;
+default:
+tip = JSV.common.ScriptToken.getNameList (list);
+}
+}if (oneLineOnly) {
+this.si.writeStatus (tip);
+} else {
+ret = tip;
+}return ret;
+}, "~S,~S,~B");
+Clazz.defineMethod (c$, "checkScript", 
+function (script) {
+return this.checkCommandLineForTip ('\0', script, false);
+}, "~S");
+Clazz.defineMethod (c$, "execHelp", 
+ function (value) {
+var s = this.checkCommandLineForTip ('\1', value, false);
+if (s.indexOf (" ") < 0 && s.indexOf (",") > 0) {
+var tokens = JU.PT.split (s, ",");
+java.util.Arrays.sort (tokens);
+s = "";
+for (var i = 0; i < tokens.length; i++) {
+var st = JSV.common.ScriptToken.getScriptToken (tokens[i]);
+s += tokens[i] + " " + st.getTip () + "\n  " + st.getDescription () + "\n\n";
+}
+this.getDialogManager ().showMessage (null, s, "HELP " + value);
+} else {
+this.selectedPanel.showMessage (s, "Help " + value);
+}System.out.println (s);
+}, "~S");
 Clazz.defineStatics (c$,
 "sourceLabel", "Original...",
 "FILE_OPEN_OK", 0,

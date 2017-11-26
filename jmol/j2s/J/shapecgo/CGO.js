@@ -86,7 +86,7 @@ this.resetObjects ();
 Clazz.overrideMethod (c$, "getProperty", 
 function (property, index) {
 if (property === "command") return this.getCommand (this.cgoMesh);
-return this.getPropMC (property);
+return this.getPropMC (property, index);
 }, "~S,~N");
 Clazz.overrideMethod (c$, "getPropertyData", 
 function (property, data) {

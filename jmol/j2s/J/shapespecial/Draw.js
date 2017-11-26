@@ -212,16 +212,16 @@ this.offset = JU.V3.newV (value);
 if (this.thisMesh != null) this.thisMesh.offset (this.offset);
 return;
 }if ("atomSet" === propertyName) {
-if (JU.BSUtil.cardinalityOf (value) == 0) return;
 var bsAtoms = value;
+if (bsAtoms.isEmpty ()) return;
 this.vData.addLast ( Clazz.newArray (-1, [Integer.$valueOf (3), bsAtoms]));
 if (this.isCircle && this.diameter == 0 && this.width == 0) this.width = this.vwr.ms.calcRotationRadiusBs (bsAtoms) * 2.0;
 return;
 }if ("coords" === propertyName) {
-this.addPoints (1, value, false);
+this.addPoints (1, value);
 return;
 }if ("modelBasedPoints" === propertyName) {
-this.addPoints (5, value, true);
+this.addPoints (5, value);
 return;
 }if ("set" === propertyName) {
 if (this.thisMesh == null) {
@@ -246,23 +246,30 @@ return;
 }this.setPropertySuper (propertyName, value, bs);
 }, "~S,~O,JU.BS");
 Clazz.defineMethod (c$, "addPoints", 
- function (type, value, allowNull) {
+ function (type, value) {
 var pts = value;
 var key = Integer.$valueOf (type);
+var isModelPoints = (type == 5);
+if (isModelPoints) this.vData.addLast ( Clazz.newArray (-1, [key, pts]));
 for (var i = 0, n = pts.size (); i < n; i++) {
 var v = pts.get (i);
 var pt;
 switch (v.tok) {
 case 10:
-if (!allowNull && (v.value).isEmpty ()) continue;
+if (!isModelPoints && (v.value).isEmpty ()) continue;
 pt = this.vwr.ms.getAtomSetCenter (v.value);
 break;
+case 8:
+if (isModelPoints) continue;
 default:
 pt = JS.SV.ptValue (v);
 }
+if (isModelPoints) {
+pts.set (i, JS.SV.getVariable (pt));
+} else {
 this.vData.addLast ( Clazz.newArray (-1, [key, pt]));
-}
-}, "~N,~O,~B");
+}}
+}, "~N,~O");
 Clazz.defineMethod (c$, "deleteModels", 
  function (modelIndex) {
 for (var i = this.meshCount; --i >= 0; ) {
@@ -313,7 +320,11 @@ this.setPropertySuper ("thisID", "+PREVIOUS_MESH+", null);
 });
 Clazz.overrideMethod (c$, "getPropertyData", 
 function (property, data) {
-if (property === "getCenter") {
+if (property === "keys") {
+var keys = (Clazz.instanceOf (data[1], JU.Lst) ? data[1] :  new JU.Lst ());
+data[1] = keys;
+keys.addLast ("getSpinAxis");
+}if (property === "getCenter") {
 var id = data[0];
 var index = (data[1]).intValue ();
 var modelIndex = (data[2]).intValue ();
@@ -332,7 +343,7 @@ var m = this.thisMesh;
 if (index >= 0 && (index >= this.meshCount || (m = this.meshes[index]) == null)) return null;
 if (property === "command") return this.getCommand (m);
 if (property === "type") return Integer.$valueOf (m == null ? J.shapespecial.Draw.EnumDrawType.NONE.id : m.drawType.id);
-return this.getPropMC (property);
+return this.getPropMC (property, index);
 }, "~S,~N");
 Clazz.defineMethod (c$, "getSpinCenter", 
  function (axisID, vertexIndex, modelIndex) {
@@ -395,10 +406,10 @@ this.thisMesh.ptCenters = null;
 this.thisMesh.modelFlags = null;
 this.thisMesh.drawTypes = null;
 this.thisMesh.drawVertexCounts = null;
-this.thisMesh.connections = connections;
+this.thisMesh.connectedAtoms = connections;
 if (this.polygon != null) {
 if (this.polygon.size () == 0) return false;
-this.thisMesh.isTriangleSet = true;
+this.thisMesh.isDrawPolygon = true;
 this.thisMesh.vs = this.polygon.get (0);
 this.thisMesh.pis = this.polygon.get (1);
 this.thisMesh.drawVertexCount = this.thisMesh.vc = this.thisMesh.vs.length;
@@ -459,14 +470,13 @@ return true;
 }, "~A");
 Clazz.overrideMethod (c$, "clean", 
 function () {
-for (var i = this.meshCount; --i >= 0; ) if (this.meshes[i] == null || this.meshes[i].vc == 0 && this.meshes[i].connections == null && this.meshes[i].lineData == null) this.deleteMeshI (i);
+for (var i = this.meshCount; --i >= 0; ) if (this.meshes[i] == null || this.meshes[i].vc == 0 && this.meshes[i].connectedAtoms == null && this.meshes[i].lineData == null) this.deleteMeshI (i);
 
 });
 Clazz.defineMethod (c$, "addPoint", 
  function (newPt, iModel) {
-var isOK = (iModel < 0 || this.bsAllModels.get (iModel));
 if (this.makePoints) {
-if (!isOK) return;
+if (newPt == null || iModel >= 0 && !this.bsAllModels.get (iModel)) return;
 this.ptList[this.nPoints] = JU.P3.newP (newPt);
 if (newPt.z == 3.4028235E38 || newPt.z == -3.4028235E38) this.thisMesh.haveXyPoints = true;
 } else if (iModel >= 0) {
@@ -548,6 +558,8 @@ this.addPoint (point, j);
 bs = point;
 if (bsModel != null) bs.and (bsModel);
 if (bs.length () > 0) this.addPoint (this.vwr.ms.getAtomSetCenter (bs), j);
+} else if (Clazz.instanceOf (point, JS.SV)) {
+this.addPoint (JS.SV.ptValue (point), j);
 }}
 break;
 }
@@ -584,7 +596,7 @@ if (nVertices > 2) nVertices = 2;
 this.isPerpendicular = false;
 if (nVertices == 3 && this.isPlane) this.isPlane = false;
 this.length = 3.4028235E38;
-this.thisMesh.diameter = 0;
+if (this.isVector) this.thisMesh.diameter = 0;
 } else if (nVertices == 2 && this.isVector) {
 this.ptList[1].add (this.ptList[0]);
 }var dist = 0;
@@ -688,7 +700,7 @@ case 2:
 drawType = (this.isArc ? J.shapespecial.Draw.EnumDrawType.ARC : this.isPlane && this.isCircle ? J.shapespecial.Draw.EnumDrawType.CIRCULARPLANE : this.isCylinder ? J.shapespecial.Draw.EnumDrawType.CYLINDER : J.shapespecial.Draw.EnumDrawType.LINE);
 break;
 default:
-drawType = (this.thisMesh.connections == null ? J.shapespecial.Draw.EnumDrawType.PLANE : J.shapespecial.Draw.EnumDrawType.ARROW);
+drawType = (this.thisMesh.connectedAtoms == null ? J.shapespecial.Draw.EnumDrawType.PLANE : J.shapespecial.Draw.EnumDrawType.ARROW);
 }
 }this.thisMesh.drawType = drawType;
 this.thisMesh.drawVertexCount = nVertices;
@@ -708,7 +720,7 @@ return;
 Clazz.defineMethod (c$, "scale", 
  function (mesh, newScale) {
 var dmesh = mesh;
-if (newScale == 0 || dmesh.vc == 0 && dmesh.connections == null || dmesh.scale == newScale) return;
+if (newScale == 0 || dmesh.vc == 0 && dmesh.connectedAtoms == null || dmesh.scale == newScale) return;
 var f = newScale / dmesh.scale;
 dmesh.scale = newScale;
 dmesh.isScaleSet = true;
@@ -786,7 +798,7 @@ if (!this.findPickedObject (x, y, false, bsVisible)) return null;
 var v = this.pickedMesh.vs[this.pickedMesh.pis[this.pickedModel][this.pickedVertex]];
 var modelIndex = this.pickedMesh.modelIndex;
 var bs = (this.pickedMesh).modelFlags;
-if (modelIndex < 0 && bs != null && JU.BSUtil.cardinalityOf (bs) == 1) modelIndex = bs.nextSetBit (0);
+if (modelIndex < 0 && JU.BSUtil.cardinalityOf (bs) == 1) modelIndex = bs.nextSetBit (0);
 var map = null;
 if (action != 0) map = this.getPickedPoint (v, modelIndex);
 if (drawPicking && !isPickingMode) {
@@ -846,11 +858,11 @@ pt.x = x;
 pt.y = y;
 this.vwr.tm.unTransformPoint (pt, newcoord);
 move.sub2 (newcoord, coord);
-if (mesh.isTriangleSet) iVertex = ptVertex;
-var n = (!moveAll ? iVertex + 1 : mesh.isTriangleSet ? mesh.vs.length : vertexes.length);
+if (mesh.isDrawPolygon) iVertex = ptVertex;
+var n = (!moveAll ? iVertex + 1 : mesh.isDrawPolygon ? mesh.vs.length : vertexes.length);
 var bsMoved =  new JU.BS ();
 for (var i = (moveAll ? 0 : iVertex); i < n; i++) if (moveAll || i == iVertex) {
-var k = (mesh.isTriangleSet ? i : vertexes[i]);
+var k = (mesh.isDrawPolygon ? i : vertexes[i]);
 if (bsMoved.get (k)) continue;
 bsMoved.set (k);
 mesh.vs[k].add (move);
@@ -871,10 +883,10 @@ this.pickedMesh = null;
 for (var i = 0; i < this.meshCount; i++) {
 var m = this.dmeshes[i];
 if (m.visibilityFlags != 0) {
-var mCount = (m.isTriangleSet ? m.pc : m.modelFlags == null ? 1 : this.vwr.ms.mc);
+var mCount = (m.isDrawPolygon ? m.pc : m.modelFlags == null ? 1 : this.vwr.ms.mc);
 for (var iModel = mCount; --iModel >= 0; ) {
-if (m.modelFlags != null && !m.modelFlags.get (iModel) || m.pis == null || !m.isTriangleSet && (iModel >= m.pis.length || m.pis[iModel] == null)) continue;
-for (var iVertex = (m.isTriangleSet ? 3 : m.pis[iModel].length); --iVertex >= 0; ) {
+if (m.modelFlags != null && !m.modelFlags.get (iModel) || m.pis == null || !m.isDrawPolygon && (iModel >= m.pis.length || m.pis[iModel] == null)) continue;
+for (var iVertex = (m.isDrawPolygon ? 3 : m.pis[iModel].length); --iVertex >= 0; ) {
 try {
 var iv = m.pis[iModel][iVertex];
 var pt = (m.altVertices == null ? m.vs[iv] : m.altVertices[iv]);
@@ -921,7 +933,7 @@ if (dmesh.isFixed) str.append (" fixed");
 if (iModel < 0) iModel = 0;
 if (dmesh.noHead) str.append (" noHead");
  else if (dmesh.isBarb) str.append (" barb");
-if (dmesh.scale != 1 && dmesh.isScaleSet && (dmesh.haveXyPoints || dmesh.connections != null || dmesh.drawType === J.shapespecial.Draw.EnumDrawType.CIRCLE || dmesh.drawType === J.shapespecial.Draw.EnumDrawType.ARC)) str.append (" scale ").appendF (dmesh.scale);
+if (dmesh.scale != 1 && dmesh.isScaleSet && (dmesh.haveXyPoints || dmesh.connectedAtoms != null || dmesh.drawType === J.shapespecial.Draw.EnumDrawType.CIRCLE || dmesh.drawType === J.shapespecial.Draw.EnumDrawType.ARC)) str.append (" scale ").appendF (dmesh.scale);
 if (dmesh.width != 0) str.append (" diameter ").appendF ((dmesh.drawType === J.shapespecial.Draw.EnumDrawType.CYLINDER ? Math.abs (dmesh.width) : dmesh.drawType === J.shapespecial.Draw.EnumDrawType.CIRCULARPLANE ? Math.abs (dmesh.width * dmesh.scale) : dmesh.width));
  else if (dmesh.diameter > 0) str.append (" diameter ").appendI (dmesh.diameter);
 if (dmesh.lineData != null) {
@@ -957,7 +969,7 @@ str.append (dmesh.isVector ? " ARROW ARC" : " ARC");
 break;
 case J.shapespecial.Draw.EnumDrawType.ARROW:
 str.append (dmesh.isVector ? " VECTOR" : " ARROW");
-if (dmesh.connections != null) str.append (" connect ").append (JU.Escape.eAI (dmesh.connections));
+if (dmesh.connectedAtoms != null) str.append (" connect ").append (JU.Escape.eAI (dmesh.connectedAtoms));
 break;
 case J.shapespecial.Draw.EnumDrawType.CIRCLE:
 str.append (" CIRCLE");

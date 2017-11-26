@@ -64,7 +64,7 @@ this.calcMetrics ();
 }}, "~N");
 Clazz.overrideMethod (c$, "getShapeState", 
 function () {
-return this.vwr.getFontState (this.myType, this.baseFont3d);
+return null;
 });
 Clazz.defineStatics (c$,
 "defaultFontName", "SansSerif",

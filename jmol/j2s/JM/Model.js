@@ -2,6 +2,7 @@ Clazz.declarePackage ("JM");
 Clazz.load (["JU.BS", "$.SB"], "JM.Model", ["java.util.Hashtable", "JU.AU", "JU.BSUtil"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.ms = null;
+this.mat4 = null;
 this.modelIndex = 0;
 this.fileIndex = 0;
 this.isBioModel = false;
@@ -43,6 +44,8 @@ this.selectedTrajectory = -1;
 this.jmolData = null;
 this.jmolFrameType = null;
 this.pdbID = null;
+this.bsCheck = null;
+this.hasChirality = false;
 Clazz.instantialize (this, arguments);
 }, JM, "Model");
 Clazz.prepareFields (c$, function () {
@@ -81,6 +84,14 @@ Clazz.defineMethod (c$, "getTrueAtomCount",
 function () {
 return this.bsAtoms.cardinality () - this.bsAtomsDeleted.cardinality ();
 });
+Clazz.defineMethod (c$, "isContainedIn", 
+function (bs) {
+if (this.bsCheck == null) this.bsCheck =  new JU.BS ();
+this.bsCheck.or (bs);
+this.bsCheck.and (this.bsAtoms);
+this.bsCheck.andNot (this.bsAtomsDeleted);
+return (this.bsCheck.cardinality () == this.getTrueAtomCount ());
+}, "JU.BS");
 Clazz.defineMethod (c$, "resetBoundCount", 
 function () {
 this.bondCount = -1;
@@ -125,6 +136,11 @@ if (chain.chainID == chainID) return chain;
 }
 return null;
 }, "~N");
+Clazz.defineMethod (c$, "resetDSSR", 
+function (totally) {
+this.dssrCache = null;
+if (totally) this.auxiliaryInfo.remove ("dssr");
+}, "~B");
 Clazz.defineMethod (c$, "fixIndices", 
 function (modelIndex, nAtomsDeleted, bsDeleted) {
 this.fixIndicesM (modelIndex, nAtomsDeleted, bsDeleted);
