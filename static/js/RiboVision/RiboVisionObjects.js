@@ -301,8 +301,7 @@ function rvDataSet(DataSetName,SetNumber) {
 	this.addResidues = function (rvResidues) {
 		this.Residues = rvResidues;
 		this.SequenceList = makeSequenceList(rvResidues);
-		//this.ResidueList = makeResidueList(rvResidues);
-		//this.ContourLinePoints = makeContourLinePoints.call(this,rvResidues);
+		this.updateRNAchains();
 	};
 	this.addLabels = function (rvTextLabels, rvLineLabels, rvExtraLabels) {
 		if (rvTextLabels !== undefined){
@@ -343,16 +342,24 @@ function rvDataSet(DataSetName,SetNumber) {
 	};
 	this.addSpeciesEntry = function (SpeciesEntry) {
 		this.SpeciesEntry = SpeciesEntry;
-		this.SpeciesEntry.Molecule_Names = this.SpeciesEntry.Molecule_Names.split(";");		
-		this.SpeciesEntry.PDB_chains = this.SpeciesEntry.PDB_chains.split(";");
-		this.SpeciesEntry.PDB_chains_rProtein = this.SpeciesEntry.PDB_chains_rProtein.split(";");
-		this.SpeciesEntry.Molecule_Names_rProtein = this.SpeciesEntry.Molecule_Names_rProtein.split(";");
-		this.SpeciesEntry.internal_protein_names = this.SpeciesEntry.internal_protein_names.split(";");
-
 		// Set FontSize
 		this.Font_Size_Canvas = this.SpeciesEntry.Font_Size_Canvas;
 		this.Font_Size_SVG = this.SpeciesEntry.Font_Size_SVG;
 		this.Circle_Radius = this.SpeciesEntry.Circle_Radius;
+	};
+	this.updateRNAchains = function (SpeciesEntry) {
+		//this.SpeciesEntry.Molecule_Names = this.SpeciesEntry.Molecule_Names.split(";");		
+		//this.SpeciesEntry.RNA_Chains = this.SpeciesEntry.RNA_Chains.split(";");
+		var molName = [...new Set(this.Residues.map(item => item.molName))];
+		this.SpeciesEntry.RNA_Names = molName;
+		var ChainName = [...new Set(this.Residues.map(item => item.ChainName))];
+		this.SpeciesEntry.RNA_Chains = ChainName;
+	
+	};
+	this.updateProtchains = function (SpeciesEntry) {
+		//this.SpeciesEntry.RNA_Chains_rProtein = this.SpeciesEntry.RNA_Chains_rProtein.split(";");
+		//this.SpeciesEntry.Molecule_Names_rProtein = this.SpeciesEntry.Molecule_Names_rProtein.split(";");
+		//this.SpeciesEntry.internal_protein_names = this.SpeciesEntry.internal_protein_names.split(";");
 	};
 	this.addSelection = function (Name, rvResidues, rvColor) {
 		if (!Name) {
@@ -743,7 +750,7 @@ function rvDataSet(DataSetName,SetNumber) {
 	this.makeResidueList = function () {
 		var ResidueListLocal = [],j;
 		for (j = 0; j < this.Residues.length; j++) {
-			ResidueListLocal[j] = this.Residues[j].resNum;
+			ResidueListLocal[j] = this.Residues[j].uResName;
 		}
 		this.ResidueList=ResidueListLocal;
 	}

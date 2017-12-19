@@ -14,7 +14,7 @@ class FetchMasterList(Resource):
       def get(self):
         try:
 	    cur= self.conn.cursor();
-            SQLStatement = 'SELECT SpeciesName, DataSetType, StructureName, LoadString FROM MasterTable'
+            SQLStatement = 'SELECT SpeciesName, DataSetType, StructureName, LoadString FROM MasterTable WHERE Active=True'
             cur.execute(SQLStatement)
             r = [dict((cur.description[i][0], value) \
                for i, value in enumerate(row)) for row in cur.fetchall()]

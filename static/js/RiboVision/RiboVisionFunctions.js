@@ -40,28 +40,29 @@ function initLabels(speciesSplit,customResidues) {
 			if (species != "None" && species != "custom") {
 				var TextLabels=[];
 				var LineLabels=[];
-				$.getJSON('RiboVision/v1.0/textLabels', {
-					TextLabels : rvDataSets[speciesIndex].SpeciesEntry.TextLabels
-				}, function (textlabels) {
-					TextLabels = textlabels;
-					rvDataSets[speciesIndex].clearCanvas("labels");
-					rvDataSets[speciesIndex].addLabels(TextLabels, LineLabels);
-					rvDataSets[speciesIndex].drawLabels("labels");
-				})
-				$.getJSON('RiboVision/v1.0/lineLabels', {
-					LineLabels : rvDataSets[speciesIndex].SpeciesEntry.LineLabels
-				}, function (linelabels) {
-					LineLabels = linelabels;
-					rvDataSets[speciesIndex].clearCanvas("labels");
-					rvDataSets[speciesIndex].addLabels(TextLabels, LineLabels);
-					rvDataSets[speciesIndex].drawLabels("labels");
-				})
-				/*
+				// $.postJSON('RiboVision/v1.0/textLabels', {
+					// TextLabels : species
+				// }, function (textlabels) {
+					// TextLabels = textlabels;
+					// rvDataSets[speciesIndex].clearCanvas("labels");
+					// rvDataSets[speciesIndex].addLabels(TextLabels, LineLabels);
+					// rvDataSets[speciesIndex].drawLabels("labels");
+				// })
+				// $.getJSON('RiboVision/v1.0/lineLabels', {
+					// LineLabels : rvDataSets[speciesIndex].SpeciesEntry.LineLabels
+				// }, function (linelabels) {
+					// LineLabels = linelabels;
+					// rvDataSets[speciesIndex].clearCanvas("labels");
+					// rvDataSets[speciesIndex].addLabels(TextLabels, LineLabels);
+					// rvDataSets[speciesIndex].drawLabels("labels");
+				// })
+				
 				$.ajax({
-					url: '/RiboVision/v1.0/textLabels',
-					type: 'get',
-					dataType: 'text',
-					data: rvDataSets[speciesIndex].SpeciesEntry.TextLabels,
+					url: 'RiboVision/v1.0/textLabels',
+					type: 'post',
+					contentType: 'application/json', 
+					accept: 'application/json',
+					data: JSON.stringify([species]),
 					cache: false,
 					success: function(textlabels) {
 						TextLabels = textlabels;
@@ -71,10 +72,10 @@ function initLabels(speciesSplit,customResidues) {
 					}
 				})
 				$.ajax({
-					url: '/RiboVision/v1.0/lineLabels',
-					type: 'get',
+					url: 'RiboVision/v1.0/lineLabels',
+					type: 'post',
 					dataType: 'json',
-					data: JSON.stringify(rvDataSets[speciesIndex].SpeciesEntry.LineLabels),
+					data: JSON.stringify([species]),
 					cache: false,
 					success: function(linelabels) {
 						LineLabels = linelabels;
@@ -82,7 +83,7 @@ function initLabels(speciesSplit,customResidues) {
 						rvDataSets[speciesIndex].addLabels(TextLabels, LineLabels);
 						rvDataSets[speciesIndex].drawLabels("labels");
 					}
-				});;*/
+				});;
 				
 			} else {
 				rvDataSets[speciesIndex].clearCanvas("labels");
@@ -376,7 +377,7 @@ function expandSelection(command, SelectionName,SpeciesIndex) {
 				if (check_residue){
 					targetSelection.Residues.push(rvds.Residues[check_residue.index]);
 				} else {
-					var chainID = rvds.SpeciesEntry.PDB_chains_rProtein[rvds.SpeciesEntry.Molecule_Names_rProtein.indexOf(comsplit[0])];
+					var chainID = rvds.SpeciesEntry.RNA_Chains_rProtein[rvds.SpeciesEntry.Molecule_Names_rProtein.indexOf(comsplit[0])];
 					var aloneRes = chainID + "_" + comsplit[1];
 					// Skip the residue list check for now
 					//var alone_ind = rvDataSets[0].ResidueList_rProtein.indexOf(aloneRes);
@@ -512,8 +513,8 @@ function updateSelectionDiv(SeleName,SpeciesIndex) {
 	var targetSelection = rvDataSets[SpeciesIndex].getSelection(SeleName);
 	for (var i = 0; i < targetSelection.Residues.length; i++) {
 		res = targetSelection.Residues[i];
-		//text = text + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.PDB_chains.indexOf(res.ChainID)] + ":" + res.resNum.replace(/[^:]*:/g, "") + "( " + res.CurrentData + " ); ";
-		//text[index] = text + rvds.SpeciesEntry.Molecule_Names[rvds.SpeciesEntry.PDB_chains.indexOf(res.ChainID)] + ":" + res.resNum.replace(/[^:]*:/g, "") + "; ";
+		//text = text + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.RNA_Chains.indexOf(res.ChainID)] + ":" + res.resNum.replace(/[^:]*:/g, "") + "( " + res.CurrentData + " ); ";
+		//text[index] = text + rvds.SpeciesEntry.Molecule_Names[rvds.SpeciesEntry.RNA_Chains.indexOf(res.ChainID)] + ":" + res.resNum.replace(/[^:]*:/g, "") + "; ";
 		if (res != undefined){
 			updateSelectionDiv.text[SpeciesIndex] = updateSelectionDiv.text[SpeciesIndex] + res.resNum + "; ";
 		}
@@ -830,27 +831,19 @@ function colorMappingLoop3D(seleProt,colors2){
 			}	
 
 			var newcolor = (val < 0 || val >= colors2.length) ? "#000000" : colors2[val];	
-			foundProt=rvds.SpeciesEntry.PDB_chains_rProtein[rvds.SpeciesEntry.internal_protein_names.indexOf(seleProt[i])];
+			foundProt=rvds.SpeciesEntry.RNA_Chains_rProtein[rvds.SpeciesEntry.internal_protein_names.indexOf(seleProt[i])];
 			if (foundProt){
-				/*
-				numProteinsList[index]+=1;
-				if (numProteinsList[index] === 1){
-					if (index > 0 && numProteinsList.slice(0,-1).reduce(function(a,b){return a+b}) > 0){
-						Jscript += " or ";
-					}
-				}*/
 				changeProteins.push({"foundProt" : foundProt,"newcolor" : newcolor});
 			}
-			
 		}
 		
 
 	});
-	//Jscript += ");";
+	/*Jscript += ");";
 	if($('input[name="jp"][value=on]').is(':checked')){
 		//update3Dcolors();
 		//refreshModel();
-	}
+	}*/
 	colorMappingLoop3DLow(changeProteins);
 }
 
@@ -878,23 +871,7 @@ function update3DProteins(seleProt, OverRideColors) {
 	update3DProteinsLow(newcolor);
 }
 
-function colorMapping(targetLayer,ChoiceList, ManualCol, OverRideColors, indexMode, rePlaceData) {
-	if (arguments.length == 2 || ManualCol == "42") {		
-		var colName = $("#" + ChoiceList).val();
-	}
-	if (arguments.length >= 3 && ManualCol != "42") {
-		var colName = ManualCol;
-	}
-	if (arguments.length >= 4) {
-		var colors = OverRideColors;
-	} else {
-		var colors = RainBowColors;
-	}
-	if (indexMode==undefined){
-		var indexMode=[];
-		indexMode[0]=false;
-	}
-	
+function colorMapping(targetLayer, colName, colors = RainBowColors , indexMode = false, rePlaceData) {
 	if (!targetLayer) {
 		$("#dialog-selection-warning p").text("Please select a valid layer and try again.");
 		$("#dialog-selection-warning").dialog("open");
@@ -904,23 +881,23 @@ function colorMapping(targetLayer,ChoiceList, ManualCol, OverRideColors, indexMo
 	case "circles":
 		var data = new Array;
 		for (var j = 0; j < rvDataSets[targetLayer.SetNumber].Residues.length; j++) {
-			data[j] = rvDataSets[targetLayer.SetNumber].Residues[j][colName[0]];
+			data[j] = rvDataSets[targetLayer.SetNumber].Residues[j][colName];
 		}
-		colorProcess(data, indexMode[0],targetLayer,colors);
+		colorProcess(data, indexMode,targetLayer,colors);
 		break;
 	case "contour":
 		var data = new Array;
 		for (var j = 0; j < rvDataSets[targetLayer.SetNumber].Residues.length; j++) {
-			data[j] = rvDataSets[targetLayer.SetNumber].Residues[j][colName[0]];
+			data[j] = rvDataSets[targetLayer.SetNumber].Residues[j][colName];
 		}
-		colorProcess(data, indexMode[0],targetLayer,colors);
+		colorProcess(data, indexMode,targetLayer,colors);
 		break;
 	case "residues":
 		var data = new Array;
 		for (var j = 0; j < rvDataSets[targetLayer.SetNumber].Residues.length; j++) {
-			data[j] = rvDataSets[targetLayer.SetNumber].Residues[j][colName[0]];
+			data[j] = rvDataSets[targetLayer.SetNumber].Residues[j][colName];
 		}
-		colorProcess(data, indexMode[0],targetLayer,colors);
+		colorProcess(data, indexMode,targetLayer,colors);
 		break;
 	default:
 		$( "#dialog-layer-type-error" ).dialog("open")
@@ -1000,8 +977,8 @@ function refreshBasePairs(BasePairTable) {
 						item.lineWidth = 0.75;
 						item.opacity = 0.5;
 						item.color_hex = '#231F20';
-						item.residue_i=rvDataSets[index].SpeciesEntry.Molecule_Names[rvDataSets[index].SpeciesEntry.PDB_chains.indexOf(rvDataSets[index].Residues[item.resIndex1].ChainID)] + ":" + rvDataSets[index].Residues[item.resIndex1].resNum.replace(/[^:]*:/g, "");
-						item.residue_j=rvDataSets[index].SpeciesEntry.Molecule_Names[rvDataSets[index].SpeciesEntry.PDB_chains.indexOf(rvDataSets[index].Residues[item.resIndex2].ChainID)] + ":" + rvDataSets[index].Residues[item.resIndex2].resNum.replace(/[^:]*:/g, "");
+						item.residue_i=rvDataSets[index].SpeciesEntry.Molecule_Names[rvDataSets[index].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[index].Residues[item.resIndex1].ChainID)] + ":" + rvDataSets[index].Residues[item.resIndex1].resNum.replace(/[^:]*:/g, "");
+						item.residue_j=rvDataSets[index].SpeciesEntry.Molecule_Names[rvDataSets[index].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[index].Residues[item.resIndex2].ChainID)] + ":" + rvDataSets[index].Residues[item.resIndex2].resNum.replace(/[^:]*:/g, "");
 					});
 					FullBasePairSet=FullBasePairSet.concat(basePairs2);	
 					ActiveBasePairSet = FullBasePairSet;
@@ -1354,7 +1331,7 @@ function ProcessBubble(ui,targetLayerName){
 		case "AlnBubbles" :
 			$.each(rvDataSets, function(index, value) {
 				var targetLayer = rvDataSets[index].getLayer(targetLayerName);
-				colorMapping(targetLayer,"42",[$(ui).attr("name")]);
+				colorMapping(targetLayer,ui.data("colName"),ui.data("OverRideColors"),ui.data("indexMode"),ui.data("rePlaceData"));
 				drawNavLine();
 			});
 			break;
@@ -1383,10 +1360,7 @@ function ProcessBubble(ui,targetLayerName){
 			$.each(rvDataSets, function(index, value) {
 				rvDataSets[index].addSelection();
 			});
-			$.each(rvDataSets, function(index, value) {
-				var targetLayer = rvDataSets[index].getLayer(targetLayerName);
-				customDataProcess(ui,targetLayer);
-			});
+			customDataProcess($(ui[0]).attr("filename"),targetLayerName);;
 			break;
 		default :
 			//debugger;
@@ -1395,19 +1369,10 @@ function ProcessBubble(ui,targetLayerName){
 	
 }
 function updateStructData(ui,targetLayer) {
-	var newargs = $(ui).attr("name").split(",");
-	for (var i = 0; i < newargs.length; i++) {
-		if (newargs[i].indexOf("'") > -1) {
-			newargs[i] = newargs[i].match(/[^\\']+/);
-		} else {
-			newargs[i] = window[newargs[i]];
-		}
-	}
-	newargs.unshift('42');
-	newargs.unshift(targetLayer);
-	colorMapping.apply(this, newargs);
+	colorMapping(targetLayer,ui.data("ColName"),ui.data("OverRideColors"),ui.data("indexMode"),ui.data("rePlaceData"));
 	drawNavLine();
 }
+
 function openRvState() {
 	var PrivacyStatus = get_cookie("privacy_status_data");
 	var PrivacyString = "This feature does not currently upload any data to our server. We don't have a privacy policy at this time"
@@ -1632,87 +1597,91 @@ function ImportDataFileSelect(event) {
 }
 	
 
-function customDataProcess(ui,targetLayer){
-	var NewData;
-	targetLayer.DataLabel = $(ui[0]).attr("filename");
-	$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text("User File:").append($("<br>")).append(targetLayer.DataLabel);
-	targetLayer.clearData();
+function customDataProcess(data_label,targetLayerName){
+	var colors=[];
+	$.each(rvDataSets, function (index, rvds) {
+		var targetLayer = rvds.getLayer(targetLayerName);
+		targetLayer.DataLabel = data_label
+		var NewData;
 	
-	if(rvDataSets[targetLayer.SetNumber].CustomData.length >0){
-		var customkeys = Object.keys(rvDataSets[targetLayer.SetNumber].CustomData[0]);
-	} else {
-		var customkeys =[];
-	}
-
-	NewData = CustomDataExpand(targetLayer);
-	targetLayer.Data = NewData.IncludeData;
-	var targetSelection = rvDataSets[targetLayer.SetNumber].Selections[0];
-	SelectionMenu(targetSelection);
-	RefreshSelectionMenu();
-	//Make new selection invisible. 
-	$(".oneSelectionGroup[name=" + targetSelection.Name +"]").find(".checkBoxDIV-S").find(".visibilityCheckImg").attr("value","invisible");
-	$(".oneSelectionGroup[name=" + targetSelection.Name +"]").find(".checkBoxDIV-S").find(".visibilityCheckImg").attr("src","images/invisible.png");
-	rvDataSets[targetLayer.SetNumber].drawSelection("selected");
-	
-	if ($.inArray("ColorPalette", customkeys) >= 0 || $.inArray("TwoColorMode", customkeys) >= 0){
-	    var colors=[];
-		//console.log(rvDataSets[0].CustomData[0].ColorPalette);
-		$.each(rvDataSets[targetLayer.SetNumber].CustomData, function (index,value){
-			if (value.ColorPalette && value.ColorPalette !="") {
-				colors.push(value.ColorPalette);
-			} else if (value.TwoColorMode && value.TwoColorMode !="") {
-				colors.push(value.TwoColorMode);
-			}else {
-				return;
-			}
-		});
-		//Assume if length one, user mean to name a predefined gradient.
-		if (colors.length == 1){
-			var colors = window[colors[0]];
+		$("[name=" + targetLayer.LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text("User File:").append($("<br>")).append(targetLayer.DataLabel);
+		targetLayer.clearData();
+		
+		if(rvDataSets[targetLayer.SetNumber].CustomData.length >0){
+			var customkeys = Object.keys(rvds.CustomData[0]);
+		} else {
+			var customkeys =[];
 		}
-		//console.log(colors);
-	} else {
-		var colors = RainBowColors;
-	}
-	
-	if (targetLayer.Type === "selected"){
 
-	} else {
-		if ($.inArray("FontWeight", customkeys) >= 0) {
-			$.each(NewData.Weight, function (index,value){
-				if (value != undefined) {
-					rvDataSets[targetLayer.SetNumber].Residues[index]["font-weight"]=value
-				} else {
-					rvDataSets[targetLayer.SetNumber].Residues[index]["font-weight"]="normal";
+		NewData = CustomDataExpand(targetLayer);
+		targetLayer.Data = NewData.IncludeData;
+		var targetSelection = rvds.Selections[0];
+		SelectionMenu(targetSelection);
+		RefreshSelectionMenu();
+		//Make new selection invisible. 
+		$(".oneSelectionGroup[name=" + targetSelection.Name +"]").find(".checkBoxDIV-S").find(".visibilityCheckImg").attr("value","invisible");
+		$(".oneSelectionGroup[name=" + targetSelection.Name +"]").find(".checkBoxDIV-S").find(".visibilityCheckImg").attr("src","static/images/invisible.png");
+		rvds.drawSelection("selected");
+		
+		if ($.inArray("ColorPalette", customkeys) >= 0 || $.inArray("TwoColorMode", customkeys) >= 0){
+			//console.log(rvDataSets[0].CustomData[0].ColorPalette);
+			$.each(rvds.CustomData, function (index,value){
+				if (value.ColorPalette && value.ColorPalette !="") {
+					colors.push(value.ColorPalette);
+				} else if (value.TwoColorMode && value.TwoColorMode !="") {
+					colors.push(value.TwoColorMode);
+				}else {
+					return;
 				}
 			});
-			rvDataSets[targetLayer.SetNumber].drawResidues("residues");
-			rvDataSets[targetLayer.SetNumber].refreshResiduesExpanded(targetLayer.LayerName);
-			update3Dcolors();
-		}
-		if ($.inArray("TwoColorMode", customkeys) >= 0 & $.inArray("SwitchPoint", customkeys) >= 0) {
-			var SwitchPoint=parseFloat(rvDataSets[targetLayer.SetNumber].CustomData[0]["SwitchPoint"]);
-		} else if ($.inArray("TwoColorMode", customkeys) >= 0){
-			var SwitchPoint=0;
+			//Assume if length one, user mean to name a predefined gradient.
+			if (colors.length == 1){
+				colors = window[colors[0]];
+			}
+			//console.log(colors);
 		} else {
-			var SwitchPoint=undefined;
+			colors = RainBowColors;
 		}
-		if ($.inArray("ColorCol", customkeys) >= 0) {
-			rvDataSets[targetLayer.SetNumber].drawResidues("residues");
-			rvDataSets[targetLayer.SetNumber].refreshResiduesExpanded(targetLayer.LayerName);
-			update3Dcolors();
-		} else if ($.inArray("DataCol", customkeys) >= 0) {
-			colorProcess(NewData,undefined,targetLayer,colors,SwitchPoint);
-		} else if ($.inArray("FontWeight", customkeys) >= 0){
-			//Do nothing, maybe need more here later;
-		} else {
-			//alert("No recognized columns found. Please check input.");
-		}
-	}
+		
+		if (targetLayer.Type === "selected"){
 
-	updateSelectionDiv(targetSelection.Name,targetLayer.SetNumber);
-	drawNavLine();
-	
+		} else {
+			if ($.inArray("FontWeight", customkeys) >= 0) {
+				$.each(NewData.Weight, function (index,value){
+					if (value != undefined) {
+						rvds.Residues[index]["font-weight"]=value
+					} else {
+						rvds.Residues[index]["font-weight"]="normal";
+					}
+				});
+				rvds.drawResidues("residues");
+				rvds.refreshResiduesExpanded(targetLayer.LayerName);
+				update3Dcolors();
+			}
+			if ($.inArray("TwoColorMode", customkeys) >= 0 & $.inArray("SwitchPoint", customkeys) >= 0) {
+				var SwitchPoint=parseFloat(rvds.CustomData[0]["SwitchPoint"]);
+			} else if ($.inArray("TwoColorMode", customkeys) >= 0){
+				var SwitchPoint=0;
+			} else {
+				var SwitchPoint=undefined;
+			}
+			if ($.inArray("ColorCol", customkeys) >= 0) {
+				rvds.drawResidues("residues");
+				rvds.refreshResiduesExpanded(targetLayer.LayerName);
+				update3Dcolors();
+			} else if ($.inArray("DataCol", customkeys) >= 0) {
+				colorProcess(NewData,undefined,targetLayer,colors,SwitchPoint);
+			} else if ($.inArray("FontWeight", customkeys) >= 0){
+				//Do nothing, maybe need more here later;
+			} else {
+				//alert("No recognized columns found. Please check input.");
+			}
+		}
+
+		updateSelectionDiv(targetSelection.Name,targetLayer.SetNumber);
+		drawNavLine();
+	})
+		
 	//Finishes doing Nucleotides, move on to rProteins
 	CustomProcessProteins(colors);
 }
@@ -1749,9 +1718,9 @@ function CustomProcessProteins(colors){
 		$.each(dataIndices, function (index,value){
 			ColorProteins[index]["Color"] = colors[value];
 		});
-		ColorProteins3D(ColorProteins);
-		rvds.ColorProteins = rvds.ColorProteins.concat(ColorProteins);
+		rvds.ColorProteins = ColorProteins;
 	})
+	ColorProteins3D();
 }
 
 function ColorProteinsPyMOL(){
@@ -1829,7 +1798,7 @@ function CustomDataExpand(targetLayer){
 				for (var iii = SeleLen; iii < l; iii++) {
 					if (targetSelection.Residues[iii].resNum.indexOf(":") >= 0) {
 						//var ressplit = targetSelection.Residues[iii].resNum.split(":");
-						//var ResName = rvDataSets[targetLayer.SetNumber].SpeciesEntry.PDB_chains[rvDataSets[targetLayer.SetNumber].SpeciesEntry.Molecule_Names.indexOf(ressplit[0])] + "_" + ressplit[1];	
+						//var ResName = rvDataSets[targetLayer.SetNumber].SpeciesEntry.RNA_Chains[rvDataSets[targetLayer.SetNumber].SpeciesEntry.Molecule_Names.indexOf(ressplit[0])] + "_" + ressplit[1];	
 						var ResName = targetSelection.Residues[iii].resNum;
 					} else {
 						alert("this mode is being deprecated. This shouldn't happen any more");
@@ -1959,7 +1928,7 @@ function storeRvState(filename){
 		RvSaveState["RvDS"] = JSON.stringify(rvDataSets[0]);
 		RvSaveState["rvView"] = JSON.stringify(rvViews[0]);
 		if($('input[name="jp"][value=on]').is(':checked')){
-			RvSaveState["rvJmolOrientation"] = Jmol.evaluate(myJmol,"script('show orientation')");
+			RvSaveState["rvJmolOrientation"] = Jmol.evaluateVar(myJmol,"script('show orientation')");
 		}
 	
 		if($("input[name='PanelSizesCheck']").attr("checked")){
@@ -1991,7 +1960,7 @@ function saveRvState(filename){
 		RvSaveState["RvDS"] = JSON.stringify(rvDataSets[0]);
 		RvSaveState["rvView"] = JSON.stringify(rvViews[0]);
 		if($('input[name="jp"][value=on]').is(':checked')){
-			RvSaveState["rvJmolOrientation"] = Jmol.evaluate(myJmol,"script('show orientation')");
+			RvSaveState["rvJmolOrientation"] = Jmol.evaluateVar(myJmol,"script('show orientation')");
 		}
 		
 		if($("input[name='PanelSizesCheck']").attr("checked")){
@@ -2106,7 +2075,28 @@ function savePDF() {
 	checkSavePrivacyStatus();
 }
 
-function savePML() {
+function savePML(){
+	var structureName = rvDataSets[0].SpeciesEntry.Species_Abr;
+	var dsLayers=[];
+	$.each(rvDataSets, function(SpeciesIndex,rvds){
+		dsLayers = dsLayers.concat(rvds.getLayerByType(["residues","circles","contour","selected"]));
+	});
+	
+	//Form Submit;
+	var form = document.createElement("form");
+	form.setAttribute("method", "post");
+	form.setAttribute("action", "RiboVision/v1.0/savepml");
+	form.setAttribute("target", "_blank");
+	var hiddenField = document.createElement("input");
+	hiddenField.setAttribute("type", "hidden");
+	hiddenField.setAttribute("enctype", "text/plain");
+	hiddenField.setAttribute("name", "data");
+	hiddenField.setAttribute("value", JSON.stringify({'StructureName' : structureName, 'Layers' : dsLayers}));
+	form.appendChild(hiddenField);
+	document.body.appendChild(form);
+	form.submit();
+}
+/* function savePML() {
 	AgreeFunction = function () {
 		var script = "";
 		var structureName = rvDataSets[0].SpeciesEntry.Species_Abr
@@ -2121,28 +2111,6 @@ function savePML() {
 		script += "disable " + structureName + "\n";
 		
 		$.each(rvDataSets, function(SpeciesIndex,rvds){
-
-			/*
-			var pdb_files = [rvds.SpeciesEntry.PDB_File_rRNA, rvds.SpeciesEntry.PDB_File_rProtein];
-			
-			if (pdb_files[1] === pdb_files[0]) {
-				PDB_Obj_Names[0] = rvds.SpeciesEntry.Species_Abr + "_" + rvds.SpeciesEntry.Subunit + "_Full";
-				PDB_Obj_Names[1] = PDB_Obj_Names[0];
-				script += "load " + pdb_files[0] + ", " + PDB_Obj_Names[0] + "\n";
-				script += "as cartoon, " + PDB_Obj_Names[0] + "\n";
-				script += "disable " + PDB_Obj_Names[0] + "\n";
-			} else {
-				PDB_Obj_Names[0] = rvds.SpeciesEntry.Species_Abr + "_" + rvds.SpeciesEntry.Subunit + "_rRNA";
-				PDB_Obj_Names[1] = rvds.SpeciesEntry.Species_Abr + "_" + rvds.SpeciesEntry.Subunit + "_rProtein"
-				script += "load " + pdb_files[0] + ", " + PDB_Obj_Names[0] + "\n";
-				script += "load " + pdb_files[1] + ", " + PDB_Obj_Names[1] + "\n";
-				script += "as cartoon, " + PDB_Obj_Names[0] + "\n";
-				script += "as cartoon, " + PDB_Obj_Names[1] + "\n";
-				script += "disable " + PDB_Obj_Names[0] + "\n";
-				script += "disable " + PDB_Obj_Names[1] + "\n";
-			}
-			PDB_files=PDB_files.concat(pdb_files);
-			*/
 			script += "\n";
 			// Layers to PyMOL
 			var dsLayers = rvds.getLayerByType(["residues","circles","contour","selected"]);
@@ -2193,7 +2161,7 @@ function savePML() {
 		form.submit();
 	}
 	checkSavePrivacyStatus();
-}
+} */
 
 function layerToPML(PDB_Obj_Names,targetLayer,SpeciesIndex) {
 	var PyMOL_obj = [];
@@ -2203,7 +2171,7 @@ function layerToPML(PDB_Obj_Names,targetLayer,SpeciesIndex) {
 	
 	for (var j = 0; j < rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names.length; j++) {
 		PyMOL_obj[j] = rvDataSets[SpeciesIndex].SpeciesEntry.Species_Abr + "_" + rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names[j] + "_" + targetLayer.LayerName;
-		script += "create " + PyMOL_obj[j] + ", " + PDB_Obj_Names[0] + " and chain " + rvDataSets[SpeciesIndex].SpeciesEntry.PDB_chains[j] + "\n";
+		script += "create " + PyMOL_obj[j] + ", " + PDB_Obj_Names[0] + " and chain " + rvDataSets[SpeciesIndex].SpeciesEntry.RNA_Chains[j] + "\n";
 		if (targetLayer.Linked){
 			script += "enable " + PyMOL_obj[j] + "\n";
 		} else {
@@ -2251,15 +2219,15 @@ function layerToPML(PDB_Obj_Names,targetLayer,SpeciesIndex) {
 					
 					if (r0 === r1){
 						if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
-							script += "color 0x" + curr_color + ", " + PyMOL_obj[rvDataSets[SpeciesIndex].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "\n";
+							script += "color 0x" + curr_color + ", " + PyMOL_obj[rvDataSets[SpeciesIndex].SpeciesEntry.RNA_Chains.indexOf(curr_chain)] + " and resi " + r0 + "\n";
 						} else {
-							script += "color " + curr_color.replace("#", "0x") + ", " + PyMOL_obj[rvDataSets[SpeciesIndex].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "\n";
+							script += "color " + curr_color.replace("#", "0x") + ", " + PyMOL_obj[rvDataSets[SpeciesIndex].SpeciesEntry.RNA_Chains.indexOf(curr_chain)] + " and resi " + r0 + "\n";
 						}
 					} else {
 						if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
-							script += "color 0x" + curr_color + ", " + PyMOL_obj[rvDataSets[SpeciesIndex].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + r1 + "\n";
+							script += "color 0x" + curr_color + ", " + PyMOL_obj[rvDataSets[SpeciesIndex].SpeciesEntry.RNA_Chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + r1 + "\n";
 						} else {
-							script += "color " + curr_color.replace("#", "0x") + ", " + PyMOL_obj[rvDataSets[SpeciesIndex].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + r1 + "\n";
+							script += "color " + curr_color.replace("#", "0x") + ", " + PyMOL_obj[rvDataSets[SpeciesIndex].SpeciesEntry.RNA_Chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + r1 + "\n";
 						}
 					}
 											
@@ -2276,9 +2244,9 @@ function layerToPML(PDB_Obj_Names,targetLayer,SpeciesIndex) {
 		}
 	}
 	if (colorNameToHex(residueLastColor).indexOf("#") == -1) {
-		script += "color 0x" + curr_color + ", " + PyMOL_obj[rvDataSets[SpeciesIndex].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + "\n";
+		script += "color 0x" + curr_color + ", " + PyMOL_obj[rvDataSets[SpeciesIndex].SpeciesEntry.RNA_Chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + "\n";
 	} else {
-		script += "color " + curr_color.replace("#", "0x") + ", " + PyMOL_obj[rvDataSets[SpeciesIndex].SpeciesEntry.PDB_chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + "\n";
+		script += "color " + curr_color.replace("#", "0x") + ", " + PyMOL_obj[rvDataSets[SpeciesIndex].SpeciesEntry.RNA_Chains.indexOf(curr_chain)] + " and resi " + r0 + "-" + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + "\n";
 	}
 	script += "\n";
 	
@@ -2293,7 +2261,7 @@ function proteinsToPML(structureName,SpeciesIndex){
 
 		script += "create " + rvDataSets[SpeciesIndex].SpeciesEntry.Species_Abr + "_rp_" 
 		+ rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names_rProtein[jj].replace(/\(/g, "_").replace(/\)/g, "") 
-		+ ", " + structureName + " and chain " + rvDataSets[SpeciesIndex].SpeciesEntry.PDB_chains_rProtein[jj].replace(/\(/g, "_").replace(/\)/g, "") 
+		+ ", " + structureName + " and chain " + rvDataSets[SpeciesIndex].SpeciesEntry.RNA_Chains_rProtein[jj].replace(/\(/g, "_").replace(/\)/g, "") 
 		+ "\n";
 	}
 	script += "\ndisable *_rp_*\n";
@@ -2528,7 +2496,7 @@ function canvasToSVG() {
 							if (rvds.Residues[i].resNum.indexOf(":") >= 0 ){
 								var ResName = rvds.Residues[i].resNum;
 							} else {
-								var ResName = rvds.SpeciesEntry.Molecule_Names[rvds.SpeciesEntry.PDB_chains.indexOf(rvds.Residues[i].ChainID)] +
+								var ResName = rvds.SpeciesEntry.Molecule_Names[rvds.SpeciesEntry.RNA_Chains.indexOf(rvds.Residues[i].ChainID)] +
 								":" + rvds.Residues[i].resNum;
 							}
 							
@@ -2585,7 +2553,7 @@ function computeSeqTable(SpeciesIndex){
 	var WholeSet= WholeSet + "WholeSet,WholeSet\n";
 	var WholeSet= WholeSet + "resNum,resName\n";
 	$.each(rvDataSets[SpeciesIndex].Residues, function (index,residue) {
-		WholeSet+= rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names[rvDataSets[SpeciesIndex].SpeciesEntry.PDB_chains.indexOf(residue.ChainID)] + ":" + residue.resNum.replace(/[^:]*:/g, "") + "," + residue.resName + "\n";
+		WholeSet+= rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names[rvDataSets[SpeciesIndex].SpeciesEntry.RNA_Chains.indexOf(residue.ChainID)] + ":" + residue.resNum.replace(/[^:]*:/g, "") + "," + residue.resName + "\n";
 	});
 	var OutputObject = $.csv.toArrays(WholeSet);
 	$.each(rvDataSets[SpeciesIndex].Selections, function (index, selection) {
@@ -2593,7 +2561,7 @@ function computeSeqTable(SpeciesIndex){
 			OutputObject[0].push(selection.Name,selection.Name);
 			OutputObject[1].push("resNum","resName");
 			$.each(selection.Residues, function (index, residue) {
-				OutputObject[2+index].push(rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names[rvDataSets[SpeciesIndex].SpeciesEntry.PDB_chains.indexOf(residue.ChainID)] + ":" + residue.resNum.replace(/[^:]*:/g, ""),residue.resName);
+				OutputObject[2+index].push(rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names[rvDataSets[SpeciesIndex].SpeciesEntry.RNA_Chains.indexOf(residue.ChainID)] + ":" + residue.resNum.replace(/[^:]*:/g, ""),residue.resName);
 			});
 		}
 	});
@@ -2628,7 +2596,7 @@ function computeSeqDataTable(SpeciesIndex){
 	var WholeSet= WholeSet + "WholeSet,WholeSet\n";
 	var WholeSet= WholeSet + "resNum,resName\n";
 	$.each(rvDataSets[SpeciesIndex].Residues, function (index,residue) {
-		WholeSet+= rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names[rvDataSets[SpeciesIndex].SpeciesEntry.PDB_chains.indexOf(residue.ChainID)] + ":" + residue.resNum.replace(/[^:]*:/g, "") + "," + residue.resName + "\n";
+		WholeSet+= rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names[rvDataSets[SpeciesIndex].SpeciesEntry.RNA_Chains.indexOf(residue.ChainID)] + ":" + residue.resNum.replace(/[^:]*:/g, "") + "," + residue.resName + "\n";
 	});
 	var OutputObject = $.csv.toArrays(WholeSet);
 	$.each(rvDataSets[SpeciesIndex].Layers, function (index, targetLayer) {
@@ -2665,13 +2633,13 @@ function computeInteractionDataTable(){
 		if (rvDataSets[SpeciesIndex].Residues[j].resNum.indexOf(":") >= 0 ){
 			var ResName1 = rvDataSets[SpeciesIndex].Residues[j].resNum;
 		} else {
-			var ResName1 = rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names[rvDataSets[SpeciesIndex].SpeciesEntry.PDB_chains.indexOf(rvDataSets[SpeciesIndex].Residues[j].ChainID)] +
+			var ResName1 = rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names[rvDataSets[SpeciesIndex].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[SpeciesIndex].Residues[j].ChainID)] +
 			":" + rvDataSets[SpeciesIndex].Residues[j].resNum;
 		}
 		if (rvDataSets[SpeciesIndex].Residues[k].resNum.indexOf(":") >= 0 ){
 			var ResName2 = rvDataSets[SpeciesIndex].Residues[k].resNum;
 		} else {
-			var ResName2 = rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names[rvDataSets[SpeciesIndex].SpeciesEntry.PDB_chains.indexOf(rvDataSets[SpeciesIndex].Residues[k].ChainID)] +
+			var ResName2 = rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names[rvDataSets[SpeciesIndex].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[SpeciesIndex].Residues[k].ChainID)] +
 			":" + rvDataSets[SpeciesIndex].Residues[k].resNum;
 		}
 	
@@ -2761,33 +2729,57 @@ function computeFasta(){
 
 /////////////////////////////// Load Data Functions ///////////////////////////
 function populateInteractionMenu() {
-	$.each(rvDataSets, function(index,rvds){	
-		var il = document.getElementById("PrimaryInteractionList");
-		var BPList = rvds.SpeciesEntry.InterActionMenu.split(";");
-		if (speciesIndex == 0 && BPList[0] != ""){
-			for (var iii = 0; iii < BPList.length; iii++) {
-				var NewBPair = BPList[iii].split(":");
-				if (il.options[iii + 1]) {
-					il.options[iii + 1].value = NewBPair[1] + ';' + il.options[iii + 1].value;
-				} else {
-					il.options[iii + 1] = new Option(NewBPair[0], NewBPair[1]);
-				}
-			}
-		} else if (BPList[0] != ""){
-			for (var iii = 0; iii < BPList.length; iii++) {
-				var NewBPair = BPList[iii].split(":");
-				if (il.options[iii + 1]) {
-					il.options[iii + 1].value = il.options[iii + 1].value + ';' + NewBPair[1];
-				} else {
-					il.options[iii + 1] = new Option(NewBPair[0], NewBPair[1]);
-				}
-			}
-		}
-	})
+	// $.each(rvDataSets, function(index,rvds){	
+		// var il = document.getElementById("PrimaryInteractionList");
+		// var BPList = rvds.SpeciesEntry.InterActionMenu.split(";");
+		// if (speciesIndex == 0 && BPList[0] != ""){
+			// for (var iii = 0; iii < BPList.length; iii++) {
+				// var NewBPair = BPList[iii].split(":");
+				// if (il.options[iii + 1]) {
+					// il.options[iii + 1].value = NewBPair[1] + ';' + il.options[iii + 1].value;
+				// } else {
+					// il.options[iii + 1] = new Option(NewBPair[0], NewBPair[1]);
+				// }
+			// }
+		// } else if (BPList[0] != ""){
+			// for (var iii = 0; iii < BPList.length; iii++) {
+				// var NewBPair = BPList[iii].split(":");
+				// if (il.options[iii + 1]) {
+					// il.options[iii + 1].value = il.options[iii + 1].value + ';' + NewBPair[1];
+				// } else {
+					// il.options[iii + 1] = new Option(NewBPair[0], NewBPair[1]);
+				// }
+			// }
+		// }
+	// })
 }
 
-function populateStructDataMenu() {
-	$.each(rvDataSets, function(index,rvds){
+function populateStructDataMenu(structureName) {
+	$.ajax({
+		url: 'RiboVision/v1.0/structdatamenu',
+		type: 'post',
+		contentType: 'application/json', 
+		accept: 'application/json',
+		data: JSON.stringify([structureName]),
+		cache: false,
+		success: function(structureDataMenu) {
+			$.each(structureDataMenu, function(index, NewSDPair){
+				var ColName = NewSDPair.ColName;
+				var description = NewSDPair.Description;
+				if (ColName && description){
+					var title = NewSDPair.StructDataName + ": " + description;
+				} else if (ColName=='""'){
+					var title = "None: This clears circles and makes letters black.";
+				} else {
+					var title = "Data Description is missing.";
+				}
+				$("#StructDataBubbles").append($('<h3 class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom" style="text-align:center;padding:0.2em">')
+				.text(NewSDPair.StructDataName).attr('name',ColName).attr('title',title).data("ColName",ColName).data("OverRideColors",NewSDPair.ColorList).data("indexMode",NewSDPair.IndexMode).data("rePlaceData",NewSDPair.ExtraArg));
+			})
+		}
+	})
+	
+	/*$.each(rvDataSets, function(index,rvds){
 		var SDList = rvds.SpeciesEntry.StructDataMenu.split(";");
 		if (SDList[0] != "") {
 			for (var ii = 0; ii < SDList.length; ii++) {
@@ -2806,52 +2798,52 @@ function populateStructDataMenu() {
 			}
 			
 		}
-	})
+	})*/
 }
 
 function populateAlignmentMenu() {
 	// Assumes list of alignments (entropies) are identical for both structures.
-	var AlnList = rvDataSets[0].SpeciesEntry.AlnMenu.split(";");
-	$.each(rvDataSets, function(index,rvds){
-		if (AlnList[0] != "") {
-			for (var ii = 0; ii < AlnList.length; ii++) {
-				var NewAlnPair = AlnList[ii].split(":");
-				var ColName = NewAlnPair[1].match(/[^\'\\,]+/);
-				var result = $.grep(rvds.DataDescriptions, function(e){ return e.ColName === ColName[0]; });
-				if (result[0]){
-					var title = NewAlnPair[0] + ": " + result[0].Description;
-				} else {
-					var title = "Data Description is missing.";
-				}
-				$("#AlnBubbles").append($('<h3 class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom" style="text-align:center;padding:0.2em">')
-				.text(NewAlnPair[0]).attr('name',NewAlnPair[1]).attr('title',title));
-			}
-		}
-	})
+	// var AlnList = rvDataSets[0].SpeciesEntry.AlnMenu.split(";");
+	// $.each(rvDataSets, function(index,rvds){
+		// if (AlnList[0] != "") {
+			// for (var ii = 0; ii < AlnList.length; ii++) {
+				// var NewAlnPair = AlnList[ii].split(":");
+				// var ColName = NewAlnPair[1].match(/[^\'\\,]+/);
+				// var result = $.grep(rvds.DataDescriptions, function(e){ return e.ColName === ColName[0]; });
+				// if (result[0]){
+					// var title = NewAlnPair[0] + ": " + result[0].Description;
+				// } else {
+					// var title = "Data Description is missing.";
+				// }
+				// $("#AlnBubbles").append($('<h3 class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom" style="text-align:center;padding:0.2em">')
+				// .text(NewAlnPair[0]).attr('name',NewAlnPair[1]).attr('title',title));
+			// }
+		// }
+	// })
 }
 
 function populateProteinMenu() {
-	var pl = document.getElementById("ProtList");
-	pl.options.length = 0;
-	var title='';
-	$.each(rvDataSets, function(speciesIndex,rvds){
-		$.each(rvds.SpeciesEntry.Molecule_Names_rProtein, function(){
-			var ColName = ["All_Proteins"];
-			var result = $.grep(rvds.DataDescriptions, function(e){ return e.ColName === ColName[0]; });
-			if (result[0]){
-				title = "All_Proteins" + ": " + result[0].Description;
-			} else {
-				title = "Data Description is missing.";
-			}
-		})
-		$('#ProtList').append('<optgroup label="Proteins' + '_Struct_' + (speciesIndex + 1) + '" id="ProtList' + speciesIndex +  '" />');
-		$.each(rvds.SpeciesEntry.Molecule_Names_rProtein, function (index, value) {
-			$('#ProtList' + speciesIndex).append(new Option(rvds.SpeciesEntry.Molecule_Names_rProtein[index], rvds.SpeciesEntry.internal_protein_names[index]));
-		});
-		rvds.SpeciesEntry["SubunitProtChains"] = rvds.SpeciesEntry.SubunitProtChains;
-	})
-	$("#ProtList").multiselect("refresh");
-	return title;
+	// var pl = document.getElementById("ProtList");
+	// pl.options.length = 0;
+	// var title='';
+	// $.each(rvDataSets, function(speciesIndex,rvds){
+		// $.each(rvds.SpeciesEntry.Molecule_Names_rProtein, function(){
+			// var ColName = ["All_Proteins"];
+			// var result = $.grep(rvds.DataDescriptions, function(e){ return e.ColName === ColName[0]; });
+			// if (result[0]){
+				// title = "All_Proteins" + ": " + result[0].Description;
+			// } else {
+				// title = "Data Description is missing.";
+			// }
+		// })
+		// $('#ProtList').append('<optgroup label="Proteins' + '_Struct_' + (speciesIndex + 1) + '" id="ProtList' + speciesIndex +  '" />');
+		// $.each(rvds.SpeciesEntry.Molecule_Names_rProtein, function (index, value) {
+			// $('#ProtList' + speciesIndex).append(new Option(rvds.SpeciesEntry.Molecule_Names_rProtein[index], rvds.SpeciesEntry.internal_protein_names[index]));
+		// });
+		// rvds.SpeciesEntry["SubunitProtChains"] = rvds.SpeciesEntry.SubunitProtChains;
+	// })
+	// $("#ProtList").multiselect("refresh");
+	// return title;
 }
 
 function populateDomainHelixMenu() {
@@ -2867,11 +2859,8 @@ function populateDomainHelixMenu() {
 			if (!DomainSelections[DomainList_AN[i]]) {
 				DomainSelections[DomainList_AN[i]] = new Array;
 			}
-			if (rvds.Residues[i].resNum.indexOf(":") >= 0) {
-				DomainSelections[DomainList_AN[i]].push(rvds.Residues[i].resNum);
-			} else {
-				DomainSelections[DomainList_AN[i]].push(rvds.SpeciesEntry.Molecule_Names[rvds.SpeciesEntry.PDB_chains.indexOf(rvds.Residues[i].ChainID)] + ":" + rvds.Residues[i].resNum);
-			}
+			DomainSelections[DomainList_AN[i]].push(rvds.Residues[i].uResName);
+
 		}
 		
 		var DomainList_ANU = $.grep(DomainList_AN, function (v, k) {
@@ -2900,11 +2889,8 @@ function populateDomainHelixMenu() {
 			if (!HelixSelections[HelixList[i]]) {
 				HelixSelections[HelixList[i]] = new Array;
 			}
-			if (rvds.Residues[i].resNum.indexOf(":") >= 0) {
-				HelixSelections[HelixList[i]].push(rvds.Residues[i].resNum);
-			} else {
-				HelixSelections[HelixList[i]].push(rvds.SpeciesEntry.Molecule_Names[rvds.SpeciesEntry.PDB_chains.indexOf(rvds.Residues[i].ChainID)] + ":" + rvds.Residues[i].resNum);
-			}
+			
+			HelixSelections[HelixList[i]].push(rvds.Residues[i].uResName);
 		}
 		
 		var HelixListU = $.grep(HelixList, function (v, k) {
@@ -3144,13 +3130,14 @@ function drawNavLine(){
 
 function addPopUpWindowResidue(Sele){
 	
-	if (rvDataSets[Sele[1]].Residues[Sele[0]].resNum.indexOf(":") >= 0 ){
-		var ResName = rvDataSets[Sele[1]].Residues[Sele[0]].resNum;
-	} else {
-		var ResName = rvDataSets[Sele[1]].SpeciesEntry.Molecule_Names[rvDataSets[Sele[1]].SpeciesEntry.PDB_chains.indexOf(rvDataSets[Sele[1]].Residues[Sele[0]].ChainID)] +
-		":" + rvDataSets[Sele[1]].Residues[Sele[0]].resNum;
-	}
+	// if (rvDataSets[Sele[1]].Residues[Sele[0]].resNum.indexOf(":") >= 0 ){
+		// var ResName = rvDataSets[Sele[1]].Residues[Sele[0]].resNum;
+	// } else {
+		// var ResName = rvDataSets[Sele[1]].SpeciesEntry.Molecule_Names[rvDataSets[Sele[1]].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[Sele[1]].Residues[Sele[0]].ChainID)] +
+		// ":" + rvDataSets[Sele[1]].Residues[Sele[0]].resNum;
+	// }
 	
+	var ResName = rvDataSets[Sele[1]].Residues[Sele[0]].uResName;
 	var dobj = $.grep(rvDataSets[Sele[1]].ConservationTable, function(e){ return e.resNum == ResName; })[0];
 	//var dobj = rvDataSets[Sele[1]].ConservationTable[Sele[0]];
 	if (dobj){
@@ -3164,14 +3151,10 @@ function addPopUpWindowResidue(Sele){
 	}
 		
 	var targetLayer=rvDataSets[Sele[1]].getSelectedLayer();
-	var rn = rvDataSets[Sele[1]].Residues[Sele[0]].resNum.split(":");
-	if (rn.length < 2 ){
-		$('#resName').html(rvDataSets[Sele[1]].Residues[Sele[0]].resName + rvDataSets[Sele[1]].Residues[Sele[0]].resNum +
-			" (" + rvDataSets[Sele[1]].SpeciesEntry.Molecule_Names[rvDataSets[Sele[1]].SpeciesEntry.PDB_chains.indexOf(rvDataSets[Sele[1]].Residues[Sele[0]].ChainID)] + " rRNA)");
-	} else {
-		$('#resName').html(rvDataSets[Sele[1]].Residues[Sele[0]].resName + rn[1] +
-			" (" + rn[0] + " rRNA)");
-	}
+	
+	$('#resName').html(rvDataSets[Sele[1]].Residues[Sele[0]].resName + rvDataSets[Sele[1]].Residues[Sele[0]].resNum +
+		" (" + rvDataSets[Sele[1]].Residues[Sele[0]].molName + " " + rvDataSets[Sele[1]].Residues[Sele[0]].MoleculeType +")");
+	
 	$('#conSeqLetter').html("Consensus: " + ConsensusSymbol);
 	$('#activeData').html("Selected Data: " + targetLayer.Data[Sele[0]]);
 	$("#conPercentage").html("Shannon Entropy: " + Hn);
@@ -3313,13 +3296,13 @@ function addPopUpWindowLine(SeleLine){
 	/* if (residue_j.resNum.indexOf(":") >= 0 ){
 		var ResName1 = residue_j.resNum;
 	} else {
-		// var ResName1 = rvDataSets[SeleLine[1]].SpeciesEntry.Molecule_Names[rvDataSets[SeleLine[1]].SpeciesEntry.PDB_chains.indexOf(rvDataSets[SeleLine[1]].Residues[j].ChainID)] +
+		// var ResName1 = rvDataSets[SeleLine[1]].SpeciesEntry.Molecule_Names[rvDataSets[SeleLine[1]].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[SeleLine[1]].Residues[j].ChainID)] +
 		// ":" + rvDataSets[SeleLine[1]].Residues[j].resNum;
 	}
 	if (residue_k.resNum.indexOf(":") >= 0 ){
 		var ResName2 = residue_j.resNum;
 	} else {
-		//var ResName2 = rvDataSets[SeleLine[1]].SpeciesEntry.Molecule_Names[rvDataSets[SeleLine[1]].SpeciesEntry.PDB_chains.indexOf(rvDataSets[SeleLine[1]].Residues[k].ChainID)] +
+		//var ResName2 = rvDataSets[SeleLine[1]].SpeciesEntry.Molecule_Names[rvDataSets[SeleLine[1]].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[SeleLine[1]].Residues[k].ChainID)] +
 		//":" + rvDataSets[SeleLine[1]].Residues[k].resNum;
 	} */
 	$('#BasePairType').html("Interaction Type: " +  targetLayer[0].DataLabel);
@@ -3369,7 +3352,7 @@ function UpdateLocalStorage(SaveStateFileName){
 		}
 		if($("input[name='JmolOrientationCheck']").attr("checked")){
 			if($('input[name="jp"][value=on]').is(':checked')){
-				rvSaveState["rvJmolOrientation"] = Jmol.evaluate(myJmol,"script('show orientation')");	
+				rvSaveState["rvJmolOrientation"] = Jmol.evaluateVar(myJmol,"script('show orientation')");	
 			}			
 		}
 		localStorage.setItem(SaveStateFileName,JSON.stringify(rvSaveState));

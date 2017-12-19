@@ -3,9 +3,7 @@
 # ammavishva@gmail.com
 
 from flask import Flask, jsonify, request
-from flask_restful import Resource,reqparse
-from sqlalchemy import create_engine
-from flaskext.mysql import MySQL
+from flask_restful import Resource
 
 class SpeciesTable(Resource):
       def __init__(self,**kwargs):
@@ -14,20 +12,12 @@ class SpeciesTable(Resource):
     
       def post(self):
         try:     
-           # Parse the arguments
-           # parser = reqparse.RequestParser();
-           # parser.add_argument('content', type=str);
-           # args = parser.parse_args();
            _content = request.get_json(force=True)
-
-           # _content = args['content'];
-
            cur = self.conn.cursor();
-           SQLStatement = 'SELECT * FROM SpeciesTables2 WHERE SS_Table = %s OR SS_Table = %s'
+           SQLStatement = 'SELECT * FROM SecondaryStructureDetails WHERE SS_Table = %s OR SS_Table = %s'
            cur.execute(SQLStatement,_content)
            r = [dict((cur.description[i][0], value) \
                for i, value in enumerate(row)) for row in cur.fetchall()]
-           # return SQLStatement
            cur.close()
            return jsonify(r)    
         except Exception as e:

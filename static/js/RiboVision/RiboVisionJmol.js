@@ -98,9 +98,9 @@ function init3dStructures() {
 	updateModel();
 	
 	// if (rvDataSets[1]) {
-		// var rna_chains = ":" + rvDataSets[0].SpeciesEntry.New_PDB_Chains.replace(/:/,' or :') + " or :" + rvDataSets[1].SpeciesEntry.New_PDB_Chains.replace(/:/,' or :');
+		// var rna_chains = ":" + rvDataSets[0].SpeciesEntry.New_RNA_Chains.replace(/:/,' or :') + " or :" + rvDataSets[1].SpeciesEntry.New_RNA_Chains.replace(/:/,' or :');
 	// } else {
-		// var rna_chains = ":" + rvDataSets[0].SpeciesEntry.New_PDB_Chains.replace(/:/,' or :');
+		// var rna_chains = ":" + rvDataSets[0].SpeciesEntry.New_RNA_Chains.replace(/:/,' or :');
 	// }
 	
 	// var sele="rna and (" + rna_chains + ")";
@@ -118,7 +118,7 @@ function update3DProteinsLow(newcolor){
 	var JscriptP = "set hideNotSelected false;";
 	for (var i = 0; i < newcolor.length; i++) {
 		JscriptP += "select (" + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein) + ".1 and :" + 
-		rvDataSets[0].SpeciesEntry.PDB_chains_rProtein[1][rvDataSets[0].SpeciesEntry.PDB_chains_rProtein[2].indexOf(seleProt[i])] +
+		rvDataSets[0].SpeciesEntry.RNA_Chains_rProtein[1][rvDataSets[0].SpeciesEntry.RNA_Chains_rProtein[2].indexOf(seleProt[i])] +
 		"); color Cartoon opaque [" + newcolor[i].replace("#", "x") + "];";
 	}
 	//JscriptP+="display " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA ) + ".1, " + (rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rProtein ) + ".1;";
@@ -303,8 +303,8 @@ function refreshModel() {
 		}
 		//script += rvds.SpeciesEntry.Jmol_Model_Num_rRNA + ".1 and (";
 		script += "(";
-		if (rvds.SpeciesEntry.PDB_chains){
-			var psplit=rvds.SpeciesEntry.PDB_chains.split(";");
+		if (rvds.SpeciesEntry.RNA_Chains){
+			var psplit=rvds.SpeciesEntry.RNA_Chains.split(";");
 			for (var ii = 0; ii < psplit.length; ii++) {
 				script += ":" + psplit[ii];
 				if (ii < (psplit.length - 1)) {
