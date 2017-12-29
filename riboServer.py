@@ -18,9 +18,11 @@ from FetchMasterList import FetchMasterList
 from StructureLookup import StructureLookup
 from TextLabels import TextLabels
 from LineLabels import LineLabels
-from BasePairs import BasePairs
+#from BasePairs import BasePairs
 from FullTable import FullTable
 from StructDataMenu import StructDataMenu
+from StructData3 import StructData3
+from Interactions import Interactions, InteractionsMenu
 
 from SavePML import SavePML
 
@@ -56,9 +58,12 @@ api.add_resource(FetchMasterList, '/RiboVision/v1.0/fetchMasterList', resource_c
 api.add_resource(StructureLookup, '/RiboVision/v1.0/fetchStructureName', resource_class_kwargs={ 'db': db });
 api.add_resource(TextLabels, '/RiboVision/v1.0/textLabels', resource_class_kwargs={ 'db': db });
 api.add_resource(LineLabels, '/RiboVision/v1.0/lineLabels', resource_class_kwargs={ 'db': db });
-api.add_resource(BasePairs, '/RiboVision/v1.0/basePairs', resource_class_kwargs={ 'db': db });
+#api.add_resource(BasePairs, '/RiboVision/v1.0/basePairs', resource_class_kwargs={ 'db': db });
 api.add_resource(FullTable, '/RiboVision/v1.0/fullTable', resource_class_kwargs={ 'db': db });
 api.add_resource(StructDataMenu, '/RiboVision/v1.0/structdatamenu', resource_class_kwargs={ 'db': db });
+api.add_resource(StructData3, '/RiboVision/v1.0/fetchStructData', resource_class_kwargs={ 'db': db });
+api.add_resource(Interactions, '/RiboVision/v1.0/fetchInteractions', resource_class_kwargs={ 'db': db });
+api.add_resource(InteractionsMenu, '/RiboVision/v1.0/fetchInteractionsMenu', resource_class_kwargs={ 'db': db });
 api.add_resource(Test, '/RiboVision/v1.0/test', resource_class_kwargs={ 'db': db });
 api.add_resource(SavePML, '/RiboVision/v1.0/savepml');
 

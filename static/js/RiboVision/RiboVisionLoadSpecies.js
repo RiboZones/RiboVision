@@ -67,7 +67,7 @@ function processResidueData(ResidueData,speciesIndex){
 		MainResidueMap[uResName].X = ResiduePositions[speciesIndex][i]["X"];
 		MainResidueMap[uResName].Y = ResiduePositions[speciesIndex][i]["Y"];
 		MainResidueMap[cResName] = uResName;
-		MainResidueMap[uResName] = cResName;
+		MainResidueMap[uResName].cResName = cResName;
 	});
 	rvDataSets[speciesIndex].addResidues(ResidueData);
 
@@ -100,6 +100,7 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 			$.each(data, function (index, value) {
 				waitFor3Dinit(value);
 				populateMenus(value);
+				structureName[index] = value;
 			})	
 			},
 		error: function(error) {
@@ -327,11 +328,10 @@ function populateMenus(structureName){
 					
 	//Set StructData Menu
 	populateStructDataMenu(structureName.StructureName);
-	$("#StructDataList").multiselect("refresh");
+	//$("#StructDataList").multiselect("refresh");
 	
 	//Set interaction Menu	
-	populateInteractionMenu()
-	$("#PrimaryInteractionList").multiselect("refresh");
+	populateInteractionMenu(structureName.StructureName)
 	
 	//Set sortable to imply draggable
 	$("#StructDataDiv").sortable({

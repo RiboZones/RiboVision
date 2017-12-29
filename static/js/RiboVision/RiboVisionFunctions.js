@@ -152,7 +152,7 @@ function resizeElements(noDraw) {
 	var toolBarWidth = $("#toolBar").outerWidth();
 	$("#toolBar").css("left",width-toolBarWidth);
 	//Menu
-	$("#menu").css('height', 0.9 * height);
+	$("#menu").css('height', 0.93 * height);
 	$("#menu").css('width', 0.16 * width);
 	var xcorr = $("#menu").outerWidth();
 	
@@ -186,17 +186,17 @@ function resizeElements(noDraw) {
 
 	//MainMenu
 	$("#MainMenu").css('width', MainMenuFrac * xcorr); //65%, make room for new MiniLayer
-	$("#MainMenu").css('height', (0.9 * height) - parseFloat($("#SiteInfo").css('height')) - parseFloat($("#ExportData").css('height')));
+	$("#MainMenu").css('height', (0.93 * height) - parseFloat($("#SiteInfo").css('height')) - parseFloat($("#ExportData").css('height')));
 	$("#MainMenu").css('top', parseFloat($("#SiteInfo").css('height')));
 	
 	//LinkSection
 	$("#LinkSection").css('width', (1 - MainMenuFrac) * xcorr);
 	$("#LinkSection").css('height',parseFloat($("#LinkSection .ui-widget-header3").css('height')) + parseFloat($(".miniLayerName").first().css('height')) + 13);
-	$("#LinkSection").css('top', (0.9 * height) - parseFloat($("#ExportData").css('height')) - parseFloat($("#LinkSection").css('height')));
+	$("#LinkSection").css('top', (0.93 * height) - parseFloat($("#ExportData").css('height')) - parseFloat($("#LinkSection").css('height')));
 	
 	//MiniLayer
 	$("#MiniLayer").css('width', (1 - MainMenuFrac) * xcorr); //35%, for new MiniLayer
-	$("#MiniLayer").css('height', (0.9 * height) - parseFloat($("#SiteInfo").css('height')) - parseFloat($("#ExportData").css('height')) - parseFloat($("#LinkSection").css('height')));
+	$("#MiniLayer").css('height', (0.93 * height) - parseFloat($("#SiteInfo").css('height')) - parseFloat($("#ExportData").css('height')) - parseFloat($("#LinkSection").css('height')));
 	$("#MiniLayer").css('top', parseFloat($("#SiteInfo").css('height')));
 	
 	//SideBarAccordian
@@ -252,7 +252,7 @@ function resizeElements(noDraw) {
 	
 	//LogoDiv
 	$("#LogoDiv").css('width', xcorr);
-	$("#LogoDiv").css('height', 0.1 * height);
+	$("#LogoDiv").css('height', 0.07 * height);
 	$("#LogoDiv").css('top', $("#menu").css('height'));
 	
 	if (rvViews[0]){
@@ -373,19 +373,21 @@ function expandSelection(command, SelectionName,SpeciesIndex) {
 			} else {
 				// Single residue detected
 				var check_residue = MainResidueMap[ comsplit[0] + ":" + comsplit[1]];
-
-				if (check_residue){
-					targetSelection.Residues.push(rvds.Residues[check_residue.index]);
-				} else {
+				if (!check_residue){
+					// Assume protein.
 					var chainID = rvds.SpeciesEntry.RNA_Chains_rProtein[rvds.SpeciesEntry.Molecule_Names_rProtein.indexOf(comsplit[0])];
 					var aloneRes = chainID + "_" + comsplit[1];
 					// Skip the residue list check for now
 					//var alone_ind = rvDataSets[0].ResidueList_rProtein.indexOf(aloneRes);
 					//if (alone_ind >=0){
 						//var targetSelection=rvDataSets[0].getSelection(SelectionName);
-						targetSelection.Residues_rProtein.push(aloneRes);
-						return aloneRes;
-					//}
+					targetSelection.Residues_rProtein.push(aloneRes);
+					return aloneRes;
+				} else if (check_residue && check_residue.rvds_index == SpeciesIndex){
+					// RNA in this dataset
+					targetSelection.Residues.push(rvds.Residues[check_residue.index]);
+				} else {
+					// do nothing
 				}
 			}
 		} else if (comsplit[0] != "") {
@@ -721,7 +723,7 @@ function colorMappingLoop(targetLayer, seleProt, seleProtNames, OverRideColors) 
 	if (arguments.length >= 4) {
 		var colors2 = OverRideColors;
 	} else {
-		var colors2 = RainBowColors;
+		var colors2 = ColorLists.Rainbow1;
 	}
 	$("#ProtList").multiselect("widget").find(".ui-multiselect-checkboxes").find("span").css("color","black"); // Reset Protein colors to black.
 
@@ -855,7 +857,7 @@ function update3DProteins(seleProt, OverRideColors) {
 	if (arguments.length >= 2) {
 		var colors2 = OverRideColors;
 	} else {
-		var colors2 = RainBowColors;
+		var colors2 = ColorLists.Rainbow1;
 	}
 	var newcolor=[];
 		
@@ -871,37 +873,38 @@ function update3DProteins(seleProt, OverRideColors) {
 	update3DProteinsLow(newcolor);
 }
 
-function colorMapping(targetLayer, colName, colors = RainBowColors , indexMode = false, rePlaceData) {
+function colorMapping(targetLayer, colName, colorlist = "Rainbow1" , indexMode = false, rePlaceData) {
 	if (!targetLayer) {
 		$("#dialog-selection-warning p").text("Please select a valid layer and try again.");
 		$("#dialog-selection-warning").dialog("open");
 		return;
 	}
-	switch (targetLayer.Type) {
-	case "circles":
+	var colors = ColorLists[colorlist];
+	if(rvDataSets[targetLayer.SetNumber].Residues[0][colName] !=undefined){
 		var data = new Array;
 		for (var j = 0; j < rvDataSets[targetLayer.SetNumber].Residues.length; j++) {
 			data[j] = rvDataSets[targetLayer.SetNumber].Residues[j][colName];
 		}
 		colorProcess(data, indexMode,targetLayer,colors);
-		break;
-	case "contour":
-		var data = new Array;
-		for (var j = 0; j < rvDataSets[targetLayer.SetNumber].Residues.length; j++) {
-			data[j] = rvDataSets[targetLayer.SetNumber].Residues[j][colName];
-		}
-		colorProcess(data, indexMode,targetLayer,colors);
-		break;
-	case "residues":
-		var data = new Array;
-		for (var j = 0; j < rvDataSets[targetLayer.SetNumber].Residues.length; j++) {
-			data[j] = rvDataSets[targetLayer.SetNumber].Residues[j][colName];
-		}
-		colorProcess(data, indexMode,targetLayer,colors);
-		break;
-	default:
-		$( "#dialog-layer-type-error" ).dialog("open")
-	}
+	} else {
+		$.ajax({
+			url: 'RiboVision/v1.0/fetchStructData',
+			type: 'post',
+			contentType: 'application/json', 
+			accept: 'application/json',
+			data: JSON.stringify([rvDataSets[targetLayer.SetNumber].SpeciesEntry.SS_Table, structureName[0].StructureName,colName]),
+			cache: false,
+			success: function(newdata) {
+				var data = new Array;
+				for (var j = 0; j < rvDataSets[targetLayer.SetNumber].Residues.length; j++) {
+					rvDataSets[targetLayer.SetNumber].Residues[j][colName] = newdata[j].Value;
+					data[j] = newdata[j].Value;
+				}
+				//alert("Database");
+				colorProcess(data, indexMode,targetLayer,colors);
+			}
+		})
+	}	
 }
 
 function colorNameToHex(color,prefix='#',nullcolor=false) {
@@ -963,69 +966,71 @@ function appendBasePairs(BasePairTable, colName) {
 }
 
 function refreshBasePairs(BasePairTable) {
-	var bpts = BasePairTable.split(";");
-	//ActiveBasePairSet=[];
 	FullBasePairSet=[];
-	$.each(bpts, function(index,value){
-		if (BasePairTable != "clear_lines") {
-			var p = BasePairTable.indexOf("_NPN");
-			if (p < 0) {
-				$.getJSON('RiboVision/v1.0/basePairs', {
-					BasePairs : value
-				}, function (basePairs2) {					
-					$.each(basePairs2, function (ind, item) {
-						item.lineWidth = 0.75;
-						item.opacity = 0.5;
-						item.color_hex = '#231F20';
-						item.residue_i=rvDataSets[index].SpeciesEntry.Molecule_Names[rvDataSets[index].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[index].Residues[item.resIndex1].ChainID)] + ":" + rvDataSets[index].Residues[item.resIndex1].resNum.replace(/[^:]*:/g, "");
-						item.residue_j=rvDataSets[index].SpeciesEntry.Molecule_Names[rvDataSets[index].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[index].Residues[item.resIndex2].ChainID)] + ":" + rvDataSets[index].Residues[item.resIndex2].resNum.replace(/[^:]*:/g, "");
-					});
-					FullBasePairSet=FullBasePairSet.concat(basePairs2);	
-					ActiveBasePairSet = FullBasePairSet;
-					
-					rvDataSets[index].drawBasePairs("lines");
-					// Set interaction submenu to allow for subsets of these basepairs to be displayed. 
-					// For now, let's set a global variable to store the whole table, so that it doesn't have to be refetched everytime a subset is chosen. 
-					// This will get better when I revamp who BasePair interactions work
+			
+	if (BasePairTable == "clear_lines") {
+		$.each(rvDataSets, function(index, rvds){
+			rvds.clearCanvas("lines");
+		})
 		
-					//rvDataSets[index].FullBasePairSet = rvDataSets[index].BasePairs;
-					var BP_Type = [];	
-					$.each(FullBasePairSet, function (ind, item) {
-						BP_Type.push(item.bp_type);
-					});
-					BP_TypeU = $.grep(BP_Type, function (v, k) {
-						return $.inArray(v, BP_Type) === k;
-					});
-					
-					var ims = document.getElementById("SecondaryInteractionList");
-					ims.options.length = 0;
-					$.each(BP_TypeU, function (ind, item) {
-						ims.options[ind] = new Option(item, item);
-						ims.options[ind].setAttribute("selected", "selected");
-					});	
-					$("#SecondaryInteractionList").multiselect("refresh");
+	} else if (BasePairTable == "proteins") {
+		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
+				return this.value;
+			}).get();
+		var array_of_checked_titles = $("#ProtList").multiselect("getChecked").map(function () {
+				return this.title;
+		}).get();
+		var ims = document.getElementById("SecondaryInteractionList");
+		ims.options.length = 0;
+		ims.options[0] = new Option("NPN", "NPN");
+		ims.options[0].setAttribute("selected", "selected");
+		$("#SecondaryInteractionList").multiselect("refresh");
+		colorMappingLoop(undefined,array_of_checked_values,array_of_checked_titles);
+	} else {
+		$.ajax({
+			url: 'RiboVision/v1.0/fetchInteractions',
+			type: 'post',
+			contentType: 'application/json', 
+			accept: 'application/json',
+			data: JSON.stringify([structureName[0].StructureName,BasePairTable]),
+			cache: false,
+			success: function(basePairs2) {
+				$.each(basePairs2, function (ind, item) {
+					item.lineWidth = 0.75;
+					item.opacity = 0.5;
+					item.color_hex = '#231F20';
+					//item.residue_i=rvDataSets[index].SpeciesEntry.Molecule_Names[rvDataSets[index].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[index].Residues[item.resIndex1].ChainID)] + ":" + rvDataSets[index].Residues[item.resIndex1].resNum.replace(/[^:]*:/g, "");
+					//item.residue_j=rvDataSets[index].SpeciesEntry.Molecule_Names[rvDataSets[index].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[index].Residues[item.resIndex2].ChainID)] + ":" + rvDataSets[index].Residues[item.resIndex2].resNum.replace(/[^:]*:/g, "");
 				});
-			} else {
-				var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
-					return this.value;
-				}).get();
-				var array_of_checked_titles = $("#ProtList").multiselect("getChecked").map(function () {
-						return this.title;
-				}).get();
+				FullBasePairSet=FullBasePairSet.concat(basePairs2);	
+				ActiveBasePairSet = FullBasePairSet;
+				$.each(rvDataSets, function(index, rvds){
+					rvds.drawBasePairs("lines");
+				})
+				// Set interaction submenu to allow for subsets of these basepairs to be displayed. 
+				// For now, let's set a global variable to store the whole table, so that it doesn't have to be refetched everytime a subset is chosen. 
+				// This will get better when I revamp who BasePair interactions work
+	
+				//rvDataSets[index].FullBasePairSet = rvDataSets[index].BasePairs;
+				var BP_Type = [];	
+				$.each(FullBasePairSet, function (ind, item) {
+					BP_Type.push(item.bp_type);
+				});
+				BP_TypeU = $.grep(BP_Type, function (v, k) {
+					return $.inArray(v, BP_Type) === k;
+				});
+				
 				var ims = document.getElementById("SecondaryInteractionList");
 				ims.options.length = 0;
-				ims.options[0] = new Option("NPN", "NPN");
-				ims.options[0].setAttribute("selected", "selected");
+				$.each(BP_TypeU, function (ind, item) {
+					ims.options[ind] = new Option(item, item);
+					ims.options[ind].setAttribute("selected", "selected");
+				});	
 				$("#SecondaryInteractionList").multiselect("refresh");
-				colorMappingLoop(undefined,array_of_checked_values,array_of_checked_titles);
 				
 			}
-			
-		} else {
-			//rvDataSets[index].BasePairs = [];
-			rvDataSets[index].clearCanvas("lines");
-		}
-	});
+		})
+	}
 }
 
 function filterBasePairs(IncludeTypes){
@@ -1640,7 +1645,7 @@ function customDataProcess(data_label,targetLayerName){
 			}
 			//console.log(colors);
 		} else {
-			colors = RainBowColors;
+			colors = ColorLists.Rainbow1;
 		}
 		
 		if (targetLayer.Type === "selected"){
@@ -2728,7 +2733,23 @@ function computeFasta(){
 
 
 /////////////////////////////// Load Data Functions ///////////////////////////
-function populateInteractionMenu() {
+function populateInteractionMenu(structureName) {
+	$.ajax({
+		url: 'RiboVision/v1.0/fetchInteractionsMenu',
+		type: 'post',
+		contentType: 'application/json', 
+		accept: 'application/json',
+		data: JSON.stringify([structureName]),
+		cache: false,
+		success: function(BPList) {
+			var il = document.getElementById("PrimaryInteractionList");
+			$.each(BPList, function(index, bp_entry){
+				il.options[index + 1] = new Option(bp_entry.bp_group, bp_entry.bp_group);
+			})
+			$("#PrimaryInteractionList").multiselect("refresh");
+		}
+	})
+	
 	// $.each(rvDataSets, function(index,rvds){	
 		// var il = document.getElementById("PrimaryInteractionList");
 		// var BPList = rvds.SpeciesEntry.InterActionMenu.split(";");
