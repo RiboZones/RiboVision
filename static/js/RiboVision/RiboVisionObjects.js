@@ -164,7 +164,6 @@ function RvLayer(rvds,LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Co
 				this.clearData();
 				drawNavLine();
 				rvds.clearCanvas(this.LayerName);
-				update3Dcolors();
 				break;
 			case "contour":
 				this.DataLabel = "None";
@@ -172,7 +171,6 @@ function RvLayer(rvds,LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Co
 				this.clearData();
 				drawNavLine();
 				rvds.clearCanvas(this.LayerName);
-				update3Dcolors();
 				break;	
 			case "residues":
 				this.DataLabel = "None";
@@ -180,7 +178,6 @@ function RvLayer(rvds,LayerName, CanvasName, Data, Filled, ScaleFactor, Type, Co
 				this.clearData();
 				clearColor(false);
 				drawNavLine();
-				update3Dcolors();
 				break;
 			case "lines":
 				this.DataLabel = "None";
@@ -304,8 +301,7 @@ function rvDataSet(DataSetName,SetNumber) {
 	this.addResidues = function (rvResidues) {
 		this.Residues = rvResidues;
 		this.SequenceList = makeSequenceList(rvResidues);
-		//this.ResidueList = makeResidueList(rvResidues);
-		//this.ContourLinePoints = makeContourLinePoints.call(this,rvResidues);
+		this.updateRNAchains();
 	};
 	this.addLabels = function (rvTextLabels, rvLineLabels, rvExtraLabels) {
 		if (rvTextLabels !== undefined){
@@ -328,29 +324,42 @@ function rvDataSet(DataSetName,SetNumber) {
 	};*/
 	this.addCustomData = function (CustomData) {
 		var rvds=this;
+		var molecules_names = rvds.SpeciesEntry.Molecule_Names.concat(rvds.SpeciesEntry.Molecule_Names_rProtein)
 		rvds.CustomData = $.grep(CustomData, function(value,index){
-			return 	$.inArray(value.resNum,rvds.ResidueList) >=0;
+			//var mol_name = value.resNum.split(':')[0];
+			return $.inArray(value.resNum.split(':')[0],molecules_names) >=0;
 		})
 		// Copy extra parameters to customdata to support multiple datasets
-		if (rvds.CustomData[0].SwitchPoint != undefined & rvds.CustomData[0].SwitchPoint == ""){
-			rvds.CustomData[0].SwitchPoint = CustomData[0].SwitchPoint;
+		if(rvds.CustomData.length > 0){
+			if (rvds.CustomData[0].SwitchPoint != undefined & rvds.CustomData[0].SwitchPoint == ""){
+				rvds.CustomData[0].SwitchPoint = CustomData[0].SwitchPoint;
+			}
+			if (rvds.CustomData[0].TwoColorMode != undefined & rvds.CustomData[0].TwoColorMode == ""){
+				rvds.CustomData[0].TwoColorMode = CustomData[0].TwoColorMode;
+				rvds.CustomData[1].TwoColorMode = CustomData[1].TwoColorMode;
+			}
 		}
-		if (rvds.CustomData[0].TwoColorMode != undefined & rvds.CustomData[0].TwoColorMode == ""){
-			rvds.CustomData[0].TwoColorMode = CustomData[0].TwoColorMode;
-			rvds.CustomData[1].TwoColorMode = CustomData[1].TwoColorMode;
-		}
-		
 	};
 	this.addSpeciesEntry = function (SpeciesEntry) {
 		this.SpeciesEntry = SpeciesEntry;
-		this.SpeciesEntry.Molecule_Names = this.SpeciesEntry.Molecule_Names.split(";");
-		this.SpeciesEntry.Molecule_Names_rProtein = this.SpeciesEntry.Molecule_Names_rProtein.split(";");
-		this.SpeciesEntry.PDB_chains = this.SpeciesEntry.PDB_chains.split(";");
-
 		// Set FontSize
 		this.Font_Size_Canvas = this.SpeciesEntry.Font_Size_Canvas;
 		this.Font_Size_SVG = this.SpeciesEntry.Font_Size_SVG;
 		this.Circle_Radius = this.SpeciesEntry.Circle_Radius;
+	};
+	this.updateRNAchains = function (SpeciesEntry) {
+		//this.SpeciesEntry.Molecule_Names = this.SpeciesEntry.Molecule_Names.split(";");		
+		//this.SpeciesEntry.RNA_Chains = this.SpeciesEntry.RNA_Chains.split(";");
+		var molName = [...new Set(this.Residues.map(item => item.molName))];
+		this.SpeciesEntry.RNA_Names = molName;
+		var ChainName = [...new Set(this.Residues.map(item => item.ChainName))];
+		this.SpeciesEntry.RNA_Chains = ChainName;
+	
+	};
+	this.updateProtchains = function (SpeciesEntry) {
+		//this.SpeciesEntry.RNA_Chains_rProtein = this.SpeciesEntry.RNA_Chains_rProtein.split(";");
+		//this.SpeciesEntry.Molecule_Names_rProtein = this.SpeciesEntry.Molecule_Names_rProtein.split(";");
+		//this.SpeciesEntry.internal_protein_names = this.SpeciesEntry.internal_protein_names.split(";");
 	};
 	this.addSelection = function (Name, rvResidues, rvColor) {
 		if (!Name) {
@@ -741,7 +750,7 @@ function rvDataSet(DataSetName,SetNumber) {
 	this.makeResidueList = function () {
 		var ResidueListLocal = [],j;
 		for (j = 0; j < this.Residues.length; j++) {
-			ResidueListLocal[j] = this.Residues[j].resNum;
+			ResidueListLocal[j] = this.Residues[j].uResName;
 		}
 		this.ResidueList=ResidueListLocal;
 	}

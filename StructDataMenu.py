@@ -1,11 +1,11 @@
-# Vishva Natarajan
-# Summer Internship 2017 @GaTech - RiboVision project
-# ammavishva@gmail.com
+# Chad R. Bernier
+# Ribovision 2.0 from COOL@GaTech
+# chad.r.bernier@gmail.com
 
 from flask import Flask, jsonify, request
 from flask_restful import Resource
 
-class StructureLookup(Resource):
+class StructDataMenu(Resource):
       def __init__(self,**kwargs):
         self.db = kwargs['db'];
         self.conn = self.db.raw_connection();
@@ -14,7 +14,12 @@ class StructureLookup(Resource):
         try:
            _content = request.get_json(force=True)
            cur = self.conn.cursor();
-           SQLStatement = 'SELECT DISTINCT StructureName FROM Secondary_Tertiary WHERE SS_Table = %s OR SS_Table = %s'
+           SQLStatement = 'SELECT StructDataMenu.StructDataName, StructDataMenuDetails.ColName, ColorList, IndexMode, ExtraArg, Description, HelpLink, StructureName \
+               FROM StructDataMenu, StructDataMenuDetails, DataDescriptions \
+               WHERE StructDataMenu.StructDataName = StructDataMenuDetails.StructDataName \
+               AND StructDataMenuDetails.ColName = DataDescriptions.ColName \
+               HAVING StructureName = %s'
+           
            cur.execute(SQLStatement,_content)
            r = [dict((cur.description[i][0], value) \
                for i, value in enumerate(row)) for row in cur.fetchall()]

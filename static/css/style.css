@@ -33,7 +33,7 @@ a img {
 	position:absolute;
 	top:0px;
 	left:0px;
-	height:86%;	
+	height:93%;	
 	min-width: 300px;
 	overflow: hidden;
 	box-sizing:border-box;
@@ -44,22 +44,18 @@ a img {
 	position : absolute;
 	left : 0px;
 	width : 16%;
-	height : 14%;
+	height : 7%;
 	bottom : 0px;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
 }
-
+#LogoDiv img{
+	width : 100%;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+}
 #MainLogoDiv {
 	position:absolute;
-	margin-left:auto;
-	margin-right:auto;
-	height:65%;
-	width : 65%;
-}
-
-#MainLogo {
-	display:block;
 	margin-left:auto;
 	margin-right:auto;
 	height:100%;
@@ -67,13 +63,13 @@ a img {
 
 .ComboLogo {
 	display:block;
-	height:97%;
+	width:33%;
 	float:left;
 }
 
 #SiteInfo{
 	position:absolute;
-	height: 25%;
+	height: 22%;
 	width: 100%;
 	top:0px;
 	left:0px;
@@ -90,7 +86,7 @@ a img {
 	position:absolute;
 	left:-2px;
 	top:25%;
-	height:65%;	
+	height:70%;	
 	width: 65%;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
@@ -110,8 +106,8 @@ a img {
 #ExportData{
 	position:absolute;
 	left:-2px;
-	top:90%;
-	height:10%;	
+	top:94%;
+	height:6%;	
 	width: 100%;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box; /* Firefox */
