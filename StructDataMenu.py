@@ -7,13 +7,13 @@ from flask_restful import Resource
 
 class StructDataMenu(Resource):
       def __init__(self,**kwargs):
-        self.db = kwargs['db'];
-        self.conn = self.db.raw_connection();
+        #self.db = kwargs['db'];  
+        self.cnx = kwargs['cnx'];
     
       def post(self):
         try:
            _content = request.get_json(force=True)
-           cur = self.conn.cursor();
+           cur = self.cnx.cursor();
            SQLStatement = 'SELECT StructDataMenu.StructDataName, StructDataMenuDetails.ColName, ColorList, IndexMode, ExtraArg, Description, HelpLink, StructureName \
                FROM StructDataMenu, StructDataMenuDetails, DataDescriptions \
                WHERE StructDataMenu.StructDataName = StructDataMenuDetails.StructDataName \

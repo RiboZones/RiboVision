@@ -113,7 +113,7 @@ function colorMappingLoop3DLow(changeProteins){
 }
 
 function update3Dcolors() {
-	if($('input[name="jp"][value=off]').is(':checked')){
+	if($('input[name="3dp"][value=off]').is(':checked')){
 		return;
 	}
 	

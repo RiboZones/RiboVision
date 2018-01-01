@@ -170,7 +170,7 @@ function resizeElements(noDraw) {
 		$("#topMenu").css('width', 0);
 	}
 	var ycorr = $("#topMenu").outerHeight();
-	if($('input[name="jp"][value=on]').is(':checked')){
+	if($('input[name="3dp"][value=on]').is(':checked')){
 		var lp = (width - xcorr - toolBarWidth) * PanelDivide;
 	} else {
 		var lp = (width - xcorr - toolBarWidth);
@@ -842,7 +842,7 @@ function colorMappingLoop3D(seleProt,colors2){
 
 	});
 	/*Jscript += ");";
-	if($('input[name="jp"][value=on]').is(':checked')){
+	if($('input[name="3dp"][value=on]').is(':checked')){
 		//update3Dcolors();
 		//refreshModel();
 	}*/
@@ -851,7 +851,7 @@ function colorMappingLoop3D(seleProt,colors2){
 
 
 function update3DProteins(seleProt, OverRideColors) {
-	if($('input[name="jp"][value=off]').is(':checked')){
+	if($('input[name="3dp"][value=off]').is(':checked')){
 		return;
 	}
 	if (arguments.length >= 2) {
@@ -1318,7 +1318,7 @@ function createInfoWindow(Sele,InfoMode){
 // Misc Functions
 
 function BaseViewCenter(event){
-	if($('input[name="jp"][value=off]').is(':checked')){
+	if($('input[name="3dp"][value=off]').is(':checked')){
 		return;
 	}
 	var sel = getSelected(event);
@@ -1408,7 +1408,7 @@ function openRvState() {
 						rvSaveState["rvLayers"] = JSON.stringify(rvDataSets[0].Layers);
 						rvSaveState["rvSelections"] = JSON.stringify(rvDataSets[0].Selections);
 						rvSaveState["rvLastSpecies"] = rvDataSets[0].Name;
-						if($('input[name="jp"][value=on]').is(':checked')){
+						if($('input[name="3dp"][value=on]').is(':checked')){
 							Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
 							var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
 							Jmol.script(myJmol, jscript);
@@ -1416,7 +1416,7 @@ function openRvState() {
 						processRvState(rvSaveState);
 						updateModel();
 						update3Dcolors();
-						if($('input[name="jp"][value=on]').is(':checked')){
+						if($('input[name="3dp"][value=on]').is(':checked')){
 							var a = rvSaveState.rvJmolOrientation.match(/reset[^\n]+/);
 							Jmol.script(myJmol, a[0]);
 						}
@@ -1885,24 +1885,24 @@ function checkSavePrivacyStatus() {
 
 //////////////////////////////// Save Functions ///////////////////////////////
 function saveNavLine() {
-	AgreeFunction = function () {
-		var tmp  = document.getElementById("NavLineDiv");
-		var svg = tmp.getElementsByTagName("svg")[0];
-		// Extract the data as SVG text string
-		var svg_xml = (new XMLSerializer).serializeToString(svg);
-		var form = document.createElement("form");
-		form.setAttribute("method", "post");
-		form.setAttribute("action", "saveNavLine.php");
-		form.setAttribute("target", "_blank");
-		var hiddenField = document.createElement("input");
-		hiddenField.setAttribute("type", "hidden");
-		hiddenField.setAttribute("name", "content");
-		hiddenField.setAttribute("value", svg_xml);
-		form.appendChild(hiddenField);
-		document.body.appendChild(form);
-		form.submit();
-	}
-	checkSavePrivacyStatus();
+	var tmp  = document.getElementById("NavLineDiv");
+	var svg = tmp.getElementsByTagName("svg")[0];
+	// Extract the data as SVG text string
+	var svg_xml = (new XMLSerializer).serializeToString(svg);
+	
+	//Form Submit;
+	var form = document.createElement("form");
+	form.setAttribute("method", "post");
+	form.setAttribute("action", "RiboVision/v1.0/save1D");
+	form.setAttribute("target", "_blank");
+	var hiddenField = document.createElement("input");
+	hiddenField.setAttribute("type", "hidden");
+	hiddenField.setAttribute("enctype", "text/plain");
+	hiddenField.setAttribute("name", "data");
+	hiddenField.setAttribute("value", JSON.stringify({'svg' : svg_xml}));
+	form.appendChild(hiddenField);
+	document.body.appendChild(form);
+	form.submit();
 }
 
 function retrieveRvState(filename) {
@@ -1917,7 +1917,7 @@ function retrieveRvState(filename) {
 		rvSaveState["rvLayers"] = JSON.stringify(rvDataSets[0].Layers);
 		rvSaveState["rvSelections"] = JSON.stringify(rvDataSets[0].Selections);
 		rvSaveState["rvLastSpecies"] = rvDataSets[0].Name;
-		if($('input[name="jp"][value=on]').is(':checked')){
+		if($('input[name="3dp"][value=on]').is(':checked')){
 			Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
 			var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
 			Jmol.script(myJmol, jscript);
@@ -1932,7 +1932,7 @@ function storeRvState(filename){
 		var RvSaveState = {};
 		RvSaveState["RvDS"] = JSON.stringify(rvDataSets[0]);
 		RvSaveState["rvView"] = JSON.stringify(rvViews[0]);
-		if($('input[name="jp"][value=on]').is(':checked')){
+		if($('input[name="3dp"][value=on]').is(':checked')){
 			RvSaveState["rvJmolOrientation"] = Jmol.evaluateVar(myJmol,"script('show orientation')");
 		}
 	
@@ -1964,7 +1964,7 @@ function saveRvState(filename){
 		var RvSaveState = {};
 		RvSaveState["RvDS"] = JSON.stringify(rvDataSets[0]);
 		RvSaveState["rvView"] = JSON.stringify(rvViews[0]);
-		if($('input[name="jp"][value=on]').is(':checked')){
+		if($('input[name="3dp"][value=on]').is(':checked')){
 			RvSaveState["rvJmolOrientation"] = Jmol.evaluateVar(myJmol,"script('show orientation')");
 		}
 		
@@ -1998,86 +1998,75 @@ function saveRvState(filename){
 	}
 	checkSavePrivacyStatus(SpeciesIndex);
 }
+function saveSVG() {
+	var CS = canvasToSVG();
+	//Form Submit;
+	var form = document.createElement("form");
+	form.setAttribute("method", "post");
+	form.setAttribute("action", "RiboVision/v1.0/save2D");
+	form.setAttribute("target", "_blank");
+	var hiddenField = document.createElement("input");
+	hiddenField.setAttribute("type", "hidden");
+	hiddenField.setAttribute("enctype", "text/plain");
+	hiddenField.setAttribute("name", "data");
+	hiddenField.setAttribute("value", JSON.stringify({'svg' : CS.SVG, 'ext' : 'svg'}));
+	form.appendChild(hiddenField);
+	document.body.appendChild(form);
+	form.submit();
+}
+
 function saveJPG() {
-	AgreeFunction = function () {
-		var CS = canvasToSVG();
-		var form = document.createElement("form");
-		form.setAttribute("method", "post");
-		form.setAttribute("action", "saveJPG.php");
-		form.setAttribute("target", "Download.html");
-		var hiddenField = document.createElement("input");
-		hiddenField.setAttribute("type", "hidden");
-		hiddenField.setAttribute("name", "content");
-		hiddenField.setAttribute("value", CS.SVG);
-		var hiddenField2 = document.createElement("input");
-		hiddenField2.setAttribute("type", "hidden");
-		hiddenField2.setAttribute("name", "PaperSize");
-		hiddenField2.setAttribute("value", JSON.stringify([600/72*CS.PaperSize[0],600/72*CS.PaperSize[1]]));
-		form.appendChild(hiddenField);
-		form.appendChild(hiddenField2);
-		document.body.appendChild(form);
-		form.submit();
-	}
-	checkSavePrivacyStatus();
+	var CS = canvasToSVG();
+	//Form Submit;
+	var form = document.createElement("form");
+	form.setAttribute("method", "post");
+	form.setAttribute("action", "RiboVision/v1.0/save2D");
+	form.setAttribute("target", "_blank");
+	var hiddenField = document.createElement("input");
+	hiddenField.setAttribute("type", "hidden");
+	hiddenField.setAttribute("enctype", "text/plain");
+	hiddenField.setAttribute("name", "data");
+	hiddenField.setAttribute("value", JSON.stringify({'svg' : CS.SVG, 'ext' : 'jpg'}));
+	form.appendChild(hiddenField);
+	document.body.appendChild(form);
+	form.submit();
+    //JSON.stringify([600/72*CS.PaperSize[0],600/72*CS.PaperSize[1]]));
 }
 
 function savePNG() {
-	AgreeFunction = function () {
-		var CS = canvasToSVG();
-		var form = document.createElement("form");
-		form.setAttribute("method", "post");
-		form.setAttribute("action", "savePNG.php");
-		form.setAttribute("target", "_blank");
-		var hiddenField = document.createElement("input");
-		hiddenField.setAttribute("type", "hidden");
-		hiddenField.setAttribute("name", "content");
-		hiddenField.setAttribute("value", CS.SVG);
-		var hiddenField2 = document.createElement("input");
-		hiddenField2.setAttribute("type", "hidden");
-		hiddenField2.setAttribute("name", "PaperSize");
-		hiddenField2.setAttribute("value", JSON.stringify([600/72*CS.PaperSize[0],600/72*CS.PaperSize[1]]));
-		form.appendChild(hiddenField);
-		form.appendChild(hiddenField2);
-		document.body.appendChild(form);
-		form.submit();
-	}
-	checkSavePrivacyStatus();
-}
-
-function saveSVG() {
-	AgreeFunction = function () {
-		var CS = canvasToSVG();
-		var form = document.createElement("form");
-		form.setAttribute("method", "post");
-		form.setAttribute("action", "saveSVG.php");
-		form.setAttribute("target", "_blank");
-		var hiddenField = document.createElement("input");
-		hiddenField.setAttribute("type", "hidden");
-		hiddenField.setAttribute("name", "content");
-		hiddenField.setAttribute("value", CS.SVG);
-		form.appendChild(hiddenField);
-		document.body.appendChild(form);
-		form.submit();
-	}
-	checkSavePrivacyStatus();
+	var CS = canvasToSVG();
+	//Form Submit;
+	var form = document.createElement("form");
+	form.setAttribute("method", "post");
+	form.setAttribute("action", "RiboVision/v1.0/save2D");
+	form.setAttribute("target", "_blank");
+	var hiddenField = document.createElement("input");
+	hiddenField.setAttribute("type", "hidden");
+	hiddenField.setAttribute("enctype", "text/plain");
+	hiddenField.setAttribute("name", "data");
+	hiddenField.setAttribute("value", JSON.stringify({'svg' : CS.SVG, 'ext' : 'png'}));
+	form.appendChild(hiddenField);
+	document.body.appendChild(form);
+	form.submit();
+    //JSON.stringify([600/72*CS.PaperSize[0],600/72*CS.PaperSize[1]]));
 }
 
 function savePDF() {
-	AgreeFunction = function () {
-		var CS = canvasToSVG();
-		var form = document.createElement("form");
-		form.setAttribute("method", "post");
-		form.setAttribute("action", "savePDF.php");
-		form.setAttribute("target", "_blank");
-		var hiddenField = document.createElement("input");
-		hiddenField.setAttribute("type", "hidden");
-		hiddenField.setAttribute("name", "content");
-		hiddenField.setAttribute("value", CS.SVG);
-		form.appendChild(hiddenField);
-		document.body.appendChild(form);
-		form.submit();
-	}
-	checkSavePrivacyStatus();
+	var CS = canvasToSVG();
+	//Form Submit;
+	var form = document.createElement("form");
+	form.setAttribute("method", "post");
+	form.setAttribute("action", "RiboVision/v1.0/save2D");
+	form.setAttribute("target", "_blank");
+	var hiddenField = document.createElement("input");
+	hiddenField.setAttribute("type", "hidden");
+	hiddenField.setAttribute("enctype", "text/plain");
+	hiddenField.setAttribute("name", "data");
+	hiddenField.setAttribute("value", JSON.stringify({'svg' : CS.SVG, 'ext' : 'pdf'}));
+	form.appendChild(hiddenField);
+	document.body.appendChild(form);
+	form.submit();
+    //JSON.stringify([600/72*CS.PaperSize[0],600/72*CS.PaperSize[1]]));
 }
 
 function savePML(){
@@ -2389,17 +2378,18 @@ function canvasToSVG() {
 			var Font_Size_SVG=3.9;
 		}
 		
+        //Replace with database entries. 
 		//This will not work correctly any more, due to the two structure mode. Will need to shift these when loaded second.
-		var elReq = $.ajax({
-			url: "images/" + rvds.Name + "_ExtraLabels.svg",
-			dataType: "text", 
-			cache: false,
-			async: false
-		 });
+		// var elReq = $.ajax({
+			// url: "images/" + rvds.Name + "_ExtraLabels.svg",
+			// dataType: "text", 
+			// cache: false,
+			// async: false
+		 // });
 	 
-		elReq.done(function (data) {
-			output = output + data;
-		});
+		// elReq.done(function (data) {
+			// output = output + data;
+		// });
 		output += '<g id="Structure_' + (SpeciesIndex + 1) + '">\n';
 		$.each(rvds.Layers, function (index, value) {
 			if (rvds.Circle_Radius){
@@ -2496,17 +2486,9 @@ function canvasToSVG() {
 								}
 							} else {
 								var resName = residue.resName;
-							}
+							}				
 							
-							if (rvds.Residues[i].resNum.indexOf(":") >= 0 ){
-								var ResName = rvds.Residues[i].resNum;
-							} else {
-								var ResName = rvds.SpeciesEntry.Molecule_Names[rvds.SpeciesEntry.RNA_Chains.indexOf(rvds.Residues[i].ChainID)] +
-								":" + rvds.Residues[i].resNum;
-							}
-							
-							
-							output = output + '<text id="' + residue.resName + "_" + ResName + '" transform="matrix(1 0 0 1 ' + (parseFloat(residue.X) + xcorr).toFixed(3) + ' ' + (parseFloat(residue.Y) + ycorr).toFixed(3) + ')" fill="' + residue.color + '" font-family="Myriad Pro" ' + 'font-weight="' + residue["font-weight"] + '" font-size="' + Font_Size_SVG + '">' + resName + '</text>\n';
+							output = output + '<text id="' + residue.resName + "_" + residue.uResName + '" transform="matrix(1 0 0 1 ' + (parseFloat(residue.X) + xcorr).toFixed(3) + ' ' + (parseFloat(residue.Y) + ycorr).toFixed(3) + ')" fill="' + residue.color + '" font-family="Myriad Pro" ' + 'font-weight="' + residue["font-weight"] + '" font-size="' + Font_Size_SVG + '">' + resName + '</text>\n';
 						}
 						output = output + '</g>\n';
 						break;
@@ -2517,9 +2499,9 @@ function canvasToSVG() {
 							var residue = rvds.Residues[i];
 							if (residue && value.dataLayerColors[i]) {
 								if (value.Filled) {
-									output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + value.dataLayerColors[i] + '" stroke="' + value.dataLayerColors[i] + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + (parseFloat(residue.X) + pageOffsetX).toFixed(3) + '" cy="' + (parseFloat(residue.Y).toFixed(3)+ pageOffsetY) + '" r="' + radius + '"/>\n';
+									output = output + '<circle id="' + residue.uResName + '" fill="' + value.dataLayerColors[i] + '" stroke="' + value.dataLayerColors[i] + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + (parseFloat(residue.X) + pageOffsetX).toFixed(3) + '" cy="' + (parseFloat(residue.Y).toFixed(3)+ pageOffsetY) + '" r="' + radius + '"/>\n';
 								} else {
-									output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + 'none' + '" stroke="' + value.dataLayerColors[i] + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + (parseFloat(residue.X) + pageOffsetX).toFixed(3) + '" cy="' + (parseFloat(residue.Y) + pageOffsetY).toFixed(3) + '" r="' + radius + '"/>\n';
+									output = output + '<circle id="' + residue.uResName + '" fill="' + 'none' + '" stroke="' + value.dataLayerColors[i] + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + (parseFloat(residue.X) + pageOffsetX).toFixed(3) + '" cy="' + (parseFloat(residue.Y) + pageOffsetY).toFixed(3) + '" r="' + radius + '"/>\n';
 								}
 							}
 						}
@@ -2534,7 +2516,7 @@ function canvasToSVG() {
 							var targetSelection = rvds.getSelection(SelectionName);
 							output = output + '<g id="' + targetSelection.Name + '">\n';
 							$.each(targetSelection.Residues, function (index,residue){
-								output = output + '<circle id="' + residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "") + '" fill="' + 'none' + '" stroke="' + targetSelection.Color + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + (parseFloat(residue.X) + pageOffsetX).toFixed(3) + '" cy="' + (parseFloat(residue.Y) + pageOffsetY).toFixed(3) + '" r="' + radius + '"/>\n';
+								output = output + '<circle id="' + residue.uResName + '" fill="' + 'none' + '" stroke="' + targetSelection.Color + '" stroke-width="0.5" stroke-miterlimit="10" cx="' + (parseFloat(residue.X) + pageOffsetX).toFixed(3) + '" cy="' + (parseFloat(residue.Y) + pageOffsetY).toFixed(3) + '" r="' + radius + '"/>\n';
 							});
 							output = output + '</g>\n';
 						});
@@ -3372,7 +3354,7 @@ function UpdateLocalStorage(SaveStateFileName){
 			rvSaveState["rvView"] = JSON.stringify(rvViews[0]);			
 		}
 		if($("input[name='JmolOrientationCheck']").attr("checked")){
-			if($('input[name="jp"][value=on]').is(':checked')){
+			if($('input[name="3dp"][value=on]').is(':checked')){
 				rvSaveState["rvJmolOrientation"] = Jmol.evaluateVar(myJmol,"script('show orientation')");	
 			}			
 		}
@@ -3416,7 +3398,7 @@ function RestoreLocalStorage(SaveStateFileName) {
 		updateModel();
 		update3Dcolors();
 		if($("input[name='JmolOrientationCheck']").attr("checked")){
-			if($('input[name="jp"][value=on]').is(':checked')){
+			if($('input[name="3dp"][value=on]').is(':checked')){
 				var a = rvSaveState.rvJmolOrientation.match(/reset[^\n]+/);
 				Jmol.script(myJmol, a[0]);
 			}
@@ -3546,7 +3528,7 @@ function processRvState(rvSaveState) {
 	}
 	if($("input[name='JmolOrientationCheck']").attr("checked")){
 		//localStorage.setItem("rvJmolOrientation",8);
-		if($('input[name="jp"][value=on]').is(':checked')){
+		if($('input[name="3dp"][value=on]').is(':checked')){
 			var a = rvSaveState.rvJmolOrientation.match(/reset[^\n]+/);
 			Jmol.script(myJmol, a[0]);
 		}

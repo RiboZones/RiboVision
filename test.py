@@ -4,7 +4,8 @@ from flask_restful import Resource,reqparse
 
 class Test(Resource):
       def __init__(self,**kwargs):
-        self.db = kwargs['db'];
+        #self.db = kwargs['db'];  
+        self.cnx = kwargs['cnx'];
 
       def get(self):
        try:

@@ -9,8 +9,8 @@ from flask_jsonpify import jsonify
 
 class BasePairs(Resource):
       def __init__(self,**kwargs):
-        self.db = kwargs['db'];
-        self.conn = self.db.raw_connection();
+        #self.db = kwargs['db'];  
+        self.cnx = kwargs['cnx'];
     
       def get(self):
         try:
@@ -29,7 +29,7 @@ class BasePairs(Resource):
               SQLStatement = 'SELECT %s FROM %s' % (_ProtChain,_BasePairs)
 
             print('***SQLStatement='+ SQLStatement) 
-            cur= self.conn.cursor();
+            cur= self.cnx.cursor();
             cur.execute(SQLStatement)
             r = [dict((cur.description[i][0], value)
                for i, value in enumerate(row)) for row in cur.fetchall()]

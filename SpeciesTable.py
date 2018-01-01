@@ -7,13 +7,13 @@ from flask_restful import Resource
 
 class SpeciesTable(Resource):
       def __init__(self,**kwargs):
-        self.db = kwargs['db'];
-        self.conn = self.db.raw_connection();
+        #self.db = kwargs['db'];  
+        self.cnx = kwargs['cnx'];
     
       def post(self):
         try:     
            _content = request.get_json(force=True)
-           cur = self.conn.cursor();
+           cur = self.cnx.cursor();
            SQLStatement = 'SELECT * FROM SecondaryStructureDetails WHERE SS_Table = %s OR SS_Table = %s'
            cur.execute(SQLStatement,_content)
            r = [dict((cur.description[i][0], value) \

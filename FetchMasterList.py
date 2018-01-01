@@ -8,12 +8,12 @@ from flask_jsonpify import jsonify
 
 class FetchMasterList(Resource):
       def __init__(self,**kwargs):
-        self.db = kwargs['db'];
-        self.conn = self.db.raw_connection();
+        #self.db = kwargs['db'];  
+        self.cnx = kwargs['cnx'];
     
       def get(self):
         try:
-	    cur= self.conn.cursor();
+            cur= self.cnx.cursor();
             SQLStatement = 'SELECT SpeciesName, DataSetType, StructureName, LoadString FROM MasterTable WHERE Active=True'
             cur.execute(SQLStatement)
             r = [dict((cur.description[i][0], value) \

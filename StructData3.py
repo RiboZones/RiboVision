@@ -7,13 +7,13 @@ from flask_restful import Resource
 
 class StructData3(Resource):
       def __init__(self,**kwargs):
-        self.db = kwargs['db'];
-        self.conn = self.db.raw_connection();
+        #self.db = kwargs['db'];  
+        self.cnx = kwargs['cnx'];
     
       def post(self):
         try:
            _content = request.get_json(force=True)
-           cur = self.conn.cursor();
+           cur = self.cnx.cursor();
            SQLStatement = 'SELECT mi.map_index,Value from (SELECT map_index FROM SecondaryStructures WHERE SS_Table=%s) as mi \
               inner JOIN (SELECT map_index, Value FROM StructuralData3 WHERE StructureName = %s and VariableName=%s) \
                as sd WHERE mi.map_index=sd.map_index'

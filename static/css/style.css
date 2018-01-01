@@ -63,7 +63,8 @@ a img {
 
 .ComboLogo {
 	display:block;
-	width:33%;
+	/* width:33%; */
+    width:50%;
 	float:left;
 }
 

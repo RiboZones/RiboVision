@@ -762,18 +762,18 @@ function RiboVisionReady() {
 		drawNavLine();
 	});
 	
-	$("#SubUnitNumberToggle").buttonset();
-	$("#LoadSubunit1").attr("checked","checked");
-	$("#SubUnitNumberToggle").buttonset("refresh");
-	$("[name=LoadSubunit]").button().change(function(event,ui){
+	//$("#SubUnitNumberToggle").buttonset();
+	//$("#LoadSubunit1").attr("checked","checked");
+	//$("#SubUnitNumberToggle").buttonset("refresh");
+	//$("[name=LoadSubunit]").button().change(function(event,ui){
 		//alert(42)
-	});
+	//});
 	
-	$("#JmolToggle").buttonset();
-	//$("#jpON").attr("checked","checked");
-	//$("#JmolToggle").buttonset("refresh");
-	$("[name=jp]").button().change(function(event,ui){
-		if($('input[name="jp"][value=on]').is(':checked')){
+	$("#3DToggle").buttonset();
+	$("#3dpON").attr("checked","checked");
+	$("#3DToggle").buttonset("refresh");
+	$("[name=3dp]").button().change(function(event,ui){
+		if($('input[name="3dp"][value=on]').is(':checked')){
 			/*
 			if($('input[name="jjsmol"][value=JS]').is(':checked')){
 				JmolInfo["use"]="HTML5";
@@ -796,7 +796,7 @@ function RiboVisionReady() {
 			}*/
 		} else {
 			$("#the3DpanelDiv").html("");
-			myJmol=null;
+			//myJmol=null;
 		}
 		resizeElements();
 	});
@@ -812,34 +812,34 @@ function RiboVisionReady() {
 		rvDataSets[0].drawResidues("residues");
 	});
 	
-	$("#JmolTypeToggle").buttonset();
+	//$("#JmolTypeToggle").buttonset();
 	//$("#JmolJava").attr("checked","checked");
 	//$("#JmolTypeToggle").buttonset("refresh");
-	$("[name=jjsmol]").button().change(function(event,ui){
-		if($('input[name="jp"][value=off]').is(':checked')){
-			return;
-		}
-		if($('input[name="jjsmol"][value=JS]').is(':checked')){
-			JmolInfo["use"]="HTML5";
-		} else {
-			JmolInfo["use"]="Java";
-		}
+	// $("[name=jjsmol]").button().change(function(event,ui){
+		// if($('input[name="jp"][value=off]').is(':checked')){
+			// return;
+		// }
+		// if($('input[name="jjsmol"][value=JS]').is(':checked')){
+			// JmolInfo["use"]="HTML5";
+		// } else {
+			// JmolInfo["use"]="Java";
+		// }
 		
-		var O = Jmol.evaluate(myJmol,"script('show orientation')");
-		myJmol = Jmol.getApplet("myJmol", JmolInfo); 
-		$('#the3DpanelDiv').html(Jmol.getAppletHtml(myJmol));
-		Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
-		var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
-		Jmol.script(myJmol, jscript);
-		updateModel();
-		update3Dcolors();
-		var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
-			return this.value;
-		}).get();
-		colorMappingLoop(undefined,array_of_checked_values);
-		var a = O.match(/reset[^\n]+/);
-		Jmol.script(myJmol, a[0]);
-	});
+		// var O = Jmol.evaluate(myJmol,"script('show orientation')");
+		// myJmol = Jmol.getApplet("myJmol", JmolInfo); 
+		// $('#the3DpanelDiv').html(Jmol.getAppletHtml(myJmol));
+		// Jmol.script(myJmol, "script states/" + rvDataSets[0].SpeciesEntry.Jmol_Script);
+		// var jscript = "display " + rvDataSets[0].SpeciesEntry.Jmol_Model_Num_rRNA + ".1";
+		// Jmol.script(myJmol, jscript);
+		// updateModel();
+		// update3Dcolors();
+		// var array_of_checked_values = $("#ProtList").multiselect("getChecked").map(function () {
+			// return this.value;
+		// }).get();
+		// colorMappingLoop(undefined,array_of_checked_values);
+		// var a = O.match(/reset[^\n]+/);
+		// Jmol.script(myJmol, a[0]);
+	// });
 	
 	$("[name=clearColor]").button();
 	$("[name=selebutton]").button();
@@ -994,62 +994,62 @@ function RiboVisionReady() {
 	});
 	
 	
-	$("#JmolTypeToggle2").buttonset();
-	$("#SetDefaultJmolType").button().click(function() {
-		$("#dialog-Jmol-Type").dialog("open");
-	});
+	//$("#JmolTypeToggle2").buttonset();
+	//$("#SetDefaultJmolType").button().click(function() {
+		//$("#dialog-Jmol-Type").dialog("open");
+	//});
 	
-	$( "#dialog-Jmol-Type" ).dialog({
-		resizable : false,
-		autoOpen : false,
-		height : "auto",
-		width : 900,
-		modal : true,
-		buttons: {
-			Ok: function() {
-				var JmolState;
-				if ($('input[name="jjsmol2"][value=Java]').is(':checked')){
-					$('[name="jjsmol"][value="Java"]').attr("checked", true);
-					$('[name="jp"][value="on"]').attr("checked", true).trigger("change");
-					//.trigger("change");
-					JmolState="Java";
-				} else if ($('input[name="jjsmol2"][value=JS]').is(':checked')) {
-					$('[name="jjsmol"][value="JS"]').attr("checked", true)
-					$('[name="jp"][value="on"]').attr("checked", true).trigger("change");
-					//.trigger("change");
-					JmolState="JS";
-				} else if ($('input[name="jjsmol2"][value=Disabled]').is(':checked')) {
-					$('[name="jp"][value="off"]').attr("checked", true).trigger("change");;
-					$('[name="jjsmol"][value="Java"]').attr("checked", true);
-					JmolState="Disabled";
-				} else {
-					alert("How did this happen?");
-				}
-				$("#JmolTypeToggle").buttonset("refresh");
-				if($("#RememberJmol").is(":checked")){
-					set_cookie("JmolState", JmolState, 365);
-				};
-				$( this ).dialog( "close" );
-			}
-		},
-		open : function () {
-			//myJmol = Jmol.getApplet("myJmol", JmolInfo,true); 
-			//$("#myJmol_object").css("visibility", "hidden");
-			$("#JMolDisabled").attr("checked","checked");	
-			/*
-			if (myJmol._isJava){
-				//$("#JmolType").text("Jmol (Java)");	
-				//$("#JmolJava2").attr("checked","checked");
-			} else {
-				//$("#JmolType").text("JSmol (no Java)");
-				//$("#JSmolJS2").attr("checked","checked");				
-			}*/
-			$("#JmolTypeToggle2").buttonset("refresh");
-		},
-		close : function () { 
-			//$("#myJmol_object").css("visibility", "visible");
-		}
-	});
+	// $( "#dialog-Jmol-Type" ).dialog({
+		// resizable : false,
+		// autoOpen : false,
+		// height : "auto",
+		// width : 900,
+		// modal : true,
+		// buttons: {
+			// Ok: function() {
+				// var JmolState;
+				// if ($('input[name="jjsmol2"][value=Java]').is(':checked')){
+					// $('[name="jjsmol"][value="Java"]').attr("checked", true);
+					// $('[name="jp"][value="on"]').attr("checked", true).trigger("change");
+					// //.trigger("change");
+					// JmolState="Java";
+				// } else if ($('input[name="jjsmol2"][value=JS]').is(':checked')) {
+					// $('[name="jjsmol"][value="JS"]').attr("checked", true)
+					// $('[name="jp"][value="on"]').attr("checked", true).trigger("change");
+					// //.trigger("change");
+					// JmolState="JS";
+				// } else if ($('input[name="jjsmol2"][value=Disabled]').is(':checked')) {
+					// $('[name="jp"][value="off"]').attr("checked", true).trigger("change");;
+					// $('[name="jjsmol"][value="Java"]').attr("checked", true);
+					// JmolState="Disabled";
+				// } else {
+					// alert("How did this happen?");
+				// }
+				// $("#JmolTypeToggle").buttonset("refresh");
+				// if($("#RememberJmol").is(":checked")){
+					// set_cookie("JmolState", JmolState, 365);
+				// };
+				// $( this ).dialog( "close" );
+			// }
+		// },
+		// open : function () {
+			// //myJmol = Jmol.getApplet("myJmol", JmolInfo,true); 
+			// //$("#myJmol_object").css("visibility", "hidden");
+			// $("#JMolDisabled").attr("checked","checked");	
+			// /*
+			// if (myJmol._isJava){
+				// //$("#JmolType").text("Jmol (Java)");	
+				// //$("#JmolJava2").attr("checked","checked");
+			// } else {
+				// //$("#JmolType").text("JSmol (no Java)");
+				// //$("#JSmolJS2").attr("checked","checked");				
+			// }*/
+			// $("#JmolTypeToggle2").buttonset("refresh");
+		// },
+		// close : function () { 
+			// //$("#myJmol_object").css("visibility", "visible");
+		// }
+	// });
 	
 	$("#JmolTypeToggle").buttonset("refresh");
 	InitLayers();
@@ -1076,23 +1076,23 @@ function InitRibovision(FreshState) {
 	$(".oneLayerGroup").remove();
 	$(".oneSelectionGroup").remove();
 	prepare_rvDataSet(0);
-
-	switch (get_cookie("JmolState")) {
-		case "Java" :
-			$('[name="jjsmol"][value="Java"]').attr("checked", true);
-			$('[name="jp"][value="on"]').attr("checked", true).trigger("change");
-			break;
-		case "JS" :
-			$('[name="jjsmol"][value="JS"]').attr("checked", true)
-			$('[name="jp"][value="on"]').attr("checked", true).trigger("change");
-			break;
-		case "Disabled" :
-			$('[name="jp"][value="off"]').attr("checked", true).trigger("change");;
-			$('[name="jjsmol"][value="Java"]').attr("checked", true);
-			break
-		default :
-			$("#dialog-Jmol-Type").dialog("open");
-	}
+    $('[name="3dp"][value="on"]').attr("checked", true)
+	// switch (get_cookie("JmolState")) {
+		// case "Java" :
+			// $('[name="jjsmol"][value="Java"]').attr("checked", true);
+			// $('[name="jp"][value="on"]').attr("checked", true).trigger("change");
+			// break;
+		// case "JS" :
+			// $('[name="jjsmol"][value="JS"]').attr("checked", true)
+			// $('[name="jp"][value="on"]').attr("checked", true).trigger("change");
+			// break;
+		// case "Disabled" :
+			// $('[name="jp"][value="off"]').attr("checked", true).trigger("change");;
+			// $('[name="jjsmol"][value="Java"]').attr("checked", true);
+			// break
+		// default :
+			// //$("#dialog-Jmol-Type").dialog("open");
+	// }
 	rvViews[0] = new rvView();
 	rvViews[0].centerZoom(1);
 	resizeElements(true);
