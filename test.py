@@ -9,7 +9,7 @@ class Test(Resource):
 
       def get(self):
        try:
-         result = self.db.execute("select * from cars");
+         result = self.db.execute("select * from members");
          rList = [];
          for r in result:
             rDict = {

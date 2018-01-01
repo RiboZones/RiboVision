@@ -8,9 +8,10 @@ from flask_jsonpify import jsonify
 
 class FetchMasterList(Resource):
       def __init__(self,**kwargs):
-        #self.db = kwargs['db'];  
-        self.cnx = kwargs['cnx'];
-    
+        self.db = kwargs['db'];
+        self.cnx = self.db.raw_connection(); 
+        #self.cnx = kwargs['cnx'];
+        
       def get(self):
         try:
             cur= self.cnx.cursor();

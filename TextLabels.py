@@ -7,8 +7,9 @@ from flask_restful import Resource
 
 class TextLabels(Resource):
       def __init__(self,**kwargs):
-        #self.db = kwargs['db'];  
-        self.cnx = kwargs['cnx'];
+        self.db = kwargs['db'];
+        self.cnx = self.db.raw_connection(); 
+        #self.cnx = kwargs['cnx'];
     
       def post(self):
         try:
