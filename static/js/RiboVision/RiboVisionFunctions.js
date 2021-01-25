@@ -327,8 +327,9 @@ function getSelected(event) {
 		for (var j = 0; j < rvDataSets.length; j++){
 			if (ResiduePositions[j]){ //Need to check this, because this function could run before the second set is put in here.
 				for (var i = 0; i < ResiduePositions[j].length; i++) {
-					var res = ResiduePositions[j][i];
-					if (((nx > res.X) ? nx - res.X : res.X - nx) + ((ny > res.Y) ? ny - res.Y : res.Y - ny) < 2) {
+					var resX = String(Number(ResiduePositions[j][i].X) + rvDataSets[j].PageOffset[0]);
+					var resY = ResiduePositions[j][i].Y;
+					if (((nx > resX) ? nx - resX : resX - nx) + ((ny > resY) ? ny - resY : resY - ny) < 2) {
 						return [i,j];
 					}
 				}
@@ -1208,7 +1209,7 @@ function mouseMoveFunction(event){
 				//var sel = getSelected(event);
 				if (sel[0] >=0){
 					rvDataSets[sel[1]].HighlightLayer.CanvasContext.beginPath();
-					rvDataSets[sel[1]].HighlightLayer.CanvasContext.arc(ResiduePositions[sel[1]][sel[0]].X, ResiduePositions[sel[1]][sel[0]].Y, 1.176 * Circle_Radius, 0, 2 * Math.PI, false);
+					rvDataSets[sel[1]].HighlightLayer.CanvasContext.arc(String(rvDataSets[sel[1]].PageOffset[0] + Number(ResiduePositions[sel[1]][sel[0]].X)), ResiduePositions[sel[1]][sel[0]].Y, 1.176 * Circle_Radius, 0, 2 * Math.PI, false);
 					rvDataSets[sel[1]].HighlightLayer.CanvasContext.closePath();
 					rvDataSets[sel[1]].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
 					rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineWidth=Circle_Radius/1.7;
@@ -1446,7 +1447,6 @@ function ImportStructureFileSelect(event) {
 		reader.onload = function () {
 			var result = reader.result;
 			var customStructure=$.csv.toObjects(result);
-			//customStructure.shift();
 			var customkeys = Object.keys(customStructure[0]);
 			//Input checks
 			
@@ -1455,13 +1455,6 @@ function ImportStructureFileSelect(event) {
 			if( typeof d.species_array == 'undefined' ) {
 				d.species_array = ['',''];
 			}
-			/* Old way
-			if($('input[name="LoadSubunit"][value=on]').is(':checked')){
-				d.species_array[0]="custom";
-			} else {
-				d.species_array[1]="custom";
-			}
-			loadSpecies(d.species_array.join("&"),customStructure);*/
 			
 			// New two structure mode. Custom mode put structure in first slot.
 			//No two structure custom mode yet
@@ -1517,7 +1510,7 @@ function ImportDataFileSelect(event) {
 					} else {
 						$("#ImportDataFileDiv").find(".DataDescription").html("Data Description is missing.");
 					}
-					clicky.log(window.location.pathname + window.location.hash,'User Data Import');
+					////clicky.log(window.location.pathname + window.location.hash,'User Data Import');
 					$("#CustomDataBubbles").find(".dataBubble").attr("FileName",FileReaderFile[0].name);
 					
 					//Add Custom Lines support here. 
@@ -1801,10 +1794,10 @@ function CustomDataExpand(targetLayer){
 				}
 			} else {
 				for (var iii = SeleLen; iii < l; iii++) {
-					if (targetSelection.Residues[iii].resNum.indexOf(":") >= 0) {
+					if (targetSelection.Residues[iii].resNum >= 0) {
 						//var ressplit = targetSelection.Residues[iii].resNum.split(":");
 						//var ResName = rvDataSets[targetLayer.SetNumber].SpeciesEntry.RNA_Chains[rvDataSets[targetLayer.SetNumber].SpeciesEntry.Molecule_Names.indexOf(ressplit[0])] + "_" + ressplit[1];	
-						var ResName = targetSelection.Residues[iii].resNum;
+						var ResName = targetSelection.Residues[iii].uResName;
 					} else {
 						alert("this mode is being deprecated. This shouldn't happen any more");
 					//	var chainID =  targetSelection.Residues[iii].ChainID;
@@ -1874,7 +1867,7 @@ function checkSavePrivacyStatus() {
 		$("#Privacy-confirm").dialog('open');
 	} else {
 		AgreeFunction();
-		clicky.log(window.location.pathname + window.location.hash,'User Download','download');
+		//clicky.log(window.location.pathname + window.location.hash,'User Download','download');
 		Histats_variables.push("SaveSomething","Yes");
 		Histats.track_event('b');
 
@@ -2033,40 +2026,78 @@ function saveJPG() {
     //JSON.stringify([600/72*CS.PaperSize[0],600/72*CS.PaperSize[1]]));
 }
 
-function savePNG() {
-	var CS = canvasToSVG();
-	//Form Submit;
-	var form = document.createElement("form");
-	form.setAttribute("method", "post");
-	form.setAttribute("action", "RiboVision/v1.0/save2D");
-	form.setAttribute("target", "_blank");
-	var hiddenField = document.createElement("input");
-	hiddenField.setAttribute("type", "hidden");
-	hiddenField.setAttribute("enctype", "text/plain");
-	hiddenField.setAttribute("name", "data");
-	hiddenField.setAttribute("value", JSON.stringify({'svg' : CS.SVG, 'ext' : 'png'}));
-	form.appendChild(hiddenField);
-	document.body.appendChild(form);
-	form.submit();
-    //JSON.stringify([600/72*CS.PaperSize[0],600/72*CS.PaperSize[1]]));
-}
+function savePNG(){
+	var svg = canvasToSVG(),
+		img = new Image(),
+	    w = svg.PaperSize[0],
+	    h = svg.PaperSize[1],
+	    a = document.createElement('a');
+    document.body.appendChild(a);
+    a.style = "display: none";
+	img.src = 'data:image/svg+xml;base64,'+window.btoa(unescape(encodeURIComponent(svg.SVG)));
+	var canvas = document.createElement("canvas");
+	document.body.appendChild(canvas);
+	canvas.width = w;
+	canvas.height = h;
+	canvas.getContext("2d").drawImage(img,0,0,w,h);
+	var imageData = canvas.toDataURL("image/png");
+
+    a.href = imageData.replace(/^data:image\/png/, "data:application/octet-stream");
+    a.target = '_blank';
+    a.download = 'RiboVisionFigure2D.png';
+    a.click();
+    document.body.removeChild(canvas);
+};
+
+
+//function savePNG() {
+//	var CS = canvasToSVG();
+//	//Form Submit;
+//	var form = document.createElement("form");
+//	form.setAttribute("method", "post");
+//	form.setAttribute("action", "RiboVision/v1.0/save2D");
+//	form.setAttribute("target", "_blank");
+//	var hiddenField = document.createElement("input");
+//	hiddenField.setAttribute("type", "hidden");
+//	hiddenField.setAttribute("enctype", "text/plain");
+//	hiddenField.setAttribute("name", "data");
+//	hiddenField.setAttribute("value", JSON.stringify({'svg' : CS.SVG, 'ext' : 'png'}));
+//	form.appendChild(hiddenField);
+//	document.body.appendChild(form);
+//	form.submit();
+//    //JSON.stringify([600/72*CS.PaperSize[0],600/72*CS.PaperSize[1]]));
+//}
 
 function savePDF() {
 	var CS = canvasToSVG();
-	//Form Submit;
-	var form = document.createElement("form");
-	form.setAttribute("method", "post");
-	form.setAttribute("action", "RiboVision/v1.0/save2D");
-	form.setAttribute("target", "_blank");
-	var hiddenField = document.createElement("input");
-	hiddenField.setAttribute("type", "hidden");
-	hiddenField.setAttribute("enctype", "text/plain");
-	hiddenField.setAttribute("name", "data");
-	hiddenField.setAttribute("value", JSON.stringify({'svg' : CS.SVG, 'ext' : 'pdf'}));
-	form.appendChild(hiddenField);
-	document.body.appendChild(form);
-	form.submit();
-    //JSON.stringify([600/72*CS.PaperSize[0],600/72*CS.PaperSize[1]]));
+	const svgToPdfExample = (svg) => {
+	  var a = document.createElement("a");
+      document.body.appendChild(a);
+      a.style = "display: none";
+      const doc = new window.PDFDocument();
+      const chunks = [];
+      const stream = doc.pipe({
+        // writable stream implementation
+        write: (chunk) => chunks.push(chunk),
+        end: () => {
+          const pdfBlob = new Blob(chunks, {
+            type: 'application/octet-stream'
+          });
+          var blobUrl = URL.createObjectURL(pdfBlob);
+          a.href = blobUrl;
+          a.download = 'RiboVisionFigure2D.pdf';
+          a.click();
+          window.URL.revokeObjectURL(blobUrl);
+        },
+        // readable streaaam stub iplementation
+        on: (event, action) => {},
+        once: (...args) => {},
+        emit: (...args) => {},
+      });
+      window.SVGtoPDF(doc, svg, 0, 0, {preserveAspectRatio:"xMidYMid meet"});
+      doc.end();
+    };
+    svgToPdfExample(CS.SVG);
 }
 
 function savePML(){
@@ -2403,10 +2434,14 @@ function canvasToSVG() {
 				switch (value.Type) {
 					case "lines":
 						output += '<g id="' + value.LayerName + '">\n';
-						$.each(value.Data, function(index,base_pair){
-							var residue_i = MainResidueMap[base_pair.residue_i];
-							var residue_j = MainResidueMap[base_pair.residue_j];
-							output = output + '<line fill="none" stroke="' + base_pair.color_hex + '" stroke-opacity="' + base_pair.opacity + '" stroke-width="' + base_pair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + residue_i.X.toFixed(3) + '" y1="' + residue_i.Y.toFixed(3) + '" x2="' + residue_j.X.toFixed(3) + '" y2="' + residue_j.Y.toFixed(3) + '"/>\n';
+						$.each(value.Data, function(index,base_pair){	
+							if ([base_pair.residue_j,base_pair.residue_j].every(v => rvds.ResidueList.includes(v))){
+								var residue_i = MainResidueMap[base_pair.residue_i];
+								var residue_j = MainResidueMap[base_pair.residue_j];
+								var ix = (Number(residue_i.X) + pageOffsetX).toFixed(3);
+								var jx = (Number(residue_j.X) + pageOffsetX).toFixed(3);
+								output = output + '<line fill="none" stroke="' + base_pair.color_hex + '" stroke-opacity="' + base_pair.opacity + '" stroke-width="' + base_pair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + ix + '" y1="' + Number(residue_i.Y).toFixed(3) + '" x2="' + jx + '" y2="' + Number(residue_j.Y).toFixed(3) + '"/>\n';
+							}
 						});
 						output = output + '</g>\n';
 						break;

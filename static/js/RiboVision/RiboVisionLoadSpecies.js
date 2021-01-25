@@ -88,73 +88,19 @@ function processResidueData(ResidueData,speciesIndex){
 
 function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 	var speciesSplit=species.split("&");
-	
-	// Start loading 3D
-	$.ajax({
-		type: 'POST',
-		contentType: 'application/json', 
-		accept: 'application/json',
-		url: 'RiboVision/v1.0/fetchStructureName',
-		data: JSON.stringify(speciesSplit),
-		success: function(data) {
-			$.each(data, function (index, value) {
-				waitFor3Dinit(value);
-				populateMenus(value);
-				structureName[index] = value;
-			})	
-			},
-		error: function(error) {
-			console.log(error);
-		}
-	});
-	
-	$.each(speciesSplit, function (index, value) {
-		speciesIndex=index;
-		prepare_rvDataSet(speciesIndex);
-		rvDataSets[speciesIndex].selectLayer($('input:radio[name=selectedRadioL]').filter(':checked').parent().parent().attr('name'));
-		rvDataSets[speciesIndex].linkLayer($('input:radio[name=mappingRadioL]').filter(':checked').parent().parent().attr('name'));
-	})
-	
-	//Load Labels
-	initLabels(speciesSplit,customResidues); 
-	
-	
-	processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2);
-	
-	//load SpeciesEntry
-	$.ajax({
-		type: 'POST',
-		contentType: 'application/json', 
-		accept: 'application/json',
-		url: 'RiboVision/v1.0/speciesTable',
-		data: JSON.stringify(speciesSplit),
-		success: function(data) {
-			$.each(data, function (index, value) {
-				speciesIndex=$.inArray(value.SS_Table,speciesSplit);
-				rvDataSets[speciesIndex].addSpeciesEntry(value);
-			})
-			},
-		error: function(error) {
-			console.log(error);
-		}
-	});
-	
-	
-	
-	// get data description table
-	$.getJSON('RiboVision/v1.0/fullTable', {
-		FullTable : "DataDescriptions"
-		}, function (data) {
-		rvDataSets[0].DataDescriptions=data;
-	});
-	
 	//ResiduePositions=[[]];
 	MainResidueMap=[[]];
 
-	if (speciesSplit.length >1){
-		console.log("two species mode is not finished.");
+	if (Struct !== undefined){
+    		init3D();
+    	}
+
+
+
+	// if (speciesSplit.length >1){
+		// console.log("two species mode is not finished.");
 		//Experimental code
-	}
+	// }
 	
 	//Set interaction Menu
 	var il = document.getElementById("PrimaryInteractionList");
@@ -171,6 +117,58 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 	//document.getElementById("alnList").selectedIndex = 0;
 	document.getElementById("PrimaryInteractionList").selectedIndex = 0;
 	
+	//Loading 3D
+	$.ajax({
+		type: 'POST',
+		contentType: 'application/json', 
+		accept: 'application/json',
+		url: 'RiboVision/v1.0/fetchStructureName',
+		data: JSON.stringify([speciesSplit[0]]),
+		success: function(data) {
+			$.each(data, function (index, value) {
+				waitFor3Dinit(value);
+				populateMenus(value);
+				structureName[index] = value;
+			})	
+			},
+		error: function(error) {
+			console.log(error);
+		}
+	});
+	
+	$.each(speciesSplit, function (index, species_string) {
+		speciesIndex=index;
+		prepare_rvDataSet(speciesIndex);
+		rvDataSets[speciesIndex].selectLayer($('input:radio[name=selectedRadioL]').filter(':checked').parent().parent().attr('name'));
+		rvDataSets[speciesIndex].linkLayer($('input:radio[name=mappingRadioL]').filter(':checked').parent().parent().attr('name'));
+		//load SpeciesEntry
+		$.ajax({
+			type: 'POST',
+			contentType: 'application/json', 
+			accept: 'application/json',
+			url: 'RiboVision/v1.0/speciesTable',
+			data: JSON.stringify([species_string]),
+			success: function(data) {
+				if(data.length == 0) {
+					console.log("Assuming custom mode for now.")
+					speciesIndex = 0;
+					// Come back and fill this in with real molecule names sometime
+					var se = {Molecule_Names : ['custom']};
+					rvDataSets[speciesIndex].addSpeciesEntry(se);					
+				} else {
+					$.each(data, function (index, value) {
+						speciesIndex=$.inArray(value.SS_Table,speciesSplit);
+						rvDataSets[speciesIndex].addSpeciesEntry(value);
+					})
+				}
+				},
+			error: function(error) {
+				console.log(error);
+			}
+		});
+	})
+	initLabels(speciesSplit,customResidues);
+	processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2);
 }
 
 function processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2){
@@ -239,7 +237,7 @@ function processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2){
 					contentType: 'application/json', 
 					accept: 'application/json',
 					url: 'RiboVision/v1.0/fetchResidues',
-					data: JSON.stringify([speciesInterest,speciesInterest]),
+					data: JSON.stringify([speciesInterest,speciesInterest,speciesInterest]),
 					success: function(db_residues) {
 						completedDS+=1;
 						$("#TemplateLink").attr("href", "./Templates/" + speciesInterest + "_UserDataTemplate.csv");
@@ -301,10 +299,10 @@ function processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2){
 			il.options.length = 0;
 			il.options[0] = new Option("None", "clear_lines");
 			
-			rvDataSets[speciesIndex].SpeciesEntry.Jmol_Script = "blank_state.spt";
-			if(myJmol!=null){
-				Jmol.script(myJmol, "script states/" + rvDataSets[speciesIndex].SpeciesEntry.Jmol_Script);
-			}
+			// rvDataSets[speciesIndex].SpeciesEntry.Jmol_Script = "blank_state.spt";
+			// if(myJmol!=null){
+				// Jmol.script(myJmol, "script states/" + rvDataSets[speciesIndex].SpeciesEntry.Jmol_Script);
+			// }
 			
 			welcomeScreen();
 			if (DoneLoading){

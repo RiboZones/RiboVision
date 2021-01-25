@@ -605,19 +605,21 @@ function RiboVisionReady() {
 				}
 			}
 			//var targetLayer = rvDataSets[0].getSelectedLayer();
-			var targetLayer = rvDataSets[0].getLayerByType("lines");
-			targetLayer[0].DataLabel = ui.text;
-			$("[name=" + targetLayer[0].LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer[0].DataLabel);
-			var ColName =[];
-			ColName[0] = ui.value.replace(/[^_]+_[^_]+_/,"").replace(/[^_]+_/,"");
-			var result = $.grep(rvDataSets[0].DataDescriptions, function(e){ return e.ColName === ColName[0]; });
-			if (result[0]){
-				$(this).parent().parent().find(".DataDescription").text(result[0].Description);
-				$(this).parent().parent().find(".ManualLink").attr("href","./Documentation/" + result[0].HelpLink + ".html");
-			} else {
-				$(this).parent().parent().find(".DataDescription").text("Data Description is missing.");
-				$(this).parent().parent().find(".ManualLink").attr("href","./Documentation");				
-			}
+			$.each(rvDataSets, function(ix, rvds){
+				var targetLayer = rvds.getLayerByType("lines");
+				targetLayer[0].DataLabel = ui.text;
+				$("[name=" + targetLayer[0].LayerName + "]").find(".layerContent").find("span[name=DataLabel]").text(targetLayer[0].DataLabel);
+				var ColName =[];
+				ColName[0] = ui.value.replace(/[^_]+_[^_]+_/,"").replace(/[^_]+_/,"");
+				var result = $.grep(rvds.DataDescriptions, function(e){ return e.ColName === ColName[0]; });
+				if (result[0]){
+					$(this).parent().parent().find(".DataDescription").text(result[0].Description);
+					$(this).parent().parent().find(".ManualLink").attr("href","./Documentation/" + result[0].HelpLink + ".html");
+				} else {
+					$(this).parent().parent().find(".DataDescription").text("Data Description is missing.");
+					$(this).parent().parent().find(".ManualLink").attr("href","./Documentation");				
+				}
+			});
 			refreshBasePairs(interactionchoice);
 		}
 	});

@@ -9,7 +9,6 @@ class Residues(Resource):
       def __init__(self,**kwargs):
         self.db = kwargs['db'];
         self.cnx = self.db.raw_connection(); 
-        #self.cnx = kwargs['cnx'];
 
       def post(self):
         try:
@@ -22,7 +21,7 @@ class Residues(Resource):
                 INNER JOIN (SELECT MoleculeName, ChainName FROM ChainList \
                 WHERE StructureName = (SELECT DISTINCT StructureName FROM Secondary_Tertiary WHERE SS_Table = %s)) \
                 AS cl ON cl.MoleculeName = ss.molName \
-                INNER JOIN StructuralData2 AS sd ON sd.map_Index = ss.map_Index'
+                LEFT JOIN (SELECT * FROM StructuralData2 WHERE SS_Table = %s) AS sd ON sd.map_Index = ss.map_Index'
                 
             cur.execute(SQLStatement,_content)
             r = [dict((cur.description[i][0], value)

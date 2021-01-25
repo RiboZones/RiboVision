@@ -324,11 +324,17 @@ function rvDataSet(DataSetName,SetNumber) {
 	};*/
 	this.addCustomData = function (CustomData) {
 		var rvds=this;
-		var molecules_names = rvds.SpeciesEntry.Molecule_Names.concat(rvds.SpeciesEntry.Molecule_Names_rProtein)
-		rvds.CustomData = $.grep(CustomData, function(value,index){
-			//var mol_name = value.resNum.split(':')[0];
-			return $.inArray(value.resNum.split(':')[0],molecules_names) >=0;
-		})
+		if(rvds.SpeciesEntry.Molecule_Names == "custom"){
+			// Come back, add real custom support, multiple structures, filtering, etc
+			rvds.CustomData = CustomData;
+		} else {
+			//var molecules_names = rvds.SpeciesEntry.Molecule_Names.concat(rvds.SpeciesEntry.Molecule_Names_rProtein)
+			var molecules_names = rvds.SpeciesEntry.RNA_Names;
+			rvds.CustomData = $.grep(CustomData, function(value,index){
+				//var mol_name = value.resNum.split(':')[0];
+				return $.inArray(value.resNum.split(':')[0],molecules_names) >=0;
+			})
+		}
 		// Copy extra parameters to customdata to support multiple datasets
 		if(rvds.CustomData.length > 0){
 			if (rvds.CustomData[0].SwitchPoint != undefined & rvds.CustomData[0].SwitchPoint == ""){
@@ -1120,6 +1126,7 @@ function rvDataSet(DataSetName,SetNumber) {
 		var color1,color2;
 		var zoomEnabled = $('input[name="za"][value=on]').is(':checked');
 		targetLayer.clearCanvas();
+		if (targetLayer.DataLabel == 'None'){return;}
 		if (!colorLayer) {
 			var colorLayer = targetLayer.ColorLayer;
 		} else {
@@ -1152,11 +1159,11 @@ function rvDataSet(DataSetName,SetNumber) {
 						return true;
 					}
 				}
-				if (residue_i && residue_j ) {
+				if (residue_i && residue_j && [base_pair.residue_j,base_pair.residue_j].every(v => rvds.ResidueList.includes(v))) {
 					switch (colorLayer.Type) {
 						case undefined:
 							if (colorLayer == "gray_lines") {
-								var grd = rvds.HighlightLayer.CanvasContext.createLinearGradient(residue_i.X, residue_i.Y, residue_j.X, residue_j.Y);
+								var grd = rvds.HighlightLayer.CanvasContext.createLinearGradient(Number(residue_i.X)+rvds.PageOffset[0], residue_i.Y, Number(residue_j.X)+rvds.PageOffset[0], residue_j.Y);
 								color1 = colorNameToHex("#231F20");
 								color2 = colorNameToHex("#231F20");
 								
@@ -1166,7 +1173,7 @@ function rvDataSet(DataSetName,SetNumber) {
 								base_pair.color = grd;
 								base_pair.color_hex = color1;
 							} else if (colorLayer == "manual_coloring") {
-								var grd = rvds.HighlightLayer.CanvasContext.createLinearGradient(residue_i.X, residue_i.Y, residue_j.X, residue_j.Y);
+								var grd = rvds.HighlightLayer.CanvasContext.createLinearGradient(Number(residue_i.X)+rvds.PageOffset[0], residue_i.Y, Number(residue_j.X)+rvds.PageOffset[0], residue_j.Y);
 								color1 = base_pair.color_hex;
 								color2 = base_pair.color_hex;
 								
@@ -1180,7 +1187,7 @@ function rvDataSet(DataSetName,SetNumber) {
 							}
 							break;
 						case "residues":
-							var grd = colorLayer.CanvasContext.createLinearGradient(residue_i.X, residue_i.Y, residue_j.X, residue_j.Y);
+							var grd = colorLayer.CanvasContext.createLinearGradient(Number(residue_i.X)+rvds.PageOffset[0], residue_i.Y, Number(residue_j.X)+rvds.PageOffset[0], residue_j.Y);
 							
 							if (rvDataSets[residue_i.rvds_index].Residues[residue_i.index].color && rvDataSets[residue_j.rvds_index].Residues[residue_j.index].color) {
 								color1 = colorNameToHex(rvDataSets[residue_i.rvds_index].Residues[residue_i.index].color);
@@ -1198,7 +1205,7 @@ function rvDataSet(DataSetName,SetNumber) {
 						case "selected":
 						case "contour":
 						case "circles":
-							var grd = colorLayer.CanvasContext.createLinearGradient(residue_i.X, residue_i.Y, residue_j.X, residue_j.Y);
+							var grd = colorLayer.CanvasContext.createLinearGradient(Number(residue_i.X)+rvds.PageOffset[0], residue_i.Y, Number(residue_j.X)+rvds.PageOffset[0], residue_j.Y);
 							//This will be broken for now, because of j,k indices
 							if (rvDataSets[residue_i.rvds_index].Layers[colorLayer.zIndex].dataLayerColors[residue_i.index] && rvDataSets[residue_j.rvds_index].Layers[colorLayer.zIndex].dataLayerColors[residue_j.index]) {
 								color1 = colorNameToHex(rvDataSets[residue_i.rvds_index].Layers[colorLayer.zIndex].dataLayerColors[residue_i.index]);
@@ -1219,18 +1226,18 @@ function rvDataSet(DataSetName,SetNumber) {
 					//Regular Mode
 					
 					targetLayer.CanvasContext.beginPath();
-					targetLayer.CanvasContext.moveTo(residue_i.X, residue_i.Y);
-					targetLayer.CanvasContext.lineTo(residue_j.X, residue_j.Y);
+					targetLayer.CanvasContext.moveTo(Number(residue_i.X)+rvds.PageOffset[0], residue_i.Y);
+					targetLayer.CanvasContext.lineTo(Number(residue_j.X)+rvds.PageOffset[0], residue_j.Y);
 					targetLayer.CanvasContext.strokeStyle = base_pair.color;	
 					targetLayer.CanvasContext.lineWidth = base_pair.color.lineWidth;					
 					targetLayer.CanvasContext.stroke();
 					targetLayer.CanvasContext.closePath();
 					if (zoomEnabled && (rvViews[0].scale > 10)) {
 						//draw the interaction type labels here
-						var x1 = residue_i.X;
-						var x2 = residue_j.X;
+						var x1 = Number(residue_i.X)+rvds.PageOffset[0];
+						var x2 = Number(residue_j.X)+rvds.PageOffset[0];
 						var x12mid = x1 - ((x1 - x2) / 2);
-						var xmid = residue_i.X - (residue_i.X - residue_j.X) / 2;
+						var xmid = (Number(residue_i.X)+rvds.PageOffset[0]) - ((Number(residue_i.X)+rvds.PageOffset[0]) - (Number(residue_j.X)+rvds.PageOffset[0])) / 2;
 						var ymid = residue_i.Y - (residue_i.Y - residue_j.Y) / 2;
 						targetLayer.CanvasContext.save();
 						targetLayer.CanvasContext.lineWidth = 0.5;
