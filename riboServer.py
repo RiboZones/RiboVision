@@ -9,7 +9,7 @@ from flask_restful import Resource, Api, reqparse
 from sqlalchemy import create_engine
 from flask_cors import CORS, cross_origin
 from json2html import *
-from flaskext.mysql import MySQL
+#from flaskext.mysql import MySQL
 #import mysql.connector
 
 
