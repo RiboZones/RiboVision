@@ -22,7 +22,7 @@ Install the following:
 
 > sudo apt-get install libmysqlclient-dev --fix-missing
 
-6. Make a python2.7 virtual environment and install the requirements. You will need to already have a python2.7 installed and to know the location to its executable.
+6. Make a python2.7 virtual environment and install the requirements. You will need to already have a python2.7 installed somewhere and to know the location to its executable.
 
 > virtualenv -p [path to python2.7 executable] venv
 
