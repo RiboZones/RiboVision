@@ -349,9 +349,11 @@ function rvDataSet(DataSetName,SetNumber) {
 	this.addSpeciesEntry = function (SpeciesEntry) {
 		this.SpeciesEntry = SpeciesEntry;
 		// Set FontSize
-		this.Font_Size_Canvas = this.SpeciesEntry.Font_Size_Canvas;
-		this.Font_Size_SVG = this.SpeciesEntry.Font_Size_SVG;
-		this.Circle_Radius = this.SpeciesEntry.Circle_Radius;
+		if (this.SpeciesEntry.Molecule_Names != 'custom'){
+			this.Font_Size_Canvas = this.SpeciesEntry.Font_Size_Canvas;
+			this.Font_Size_SVG = this.SpeciesEntry.Font_Size_SVG;
+			this.Circle_Radius = this.SpeciesEntry.Circle_Radius;
+		}
 	};
 	this.updateRNAchains = function (SpeciesEntry) {
 		//this.SpeciesEntry.Molecule_Names = this.SpeciesEntry.Molecule_Names.split(";");		

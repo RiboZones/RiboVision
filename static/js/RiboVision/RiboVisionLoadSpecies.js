@@ -97,6 +97,21 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 	// 	});
 	// }
 
+	//Set interaction Menu
+	var il = document.getElementById("PrimaryInteractionList");
+	il.options.length = 0;
+	il.options[0] = new Option("None", "clear_lines", true, true);				
+	il.options[0].setAttribute("selected", "selected");
+		
+	// Reset Domain Helix menu and Protein menu
+	$("#selectByDomainHelix").find('option').remove().end();
+	$("#ProtList").find('option').remove().end();
+	
+	window.location.hash = species;
+	document.getElementById("ProtList").selectedIndex = 0;
+	//document.getElementById("alnList").selectedIndex = 0;
+	document.getElementById("PrimaryInteractionList").selectedIndex = 0;
+
 	$.each(speciesSplit, function (index, species_string) {
 		speciesIndex=index;
 		if (rvDataSets[0].Name != "EmptyDataSet" && speciesSplit.length < rvDataSets.length){
@@ -120,7 +135,7 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 					speciesIndex = 0;
 					// Come back and fill this in with real molecule names sometime
 					var se = {Molecule_Names : ['custom']};
-					rvDataSets[speciesIndex].addSpeciesEntry(se);					
+					rvDataSets[speciesIndex].addSpeciesEntry(se);
 				} else {
 					$.each(data, function (index, value) {
 						speciesIndex=$.inArray(value.SS_Table,speciesSplit);
@@ -135,23 +150,8 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 	})
 
 	if (Struct !== undefined){
-			init3D();
-		}
-	
-	//Set interaction Menu
-	var il = document.getElementById("PrimaryInteractionList");
-	il.options.length = 0;
-	il.options[0] = new Option("None", "clear_lines", true, true);				
-	il.options[0].setAttribute("selected", "selected");
-		
-	// Reset Domain Helix menu and Protein menu
-	$("#selectByDomainHelix").find('option').remove().end();
-	$("#ProtList").find('option').remove().end();
-	
-	window.location.hash = species;
-	document.getElementById("ProtList").selectedIndex = 0;
-	//document.getElementById("alnList").selectedIndex = 0;
-	document.getElementById("PrimaryInteractionList").selectedIndex = 0;
+		init3D();
+	}
 	
 	//Loading 3D
 	$.ajax({
