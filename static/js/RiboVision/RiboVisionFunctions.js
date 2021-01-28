@@ -715,7 +715,7 @@ function colorProcess(DataInput, indexMode,targetLayer,colors,SwitchPoint,SkipDr
 			default:
 				$( "#dialog-layer-type-error" ).dialog("open")
 		}
-		//update3Dcolors();
+		update3Dcolors();
 	}
 	return dataIndices
 }

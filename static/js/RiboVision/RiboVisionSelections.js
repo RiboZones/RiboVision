@@ -293,7 +293,7 @@ function SelectionMenu(targetSelection, key, RVcolor) {
 				});
 			})));
 
-	//raido button for telling 2D-3D mapping
+	//radio button for telling 2D-3D mapping
 	$($currentGroup)
 	.append($("<div>").addClass("radioDIV2").css({
 			'float' : 'left',
