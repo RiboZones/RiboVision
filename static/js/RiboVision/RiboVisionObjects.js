@@ -897,6 +897,7 @@ function rvDataSet(DataSetName,SetNumber) {
 		*/
 	}
 	function drawResidues(targetLayer, dataIndices, ColorArray, noClear) {
+		if (rvDataSets.length > 1 && this.Name == "EmptyDataSet"){ return; }
 		if (this.Font_Size_Canvas){
 			var FontSize=this.Font_Size_Canvas;
 		} else {
@@ -1416,6 +1417,7 @@ function rvView(x, y, scale) {
 	this.x = x;
 	this.y = y;
 	this.scale = scale;
+	this.multiSetFactor = 1;
 	this.lastX = [];
 	this.lastY = [];
 	this.startX = [];
@@ -1452,8 +1454,15 @@ function rvView(x, y, scale) {
 	}
 	
 	this.centerZoom = function (scale) {
-		this.scale = scale;
-		this.x = (rvDataSets[0].HighlightLayer.Canvas.width - this.scale*612)/2;
+		if (rvDataSets.length == 0){
+			return;
+		}else if (rvDataSets.length > 1 && rvDataSets[1].Name == "EmptyDataSet") {
+			this.multiSetFactor = 1;
+		} else if (rvDataSets.length > 1) {
+			this.multiSetFactor = 1.9;
+		}
+		this.scale = scale/this.multiSetFactor;
+		this.x = (rvDataSets[0].HighlightLayer.Canvas.width - this.scale*612*this.multiSetFactor)/2;
 		this.y = (rvDataSets[0].HighlightLayer.Canvas.height - this.scale*792)/2;
 		rvViews[0].width = rvDataSets[0].HighlightLayer.Canvas.width;
 		rvViews[0].height = rvDataSets[0].HighlightLayer.Canvas.height;

@@ -49,7 +49,7 @@ var localStorageAvailable = false;
 //var zoomEnabled = true;  //needs restoration, after adding a switch for it.
 var onebuttonmode; //needs restoration
 var CurrPrivacyCookie;
-var PanelDivide = 0.5; //needs restoration
+var PanelDivide = 0.65; //needs restoration
 var TopDivide = 0.215; //needs restoration
 var OpenStateOnLoad = false;
 var UserName = "Guest";

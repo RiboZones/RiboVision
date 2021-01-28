@@ -91,16 +91,52 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 	//ResiduePositions=[[]];
 	MainResidueMap=[[]];
 
-	if (Struct !== undefined){
-    		init3D();
-    	}
-
-
-
-	// if (speciesSplit.length >1){
-		// console.log("two species mode is not finished.");
-		//Experimental code
+	// if (rvDataSets[0].Name != "EmptyDataSet"){
+	// 	$.each(rvDataSets, function (index, rvds) {
+	// 		rvds.refreshCanvases();
+	// 	});
 	// }
+
+	$.each(speciesSplit, function (index, species_string) {
+		speciesIndex=index;
+		if (rvDataSets[0].Name != "EmptyDataSet" && speciesSplit.length < rvDataSets.length){
+			prepare_rvDataSet(speciesIndex+1);
+			rvViews[0].scale = 1;
+			rvViews[0].centerZoom();
+		}
+		prepare_rvDataSet(speciesIndex);
+		rvDataSets[speciesIndex].selectLayer($('input:radio[name=selectedRadioL]').filter(':checked').parent().parent().attr('name'));
+		rvDataSets[speciesIndex].linkLayer($('input:radio[name=mappingRadioL]').filter(':checked').parent().parent().attr('name'));
+		//load SpeciesEntry
+		$.ajax({
+			type: 'POST',
+			contentType: 'application/json', 
+			accept: 'application/json',
+			url: 'RiboVision/v1.0/speciesTable',
+			data: JSON.stringify([species_string]),
+			success: function(data) {
+				if(data.length == 0) {
+					console.log("Assuming custom mode for now.")
+					speciesIndex = 0;
+					// Come back and fill this in with real molecule names sometime
+					var se = {Molecule_Names : ['custom']};
+					rvDataSets[speciesIndex].addSpeciesEntry(se);					
+				} else {
+					$.each(data, function (index, value) {
+						speciesIndex=$.inArray(value.SS_Table,speciesSplit);
+						rvDataSets[speciesIndex].addSpeciesEntry(value);
+					})
+				}
+				},
+			error: function(error) {
+				console.log(error);
+			}
+		});
+	})
+
+	if (Struct !== undefined){
+			init3D();
+		}
 	
 	//Set interaction Menu
 	var il = document.getElementById("PrimaryInteractionList");
@@ -136,37 +172,6 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 		}
 	});
 	
-	$.each(speciesSplit, function (index, species_string) {
-		speciesIndex=index;
-		prepare_rvDataSet(speciesIndex);
-		rvDataSets[speciesIndex].selectLayer($('input:radio[name=selectedRadioL]').filter(':checked').parent().parent().attr('name'));
-		rvDataSets[speciesIndex].linkLayer($('input:radio[name=mappingRadioL]').filter(':checked').parent().parent().attr('name'));
-		//load SpeciesEntry
-		$.ajax({
-			type: 'POST',
-			contentType: 'application/json', 
-			accept: 'application/json',
-			url: 'RiboVision/v1.0/speciesTable',
-			data: JSON.stringify([species_string]),
-			success: function(data) {
-				if(data.length == 0) {
-					console.log("Assuming custom mode for now.")
-					speciesIndex = 0;
-					// Come back and fill this in with real molecule names sometime
-					var se = {Molecule_Names : ['custom']};
-					rvDataSets[speciesIndex].addSpeciesEntry(se);					
-				} else {
-					$.each(data, function (index, value) {
-						speciesIndex=$.inArray(value.SS_Table,speciesSplit);
-						rvDataSets[speciesIndex].addSpeciesEntry(value);
-					})
-				}
-				},
-			error: function(error) {
-				console.log(error);
-			}
-		});
-	})
 	initLabels(speciesSplit,customResidues);
 	processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2);
 }
@@ -240,7 +245,7 @@ function processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2){
 					data: JSON.stringify([speciesInterest,speciesInterest,speciesInterest]),
 					success: function(db_residues) {
 						completedDS+=1;
-						$("#TemplateLink").attr("href", "./Templates/" + speciesInterest + "_UserDataTemplate.csv");
+						//$("#TemplateLink").attr("href", "/static/user_data_templates/" + speciesInterest + "_UserDataTemplate.csv");
 						processResidueData(db_residues,speciesIndex);
 
 						if (DoneLoading){
@@ -263,6 +268,9 @@ function processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2){
 						if (DoneLoading2){
 							DoneLoading2.resolve();
 						} 
+						$.each(rvDataSets, function (index, value) {
+							value.refreshCanvases();
+						});
 
 					},
 					error: function(error) {
