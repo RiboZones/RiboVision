@@ -3175,14 +3175,15 @@ function addPopUpWindowResidue(Sele){
 		// ":" + rvDataSets[Sele[1]].Residues[Sele[0]].resNum;
 	// }
 	
-	var ResName = rvDataSets[Sele[1]].Residues[Sele[0]].uResName;
-	var dobj = $.grep(rvDataSets[Sele[1]].ConservationTable, function(e){ return e.resNum == ResName; })[0];
-	//var dobj = rvDataSets[Sele[1]].ConservationTable[Sele[0]];
+	var ResName = rvDataSets[Sele[1]].Residues[Sele[0]].map_Index;
+	var dobj = $.grep(rvDataSets[Sele[1]].ConservationTable, function(e){ return e.map_Index == ResName; })[0];
+
 	if (dobj){
 		//round the number to two decimal places
 		var Hnum = dobj.Shannon * 1;
 		var Hn = Hnum.toFixed(2);	
 		drawConGraph(dobj);
+		var ConsensusSymbol = dobj.Consensus;
 	} else {
 		var ConsensusSymbol = "n/a";
 		var Hn = "n/a";

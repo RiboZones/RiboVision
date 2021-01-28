@@ -147,6 +147,21 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 				console.log(error);
 			}
 		});
+		// Get conservation table
+		$.ajax({
+			type: 'POST',
+			contentType: 'application/json', 
+			accept: 'application/json',
+			url: 'RiboVision/v1.0/fullTable',
+			data: JSON.stringify([species_string]),
+			success: function(data) {
+				var speciesIndex=$.inArray(data[0].SS_Table,speciesSplit);
+				rvDataSets[speciesIndex].ConservationTable=data;
+			},
+			error: function(error) {
+				console.log(error);
+			}
+		});
 	})
 
 	if (Struct !== undefined){
@@ -370,7 +385,6 @@ function populateMenus(structureName){
 		},
 		items : ".dataBubble"
 	});
-	// // Get conservation table
 	// $.getJSON('RiboVision/v1.0/fullTable', {
 		// FullTable : rvDataSets[speciesIndex].SpeciesEntry.ConservationTable
 		// }, function (ConservationTable) {

@@ -11,11 +11,11 @@ class FullTable(Resource):
         self.cnx = self.db.raw_connection(); 
         #self.cnx = kwargs['cnx'];
     
-      def get(self):
+      def post(self):
         try:
 			_content = request.get_json(force=True)
 			cur= self.cnx.cursor();
-			SQLStatement = 'SELECT * FROM %s';
+			SQLStatement = 'SELECT * FROM ConservationTable WHERE SS_Table = %s';
 			cur.execute(SQLStatement,_content)
 			r = [dict((cur.description[i][0], value)
 			   for i, value in enumerate(row)) for row in cur.fetchall()]
