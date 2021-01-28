@@ -724,7 +724,7 @@ function colorMappingLoop(targetLayer, seleProt, seleProtNames, OverRideColors) 
 	if (arguments.length >= 4) {
 		var colors2 = OverRideColors;
 	} else {
-		var colors2 = ColorLists.Rainbow1;
+		var colors2 = ColorLists.Viridis;
 	}
 	$("#ProtList").multiselect("widget").find(".ui-multiselect-checkboxes").find("span").css("color","black"); // Reset Protein colors to black.
 
@@ -858,7 +858,7 @@ function update3DProteins(seleProt, OverRideColors) {
 	if (arguments.length >= 2) {
 		var colors2 = OverRideColors;
 	} else {
-		var colors2 = ColorLists.Rainbow1;
+		var colors2 = ColorLists.Viridis;
 	}
 	var newcolor=[];
 		
@@ -874,7 +874,7 @@ function update3DProteins(seleProt, OverRideColors) {
 	update3DProteinsLow(newcolor);
 }
 
-function colorMapping(targetLayer, colName, colorlist = "Rainbow1" , indexMode = false, rePlaceData) {
+function colorMapping(targetLayer, colName, colorlist = "Viridis" , indexMode = false, rePlaceData) {
 	if (!targetLayer) {
 		$("#dialog-selection-warning p").text("Please select a valid layer and try again.");
 		$("#dialog-selection-warning").dialog("open");
@@ -1638,7 +1638,7 @@ function customDataProcess(data_label,targetLayerName){
 			}
 			//console.log(colors);
 		} else {
-			colors = ColorLists.Rainbow1;
+			colors = ColorLists.Viridis;
 		}
 		
 		if (targetLayer.Type === "selected"){
