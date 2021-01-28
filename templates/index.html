@@ -18,10 +18,10 @@
       <div id="MainLogoDiv">
         <a href="http://pubs.rsc.org/is/content/articlelanding/2014/fd/c3fd00126a#!divAbstract" target="_blank"><img src="static/images/RiboVisionLogo.png" id="MainLogo" class="ComboLogo" title=
         "RiboVision Manual" alt="RiboVision Logo" />
-		 <!-- <a href="http://astrobiology.nasa.gov/nai/"
+		 <a href="http://astrobiology.nasa.gov/nai/"
 			target="_blank"><img src="static/images/NASALogo.png" class="ComboLogo" title="NASA Astrobiology Institute (NAI)" alt=
 			"NASA Logo" /></a>
-			 <a href="https://www.nsf.gov/"
+			<!--  <a href="https://www.nsf.gov/"
 			target="_blank"><img src="static/images/NSF_logo.png" class="ComboLogo" title="National Science Foundation (NSF)" alt=
 			"NSF Logo" /></a> -->
 		Welcome, <a id="loginbutton" href="#" target="_blank">Guest User<?php echo $logged_in_user ?>.</a>
@@ -51,8 +51,10 @@
           Built-In Structures: <select id="speciesList" multiple="multiple">
             </select>
 
-          <div id="ImportStrutureFileDiv" style="padding:0.1em">
-            Custom Structures: Import Structure: <input type="file" id="importstructurefile" name="importstructurefile[]" accept=
+          <div id="ImportStrutureFileDiv" style="padding:0.1em"><br />
+            Custom Structures: <br />
+            <a id="TemplateStructure" href="/static/user_data_templates/EC_LSU_3D_UserDataTemplate.csv" target="_blank">Example 2D Structure</a><br />
+            Import Custom Structure: <input type="file" id="importstructurefile" name="importstructurefile[]" accept=
             "text/csv" /> <output id="structurefilelist"></output><br />
           </div>
 
@@ -172,10 +174,10 @@
   </div>
 
   <div id="LogoDiv" class="ui-widget-content">
-    <!-- <a href="http://cool.gatech.edu/" target="_blank"> -->
+    <a href="http://cool.gatech.edu/" target="_blank">
     <img src="static/images/cool_logo.png" title=
     "Center for the Origin Of Life (COOL)" alt="COOL Logo" />
-    <!-- </a> -->
+    </a>
   </div>
 
   <div id="navigator" style="z-index:999; width:65px">

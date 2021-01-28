@@ -58,7 +58,7 @@ function load3Dstructure(structure_3d){
 }
 
 function init3dStructures() {
-	if (rvDataSets[1]) {
+	if (rvDataSets[1] && rvDataSets[1].Name != "EmptyDataSet") {
 		var rna_chains = ":" + rvDataSets[0].SpeciesEntry.RNA_Chains.join(' or :') + " or :" + rvDataSets[1].SpeciesEntry.RNA_Chains.join(' or :');
 	} else {
 		var rna_chains = ":" + rvDataSets[0].SpeciesEntry.RNA_Chains.join(' or :');
