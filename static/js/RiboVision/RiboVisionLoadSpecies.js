@@ -138,7 +138,11 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 					rvDataSets[speciesIndex].addSpeciesEntry(se);
 				} else {
 					$.each(data, function (index, value) {
-						speciesIndex=$.inArray(value.SS_Table,speciesSplit);
+						try{
+							var speciesIndex = $.inArray(value.SS_Table,speciesSplit);
+						} catch (err){
+							var speciesIndex = 0;
+						}
 						rvDataSets[speciesIndex].addSpeciesEntry(value);
 					})
 				}
@@ -155,7 +159,12 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 			url: 'RiboVision/v1.0/fullTable',
 			data: JSON.stringify([species_string]),
 			success: function(data) {
+				try {
 				var speciesIndex=$.inArray(data[0].SS_Table,speciesSplit);
+				} catch (err) {
+					console.log(err);
+					var speciesIndex=0;
+				}
 				rvDataSets[speciesIndex].ConservationTable=data;
 			},
 			error: function(error) {
