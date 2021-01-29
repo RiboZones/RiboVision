@@ -2995,6 +2995,7 @@ function canvas_arrow(fromx, fromy, tox, toy) {
 }
 
 function welcomeScreen() {
+	if (rvDataSets[0].Name != "EmptyDataSet"){return;}
 	var image_width=1.0*parseFloat($("#canvasDiv").css('width'));
 	var image_height= image_width * 550/733;
 	
