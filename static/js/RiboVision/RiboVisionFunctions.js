@@ -967,8 +967,9 @@ function appendBasePairs(BasePairTable, colName) {
 }
 
 function refreshBasePairs(BasePairTable) {
-	FullBasePairSet=[];
-			
+	if (!FullBasePairSet) {
+		FullBasePairSet=[];
+	}
 	if (BasePairTable == "clear_lines") {
 		$.each(rvDataSets, function(index, rvds){
 			rvds.clearCanvas("lines");
@@ -988,50 +989,62 @@ function refreshBasePairs(BasePairTable) {
 		$("#SecondaryInteractionList").multiselect("refresh");
 		colorMappingLoop(undefined,array_of_checked_values,array_of_checked_titles);
 	} else {
-		$.ajax({
-			url: 'RiboVision/v1.0/fetchInteractions',
-			type: 'post',
-			contentType: 'application/json', 
-			accept: 'application/json',
-			data: JSON.stringify([structureName[0].StructureName,BasePairTable]),
-			cache: false,
-			success: function(basePairs2) {
-				$.each(basePairs2, function (ind, item) {
-					item.lineWidth = 0.75;
-					item.opacity = 0.5;
-					item.color_hex = '#231F20';
-					//item.residue_i=rvDataSets[index].SpeciesEntry.Molecule_Names[rvDataSets[index].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[index].Residues[item.resIndex1].ChainID)] + ":" + rvDataSets[index].Residues[item.resIndex1].resNum.replace(/[^:]*:/g, "");
-					//item.residue_j=rvDataSets[index].SpeciesEntry.Molecule_Names[rvDataSets[index].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[index].Residues[item.resIndex2].ChainID)] + ":" + rvDataSets[index].Residues[item.resIndex2].resNum.replace(/[^:]*:/g, "");
-				});
-				FullBasePairSet=FullBasePairSet.concat(basePairs2);	
-				ActiveBasePairSet = FullBasePairSet;
-				$.each(rvDataSets, function(index, rvds){
-					rvds.drawBasePairs("lines");
-				})
-				// Set interaction submenu to allow for subsets of these basepairs to be displayed. 
-				// For now, let's set a global variable to store the whole table, so that it doesn't have to be refetched everytime a subset is chosen. 
-				// This will get better when I revamp who BasePair interactions work
-	
-				//rvDataSets[index].FullBasePairSet = rvDataSets[index].BasePairs;
-				var BP_Type = [];	
-				$.each(FullBasePairSet, function (ind, item) {
-					BP_Type.push(item.bp_type);
-				});
-				BP_TypeU = $.grep(BP_Type, function (v, k) {
-					return $.inArray(v, BP_Type) === k;
-				});
-				
-				var ims = document.getElementById("SecondaryInteractionList");
-				ims.options.length = 0;
-				$.each(BP_TypeU, function (ind, item) {
-					ims.options[ind] = new Option(item, item);
-					ims.options[ind].setAttribute("selected", "selected");
-				});	
-				$("#SecondaryInteractionList").multiselect("refresh");
-				
-			}
-		})
+		//Reworked so that the first rvDataSet holds all the BP info.
+		//If the dataset already holds info about this bp_group, the ajax is not executed.
+		//Refreshing of Secondary Interaction Menu is always done and appending to Full is 
+		//only done when this bp_group is not within it already.
+		if (!rvDataSets[0].FullBasePairSet.some(el => el.bp_group === BasePairTable)){
+			$.ajax({
+				url: 'RiboVision/v1.0/fetchInteractions',
+				type: 'post',
+				contentType: 'application/json', 
+				accept: 'application/json',
+				data: JSON.stringify([structureName[0].StructureName,BasePairTable]),
+				cache: false,
+				success: function(basePairs2) {
+					$.each(basePairs2, function (ind, item) {
+						item.lineWidth = 0.75;
+						item.opacity = 0.5;
+						item.color_hex = '#231F20';
+						//item.residue_i=rvDataSets[index].SpeciesEntry.Molecule_Names[rvDataSets[index].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[index].Residues[item.resIndex1].ChainID)] + ":" + rvDataSets[index].Residues[item.resIndex1].resNum.replace(/[^:]*:/g, "");
+						//item.residue_j=rvDataSets[index].SpeciesEntry.Molecule_Names[rvDataSets[index].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[index].Residues[item.resIndex2].ChainID)] + ":" + rvDataSets[index].Residues[item.resIndex2].resNum.replace(/[^:]*:/g, "");
+					});
+					if (!rvDataSets[0].FullBasePairSet.some(el => el.bp_group === BasePairTable)){
+					FullBasePairSet=FullBasePairSet.concat(basePairs2);	
+					ActiveBasePairSet = basePairs2;
+					rvDataSets[0].FullBasePairSet = FullBasePairSet;
+					}
+					drawAndRefreshSecondaryBPS(BasePairTable);
+				}
+			});
+		} else {
+			drawAndRefreshSecondaryBPS(BasePairTable);
+		}
 	}
+}
+
+function drawAndRefreshSecondaryBPS(BasePairTable){
+	ActiveBasePairSet = rvDataSets[0].FullBasePairSet.filter(el => {
+		return el.bp_group === BasePairTable
+	})
+	$.each(rvDataSets, function(index, rvds){
+		rvds.drawBasePairs("lines");
+	})
+	var BP_Type = [];
+	$.each(ActiveBasePairSet, function (ind, item) {
+		BP_Type.push(item.bp_type);
+	});
+	BP_TypeU = $.grep(BP_Type, function (v, k) {
+		return $.inArray(v, BP_Type) === k;
+	});
+	
+	var ims = document.getElementById("SecondaryInteractionList");
+	ims.options.length = 0;
+	$.each(BP_TypeU, function (ind, item) {
+		ims.options[ind] = new Option(item, item);
+		ims.options[ind].setAttribute("selected", "selected");
+	});	
+	$("#SecondaryInteractionList").multiselect("refresh");
 }
 
 function filterBasePairs(IncludeTypes){

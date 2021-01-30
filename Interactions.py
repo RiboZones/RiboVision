@@ -14,7 +14,7 @@ class Interactions(Resource):
         try:
            _content = request.get_json(force=True)
            cur = self.cnx.cursor();
-           SQLStatement = 'SELECT residue_i, residue_j, bp_type FROM Interactions \
+           SQLStatement = 'SELECT * FROM Interactions \
                WHERE StructureName = %s and bp_group = %s'
            cur.execute(SQLStatement,_content)
            r = [dict((cur.description[i][0], value) \
