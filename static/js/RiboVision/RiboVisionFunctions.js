@@ -2917,12 +2917,18 @@ function populateDataSetProteins(proteinInteractionData){
 				}
 				$.each(proteinInteractionData, function(dataIx, npnEntry){
 					if (rvds.Residues.some(el => el.uResName === npnEntry.residue_i) &&
-						rvds.Residues.some(el => el.uResName === npnEntry.residue_j) &&
-						!rvds.SpeciesEntry.Molecule_Names_rProtein.some(el => el === npnEntry.bp_type)){
+						rvds.Residues.some(el => el.uResName === npnEntry.residue_j)) {
+						if (!rvds.SpeciesEntry.Molecule_Names_rProtein.some(el => el === npnEntry.bp_type)) {
 							rvds.SpeciesEntry.Molecule_Names_rProtein.push(npnEntry.bp_type);
 							rvds.SpeciesEntry.internal_protein_names.push(npnEntry.bp_type);
 							var chainID = protChains.filter(ch => ch.MoleculeName === npnEntry.bp_type).map(({ChainName}) => ChainName)
 							if (chainID){ rvds.SpeciesEntry.RNA_Chains_rProtein.push(chainID[0])}
+						}
+						$.each(rvds.Residues, function(resiIx, resiObj){
+							if (resiObj.uResName === npnEntry.residue_i || resiObj.uResName === npnEntry.residue_j){
+								resiObj[npnEntry.bp_type] = 1;
+							}
+						})
 					}
 				})
 			})
