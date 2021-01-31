@@ -288,7 +288,11 @@ function processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2){
 							waitFor3Dload();
 							// Set Selection Menu
 							populateDomainHelixMenu();
-						}						
+							//Set Protein Menu
+							var title = populateProteinMenu(structureName[0].StructureName);
+							$("#ProteinBubbles").append($('<h3 class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom" style="text-align:center;padding:0.2em">')
+							.text("Protein Contacts").attr('name',"All_Proteins").attr('title',title));
+						}
 						if (DoneLoading2){
 							DoneLoading2.resolve();
 						} 
@@ -347,11 +351,6 @@ function processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2){
 }
 
 function populateMenus(structureName){
-	
-	//Set Protein Menu
-	var title = populateProteinMenu();
-	$("#ProteinBubbles").append($('<h3 class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom" style="text-align:center;padding:0.2em">')
-		.text("Protein Contacts").attr('name',"All_Proteins").attr('title',title));
 	
 	//Set Alignment Menu
 	populateAlignmentMenu()

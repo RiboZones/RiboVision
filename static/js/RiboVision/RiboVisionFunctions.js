@@ -2873,28 +2873,78 @@ function populateAlignmentMenu() {
 	// })
 }
 
-function populateProteinMenu() {
-	// var pl = document.getElementById("ProtList");
-	// pl.options.length = 0;
-	// var title='';
-	// $.each(rvDataSets, function(speciesIndex,rvds){
-		// $.each(rvds.SpeciesEntry.Molecule_Names_rProtein, function(){
-			// var ColName = ["All_Proteins"];
-			// var result = $.grep(rvds.DataDescriptions, function(e){ return e.ColName === ColName[0]; });
-			// if (result[0]){
-				// title = "All_Proteins" + ": " + result[0].Description;
-			// } else {
-				// title = "Data Description is missing.";
-			// }
-		// })
-		// $('#ProtList').append('<optgroup label="Proteins' + '_Struct_' + (speciesIndex + 1) + '" id="ProtList' + speciesIndex +  '" />');
-		// $.each(rvds.SpeciesEntry.Molecule_Names_rProtein, function (index, value) {
-			// $('#ProtList' + speciesIndex).append(new Option(rvds.SpeciesEntry.Molecule_Names_rProtein[index], rvds.SpeciesEntry.internal_protein_names[index]));
-		// });
-		// rvds.SpeciesEntry["SubunitProtChains"] = rvds.SpeciesEntry.SubunitProtChains;
-	// })
-	// $("#ProtList").multiselect("refresh");
-	// return title;
+function populateProteinMenu(StructureName) {
+	if (!rvDataSets[0].FullBasePairSet.some(el => el.bp_group === 'NPN')){
+		$.ajax({
+			type: 'POST',
+			contentType: 'application/json', 
+			accept: 'application/json',
+			url: 'RiboVision/v1.0/fetchInteractions',
+			data: JSON.stringify([StructureName,'NPN']),
+			success: function(data) {
+				populateDataSetProteins(data);
+				},
+			error: function(error) {
+				console.log(error);
+			}
+		});
+	} else {
+		var data = rvDataSets[0].FullBasePairSet.filter(el => {
+			return el.bp_group === 'NPN'
+		})
+		populateDataSetProteins(data);
+	}
+	return 'Protein contacts';
+}
+
+function populateDataSetProteins(proteinInteractionData){
+	$.ajax({
+		type: 'POST',
+		contentType: 'application/json', 
+		accept: 'application/json',
+		url: 'RiboVision/v1.0/fetchChains',
+		data: JSON.stringify([structureName[0].StructureName]),
+		success: function(protChains) {
+			$.each(rvDataSets, function(speciesIndex, rvds){
+				if (!rvds.SpeciesEntry.internal_protein_names){
+					rvds.SpeciesEntry.internal_protein_names = [];
+				}
+				if (!rvds.SpeciesEntry.Molecule_Names_rProtein){
+					rvds.SpeciesEntry.Molecule_Names_rProtein = [];
+				}
+				if (!rvds.SpeciesEntry.RNA_Chains_rProtein){
+					rvds.SpeciesEntry.RNA_Chains_rProtein = [];
+				}
+				$.each(proteinInteractionData, function(dataIx, npnEntry){
+					if (rvds.Residues.some(el => el.uResName === npnEntry.residue_i) &&
+						rvds.Residues.some(el => el.uResName === npnEntry.residue_j) &&
+						!rvds.SpeciesEntry.Molecule_Names_rProtein.some(el => el === npnEntry.bp_type)){
+							rvds.SpeciesEntry.Molecule_Names_rProtein.push(npnEntry.bp_type);
+							rvds.SpeciesEntry.internal_protein_names.push(npnEntry.bp_type);
+							var chainID = protChains.filter(ch => ch.MoleculeName === npnEntry.bp_type).map(({ChainName}) => ChainName)
+							if (chainID){ rvds.SpeciesEntry.RNA_Chains_rProtein.push(chainID[0])}
+					}
+				})
+			})
+			populateProteinMenuHelper();
+		},
+		error: function(error) {
+			console.log(error);
+		}
+	});
+}
+
+function populateProteinMenuHelper(){
+	var pl = document.getElementById("ProtList");
+	pl.options.length = 0;
+	$.each(rvDataSets, function(speciesIndex,rvds){
+		$('#ProtList').append('<optgroup label="'+rvds.Name.split('_')[1]+' Proteins" id="ProtList' + speciesIndex + '" />');
+		$.each(rvds.SpeciesEntry.Molecule_Names_rProtein, function (index, value) {
+			$('#ProtList' + speciesIndex).append(new Option(rvds.SpeciesEntry.Molecule_Names_rProtein[index], rvds.SpeciesEntry.internal_protein_names[index]));
+		});
+		rvds.SpeciesEntry["SubunitProtChains"] = rvds.SpeciesEntry.SubunitProtChains;
+	})
+	$("#ProtList").multiselect("refresh");
 }
 
 function populateDomainHelixMenu() {

@@ -15,6 +15,7 @@ from json2html import *
 
 # import modules written for this project
 from Residues import Residues
+from Chains import Chains
 from SpeciesTable import SpeciesTable
 from FetchMasterList import FetchMasterList
 from StructureLookup import StructureLookup
@@ -59,6 +60,7 @@ api = Api(app)
 # Here, we are passing the cnx object as an input argument. 
 
 api.add_resource(Residues, '/RiboVision/v1.0/fetchResidues', resource_class_kwargs={ 'db': db });
+api.add_resource(Chains, '/RiboVision/v1.0/fetchChains', resource_class_kwargs={ 'db': db });
 api.add_resource(SpeciesTable, '/RiboVision/v1.0/speciesTable', resource_class_kwargs={ 'db': db });
 api.add_resource(FetchMasterList, '/RiboVision/v1.0/fetchMasterList', resource_class_kwargs={ 'db': db });
 api.add_resource(StructureLookup, '/RiboVision/v1.0/fetchStructureName', resource_class_kwargs={ 'db': db });
