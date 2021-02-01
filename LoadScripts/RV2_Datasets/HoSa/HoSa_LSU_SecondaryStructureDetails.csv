@@ -1,3 +1,3 @@
 Species_Name,Species_Abr,Subunit,SS_Table,Font_Size_SVG,Font_Size_Canvas,Circle_Radius
-Homo sapiens,HoSa,LSU,HUMAN_LSU,3.5,2.8,1.9
-Homo sapiens,HoSa,SSU,HUMAN_SSU,3.5,2.8,1.9
+Homo sapiens,HUMAN,LSU,HUMAN_LSU,3.5,2.8,1.9
+Homo sapiens,HUMAN,SSU,HUMAN_SSU,3.5,2.8,1.9
