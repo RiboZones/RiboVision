@@ -1361,8 +1361,7 @@ function ProcessBubble(ui,targetLayerName){
 		case "AlnBubbles" :
 			$.each(rvDataSets, function(index, value) {
 				var targetLayer = rvDataSets[index].getLayer(targetLayerName);
-				colorMapping(targetLayer,ui.data("colName"),ui.data("OverRideColors"),ui.data("indexMode"),ui.data("rePlaceData"));
-				drawNavLine();
+				updateStructData(ui,targetLayer);
 			});
 			break;
 		case "StructDataBubbles" :
@@ -2835,8 +2834,13 @@ function populateStructDataMenu(structureName) {
 				} else {
 					var title = "Data Description is missing.";
 				}
+				if (NewSDPair.HelpLink == 'AlignmentData'){
+					$("#AlnBubbles").append($('<h3 class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom" style="text-align:center;padding:0.2em">')
+					.text(NewSDPair.StructDataName).attr('name',ColName).attr('title',title).data("ColName",ColName).data("OverRideColors",NewSDPair.ColorList).data("indexMode",NewSDPair.IndexMode).data("rePlaceData",NewSDPair.ExtraArg));
+				}else{
 				$("#StructDataBubbles").append($('<h3 class="dataBubble ui-helper-reset ui-corner-all ui-state-default ui-corner-bottom" style="text-align:center;padding:0.2em">')
 				.text(NewSDPair.StructDataName).attr('name',ColName).attr('title',title).data("ColName",ColName).data("OverRideColors",NewSDPair.ColorList).data("indexMode",NewSDPair.IndexMode).data("rePlaceData",NewSDPair.ExtraArg));
+				}
 			})
 		}
 	})
