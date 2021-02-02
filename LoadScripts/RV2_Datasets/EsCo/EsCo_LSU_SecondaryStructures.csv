@@ -1,4 +1,4 @@
-map_Index,molName,resNum,unModeResName,modResName,X,Y,SS_Table
+map_Index,molName,resNum,unModResName,modResName,X,Y,SS_Table
 1,23S,1,G,G,405.009,484.355,ECOLI_LSU
 2,23S,2,G,G,405.009,481.355,ECOLI_LSU
 3,23S,3,U,U,405.009,478.355,ECOLI_LSU

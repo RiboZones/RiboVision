@@ -1,3 +1,3 @@
-Species_Name,Species_Abr,Subunit,SS_Table,Font_Size_SVG,Font_Size_Canvas,Circle_Radius
-Thermus thermophilus hb8,THET8,LSU,THET8_LSU,3.9,3.1,2.1
-Thermus thermophilus hb8,THET8,SSU,THET8_SSU,3.9,3.1,2.1
+Species_Name,Species_Abr,SS_Table,Font_Size_SVG,Font_Size_Canvas,Circle_Radius
+Thermus thermophilus hb8,THET8,THET8_LSU,3.9,3.1,2.1
+Thermus thermophilus hb8,THET8,THET8_SSU,3.9,3.1,2.1

@@ -1,4 +1,4 @@
-map_Index,molName,resNum,unModeResName,modResName,X,Y,SS_Table
+map_Index,molName,resNum,unModResName,modResName,X,Y,SS_Table
 1,5.8S,1,C,C,429.489025,445.496475,HUMAN_LSU
 2,5.8S,2,G,G,429.1608,442.137275,HUMAN_LSU
 3,5.8S,3,A,A,427.656,438.579525,HUMAN_LSU
