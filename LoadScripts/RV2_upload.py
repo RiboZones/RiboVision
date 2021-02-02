@@ -42,7 +42,6 @@ def readCSVsInTables(listOfCSVPaths):
             csvData[tableName] = read_csv(f)
     return csvData
 
-
 def checkParametersExistInTable(cursor, namedParameters, table):
     '''Checks the presence of named parameters in a table.
     The parameter names are used for the column names.
@@ -238,7 +237,7 @@ def main(commandline_arguments):
     cursor.close()
     cnx.close()
     
-    print("Don't forget to remove your password!")
+    print("Success!")
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))

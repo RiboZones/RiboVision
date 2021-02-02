@@ -1,0 +1,40 @@
+INSERT INTO `StructDataMenu`(`StructDataName`, `StructureName`)  VALUES('Shannon_Entropy', '4V6W')
+INSERT INTO `StructDataMenu`(`StructDataName`, `StructureName`)  VALUES('mean_tempFactor', '4V6W')
+INSERT INTO `StructDataMenu`(`StructDataName`, `StructureName`)  VALUES('PASE', '4V6W')
+Now processing data from the Interactions table...
+Now processing data from the SecondaryStructures table...
+Now processing data from the ConservationTable table...
+Now processing data from the SecondaryStructureDetails table...
+Now processing data from the StructuralData2 table...
+Now processing data from the StructuralData3 table...
+Now processing data from the ChainList table...
+Don't forget to remove your password!
+INSERT INTO `StructDataMenu`(`StructDataName`, `StructureName`)  VALUES('Shannon_Entropy', '4V9F')
+INSERT INTO `StructDataMenu`(`StructDataName`, `StructureName`)  VALUES('Mg_ions_24', '4V9F')
+INSERT INTO `StructDataMenu`(`StructDataName`, `StructureName`)  VALUES('Mg_ions_26', '4V9F')
+INSERT INTO `StructDataMenu`(`StructDataName`, `StructureName`)  VALUES('PASE', '4V9F')
+INSERT INTO `StructDataMenu`(`StructDataName`, `StructureName`)  VALUES('Mg_ions_60', '4V9F')
+INSERT INTO `StructDataMenu`(`StructDataName`, `StructureName`)  VALUES('mean_tempFactor', '4V9F')
+INSERT INTO `MasterTable`(`SpeciesName`, `LoadString`, `StructureName`, `Active`, `DataSetType`, `Species_Abr`)  VALUES('Homo sapiens', 'HUMAN_LSU&HUMAN_SSU', '4V6X', '1', 'ribosome', 'HUMAN')
+INSERT INTO `Secondary_Tertiary`(`DefaultStructure`, `StructureName`, `SS_Table`)  VALUES('1', '4V6X', 'HUMAN_LSU')
+INSERT INTO `Secondary_Tertiary`(`DefaultStructure`, `StructureName`, `SS_Table`)  VALUES('1', '4V6X', 'HUMAN_SSU')
+INSERT INTO `StructDataMenu`(`StructDataName`, `StructureName`)  VALUES('Shannon_Entropy', '4V6X')
+INSERT INTO `StructDataMenu`(`StructDataName`, `StructureName`)  VALUES('mean_tempFactor', '4V6X')
+INSERT INTO `StructDataMenu`(`StructDataName`, `StructureName`)  VALUES('PASE', '4V6X')
+INSERT INTO `StructDataMenu`(`StructDataName`, `StructureName`)  VALUES('Shannon_Entropy', '4V6U')
+INSERT INTO `StructDataMenu`(`StructDataName`, `StructureName`)  VALUES('mean_tempFactor', '4V6U')
+INSERT INTO `StructDataMenu`(`StructDataName`, `StructureName`)  VALUES('PASE', '4V6U')
+INSERT INTO `StructDataMenu`(`StructDataName`, `StructureName`)  VALUES('Shannon_Entropy', '4V88')
+INSERT INTO `StructDataMenu`(`StructDataName`, `StructureName`)  VALUES('Mg_ions_24', '4V88')
+INSERT INTO `StructDataMenu`(`StructDataName`, `StructureName`)  VALUES('Mg_ions_26', '4V88')
+INSERT INTO `StructDataMenu`(`StructDataName`, `StructureName`)  VALUES('PASE', '4V88')
+INSERT INTO `StructDataMenu`(`StructDataName`, `StructureName`)  VALUES('Mg_ions_60', '4V88')
+INSERT INTO `StructDataMenu`(`StructDataName`, `StructureName`)  VALUES('mean_tempFactor', '4V88')
+INSERT INTO `MasterTable`(`SpeciesName`, `LoadString`, `StructureName`, `Active`, `DataSetType`, `Species_Abr`)  VALUES('Thermus thermophilus hb8', 'THET8_LSU&THET8_SSU', '1VY4', '1', 'ribosome', 'THET8')
+INSERT INTO `StructDataMenu`(`StructDataName`, `StructureName`)  VALUES('Shannon_Entropy', '1VY4')
+INSERT INTO `StructDataMenu`(`StructDataName`, `StructureName`)  VALUES('Mg_ions_24', '1VY4')
+INSERT INTO `StructDataMenu`(`StructDataName`, `StructureName`)  VALUES('Mg_ions_26', '1VY4')
+INSERT INTO `StructDataMenu`(`StructDataName`, `StructureName`)  VALUES('Mg_ions_60', '1VY4')
+INSERT INTO `StructDataMenu`(`StructDataName`, `StructureName`)  VALUES('mean_tempFactor', '1VY4')
+========================================================================================================
+./LoadScripts/RV2_upload.py ./LoadScripts/RV2_Datasets/HaMa -commit | tee -a ./LoadScripts/HM_mysql_insertions.txt
