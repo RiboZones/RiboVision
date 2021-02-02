@@ -18,6 +18,16 @@
 				"run",
 			],
 			"jinja": true
-		}
+		},
+		{
+			"name": "Python: RV2_upload",
+			"type": "python",
+			"request": "launch",
+			"program": "./LoadScripts/RV2_upload.py",
+			"console": "integratedTerminal",
+			"args": [
+				"./LoadScripts/RV2_Datasets/DrMe",
+			],
+		},
 	]
 }
