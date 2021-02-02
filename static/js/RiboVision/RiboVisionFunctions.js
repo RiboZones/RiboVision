@@ -687,7 +687,7 @@ function colorProcess(DataInput, indexMode,targetLayer,colors,SwitchPoint,SkipDr
 		return;
 	}
 	
-	if (indexMode == "1") {
+	if (indexMode == "TRUE") {
 		var dataIndices = data;
 	} else {
 		var dataIndices = new Array;
@@ -881,7 +881,7 @@ function colorMapping(targetLayer, colName, colorlist = "Viridis" , indexMode = 
 		return;
 	}
 	var colors = ColorLists[colorlist];
-	if(rvDataSets[targetLayer.SetNumber].Residues[0][colName] !=undefined){
+	if(rvDataSets[targetLayer.SetNumber].Residues[0] && rvDataSets[targetLayer.SetNumber].Residues[0][colName]){
 		var data = new Array;
 		for (var j = 0; j < rvDataSets[targetLayer.SetNumber].Residues.length; j++) {
 			data[j] = rvDataSets[targetLayer.SetNumber].Residues[j][colName];
@@ -897,9 +897,20 @@ function colorMapping(targetLayer, colName, colorlist = "Viridis" , indexMode = 
 			cache: false,
 			success: function(newdata) {
 				var data = new Array;
-				for (var j = 0; j < rvDataSets[targetLayer.SetNumber].Residues.length; j++) {
-					rvDataSets[targetLayer.SetNumber].Residues[j][colName] = newdata[j].Value;
-					data[j] = newdata[j].Value;
+				if (indexMode == "TRUE"){
+					$.each(rvDataSets[targetLayer.SetNumber].Residues, function(index, resi){
+						$.each(newdata, function(dataIx, dataPoint){
+							if (resi.map_Index === dataPoint.map_index){
+								rvDataSets[targetLayer.SetNumber].Residues[index][colName] = dataPoint.Value;
+								data[index] = dataPoint.Value;
+							}
+						})
+					})
+				} else {
+					for (var j = 0; j < rvDataSets[targetLayer.SetNumber].Residues.length; j++) {
+						rvDataSets[targetLayer.SetNumber].Residues[j][colName] = newdata[j].Value;
+						data[j] = newdata[j].Value;
+					}
 				}
 				//alert("Database");
 				colorProcess(data, indexMode,targetLayer,colors);
