@@ -1822,7 +1822,8 @@ function CustomDataExpand(targetLayer){
 						//var ResName = rvDataSets[targetLayer.SetNumber].SpeciesEntry.RNA_Chains[rvDataSets[targetLayer.SetNumber].SpeciesEntry.Molecule_Names.indexOf(ressplit[0])] + "_" + ressplit[1];	
 						var ResName = targetSelection.Residues[iii].uResName;
 					} else {
-						alert("this mode is being deprecated. This shouldn't happen any more");
+						var ResName = targetSelection.Residues[iii].resNum;
+					//	alert("this mode is being deprecated. This shouldn't happen any more");
 					//	var chainID =  targetSelection.Residues[iii].ChainID;
 					//	var ResName = chainID + "_" + targetSelection.Residues[iii].resNum;
 					}
