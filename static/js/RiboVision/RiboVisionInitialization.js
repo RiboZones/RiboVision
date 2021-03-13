@@ -246,7 +246,7 @@ function RiboVisionReady() {
 	$('.ui-slider-handle').height(21).width(21);
 	$("#TemplateLink").button();
 	$("#TemplateStructure").button();
-	$("#TemplateLink").attr("href", "/RiboVision/Templates/EC_LSU_3D_UserDataTemplate.csv");
+	$("#TemplateLink").attr("href", "/rv2Templates/EC_LSU_3D_UserDataTemplate.csv");
 	$( "#dialog-unique-layer-error" ).dialog({
 		resizable : false,
 		autoOpen : false,
