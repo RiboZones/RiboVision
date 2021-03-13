@@ -269,7 +269,7 @@ function processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2){
 					data: JSON.stringify([speciesInterest,speciesInterest,speciesInterest]),
 					success: function(db_residues) {
 						completedDS+=1;
-						//$("#TemplateLink").attr("href", "/static/user_data_templates/" + speciesInterest + "_UserDataTemplate.csv");
+						$("#TemplateLink").attr("href", "/RiboVision/Templates/" + speciesInterest + "_UserDataTemplate.csv");
 						processResidueData(db_residues,speciesIndex);
 
 						if (DoneLoading){
