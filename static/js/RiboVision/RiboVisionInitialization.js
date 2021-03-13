@@ -247,7 +247,7 @@ function RiboVisionReady() {
 	$("#TemplateLink").button();
 	$("#TemplateStructure").button();
 	//This is not the right template...
-	//$("#TemplateLink").attr("href", "/static/user_data_templates/EC_LSU_3D_UserDataTemplate.csv");
+	$("#TemplateLink").attr("href", "/static/user_data_templates/EC_LSU_3D_UserDataTemplate.csv");
 	$( "#dialog-unique-layer-error" ).dialog({
 		resizable : false,
 		autoOpen : false,
