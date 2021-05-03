@@ -127,7 +127,7 @@ function processCustomLabels(customResidues){
 		customLabels.LineLabels[index].X1=data.LineX1;
 		customLabels.LineLabels[index].X2=data.LineX2;
 		customLabels.LineLabels[index].Y1=data.LineY1;
-		customLabels.LineLabels[index].Y2=data.LineY1;	
+		customLabels.LineLabels[index].Y2=data.LineY2;	
 	});	
 	return customLabels;
 }
