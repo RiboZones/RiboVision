@@ -46,8 +46,8 @@ function processResidueData(ResidueData,speciesIndex){
 			item["resName"]=item["unModResName"];
 		}
 		
-		resXs[i]=item["X"];
-		resYs[i]=item["Y"];
+		resXs[i]=parseFloat(item["X"]);
+		resYs[i]=parseFloat(item["Y"]);
 
 		// Determine PageOffset
 		rvDataSets[speciesIndex].PageOffset[0] = (Math.max(resXs) > 612) ? 792 * rvDataSets[speciesIndex].SetNumber : 612 * rvDataSets[speciesIndex].SetNumber  ; //X direction

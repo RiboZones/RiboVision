@@ -299,7 +299,7 @@ function rvDataSet(DataSetName,SetNumber) {
 		this.HighlightLayer.Canvas.style.zIndex = 990 + this.SetNumber;
 	};
 	this.addResidues = function (rvResidues) {
-		this.Residues = rvResidues;
+		this.Residues = makeAllCoordinatesFloat(rvResidues);
 		this.SequenceList = makeSequenceList(rvResidues);
 		this.updateRNAchains();
 	};
@@ -763,7 +763,13 @@ function rvDataSet(DataSetName,SetNumber) {
 		this.ResidueList=ResidueListLocal;
 	}
 	// Private functions, kinda
-	
+	function makeAllCoordinatesFloat(rvResidues){
+		for (j = 0; j < rvResidues.length; j++) {
+			rvResidues[j].X = parseFloat(rvResidues[j].X).toFixed(2);
+			rvResidues[j].Y = parseFloat(rvResidues[j].Y).toFixed(2);
+		}
+		return rvResidues;
+	}
 	function makeSequenceList(rvResidues) {
 		var SequenceListLocal = "",j;
 		for (j = 0; j < rvResidues.length; j++) {
