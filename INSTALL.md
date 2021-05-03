@@ -35,3 +35,13 @@ Install the following:
 8. A development server from VS code should be able to run by starting the **Python: Flask** debugger.
 
 If you are experiencing problems reach out to one of admins.
+
+## Updating the online server
+
+Log in Apollo1 and execute the following:
+
+```bash
+cd /var/www/ribovision/
+sudo git fetch
+sudo git pull
+```
