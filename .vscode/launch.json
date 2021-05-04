@@ -26,7 +26,7 @@
 			"program": "./LoadScripts/RV2_upload.py",
 			"console": "integratedTerminal",
 			"args": [
-				"./LoadScripts/RV2_Datasets/DrMe",
+				"./LoadScripts/RV2_Datasets/BaSu",
 			],
 		},
 	]
