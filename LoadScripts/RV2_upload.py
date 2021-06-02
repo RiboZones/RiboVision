@@ -8,7 +8,7 @@ def create_and_parse_argument_options(argument_list):
     parser.add_argument('dataset_path', help='Path to dataset folder that contains CSVs for upload.', type=str)
     parser.add_argument('-host','--db_host', help='Defines database host (default: 130.207.36.75)', type=str, default='130.207.36.75')
     parser.add_argument('-schema','--db_schema', help='Defines schema to use (default: ribovision2)', type=str, default='ribovision2')
-    parser.add_argument('-user_name','--uname', help='Defines user name to use (default: ppenev)', type=str, default='ppenev')
+    parser.add_argument('-user_name','--uname', help='Defines user name to use (default: anton)', type=str, default='anton')
     parser.add_argument('-pw','--password', help='Defines user password to use', type=str)
     parser.add_argument('-commit','--commit_changes', help='Commit the changes to the DB', action="store_true")
     parser.add_argument('-dataType','--data_set_type', help='Dataset type (default: ribosome)', type=str, default='ribosome')
