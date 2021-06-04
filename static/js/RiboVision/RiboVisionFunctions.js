@@ -327,7 +327,7 @@ function getSelected(event) {
 		for (var j = 0; j < rvDataSets.length; j++){
 			if (ResiduePositions[j]){ //Need to check this, because this function could run before the second set is put in here.
 				for (var i = 0; i < ResiduePositions[j].length; i++) {
-					var resX = String(Number(ResiduePositions[j][i].X) + rvDataSets[j].PageOffset[0]);
+					var resX = String(Number(ResiduePositions[j][i].X));
 					var resY = ResiduePositions[j][i].Y;
 					if (((nx > resX) ? nx - resX : resX - nx) + ((ny > resY) ? ny - resY : resY - ny) < 2) {
 						return [i,j];
@@ -1233,7 +1233,7 @@ function mouseMoveFunction(event){
 				//var sel = getSelected(event);
 				if (sel[0] >=0){
 					rvDataSets[sel[1]].HighlightLayer.CanvasContext.beginPath();
-					rvDataSets[sel[1]].HighlightLayer.CanvasContext.arc(String(rvDataSets[sel[1]].PageOffset[0] + Number(ResiduePositions[sel[1]][sel[0]].X)), ResiduePositions[sel[1]][sel[0]].Y, 1.176 * Circle_Radius, 0, 2 * Math.PI, false);
+					rvDataSets[sel[1]].HighlightLayer.CanvasContext.arc(String(Number(ResiduePositions[sel[1]][sel[0]].X)), ResiduePositions[sel[1]][sel[0]].Y, 1.176 * Circle_Radius, 0, 2 * Math.PI, false);
 					rvDataSets[sel[1]].HighlightLayer.CanvasContext.closePath();
 					rvDataSets[sel[1]].HighlightLayer.CanvasContext.strokeStyle = "#6666ff";
 					rvDataSets[sel[1]].HighlightLayer.CanvasContext.lineWidth=Circle_Radius/1.7;
@@ -2462,8 +2462,8 @@ function canvasToSVG() {
 							if ([base_pair.residue_j,base_pair.residue_j].every(v => rvds.ResidueList.includes(v))){
 								var residue_i = MainResidueMap[base_pair.residue_i];
 								var residue_j = MainResidueMap[base_pair.residue_j];
-								var ix = (Number(residue_i.X) + pageOffsetX).toFixed(3);
-								var jx = (Number(residue_j.X) + pageOffsetX).toFixed(3);
+								var ix = (Number(residue_i.X)).toFixed(3);
+								var jx = (Number(residue_j.X)).toFixed(3);
 								output = output + '<line fill="none" stroke="' + base_pair.color_hex + '" stroke-opacity="' + base_pair.opacity + '" stroke-width="' + base_pair.lineWidth + '" stroke-linejoin="round" stroke-miterlimit="10" x1="' + ix + '" y1="' + Number(residue_i.Y).toFixed(3) + '" x2="' + jx + '" y2="' + Number(residue_j.Y).toFixed(3) + '"/>\n';
 							}
 						});
