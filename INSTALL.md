@@ -38,10 +38,16 @@ If you are experiencing problems reach out to one of admins.
 
 ## Updating the online server
 
-Log in Apollo1 and execute the following:
+After changing files in the dev3 branch and pushing the changes online, log in Apollo1 and execute the following:
 
 ```bash
 cd /var/www/ribovision/
 sudo git fetch
 sudo git pull
 ```
+
+This should bring apollo.chemistry.gatech.edu/RiboVision2 up to speed.
+
+## Adding new structure
+
+Not more than 60 characters in species name!
