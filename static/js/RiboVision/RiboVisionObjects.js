@@ -911,7 +911,7 @@ function rvDataSet(DataSetName,SetNumber) {
 		} else {
 			var FontSize=3.1;
 		}
-		//var resMod = $('input[name="ptmod"][value=on]').is(':checked');
+		var resMod = $('input[name="ptmod"][value=on]').is(':checked');
 		if (targetLayer.Type === "residues") {
 			targetLayer.clearCanvas();
 			
@@ -942,12 +942,12 @@ function rvDataSet(DataSetName,SetNumber) {
 				for (var i = this.Residues.length - 1; i >= 0; i--) {
 					targetLayer.CanvasContext.fillStyle = (targetLayer.dataLayerColors[i] || "#000000");
 					targetLayer.CanvasContext.font = this.Residues[i]["font-weight"] + " " + FontSize + 'pt "Myriad Pro", Calibri, Arial';
-					//if (resMod){
-						//targetLayer.CanvasContext.fillText(this.Residues[i].modResName, this.Residues[i].X, this.Residues[i].Y);
-					//} else {
+					if (resMod){
+						targetLayer.CanvasContext.fillText(this.Residues[i].modResName, parseFloat(this.Residues[i].X) + this.PageOffset[0], this.Residues[i].Y);
+					} else {
 					// Not adjusting Y with PageOffset for now, since it won't do anything. 
 						targetLayer.CanvasContext.fillText(this.Residues[i].resName, parseFloat(this.Residues[i].X) + this.PageOffset[0], this.Residues[i].Y);
-					//}
+					}
 				}
 			} else {
 				welcomeScreen();
