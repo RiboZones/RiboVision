@@ -4,6 +4,7 @@
 
 from flask import Flask, jsonify, request
 from flask_restful import Resource
+import simplejson
 
 class SpeciesTable(Resource):
       def __init__(self,**kwargs):
@@ -19,6 +20,6 @@ class SpeciesTable(Resource):
            r = [dict((cur.description[i][0], value) \
                for i, value in enumerate(row)) for row in cur.fetchall()]
            cur.close()
-           return jsonify(r)    
+           return simplejson.dumps(r)
         except Exception as e:
             return repr(e)

@@ -137,7 +137,7 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 					var se = {Molecule_Names : ['custom']};
 					rvDataSets[speciesIndex].addSpeciesEntry(se);
 				} else {
-					$.each(data, function (index, value) {
+					$.each(JSON.parse(data), function (index, value) {
 						try{
 							var speciesIndex = $.inArray(value.SS_Table,speciesSplit);
 						} catch (err){
