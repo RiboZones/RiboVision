@@ -13,14 +13,14 @@ class FullTable(Resource):
     
       def post(self):
         try:
-			_content = request.get_json(force=True)
-			cur= self.cnx.cursor();
-			SQLStatement = 'SELECT * FROM ConservationTable WHERE SS_Table = %s';
-			cur.execute(SQLStatement,_content)
-			r = [dict((cur.description[i][0], value)
-			   for i, value in enumerate(row)) for row in cur.fetchall()]
-			cur.close()
-			return jsonify(r) 
+            _content = request.get_json(force=True)
+            cur= self.cnx.cursor();
+            SQLStatement = 'SELECT * FROM ConservationTable WHERE SS_Table = %s';
+            cur.execute(SQLStatement,_content)
+            r = [dict((cur.description[i][0], value)
+               for i, value in enumerate(row)) for row in cur.fetchall()]
+            cur.close()
+            return jsonify(r) 
         
         except Exception as e:
             return {'error': str(e)}
