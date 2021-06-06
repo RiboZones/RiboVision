@@ -26,7 +26,7 @@ from FullTable import FullTable
 from StructDataMenu import StructDataMenu
 from StructData3 import StructData3
 from Interactions import Interactions, InteractionsMenu
-from Save1D import Save1D
+#from Save1D import Save1D
 from Save2D import Save2D
 
 from SavePML import SavePML
@@ -74,7 +74,7 @@ api.add_resource(Interactions, '/RiboVision/v1.0/fetchInteractions', resource_cl
 api.add_resource(InteractionsMenu, '/RiboVision/v1.0/fetchInteractionsMenu', resource_class_kwargs={ 'db': db });
 api.add_resource(Test, '/RiboVision/v1.0/test', resource_class_kwargs={ 'db': db });
 api.add_resource(SavePML, '/RiboVision/v1.0/savepml');
-api.add_resource(Save1D, '/RiboVision/v1.0/save1D');
+#api.add_resource(Save1D, '/RiboVision/v1.0/save1D');
 api.add_resource(Save2D, '/RiboVision/v1.0/save2D');
 
 
