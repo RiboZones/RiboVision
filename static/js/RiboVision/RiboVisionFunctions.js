@@ -2109,26 +2109,26 @@ function savePDF() {
 
 function savePML(){
 	var script = "";
-	var structureName = rvDataSets[0].SpeciesEntry.Species_Abr;
 	var cif_id = structureName[0].StructureName;
+	var speciesName = rvDataSets[0].SpeciesEntry.Species_Abr;
 	//Default option
 	script += "set bg_rgb, white\n";
 	//mmCif File. Assume first and second structure (subunits) come from the same cif file. 
-	script += "load " + cif_id + ".cif, " + structureName + "\n";
-	//script += "as cartoon, " + structureName + "\n";
-	script += "disable " + structureName + "\n";
+	script += "load " + cif_id + ".cif, " + speciesName + "\n";
+	//script += "as cartoon, " + speciesName + "\n";
+	script += "disable " + speciesName + "\n";
 	
 	$.each(rvDataSets, function(SpeciesIndex,rvds){
 		script += "\n";
 		// Layers to PyMOL
 		var dsLayers = rvds.getLayerByType(["residues","circles","contour","selected"]);
 		$.each(dsLayers, function (key, value) {
-			script += layerToPML(structureName,value,SpeciesIndex);
+			script += layerToPML(speciesName,value,SpeciesIndex);
 		});
 		script += "\n";
 		
 		//Proteins to PyMOL
-		script += proteinsToPML(structureName,SpeciesIndex);
+		script += proteinsToPML(speciesName,SpeciesIndex);
 		script += "\n";
 		
 		//Proteins to PyMOL (Custom)
@@ -2137,7 +2137,7 @@ function savePML(){
 		
 		//Selection to PyMOL
 		$.each(rvds.Selections, function (key, value) {
-			script += selectionToPML(structureName,value,SpeciesIndex);
+			script += selectionToPML(speciesName,value,SpeciesIndex);
 		});
 		script += "\ndisable RV_Sele_*\n";
 		
