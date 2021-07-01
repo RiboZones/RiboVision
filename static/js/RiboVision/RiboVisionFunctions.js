@@ -1679,10 +1679,9 @@ function customDataProcess(data_label,targetLayerName){
 			} else if ($.inArray("FontWeight", customkeys) >= 0){
 				//Do nothing, maybe need more here later;
 			} else {
-				//alert("No recognized columns found. Please check input.");
+				alert("No recognized columns found. Please check input.");
 			}
 		}
-
 		updateSelectionDiv(targetSelection.Name,targetLayer.SetNumber);
 		drawNavLine();
 	})

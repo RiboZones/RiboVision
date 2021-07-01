@@ -17,7 +17,7 @@ class SavePML(Resource):
            
             tmp = tempfile.NamedTemporaryFile(delete=False, dir='/var/tmp')
             tmp.write(layers[1]["LayerName"])
-            #tmp.write(_content["Layers"]) 
+            tmp.write(_content["Layers"]) 
             tmp.seek(0)
             return send_file(tmp.name, as_attachment=True, 
                  attachment_filename='RiboVisionFigure.pml')
