@@ -2109,9 +2109,38 @@ function savePDF() {
 
 function savePML(){
 	var structureName = rvDataSets[0].SpeciesEntry.Species_Abr;
-	var dsLayers=[];
+	//Default option
+	script += "set bg_rgb, white\n";
+	//mmCif File. Assume first and second structure (subunits) come from the same cif file. 
+	script += "load " + rvDataSets[0].SpeciesEntry.StructureName + ".cif, " + structureName + "\n";
+	//script += "as cartoon, " + structureName + "\n";
+	script += "disable " + structureName + "\n";
+	
 	$.each(rvDataSets, function(SpeciesIndex,rvds){
-		dsLayers = dsLayers.concat(rvds.getLayerByType(["residues","circles","contour","selected"]));
+		script += "\n";
+		// Layers to PyMOL
+		var dsLayers = rvds.getLayerByType(["residues","circles","contour","selected"]);
+		$.each(dsLayers, function (key, value) {
+			script += layerToPML(structureName,value,SpeciesIndex);
+		});
+		script += "\n";
+		
+		//Proteins to PyMOL
+		script += proteinsToPML(structureName,SpeciesIndex);
+		script += "\n";
+		
+		//Proteins to PyMOL (Custom)
+		script += ColorProteinsPyMOL();
+		script += "\n";
+		
+		//Selection to PyMOL
+		$.each(rvds.Selections, function (key, value) {
+			script += selectionToPML(structureName,value,SpeciesIndex);
+		});
+		script += "\ndisable RV_Sele_*\n";
+		
+		//Default zoom
+		script += "\nzoom all\n";
 	});
 	
 	//Form Submit;
