@@ -12,10 +12,11 @@ class SavePML(Resource):
             #_content = request.form.get('data', None)
             #_content = request.get_json(force=True)
             _content = json.loads(request.form.get('data', None), strict=False) # strict = False allow for escaped char
-            sn = _content["StructureName"]
+            sn = _content["cif_id"]
             script = _content["script"]
            
             tmp = tempfile.NamedTemporaryFile(delete=False, dir='/var/tmp')
+            tmp.write(sn)
             tmp.write(script)
             tmp.seek(0)
             return send_file(tmp.name, as_attachment=True, 

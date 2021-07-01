@@ -2110,10 +2110,11 @@ function savePDF() {
 function savePML(){
 	var script = "";
 	var structureName = rvDataSets[0].SpeciesEntry.Species_Abr;
+	var cif_id = structureName[0].StructureName;
 	//Default option
 	script += "set bg_rgb, white\n";
 	//mmCif File. Assume first and second structure (subunits) come from the same cif file. 
-	script += "load " + rvDataSets[0].SpeciesEntry.StructureName + ".cif, " + structureName + "\n";
+	script += "load " + cif_id + ".cif, " + structureName + "\n";
 	//script += "as cartoon, " + structureName + "\n";
 	script += "disable " + structureName + "\n";
 	
@@ -2153,7 +2154,7 @@ function savePML(){
 	hiddenField.setAttribute("type", "hidden");
 	hiddenField.setAttribute("enctype", "text/plain");
 	hiddenField.setAttribute("name", "data");
-	hiddenField.setAttribute("value", JSON.stringify({'StructureName' : structureName, 'script' : script}));
+	hiddenField.setAttribute("value", JSON.stringify({'cif_id' : cif_id, 'script' : script}));
 	form.appendChild(hiddenField);
 	document.body.appendChild(form);
 	form.submit();
