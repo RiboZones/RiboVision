@@ -1235,18 +1235,18 @@ function rvDataSet(DataSetName,SetNumber) {
 					//Regular Mode
 					
 					targetLayer.CanvasContext.beginPath();
-					targetLayer.CanvasContext.moveTo(Number(residue_i.X)+rvds.PageOffset[0], residue_i.Y);
-					targetLayer.CanvasContext.lineTo(Number(residue_j.X)+rvds.PageOffset[0], residue_j.Y);
+					targetLayer.CanvasContext.moveTo(Number(residue_i.X), residue_i.Y);
+					targetLayer.CanvasContext.lineTo(Number(residue_j.X), residue_j.Y);
 					targetLayer.CanvasContext.strokeStyle = base_pair.color;	
 					targetLayer.CanvasContext.lineWidth = base_pair.color.lineWidth;					
 					targetLayer.CanvasContext.stroke();
 					targetLayer.CanvasContext.closePath();
 					if (zoomEnabled && (rvViews[0].scale > 10)) {
 						//draw the interaction type labels here
-						var x1 = Number(residue_i.X)+rvds.PageOffset[0];
-						var x2 = Number(residue_j.X)+rvds.PageOffset[0];
+						var x1 = Number(residue_i.X);
+						var x2 = Number(residue_j.X);
 						var x12mid = x1 - ((x1 - x2) / 2);
-						var xmid = (Number(residue_i.X)+rvds.PageOffset[0]) - ((Number(residue_i.X)+rvds.PageOffset[0]) - (Number(residue_j.X)+rvds.PageOffset[0])) / 2;
+						var xmid = (Number(residue_i.X)) - ((Number(residue_i.X)) - (Number(residue_j.X))) / 2;
 						var ymid = residue_i.Y - (residue_i.Y - residue_j.Y) / 2;
 						targetLayer.CanvasContext.save();
 						targetLayer.CanvasContext.lineWidth = 0.5;
