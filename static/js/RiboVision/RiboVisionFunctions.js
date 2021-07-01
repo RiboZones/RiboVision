@@ -2232,7 +2232,7 @@ function layerToPML(PDB_Obj_Names,targetLayer,SpeciesIndex) {
 	if (rvDataSets[SpeciesIndex].Residues[0] == undefined){return};
 	
 	for (var j = 0; j < rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names.length; j++) {
-		PyMOL_obj[j] = rvDataSets[SpeciesIndex].SpeciesEntry.Species_Abr + "_" + rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names[j] + "_" + targetLayer.LayerName;
+		PyMOL_obj[j] = rvDataSets[SpeciesIndex].SpeciesEntry.Species_Abr + "_" + rvDataSets[SpeciesIndex].SpeciesEntry.RNA_Names[j] + "_" + targetLayer.LayerName;
 		script += "create " + PyMOL_obj[j] + ", " + PDB_Obj_Names[0] + " and chain " + rvDataSets[SpeciesIndex].SpeciesEntry.RNA_Chains[j] + "\n";
 		if (targetLayer.Linked){
 			script += "enable " + PyMOL_obj[j] + "\n";
