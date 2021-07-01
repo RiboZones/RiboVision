@@ -400,19 +400,21 @@ function expandSelection(command, SelectionName) {
 			}
 		} else if (comsplit[0] != "") {
 			//It is either a basic range selection or a regular expression search. Go by first number/letter for now.
-			console.log("basic range selection is no longer supported");
-		} else {
-			var re = new RegExp(comsplit[0],"g");
-			$.each(rvDataSets, function(index,rvds){
-				while ((match = re.exec(rvds.SequenceList)) != null) {
-					var start_ind = match.index;
-					var end_ind = match.index + match[0].length - 1;
-					for (var j = start_ind; j <= end_ind; j++) {
-						var targetSelection=rvds.getSelection(SelectionName);
-						targetSelection.Residues.push(rvds.Residues[j]);
+			if (comsplit[0].search(/\d/) > -1){
+				console.log("Basic range no longer supported.")
+			} else {
+				$.each(rvDataSets, function(index,rvds){
+					var re = new RegExp(comsplit[0],"g");
+					while ((match = re.exec(rvds.SequenceList)) != null) {
+						var start_ind = match.index;
+						var end_ind = match.index + match[0].length - 1;
+						for (var j = start_ind; j <= end_ind; j++) {
+							var targetSelection=rvds.getSelection(SelectionName);
+							targetSelection.Residues.push(rvds.Residues[j]);
+						}
 					}
-				}
-			});
+				});
+			}
 		}
 	}
 }
