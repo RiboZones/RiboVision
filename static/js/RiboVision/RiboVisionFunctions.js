@@ -2153,7 +2153,7 @@ function savePML(){
 	hiddenField.setAttribute("type", "hidden");
 	hiddenField.setAttribute("enctype", "text/plain");
 	hiddenField.setAttribute("name", "data");
-	hiddenField.setAttribute("value", JSON.stringify({'StructureName' : structureName, 'Layers' : dsLayers}));
+	hiddenField.setAttribute("value", JSON.stringify({'StructureName' : structureName, 'script' : script}));
 	form.appendChild(hiddenField);
 	document.body.appendChild(form);
 	form.submit();
@@ -2231,7 +2231,7 @@ function layerToPML(PDB_Obj_Names,targetLayer,SpeciesIndex) {
 	var r0,r1,curr_chain,curr_color;
 	if (rvDataSets[SpeciesIndex].Residues[0] == undefined){return};
 	
-	for (var j = 0; j < rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names.length; j++) {
+	for (var j = 0; j < rvDataSets[SpeciesIndex].SpeciesEntry.RNA_Names.length; j++) {
 		PyMOL_obj[j] = rvDataSets[SpeciesIndex].SpeciesEntry.Species_Abr + "_" + rvDataSets[SpeciesIndex].SpeciesEntry.RNA_Names[j] + "_" + targetLayer.LayerName;
 		script += "create " + PyMOL_obj[j] + ", " + PDB_Obj_Names[0] + " and chain " + rvDataSets[SpeciesIndex].SpeciesEntry.RNA_Chains[j] + "\n";
 		if (targetLayer.Linked){

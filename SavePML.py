@@ -13,11 +13,10 @@ class SavePML(Resource):
             #_content = request.get_json(force=True)
             _content = json.loads(request.form.get('data', None), strict=False) # strict = False allow for escaped char
             sn = _content["StructureName"]
-            layers = _content["Layers"]
+            script = _content["script"]
            
             tmp = tempfile.NamedTemporaryFile(delete=False, dir='/var/tmp')
-            tmp.write(layers[1]["LayerName"])
-            tmp.write(_content["Layers"]) 
+            tmp.write(script)
             tmp.seek(0)
             return send_file(tmp.name, as_attachment=True, 
                  attachment_filename='RiboVisionFigure.pml')
