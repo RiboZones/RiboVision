@@ -341,12 +341,11 @@ function getSelected(event) {
 	}
 }
 
-function expandSelection(command, SelectionName,SpeciesIndex) {
+function expandSelection(command, SelectionName) {
 	if (!SelectionName){
 		SelectionName = "Main";
 	}
-	var rvds=rvDataSets[SpeciesIndex];
-	var targetSelection=rvds.getSelection(SelectionName);
+	
 	for (var i = 0; i < command.length; i++) {
 		var com = command[i];
 		if (!com){return;};
@@ -364,6 +363,10 @@ function expandSelection(command, SelectionName,SpeciesIndex) {
 					var start_ind = MainResidueMap[start].index;
 					var end_ind = MainResidueMap[end].index;
 					
+					var SpeciesIndex = MainResidueMap[start].rvds_index
+					var rvds=rvDataSets[SpeciesIndex];
+					var targetSelection=rvds.getSelection(SelectionName);
+
 					for (var j = start_ind; j <= end_ind; j++) {
 						var res = rvds.Residues[j];
 						if (res != undefined){
@@ -374,6 +377,10 @@ function expandSelection(command, SelectionName,SpeciesIndex) {
 			} else {
 				// Single residue detected
 				var check_residue = MainResidueMap[ comsplit[0] + ":" + comsplit[1]];
+				var SpeciesIndex = check_residue.rvds_index
+				var rvds=rvDataSets[SpeciesIndex];
+				var targetSelection=rvds.getSelection(SelectionName);
+
 				if (!check_residue){
 					// Assume protein.
 					var chainID = rvds.SpeciesEntry.RNA_Chains_rProtein[rvds.SpeciesEntry.Molecule_Names_rProtein.indexOf(comsplit[0])];
@@ -393,33 +400,10 @@ function expandSelection(command, SelectionName,SpeciesIndex) {
 			}
 		} else if (comsplit[0] != "") {
 			//It is either a basic range selection or a regular expression search. Go by first number/letter for now.
-			if (comsplit[0].search(/\d/) > -1){
-				var index = comsplit[0].indexOf("-");
-				if (index != -1) {
-					//assume first moleculename
-					var molName = rvds.SpeciesEntry.Moleclue_Names[0];
-					var start = molName + ":" + comsplit[0].substring(0, index);
-					var end = molName + ":" + comsplit[0].substring(index + 1, comsplit[0].length);
-					
-					if (start && end) {
-						var start_ind = MainResidueMap[start].index;
-						var end_ind = MainResidueMap[end].index;
-						for (var j = start_ind; j <= end_ind; j++) {
-							var targetSelection=rvds.getSelection(SelectionName);
-							targetSelection.Residues.push(rvds.Residues[j]);
-						}
-					}
-				} else {
-					var molName = rvds.SpeciesEntry.Moleclue_Names[0];
-					var aloneRes = molName + ":" + comsplit[0];
-					var alone_ind = MainResidueMap[aloneRes].index;
-					if (alone_ind >=0){
-						var targetSelection=rvds.getSelection(SelectionName);
-						targetSelection.Residues.push(rvds.Residues[alone_ind]);
-					}
-				}
-			} else {
-				var re = new RegExp(comsplit[0],"g");
+			console.log("basic range selection is no longer supported");
+		} else {
+			var re = new RegExp(comsplit[0],"g");
+			$.each(rvDataSets, function(index,rvds){
 				while ((match = re.exec(rvds.SequenceList)) != null) {
 					var start_ind = match.index;
 					var end_ind = match.index + match[0].length - 1;
@@ -428,7 +412,7 @@ function expandSelection(command, SelectionName,SpeciesIndex) {
 						targetSelection.Residues.push(rvds.Residues[j]);
 					}
 				}
-			}
+			});
 		}
 	}
 }
@@ -442,8 +426,8 @@ function commandSelect(command,SeleName) {
 	}
 	command = command.split(";");
 	
+	expandSelection(command,SeleName);
 	$.each(rvDataSets, function(index,rvds){
-		expandSelection(command,SeleName,index);
 		updateSelectionDiv(SeleName,index);
 		rvds.drawResidues("residues");
 		rvds.drawSelection("selected");
@@ -516,10 +500,8 @@ function updateSelectionDiv(SeleName,SpeciesIndex) {
 	var targetSelection = rvDataSets[SpeciesIndex].getSelection(SeleName);
 	for (var i = 0; i < targetSelection.Residues.length; i++) {
 		res = targetSelection.Residues[i];
-		//text = text + rvDataSets[0].SpeciesEntry.Molecule_Names[rvDataSets[0].SpeciesEntry.RNA_Chains.indexOf(res.ChainID)] + ":" + res.resNum.replace(/[^:]*:/g, "") + "( " + res.CurrentData + " ); ";
-		//text[index] = text + rvds.SpeciesEntry.Molecule_Names[rvds.SpeciesEntry.RNA_Chains.indexOf(res.ChainID)] + ":" + res.resNum.replace(/[^:]*:/g, "") + "; ";
 		if (res != undefined){
-			updateSelectionDiv.text[SpeciesIndex] = updateSelectionDiv.text[SpeciesIndex] + res.resNum + "; ";
+			updateSelectionDiv.text[SpeciesIndex] = updateSelectionDiv.text[SpeciesIndex] + res.uResName + "; ";
 		}
 	}
 	//$("#selectDiv").html(text)
@@ -1805,7 +1787,7 @@ function CustomDataExpand(targetLayer){
 		for (var ii = 0; ii < rvDataSets[targetLayer.SetNumber].CustomData.length; ii++) {
 			var command = rvDataSets[targetLayer.SetNumber].CustomData[ii]["resNum"].split(";");
 			var targetSelection = rvDataSets[targetLayer.SetNumber].Selections[0];
-			expandSelection(command, targetSelection.Name,targetLayer.SetNumber);
+			expandSelection(command, targetSelection.Name);
 			var l = targetSelection.Residues.length;
 			if (l == SeleLen){
 				if ($.inArray("DataCol", customkeys) >= 0) {
