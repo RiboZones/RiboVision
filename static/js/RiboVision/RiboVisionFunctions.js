@@ -2108,6 +2108,7 @@ function savePDF() {
 }
 
 function savePML(){
+	var script = "";
 	var structureName = rvDataSets[0].SpeciesEntry.Species_Abr;
 	//Default option
 	script += "set bg_rgb, white\n";
