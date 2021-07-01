@@ -383,8 +383,8 @@ function expandSelection(command, SelectionName) {
 
 				if (!check_residue){
 					// Assume protein.
-					var chainID = rvds.SpeciesEntry.RNA_Chains_rProtein[rvds.SpeciesEntry.Molecule_Names_rProtein.indexOf(comsplit[0])];
-					var aloneRes = chainID + "_" + comsplit[1];
+					var ChainName = rvds.SpeciesEntry.RNA_Chains_rProtein[rvds.SpeciesEntry.Molecule_Names_rProtein.indexOf(comsplit[0])];
+					var aloneRes = ChainName + "_" + comsplit[1];
 					// Skip the residue list check for now
 					//var alone_ind = rvDataSets[0].ResidueList_rProtein.indexOf(aloneRes);
 					//if (alone_ind >=0){
@@ -1001,8 +1001,8 @@ function refreshBasePairs(BasePairTable) {
 						item.lineWidth = 0.75;
 						item.opacity = 0.5;
 						item.color_hex = '#231F20';
-						//item.residue_i=rvDataSets[index].SpeciesEntry.Molecule_Names[rvDataSets[index].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[index].Residues[item.resIndex1].ChainID)] + ":" + rvDataSets[index].Residues[item.resIndex1].resNum.replace(/[^:]*:/g, "");
-						//item.residue_j=rvDataSets[index].SpeciesEntry.Molecule_Names[rvDataSets[index].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[index].Residues[item.resIndex2].ChainID)] + ":" + rvDataSets[index].Residues[item.resIndex2].resNum.replace(/[^:]*:/g, "");
+						//item.residue_i=rvDataSets[index].SpeciesEntry.Molecule_Names[rvDataSets[index].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[index].Residues[item.resIndex1].ChainName)] + ":" + rvDataSets[index].Residues[item.resIndex1].resNum.replace(/[^:]*:/g, "");
+						//item.residue_j=rvDataSets[index].SpeciesEntry.Molecule_Names[rvDataSets[index].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[index].Residues[item.resIndex2].ChainName)] + ":" + rvDataSets[index].Residues[item.resIndex2].resNum.replace(/[^:]*:/g, "");
 					});
 					if (!rvDataSets[0].FullBasePairSet.some(el => el.bp_group === BasePairTable)){
 					FullBasePairSet=FullBasePairSet.concat(basePairs2);	
@@ -1333,7 +1333,7 @@ function BaseViewCenter(event){
 	var sel = getSelected(event);
 	if (sel[0] != -1) {
 		var res = rvDataSets[sel[1]].Residues[sel[0]];
-		var script = "center " + (rvDataSets[sel[1]].SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and " + res.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') +":" + res.ChainID;
+		var script = "center " + (rvDataSets[sel[1]].SpeciesEntry.Jmol_Model_Num_rRNA) + ".1 and " + res.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, '') +":" + res.ChainName;
 		Jmol.script(myJmol, script);
 	}
 }
@@ -1807,8 +1807,8 @@ function CustomDataExpand(targetLayer){
 					} else {
 						var ResName = targetSelection.Residues[iii].resNum;
 					//	alert("this mode is being deprecated. This shouldn't happen any more");
-					//	var chainID =  targetSelection.Residues[iii].ChainID;
-					//	var ResName = chainID + "_" + targetSelection.Residues[iii].resNum;
+					//	var ChainName =  targetSelection.Residues[iii].ChainName;
+					//	var ResName = ChainName + "_" + targetSelection.Residues[iii].resNum;
 					}
 					var k = MainResidueMap[ResName].index;
 					
@@ -2244,7 +2244,7 @@ function layerToPML(PDB_Obj_Names,targetLayer,SpeciesIndex) {
 	script += "\n";
 	
 	r0 = rvDataSets[SpeciesIndex].Residues[0].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-	curr_chain = rvDataSets[SpeciesIndex].Residues[0].ChainID;
+	curr_chain = rvDataSets[SpeciesIndex].Residues[0].ChainName;
 	curr_color = colorNameToHex(targetLayer.dataLayerColors[0]);
 	if (!curr_color || curr_color === '#000000') {
 		curr_color = '#858585';
@@ -2256,16 +2256,16 @@ function layerToPML(PDB_Obj_Names,targetLayer,SpeciesIndex) {
 		if (!residueLastColor){
 			residueLastColor = '#858585';
 		}
-		if (residue.ChainID != "") {
+		if (residue.ChainName != "") {
 			if (curr_chain == "") {
-				curr_chain = residue.ChainID;
+				curr_chain = residue.ChainName;
 				curr_color = colorNameToHex(targetLayer.dataLayerColors[i]);
 				if (!curr_color || curr_color === '#000000') {
 					curr_color = '#858585';
 				}
 				r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-			} else if (residue.ChainID == null) {
-				curr_chain = residue.ChainID;
+			} else if (residue.ChainName == null) {
+				curr_chain = residue.ChainName;
 				curr_color = colorNameToHex(targetLayer.dataLayerColors[i]);
 				if (!curr_color || curr_color === '#000000') {
 					curr_color = '#858585';
@@ -2277,7 +2277,7 @@ function layerToPML(PDB_Obj_Names,targetLayer,SpeciesIndex) {
 				} else {
 					compare_color = colorNameToHex(targetLayer.dataLayerColors[i]);
 				}
-				if (((compare_color != colorNameToHex(residueLastColor)) || (curr_chain != residue.ChainID)) || (i == (rvDataSets[SpeciesIndex].Residues.length - 1))) {
+				if (((compare_color != colorNameToHex(residueLastColor)) || (curr_chain != residue.ChainName)) || (i == (rvDataSets[SpeciesIndex].Residues.length - 1))) {
 					r1 = residueLast.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, ""); ;
 					
 					if (r0 === r1){
@@ -2295,8 +2295,8 @@ function layerToPML(PDB_Obj_Names,targetLayer,SpeciesIndex) {
 					}
 											
 					r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-					if (residue.ChainID != "") {
-						curr_chain = residue.ChainID;
+					if (residue.ChainName != "") {
+						curr_chain = residue.ChainName;
 					}
 					curr_color = colorNameToHex(targetLayer.dataLayerColors[i]);
 					if (!curr_color || curr_color === '#000000') {
@@ -2368,21 +2368,21 @@ function selectionToPML(structureName,targetSelection,SpeciesIndex){
 	
 	if(SeleResidues.length==0){return ''};
 	r0 = SeleResidues[0].resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-	curr_chain = SeleResidues[0].ChainID;
+	curr_chain = SeleResidues[0].ChainName;
 	for (var i = 1; i < SeleResidues.length; i++) {
 		var residue = SeleResidues[i];
 		var residueLast = SeleResidues[i - 1];
 		
-		if (residue.ChainID != "") {
+		if (residue.ChainName != "") {
 			if (curr_chain == "") {
-				curr_chain = residue.ChainID;
+				curr_chain = residue.ChainName;
 				r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-			} else if (residue.ChainID == null) {
-				curr_chain = residue.ChainID;
+			} else if (residue.ChainName == null) {
+				curr_chain = residue.ChainName;
 				r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
 			} else {
-				if ((residue.map_Index - residueLast.map_Index > 1 ) || (curr_chain != residue.ChainID) || (i == (SeleResidues.length - 1))) {
-					if ((i == (SeleResidues.length - 1)) && (curr_chain == residue.ChainID) && (residue.map_Index - residueLast.map_Index == 1 )){
+				if ((residue.map_Index - residueLast.map_Index > 1 ) || (curr_chain != residue.ChainName) || (i == (SeleResidues.length - 1))) {
+					if ((i == (SeleResidues.length - 1)) && (curr_chain == residue.ChainName) && (residue.map_Index - residueLast.map_Index == 1 )){
 						r1 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
 						DoneNow=true;
 					} else {
@@ -2396,8 +2396,8 @@ function selectionToPML(structureName,targetSelection,SpeciesIndex){
 					}
 											
 					r0 = residue.resNum.replace(/[^:]*:/g, "").replace(/[^:]*:/g, "");
-					if (residue.ChainID != "") {
-						curr_chain = residue.ChainID;
+					if (residue.ChainName != "") {
+						curr_chain = residue.ChainName;
 					}
 				}
 			}
@@ -2613,7 +2613,7 @@ function computeSeqTable(SpeciesIndex){
 	var WholeSet= WholeSet + "WholeSet,WholeSet\n";
 	var WholeSet= WholeSet + "resNum,resName\n";
 	$.each(rvDataSets[SpeciesIndex].Residues, function (index,residue) {
-		WholeSet+= rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names[rvDataSets[SpeciesIndex].SpeciesEntry.RNA_Chains.indexOf(residue.ChainID)] + ":" + residue.resNum.replace(/[^:]*:/g, "") + "," + residue.resName + "\n";
+		WholeSet+= rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names[rvDataSets[SpeciesIndex].SpeciesEntry.RNA_Chains.indexOf(residue.ChainName)] + ":" + residue.resNum.replace(/[^:]*:/g, "") + "," + residue.resName + "\n";
 	});
 	var OutputObject = $.csv.toArrays(WholeSet);
 	$.each(rvDataSets[SpeciesIndex].Selections, function (index, selection) {
@@ -2621,7 +2621,7 @@ function computeSeqTable(SpeciesIndex){
 			OutputObject[0].push(selection.Name,selection.Name);
 			OutputObject[1].push("resNum","resName");
 			$.each(selection.Residues, function (index, residue) {
-				OutputObject[2+index].push(rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names[rvDataSets[SpeciesIndex].SpeciesEntry.RNA_Chains.indexOf(residue.ChainID)] + ":" + residue.resNum.replace(/[^:]*:/g, ""),residue.resName);
+				OutputObject[2+index].push(rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names[rvDataSets[SpeciesIndex].SpeciesEntry.RNA_Chains.indexOf(residue.ChainName)] + ":" + residue.resNum.replace(/[^:]*:/g, ""),residue.resName);
 			});
 		}
 	});
@@ -2656,7 +2656,7 @@ function computeSeqDataTable(SpeciesIndex){
 	var WholeSet= WholeSet + "WholeSet,WholeSet\n";
 	var WholeSet= WholeSet + "resNum,resName\n";
 	$.each(rvDataSets[SpeciesIndex].Residues, function (index,residue) {
-		WholeSet+= rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names[rvDataSets[SpeciesIndex].SpeciesEntry.RNA_Chains.indexOf(residue.ChainID)] + ":" + residue.resNum.replace(/[^:]*:/g, "") + "," + residue.resName + "\n";
+		WholeSet+= rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names[rvDataSets[SpeciesIndex].SpeciesEntry.RNA_Chains.indexOf(residue.ChainName)] + ":" + residue.resNum.replace(/[^:]*:/g, "") + "," + residue.resName + "\n";
 	});
 	var OutputObject = $.csv.toArrays(WholeSet);
 	$.each(rvDataSets[SpeciesIndex].Layers, function (index, targetLayer) {
@@ -2693,13 +2693,13 @@ function computeInteractionDataTable(){
 		if (rvDataSets[SpeciesIndex].Residues[j].resNum.indexOf(":") >= 0 ){
 			var ResName1 = rvDataSets[SpeciesIndex].Residues[j].resNum;
 		} else {
-			var ResName1 = rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names[rvDataSets[SpeciesIndex].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[SpeciesIndex].Residues[j].ChainID)] +
+			var ResName1 = rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names[rvDataSets[SpeciesIndex].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[SpeciesIndex].Residues[j].ChainName)] +
 			":" + rvDataSets[SpeciesIndex].Residues[j].resNum;
 		}
 		if (rvDataSets[SpeciesIndex].Residues[k].resNum.indexOf(":") >= 0 ){
 			var ResName2 = rvDataSets[SpeciesIndex].Residues[k].resNum;
 		} else {
-			var ResName2 = rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names[rvDataSets[SpeciesIndex].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[SpeciesIndex].Residues[k].ChainID)] +
+			var ResName2 = rvDataSets[SpeciesIndex].SpeciesEntry.Molecule_Names[rvDataSets[SpeciesIndex].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[SpeciesIndex].Residues[k].ChainName)] +
 			":" + rvDataSets[SpeciesIndex].Residues[k].resNum;
 		}
 	
@@ -2951,8 +2951,8 @@ function populateDataSetProteins(proteinInteractionData){
 						if (!rvds.SpeciesEntry.Molecule_Names_rProtein.some(el => el === npnEntry.bp_type)) {
 							rvds.SpeciesEntry.Molecule_Names_rProtein.push(npnEntry.bp_type);
 							rvds.SpeciesEntry.internal_protein_names.push(npnEntry.bp_type);
-							var chainID = protChains.filter(ch => ch.MoleculeName === npnEntry.bp_type).map(({ChainName}) => ChainName)
-							if (chainID){ rvds.SpeciesEntry.RNA_Chains_rProtein.push(chainID[0])}
+							var ChainName = protChains.filter(ch => ch.MoleculeName === npnEntry.bp_type).map(({ChainName}) => ChainName)
+							if (ChainName){ rvds.SpeciesEntry.RNA_Chains_rProtein.push(ChainName[0])}
 						}
 						$.each(rvds.Residues, function(resiIx, resiObj){
 							if (resiObj.uResName === npnEntry.residue_i || resiObj.uResName === npnEntry.residue_j){
@@ -3271,7 +3271,7 @@ function addPopUpWindowResidue(Sele){
 	// if (rvDataSets[Sele[1]].Residues[Sele[0]].resNum.indexOf(":") >= 0 ){
 		// var ResName = rvDataSets[Sele[1]].Residues[Sele[0]].resNum;
 	// } else {
-		// var ResName = rvDataSets[Sele[1]].SpeciesEntry.Molecule_Names[rvDataSets[Sele[1]].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[Sele[1]].Residues[Sele[0]].ChainID)] +
+		// var ResName = rvDataSets[Sele[1]].SpeciesEntry.Molecule_Names[rvDataSets[Sele[1]].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[Sele[1]].Residues[Sele[0]].ChainName)] +
 		// ":" + rvDataSets[Sele[1]].Residues[Sele[0]].resNum;
 	// }
 	
@@ -3435,13 +3435,13 @@ function addPopUpWindowLine(SeleLine){
 	/* if (residue_j.resNum.indexOf(":") >= 0 ){
 		var ResName1 = residue_j.resNum;
 	} else {
-		// var ResName1 = rvDataSets[SeleLine[1]].SpeciesEntry.Molecule_Names[rvDataSets[SeleLine[1]].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[SeleLine[1]].Residues[j].ChainID)] +
+		// var ResName1 = rvDataSets[SeleLine[1]].SpeciesEntry.Molecule_Names[rvDataSets[SeleLine[1]].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[SeleLine[1]].Residues[j].ChainName)] +
 		// ":" + rvDataSets[SeleLine[1]].Residues[j].resNum;
 	}
 	if (residue_k.resNum.indexOf(":") >= 0 ){
 		var ResName2 = residue_j.resNum;
 	} else {
-		//var ResName2 = rvDataSets[SeleLine[1]].SpeciesEntry.Molecule_Names[rvDataSets[SeleLine[1]].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[SeleLine[1]].Residues[k].ChainID)] +
+		//var ResName2 = rvDataSets[SeleLine[1]].SpeciesEntry.Molecule_Names[rvDataSets[SeleLine[1]].SpeciesEntry.RNA_Chains.indexOf(rvDataSets[SeleLine[1]].Residues[k].ChainName)] +
 		//":" + rvDataSets[SeleLine[1]].Residues[k].resNum;
 	} */
 	$('#BasePairType').html("Interaction Type: " +  targetLayer[0].DataLabel);
