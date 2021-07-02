@@ -90,6 +90,8 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 	var speciesSplit=species.split("&");
 	//ResiduePositions=[[]];
 	MainResidueMap=[[]];
+	ActiveBasePairSet=[[]];
+	FullBasePairSet=[[]];
 
 	// if (rvDataSets[0].Name != "EmptyDataSet"){
 	// 	$.each(rvDataSets, function (index, rvds) {
