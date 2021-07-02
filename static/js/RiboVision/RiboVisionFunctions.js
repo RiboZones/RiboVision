@@ -2148,7 +2148,7 @@ function savePML(){
 	//Form Submit;
 	var form = document.createElement("form");
 	form.setAttribute("method", "post");
-	form.setAttribute("action", "RiboVision/v1.0/savepml");
+	form.setAttribute("action", "RiboVision/v1.0/SavePML");
 	form.setAttribute("target", "_blank");
 	var hiddenField = document.createElement("input");
 	hiddenField.setAttribute("type", "hidden");
